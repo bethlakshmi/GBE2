@@ -1,0 +1,5 @@
+# Git ignore directives
+
+db.sqlite3        #  ignore sqlite db
+*~                #  ignore emacs temp files
+*.py[cod]         #  ignore compiled python files
