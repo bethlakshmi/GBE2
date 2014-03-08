@@ -16,3 +16,5 @@ Until we have a better build process, here's how to get up to scratch:
     $ git checkout
 
 (this should make sure that django-admin and manage.py take all necessary steps to create the project and the app correctly)
+
+(note, this will only be necessary on your first checkout)  
