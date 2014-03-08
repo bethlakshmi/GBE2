@@ -11,10 +11,13 @@ Until we have a better build process, here's how to get up to scratch:
     cd into the newly-created GBE2 directory and delete the expo directory (!)
     $ django-admin.py startproject expo
     $ cd expo
-    $ python manage.py startapp gbe
-    $ cd ..
-    $ git checkout
+    $ python manage.py startapp gbe 
+    $ cd gbe
+    $ git checkout *
 
 (this should make sure that django-admin and manage.py take all necessary steps to create the project and the app correctly)
 
 (note, this will only be necessary on your first checkout)  
+
+
+(I don't like this much, and I'd love to have suggestions to improve it)
