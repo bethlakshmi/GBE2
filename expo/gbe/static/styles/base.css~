@@ -1,0 +1,15 @@
+/* Base CSS styling for burlexpo */
+
+div#banner {
+    position="top center";
+}
+
+div#left_nav {
+    width=100px;
+    float:left;
+}
+div#main-content {
+    float:right;
+}
+
+

@@ -1,7 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Create your models here
+
+class Biddable (models.Model):
+    '''
+    Abstract base class for items which can be Bid
+    Essentially, specifies that we want something with a title
+    '''
+    title = models.CharField(max_length=128)  
+    description = models.TextField(blank=True)
+    class Meta:
+#        abstract=True
+        verbose_name="biddable item"
+        verbose_name_plural = "biddable items"
 
 class Profile(models.Model):
     '''
@@ -42,7 +54,78 @@ class Profile(models.Model):
     is_performer = models.BooleanField()
     is_vendor = models.BooleanField()
     
+
+class Performer (models.Model):
+    '''
+    A single performer, duo or small group, or a troupe.
+    '''
+    contact = models.ForeignKey(Profile)
+    homepage = models.URLField(blank=True)
+    bio = models.TextField()
+    experience = models.IntegerField()
+    awards = models.TextField(blank=True)
+    hotel = models.BooleanField()
+#    promo_image = models.ImageField(upload_to="uploads/images")
+#    promo_video = models.FileField(upload_to="uploads/video", blank=True)
+
     
+
+class AudioInfo(models.Model):
+    '''
+    Information about the audio required for a particular Act
+    '''
+    title = models.CharField(max_length=128)
+    artist = models.CharField(max_length=123)
+    track = models.FileField(upload_to="uploads/audio")
+    duration = models.TextField(max_length=50)  
+        # should write a DurationField for this to do it properly
+    need_mic = models.BooleanField(default=False)
+    notes = models.TextField()    
+
+stage_lighting_options = (('White', 'White'), ('Amber', 'Amber'),
+                          ('Blue', 'Blue'), ('Cyan', 'Cyan'),
+                          ('Green', 'Green'), ('Orange', 'Orange'),
+                          ('Pink', 'Pink'), ('Purple', 'Purple'),
+                          ('Red', 'Red'), ('Yellow', 'Yellow'), 
+                          ('No lights (not recommended)', 'No lights'))
+
+vendor_lighting_options = (('White', 'White'), 
+                          ('Blue', 'Blue'), 
+                          ('Red', 'Red'),
+                          ('No lights (not recommended)', 'No lights'))
+
+class LightingInfo(models.Model):
+    '''
+    Information about the lighting needs of a particular Act
+    '''
+    stage_color = models.CharField(max_length=25,
+                                   choices=stage_lighting_options )
+    stage_second_color = models.CharField(max_length=25,
+                                          choices=stage_lighting_options)
+    cyc_color = models.CharField(max_length='25', 
+                                 choices=stage_lighting_options)
+    follow_spot = models.BooleanField()
+    backlight = models.BooleanField()
+    notes = models.TextField()
+
+class PropsInfo(models.Model):
+    '''
+    Information about the props requirements for a particular Act
+    '''
+    set_props = models.BooleanField()
+    clear_props = models.BooleanField()
+    cue_props = models.BooleanField()
+    notes = models.TextField()
+                             
+class TechInfo (models.Model):
+    audio = models.ForeignKey(AudioInfo)
+    lighting = models.ForeignKey(LightingInfo)
+    props = models.ForeignKey(PropsInfo)
+    
+
+vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
+                (4, "No Comment"), (5, "Weak No"), (6, "No"), 
+                (7, "Strong No"), (0, "Undecided"), (-1, "Author"))
     
 
 class Act (Biddable):
@@ -61,6 +144,15 @@ class Act (Biddable):
     duration = models.CharField(max_length=50)
     intro_text = models.TextField()
     tech = models.ForeignKey(TechInfo)
+
+class Room(models.Model):
+    '''
+    A room at the expo center
+    '''
+    name = models.CharField(max_length=50)
+    overbook_size = models.IntegerField()
+
+
     
 class Event (models.Model):
     '''
@@ -83,95 +175,6 @@ class Event (models.Model):
     notes = models.TextField()  #internal notes about this event
     
 
-
-class Performer (models.Model):
-    '''
-    A single performer, duo or small group, or a troupe.
-    '''
-    contact = models.ForeignKey(Profile)
-    homepage = models.URLField(blank=True)
-    bio = models.TextField()
-    experience = models.IntegerField()
-    awards = models.TextField(blank=True)
-    hotel = models.BooleanField()
-    promo_image = models.ImageField(upload_to="uploads/images")
-    promo_video = models.FileField(upload_to="uploads/video", blank=True)
-
-    
-
-class AudioInfo(models.Model):
-    '''
-    Information about the audio required for a particular Act
-    '''
-    title = models.CharField(max_length=128)
-    artist = models.CharField(max_length=123)
-    track = models.FileUploadField(upload_to="uploads/audio")
-    duration = models.TextField(max_length=50)  
-        # should write a DurationField for this to do it properly
-    need_mic = models.BooleanField(default=False)
-    notes = models.TextField()    
-
-stage_lighting_options = (('White', 'White'), ('Amber', 'Amber'),
-                          ('Blue', 'Blue'), ('Cyan', 'Cyan'),
-                          ('Green', 'Green'), ('Orange', 'Orange'),
-                          ('Pink', 'Pink'), ('Purple', 'Purple'),
-                          ('Red', 'Red'), ('Yellow', 'Yellow'), 
-                          ('No lights (not recommended)', 'No lights'))
-
-vendor_lighting_options = (('White', 'White'), 
-                          ('Blue', 'Blue'), 
-                          ('Red', 'Red'),
-                          ('No lights (not recommended)', 'No lights'))
-
-class LightingInfo(models.Model):
-    '''
-    Information about the lighting needs of a particular Act
-    '''
-    stage_color = models.CharField(choices=stage_lighting_options )
-    stage_second_color = models.CharField(choices=stage_lighting_options)
-    cyc_color = models.CharField(choices=stage_lighting_options)
-    follow_spot = models.BooleanField()
-    backlight = models.BooleandField()
-    notes = models.TextField()
-
-class PropsInfo(models.Model):
-    '''
-    Information about the props requirements for a particular Act
-    '''
-    set_props = models.BooleanField()
-    clear_props = models.BooleanField()
-    cue_props = models.BooleanField()
-    notes = models.TextField()
-                             
-class TechInfo (models.Model):
-    audio = models.ForeignKey(AudioInfo)
-    lighting = models.ForeighKey(LightingInfo)
-    props = models.ForeignKey(PropsInfo)
-    
-
-class Biddable (models.Model):
-    '''
-    Abstract base class for items which can be Bid
-    Essentially, specifies that we want something with a title
-    '''
-    title = models.CharField(max_length=128)  
-    description = models.TextField(blank=True)
-    class Meta:
-        abstract=True
-
-
-vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
-                (4, "No Comment"), (5, "Weak No"), (6, "No"), 
-                (7, "Strong No"), (0, "Undecided"), (-1, "Author"))
-
-class BidEvaluation(models.Model):
-    '''
-    A response to a bid, cast by a privileged GBE staff member
-    '''
-    evaluator = models.ForeignKey(Profile)
-    vote = models.IntegerField(choices = vote_options)
-    notes = models.TextField()
-    bid = models.ForeignKey(Bid)
     
 class Bid(models.Model):
     '''
@@ -181,7 +184,18 @@ class Bid(models.Model):
     bid_item = models.ForeignKey(Biddable)
     bidder = models.ForeignKey(Profile)
     class Meta:
-        abstract=True
+        verbose_name = 'bid'
+        verbose_name_plural = 'bids'
+    
+
+class BidEvaluation(models.Model):
+    '''
+    A response to a bid, cast by a privileged GBE staff member
+    '''
+    evaluator = models.ForeignKey(Profile)
+    vote = models.IntegerField(choices = vote_options)
+    notes = models.TextField()
+    bid = models.ForeignKey(Bid)
 
 
 
@@ -201,10 +215,3 @@ class VendorBid(Bid):
     Vendors have to bid, too
     '''
     pass
-
-class Room(models.Model):
-    '''
-    A room at the expo center
-    '''
-    name = models.CharField(max_length=50)
-    overbook_size = models.IntegerField()

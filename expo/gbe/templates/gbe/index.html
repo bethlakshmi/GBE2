@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}
+  Great Burlesque Exposition 
+{% endblock %}
+
+{% block content %}
+  Events At GBE:
+  {% if events_list %}
+    <ul>
+    {% for event in events_list %}
+      <li>  {{ event.title }} </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>No events are available </p>
+
+  {% endif %}
+
+{% endblock %}

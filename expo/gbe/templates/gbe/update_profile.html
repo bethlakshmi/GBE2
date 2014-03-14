@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  GBE: Profile
+{% endblock %}
+
+{% block content %}
+<p class="vanilla">This is a profile page. You should be redirected here after logging in.</p>
+
+   {% if form.errors %}
+     <p style="color:red"> Please correct the booboos </p>
+   {% endif %}
+   <form action="" method="post">
+   {% csrf_token %}
+
+   {{ form.as_p }}
+   <input type="submit" value="Update my account"> 
+   </form>
+
+
+{% endblock %}

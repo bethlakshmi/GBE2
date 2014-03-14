@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+   Create an Account
+{% endblock %}
+
+{% block content %}
+  {% if form.errors %}
+    <p style= "color:red"> Looks like you screwed up. </p>
+
+  {% endif %}
+   <p class="vanilla">Register for an account </p>
+   <form action="" method="post">
+   {% csrf_token %}
+
+   {{ form.as_p }}
+   <input type="submit" value="Bang me out an account"> 
+   </form>
+
+{% endblock %}
