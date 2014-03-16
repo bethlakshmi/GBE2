@@ -14,6 +14,8 @@ Until we have a better build process, here's how to get up to scratch:
     $ python manage.py startapp gbe 
     $ cd gbe
     $ git checkout *
+    $ python manage.py syncdb
+(the last command works in django 1.6, but it's "migrate" in 1.7)
 
 (this should make sure that django-admin and manage.py take all necessary steps to create the project and the app correctly)
 
