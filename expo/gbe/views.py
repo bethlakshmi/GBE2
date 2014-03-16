@@ -30,6 +30,7 @@ def act(request, act_id):
     act = get_object_or_404(Atc, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 
+@login_required
 def profile(request):
     return render(request, 'gbe/profile.html')
     

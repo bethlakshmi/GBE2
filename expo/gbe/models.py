@@ -30,16 +30,15 @@ class Profile(models.Model):
     # but for now, let's just take what we get
 
     address1 = models.CharField(max_length=128)
-    address2 = models.CharField(max_length=128, blank=False)
+    address2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=128)
     state = models.CharField(max_length=2) # should do a choice list 
                                            # here, I guess
     zip_code = models.CharField(max_length=10)  # allow for ext. ZIP
     country = models.CharField(max_length=128)
     phone = models.CharField(max_length=50)
-    best_time = models.CharField(max_length=50)
-
-    how_heard = models.TextField()
+    best_time = models.CharField(max_length=50, blank=True)
+    how_heard = models.TextField(blank=True)
     
 
     # participant status
@@ -163,8 +162,8 @@ class Event (models.Model):
     from participant bids.  
     '''
     title = models.CharField(max_length=128)
-    description = models.TextField()
-    blurb = models.TextField()
+    description = models.TextField()  # public-facing description 
+    blurb = models.TextField()        # short description
     duration = models.IntegerField()  # for now, let's store this 
                                       # as good old half-hour blocks
 
@@ -173,8 +172,35 @@ class Event (models.Model):
                                         # to  implement some scheduling
     room = models.ForeignKey(Room)
     notes = models.TextField()  #internal notes about this event
-    
+    organizer = models.ManyToManyField(Profile)  # Perhaps should be
+                                                 # more specific?
 
+
+class Show (Event):
+    '''
+    A Show is an Event consisting of a sequence of performances by Acts. 
+    '''
+    acts = models.ManyToManyField(Act, related_name="appearing_in")
+    mc = models.ManyToManyField(Profile, related_name="mc_for")      
+    
+                                                
+class Class (Event):
+    '''
+    A Class is an Event where one or a few people
+    teach/instruct/guide/mediate and a number of participants
+    spectate. Usually, there will be a limited space and
+    pre-registration will be at least permitted and usually
+    encourged. 
+    '''
+    teacher = models.ForeignKey(Performer)  # not all teachers will be
+                                            # performers, but we're
+                                            # going to want
+                                            # performer-like info, so
+                                            # let's make them
+                                            # Performers. 
+    
+    registration = models.ManyToManyField(Profile)  # GBE attendees 
+                                                    # may register for classes
     
 class Bid(models.Model):
     '''
@@ -207,11 +233,14 @@ class ActBid(Bid):
 
 class ClassBid(Bid):
     '''
+    A proposed class
     Can we use this for all class-like items(panels, workshops, etc?)
     '''
+
     pass
 class VendorBid(Bid):
     '''
+    A request for a space in the marketplace.
     Vendors have to bid, too
     '''
     pass
