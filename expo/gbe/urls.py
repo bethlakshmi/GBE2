@@ -6,6 +6,8 @@ from gbe import views
 urlpatterns = patterns ('', 
                         url(r'^$', 
                             views.index),
+                        url(r'index.html', 
+                            views.index),
                         url(r'^event/(P<event_id>\d+)/$', 
                             views.event), 
                         url(r'^act/(?P<act_id>\d+)/$', 
