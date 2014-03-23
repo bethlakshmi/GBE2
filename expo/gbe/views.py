@@ -15,9 +15,9 @@ def index(request):
 
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.heml', {'event':event})
+    return render(request, 'gbe/event.html', {'event':event})
 
-def create_act(request, act_id):
+def bid_act(request, act_id=0):
     if request.method =='POST':
         form = ActForm(request.POST)
         if form.is_valid():
@@ -26,8 +26,12 @@ def create_act(request, act_id):
     else:
         form = ActForm()
 
+    return render(request, 'bids/actbid.html', {
+        'form': form,
+    })
+
 def act(request, act_id):
-    act = get_object_or_404(Atc, pk=act_id)
+    act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 
 @login_required

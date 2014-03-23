@@ -33,8 +33,25 @@ class RegistrationForm(UserCreationForm):
         
 
 class ActForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
     class Meta:
         model = Act
+        fields = '__all__'
+        
+        labels = {
+            'title': ('Title of Act'),
+        }
+        help_texts = {
+            'title': ('A short description of your act used for all summaries.'),
+        }
+        error_messages = {
+            'title': {
+                'max_length': ("The Title is too long."),
+            },
+        }
+                  
+       
 
 
 #class ClassForm(forms.ModelForm):

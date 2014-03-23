@@ -1,9 +1,13 @@
 /* Base CSS styling for burlexpo */
-
+body {
+  margin: 0px;
+  border: 0px;
+  padding: 0px;
+}
 
 div#container {
 /*    width:774px; */
-    position: fixed; top:0;
+    top:0;
 /*    margin: 0px auto 5px;*/
 }
 
@@ -217,9 +221,28 @@ div#nav ul li a:active {
 }
 
 div#main-content {
-    top: 130px; bottom: 0; left:20%; right:0;
+    margin-left: 20px; margin-right: 20px;
     overflow:scroll;
     
 }
+div#middle {
+    width: 65%;
+}
+
+div#right-side {
+    width: 30%;   
+    float: right; 
+}
+
+span.dropt {border-bottom: background: white;}
+span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
+span.dropt span {position: absolute; left: -9999px;
+  margin: 20px 0 0 0px; padding: 3px 3px 3px 3px;
+  border-style:solid; border-color:black; border-width:1px; z-index: 6;}
+span.dropt:hover span {left: 30%; background: #ffffff;} 
+span.dropt span {position: absolute; left: -9999px;
+  margin: 4px 0 0 0px; padding: 3px 3px 3px 3px; 
+  border-style:solid; border-color:black; border-width:1px;}
+span.dropt:hover span {margin: 20px 0 0 170px; background: #ffffff; z-index:6;} 
 
 
