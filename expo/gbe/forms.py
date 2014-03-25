@@ -1,4 +1,4 @@
-from gbe.models import Profile, Act, Performer, TechInfo
+from gbe.models import Profile, Act, Bio, TechInfo, ActBid
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -31,28 +31,49 @@ class RegistrationForm(UserCreationForm):
         return  user
         
 
-class ActForm(forms.ModelForm):
+class ActBidForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     class Meta:
-        model = Act
-        fields = ['title', 'performer', 'duration','description']
+        model = ActBid
+        fields = [ 'title', 'name', 'homepage', 'is_group', 'other_performers', 
+                   'experience', 'bio', 'song_name', 'artist', 'act_length', 'description',
+                   'video_choice', 'video_link', 'promo_image', 'hotel_choice',
+                   'volunteer_choice', 'conference_choice' ]
         
         labels = {
             'title': ('Title of Act'),
-            'performer': ('Act Submitter'),
-            'duration': ('Length of Act'),
+            'name': ('Stage Name or Troupe'),
+            'homepage': ('Web Site'),
+            'is_group': ('Is this a Troupe Performance?'),
+            'other_performers': ('Fellow performers'),
+            'bio': ('History'),
+            'song_name': 'Title of Song',
+            'artist': 'Name of Artist',
+            'act_length': 'Act Length',
+            'video_choice': 'Video Description',
+            'video_link': 'Link to Video',
+            'promo_image': 'Publicity Picture',
+            'hotel_choice': 'Are you staying in the hotel?',
+            'volunteer_choice': 'Are you volunteering for the event?',
+            'conference_choice': 'Are you attending the conference?',
+
         }
         help_texts = {
-            'title': ('A short description of your act used for all summaries.'),
+            'name': ('If you are a soloist, this is your stage name.  If you are a troupe, this is your troupe name.  If you are a group, but not a troupe, please give the names you would like to be introduced by'),
+            'other_performers': ('Please list other people involved/required for this act.'),
+            'bio': ('Please give a brief performer/troupe history.'),
+            'act_length': ('Length of act in mm:ss - please include any time you are performing before or after your song.'),
+            'description': ('Please give a brief description of your act. Stage kittens will retrieve costumes and props, but we cannot clean the stage after your act. Please do not leave anything on the stage (water, glitter, confetti, etc.)'),
+            'promo_image': ('Please_upload a photograph of yourself (photo must be under 10 MB)')
         }
         error_messages = {
-            'title': {
-                'max_length': ("The Title is too long."),
+            'name': {
+                'max_length': ("The name of performer or troupe is too long."),
             },
         }
                   
-       
+
 
 
 #class ClassForm(forms.ModelForm):

@@ -54,13 +54,13 @@ class Profile(models.Model):
     is_vendor = models.BooleanField()
     
 
-class Performer (models.Model):
+class Bio (models.Model):
     '''
     A single performer, duo or small group, or a troupe.
     '''
-   # contact = models.ForeignKey(Profile)
+    contact = models.ForeignKey(Profile)
     homepage = models.URLField(blank=True)
-    bio = models.TextField(blank=True)
+    bio = models.TextField()
     experience = models.IntegerField()
     awards = models.TextField(blank=True)
     hotel = models.BooleanField()
@@ -120,7 +120,7 @@ class TechInfo (models.Model):
     audio = models.ForeignKey(AudioInfo)
     lighting = models.ForeignKey(LightingInfo)
     props = models.ForeignKey(PropsInfo)
-    
+    order = models.IntegerField()    
 
 vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
                 (4, "No Comment"), (5, "Weak No"), (6, "No"), 
@@ -139,10 +139,13 @@ class Act (Biddable):
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
       # inherit title and description from Biddable
-    performer = models.ForeignKey(Performer)
+    performer_bio = models.ForeignKey(Bio)
     duration = models.CharField(max_length=50)
     intro_text = models.TextField()
     tech = models.ForeignKey(TechInfo)
+    performers = models.ManyToManyField(Profile)  # Perhaps should be
+
+
 
 class Room(models.Model):
     '''
@@ -192,7 +195,7 @@ class Class (Event):
     pre-registration will be at least permitted and usually
     encourged. 
     '''
-    teacher = models.ForeignKey(Performer)  # not all teachers will be
+    teacher = models.ForeignKey(Bio)  # not all teachers will be
                                             # performers, but we're
                                             # going to want
                                             # performer-like info, so
@@ -224,12 +227,47 @@ class BidEvaluation(models.Model):
     bid = models.ForeignKey(Bid)
 
 
+video_options = ((0, "I don't have any video of myself performing"), 
+                 (1, "This is video of me but not the act I'm submitting"),
+                 (2, "This is video of the act I would like to perform"))
 
+participate_options = (('Yes', 'Yes'), ('No', 'No'), ('Not Sure', 'Not Sure'))
+yesno_options = (("Yes", "Yes"), ("No", "No"))
+experience_options = ((0, "I'm not a burlesque performer"),
+                      (1, "Less than 1 year"),
+                      (2,"1-2 years"),
+                      (3,"3-4 years"),
+                      (4,"5-6 years"),
+                      (5,"more than 6 years"))
+ 
 class ActBid(Bid):
     '''
     An audition: a performer wants to perform in a show
     '''
-    pass
+    title = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, blank=True)
+    is_group = models.CharField(max_length=20,
+                                choices=yesno_options, default="No") 
+    homepage = models.URLField(blank=True)
+    other_performers = models.TextField(max_length = 500, blank=True)
+    experience = models.CharField(max_length=60,
+                                  choices=experience_options, default=3 )
+    bio =  models.CharField(max_length = 500)
+    artist = models.CharField(max_length = 128, blank=True)
+    song_name = models.CharField(max_length = 128, blank=True)
+    act_length = models.CharField(max_length = 10)
+    description = models.CharField(max_length = 128)  
+    video_choice = models.CharField(max_length=60,
+                                  choices=video_options, default=2 )
+    video_link = models.CharField(max_length = 200, blank=True)
+    promo_image = models.FileField(upload_to="uploads/images")
+    hotel_choice = models.CharField(max_length=20,
+                                  choices=participate_options, default='Not Sure')
+    volunteer_choice = models.CharField(max_length=20,
+                                  choices=participate_options, default='Not Sure')
+    conference_choice = models.CharField(max_length=20,
+                                  choices=participate_options, default='Not Sure')
+
 
 class ClassBid(Bid):
     '''
