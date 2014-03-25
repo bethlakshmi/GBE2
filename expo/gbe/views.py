@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
-from gbe.models import Event, Act
+from gbe.models import Event, Act, Performer
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -17,7 +17,7 @@ def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
-def bid_act(request, act_id=0):
+def bid_act(request, act_id=0):      
     if request.method =='POST':
         form = ActForm(request.POST)
         if form.is_valid():

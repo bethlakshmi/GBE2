@@ -58,9 +58,9 @@ class Performer (models.Model):
     '''
     A single performer, duo or small group, or a troupe.
     '''
-    contact = models.ForeignKey(Profile)
+   # contact = models.ForeignKey(Profile)
     homepage = models.URLField(blank=True)
-    bio = models.TextField()
+    bio = models.TextField(blank=True)
     experience = models.IntegerField()
     awards = models.TextField(blank=True)
     hotel = models.BooleanField()

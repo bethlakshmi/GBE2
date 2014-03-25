@@ -1,8 +1,7 @@
-from gbe.models import Profile, Act
+from gbe.models import Profile, Act, Performer, TechInfo
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -37,10 +36,12 @@ class ActForm(forms.ModelForm):
     required_css_class = 'required'
     class Meta:
         model = Act
-        fields = '__all__'
+        fields = ['title', 'performer', 'duration','description']
         
         labels = {
             'title': ('Title of Act'),
+            'performer': ('Act Submitter'),
+            'duration': ('Length of Act'),
         }
         help_texts = {
             'title': ('A short description of your act used for all summaries.'),
