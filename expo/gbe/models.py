@@ -120,7 +120,7 @@ class TechInfo (models.Model):
     audio = models.ForeignKey(AudioInfo)
     lighting = models.ForeignKey(LightingInfo)
     props = models.ForeignKey(PropsInfo)
-    order = models.IntegerField()    
+    order = models.IntegerField()
 
 vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
                 (4, "No Comment"), (5, "Weak No"), (6, "No"), 
@@ -204,14 +204,22 @@ class Class (Event):
     
     registration = models.ManyToManyField(Profile)  # GBE attendees 
                                                     # may register for classes
-    
+                      
 class Bid(models.Model):
     '''
     A Bid is a proposal for an act, a class, a vendor, or whatnot.
     This is the abstract base for these various bids.
     '''
-    bid_item = models.ForeignKey(Biddable)
+    bid_states = (("Draft", "Draft"),
+                      ("Submitted", "Submitted"),
+                      ("Paid","Paid"),
+                      ("Accepted","Accepted"),
+                      ("Rejected","Rejected"),
+                      ("On Hold","On Hold"))
+    bid_item = models.ForeignKey(Biddable, blank=True)
     bidder = models.ForeignKey(Profile)
+    state = models.CharField(max_length=20,
+                             choices=bid_states, default="Draft") 
     class Meta:
         verbose_name = 'bid'
         verbose_name_plural = 'bids'
@@ -227,23 +235,24 @@ class BidEvaluation(models.Model):
     bid = models.ForeignKey(Bid)
 
 
-video_options = ((0, "I don't have any video of myself performing"), 
-                 (1, "This is video of me but not the act I'm submitting"),
-                 (2, "This is video of the act I would like to perform"))
 
-participate_options = (('Yes', 'Yes'), ('No', 'No'), ('Not Sure', 'Not Sure'))
-yesno_options = (("Yes", "Yes"), ("No", "No"))
-experience_options = ((0, "I'm not a burlesque performer"),
-                      (1, "Less than 1 year"),
-                      (2,"1-2 years"),
-                      (3,"3-4 years"),
-                      (4,"5-6 years"),
-                      (5,"more than 6 years"))
- 
 class ActBid(Bid):
     '''
     An audition: a performer wants to perform in a show
     '''
+    video_options = (('0', "I don't have any video of myself performing"), 
+                 ('1', "This is video of me but not the act I'm submitting"),
+                 ('2', "This is video of the act I would like to perform"))
+
+    participate_options = (('Yes', 'Yes'), ('No', 'No'), ('Not Sure', 'Not Sure'))
+    yesno_options = (("Yes", "Yes"), ("No", "No"))
+    experience_options = (('0', "I'm not a burlesque performer"),
+                      ('1', "Less than 1 year"),
+                      ('2',"1-2 years"),
+                      ('3',"3-4 years"),
+                      ('4',"5-6 years"),
+                      ('5',"more than 6 years"))
+ 
     title = models.CharField(max_length=128)
     name = models.CharField(max_length=128, blank=True)
     is_group = models.CharField(max_length=20,
@@ -252,7 +261,7 @@ class ActBid(Bid):
     other_performers = models.TextField(max_length = 500, blank=True)
     experience = models.CharField(max_length=60,
                                   choices=experience_options, default=3 )
-    bio =  models.CharField(max_length = 500)
+    bio =  models.TextField(max_length = 500)
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
     act_length = models.CharField(max_length = 10)

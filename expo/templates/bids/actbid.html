@@ -110,7 +110,8 @@
   <p><font color=red>*</font> indicates a required field
   </p>
   <table border=0>
- 
+    {% csrf_token %}
+    
     {# Include the hidden fields #}
     {% for hidden in form.hidden_fields %}
     {{ hidden }}
@@ -118,14 +119,22 @@
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
         <tr>
-            {{ field.errors }}
             <td>
               {% if field.css_classes == 'required' %}
+              <font color="red">*</font>
+              {% elif field.errors %}
               <font color="red">*</font>
               {% else %}
               &nbsp;&nbsp; 
               {% endif %} 
+              {% if field.errors %}
+                <font color="red">
+              {% endif %} 
               {{ field.label_tag }} 
+              {% if field.errors %}
+                </font>
+              {% endif %} 
+
               {% if field.help_text %}
                 <span class="dropt" title="Help">
                 <img src="/static/img/question.png" 
@@ -138,6 +147,9 @@
             </td>
             <td>
               {{ field }}
+            </td>
+            <td>
+              <font color="red">{{ field.errors }}</font>
             </td>
         </tr>
     {% endfor %}
@@ -152,9 +164,9 @@
 <input type="hidden" name="currentDraft" value="1">
   <tr>
     <td colspan="2" align="center">
-    <input type="submit" value="Submit Bid">
+    <input type="submit" name="Submit" value="Submit Bid">
     &nbsp;&nbsp;&nbsp;
-    <input type="submit" value="Update Draft" name="isDraft">
+    <input type="submit" value="Update Draft" name="Draft">
     </td>
   </tr>
 </TABLE>

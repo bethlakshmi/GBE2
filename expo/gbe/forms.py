@@ -32,8 +32,8 @@ class RegistrationForm(UserCreationForm):
         
 
 class ActBidForm(forms.ModelForm):
-    error_css_class = 'error'
     required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = ActBid
         fields = [ 'title', 'name', 'homepage', 'is_group', 'other_performers', 
@@ -63,16 +63,42 @@ class ActBidForm(forms.ModelForm):
             'name': ('If you are a soloist, this is your stage name.  If you are a troupe, this is your troupe name.  If you are a group, but not a troupe, please give the names you would like to be introduced by'),
             'other_performers': ('Please list other people involved/required for this act.'),
             'bio': ('Please give a brief performer/troupe history.'),
-            'act_length': ('Length of act in mm:ss - please include any time you are performing before or after your song.'),
+            'act_length': ('Length of entire act in mm:ss - please include any time you are performing before or after your song.'),
             'description': ('Please give a brief description of your act. Stage kittens will retrieve costumes and props, but we cannot clean the stage after your act. Please do not leave anything on the stage (water, glitter, confetti, etc.)'),
             'promo_image': ('Please_upload a photograph of yourself (photo must be under 10 MB)')
         }
         error_messages = {
-            'name': {
-                'max_length': ("The name of performer or troupe is too long."),
+            'title': {
+                'required': ("The Title is required."),
+                'max_length': ("The title of the act is too long."),
             },
+
+            
+            'bio': {
+                'required': ("Performer/Troupe history is required."),
+                'max_length': ("The History  is too long."),
+            },
+
+            'act_length': {
+                'required': ("Act Length (mm:ss) is required."),
+                'max_length': ("The Act Length  is too long."),
+            },
+
+            'description': {
+                'required': ("Description of the Act is required."),
+                'max_length': ("The Description  is too long."),
+            },
+
+            'promo_image': {
+                'required': ("Please provide a photo."),
+            },
+
         }
-                  
+    def save(self):
+      if 'Submit' in self.data:
+         state = "Submitted"
+      elif 'Draft' in self.data:
+         state = "Draft"
 
 
 

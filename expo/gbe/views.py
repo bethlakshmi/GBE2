@@ -19,10 +19,10 @@ def event(request, event_id):
 
 def bid_act(request, act_id=0):      
     if request.method =='POST':
-        form = ActBidForm(request.POST)
+        form = ActBidForm(request.POST, request.FILES)
         if form.is_valid():
             new_act = form.save()
-            return HttpResponseRedirect('/act/'+new_act.id)
+            return HttpResponseRedirect('/bid/act')
     else:
         form = ActBidForm()
 
