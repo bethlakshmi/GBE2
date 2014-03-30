@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
@@ -17,18 +17,39 @@ def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
-def bid_act(request, act_id=0):      
-    if request.method =='POST':
-        form = ActBidForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_act = form.save()
-            return HttpResponseRedirect('/bid/act')
+@login_required
+def bid_act(request, actbid_id=None):   
+    try:
+      profile = request.user.profile
+    except Profile.DoesNotExist:
+      profile = Profile()
+      profile.user_object = request.user
+
+    if actbid_id:
+      act_bid = ActBid.objects.get(pk=actbid_id)
+      action = "/bid/editact/"+actbid_id+"/"	
     else:
-        form = ActBidForm()
+      act_bid = ActBid()
+      action = "/bid/act/"
+      
+    act_bid.bidder = profile
+
+    if request.method =='POST':
+        form = ActBidForm(request.POST, request.FILES, instance=act_bid, initial={'profile':profile})
+        if form.is_valid():
+            new_act = form.save(profile)
+            return HttpResponseRedirect('/bid/thankact')
+    else:
+        form = ActBidForm(instance=act_bid, initial={'name': profile.stage_name, 
+                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 
     return render(request, 'bids/actbid.html', {
-        'form': form,
+        'form': form, 'action':action
     })
+    
+@login_required
+def bid_act_thanks(request):
+    return render(request, 'bids/actthanks.html')
 
 def act(request, act_id):
     act = get_object_or_404(Act, pk=act_id)
@@ -40,14 +61,19 @@ def profile(request):
     
 @login_required
 def update_profile(request):
+    try:
+      profile = request.user.profile
+    except Profile.DoesNotExist:
+      profile = Profile()
+      profile.user_object = request.user
+    
     if request.method=='POST':
-        form = ParticipantForm(request.POST)
+        form = ParticipantForm(request.POST, instance = profile)
         if form.is_valid():
             new_user=form.save()
             return HttpResponseRedirect("/accounts/profile/")
     else:
-        form = ParticipantForm( initial = 
-                                {'user_object':request.user})
+        form = ParticipantForm( instance = profile)
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 

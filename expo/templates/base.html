@@ -62,26 +62,23 @@
              <li class='last'><a href='Bio.html?role=Staff'><span>Staff</span></a></li>
           </ul>
        </li>
-       <li class='last'><a href='/accounts/login'><span>Login</span></a></li>
+       {% if user.is_authenticated %}
+       <li class='has-sub'><a href='/accounts/logout'><span>Logout</span></a>
+          <ul>
+             <li><a href='/accounts/profile/'><span>Update Profile</span></a></li>
+          </ul>
+       </li>
+       {% else %}
+       <li class='has-sub'><a href='/accounts/login'><span>Login</span></a>
+          <ul>
+             <li><a href='/accounts/register/'><span>Register</span></a></li>
+          </ul>
+       {% endif %}
     </ul>
     </div>
     
     
             
-    <div id="nav">
-	<ul>
-	  <li><a href="/about/">About</a> </li>
-	  <li><a href="/classes/">Classes</a></li>
-	  <li><a href="/shows/">Shows</a></li>
-	  <li><a href="/accounts/profile">My Profile</a></li>
-	  <li><a href="/accounts/login">Log in</a></li>
-	  <li><a href="/accounts/logout">Log out</a></li>
-	  <li><a href="/accounts/register">Register</a></li>
-	  </ul>
-        {% block leftnav %}
-        {% endblock %}
-      </div>
-
       <div id="main-content">
         {% block content %}
         {% endblock %}

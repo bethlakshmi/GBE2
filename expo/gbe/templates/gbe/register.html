@@ -13,8 +13,8 @@
    <form action="" method="post">
    {% csrf_token %}
 
-   {{ form.as_p }}
-   <input type="submit" value="Bang me out an account"> 
+   {% include "form_table.html" %}
+   <input type="submit" value="Get Account"> 
    </form>
 
 {% endblock %}

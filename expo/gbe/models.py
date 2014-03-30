@@ -21,10 +21,22 @@ class Profile(models.Model):
     the information gathered up in the User object. (which we'll
     expose with properties, I suppose)
     '''
-    user_object = models.ForeignKey(User) 
-    display_name = models.CharField(max_length=128, blank=True) 
-        # let's just let them enter a name if they want to badge as
-        # something other than their proper name
+    
+    contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
+                          ('Text', 'Text'))
+                          
+    user_object = models.OneToOneField(User) 
+    stage_name = models.CharField(max_length=128, blank=True) 
+    display_name = models.CharField(max_length=128) 
+        # we really do need both legal and display name, we use the legal to verify 
+        # tickets purchased, and I'd like to add a switch for which name gets shown where 
+        # for bios
+      
+    # used for linking tickets  
+    purchase_email = models.CharField(max_length=64, default = '') 
+ 
+        
+        
     # contact info - I'd like to split this out to its own object
     # so we can do real validation 
     # but for now, let's just take what we get
@@ -36,22 +48,34 @@ class Profile(models.Model):
                                            # here, I guess
     zip_code = models.CharField(max_length=10)  # allow for ext. ZIP
     country = models.CharField(max_length=128)
-    phone = models.CharField(max_length=50)
+
+    # must have = a way to contact teachers & performers on site
+    # want to have = any other primary phone that may be preferred offsite
+    onsite_phone = models.CharField(max_length=50, blank=True)
+    offsite_preferred = models.CharField(max_length=50, blank=True)
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
+    preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
     
+    def __unicode__(self):  # Python 3: def __str__(self):
+        return self.display_name;
+  
 
     # participant status
     # haven't really thought this bit through yet, could change
     # radically
     # note: these are not privileges. privs are managed through the
     # User object
+    # Betty - leaving this for now, but my recommendation is to leave most of these as 
+    # determined by the state of other involvement - so a performer is a performer iff
+    # they are in a show with an act.  The ways people can drop and be change will grow
+    # over time, and this makes for one more flag.
 
-    is_paid = models.BooleanField()
-    is_volunteer = models.BooleanField()
-    is_staff = models.BooleanField()
-    is_performer = models.BooleanField()
-    is_vendor = models.BooleanField()
+    #is_paid = models.BooleanField()
+    #is_volunteer = models.BooleanField()
+    #is_staff = models.BooleanField()
+    #is_performer = models.BooleanField()
+    #is_vendor = models.BooleanField()
     
 
 class Bio (models.Model):
@@ -216,13 +240,17 @@ class Bid(models.Model):
                       ("Accepted","Accepted"),
                       ("Rejected","Rejected"),
                       ("On Hold","On Hold"))
-    bid_item = models.ForeignKey(Biddable, blank=True)
+    bid_item = models.ForeignKey(Biddable, null=True, blank=True)
     bidder = models.ForeignKey(Profile)
     state = models.CharField(max_length=20,
                              choices=bid_states, default="Draft") 
+    last_update = models.DateTimeField()
+    created_date = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         verbose_name = 'bid'
         verbose_name_plural = 'bids'
+
     
 
 class BidEvaluation(models.Model):
@@ -265,7 +293,7 @@ class ActBid(Bid):
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
     act_length = models.CharField(max_length = 10)
-    description = models.CharField(max_length = 128)  
+    description = models.TextField(max_length = 500)  
     video_choice = models.CharField(max_length=60,
                                   choices=video_options, default=2 )
     video_link = models.CharField(max_length = 200, blank=True)

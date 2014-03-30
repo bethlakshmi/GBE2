@@ -5,16 +5,15 @@
 {% endblock %}
 
 {% block content %}
-<p class="vanilla">This is a profile page. You should be redirected here after logging in.</p>
+<p class="vanilla">We promise your profile will only be used by the Great Burlesque 
+Exposition.  It will not be resold, but the Expo reserves the right to use your contact 
+info to alert you to important aspects of the Expo, your ticket purchases, and any 
+volunteer working, teaching, performances or other participation that you have selected 
+to participate in.</p>
+<form method="POST" action="/accounts/profile/" enctype="multipart/form-data">
+    {% include "form_table.html" %}
 
-   {% if form.errors %}
-     <p style="color:red"> Please correct the booboos </p>
-   {% endif %}
-   <form action="" method="post">
-   {% csrf_token %}
-
-   {{ form.as_p }}
-   <input type="submit" value="Update my account"> 
+     <input type="submit" value="Update my account"> 
    </form>
 
 

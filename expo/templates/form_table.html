@@ -1,0 +1,49 @@
+  {{ form.non_field_errors }}
+
+  <p><font color=red>*</font> indicates a required field
+  </p>
+  <table border=0>
+    {% csrf_token %}
+    
+    {# Include the hidden fields #}
+    {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+    {# Include the visible fields #}
+    {% for field in form.visible_fields %}
+        <tr>
+            <td>
+              {% if field.css_classes == 'required' %}
+              <font color="red">*</font>
+              {% elif field.errors %}
+              <font color="red">*</font>
+              {% else %}
+              &nbsp;&nbsp; 
+              {% endif %} 
+              {% if field.errors %}
+                <font color="red">
+              {% endif %} 
+              {{ field.label_tag }} 
+              {% if field.errors %}
+                </font>
+              {% endif %} 
+
+              {% if field.help_text %}
+                <span class="dropt" title="Help">
+                <img src="/static/img/question.png" 
+			    alt="?"/>
+                  <span style="width:200px;float:right;text-align:left;">
+                  {{ field.help_text }}
+                  </span>
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              {{ field }}
+            </td>
+            <td>
+              <font color="red">{{ field.errors }}</font>
+            </td>
+        </tr>
+    {% endfor %}
+  </table>

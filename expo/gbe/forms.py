@@ -2,22 +2,40 @@ from gbe.models import Profile, Act, Bio, TechInfo, ActBid
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, logout
+import datetime
+from django.utils.timezone import utc
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = [ 'display_name', 'phone', 
-                   'address1', 'address2',
-                  'city', 'state', 'zip_code', 'country',
+        fields = [ 'stage_name', 'display_name', 
+                   'purchase_email', 'address1', 'address2', 'city', 'state', 'zip_code', 
+                   'country', 'onsite_phone', 'best_time', 'how_heard', 'preferred_contact'
                   ]
 
+class ParticipantForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    class Meta:
+        model = Profile
+        # purchase_email should be display only
+        fields = [ 'stage_name', 'display_name', 'address1', 'address2', 'city', 
+                   'state', 'zip_code', 'country', 'onsite_phone', 
+                   'best_time', 'how_heard', 'preferred_contact'
+                  ]
+        # overload save to make sure there is always a display name
 
 
 class RegistrationForm(UserCreationForm):
     '''Form for creating a GBE user. Collects info for User object as 
     well as for user's profile (Partificipant object)
     '''
+    required_css_class = 'required'
+    error_css_class = 'error'
     email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
     class Meta:
         model=User
         fields = {'username', 'first_name','last_name',
@@ -30,16 +48,31 @@ class RegistrationForm(UserCreationForm):
             user.save()
         return  user
         
+class BidderInfoForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    email = forms.EmailField(required=True)
+    onsite_phone = forms.CharField(required=True, 
+          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+
+    class Meta:
+        model = Profile
+        fields = [ 'onsite_phone', 'email']
+        
 
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    email = forms.EmailField(required=True)
+    onsite_phone = forms.CharField(required=True, 
+          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+
     class Meta:
         model = ActBid
-        fields = [ 'title', 'name', 'homepage', 'is_group', 'other_performers', 
-                   'experience', 'bio', 'song_name', 'artist', 'act_length', 'description',
-                   'video_choice', 'video_link', 'promo_image', 'hotel_choice',
-                   'volunteer_choice', 'conference_choice' ]
+        fields = [ 'email', 'onsite_phone', 'name', 'title', 'homepage', 'is_group',  
+                   'other_performers', 'experience', 'bio', 'song_name', 'artist', 
+                   'act_length', 'description', 'video_choice', 'video_link', 
+                   'promo_image', 'hotel_choice', 'volunteer_choice', 'conference_choice' ]
         
         labels = {
             'title': ('Title of Act'),
@@ -60,7 +93,7 @@ class ActBidForm(forms.ModelForm):
 
         }
         help_texts = {
-            'name': ('If you are a soloist, this is your stage name.  If you are a troupe, this is your troupe name.  If you are a group, but not a troupe, please give the names you would like to be introduced by'),
+            'name': ('If you are a soloist, this is your stage name.  If you are a troupe, this is your troupe name.  If you are a group, but not a troupe, please give the names you would like to be introduced by.'),
             'other_performers': ('Please list other people involved/required for this act.'),
             'bio': ('Please give a brief performer/troupe history.'),
             'act_length': ('Length of entire act in mm:ss - please include any time you are performing before or after your song.'),
@@ -94,13 +127,20 @@ class ActBidForm(forms.ModelForm):
             },
 
         }
-    def save(self):
+    def save(self, profile, commit=True):
+      actbid = super(ActBidForm, self).save(commit=False)
+      actbid.bidder = profile
+      actbid.last_update =  datetime.datetime.now()
+      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.user_object.email = self.cleaned_data['email']
       if 'Submit' in self.data:
-         state = "Submitted"
+         actbid.state = "Submitted"
       elif 'Draft' in self.data:
-         state = "Draft"
-
-
+         actbid.state = "Draft"
+      if commit:
+         actbid.save()
+         profile.save()
+         profile.user_object.save()
 
 #class ClassForm(forms.ModelForm):
 #    class Meta:
