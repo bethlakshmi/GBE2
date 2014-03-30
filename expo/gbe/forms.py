@@ -130,7 +130,7 @@ class ActBidForm(forms.ModelForm):
     def save(self, profile, commit=True):
       actbid = super(ActBidForm, self).save(commit=False)
       actbid.bidder = profile
-      actbid.last_update =  datetime.datetime.now()
+      actbid.last_update =  datetime.datetime.utcnow().replace(tzinfo=utc)
       profile.onsite_phone = self.cleaned_data['onsite_phone']
       profile.user_object.email = self.cleaned_data['email']
       if 'Submit' in self.data:
