@@ -16,3 +16,5 @@ db.sqlite3        #  ignore sqlite db
 
 
 expo/expo/settings.pyc
+
+expo/uploads/*
