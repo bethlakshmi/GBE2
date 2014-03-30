@@ -39,6 +39,9 @@ def bid_act(request, actbid_id=None):
         if form.is_valid():
             new_act = form.save(profile)
             return HttpResponseRedirect('/bid/thankact')
+        else: 
+            return render(request, 'bids/actbid.html', {
+                                     'form': form, 'action':action })
     else:
         form = ActBidForm(instance=act_bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
@@ -72,8 +75,13 @@ def update_profile(request):
         if form.is_valid():
             new_user=form.save()
             return HttpResponseRedirect("/accounts/profile/")
+        else:
+            return render(request, 'gbe/update_profile.html', 
+                      {'form': form})
+
     else:
-        form = ParticipantForm( instance = profile)
+        form = ParticipantForm( instance = profile, initial={'email':request.user.email, 
+                     'first_name':request.user.first_name, 'last_name':request.user.last_name})
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 

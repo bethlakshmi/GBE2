@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
 # Create your models here
@@ -41,25 +42,27 @@ class Profile(models.Model):
     # so we can do real validation 
     # but for now, let's just take what we get
 
-    address1 = models.CharField(max_length=128)
+    address1 = models.CharField(max_length=128, blank=True)
     address2 = models.CharField(max_length=128, blank=True)
-    city = models.CharField(max_length=128)
-    state = models.CharField(max_length=2) # should do a choice list 
+    city = models.CharField(max_length=128, blank=True)
+    state = models.CharField(max_length=2, blank=True) # should do a choice list 
                                            # here, I guess
-    zip_code = models.CharField(max_length=10)  # allow for ext. ZIP
-    country = models.CharField(max_length=128)
+    zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
+    country = models.CharField(max_length=128, blank=True)
 
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
-    onsite_phone = models.CharField(max_length=50, blank=True)
-    offsite_preferred = models.CharField(max_length=50, blank=True)
+    onsite_phone = models.CharField(max_length=50, blank=True, validators=[RegexValidator(regex='(\d{3}-\d{3}-\d{4})',
+            message='Phone numbers must be in a standard US format, such as ###-###-####.')])
+    offsite_preferred = models.CharField(max_length=50, blank=True,validators=[RegexValidator(regex='(\d{3}-\d{3}-\d{4})',
+            message='Phone numbers must be in a standard US format, such as ###-###-####.')])
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
     
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name;
-  
+        
 
     # participant status
     # haven't really thought this bit through yet, could change
@@ -292,7 +295,8 @@ class ActBid(Bid):
     bio =  models.TextField(max_length = 500)
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
-    act_length = models.CharField(max_length = 10)
+    act_length = models.CharField(max_length = 10,validators=[RegexValidator(regex='(\d{1,2}:\d{1,2})',
+            message='Time must be in the format ##:##.')])
     description = models.TextField(max_length = 500)  
     video_choice = models.CharField(max_length=60,
                                   choices=video_options, default=2 )

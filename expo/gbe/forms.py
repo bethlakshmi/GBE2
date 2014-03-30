@@ -17,15 +17,54 @@ class ProfileForm(forms.ModelForm):
 class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
     class Meta:
         model = Profile
         # purchase_email should be display only
-        fields = [ 'stage_name', 'display_name', 'address1', 'address2', 'city', 
-                   'state', 'zip_code', 'country', 'onsite_phone', 
-                   'best_time', 'how_heard', 'preferred_contact'
+        fields = [ 'email', 'first_name', 'last_name', 'stage_name', 
+                   'address1', 'address2', 'city', 
+                   'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred', 
+                   'preferred_contact', 'best_time', 'how_heard'
                   ]
-        # overload save to make sure there is always a display name
+        labels = {
+            'address1': ('Street Address'),
+            'address2': ('Street Address (cont.)'),
+        }
+        help_texts = {
+            'stage_name': ('The name used in your performance.  The Expo will include this name in advertising, and it will be on your badge.  If you leave it blank, we will use first and last name.'),
+            'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, such as cell phone.'),
+            'offsite_preferred': ('Your preferred phone number (if different from above), for communication before the Expo.  Use this if you prefer to get phone calls at a phone you cannot bring to the Expo.'),
+        }
 
+    # overload save to make sure there is always a display name
+    def save(self, commit=True):
+      partform = super(ParticipantForm, self).save(commit=False)
+      partform.user_object.email = self.cleaned_data['email']
+      partform.user_object.first_name = self.cleaned_data['first_name']
+      partform.user_object.last_name = self.cleaned_data['last_name']
+      if self.cleaned_data['stage_name'] is None or self.cleaned_data['stage_name'] == '':
+        partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
+      else:
+        partform.display_name = self.cleaned_data['stage_name']
+      if commit:
+         partform.save()
+         partform.user_object.save()
+         
+    def clean(self):
+		super(ParticipantForm, self).clean()
+		contact = self.cleaned_data.get('preferred_contact')
+		onsite = self.cleaned_data.get('onsite_phone')
+		offsite = self.cleaned_data.get('offsite_preferred')
+		if contact == 'Phone call' or contact == 'Text':
+			if onsite == '' and offsite == '':
+				self._errors['onsite_phone']=self.error_class(['Phone number needed here'])
+				self._errors['offsite_preferred']=self.error_class(['... or here...'])
+				self._errors['preferred_contact']=self.error_class(['...or choose a contact method that does not require a phone.'])
+				raise forms.ValidationError('If Preferred contact is a Phone call or Text, we need your phone number as either an Onsite phone or Offsite preferred.')
+		return self.cleaned_data
 
 class RegistrationForm(UserCreationForm):
     '''Form for creating a GBE user. Collects info for User object as 
