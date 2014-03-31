@@ -27,7 +27,11 @@ def bid_act(request, actbid_id=None):
 
     if actbid_id:
       act_bid = ActBid.objects.get(pk=actbid_id)
-      action = "/bid/editact/"+actbid_id+"/"	
+      if act_bid.bidder.pk != profile.pk:
+        action = "/bid/act/"
+        act_bid = ActBid()
+      else:
+        action = "/bid/editact/"+actbid_id+"/"
     else:
       act_bid = ActBid()
       action = "/bid/act/"
@@ -46,8 +50,10 @@ def bid_act(request, actbid_id=None):
         form = ActBidForm(instance=act_bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 
+    otherbids = ActBid.objects.filter(bidder=profile)
+
     return render(request, 'bids/actbid.html', {
-        'form': form, 'action':action
+        'form': form, 'action':action, 'otherbids':otherbids
     })
     
 @login_required

@@ -9,6 +9,11 @@
     <p class="error">Sorry, error of some sort</p>
   {% endif %}
 
+{% if form.errors %}
+<br><br>
+<font color="red">Error - the act could not be submitted.  Read below and correct the 
+errors before submitting.</font>
+{% endif %}
 
 <div id="right-side">
 <h3><a name="deadlines">Application Hints</a></h3>
@@ -94,11 +99,12 @@
 </div>
 
 <br><br>
-<font size="+1"><b><P>To edit an existing Performance, click the title below:</b></font>
+<font size="+1"><b><P>To edit an existing Performance Bid, click the title below:</b></font>
 <br>
 <ul>
-    <li>Draft: Performance - <A HREF=Acts.php?action=50&BidId=172>Betty TEst</A></li>
-    <li>Draft: Performance - <A HREF=Acts.php?action=50&BidId=10>test</A></li>
+    {% for bid in otherbids %}
+    <li>{{ bid.state }}: <A HREF="/bid/editact/{{ bid.id }}/">{{ bid.title }}</A></li>
+    {% endfor %}
 </ul>
 <br>
 

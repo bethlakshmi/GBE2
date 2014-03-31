@@ -284,7 +284,7 @@ class ActBid(Bid):
                       ('4',"5-6 years"),
                       ('5',"more than 6 years"))
  
-    title = models.CharField(max_length=128)
+    title = models.CharField(max_length=128, blank=True)
     name = models.CharField(max_length=128, blank=True)
     is_group = models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
@@ -292,22 +292,24 @@ class ActBid(Bid):
     other_performers = models.TextField(max_length = 500, blank=True)
     experience = models.CharField(max_length=60,
                                   choices=experience_options, default=3 )
-    bio =  models.TextField(max_length = 500)
+    bio =  models.TextField(max_length = 500, blank=True)
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
     act_length = models.CharField(max_length = 10,validators=[RegexValidator(regex='(\d{1,2}:\d{1,2})',
-            message='Time must be in the format ##:##.')])
-    description = models.TextField(max_length = 500)  
+            message='Time must be in the format ##:##.')], blank=True)
+    description = models.TextField(max_length = 500, blank=True)  
     video_choice = models.CharField(max_length=60,
                                   choices=video_options, default=2 )
-    video_link = models.CharField(max_length = 200, blank=True)
-    promo_image = models.FileField(upload_to="uploads/images")
+    video_link = models.URLField(blank=True)
+    promo_image = models.FileField(upload_to="uploads/images", blank=True)
     hotel_choice = models.CharField(max_length=20,
                                   choices=participate_options, default='Not Sure')
     volunteer_choice = models.CharField(max_length=20,
                                   choices=participate_options, default='Not Sure')
     conference_choice = models.CharField(max_length=20,
                                   choices=participate_options, default='Not Sure')
+    def __unicode__(self):  # Python 3: def __str__(self):
+        return self.bidder.display_name+':  '+self.title;
 
 
 class ClassBid(Bid):
