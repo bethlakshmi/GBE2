@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
-from gbe.models import Event, Act, Bio, ActBid
+from gbe.models import Event, Act, Bio, ActBid, ClassBid
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -18,47 +18,88 @@ def event(request, event_id):
     return render(request, 'gbe/event.html', {'event':event})
 
 @login_required
-def bid_act(request, actbid_id=None):   
-    try:
-      profile = request.user.profile
-    except Profile.DoesNotExist:
-      profile = Profile()
-      profile.user_object = request.user
+def bid(request, type, bid_id=None):   
+	try:
+		profile = request.user.profile
+	except Profile.DoesNotExist:
+		profile = Profile()
+		profile.user_object = request.user
 
-    if actbid_id:
-      act_bid = ActBid.objects.get(pk=actbid_id)
-      if act_bid.bidder.pk != profile.pk:
-        action = "/bid/act/"
-        act_bid = ActBid()
-      else:
-        action = "/bid/editact/"+actbid_id+"/"
-    else:
-      act_bid = ActBid()
-      action = "/bid/act/"
-      
-    act_bid.bidder = profile
+	# by default, the bid gets posted to the same URL
+	editaction = "/editbid/"+type+"/"
+	
+	# editing a populated bid
+	if bid_id:
+		action = "/editbid/"+type+"/"+bid_id+"/"
+        # to add a new bid type, add a case here
+        # the model must of type Bid so we can check the bidder	
+		if type == "act":
+			bid = ActBid.objects.get(pk=bid_id)
+			otherbids = ActBid.objects.filter(bidder=profile)
+		elif type == "class":
+			bid = ClassBid.objects.get(pk=bid_id)
+			otherbids = ClassBid.objects.filter(bidder=profile)
+		else:
+			return HttpResponseRedirect('/bid/error')
 
-    if request.method =='POST':
-        form = ActBidForm(request.POST, request.FILES, instance=act_bid, initial={'profile':profile})
-        if form.is_valid():
-            new_act = form.save(profile)
-            return HttpResponseRedirect('/bid/thankact')
-        else: 
-            return render(request, 'bids/actbid.html', {
-                                     'form': form, 'action':action })
-    else:
-        form = ActBidForm(instance=act_bid, initial={'name': profile.stage_name, 
+		# check values, if this isn't the bidder, redirect to empty form
+		if bid.bidder.pk != profile.pk:
+			bid_id = None
+        
+	# create an empty form
+	if bid_id == None:
+		action = "/bid/"+type+'/'
+
+		# to add a new bid type, add a case here
+		# the model must of type Bid  		
+		if type == "act":
+			bid = ActBid()
+			otherbids = ActBid.objects.filter(bidder=profile)
+		elif type == "class":
+			bid = ClassBid()
+			otherbids = ClassBid.objects.filter(bidder=profile)
+		else:
+			return HttpResponseRedirect('/bid/error')
+    
+		bid.bidder = profile
+		
+	if request.method =='POST':
+		if type == "act":
+			form = ActBidForm(request.POST, request.FILES, instance=bid, 
+								initial={'profile':profile})
+		elif type == "class":
+			form = ClassBidForm(request.POST, instance=bid, 
+								initial={'profile':profile})
+		else:
+			return HttpResponseRedirect('/bid/error')
+
+		if form.is_valid():
+			new = form.save(profile)
+			return HttpResponseRedirect('/bid/thanks')
+		else: 
+			return render(request, 'bids/bid.html', { 'form': form, 'action':action,
+				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state })
+	else:
+		if type == "act":
+			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+		elif type == "class":
+			form = ClassBidForm(instance=bid, initial={'name': profile.stage_name, 
+                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+		else:
+			return HttpResponseRedirect('/bid/error')
 
-    otherbids = ActBid.objects.filter(bidder=profile)
 
-    return render(request, 'bids/actbid.html', {
-        'form': form, 'action':action, 'otherbids':otherbids
-    })
+	return render(request, 'bids/bid.html', { 'form': form, 'action':action, 
+        'otherbids':otherbids, 'editaction':editaction, 'state':bid.state })
+
+
     
 @login_required
-def bid_act_thanks(request):
-    return render(request, 'bids/actthanks.html')
+def bid_thanks(request):
+    return render(request, 'bids/thanks.html')
+def bid_error(request):
+    return render(request, 'bids/error.html')
 
 def act(request, act_id):
     act = get_object_or_404(Act, pk=act_id)

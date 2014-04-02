@@ -1,4 +1,4 @@
-from gbe.models import Profile, Act, Bio, TechInfo, ActBid
+from gbe.models import Profile, Act, Bio, TechInfo, ActBid, ClassBid
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -102,9 +102,13 @@ class BidderInfoForm(forms.ModelForm):
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    
+    # Needed info about bidder
     email = forms.EmailField(required=True)
     onsite_phone = forms.CharField(required=True, 
           help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+
+	# Forced required when in submission (not draft)
     title = forms.CharField(required=True, label='Title of Act')
     act_length = forms.CharField(required=True, label='Act Length', error_messages={
                 'required': ("Act Length (mm:ss) is required."),
@@ -176,8 +180,6 @@ class ActBidForm(forms.ModelForm):
     def clean(self):
 		if 'Draft' in self.data:
 			super(ActBidForm, self).clean()
-			if 'title' in self._errors:
-				del self._errors['title']
 			if 'bio' in self._errors:
 				del self._errors['bio']
 			if 'act_length' in self._errors:
@@ -212,11 +214,104 @@ class ActBidForm(forms.ModelForm):
 			return self.cleaned_data
 
 
-#class ClassForm(forms.ModelForm):
-#    class Meta:
-#        model = Class
-#        fields = ['title', 'organizer', 'teacher', 
-#                  'short_desc', 'long_desc']
+class ClassBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    
+    # Needed information about Bidder
+    email = forms.EmailField(required=True)
+    onsite_phone = forms.CharField(required=True, 
+          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+
+	# Forced required when in submission (not draft)
+    title = forms.CharField(required=True, label='Class')
+    length_minutes = forms.CharField(required=True, label='Class Length', error_messages={
+                'required': ("Class Length (in minutes) is required."),
+                'max_length': ("The Class Length  is too long.") },
+          help_text='Length class in minutes - please note that classes are asked to end 10 minutes shorter than the full slot length, so a 60 minute class is really 50 minutes.') 
+    description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
+                'required': ("Description of the Class is required."),
+                'max_length': ("The Description  is too long.") },
+          help_text='For use on the The Great Burlesque Expo website, in advertising and in any schedule of events. The description should be 1-2 paragraphs.')
+
+    class Meta:
+        model = ClassBid
+        fields = [ 'email', 'onsite_phone', 'title', 'organization', 'homepage', 
+                   'length_minutes', 'type', 'description', 'min_size', 'max_size', 
+                   'history', 'other_teachers', 'run_before', 'fee', 'space_needs',
+                   'physical_restrictions', 'schedule_constraints','multiple_run']
+        
+        labels = {
+            'min_size': ('Minimum Size'),
+            'max_size': ('Maxiumum Size'),
+            'history': ('Previous Experience'),
+            'other_teachers': ('Fellow Teachers'),
+            'run_before': 'Has the Class been run Before?',
+            'fee': 'Materials Fee',
+            'space_needs': 'Room Preferences',
+            'physical_restrictions': 'Physical Restrictions',
+            'schedule_constraints': 'Scheduling Constraints',
+            'multiple_run': 'Are you willing to run the class more than once?',
+        }
+        help_texts = {
+            'min_size': ('The minimum number of people required for your class. This guideline helps the convention meet both teacher expectations and class size needs. If you\'re not sure, make the minimum 1'),
+            'max_size': ('The maximum number of people that the class can accomodate.'),
+            'history': ('Previous Experience'),
+            'other_teachers': ('This is a preliminary list. You\'ll be asked to confirm fellow teachers if the class is confirmed.  Additional teachers are eligible for discounts, however a large number of teachers for a single event is likely to diminish the discount level provided for the group. '),
+            'run_before': ('Has the Class been run Before?'),
+            'fee': ('Materials Fee'),
+            'space_needs': ('Room Preferences'),
+            'physical_restrictions': ('Physical Restrictions'),
+            'schedule_constraints': ('Scheduling Constraints'),
+            'multiple_run': ('Are you willing to run the class more than once?'),
+        }
+
+    def save(self, profile, commit=True):
+      classbid = super(ClassBidForm, self).save(commit=False)
+      classbid.bidder = profile
+      classbid.last_update =  datetime.datetime.utcnow().replace(tzinfo=utc)
+      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.user_object.email = self.cleaned_data['email']
+      if 'Submit' in self.data:
+         classbid.state = "Submitted"
+      elif 'Draft' in self.data:
+         classbid.state = "Draft"
+      if commit:
+         classbid.save()
+         profile.save()
+         profile.user_object.save()
+         
+    def clean(self):
+		if 'Draft' in self.data:
+			super(ClassBidForm, self).clean()
+			if 'length_minutes' in self._errors:
+				del self._errors['length_minutes']
+			if 'description' in self._errors:
+				del self._errors['description']
+			return self.cleaned_data
+		else:
+			super(ActBidForm, self).clean()
+			is_group = self.cleaned_data.get('is_group')
+			name = self.cleaned_data.get('video_link')
+			others = self.cleaned_data.get('other_performers')
+			if is_group == "Yes":
+				group_err = False
+				if name == '':
+					group_err = True
+					self._errors['name']=self.error_class(['...a name is needed'])
+				if others == '':
+					group_err = True
+					self._errors['other_performers']=self.error_class(['...please describe the other performers.'])
+				if group_err:
+					self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
+					raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
+			video_choice = self.cleaned_data.get('video_choice')
+			video_link = self.cleaned_data.get('video_link')
+			if video_choice != "0" and video_link == '':
+				self._errors['video_choice']=self.error_class(['Either say that no video is provided.'])
+				self._errors['video_link']=self.error_class(['... or provide video'])
+				raise forms.ValidationError('The Video Description suggests a Video Link would be provided, but none was provided.')
+			return self.cleaned_data
 
 #class ShowForm(forms.ModelForm):
 #    class Meta:

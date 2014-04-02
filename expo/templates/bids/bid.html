@@ -103,7 +103,7 @@ errors before submitting.</font>
 <br>
 <ul>
     {% for bid in otherbids %}
-    <li>{{ bid.state }}: <A HREF="/bid/editact/{{ bid.id }}/">{{ bid.title }}</A></li>
+    <li>{{ bid.state }}: <A HREF="{{ editaction }}{{ bid.id }}/">{{ bid.title }}</A></li>
     {% endfor %}
 </ul>
 <br>
@@ -125,7 +125,9 @@ errors before submitting.</font>
     <td colspan="2" align="center">
     <input type="submit" name="Submit" value="Submit Bid">
     &nbsp;&nbsp;&nbsp;
+    {% if state == "Draft" %}
     <input type="submit" value="Update Draft" name="Draft">
+    {% endif %}
     </td>
   </tr>
 </TABLE>
