@@ -315,9 +315,9 @@ festival_list = (('GBE', 'The Great Burlesque Exposition'),
     			 ('NYBF', 'New York Burlesque Festival'),
     			 ('NOBF','New Orleans Burlesque Festival'),
     			 ('TBF','Texas Burlesque Festival'))
+festival_experience = ( ('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
 class PerformerFestivals(models.Model):
-    festival_experience = (('Yes', 'Yes'), ('No', 'No'), ('Won', 'Yes - and Won!'))
     festival = models.CharField(max_length=20, choices=festival_list)
     experience = models.CharField(max_length=20,
                                   choices=festival_experience, default='No')

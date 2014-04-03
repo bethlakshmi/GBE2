@@ -1,10 +1,11 @@
-from gbe.models import Profile, Act, Bio, TechInfo, ActBid, ClassBid
+from gbe.models import *
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 import datetime
 from django.utils.timezone import utc
+from django.core.exceptions import ObjectDoesNotExist
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -100,6 +101,19 @@ class BidderInfoForm(forms.ModelForm):
         
 
 class ActBidForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+      super(ActBidForm, self).__init__(*args, **kwargs)
+      # this is dynamic for the festival experience, it's a supporting table
+      # with a list of related festivals that may grow or change in time
+      n = 8
+      for festival in festival_list:
+        try:
+          initial_experience = PerformerFestivals.objects.get(actbid=kwargs['initial']['bidid'],festival=festival[0]).experience
+        except ObjectDoesNotExist:
+          initial_experience = "No"
+        self.fields.insert(n,festival[0],forms.ChoiceField(choices=festival_experience, initial=initial_experience, label=festival[1]))
+        n += 1
+
     required_css_class = 'required'
     error_css_class = 'error'
     
@@ -168,6 +182,19 @@ class ActBidForm(forms.ModelForm):
       if self.cleaned_data['is_group'] == "No" and self.cleaned_data['name'] != '':
          profile.stage_name = self.cleaned_data['name']
          profile.display_name = self.cleaned_data['name']
+      for festival in festival_list:
+         try:
+         	festival_experience = PerformerFestivals.objects.get(actbid=6,festival=festival[0])
+         	festival_experience.experience = experience=self.cleaned_data.get(festival[0])
+         except ObjectDoesNotExist:
+         	festival_experience = PerformerFestivals(
+         					experience=self.cleaned_data.get(festival[0]),
+         					festival=festival[0],
+         					actbid=actbid)
+         if commit:
+         	festival_experience.save()
+         					
+
       if 'Submit' in self.data:
          actbid.state = "Submitted"
       elif 'Draft' in self.data:
@@ -211,6 +238,11 @@ class ActBidForm(forms.ModelForm):
 				self._errors['video_choice']=self.error_class(['Either say that no video is provided.'])
 				self._errors['video_link']=self.error_class(['... or provide video'])
 				raise forms.ValidationError('The Video Description suggests a Video Link would be provided, but none was provided.')
+			for festival in festival_list:
+				match = False
+				for answer in festival_experience:
+					match = self.cleaned_data.get(festival[0]) == answer[0]
+
 			return self.cleaned_data
 
 

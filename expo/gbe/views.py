@@ -6,6 +6,7 @@ from gbe.models import Event, Act, Bio, ActBid, ClassBid
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
+from django.forms.models import inlineformset_factory
 
 def index(request):
     events = Event.objects.all()[:5]
@@ -66,7 +67,7 @@ def bid(request, type, bid_id=None):
 	if request.method =='POST':
 		if type == "act":
 			form = ActBidForm(request.POST, request.FILES, instance=bid, 
-								initial={'profile':profile})
+								initial={'profile':profile, 'bidid':bid.id})
 		elif type == "class":
 			form = ClassBidForm(request.POST, instance=bid, 
 								initial={'profile':profile})
@@ -81,8 +82,8 @@ def bid(request, type, bid_id=None):
 				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state })
 	else:
 		if type == "act":
-			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 
-                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 'bidid':bid.id,
+						'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		elif type == "class":
 			form = ClassBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
