@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-
+from gbetext import *
 # Create your models here
 
 class Biddable (models.Model):
@@ -52,10 +52,17 @@ class Profile(models.Model):
 
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
-    onsite_phone = models.CharField(max_length=50, blank=True, validators=[RegexValidator(regex='(\d{3}-\d{3}-\d{4})',
-            message='Phone numbers must be in a standard US format, such as ###-###-####.')])
-    offsite_preferred = models.CharField(max_length=50, blank=True,validators=[RegexValidator(regex='(\d{3}-\d{3}-\d{4})',
-            message='Phone numbers must be in a standard US format, such as ###-###-####.')])
+    onsite_phone = models.CharField(max_length=50, 
+                                    blank=True, 
+                                    validators=[
+                                        RegexValidator(regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})',
+                                                       message=phone_number_format_error)])
+    offsite_preferred = models.CharField(max_length=50, 
+                                         blank=True,
+                                         validators=[
+                                             RegexValidator(regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})',
+                                                            message=phone_number_format_error)])
+
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
