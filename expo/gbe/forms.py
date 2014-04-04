@@ -265,7 +265,9 @@ class ClassBidForm(forms.ModelForm):
                 'required': ("Description of the Class is required."),
                 'max_length': ("The Description  is too long.") },
           help_text='For use on the The Great Burlesque Expo website, in advertising and in any schedule of events. The description should be 1-2 paragraphs.')
-
+	# removing panels as a choice, panels have their own form.
+    type = forms.ChoiceField(choices=(('Lecture', "Lecture"), ('Movement', "Movement"),
+                      ('Workshop',"Workshop")))
     class Meta:
         model = ClassBid
         fields = [ 'email', 'onsite_phone', 'title', 'organization', 'homepage', 
@@ -322,7 +324,7 @@ class ClassBidForm(forms.ModelForm):
 				del self._errors['description']
 			return self.cleaned_data
 		else:
-			super(ActBidForm, self).clean()
+			super(ClassBidForm, self).clean()
 			is_group = self.cleaned_data.get('is_group')
 			name = self.cleaned_data.get('video_link')
 			others = self.cleaned_data.get('other_performers')
@@ -337,13 +339,58 @@ class ClassBidForm(forms.ModelForm):
 				if group_err:
 					self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
 					raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
-			video_choice = self.cleaned_data.get('video_choice')
-			video_link = self.cleaned_data.get('video_link')
-			if video_choice != "0" and video_link == '':
-				self._errors['video_choice']=self.error_class(['Either say that no video is provided.'])
-				self._errors['video_link']=self.error_class(['... or provide video'])
-				raise forms.ValidationError('The Video Description suggests a Video Link would be provided, but none was provided.')
 			return self.cleaned_data
+
+class PanelBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    
+    # Needed information about Bidder
+    email = forms.EmailField(required=True)
+    onsite_phone = forms.CharField(required=True, 
+          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+
+	# Forced required when in submission (not draft)
+    title = forms.CharField(required=True, label='Panel')
+    length_minutes = forms.CharField(initial=60, widget=forms.HiddenInput())
+    description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
+                'required': ("Description of the Class is required."),
+                'max_length': ("The Description  is too long.") },
+          help_text='For use on the The Great Burlesque Expo website, in advertising and in any schedule of events. The description should be 1-2 paragraphs.')
+	# removing panels as a choice, panels have their own form.
+    space_options = forms.CharField(initial="4", widget=forms.HiddenInput())
+    type = forms.CharField(widget=forms.HiddenInput())
+    class Meta:
+        model = ClassBid
+        fields = [ 'email', 'onsite_phone', 'title', 'length_minutes',  
+        		   'description', 'other_teachers', 'run_before','space_options', 'type']
+        
+        labels = {
+            'other_teachers': ('Recommended Panelists'),
+            'run_before': 'Has the Panel been run Before?',
+        }
+        help_texts = {
+            'other_teachers': ('It is far more likely that your panel may be run at The Great Burlesque Expo 2014if we can find qualified panelists and a moderator - let us know any recommendations.'),
+            'run_before': ('The Great Burlesque Expo 2014 is looking for convention content that is new and that have successfully presented before, either at a convention, or elsewhere. If this content has run before, please describe where and when.'),
+        }
+
+    def save(self, profile, commit=True):
+      bid = super(PanelBidForm, self).save(commit=False)
+      bid.bidder = profile
+      bid.last_update =  datetime.datetime.utcnow().replace(tzinfo=utc)
+      bid.type = "Panel"
+      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.user_object.email = self.cleaned_data['email']
+      if 'Submit' in self.data:
+         bid.state = "Submitted"
+      elif 'Draft' in self.data:
+         bid.state = "Draft"
+      if commit:
+         bid.save()
+         profile.save()
+         profile.user_object.save()
+         
+
 
 #class ShowForm(forms.ModelForm):
 #    class Meta:

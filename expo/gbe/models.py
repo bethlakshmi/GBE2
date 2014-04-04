@@ -363,6 +363,8 @@ class ClassBid(Bid):
     physical_restrictions =  models.TextField(max_length = 500, blank=True)
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
+    def __unicode__(self):  # Python 3: def __str__(self):
+        return self.type+':  '+self.title;
 
 
 class ClassSchedule(models.Model):

@@ -1,3 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  GBE: Thank you for your Act
+{% endblock %}
+
+{% block content %}
+  {% if form.error %}
+    <p class="error">Sorry, error of some sort</p>
+  {% endif %}
+  
 <FONT SIZE="+2"><br>Thank you for submitting your work for The Great Burlesque Expo!</FONT>
 <P>Thank you for your interest!<P>
 <h1>The Proposal Process</h1>
@@ -36,3 +47,4 @@ not teaching, we would love to see you at the Expo and enjoying the other
 events.</p><p>
 
 <h3>Thank you!</h3>
+{% endblock %}

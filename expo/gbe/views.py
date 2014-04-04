@@ -39,9 +39,12 @@ def bid(request, type, bid_id=None):
 			otherbids = ActBid.objects.filter(bidder=profile)
 		elif type == "class":
 			bid = ClassBid.objects.get(pk=bid_id)
-			otherbids = ClassBid.objects.filter(bidder=profile)
+			otherbids = ClassBid.objects.filter(bidder=profile).exclude(type = "Panel")
+		elif type == "panel":
+			bid = ClassBid.objects.get(pk=bid_id)
+			otherbids = ClassBid.objects.filter(bidder=profile, type = "Panel")
 		else:
-			return HttpResponseRedirect('/bid/error')
+			return HttpResponseRedirect('/bid/'+type+'-error')
 
 		# check values, if this isn't the bidder, redirect to empty form
 		if bid.bidder.pk != profile.pk:
@@ -58,11 +61,18 @@ def bid(request, type, bid_id=None):
 			otherbids = ActBid.objects.filter(bidder=profile)
 		elif type == "class":
 			bid = ClassBid()
-			otherbids = ClassBid.objects.filter(bidder=profile)
+			otherbids = ClassBid.objects.filter(bidder=profile).exclude(type = "Panel")
+		elif type == "panel":
+			bid = ClassBid()
+			otherbids = ClassBid.objects.filter(bidder=profile, type = "Panel")
 		else:
-			return HttpResponseRedirect('/bid/error')
+			return HttpResponseRedirect('/bid/'+type+'-error')
     
 		bid.bidder = profile
+		
+	# Panels are never in "draft"
+	if type == "panel":
+		bid.state = "Submitted"
 		
 	if request.method =='POST':
 		if type == "act":
@@ -71,15 +81,18 @@ def bid(request, type, bid_id=None):
 		elif type == "class":
 			form = ClassBidForm(request.POST, instance=bid, 
 								initial={'profile':profile})
+		elif type == "panel":
+			form = PanelBidForm(request.POST, instance=bid, 
+								initial={'profile':profile})
 		else:
-			return HttpResponseRedirect('/bid/error')
+			return HttpResponseRedirect('/bid/'+type+'-error')
 
 		if form.is_valid():
 			new = form.save(profile)
-			return HttpResponseRedirect('/bid/thanks')
+			return HttpResponseRedirect('/bid/'+type+'-thanks')
 		else: 
 			return render(request, 'bids/bid.html', { 'form': form, 'action':action,
-				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state })
+				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
 	else:
 		if type == "act":
 			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 'bidid':bid.id,
@@ -87,20 +100,23 @@ def bid(request, type, bid_id=None):
 		elif type == "class":
 			form = ClassBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+		elif type == "panel":
+			form = PanelBidForm(instance=bid, initial={'name': profile.stage_name, 
+                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		else:
-			return HttpResponseRedirect('/bid/error')
+			return HttpResponseRedirect('/bid/'+type+'-error')
 
 
 	return render(request, 'bids/bid.html', { 'form': form, 'action':action, 
-        'otherbids':otherbids, 'editaction':editaction, 'state':bid.state })
+        'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
 
 
     
 @login_required
-def bid_thanks(request):
-    return render(request, 'bids/thanks.html')
-def bid_error(request):
-    return render(request, 'bids/error.html')
+def bid_response(request,type,response):
+	if response == "error":
+		return render(request, 'bids/'+response+'.html')
+	return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
     act = get_object_or_404(Act, pk=act_id)
