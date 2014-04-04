@@ -6,6 +6,7 @@ from django.contrib.auth import login, logout
 import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
+from gbe_forms_text import *
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -34,11 +35,7 @@ class ParticipantForm(forms.ModelForm):
             'address1': ('Street Address'),
             'address2': ('Street Address (cont.)'),
         }
-        help_texts = {
-            'stage_name': ('The name used in your performance.  The Expo will include this name in advertising, and it will be on your badge.  If you leave it blank, we will use first and last name.'),
-            'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, such as cell phone.'),
-            'offsite_preferred': ('Your preferred phone number (if different from above), for communication before the Expo.  Use this if you prefer to get phone calls at a phone you cannot bring to the Expo.'),
-        }
+        help_texts = participant_form_help_texts
 
     # overload save to make sure there is always a display name
     def save(self, commit=True):
@@ -60,11 +57,11 @@ class ParticipantForm(forms.ModelForm):
 		onsite = self.cleaned_data.get('onsite_phone')
 		offsite = self.cleaned_data.get('offsite_preferred')
 		if contact == 'Phone call' or contact == 'Text':
-			if onsite == '' and offsite == '':
-				self._errors['onsite_phone']=self.error_class(['Phone number needed here'])
-				self._errors['offsite_preferred']=self.error_class(['... or here...'])
-				self._errors['preferred_contact']=self.error_class(['...or choose a contact method that does not require a phone.'])
-				raise forms.ValidationError('If Preferred contact is a Phone call or Text, we need your phone number as either an Onsite phone or Offsite preferred.')
+                    if onsite == '' and offsite == '':
+				self._errors['onsite_phone']=self.error_class(phone_error1)
+				self._errors['offsite_preferred']=self.error_class(phone_error2)
+				self._errors['preferred_contact']=self.error_class(phone_error3)
+				raise forms.ValidationError()
 		return self.cleaned_data
 
 class RegistrationForm(UserCreationForm):
@@ -93,7 +90,7 @@ class BidderInfoForm(forms.ModelForm):
     error_css_class = 'error'
     email = forms.EmailField(required=True)
     onsite_phone = forms.CharField(required=True, 
-          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+                                   help_text=bidder_info_phone_error)
 
     class Meta:
         model = Profile
@@ -120,59 +117,44 @@ class ActBidForm(forms.ModelForm):
     # Needed info about bidder
     email = forms.EmailField(required=True)
     onsite_phone = forms.CharField(required=True, 
-          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+                                   help_text=bidder_info_phone_error)
 
 	# Forced required when in submission (not draft)
     title = forms.CharField(required=True, label='Title of Act')
-    act_length = forms.CharField(required=True, label='Act Length', error_messages={
-                'required': ("Act Length (mm:ss) is required."),
-                'max_length': ("The Act Length  is too long.") },
-          help_text='Length of entire act in mm:ss - please include any time you are performing before or after your song.') 
-    bio = forms.CharField(widget=forms.Textarea, required=True, label='History', 
-          error_messages={
-                'required': ("Performer/Troupe history is required."),
-                'max_length': ("The History  is too long.") },
-          help_text='Please give a brief performer/troupe history.')
-    description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
-                'required': ("Description of the Act is required."),
-                'max_length': ("The Description  is too long.") },
-          help_text='Please give a brief description of your act. Stage kittens will retrieve costumes and props, but we cannot clean the stage after your act. Please do not leave anything on the stage (water, glitter, confetti, etc.)')
-    promo_image = forms.FileField(required=True, label='Publicity Picture', 
-          error_messages={ 'required': ("Please provide a photo.") },
-          help_text='Please_upload a photograph of yourself (photo must be under 10 MB).')
+    act_length = forms.CharField(required=True, 
+                                 label='Act Length', 
+                                 error_messages={
+                'required': act_length_required,
+                'max_length': act_length_too_long },
+                                 help_text=act_length_help_text) 
+    bio = forms.CharField(widget=forms.Textarea, 
+                          required=True, 
+                          label='History', 
+                          error_messages={
+                              'required': bio_required,
+                              'max_length': bio_too_long },
+                          help_text=bio_help_text)
+    description = forms.CharField(widget=forms.Textarea, 
+                                  required=True, 
+                                  error_messages={
+                                      'required': act_description_required,
+                                      'max_length': act_description_too_long },
+                                  help_text=act_description_help_text)
+    promo_image = forms.FileField(required=True, 
+                                  label='Publicity Picture', 
+                                  error_messages={ 'required': promo_required },
+                                  help_text=promo_help_text)
 
     class Meta:
         model = ActBid
         fields = [ 'email', 'onsite_phone', 'name', 'title', 'homepage', 'is_group',  
                    'other_performers', 'experience', 'bio', 'song_name', 'artist', 
                    'act_length', 'description', 'video_choice', 'video_link', 
-                   'promo_image', 'hotel_choice', 'volunteer_choice', 'conference_choice' ]
-        
+                   'promo_image', 'hotel_choice', 'volunteer_choice', 'conference_choice' ]        
         required = { 'title', 'bio', 'act_length', 'description', 'promo_image' }
-        labels = {
-            'name': ('Stage Name or Troupe'),
-            'homepage': ('Web Site'),
-            'is_group': ('Is this a Troupe Performance?'),
-            'other_performers': ('Fellow performers'),
-            'song_name': 'Title of Song',
-            'artist': 'Name of Artist',
-            'video_choice': 'Video Description',
-            'video_link': 'Link to Video',
-            'hotel_choice': 'Are you staying in the hotel?',
-            'volunteer_choice': 'Are you volunteering for the event?',
-            'conference_choice': 'Are you attending the conference?',
-        }
-        help_texts = {
-            'name': ('If you are a soloist, this is your stage name.  If you are a troupe, this is your troupe name.  If you are a group, but not a troupe, please give the names you would like to be introduced by.'),
-            'other_performers': ('Please list other people involved/required for this act.'),
-        }
-        error_messages = {
-            'title': {
-                'required': ("The Title is required."),
-                'max_length': ("The title of the act is too long."),
-            },
-
-        }
+        labels = actbid_labels
+        help_texts = actbid_help_texts
+        error_messages = actbid_error_messages
     def save(self, profile, commit=True):
       actbid = super(ActBidForm, self).save(commit=False)
       actbid.bidder = profile
@@ -188,9 +170,9 @@ class ActBidForm(forms.ModelForm):
          	festival_experience.experience = experience=self.cleaned_data.get(festival[0])
          except ObjectDoesNotExist:
          	festival_experience = PerformerFestivals(
-         					experience=self.cleaned_data.get(festival[0]),
-         					festival=festival[0],
-         					actbid=actbid)
+                    experience=self.cleaned_data.get(festival[0]),
+                    festival=festival[0],
+                    actbid=actbid)
          if commit:
          	festival_experience.save()
          					
@@ -225,7 +207,7 @@ class ActBidForm(forms.ModelForm):
 				group_err = False
 				if name == '':
 					group_err = True
-					self._errors['name']=self.error_class(['...a name is needed'])
+					self._errors['name']=self.error_class(actbid_name_missing)
 				if others == '':
 					group_err = True
 					self._errors['other_performers']=self.error_class(['...please describe the other performers.'])
