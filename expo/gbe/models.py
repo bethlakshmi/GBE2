@@ -1,8 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from gbetext import *
-# Create your models here
+from gbetext import *    # all literal text including option sets lives in gbetext.py
+
 
 class Biddable (models.Model):
     '''
@@ -22,10 +22,6 @@ class Profile(models.Model):
     the information gathered up in the User object. (which we'll
     expose with properties, I suppose)
     '''
-    
-    contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
-                          ('Text', 'Text'))
-                          
     user_object = models.OneToOneField(User) 
     stage_name = models.CharField(max_length=128, blank=True) 
     display_name = models.CharField(max_length=128) 
@@ -36,8 +32,6 @@ class Profile(models.Model):
     # used for linking tickets  
     purchase_email = models.CharField(max_length=64, default = '') 
  
-        
-        
     # contact info - I'd like to split this out to its own object
     # so we can do real validation 
     # but for now, let's just take what we get
@@ -45,22 +39,23 @@ class Profile(models.Model):
     address1 = models.CharField(max_length=128, blank=True)
     address2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=128, blank=True)
-    state = models.CharField(max_length=2, blank=True) # should do a choice list 
-                                           # here, I guess
+    state = models.CharField(max_length=2, 
+                             choices = states_options,
+                             blank=True) 
     zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
-
+    phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     onsite_phone = models.CharField(max_length=50, 
                                     blank=True, 
                                     validators=[
-                                        RegexValidator(regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})',
+                                        RegexValidator(regex=phone_regex,
                                                        message=phone_number_format_error)])
     offsite_preferred = models.CharField(max_length=50, 
                                          blank=True,
                                          validators=[
-                                             RegexValidator(regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})',
+                                             RegexValidator(regex=phone_regex,
                                                             message=phone_number_format_error)])
 
     best_time = models.CharField(max_length=50, blank=True)
@@ -115,18 +110,6 @@ class AudioInfo(models.Model):
     need_mic = models.BooleanField(default=False)
     notes = models.TextField()    
 
-stage_lighting_options = (('White', 'White'), ('Amber', 'Amber'),
-                          ('Blue', 'Blue'), ('Cyan', 'Cyan'),
-                          ('Green', 'Green'), ('Orange', 'Orange'),
-                          ('Pink', 'Pink'), ('Purple', 'Purple'),
-                          ('Red', 'Red'), ('Yellow', 'Yellow'), 
-                          ('No lights (not recommended)', 'No lights'))
-
-vendor_lighting_options = (('White', 'White'), 
-                          ('Blue', 'Blue'), 
-                          ('Red', 'Red'),
-                          ('No lights (not recommended)', 'No lights'))
-
 class LightingInfo(models.Model):
     '''
     Information about the lighting needs of a particular Act
@@ -154,12 +137,7 @@ class TechInfo (models.Model):
     audio = models.ForeignKey(AudioInfo)
     lighting = models.ForeignKey(LightingInfo)
     props = models.ForeignKey(PropsInfo)
-    order = models.IntegerField()
-
-vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
-                (4, "No Comment"), (5, "Weak No"), (6, "No"), 
-                (7, "Strong No"), (0, "Undecided"), (-1, "Author"))
-    
+    order = models.IntegerField()    
 
 class Act (Biddable):
     '''
@@ -244,12 +222,6 @@ class Bid(models.Model):
     A Bid is a proposal for an act, a class, a vendor, or whatnot.
     This is the abstract base for these various bids.
     '''
-    bid_states = (("Draft", "Draft"),
-                      ("Submitted", "Submitted"),
-                      ("Paid","Paid"),
-                      ("Accepted","Accepted"),
-                      ("Rejected","Rejected"),
-                      ("On Hold","On Hold"))
     bid_item = models.ForeignKey(Biddable, null=True, blank=True)
     bidder = models.ForeignKey(Profile)
     state = models.CharField(max_length=20,
@@ -272,24 +244,10 @@ class BidEvaluation(models.Model):
     notes = models.TextField()
     bid = models.ForeignKey(Bid)
 
-yesno_options = (("Yes", "Yes"), ("No", "No"))
-
-
 class ActBid(Bid):
     '''
     An audition: a performer wants to perform in a show
     '''
-    video_options = (('0', "I don't have any video of myself performing"), 
-                 ('1', "This is video of me but not the act I'm submitting"),
-                 ('2', "This is video of the act I would like to perform"))
-    participate_options = (('Yes', 'Yes'), ('No', 'No'), ('Not Sure', 'Not Sure'))
-    experience_options = (('0', "I'm not a burlesque performer"),
-                      ('1', "Less than 1 year"),
-                      ('2',"1-2 years"),
-                      ('3',"3-4 years"),
-                      ('4',"5-6 years"),
-                      ('5',"more than 6 years"))
- 
     title = models.CharField(max_length=128, blank=True)
     name = models.CharField(max_length=128, blank=True)
     is_group = models.CharField(max_length=20,
@@ -301,8 +259,10 @@ class ActBid(Bid):
     bio =  models.TextField(max_length = 500, blank=True)
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
-    act_length = models.CharField(max_length = 10,validators=[RegexValidator(regex='(\d{1,2}:\d{1,2})',
-            message='Time must be in the format ##:##.')], blank=True)
+    act_length = models.CharField(max_length = 10,
+                                  validators=[RegexValidator(regex='(\d{1,2}:\d{1,2})',
+                                                             message=time_format_error)], 
+                                  blank=True)
     description = models.TextField(max_length = 500, blank=True)  
     video_choice = models.CharField(max_length=60,
                                   choices=video_options, default=2 )
@@ -317,13 +277,6 @@ class ActBid(Bid):
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.bidder.display_name+':  '+self.title;
 
-festival_list = (('GBE', 'The Great Burlesque Exposition'), 
-    			 ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'), 
-    			 ('NYBF', 'New York Burlesque Festival'),
-    			 ('NOBF','New Orleans Burlesque Festival'),
-    			 ('TBF','Texas Burlesque Festival'))
-festival_experience = ( ('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
-
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)
     experience = models.CharField(max_length=20,
@@ -336,37 +289,29 @@ class ClassBid(Bid):
     A proposed class
     we can use this for all class-like items
     '''
-    class_options = (('Lecture', "Lecture"),
-                      ('Movement', "Movement"),
-                      ('Panel', "Panel"),
-                      ('Workshop',"Workshop"))
-    length_options = ((30, "30"),
-                      (60, "60"),
-                      (90, "90"),
-                      (120,"120"))
-    space_options = (('Please Choose an Option','Please Choose an Option'),
-    				 ('Movement Class Floor', (("0","Don't Care about Floor"),
-						("1","Carpet"),
-						("2","Dance Floor"),
-						("3","Both"))),
-					 ('Lecture Class Setup',(("4","Don't Care about Seating"),
-						("5","Lecture Style - tables and chairs face podium"),
-						("6","Conversational - seating in a ring"))))
 						
     title = models.CharField(max_length=128, blank=True)
     organization = models.CharField(max_length=128, blank=True)
-    type = models.CharField(max_length=128, choices=class_options, blank=True, default="Lecture")
+    type = models.CharField(max_length=128, 
+                            choices=class_options, 
+                            blank=True, 
+                            default="Lecture")
     homepage = models.URLField(blank=True)
     fee = models.IntegerField(blank=True, default=0)
     other_teachers = models.CharField(max_length=128, blank=True)
     description = models.TextField(max_length = 500, blank=True)  
-    length_minutes = models.IntegerField(blank=True, choices=length_options, default=60)
+    length_minutes = models.IntegerField(blank=True, 
+                                         choices=length_options, 
+                                         default=60)
     min_size = models.IntegerField(blank=True, default=1)
     max_size = models.IntegerField(blank=True, default=20)
     history =  models.TextField(max_length = 500, blank=True)
     run_before = models.CharField(max_length=128, blank=True)
     schedule_constraints = models.CharField(max_length=128, blank=True)
-    space_needs = models.CharField(max_length=128, choices=space_options, blank=True, default='Please Choose an Option')
+    space_needs = models.CharField(max_length=128, 
+                                   choices=space_options, 
+                                   blank=True, 
+                                   default='Please Choose an Option')
     physical_restrictions =  models.TextField(max_length = 500, blank=True)
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
@@ -375,15 +320,6 @@ class ClassBid(Bid):
 
 
 class ClassSchedule(models.Model):
-	schedule_options = (('Preferred Time', "Preferred Time"),
-                    	('Available', "Available"),
-                    	('Not Available', "Not Available"))
-	time_options = (('Morning', "Morning (before noon)"),
-                    	('Early Afternoon', "Early Afternoon (12PM-3PM)"),
-                    	('Late Afternoon', "Late Afternoon (3PM-6PM)"))
-	day_options = (('Fri', "Friday"),
-                    	('Sat', "Saturday"),
-                    	('Sun', "Sunday"))
 	day = models.CharField(max_length=128, choices=day_options)
 	time = models.CharField(max_length=128, choices=time_options)
 	availability = models.CharField(max_length=128, choices=schedule_options)
