@@ -23,6 +23,6 @@ urlpatterns = patterns ('',
                         url(r'^accounts/register/$',
                             views.register),
                         url(r'^accounts/login$', login), 
-                        url(r'^accounts/logout$', logout),
+                        url(r'^accounts/logout/$', logout),
                         url(r'update_profile/$', views.update_profile),
                         ) 

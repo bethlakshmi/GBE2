@@ -372,13 +372,85 @@ class PanelBidForm(forms.ModelForm):
          profile.save()
          profile.user_object.save()
          
-
-
-#class ShowForm(forms.ModelForm):
-#    class Meta:
-#        model = Show
-#        fields = ['title', 'organizer', 'mc', 'acts', 
-#
-#                  'short_desc', 'long_desc']
+class VendorBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     
-    
+    # Needed information about Bidder
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    onsite_phone = forms.CharField(required=True, 
+          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+    address1 = forms.CharField()
+    address2 = forms.CharField()
+    city = forms.CharField()
+    state = forms.CharField()
+    zip_code = forms.CharField()
+    country = forms.CharField()
+    business_phone = forms.CharField(
+          help_text='A phone number for your business landline, if different from above.')
+	# Forced required when in submission (not draft)
+
+    class Meta:
+        model = VendorBid
+        fields = [ 'vend_time',  'company', 'first_name', 'last_name', 
+        			'address1', 'address2', 'city', 'state', 'zip_code', 'country', 
+        			'onsite_phone', 'business_phone', 'email', 'description', 'website', 
+        			'want_help','help_times', 'help_description']
+        
+        labels = {'vend_time':  ('I\'d like to vend...'),
+        			'company':  ('Company Name'),
+        			'description': ('Business Description'), 
+        			'want_help': ('Help Wanted'),
+        			'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
+        			'help_description': ('Tell Us About the Person You\'d Like to Hire ')
+        			}
+        help_texts = {
+        			'description': ('Please describe your good or services in 250 words or less. We will publish this text on the website.'), 
+        			'vend_time':  ('I\'d like to vend...'),
+        			'want_help': ('Would you like us to help you find someone to work at your booth or table with you?'),
+        			}
+
+    def save(self, profile, commit=True):
+      bid = super(VendorBidForm, self).save(commit=False)
+      bid.bidder = profile
+      bid.last_update =  datetime.datetime.utcnow().replace(tzinfo=utc)
+      bid.type = "Panel"
+      
+      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.user_object.email = self.cleaned_data['email']
+      if 'Submit' in self.data:
+         bid.state = "Submitted"
+      elif 'Draft' in self.data:
+         bid.state = "Draft"
+      if commit:
+         bid.save()
+         profile.save()
+         profile.user_object.save()
+         
+    def clean(self):
+		if 'Draft' in self.data:
+			super(VendorBidForm, self).clean()
+			if 'length_minutes' in self._errors:
+				del self._errors['length_minutes']
+			if 'description' in self._errors:
+				del self._errors['description']
+			return self.cleaned_data
+		else:
+			super(VendorBidForm, self).clean()
+			is_group = self.cleaned_data.get('is_group')
+			name = self.cleaned_data.get('video_link')
+			others = self.cleaned_data.get('other_performers')
+			if is_group == "Yes":
+				group_err = False
+				if name == '':
+					group_err = True
+					self._errors['name']=self.error_class(['...a name is needed'])
+				if others == '':
+					group_err = True
+					self._errors['other_performers']=self.error_class(['...please describe the other performers.'])
+				if group_err:
+					self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
+					raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
+			return self.cleaned_data

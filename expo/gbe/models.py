@@ -326,10 +326,42 @@ class ClassSchedule(models.Model):
 	class_bid = models.ForeignKey(ClassBid)
 	bidder = models.ForeignKey(Profile)
 
-
 class VendorBid(Bid):
-    '''
-    A request for a space in the marketplace.
-    Vendors have to bid, too
-    '''
-    pass
+	'''
+	A request for a space in the marketplace.
+	Vendors have to bid, too
+	'''
+	vend_time = models.CharField(max_length=128, choices=vend_time_options)
+	company = models.CharField(max_length=128, blank=True)
+	description = models.TextField(max_length=500, blank=True)
+	website = models.URLField(blank=True)
+	want_help = models.CharField(max_length=128, choices=yesno_options)
+	help_times = models.CharField(max_length=128, blank=True)
+	help_description = models.TextField(max_length=500, blank=True)
+
+	def __unicode__(self):  # Python 3: def __str__(self):
+		return self.company;
+	
+class AdBid(Bid):
+	'''
+	A request for a space in the marketplace.
+	Vendors have to bid, too
+	'''
+	company = models.CharField(max_length=128, blank=True)
+	type = models.CharField(max_length=128, choices=ad_type_options)
+	def __unicode__(self):  # Python 3: def __str__(self):
+		return self.company;
+
+
+class ArtBid(Bid):
+	'''
+	A request for a space in the marketplace.
+	Vendors have to bid, too
+	'''
+	bio = models.TextField(max_length=500, blank=True)
+	works = models.TextField(max_length=500, blank=True)
+	art1 = models.FileField(upload_to="uploads/images", blank=True)
+	art2 = models.FileField(upload_to="uploads/images", blank=True)
+	art3 = models.FileField(upload_to="uploads/images", blank=True)
+	def __unicode__(self):  # Python 3: def __str__(self):
+		return self.bidder.display_name;
