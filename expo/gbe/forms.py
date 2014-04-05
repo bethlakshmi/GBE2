@@ -102,10 +102,12 @@ class ActBidForm(forms.ModelForm):
       n = 8
       for festival in festival_list:
         try:
-          initial_experience = PerformerFestivals.objects.get(actbid=kwargs['initial']['bidid'],festival=festival[0]).experience
+          initial_experience = PerformerFestivals.objects.get(
+          			actbid=kwargs['initial']['bidid'],festival=festival[0]).experience
         except ObjectDoesNotExist:
           initial_experience = "No"
-        self.fields.insert(n,festival[0],forms.ChoiceField(choices=festival_experience, initial=initial_experience, label=festival[1]))
+        self.fields.insert(n,festival[0],forms.ChoiceField(choices=festival_experience, 
+        			initial=initial_experience, label=festival[1]))
         n += 1
 
     required_css_class = 'required'
@@ -202,9 +204,9 @@ class ActBidForm(forms.ModelForm):
         video_choice = self.cleaned_data.get('video_choice')
         video_link = self.cleaned_data.get('video_link')
         if video_choice != "0" and video_link == '':
-          self._errors['video_choice']=self.error_class(['Either say that no video is provided.'])
-          self._errors['video_link']=self.error_class(['... or provide video'])
-          raise forms.ValidationError('The Video Description suggests a Video Link would be provided, but none was provided.')
+          self._errors['video_choice']=self.error_class(video_error1)
+          self._errors['video_link']=self.error_class(video_error2)
+          raise forms.ValidationError(video_error3)
         for festival in festival_list:
           match = False
           for answer in festival_experience:
@@ -224,14 +226,13 @@ class ClassBidForm(forms.ModelForm):
 
 # Forced required when in submission (not draft)
     title = forms.CharField(required=True, label='Class')
-    length_minutes = forms.CharField(required=True, label='Class Length', error_messages={
-                'required': ("Class Length (in minutes) is required."),
-                'max_length': ("The Class Length is too long.") },
-          help_text='Length class in minutes - please note that classes are asked to end 10 minutes shorter than the full slot length, so a 60 minute class is really 50 minutes.')
+    length_minutes = forms.CharField(required=True, label='Class Length', 
+    			error_messages={'required': length_minutes_required, 
+    							'max_length': length_minutes_too_long },
+          		help_text=length_minutes_help_text)
     description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
-                'required': ("Description of the Class is required."),
-                'max_length': ("The Description is too long.") },
-          help_text='For use on the The Great Burlesque Expo website, in advertising and in any schedule of events. The description should be 1-2 paragraphs.')
+                'required': description_required, 'max_length': description_too_long },
+          		help_text=description_help_text)
 # removing panels as a choice, panels have their own form.
     type = forms.ChoiceField(choices=(('Lecture', "Lecture"), ('Movement', "Movement"),
                       ('Workshop',"Workshop")))
@@ -269,20 +270,6 @@ class ClassBidForm(forms.ModelForm):
           del self._errors['description']
       else:
         super(ClassBidForm, self).clean()
-        is_group = self.cleaned_data.get('is_group')
-        name = self.cleaned_data.get('video_link')
-        others = self.cleaned_data.get('other_performers')
-        if is_group == "Yes":
-          group_err = False
-        if name == '':
-          group_err = True
-          self._errors['name']=self.error_class(['...a name is needed'])
-          if others == '':
-            group_err = True
-            self._errors['other_performers']=self.error_class(['...please describe the other performers.'])
-          if group_err:
-            self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
-            raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
       return self.cleaned_data
 
 class PanelBidForm(forms.ModelForm):
@@ -298,9 +285,8 @@ class PanelBidForm(forms.ModelForm):
     title = forms.CharField(required=True, label='Panel')
     length_minutes = forms.CharField(initial=60, widget=forms.HiddenInput())
     description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
-                'required': ("Description of the Class is required."),
-                'max_length': ("The Description is too long.") },
-          help_text='For use on the The Great Burlesque Expo website, in advertising and in any schedule of events. The description should be 1-2 paragraphs.')
+                'required': description_required, 'max_length': description_too_long },
+          		help_text=description_help_text)
 # removing panels as a choice, panels have their own form.
     space_options = forms.CharField(initial="4", widget=forms.HiddenInput())
     type = forms.CharField(widget=forms.HiddenInput())
@@ -348,12 +334,12 @@ class VendorBidForm(forms.ModelForm):
     zip_code = forms.IntegerField(required=False)
     country = forms.CharField(required=False)
     offsite_preferred = forms.CharField( label="Business Phone:", required=False,
-          help_text='A phone number for your business landline, if different from above.')
+          help_text=offsite_vendor_help_text )
 	# Forced required when in submission (not draft)
     company = forms.CharField(required=True, label='Company Name' )
     description = forms.CharField(widget=forms.Textarea, required=True, 
     					label='Business Description', 
-                        help_text='Please describe your good or services in 250 words or less. We will publish this text on the website.' )
+                        help_text=vendor_description_help_text )
     class Meta:
         model = VendorBid
         fields = [ 'vend_time',  'company', 'first_name', 'last_name', 
@@ -388,21 +374,6 @@ class VendorBidForm(forms.ModelForm):
 				del self._errors['length_minutes']
 			if 'description' in self._errors:
 				del self._errors['description']
-			return self.cleaned_data
 		else:
 			super(VendorBidForm, self).clean()
-			is_group = self.cleaned_data.get('is_group')
-			name = self.cleaned_data.get('video_link')
-			others = self.cleaned_data.get('other_performers')
-			if is_group == "Yes":
-				group_err = False
-				if name == '':
-					group_err = True
-					self._errors['name']=self.error_class(['...a name is needed'])
-				if others == '':
-					group_err = True
-					self._errors['other_performers']=self.error_class(['...please describe the other performers.'])
-				if group_err:
-					self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
-					raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
-			return self.cleaned_data
+		return self.cleaned_data

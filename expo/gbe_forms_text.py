@@ -81,7 +81,24 @@ actbid_error_messages = {
 actbid_name_missing = ['...a name is needed']
 actbid_otherperformers_missing = ['...please describe the other performers.']
 actbid_group_wrong = ['If this is a group... other entries are needed.']
-actbid_group_error = 'The submission says this is a group act, but there are no other performers listed'
+actbid_group_error = '''The submission says this is a group act, but there are \
+no other performers listed'''
+
+video_error1 = ['Either say that no video is provided.']
+video_error2 = ['... or provide video']
+video_error3 = '''The Video Description suggests a Video Link would be provided, \
+but none was provided.'''
+
+length_minutes_required = ("Class Length (in minutes) is required.")
+length_minutes_too_long = ("The Class Length is too long.")
+length_minutes_help_text = '''Length class in minutes - please note that classes are \
+asked to end 10 minutes shorter than the full slot length, so a 60 minute class is \
+really 50 minutes.'''
+
+description_required = ("Description is required.")
+description_too_long = ("The Description is too long.")
+description_help_text = '''For use on the The Great Burlesque Expo website, in \
+advertising and in any schedule of events. The description should be 1-2 paragraphs.'''
 
 classbid_labels = {
 	'min_size': ('Minimum Size'),
@@ -97,10 +114,15 @@ classbid_labels = {
 }
 
 classbid_help_texts = {
-	'min_size': ('The minimum number of people required for your class. This guideline helps the convention meet both teacher expectations and class size needs. If you\'re not sure, make the minimum 1'),
+	'min_size': ('''The minimum number of people required for your class. This guideline \
+	helps the convention meet both teacher expectations and class size needs. If \
+	you\'re not sure, make the minimum 1'''),
 	'max_size': ('The maximum number of people that the class can accomodate.'),
 	'history': ('Previous Experience'),
-	'other_teachers': ('This is a preliminary list. You\'ll be asked to confirm fellow teachers if the class is confirmed. Additional teachers are eligible for discounts, however a large number of teachers for a single event is likely to diminish the discount level provided for the group. '),
+	'other_teachers': ('''This is a preliminary list. You\'ll be asked to confirm \
+	fellow teachers if the class is confirmed. Additional teachers are eligible for \
+	discounts, however a large number of teachers for a single event is likely to \
+	diminish the discount level provided for the group.'''),
 	'run_before': ('Has the Class been run Before?'),
 	'fee': ('Materials Fee'),
 	'space_needs': ('Room Preferences'),
@@ -115,10 +137,19 @@ panel_labels = {
 }
 
 panel_help_texts = {
-	'other_teachers': ('It is far more likely that your panel may be run at The Great Burlesque Expo 2014if we can find qualified panelists and a moderator - let us know any recommendations.'),
-	'run_before': ('The Great Burlesque Expo 2014 is looking for convention content that is new and that have successfully presented before, either at a convention, or elsewhere. If this content has run before, please describe where and when.'),
+	'other_teachers': ('''It is far more likely that your panel may be run at The \
+	Great Burlesque Expo 2014if we can find qualified panelists and a moderator - \
+	let us know any recommendations.'''),
+	'run_before': ('''The Great Burlesque Expo 2014 is looking for convention \
+	content that is new and that have successfully presented before, either at \
+	a convention, or elsewhere. If this content has run before, please describe \
+	where and when.'''),
 }
 
+offsite_vendor_help_text = '''A phone number for your business landline, if \
+different from above.'''
+vendor_description_help_text = '''Please describe your good or services in 250 words \
+or less. We will publish this text on the website.'''
 vendor_labels = {
 	'vend_time':  ('I\'d like to vend...'),
 	'want_help': ('Help Wanted'),
@@ -127,6 +158,8 @@ vendor_labels = {
 }
 vendor_help_texts = {
 	'vend_time':  ('I\'d like to vend...'),
-	'want_help': ('Would you like us to help you find someone to work at your booth or table with you?'),
-	'logo': ('Please provide any logo you would like displayed on our website and advertising'),
+	'want_help': ('''Would you like us to help you find someone to work at your \
+	booth or table with you?'''),
+	'logo': ('''Please provide any logo you would like displayed on our website \
+	and advertising'''),
 }
