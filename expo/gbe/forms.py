@@ -31,10 +31,7 @@ class ParticipantForm(forms.ModelForm):
                    'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
                    'preferred_contact', 'best_time', 'how_heard'
                   ]
-        labels = {
-            'address1': ('Street Address'),
-            'address2': ('Street Address (cont.)'),
-        }
+        labels = participant_labels
         help_texts = participant_form_help_texts
 
     # overload save to make sure there is always a display name
@@ -66,8 +63,8 @@ class ParticipantForm(forms.ModelForm):
 
 class RegistrationForm(UserCreationForm):
     '''Form for creating a GBE user. Collects info for User object as
-well as for user's profile (Partificipant object)
-'''
+		well as for user's profile (Partificipant object)
+	'''
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
@@ -90,7 +87,7 @@ class BidderInfoForm(forms.ModelForm):
     error_css_class = 'error'
     email = forms.EmailField(required=True)
     onsite_phone = forms.CharField(required=True,
-          help_text='A phone number we can use to reach you when you are at the Expo, such as cell phone.')
+          help_text=bidder_info_phone_error)
 
     class Meta:
         model = Profile
@@ -200,8 +197,8 @@ class ActBidForm(forms.ModelForm):
           group_err = True
           self._errors['other_performers']=self.error_class(actbid_otherperformers_missing)
         if group_err:
-          self._errors['is_group']=self.error_class(['If this is a group... other entries are needed.'])
-          raise forms.ValidationError('The submission says this is a group act, but there are no other performers listed')
+          self._errors['is_group']=self.error_class(actbid_group_wrong)
+          raise forms.ValidationError(actbid_group_error)
         video_choice = self.cleaned_data.get('video_choice')
         video_link = self.cleaned_data.get('video_link')
         if video_choice != "0" and video_link == '':
@@ -245,30 +242,8 @@ class ClassBidForm(forms.ModelForm):
                    'history', 'other_teachers', 'run_before', 'fee', 'space_needs',
                    'physical_restrictions', 'schedule_constraints','multiple_run']
         
-        labels = {
-            'min_size': ('Minimum Size'),
-            'max_size': ('Maxiumum Size'),
-            'history': ('Previous Experience'),
-            'other_teachers': ('Fellow Teachers'),
-            'run_before': 'Has the Class been run Before?',
-            'fee': 'Materials Fee',
-            'space_needs': 'Room Preferences',
-            'physical_restrictions': 'Physical Restrictions',
-            'schedule_constraints': 'Scheduling Constraints',
-            'multiple_run': 'Are you willing to run the class more than once?',
-        }
-        help_texts = {
-            'min_size': ('The minimum number of people required for your class. This guideline helps the convention meet both teacher expectations and class size needs. If you\'re not sure, make the minimum 1'),
-            'max_size': ('The maximum number of people that the class can accomodate.'),
-            'history': ('Previous Experience'),
-            'other_teachers': ('This is a preliminary list. You\'ll be asked to confirm fellow teachers if the class is confirmed. Additional teachers are eligible for discounts, however a large number of teachers for a single event is likely to diminish the discount level provided for the group. '),
-            'run_before': ('Has the Class been run Before?'),
-            'fee': ('Materials Fee'),
-            'space_needs': ('Room Preferences'),
-            'physical_restrictions': ('Physical Restrictions'),
-            'schedule_constraints': ('Scheduling Constraints'),
-            'multiple_run': ('Are you willing to run the class more than once?'),
-        }
+        labels = classbid_labels
+        help_texts = classbid_help_texts
 
     def save(self, profile, commit=True):
       classbid = super(ClassBidForm, self).save(commit=False)
@@ -334,14 +309,8 @@ class PanelBidForm(forms.ModelForm):
         fields = [ 'email', 'onsite_phone', 'title', 'length_minutes',
          'description', 'other_teachers', 'run_before','space_options', 'type']
         
-        labels = {
-            'other_teachers': ('Recommended Panelists'),
-            'run_before': 'Has the Panel been run Before?',
-        }
-        help_texts = {
-            'other_teachers': ('It is far more likely that your panel may be run at The Great Burlesque Expo 2014if we can find qualified panelists and a moderator - let us know any recommendations.'),
-            'run_before': ('The Great Burlesque Expo 2014 is looking for convention content that is new and that have successfully presented before, either at a convention, or elsewhere. If this content has run before, please describe where and when.'),
-        }
+        labels = panel_labels
+        help_texts = panel_help_texts
 
     def save(self, profile, commit=True):
       bid = super(PanelBidForm, self).save(commit=False)
@@ -378,7 +347,7 @@ class VendorBidForm(forms.ModelForm):
     state = forms.CharField(required=False)
     zip_code = forms.IntegerField(required=False)
     country = forms.CharField(required=False)
-    offsite_preferred = forms.CharField( label="Business Phone:",
+    offsite_preferred = forms.CharField( label="Business Phone:", required=False,
           help_text='A phone number for your business landline, if different from above.')
 	# Forced required when in submission (not draft)
     company = forms.CharField(required=True, label='Company Name' )
@@ -392,16 +361,8 @@ class VendorBidForm(forms.ModelForm):
         			'onsite_phone', 'offsite_preferred', 'email', 'description', 'website', 
         			'logo', 'want_help','help_times', 'help_description']
         
-        labels = {'vend_time':  ('I\'d like to vend...'),
-        			'want_help': ('Help Wanted'),
-        			'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
-        			'help_description': ('Tell Us About the Person You\'d Like to Hire ')
-        			}
-        help_texts = {
-        			'vend_time':  ('I\'d like to vend...'),
-        			'want_help': ('Would you like us to help you find someone to work at your booth or table with you?'),
-        			'logo': ('Please provide any logo you would like displayed on our website and advertising'),
-        			}
+        labels = vendor_labels
+        help_texts = vendor_help_texts
 
     def save(self, profile, commit=True):
       bid = super(VendorBidForm, self).save(commit=False)

@@ -2,6 +2,11 @@
 # see gbetext.py for the rules
 # until I copy them oer
 
+participant_labels = {
+	'address1': ('Street Address'),
+	'address2': ('Street Address (cont.)'),
+}
+
 participant_form_help_texts = {
     'stage_name': ('The name used in your performance.  The Expo will include this \
 name in advertising, and it will be on your badge.  If you leave it blank, we will \
@@ -75,3 +80,53 @@ actbid_error_messages = {
 
 actbid_name_missing = ['...a name is needed']
 actbid_otherperformers_missing = ['...please describe the other performers.']
+actbid_group_wrong = ['If this is a group... other entries are needed.']
+actbid_group_error = 'The submission says this is a group act, but there are no other performers listed'
+
+classbid_labels = {
+	'min_size': ('Minimum Size'),
+	'max_size': ('Maxiumum Size'),
+	'history': ('Previous Experience'),
+	'other_teachers': ('Fellow Teachers'),
+	'run_before': 'Has the Class been run Before?',
+	'fee': 'Materials Fee',
+	'space_needs': 'Room Preferences',
+	'physical_restrictions': 'Physical Restrictions',
+	'schedule_constraints': 'Scheduling Constraints',
+	'multiple_run': 'Are you willing to run the class more than once?',
+}
+
+classbid_help_texts = {
+	'min_size': ('The minimum number of people required for your class. This guideline helps the convention meet both teacher expectations and class size needs. If you\'re not sure, make the minimum 1'),
+	'max_size': ('The maximum number of people that the class can accomodate.'),
+	'history': ('Previous Experience'),
+	'other_teachers': ('This is a preliminary list. You\'ll be asked to confirm fellow teachers if the class is confirmed. Additional teachers are eligible for discounts, however a large number of teachers for a single event is likely to diminish the discount level provided for the group. '),
+	'run_before': ('Has the Class been run Before?'),
+	'fee': ('Materials Fee'),
+	'space_needs': ('Room Preferences'),
+	'physical_restrictions': ('Physical Restrictions'),
+	'schedule_constraints': ('Scheduling Constraints'),
+	'multiple_run': ('Are you willing to run the class more than once?'),
+}
+
+panel_labels = {
+	'other_teachers': ('Recommended Panelists'),
+	'run_before': 'Has the Panel been run Before?',
+}
+
+panel_help_texts = {
+	'other_teachers': ('It is far more likely that your panel may be run at The Great Burlesque Expo 2014if we can find qualified panelists and a moderator - let us know any recommendations.'),
+	'run_before': ('The Great Burlesque Expo 2014 is looking for convention content that is new and that have successfully presented before, either at a convention, or elsewhere. If this content has run before, please describe where and when.'),
+}
+
+vendor_labels = {
+	'vend_time':  ('I\'d like to vend...'),
+	'want_help': ('Help Wanted'),
+	'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
+	'help_description': ('Tell Us About the Person You\'d Like to Hire ')
+}
+vendor_help_texts = {
+	'vend_time':  ('I\'d like to vend...'),
+	'want_help': ('Would you like us to help you find someone to work at your booth or table with you?'),
+	'logo': ('Please provide any logo you would like displayed on our website and advertising'),
+}
