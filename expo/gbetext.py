@@ -102,8 +102,7 @@ length_options = ((30, "30"),
                   (90, "90"),
                   (120,"120"))
 
-space_options = (('Please Choose an Option','Please Choose an Option'),
-                 ('Movement Class Floor', (("0","Don't Care about Floor"),
+space_options = (('Movement Class Floor', (("0","Don't Care about Floor"),
                                            ("1","Carpet"),
                                            ("2","Dance Floor"),
                                            ("3","Both"))),

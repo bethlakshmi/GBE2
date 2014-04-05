@@ -224,10 +224,6 @@ class ClassBidForm(forms.ModelForm):
 
 # Forced required when in submission (not draft)
     title = forms.CharField(required=True, label='Class')
-    length_minutes = forms.CharField(required=True, label='Class Length', 
-    			error_messages={'required': length_minutes_required, 
-    							'max_length': length_minutes_too_long },
-          		help_text=length_minutes_help_text)
     description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
                 'required': description_required, 'max_length': description_too_long },
           		help_text=description_help_text)
@@ -268,6 +264,24 @@ class ClassBidForm(forms.ModelForm):
           del self._errors['description']
       else:
         super(ClassBidForm, self).clean()
+        type = self.cleaned_data.get('type')
+        space_needs = self.cleaned_data.get('space_needs')
+        if type == 'Workshop' and space_needs:
+        	self._errors['type'] = space_error1
+        	self._errors['space_needs'] = space_error1
+        	raise forms.ValidationError(space_type_error1)
+        elif type == 'Movement' and (space_needs == "3" or space_needs == "4" or 
+        								space_needs == "5"):
+        	self._errors['type'] = space_error2
+        	self._errors['space_needs'] = space_error2
+        	raise forms.ValidationError(space_type_error2)
+        elif type == 'Lecture' and (space_needs == "0" or space_needs == "1" or 
+        								space_needs == "2"):
+        	self._errors['type'] = space_error3
+        	self._errors['space_needs'] = space_error3
+        	raise forms.ValidationError(space_type_error3)
+
+
       return self.cleaned_data
 
 class PanelBidForm(forms.ModelForm):

@@ -89,12 +89,6 @@ video_error2 = ['... or provide video']
 video_error3 = '''The Video Description suggests a Video Link would be provided, \
 but none was provided.'''
 
-length_minutes_required = ("Class Length (in minutes) is required.")
-length_minutes_too_long = ("The Class Length is too long.")
-length_minutes_help_text = '''Length class in minutes - please note that classes are \
-asked to end 10 minutes shorter than the full slot length, so a 60 minute class is \
-really 50 minutes.'''
-
 description_required = ("Description is required.")
 description_too_long = ("The Description is too long.")
 description_help_text = '''For use on the The Great Burlesque Expo website, in \
@@ -111,6 +105,7 @@ classbid_labels = {
 	'physical_restrictions': 'Physical Restrictions',
 	'schedule_constraints': 'Scheduling Constraints',
 	'multiple_run': 'Are you willing to run the class more than once?',
+	'length_minutes': ('Class Length'),
 }
 
 classbid_help_texts = {
@@ -123,13 +118,31 @@ classbid_help_texts = {
 	fellow teachers if the class is confirmed. Additional teachers are eligible for \
 	discounts, however a large number of teachers for a single event is likely to \
 	diminish the discount level provided for the group.'''),
-	'run_before': ('Has the Class been run Before?'),
+	'run_before': ('If the class has been run before, please let us know where and when.'),
 	'fee': ('Materials Fee'),
 	'space_needs': ('Room Preferences'),
 	'physical_restrictions': ('Physical Restrictions'),
 	'schedule_constraints': ('Scheduling Constraints'),
 	'multiple_run': ('Are you willing to run the class more than once?'),
+	'length_minutes': ('''Length class in minutes - please note that classes are \
+asked to end 10 minutes shorter than the full slot length, so a 60 minute class is \
+really 50 minutes.'''),
 }
+classbid_error_messages = {
+    'length_minutes': {
+        'required': ("Class Length (in minutes) is required."),
+        'max_length': ("The Class Length is too long."),
+    }}
+
+space_error1 = ('''A class of workshop type cannot have space choices.''')
+space_type_error1 = ('''A workshop has seating in a ring around the room, other options are not \
+available.''')
+space_error2 = ('''A class of movement type cannot have lecture space choices.''')
+space_type_error2 = ('''A movement class may have room preferences listed for movement \
+classes, but the chosen lecture style arrangement is not an option.''')
+space_error3 = ('''A class of lecture type cannot have movement space choices.''')
+space_type_error3 = ('''A lecture class may have room preferences listed for lecture \
+classes, but the chosen movement style arrangement is not an option.''')
 
 panel_labels = {
 	'other_teachers': ('Recommended Panelists'),

@@ -300,13 +300,12 @@ class ClassBid(Bid):
     fee = models.IntegerField(blank=True, default=0)
     other_teachers = models.CharField(max_length=128, blank=True)
     description = models.TextField(max_length = 500, blank=True)  
-    length_minutes = models.IntegerField(blank=True, 
-                                         choices=length_options, 
+    length_minutes = models.IntegerField(choices=length_options, 
                                          default=60)
     min_size = models.IntegerField(blank=True, default=1)
     max_size = models.IntegerField(blank=True, default=20)
     history =  models.TextField(max_length = 500, blank=True)
-    run_before = models.CharField(max_length=128, blank=True)
+    run_before = models.TextField(max_length=500, blank=True)
     schedule_constraints = models.CharField(max_length=128, blank=True)
     space_needs = models.CharField(max_length=128, 
                                    choices=space_options, 
