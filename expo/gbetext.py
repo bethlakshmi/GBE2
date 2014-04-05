@@ -122,8 +122,8 @@ day_options = (('Fri', "Friday"),
                ('Sat', "Saturday"),
                ('Sun', "Sunday"))
 
-vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY: $150.00',
-						 "Saturday & Sunday, noon to 8pm ONLY: $150.00"))
+vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
+						 "Saturday & Sunday, noon to 8pm ONLY."))
 ad_type_options = (("Full Page, Premium","Full Page, Premium"),
 					("Full Page, Interior","Full Page, Interior"),
 					("Half Page, Premium","Half Page, Premium"),

@@ -101,7 +101,7 @@ def bid(request, type, bid_id=None):
 			return HttpResponseRedirect('/bid/'+type+'-thanks')
 		else: 
 			return render(request, 'bids/bid.html', { 'form': form, 'action':action,
-				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
+				'otherbids':otherbids, 'editaction':editaction, 'bid_state':bid.state, 'intro':'bids/'+type+'intro.html' })
 	else:
 		if type == "act":
 			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 'bidid':bid.id,
@@ -113,14 +113,18 @@ def bid(request, type, bid_id=None):
 			form = PanelBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		elif type == "vendor":
-			form = VendorBidForm(instance=bid, initial={'name': profile.display_name, 
-                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+			form = VendorBidForm(instance=bid, initial={'first_name': request.user.first_name, 
+                     'last_name': request.user.last_name, 'address1': profile.address1,
+                     'address2': profile.address2, 'city': profile.city, 'state': profile.state, 
+                     'zip_code': profile.zip_code, 'country': profile.country, 
+                     'email':request.user.email, 'onsite_phone':profile.onsite_phone, 
+                     'offsite_preferred':profile.offsite_preferred} )
 		else:
 			return HttpResponseRedirect('/bid/'+type+'-error')
 
 
 	return render(request, 'bids/bid.html', { 'form': form, 'action':action, 
-        'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
+        'otherbids':otherbids, 'editaction':editaction, 'bid_state':bid.state, 'intro':'bids/'+type+'intro.html' })
 
 
     

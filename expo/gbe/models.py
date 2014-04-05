@@ -331,11 +331,12 @@ class VendorBid(Bid):
 	A request for a space in the marketplace.
 	Vendors have to bid, too
 	'''
-	vend_time = models.CharField(max_length=128, choices=vend_time_options)
+	vend_time = models.CharField(max_length=128, choices=vend_time_options, default=" ")
 	company = models.CharField(max_length=128, blank=True)
 	description = models.TextField(max_length=500, blank=True)
 	website = models.URLField(blank=True)
-	want_help = models.CharField(max_length=128, choices=yesno_options)
+	logo = models.FileField(upload_to="uploads/images", blank=True)
+	want_help = models.CharField(max_length=128, choices=yesno_options, blank=True)
 	help_times = models.CharField(max_length=128, blank=True)
 	help_description = models.TextField(max_length=500, blank=True)
 
