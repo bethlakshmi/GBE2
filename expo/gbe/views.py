@@ -76,14 +76,16 @@ def bid(request, type, bid_id=None):
 		
 	if request.method =='POST':
 		if type == "act":
-			form = ActBidForm(request.POST, request.FILES, instance=bid, 
-								initial={'profile':profile, 'bidid':bid.id})
+			form = ActBidForm(request.POST, 
+                                          request.FILES, instance=bid, 
+                                          initial={'profile':profile, 'bidid':bid.id})
 		elif type == "class":
-			form = ClassBidForm(request.POST, instance=bid, 
-								initial={'profile':profile})
+			form = ClassBidForm(request.POST, 
+                                            instance=bid, 
+                                            initial={'profile':profile})
 		elif type == "panel":
 			form = PanelBidForm(request.POST, instance=bid, 
-								initial={'profile':profile})
+                                            initial={'profile':profile})
 		else:
 			return HttpResponseRedirect('/bid/'+type+'-error')
 
@@ -91,12 +93,16 @@ def bid(request, type, bid_id=None):
 			new = form.save(profile)
 			return HttpResponseRedirect('/bid/'+type+'-thanks')
 		else: 
-			return render(request, 'bids/bid.html', { 'form': form, 'action':action,
-				'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
+			return render(request, 'bids/bid.html', 
+                                      { 'form': form, 'action':action,
+                                        'otherbids':otherbids, 'editaction':editaction, 
+                                        'state':bid.state, 'intro':'bids/'+type+'intro.html' })
 	else:
 		if type == "act":
-			form = ActBidForm(instance=bid, initial={'name': profile.stage_name, 'bidid':bid.id,
-						'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
+			form = ActBidForm(instance=bid, 
+                                          initial={'name': profile.stage_name, 'bidid':bid.id,
+                                                   'email':request.user.email, 
+                                                   'onsite_phone':profile.onsite_phone} )
 		elif type == "class":
 			form = ClassBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
@@ -107,8 +113,10 @@ def bid(request, type, bid_id=None):
 			return HttpResponseRedirect('/bid/'+type+'-error')
 
 
-	return render(request, 'bids/bid.html', { 'form': form, 'action':action, 
-        'otherbids':otherbids, 'editaction':editaction, 'state':bid.state, 'intro':'bids/'+type+'intro.html' })
+	return render(request, 'bids/bid.html', 
+                      { 'form': form, 'action':action, 
+                        'otherbids':otherbids, 'editaction':editaction, 
+                        'state':bid.state, 'intro':'bids/'+type+'intro.html' })
 
 
     
