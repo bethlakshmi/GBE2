@@ -326,19 +326,6 @@ class ClassSchedule(models.Model):
 	class_bid = models.ForeignKey(ClassBid)
 	bidder = models.ForeignKey(Profile)
 
-vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY: $150.00',
-						 "Saturday & Sunday, noon to 8pm ONLY: $150.00"))
-ad_type_options = (("Full Page, Premium","Full Page, Premium"),
-					("Full Page, Interior","Full Page, Interior"),
-					("Half Page, Premium","Half Page, Premium"),
-					("Half Page, Interior","Half Page, Interior"),
-					("Quanter Page, Premium","Quanter Page, Premium"),
-					("Quanter Page, Interior","Quanter Page, Interior"))
-
-num_panel_options = (("One Panel","One Panel ($30 includes application fee)"),
-					("Two Panels","Two Panels ($75; if your work is not accepted, $45 will be refunded)"),
-					("Sculpture","My artwork is sculptural and needs to be displayed on a table ($30 includes app. fee)"))
-
 class VendorBid(Bid):
 	'''
 	A request for a space in the marketplace.

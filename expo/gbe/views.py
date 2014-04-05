@@ -90,6 +90,9 @@ def bid(request, type, bid_id=None):
 		elif type == "panel":
 			form = PanelBidForm(request.POST, instance=bid, 
 								initial={'profile':profile})
+		elif type == "vendor":
+			form = VendorBidForm(request.POST, instance=bid, 
+								initial={'profile':profile})
 		else:
 			return HttpResponseRedirect('/bid/'+type+'-error')
 
@@ -110,7 +113,7 @@ def bid(request, type, bid_id=None):
 			form = PanelBidForm(instance=bid, initial={'name': profile.stage_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		elif type == "vendor":
-			form = PanelBidForm(instance=bid, initial={'name': profile.display_name, 
+			form = VendorBidForm(instance=bid, initial={'name': profile.display_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		else:
 			return HttpResponseRedirect('/bid/'+type+'-error')
