@@ -28,6 +28,7 @@ TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 MEDIA_URL = '/'
+LOGIN_URL = '/login/'
 
 # Application definition
 
