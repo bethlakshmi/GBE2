@@ -119,16 +119,17 @@ class ActBidForm(forms.ModelForm):
 
 # Forced required when in submission (not draft)
     title = forms.CharField(required=True, label='Title of Act')
-    act_length = forms.CharField(required=True, label='Act Length', error_messages={
-                'required': act_length_required, 'max_length': act_length_too_long },
-          help_text=act_length_help_text)
     bio = forms.CharField(widget=forms.Textarea, required=True, label='History',
           error_messages={'required': bio_required, 'max_length': bio_too_long },
           help_text=bio_help_text)
     description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
                 'required': act_description_required, 'max_length': act_description_too_long },
           		help_text=act_description_help_text)
-    act_length = forms.TimeField(input_formats=['%M:%S'])
+    act_length = forms.TimeField(input_formats=['%M:%S'],
+                                 required=True,
+                                 error_messages={'blank':act_length_required,
+                                                 'null':act_length_required,
+                                                 'invalid':act_length_help_text})
     promo_image = forms.FileField(required=True, label='Publicity Picture',
           error_messages={ 'required': promo_required }, help_text=promo_help_text)
 
