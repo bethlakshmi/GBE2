@@ -145,47 +145,41 @@ class ActBidForm(forms.ModelForm):
         help_texts = actbid_help_texts
         error_messages = actbid_error_messages
     def save(self, profile, commit=True):
-      actbid = super(ActBidForm, self).save(commit=False)
-      actbid.bidder = profile
-      actbid.last_update = datetime.datetime.utcnow().replace(tzinfo=utc)
-      profile.onsite_phone = self.cleaned_data['onsite_phone']
-      profile.user_object.email = self.cleaned_data['email']
-      if self.cleaned_data['is_group'] == "No" and self.cleaned_data['name'] != '':
-         profile.stage_name = self.cleaned_data['name']
-         profile.display_name = self.cleaned_data['name']
-      for festival in festival_list:
-         try:
-          festival_experience = PerformerFestivals.objects.get(actbid=6,festival=festival[0])
-          festival_experience.experience = experience=self.cleaned_data.get(festival[0])
-         except ObjectDoesNotExist:
-          festival_experience = PerformerFestivals(
-          experience=self.cleaned_data.get(festival[0]),
-          festival=festival[0],
-          actbid=actbid)
-         if commit:
-          festival_experience.save()
-         
-
-      if 'Submit' in self.data:
-         actbid.state = "Submitted"
-      elif 'Draft' in self.data:
-         actbid.state = "Draft"
-      if commit:
-         actbid.save()
-         profile.save()
-         profile.user_object.save()
+        actbid = super(ActBidForm, self).save(commit=False)
+        actbid.bidder = profile
+        actbid.last_update = datetime.datetime.utcnow().replace(tzinfo=utc)
+        profile.onsite_phone = self.cleaned_data['onsite_phone']
+        profile.user_object.email = self.cleaned_data['email']
+        if self.cleaned_data['is_group'] == "No" and self.cleaned_data['name'] != '':
+            profile.stage_name = self.cleaned_data['name']
+            profile.display_name = self.cleaned_data['name']
+        for festival in festival_list:
+            try:
+                festival_experience = PerformerFestivals.objects.get(actbid=6,festival=festival[0])
+                festival_experience.experience = experience=self.cleaned_data.get(festival[0])
+            except ObjectDoesNotExist:
+                festival_experience = PerformerFestivals(
+                    experience=self.cleaned_data.get(festival[0]),
+                    festival=festival[0],
+                    actbid=actbid)
+                if commit:
+                    festival_experience.save()
+        if 'Submit' in self.data:
+            actbid.state = "Submitted"
+        elif 'Draft' in self.data:
+            actbid.state = "Draft"
+        if commit:
+            actbid.save()
+            profile.save()
+            profile.user_object.save()
          
     def clean(self):
       if 'Draft' in self.data:
         super(ActBidForm, self).clean()
-        if 'bio' in self._errors:
-          del self._errors['bio']
-        if 'act_length' in self._errors:
-          del self._errors['act_length']
-        if 'description' in self._errors:
-          del self._errors['description']
-        if 'promo_image' in self._errors:
-          del self._errors['promo_image']
+        for field in ['bio', 'act_length', 'description', 'promo_image']:
+            if field in self._errors:
+                del self._errors[field]
+
       else:
         super(ActBidForm, self).clean()
         is_group = self.cleaned_data.get('is_group')
