@@ -176,3 +176,12 @@ vendor_help_texts = {
 	'logo': ('''Please provide any logo you would like displayed on our website \
 	and advertising'''),
 }
+
+help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
+					('Saturday, 12p to 4pm','Saturday, 12p to 4pm'),
+					('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
+					('Saturday after 8pm', 'Saturday after 8pm'),
+					('Sunday, 9am to noon', 'Sunday, 9am to noon'),
+					('Sunday, 12p to 4pm', 'Sunday, 12p to 4pm'),
+					('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
+					('Sunday after 8pm', 'Sunday after 8pm'))

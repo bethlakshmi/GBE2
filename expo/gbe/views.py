@@ -93,7 +93,7 @@ def bid(request, type, bid_id=None):
 			form = PanelBidForm(request.POST, instance=bid, 
 								initial={'profile':profile})
 		elif type == "vendor":
-			form = VendorBidForm(request.POST, instance=bid, 
+			form = VendorBidForm(request.POST, request.FILES, instance=bid, 
 								initial={'profile':profile})
 		else:
 			return HttpResponseRedirect('/bid/'+type+'-error')
@@ -121,7 +121,7 @@ def bid(request, type, bid_id=None):
 		elif type == "vendor":
 			form = VendorBidForm(instance=bid, initial={'first_name': request.user.first_name, 
                      'last_name': request.user.last_name, 'address1': profile.address1,
-                     'address2': profile.address2, 'city': profile.city, 'state': profile.state, 
+                     'address2': profile.address2, 'city': profile.city, 'prof_state': profile.state, 
                      'zip_code': profile.zip_code, 'country': profile.country, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone, 
                      'offsite_preferred':profile.offsite_preferred} )
@@ -187,5 +187,7 @@ def register (request):
     return render(request, 'gbe/register.html', {
         'form':form})
 
-    
+def test(request):
+    return render(request, 'bids/index.html')
+  
 

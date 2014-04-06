@@ -20,7 +20,7 @@ errors before submitting.</font>
 <b>To edit and existing bid proposal, click the proposal below:</b>
 <ul>
     {% for bid in otherbids %}
-    <li>{{ bid.state }}: <A HREF="{{ editaction }}{{ bid.id }}/">{{ bid.title }}</A></li>
+    <li>{{ bid.state }}: <A HREF="{{ editaction }}{{ bid.id }}/">{{ bid }}</A></li>
     {% endfor %}
 </ul>
 <br>
@@ -32,22 +32,21 @@ errors before submitting.</font>
 
     {% include "form_table.html" %}
 
+<br>
+<B>Payment Information</B>
+<br>Please note that your act submittal is not complete without payment of the 
+application fee.  You can pay that fee at Brown Paper Tickets using the link below.
 
-<TR><TD COLSPAN=2 BGCOLOR="#CCFFFF"><B>&nbsp;<BR>Payment Information</B></TD></TR>
-<tr><td colspan=2><br>Please note that your act submittal is not complete without payment of the application fee.  You can pay that fee at Brown Paper Tickets using the link below.
-</td></tr>
-<tr><td colspan=2><a href=http://www.brownpapertickets.com/event/ID-None/450851 target="_blank">Make Payment at Brown Paper Tickets</a></td></tr>
-<tr><td colspan=2>&nbsp</td></tr>
-<input type="hidden" name="currentDraft" value="1">
-  <tr>
-    <td colspan="2" align="center">
+<br><br>
+<a href=http://www.brownpapertickets.com/event/ID-None/450851 target="_blank">
+Make Payment at Brown Paper Tickets</a>
+<br><br>
+
     <input type="submit" name="Submit" value="Submit Bid">
     &nbsp;&nbsp;&nbsp;
     {% if bid_state == "Draft" %}
     <input type="submit" value="Update Draft" name="Draft">
     {% endif %}
-    </td>
-  </tr>
-</TABLE>
-</FORM>
+
+</form>
 {% endblock %}

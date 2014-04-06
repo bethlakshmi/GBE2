@@ -333,7 +333,14 @@ class VendorBid(Bid):
     website = models.URLField(blank=True)
     logo = models.FileField(upload_to="uploads/images", blank=True)
     want_help = models.CharField(max_length=128, choices=yesno_options, blank=True)
-    help_times = models.CharField(max_length=128, blank=True)
+    Saturday_9AM_to_12PM = models.BooleanField()
+    Saturday_12PM_to_4PM = models.BooleanField()
+    Saturday_4PM_to_8PM = models.BooleanField()
+    Saturday_after_8PM = models.BooleanField()
+    Sunday_9AM_to_12PM = models.BooleanField()
+    Sunday_12PM_to_4PM = models.BooleanField()
+    Sunday_4PM_to_8PM = models.BooleanField()
+    Sunday_after_8PM = models.BooleanField()
     help_description = models.TextField(max_length=500, blank=True)
     
     def __unicode__(self):  # Python 3: def __str__(self):

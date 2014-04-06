@@ -338,7 +338,7 @@ class VendorBidForm(forms.ModelForm):
     address1 = forms.CharField(max_length=128, required=False)
     address2 = forms.CharField(max_length=128, required=False)
     city = forms.CharField(max_length=128, required=False)
-    state = forms.CharField(required=False)
+    prof_state = forms.ChoiceField(required=False, choices=states_options, label="State" )
     zip_code = forms.IntegerField(required=False)
     country = forms.CharField(required=False)
     offsite_preferred = forms.CharField( label="Business Phone:", required=False,
@@ -351,9 +351,13 @@ class VendorBidForm(forms.ModelForm):
     class Meta:
         model = VendorBid
         fields = [ 'vend_time',  'company', 'first_name', 'last_name', 
-        			'address1', 'address2', 'city', 'state', 'zip_code', 'country', 
-        			'onsite_phone', 'offsite_preferred', 'email', 'description', 'website', 
-        			'logo', 'want_help','help_times', 'help_description']
+        			'address1', 'address2', 'city', 'prof_state', 'zip_code',  
+        			'country', 'onsite_phone', 'offsite_preferred', 'email',  
+        			'description', 'website', 'logo', 'want_help', 
+        			'Saturday_9AM_to_12PM', 'Saturday_12PM_to_4PM',
+        			'Saturday_4PM_to_8PM', 'Saturday_after_8PM', 
+        			'Sunday_9AM_to_12PM', 'Sunday_12PM_to_4PM', 
+        			'Sunday_4PM_to_8PM', 'Sunday_after_8PM', 'help_description']
         
         labels = vendor_labels
         help_texts = vendor_help_texts
@@ -364,8 +368,19 @@ class VendorBidForm(forms.ModelForm):
       bid.last_update =  datetime.datetime.utcnow().replace(tzinfo=utc)
       bid.type = "Panel"
       
-      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.user_object.first_name = self.cleaned_data['first_name']
+      profile.user_object.last_name = self.cleaned_data['last_name']
       profile.user_object.email = self.cleaned_data['email']
+      
+      profile.onsite_phone = self.cleaned_data['onsite_phone']
+      profile.address1 = self.cleaned_data['address1']
+      profile.address2 = self.cleaned_data['address2']
+      profile.city = self.cleaned_data['city']
+      profile.state = self.cleaned_data['prof_state']
+      profile.zip_code = self.cleaned_data['zip_code']
+      profile.country = self.cleaned_data['country']
+      profile.offsite_preferred = self.cleaned_data['offsite_preferred']
+      
       if 'Submit' in self.data:
          bid.state = "Submitted"
       elif 'Draft' in self.data:
