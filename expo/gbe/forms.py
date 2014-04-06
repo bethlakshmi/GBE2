@@ -128,6 +128,7 @@ class ActBidForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
                 'required': act_description_required, 'max_length': act_description_too_long },
           		help_text=act_description_help_text)
+    act_length = forms.TimeField(input_formats=['%M:%S'])
     promo_image = forms.FileField(required=True, label='Publicity Picture',
           error_messages={ 'required': promo_required }, help_text=promo_help_text)
 

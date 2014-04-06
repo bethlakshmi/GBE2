@@ -259,10 +259,7 @@ class ActBid(Bid):
     bio =  models.TextField(max_length = 500, blank=True)
     artist = models.CharField(max_length = 128, blank=True)
     song_name = models.CharField(max_length = 128, blank=True)
-    act_length = models.CharField(max_length = 10,
-                                  validators=[RegexValidator(regex='(\d{1,2}:\d{1,2})',
-                                                             message=time_format_error)], 
-                                  blank=True)
+    act_length = models.TimeField(blank=True)
     description = models.TextField(max_length = 500, blank=True)  
     video_choice = models.CharField(max_length=60,
                                   choices=video_options, default=2 )
