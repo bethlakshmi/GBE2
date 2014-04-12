@@ -23,15 +23,21 @@ class Profile(models.Model):
     expose with properties, I suppose)
     '''
     user_object = models.OneToOneField(User) 
-    stage_name = models.CharField(max_length=128, blank=True) 
-    display_name = models.CharField(max_length=128) 
+    display_name = models.CharField(max_length=128, blank=True) 
         # we really do need both legal and display name, we use the legal to verify 
         # tickets purchased, and I'd like to add a switch for which name gets shown where 
         # for bios
+
+        # stage name is now linked with the stage persona (ie, Performer)
+        # Can still have a display name for people who want to use something
+        # other than their legit name: if present, this is used on all badges
+        # and such
       
     # used for linking tickets  
+    # ???? How does this differ from their other email? -jpk
     purchase_email = models.CharField(max_length=64, default = '') 
  
+
     # contact info - I'd like to split this out to its own object
     # so we can do real validation 
     # but for now, let's just take what we get
@@ -65,37 +71,69 @@ class Profile(models.Model):
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name;
         
-
-    # participant status
-    # haven't really thought this bit through yet, could change
-    # radically
-    # note: these are not privileges. privs are managed through the
-    # User object
-    # Betty - leaving this for now, but my recommendation is to leave most of these as 
-    # determined by the state of other involvement - so a performer is a performer iff
-    # they are in a show with an act.  The ways people can drop and be change will grow
-    # over time, and this makes for one more flag.
-
-    #is_paid = models.BooleanField()
-    #is_volunteer = models.BooleanField()
-    #is_staff = models.BooleanField()
-    #is_performer = models.BooleanField()
-    #is_vendor = models.BooleanField()
-    
-
-class Bio (models.Model):
+class Performer (models.Model):
     '''
-    A single performer, duo or small group, or a troupe.
+    Abstract base class for any solo, group, or troupe - anything that can appear
+    in a show lineup or teach a class
+    The fields are named as we would name them for a single performer. In all cases, 
+    when applied to an aggregate (group or troup) they apply to the aggregate as a 
+    whole. The Boston Baby Dolls DO NOT list awards won by members of the troupe, only
+    those won by the troup. (individuals can list their own, and these can roll up if 
+    we want). Likewise, the bio of the Baby Dolls is the bio of the company, not of 
+    the members, and so forth. 
     '''
-    contact = models.ForeignKey(Profile)
-    homepage = models.URLField(blank=True)
-    bio = models.TextField()
-    experience = models.IntegerField()
-    awards = models.TextField(blank=True)
-    hotel = models.BooleanField()
-#    promo_image = models.ImageField(upload_to="uploads/images")
-#    promo_video = models.FileField(upload_to="uploads/video", blank=True)
+    contact = models.ForeignKey(Profile, related_name='contact')
+                                             # the single person the expo should 
+                                             # talk to about Expo stuff. Could be the 
+                                             # solo performer, or a member of the troupe,
+                                             # or a designated agent, but this person
+                                             # is authorized to make decisions about 
+                                             # the Performer's expo appearances. 
+    name = models.CharField(max_length=100)
+    homepage = models.URLField (blank = True)
+    bio = models.TextField ()
+    experience = models.IntegerField ()       # in years
+    awards = models.TextField (blank = True)    
+    promo_image = models.FileField(upload_to="uploads/images", 
+                                   blank=True)
+    video_link = models.URLField (blank = True)
+    puffsheet  = models.FileField (upload_to="uploads/files", 
+                                   blank = True)  # "printed" press kit
+    festivals = models.TextField (blank = True)     # placeholder only
 
+
+class IndividualPerformer (Performer):
+    '''
+    One person who performs or teaches. May be aggregated into a group or a troupe, 
+    or perform solo, or both. A single person might conceivably maintain two
+    distinct performance identities and therefore have multiple
+    IndividualPerformer objects associated with their profile. 
+    '''
+    performer_profile = models.ForeignKey(Profile)    # the performer's identity on the site
+
+class Troupe(Performer):
+    '''
+    Two or more performers working together as an established entity. A troupe
+    connotes an entity with a stable membership, a history, and hopefully a
+    future. This suggests that a troupe should have some sort of legal
+    existence, though this is not required for GBE. Further specification
+    welcomed. 
+    '''
+    membership = models.ManyToManyField (IndividualPerformer, 
+                                         related_name='memberships')
+    creator = models.TextField (blank = True)
+
+class Combo (Performer):
+    '''
+    Two or more Performers, working together, on a temporary or ad-hoc
+    basis. For example, two performers who put together a routine for the GBE
+    but do not otherwise perform together would be a Combo and not a Troupe. The
+    distinction between Combo is basically semantic, and the separation is
+    intended to aid in maintaining that semantic distinction. If it is
+    inconvenient, the separation need not persist in the code. 
+    '''
+    membership = models.ManyToManyField (IndividualPerformer, 
+                                         related_name='combos')
     
 
 class AudioInfo(models.Model):
@@ -151,11 +189,11 @@ class Act (Biddable):
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
       # inherit title and description from Biddable
-    performer_bio = models.ForeignKey(Bio)
+    performer = models.ForeignKey(Performer)
     duration = models.CharField(max_length=50)
     intro_text = models.TextField()
     tech = models.ForeignKey(TechInfo)
-    performers = models.ManyToManyField(Profile)  # Perhaps should be
+
 
 
 
@@ -207,7 +245,7 @@ class Class (Event):
     pre-registration will be at least permitted and usually
     encourged. 
     '''
-    teacher = models.ForeignKey(Bio)  # not all teachers will be
+    teacher = models.ForeignKey(Performer)  # not all teachers will be
                                             # performers, but we're
                                             # going to want
                                             # performer-like info, so
@@ -261,10 +299,6 @@ class ActBid(Bid):
     song_name = models.CharField(max_length = 128, blank=True)
     act_length = models.TimeField(blank=True)
     description = models.TextField(max_length = 500, blank=True)  
-    video_choice = models.CharField(max_length=60,
-                                  choices=video_options, default=2 )
-    video_link = models.URLField(blank=True)
-    promo_image = models.FileField(upload_to="uploads/images", blank=True)
     hotel_choice = models.CharField(max_length=20,
                                   choices=participate_options, default='Not Sure')
     volunteer_choice = models.CharField(max_length=20,

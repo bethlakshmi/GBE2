@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
-from gbe.models import Event, Act, Bio, ActBid, ClassBid
+from gbe.models import Event, Act, Performer, ActBid, ClassBid
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -17,6 +17,35 @@ def index(request):
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
+
+
+def techinfo(request):
+    form = TechInfoForm()
+    return render(request, 'gbe/techinfo.html', {'form':form})
+
+@login_required
+def register_as_performer(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect("/accounts/profile/")
+    if request.method == 'POST':
+        form = IndividualPerformerForm(request.POST, request.FILES)
+        if form.is_valid():
+            performer = form.save(commit=True)
+            return HttpResponseRedirect("profile/",profile.pk)
+        else:
+            return render (request, 
+                           'gbe/performer_edit.tmpl',
+                           {'form':form})
+    else:
+        form = IndividualPerformerForm (initial= {'performer_profile' : profile,
+                                                  'contact' : profile } )
+        return render(request, 
+                      'gbe/performer_edit.tmpl',
+                      {'form':form})
+                      
+
 
 @login_required
 def bid(request, type, bid_id=None):   
@@ -109,14 +138,14 @@ def bid(request, type, bid_id=None):
 	else:
 		if type == "act":
 			form = ActBidForm(instance=bid, 
-                                          initial={'name': profile.stage_name, 'bidid':bid.id,
+                                          initial={'name': profile.display_name, 'bidid':bid.id,
                                                    'email':request.user.email, 
                                                    'onsite_phone':profile.onsite_phone} )
 		elif type == "class":
-			form = ClassBidForm(instance=bid, initial={'name': profile.stage_name, 
+			form = ClassBidForm(instance=bid, initial={'name': profile.display_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		elif type == "panel":
-			form = PanelBidForm(instance=bid, initial={'name': profile.stage_name, 
+			form = PanelBidForm(instance=bid, initial={'name': profile.display_name, 
                      'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
 		elif type == "vendor":
 			form = VendorBidForm(instance=bid, initial={'first_name': request.user.first_name, 
