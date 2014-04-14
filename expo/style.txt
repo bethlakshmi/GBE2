@@ -1,0 +1,51 @@
+Some notes on style for GBE
+
+
+*If in doubt, default to PEP-8 style. 
+If PEP-8 seems wrong, we'll figure out the best thing to do
+
+*Indentation: indent to four spaces, always. Never tabs. This is the single
+ most important rule in this document - if you break it, you'll cause misery
+ for someone. 
+
+*Line Length: 80-char lines are preferred, 100 is a hard limit. 
+
+*Long parameter lists, dicts, and so forth: Consider stacking long lists vertically
+Instead of this: 
+error_texts = { 'blah': blah_text, 'foo': foo_text, 'bar': bar_text}
+
+I would usually prefer this:
+error_texts = { 'blah': blah_text, 
+	      	'foo': foo_text,   
+		'bar': bar_text}
+
+but
+
+*Literal text should not appear in source code. We have several files for
+ defining literal text strings as python objects. Yes, this is technically
+ source code, but it saves us parsing. We can make more of these, they're
+ free. Never define a user-facing string in a file that also defines
+ functionality. 
+
+*Variable and type names: python convention is to use underscore_spacing for
+ variables and CamelCase (with ininitial capital) for class
+ names. This is the convention we will apply here. 
+
+*Quotes: prefer single-quotes unless you're enclosing a single-quote and can't
+be arsed to escape it. 
+
+*docstrings: all class and function definitions deserve good docstrings. In
+fact, I'd prefer a good docstring to actual code, if I had to choose. I can
+always fill in the code from your intent, but it's harder to fill in the intent
+from the code. Docstrings should be quoted like so:
+
+def frobnicate(widget):
+    '''
+    Perform a frobnication as specified in Belboz's Wizarding Today paper of
+    867 GUE. Note that widget should be quux-proof. 
+    '''
+
+
+*Compiler artifacts like .pyc files should not get committed. The
+ .gitignore file should block them, but if you happen to see one, feel
+ free to delete it. 
