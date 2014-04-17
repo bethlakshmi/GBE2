@@ -21,8 +21,23 @@ def event(request, event_id):
 
 def techinfo(request):
     form = TechInfoForm()
-    return render(request, 'gbe/techinfo.html', {'form':form})
+    return render(request, 
+                  'gbe/techinfo.html', 
+                  {'form':form})
 
+def view_profile(request, profile_id):
+    try:
+        viewer_profile = request.user.profile
+    except Profile.DoesNotExist:
+        viewer_profile=None
+    requested_profile = get_object_or_404(Profile, pk=profile_id)
+    own_profile =  (viewer_profile == requested_profile)
+    form = ProfileForm(instance=requested_profile)
+    return render (request, 
+                   'gbe/profile_view.tmpl', 
+                   {'form':form})
+
+    
 @login_required
 def register_as_performer(request):
     try:
@@ -33,7 +48,8 @@ def register_as_performer(request):
         form = IndividualPerformerForm(request.POST, request.FILES)
         if form.is_valid():
             performer = form.save(commit=True)
-            return HttpResponseRedirect("profile/",profile.pk)
+            pid = profile.pk
+            return HttpResponseRedirect("/profile/"+ str(pid))
         else:
             return render (request, 
                            'gbe/performer_edit.tmpl',
@@ -46,6 +62,58 @@ def register_as_performer(request):
                       {'form':form})
                       
 
+
+@login_required
+def bid_act(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    if request.method == 'POST':
+        form = ActBidForm(request.POST)
+        if form.is_valid():
+            audio_info = AudioInfo()
+            audio_info.title=form.fields['song_name']
+            audio_info.artist=form.fields['artist']
+            audio_info.duration=form.fields['duration']
+            audio_info.save()
+            lighting = LightingInfo()
+            lighting.save()
+            props= PropsInfo()
+            props.save()
+
+            tech_info = TechInfo()
+            tech_info.audio = audio_info
+            tech_info.lighting = lighting
+            tech_info.props = props
+            
+            tech_info.save()
+            act = form.save(commit=False)
+            act.tech=tech_info
+            act.accepted = False
+            act.save()
+            return HttpResponseRedirect('/profile/')  # do something reasonable here
+        else:
+            return render (request,
+                           'gbe/bid.tmpl',
+                           {'form':form})
+    else:
+        form = ActBidForm(initial={'owner':profile})
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'form':form})
+
+def review_act_bid(request, act_id):
+    act = get_object_or_404(Act, pk=act_id)
+    if request.method == 'POST':
+        act.accepted = request.POST.accepted
+        return HttpResponseRedirect('/') # show us the act, or success message, or something
+    else:
+        form = ActBidReviewForm(instance=act)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'form':form})
+            
 
 @login_required
 def bid(request, type, bid_id=None):   
@@ -163,6 +231,8 @@ def bid(request, type, bid_id=None):
                         'bid_state':bid.state, 'intro':'bids/'+type+'intro.html' })
 
 
+                    
+
     
 @login_required
 def bid_response(request,type,response):
@@ -171,6 +241,7 @@ def bid_response(request,type,response):
 	return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
+    
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 

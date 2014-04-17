@@ -95,6 +95,7 @@ class BidderInfoForm(forms.ModelForm):
 
 
 class IndividualPerformerForm (forms.ModelForm):
+    performer_profile = forms.widgets.HiddenInput()
     class Meta:
         model = IndividualPerformer
         fields = { 'name', 
@@ -106,8 +107,12 @@ class IndividualPerformerForm (forms.ModelForm):
                    'promo_image',
                    'video_link',
                    'puffsheet', 
-                   'festivals', }
-                   
+                   'festivals',
+                   'performer_profile'
+        }
+        
+        help_texts = individual_performer_help_texts
+        labels = individual_performer_labels
 class TroupeForm (forms.ModelForm):
     class Meta:
         model = Troupe
@@ -116,21 +121,44 @@ class ComboForm (forms.ModelForm):
     class Meta:
         model = Combo
 
-class ActBidForm(forms.ModelForm):
+class ActForm (forms.ModelForm):
+    duration = forms.CharField(max_length=128)
+#    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
     class Meta:
-        model = ActBid
-        fields = [  'name', 'title', 'homepage', 'is_group',
-                   'other_performers', 'experience', 'bio', 'song_name', 'artist',
-                   'act_length', 'description',
-                   'hotel_choice', 'volunteer_choice', 'conference_choice' ]
-        required = [ 'name', 'title', 'bio', 'act_length', 'description']
+        model = Act
+        fields = { 'owner',
+                   'title', 
+                   'description', 
+                   'performer', 
+                   'intro_text', }
+
+class ActBidForm(forms.ModelForm):
+    duration = forms.CharField(max_length=128)
+    song_name = forms.CharField(max_length=128)
+    artist = forms.CharField(max_length=128)
+    class Meta:
+        model = Act
+        fields = {  'owner', 
+                    'title', 
+                    'description', 
+                    'performer', }
+
+        required = {  'title',  
+                      'duration', 
+                      'description'}
         labels = actbid_labels
         help_texts = actbid_help_texts
         error_messages = actbid_error_messages
-        
 
-
-
+class ActBidReviewForm(forms.ModelForm):
+    class Meta:
+        model = Act
+        fields = { 'owner',
+                   'title', 
+                   'description', 
+                   'performer', 
+                   'accepted',}
+    
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -198,9 +226,10 @@ class ClassBidForm(forms.ModelForm):
         	self._errors['type'] = space_error3
         	self._errors['space_needs'] = space_error3
         	raise forms.ValidationError(space_type_error3)
-
-
       return self.cleaned_data
+
+
+
 
 class PanelBidForm(forms.ModelForm):
     required_css_class = 'required'

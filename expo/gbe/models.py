@@ -16,6 +16,8 @@ class Biddable (models.Model):
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
 
+phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+
 class Profile(models.Model):
     '''
     The core data about any registered user of the GBE site, barring
@@ -50,7 +52,6 @@ class Profile(models.Model):
                              blank=True) 
     zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
-    phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     onsite_phone = models.CharField(max_length=50, 
@@ -89,18 +90,22 @@ class Performer (models.Model):
                                              # or a designated agent, but this person
                                              # is authorized to make decisions about 
                                              # the Performer's expo appearances. 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)     # How this Performer is listed
+                                                # in a playbill. 
     homepage = models.URLField (blank = True)
     bio = models.TextField ()
     experience = models.IntegerField ()       # in years
     awards = models.TextField (blank = True)    
     promo_image = models.FileField(upload_to="uploads/images", 
                                    blank=True)
+
     video_link = models.URLField (blank = True)
     puffsheet  = models.FileField (upload_to="uploads/files", 
                                    blank = True)  # "printed" press kit
     festivals = models.TextField (blank = True)     # placeholder only
 
+    def __str__(self):
+        return self.name
 
 class IndividualPerformer (Performer):
     '''
@@ -110,6 +115,7 @@ class IndividualPerformer (Performer):
     IndividualPerformer objects associated with their profile. 
     '''
     performer_profile = models.ForeignKey(Profile)    # the performer's identity on the site
+
 
 class Troupe(Performer):
     '''
@@ -121,7 +127,9 @@ class Troupe(Performer):
     '''
     membership = models.ManyToManyField (IndividualPerformer, 
                                          related_name='memberships')
-    creator = models.TextField (blank = True)
+    creator = models.TextField (blank = True) # just to keep track of who made this
+
+
 
 class Combo (Performer):
     '''
@@ -134,48 +142,49 @@ class Combo (Performer):
     '''
     membership = models.ManyToManyField (IndividualPerformer, 
                                          related_name='combos')
-    
+
+                                      
+
 
 class AudioInfo(models.Model):
     '''
     Information about the audio required for a particular Act
     '''
-    title = models.CharField(max_length=128)
-    artist = models.CharField(max_length=123)
-    track = models.FileField(upload_to="uploads/audio")
-    duration = models.TextField(max_length=50)  
-        # should write a DurationField for this to do it properly
-    need_mic = models.BooleanField(default=False)
-    notes = models.TextField()    
+    title = models.CharField(max_length=128, blank=True)
+    artist = models.CharField(max_length=123, blank=True)
+    track = models.FileField(upload_to="uploads/audio", blank=True)
+    duration = models.CharField(max_length=128,blank=True)  
+    need_mic = models.BooleanField(default=False, blank=True)
+    notes = models.TextField(blank=True)    
 
 class LightingInfo(models.Model):
     '''
     Information about the lighting needs of a particular Act
     '''
     stage_color = models.CharField(max_length=25,
-                                   choices=stage_lighting_options )
+                                   choices=stage_lighting_options, blank=True)
     stage_second_color = models.CharField(max_length=25,
-                                          choices=stage_lighting_options)
+                                          choices=stage_lighting_options, blank=True)
     cyc_color = models.CharField(max_length='25', 
-                                 choices=stage_lighting_options)
-    follow_spot = models.BooleanField()
-    backlight = models.BooleanField()
-    notes = models.TextField()
+                                 choices=stage_lighting_options, blank=True)
+    follow_spot = models.BooleanField(default=True)
+    backlight = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
 
 class PropsInfo(models.Model):
     '''
     Information about the props requirements for a particular Act
     '''
-    set_props = models.BooleanField()
-    clear_props = models.BooleanField()
-    cue_props = models.BooleanField()
-    notes = models.TextField()
+    set_props = models.BooleanField(default=True)
+    clear_props = models.BooleanField(default=True)
+    cue_props = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
                              
 class TechInfo (models.Model):
-    audio = models.ForeignKey(AudioInfo)
-    lighting = models.ForeignKey(LightingInfo)
-    props = models.ForeignKey(PropsInfo)
-    order = models.IntegerField()    
+    audio = models.ForeignKey(AudioInfo, blank=True)
+    lighting = models.ForeignKey(LightingInfo, blank=True)
+    props = models.ForeignKey(PropsInfo, blank=True)
+
 
 class Act (Biddable):
     '''
@@ -189,12 +198,13 @@ class Act (Biddable):
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
       # inherit title and description from Biddable
-    performer = models.ForeignKey(Performer)
-    duration = models.CharField(max_length=50)
+    owner = models.ForeignKey(Profile)
+    performer = models.ForeignKey(Performer)  # limit choices to the owner's Performers
     intro_text = models.TextField()
-    tech = models.ForeignKey(TechInfo)
-
-
+    tech = models.ForeignKey(TechInfo, blank = True)
+    accepted = models.BooleanField(default=False)
+    def __str__ (self):
+        return str(self.performer) + ": "+self.title
 
 
 class Room(models.Model):
@@ -203,7 +213,6 @@ class Room(models.Model):
     '''
     name = models.CharField(max_length=50)
     overbook_size = models.IntegerField()
-
 
     
 class Event (models.Model):
@@ -217,8 +226,8 @@ class Event (models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()  # public-facing description 
     blurb = models.TextField()        # short description
-    duration = models.IntegerField()  # for now, let's store this 
-                                      # as good old half-hour blocks
+    duration = models.CharField(max_length=128) #Should be stored as durations
+
 
     ## run-specific info, in case we decide to return to the run idea
     start_time = models.DateTimeField() # this won't last. Will have
