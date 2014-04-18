@@ -1,0 +1,102 @@
+Initial notes towards Ticketing Requirements and Spec 
+
+1. The problem: matching ticket purchases to users
+
+Users purchase tickets from Brown Paper Tickets. A purchase may either
+originate at GBE, in which case a token is associated with the
+purchase, or it may originate from elsewhere, in which case no token
+is associated. 
+
+The problem to be solved is matching the purchaser of the ticket to a
+registered GBE user, if such a match can be made. Having made that
+match, we may also want to handle questions of disposition of the
+ticket, for example tickets bought by one party for benefit of
+another. 
+
+There are many ways in which this match is difficult, some of them are
+quite obscure but entirely possible. Some standard problems include: ticket
+bought using one email address, while user is registered using
+another. Ticket bought under different name. User registers after
+purchasing ticket. More esoteric problems are listed below. 
+
+The tasks are:
+- Match tickets to purchases automatically when sufficient confidence
+exists to do so. 
+- Identify probable matchings automatically, and resolve
+appropriately. 
+- Allow users to "claim" purchased tickets (ie, to provide more data
+to influence the matching engine - confirmation numbers, for example)
+- Allow GBE admins to resolve ambigutities and errors by fiat through
+a simple interface. 
+* Allow users to manage disposition of purchases, ie, to purchase on
+behalf of another and let us know who really is going to use the
+ticket. (remember, this is a draft, and we can remove things and
+prioritize them)
+
+
+2. Data model (DRAFT)
+
+BPT fetch is parsed into two tables, which are read-only
+data. Purchaser records identity of an individual responsible for the
+initial purchase, based on BPT data. Purchase records the transaction:
+what license was acquired by the purchaser? 
+All Purchases are permanently associated with Purchasers - BPT data is
+assumed to be complete and correct, and we never write to it. 
+Purchasers have a many-to-one relationship with GBE users: a user
+might purchase tickets under any number of identities, but each
+purchaser is associated with exactly one GBE identity. 
+Purchases are transferable. When we associate a user with a purchase,
+that does not mean we've identified the end user of the ticket(s) in
+question. Therefore, a Purchase has a many-to-one ownership
+relationship with a GBE user. At any given moment, there is at most
+one GBE user who may either use or assign a particular ticket, and
+that user may own many tickets. 
+
+The minimal data model would require
+
+BPTPurchase ==== BPTPurchase
+     ||              ||
+    /  \             ||
+GBE User            /  \
+ (owner)         GBE User
+                (purchaser)
+
+Possibly we'd also want to maintain a list of unmatched tickets??
+
+To Be Resolved: Purchases may consist of many tickets. Some level of
+handling may require breaking out Purchases into Tickets. This may be
+complicated. 
+
+
+3. Tasks (DRAFT)
+
+ - Generate tokens for outgoing BPT refs. Two cases: known user and
+   unknown user. For unknown, use browser info as best as we can
+
+ - Retrieve and load data from BPT. Regular call to API, insert data
+   into tables. 
+
+ - Match purchasers to users. 
+
+ - Inform users of their ticketing status. Particularly, if they have
+   purchases, show them. If they need purchases and none has been
+   matched to them, show them that as well. 
+
+ - Allow users to claim tickets if matching fails. Use sufficiently
+   identifying info, ie, confirmation number or email address if they
+   can reply to an email. 
+
+ - Allow GBE admins to resolve ticket issues by fiat. 
+
+#. Problem Cases - some ways a naive approach can go wrong
+(please add any others that you can think of)
+
+- George is a registered GBE user, and buys a ticket, intending to
+  give it to Amy. (Amy may or may not be a GBE user) The ticket is
+  associated with George initially, since he purchased it. How does it
+  get associated with Amy?
+
+- Bob and Alice are looking at GBE site together, and Bob is signed
+  in. Alice decides she'd like to go to the GBE, and so she clicks on
+  the link and buys a ticket. The token associates the ticket with
+  Bob, but Alice is the actual purchaser. 
