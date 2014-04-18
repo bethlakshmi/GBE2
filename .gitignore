@@ -20,3 +20,5 @@ expo/expo/settings.pyc
 expo/uploads/*
 
 expo/expo/__init__.pyc
+
+expo/gbe/templates/gbe/GBE2.komodoproject
