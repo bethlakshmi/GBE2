@@ -181,9 +181,9 @@ class PropsInfo(models.Model):
     notes = models.TextField(blank=True)
                              
 class TechInfo (models.Model):
-    audio = models.ForeignKey(AudioInfo, blank=True)
-    lighting = models.ForeignKey(LightingInfo, blank=True)
-    props = models.ForeignKey(PropsInfo, blank=True)
+    audio = models.OneToOneField(AudioInfo, blank=True)
+    lighting = models.OneToOneField(LightingInfo, blank=True)
+    props = models.OneToOneField(PropsInfo, blank=True)
 
 
 class Act (Biddable):
@@ -202,7 +202,10 @@ class Act (Biddable):
     performer = models.ForeignKey(Performer)  # limit choices to the owner's Performers
     intro_text = models.TextField()
     tech = models.ForeignKey(TechInfo, blank = True)
-    accepted = models.BooleanField(default=False)
+    in_draft = models.BooleanField(default=True)
+    complete = models.BooleanField(default=False)
+    accepted = models.IntegerField(choices=acceptance_states, default=0 )    
+
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
@@ -213,7 +216,8 @@ class Room(models.Model):
     '''
     name = models.CharField(max_length=50)
     overbook_size = models.IntegerField()
-
+    def __str__ (self):
+        return self.name
     
 class Event (models.Model):
     '''
@@ -236,7 +240,9 @@ class Event (models.Model):
     notes = models.TextField()  #internal notes about this event
     organizer = models.ManyToManyField(Profile)  # Perhaps should be
                                                  # more specific?
-
+                                                
+    def __str__(self):
+        return self.title
 
 class Show (Event):
     '''
@@ -263,7 +269,10 @@ class Class (Event):
     
     registration = models.ManyToManyField(Profile)  # GBE attendees 
                                                     # may register for classes
-                      
+    def __str__(self):
+        return self.title
+                                                    
+
 class Bid(models.Model):
     '''
     A Bid is a proposal for an act, a class, a vendor, or whatnot.

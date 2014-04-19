@@ -26,7 +26,7 @@ class ParticipantForm(forms.ModelForm):
     class Meta:
         model = Profile
         # purchase_email should be display only
-        fields = [ 'email', 'first_name', 'last_name', 'display_name',
+        fields = [ 'email', 'display_name',
                    'address1', 'address2', 'city',
                    'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
                    'preferred_contact', 'best_time', 'how_heard'
@@ -62,9 +62,10 @@ class ParticipantForm(forms.ModelForm):
       return self.cleaned_data
 
 class RegistrationForm(UserCreationForm):
-    '''Form for creating a GBE user. Collects info for User object as
-		well as for user's profile (Partificipant object)
-	'''
+    '''
+    Form for creating a GBE user. Collects info for User object as
+    well as for user's profile (Participant object)
+    '''
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
