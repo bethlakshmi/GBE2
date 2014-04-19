@@ -65,6 +65,9 @@ def register_as_performer(request):
 
 @login_required
 def bid_act(request):
+    '''
+    Create a proposed Act object. 
+    '''
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -113,125 +116,7 @@ def review_act_bid(request, act_id):
         return render (request, 
                        'gbe/bid.tmpl',
                        {'form':form})
-            
-
-@login_required
-def bid(request, type, bid_id=None):   
-	try:
-		profile = request.user.profile
-	except Profile.DoesNotExist:
-		profile = Profile()
-		profile.user_object = request.user
-
-	# by default, the bid gets posted to the same URL
-	editaction = "/editbid/"+type+"/"
-	
-	# editing a populated bid
-	if bid_id:
-		action = "/editbid/"+type+"/"+bid_id+"/"
-        # to add a new bid type, add a case here
-        # the model must of type Bid so we can check the bidder	
-		if type == "act":
-			bid = ActBid.objects.get(pk=bid_id)
-			otherbids = ActBid.objects.filter(bidder=profile)
-		elif type == "class":
-			bid = ClassBid.objects.get(pk=bid_id)
-			otherbids = ClassBid.objects.filter(bidder=profile).exclude(type = "Panel")
-		elif type == "panel":
-			bid = ClassBid.objects.get(pk=bid_id)
-			otherbids = ClassBid.objects.filter(bidder=profile, type = "Panel")
-		elif type == "vendor":
-			bid = VendorBid.objects.get(pk=bid_id)
-			otherbids = VendorBid.objects.filter(bidder=profile)
-		else:
-			return HttpResponseRedirect('/bid/'+type+'-error')
-
-		# check values, if this isn't the bidder, redirect to empty form
-		if bid.bidder.pk != profile.pk:
-			bid_id = None
-        
-	# create an empty form
-	if bid_id == None:
-		action = "/bid/"+type+'/'
-
-		# to add a new bid type, add a case here
-		# the model must of type Bid  		
-		if type == "act":
-			bid = ActBid()
-			otherbids = ActBid.objects.filter(bidder=profile)
-		elif type == "class":
-			bid = ClassBid()
-			otherbids = ClassBid.objects.filter(bidder=profile).exclude(type = "Panel")
-		elif type == "panel":
-			bid = ClassBid()
-			otherbids = ClassBid.objects.filter(bidder=profile, type = "Panel")
-		elif type == "vendor":
-			bid = VendorBid()
-			otherbids = VendorBid.objects.filter(bidder=profile)
-		else:
-			return HttpResponseRedirect('/bid/'+type+'-error')
-    
-		bid.bidder = profile
-		
-	# Panels are never in "draft"
-	if type == "panel":
-		bid.state = "Submitted"
-		
-	if request.method =='POST':
-		if type == "act":
-			form = ActBidForm(request.POST, 
-                                          request.FILES, instance=bid, 
-                                          initial={'profile':profile, 'bidid':bid.id})
-		elif type == "class":
-			form = ClassBidForm(request.POST, 
-                                            instance=bid, 
-                                            initial={'profile':profile})
-		elif type == "panel":
-			form = PanelBidForm(request.POST, instance=bid, 
-								initial={'profile':profile})
-		elif type == "vendor":
-			form = VendorBidForm(request.POST, request.FILES, instance=bid, 
-								initial={'profile':profile})
-		else:
-			return HttpResponseRedirect('/bid/'+type+'-error')
-
-		if form.is_valid():
-			new = form.save(profile)
-			return HttpResponseRedirect('/bid/'+type+'-thanks')
-		else: 
-			return render(request, 'bids/bid.html', 
-                                      { 'form': form, 'action':action,
-                                        'otherbids':otherbids, 'editaction':editaction, 
-                                        'bid_state':bid.state, 'intro':'bids/'+type+'intro.html' })
-	else:
-		if type == "act":
-			form = ActBidForm(instance=bid, 
-                                          initial={'name': profile.display_name, 'bidid':bid.id,
-                                                   'email':request.user.email, 
-                                                   'onsite_phone':profile.onsite_phone} )
-		elif type == "class":
-			form = ClassBidForm(instance=bid, initial={'name': profile.display_name, 
-                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
-		elif type == "panel":
-			form = PanelBidForm(instance=bid, initial={'name': profile.display_name, 
-                     'email':request.user.email, 'onsite_phone':profile.onsite_phone} )
-		elif type == "vendor":
-			form = VendorBidForm(instance=bid, initial={'first_name': request.user.first_name, 
-                     'last_name': request.user.last_name, 'address1': profile.address1,
-                     'address2': profile.address2, 'city': profile.city, 'prof_state': profile.state, 
-                     'zip_code': profile.zip_code, 'country': profile.country, 
-                     'email':request.user.email, 'onsite_phone':profile.onsite_phone, 
-                     'offsite_preferred':profile.offsite_preferred} )
-		else:
-			return HttpResponseRedirect('/bid/'+type+'-error')
-
-	return render(request, 'bids/bid.html', 
-                      { 'form': form, 'action':action, 
-                        'otherbids':otherbids, 'editaction':editaction, 
-                        'bid_state':bid.state, 'intro':'bids/'+type+'intro.html' })
-
-
-                    
+                                
 
     
 @login_required
@@ -241,7 +126,6 @@ def bid_response(request,type,response):
 	return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
-    
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 
@@ -267,13 +151,23 @@ def update_profile(request):
                       {'form': form})
 
     else:
-        form = ParticipantForm( instance = profile, initial={'email':request.user.email, 
-                     'first_name':request.user.first_name, 'last_name':request.user.last_name})
+        if not profile.display_name:
+            profile.display_name = request.user.first_name + ' ' + request.user.last_name
+        form = ParticipantForm( instance = profile, 
+                                initial={'email':request.user.email, 
+                                         'first_name':request.user.first_name, 
+                                         'last_name':request.user.last_name,
+                                     })
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 
 
 def register (request):
+    '''
+    Allow a user to register with gbe. This should create both a user
+    object and a profile. Currently, creates only the user object
+    (profile produced by "update_profile")
+    '''
     if request.method=='POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -286,6 +180,16 @@ def register (request):
         form = RegistrationForm()
     return render(request, 'gbe/register.html', {
         'form':form})
+
+
+def logout_view (request):
+    '''
+    End the current user's session. 
+    '''
+    # if there's any cleanup to do, do it here. 
+
+    logout(request)
+    return HttpResponseRedirect('/')
 
 def test(request):
     return render(request, 'bids/index.html')
