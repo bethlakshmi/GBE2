@@ -75,8 +75,18 @@ class Profile(models.Model):
         return {'profile':["This is a test warning about your profile"]}
     def get_performers(self, own_profile):
         solos = self.individual_performers.all()
-        return solos 
-   
+        performers = list(solos)
+        for solo in solos:
+            performers += solo.combos.all()
+            performers += solo.troupes.all()
+        return performers
+    def get_acts(self, own_profile):
+        acts = []
+        performers = self.get_performers(own_profile)
+        for performer in performers:
+            acts += performer.acts.all()
+        return acts
+
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
         
@@ -151,8 +161,6 @@ class Combo (Performer):
     membership = models.ManyToManyField (IndividualPerformer, 
                                          related_name='combos')
 
-                                      
-
 
 class AudioInfo(models.Model):
     '''
@@ -160,7 +168,7 @@ class AudioInfo(models.Model):
     '''
     title = models.CharField(max_length=128, blank=True)
     artist = models.CharField(max_length=123, blank=True)
-    track = models.FileField(upload_to="uploads/audio", blank=True)
+    track = models.FileField(upload_to='uploads/audio', blank=True)
     duration = models.CharField(max_length=128,blank=True)  
     need_mic = models.BooleanField(default=False, blank=True)
     notes = models.TextField(blank=True)    
@@ -207,7 +215,8 @@ class Act (Biddable):
     #description = models.TextField(blank=True)
       # inherit title and description from Biddable
     owner = models.ForeignKey(Profile)
-    performer = models.ForeignKey(Performer)  # limit choices to the owner's Performers
+    performer = models.ForeignKey(Performer,
+                                  related_name='acts')  # limit choices to the owner's Performers
     intro_text = models.TextField()
     tech = models.ForeignKey(TechInfo, blank = True)
     in_draft = models.BooleanField(default=True)

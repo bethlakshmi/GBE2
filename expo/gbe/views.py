@@ -36,6 +36,7 @@ def view_profile(request, profile_id):
     context = RequestContext (request, {'profile':requested_profile, 
                                         'warnings':requested_profile.get_warnings(own_profile),
                                         'performers':requested_profile.get_performers(own_profile),
+                                        'acts': requested_profile.get_acts(own_profile)
                                 })
     return HttpResponse(template.render(context))
 
