@@ -68,9 +68,17 @@ class Profile(models.Model):
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
-    
+ 
+    def get_warnings(self, own_profile):
+        if not own_profile:     
+            return None
+        return {'profile':["This is a test warning about your profile"]}
+    def get_performers(self, own_profile):
+        solos = self.individual_performers.all()
+        return solos 
+   
     def __unicode__(self):  # Python 3: def __str__(self):
-        return self.display_name;
+        return self.display_name
         
 class Performer (models.Model):
     '''
@@ -114,9 +122,9 @@ class IndividualPerformer (Performer):
     distinct performance identities and therefore have multiple
     IndividualPerformer objects associated with their profile. 
     '''
-    performer_profile = models.ForeignKey(Profile)    # the performer's identity on the site
-
-
+    performer_profile = models.ForeignKey(Profile, related_name="individual_performers")   
+ # the performer's identity on the site
+            
 class Troupe(Performer):
     '''
     Two or more performers working together as an established entity. A troupe
@@ -126,7 +134,7 @@ class Troupe(Performer):
     welcomed. 
     '''
     membership = models.ManyToManyField (IndividualPerformer, 
-                                         related_name='memberships')
+                                         related_name='troupes')
     creator = models.TextField (blank = True) # just to keep track of who made this
 
 

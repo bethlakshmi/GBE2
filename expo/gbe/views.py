@@ -32,10 +32,12 @@ def view_profile(request, profile_id):
         viewer_profile=None
     requested_profile = get_object_or_404(Profile, pk=profile_id)
     own_profile =  (viewer_profile == requested_profile)
-    form = ProfileForm(instance=requested_profile)
-    return render (request, 
-                   'gbe/profile_view.tmpl', 
-                   {'form':form})
+    template = loader.get_template('gbe/view_profile.tmpl')
+    context = RequestContext (request, {'profile':requested_profile, 
+                                        'warnings':requested_profile.get_warnings(own_profile),
+                                        'performers':requested_profile.get_performers(own_profile),
+                                })
+    return HttpResponse(template.render(context))
 
     
 @login_required
