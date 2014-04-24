@@ -28,9 +28,9 @@ but
  functionality. 
 
 *Variable and type names: python convention is to use underscore_spacing for
- variables and CamelCase (with ininitial capital) for class
+ variables and CamelCase (with initial capital) for class
  names. This is the convention we will apply here. 
-
+ Also, internal names can be distinguished by a single underscore as prefix. 
 *Quotes: prefer single-quotes unless you're enclosing a single-quote and can't
 be arsed to escape it. 
 
