@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.flatpages',
     'gbe',
+    'ticketing',
 )
 
 MIDDLEWARE_CLASSES = (

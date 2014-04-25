@@ -12,7 +12,10 @@ Until we have a better build process, here's how to get up to scratch:
     $ django-admin.py startproject expo
     $ cd expo
     $ python manage.py startapp gbe 
+    $ python manage.py startapp ticketing
     $ cd gbe
+    $ git checkout *
+    $ cd ..\ticketing
     $ git checkout *
     $ python manage.py syncdb
 (the last command works in django 1.6, but it's "migrate" in 1.7)
