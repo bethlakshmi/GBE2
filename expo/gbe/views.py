@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
-from gbe.models import Event, Act, Performer, ActBid, ClassBid
+from gbe.models import Event, Act, Performer
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -25,18 +25,30 @@ def techinfo(request):
                   'gbe/techinfo.html', 
                   {'form':form})
 
-def view_profile(request, profile_id):
-    try:
-        viewer_profile = request.user.profile
-    except Profile.DoesNotExist:
+def view_profile(request, profile_id=None):
+    if not request.user.is_authenticated():
         viewer_profile=None
-    requested_profile = get_object_or_404(Profile, pk=profile_id)
+    else:
+        try:
+            viewer_profile = request.user.profile
+        except Profile.DoesNotExist:
+            viewer_profile=None
+
+    if profile_id:
+        requested_profile = get_object_or_404(Profile, pk=profile_id)
+    else:
+        if viewer_profile:
+            requested_profile=viewer_profile
+        else:
+            return HttpResponseRedirect("/")
     own_profile =  (viewer_profile == requested_profile)
     template = loader.get_template('gbe/view_profile.tmpl')
     context = RequestContext (request, {'profile':requested_profile, 
                                         'warnings':requested_profile.get_warnings(own_profile),
                                         'performers':requested_profile.get_performers(own_profile),
-                                        'acts': requested_profile.get_acts(own_profile)
+                                        'acts': requested_profile.get_acts(own_profile),
+                                        'shows': requested_profile.get_shows(own_profile),
+                                        'classes': requested_profile.is_teaching(own_profile)
                                 })
     return HttpResponse(template.render(context))
 
@@ -48,7 +60,7 @@ def register_as_performer(request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect("/accounts/profile/")
     if request.method == 'POST':
-        form = IndividualPerformerForm(request.POST, request.FILES)
+        form = PersonaForm(request.POST, request.FILES)
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
@@ -58,7 +70,7 @@ def register_as_performer(request):
                            'gbe/performer_edit.tmpl',
                            {'form':form})
     else:
-        form = IndividualPerformerForm (initial= {'performer_profile' : profile,
+        form = PersonaForm (initial= {'performer_profile' : profile,
                                                   'contact' : profile } )
         return render(request, 
                       'gbe/performer_edit.tmpl',
@@ -98,13 +110,59 @@ def bid_act(request):
             act.tech=tech_info
             act.accepted = False
             act.save()
-            return HttpResponseRedirect('/profile/')  # do something reasonable here
+            return HttpResponseRedirect('/profile/')  
         else:
             return render (request,
                            'gbe/bid.tmpl',
                            {'form':form})
     else:
         form = ActBidForm(initial={'owner':profile})
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'form':form})
+
+
+@login_required
+def edit_act(request, act_id):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect ('accounts/profile/')
+    if request.method == 'POST':
+        form = ActForm(request.POST, initial = {fields:act.bid_fields})
+
+def review_acts (request):
+    '''
+    Show a list of acts which need to be reviewed by the current user. 
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    pass
+
+
+@login_required
+def bid_class(request):
+    '''
+    Propose a class. Bidder is volunteering to teach this class - we have to 
+    confirm that they understand and accept this. 
+    '''
+    try:
+        owner = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    teachers = owner.personae.all()
+    if len (teachers) == 0 :
+        return HttpResponseRedirect('/performer/create/')
+    if request.method == 'POST':
+        form = ClassBidForm(request.POST)
+        if form.is_valid():
+            new_class = form.save(commit=True)
+            return HttpResponseRedirect('/profile')
+        else:
+            return render (request, 
+                           'gbe/bid.tmpl', 
+                           {'form':form})
+    else:
+        form = ClassBidForm (initial = {'owner':owner, 'teachers':teachers})
         return render (request, 
                        'gbe/bid.tmpl',
                        {'form':form})
@@ -147,19 +205,22 @@ def update_profile(request):
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
         if form.is_valid():
-            new_user=form.save()
-            return HttpResponseRedirect("/accounts/profile/")
+            form.save(commit=True)
+            return HttpResponseRedirect("/profile/"+str(request.user.profile.id))
         else:
             return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 
     else:
-        if not profile.display_name:
-            profile.display_name = request.user.first_name + ' ' + request.user.last_name
+        if profile.display_name.strip() == '':
+            display_name = request.user.first_name + ' ' + request.user.last_name
+        else:
+            display_name = profile.display_name
         form = ParticipantForm( instance = profile, 
                                 initial={'email':request.user.email, 
                                          'first_name':request.user.first_name, 
                                          'last_name':request.user.last_name,
+                                         'display_name':display_name
                                      })
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})

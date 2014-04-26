@@ -51,19 +51,20 @@ confetti, etc.)'''
 promo_required = ("Please provide a photo.")
 promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
 
-individual_performer_labels = { 'name': ('Stage Name'), 
-                                'homepage'   : ('Web Site'),
-                                'contact'    : ('Agent/Contact'), 
-                                'bio'        : ('Bio'),
-                                'experience' : ('Experience'),  
-                                'awards'     : ('Awards'),
-                                'promo_image': ('Promo Image'),
-                                'video_link' : ('Performance Video'),
-                                'puffsheet'  : ('Press kit/one-sheet'),
-                                'festivals'  : ('Festival Appearances and Honors'), 
-                                }
+persona_labels = { 'name'       : ('Stage Name'), 
+                   'homepage'   : ('Web Site'),
+                   'contact'    : ('Agent/Contact'), 
+                   'bio'        : ('Bio'),
+                   'experience' : ('Experience'),  
+                   'awards'     : ('Awards'),
+                   'promo_image': ('Promo Image'),
+                   'video_link' : ('Performance Video'),
+                   'puffsheet'  : ('Press kit/one-sheet'),
+                   'festivals'  : ('Festival Appearances and Honors'),
+               }
 
-individual_performer_help_texts = {  
+
+persona_help_texts = {  
 'name' : 
     ('This is the name you will be listed under when performing.'),
 'contact' : 

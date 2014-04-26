@@ -95,10 +95,10 @@ class BidderInfoForm(forms.ModelForm):
         fields = [ 'onsite_phone', 'email']
 
 
-class IndividualPerformerForm (forms.ModelForm):
+class PersonaForm (forms.ModelForm):
     performer_profile = forms.widgets.HiddenInput()
     class Meta:
-        model = IndividualPerformer
+        model = Persona
         fields = { 'name', 
                    'homepage', 
                    'contact',
@@ -112,8 +112,8 @@ class IndividualPerformerForm (forms.ModelForm):
                    'performer_profile'
         }
         
-        help_texts = individual_performer_help_texts
-        labels = individual_performer_labels
+        help_texts = persona_help_texts
+        labels = persona_labels
 class TroupeForm (forms.ModelForm):
     class Meta:
         model = Troupe
@@ -139,17 +139,7 @@ class ActBidForm(forms.ModelForm):
     artist = forms.CharField(max_length=128)
     class Meta:
         model = Act
-        fields = {  'owner', 
-                    'title', 
-                    'description', 
-                    'performer', }
-
-        required = {  'title',  
-                      'duration', 
-                      'description'}
-        labels = actbid_labels
-        help_texts = actbid_help_texts
-        error_messages = actbid_error_messages
+        fields, required = Act().bid_fields
 
 class ActBidReviewForm(forms.ModelForm):
     class Meta:
@@ -161,122 +151,15 @@ class ActBidReviewForm(forms.ModelForm):
                    'accepted',}
     
 class ClassBidForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    
-    # Needed information about Bidder
-    email = forms.EmailField(required=True)
-    onsite_phone = forms.CharField(required=True,
-          help_text=bidder_info_phone_error)
-
-# Forced required when in submission (not draft)
-    title = forms.CharField(required=True, label='Class')
-    description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
-                'required': description_required, 'max_length': description_too_long },
-          		help_text=description_help_text)
-# removing panels as a choice, panels have their own form.
-    type = forms.ChoiceField(choices=(('Lecture', "Lecture"), ('Movement', "Movement"),
-                      ('Workshop',"Workshop")))
     class Meta:
-        model = ClassBid
-        fields = [ 'email', 'onsite_phone', 'title', 'organization', 'homepage',
-                   'length_minutes', 'type', 'description', 'min_size', 'max_size',
-                   'history', 'other_teachers', 'run_before', 'fee', 'space_needs',
-                   'physical_restrictions', 'schedule_constraints','multiple_run']
-
-        labels = classbid_labels
-        help_texts = classbid_help_texts
-
-    def save(self, profile, commit=True):
-      classbid = super(ClassBidForm, self).save(commit=False)
-      classbid.bidder = profile
-      classbid.last_update = datetime.datetime.utcnow().replace(tzinfo=utc)
-      profile.onsite_phone = self.cleaned_data['onsite_phone']
-      profile.user_object.email = self.cleaned_data['email']
-      if 'Submit' in self.data:
-         classbid.state = "Submitted"
-      elif 'Draft' in self.data:
-         classbid.state = "Draft"
-      if commit:
-         classbid.save()
-         profile.save()
-         profile.user_object.save()
+        model = Class
+        fields, required = Class().get_bid_fields
          
-    def clean(self):
-      if 'Draft' in self.data:
-        super(ClassBidForm, self).clean()
-        if 'length_minutes' in self._errors:
-          del self._errors['length_minutes']
-        if 'description' in self._errors:
-          del self._errors['description']
-      else:
-        super(ClassBidForm, self).clean()
-        type = self.cleaned_data.get('type')
-        space_needs = self.cleaned_data.get('space_needs')
-        if type == 'Workshop' and space_needs:
-        	self._errors['type'] = space_error1
-        	self._errors['space_needs'] = space_error1
-        	raise forms.ValidationError(space_type_error1)
-        elif type == 'Movement' and (space_needs == "3" or space_needs == "4" or 
-        								space_needs == "5"):
-        	self._errors['type'] = space_error2
-        	self._errors['space_needs'] = space_error2
-        	raise forms.ValidationError(space_type_error2)
-        elif type == 'Lecture' and (space_needs == "0" or space_needs == "1" or 
-        								space_needs == "2"):
-        	self._errors['type'] = space_error3
-        	self._errors['space_needs'] = space_error3
-        	raise forms.ValidationError(space_type_error3)
-      return self.cleaned_data
-
-
-
-
-class PanelBidForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    
-    # Needed information about Bidder
-    email = forms.EmailField(required=True)
-    onsite_phone = forms.CharField(required=True,
-          help_text=bidder_info_phone_error)
-
-# Forced required when in submission (not draft)
-    title = forms.CharField(required=True, label='Panel')
-    length_minutes = forms.CharField(initial=60, widget=forms.HiddenInput())
-    description = forms.CharField(widget=forms.Textarea, required=True, error_messages={
-                'required': description_required, 'max_length': description_too_long },
-          		help_text=description_help_text)
-# removing panels as a choice, panels have their own form.
-    space_options = forms.CharField(initial="4", widget=forms.HiddenInput())
-    type = forms.CharField(widget=forms.HiddenInput())
+class ClassEditForm(forms.ModelForm):
     class Meta:
-        model = ClassBid
-        fields = [ 'email', 'onsite_phone', 'title', 'length_minutes',
-         'description', 'other_teachers', 'run_before','space_options', 'type']
-        
-        labels = panel_labels
-        help_texts = panel_help_texts
+        model = Class
+        field = '__all__'
 
-    def save(self, profile, commit=True):
-      bid = super(PanelBidForm, self).save(commit=False)
-      bid.bidder = profile
-      bid.last_update = datetime.datetime.utcnow().replace(tzinfo=utc)
-      bid.type = "Panel"
-      profile.onsite_phone = self.cleaned_data['onsite_phone']
-      profile.user_object.email = self.cleaned_data['email']
-      if 'Submit' in self.data:
-         bid.state = "Submitted"
-      elif 'Draft' in self.data:
-         bid.state = "Draft"
-      if commit:
-         bid.save()
-         profile.save()
-         profile.user_object.save()
-         
-
-
-         
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
