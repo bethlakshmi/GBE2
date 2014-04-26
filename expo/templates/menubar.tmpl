@@ -1,0 +1,62 @@
+{% comment %}
+   Central nav bar for GBE. Included via base.html
+{% endcomment %}    
+      <div id='cssmenu'>
+      <ul>
+        <li class='active'><a href='/'><span>Home</span></a></li>
+        <li class='has-sub'><a href='Iwantto'><span>I Want To...</span></a>
+          <ul>
+             <li><a href='/tickets'><span>Buy Tickets</span></a></li>
+             <li><a href='/bid/act/'><span>Perform at the Expo</span></a></li>
+             <li><a href='/bid/class/'><span>Submit A Class</span></a></li>
+             <li><a href='/bid/panel/'><span>Suggest A Panel</span></a></li>
+             <li><a href='/bid/panelsit/'><span>Sit On A Panel</span></a></li>
+             <li><a href='/Calendar'><span>Volunteer</span></a></li>
+             <li><a href='/bid/costume/'><span>Display Costume</span></a></li>
+             <li><a href='/bid/vendor/'><span>Sell My Stuff</span></a></li>
+             <li><a href='/bid/ad/'><span>Advertise</span></a></li>
+             <li class='last'><a href='/hotel'><span>Reserve a Hotel Room</span></a></li>
+          </ul>
+       </li>
+       <li class='has-sub'><a href='Schedule'><span>Shows</span></a>
+          <ul>
+             <li><a href='DisplayEvent/1'><span>Rhinestone Review</span></a></li>
+             <li><a href='DisplayEvent/2'><span>Late Friday</span></a></li>
+             <li><a href='#'><span>The Main Event</span></a></li>
+             <li class='last'><a href='DisplayEvent/4'><span>Sunday Showcase</span></a></li>
+          </ul>
+       </li>
+       <li class='has-sub'><a href='Conference'><span>The Conference</span></a>
+          <ul>
+             <li><a href='Calendar'><span>Class Schedule</span></a></li>
+             <li><a href='Schedule'><span>Class Descriptions</span></a></li>
+             <li class='last'><a href='Bio'><span>Teachers</span></a></li>
+          </ul>
+       </li>
+       <li class='has-sub'><a href='Events'><span>Events at GBE</span></a>
+          <ul>
+             <li><a href='Schedule'><span>All Events</span></a></li>
+             <li class='last'><a href='Calendar'><span>Schedule Of Events</span></a></li>
+          </ul>
+       </li>
+       <li><a href='fashionfair'><span>Vintage Fashion Fair</span></a></li>
+       <li class='has-sub last'><a href='About'><span>About Us/Contact</span></a>
+          <ul>
+             <li><a href='Contact'><span>Contact</span></a></li>
+             <li class='last'><a href='Bio'><span>Staff</span></a></li>
+          </ul>
+       </li>
+       {% if user.is_authenticated %}
+       <li class='has-sub'><a href='/logout'><span>Logout</span></a>
+          <ul>
+             <li><a href='/accounts/profile/'><span>Update Profile</span></a></li>
+          </ul>
+       </li>
+       {% else %}
+       <li class='has-sub'><a href='/accounts/login'><span>Login</span></a>
+          <ul>
+             <li><a href='/accounts/register/'><span>Register</span></a></li>
+          </ul>
+       {% endif %}
+    </ul>
+    </div>
