@@ -1,0 +1,11 @@
+	
+	{% if shows %}
+	   <span class='heading shows'>
+	   	Shows
+	   </span><br>
+	   {% for show in shows %}
+	      <span class='show'> {{ show }} </span> <br>
+	   {% endfor %}
+	{% else %}
+	   {{ profile.display_name }} is not scheduled for any shows at this time. <br>
+	{% endif %}

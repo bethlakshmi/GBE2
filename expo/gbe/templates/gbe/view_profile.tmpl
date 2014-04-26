@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+   Profile View  
+{% endblock %}
+
+{% block content %}
+   <div class='left_col'>
+   	{{ profile.display_name }}
+	<br>
+	{% if warnings.profile %}
+	  <span class='alert'>
+	  	Hey! 
+	</span><br>
+	  {% for warning in warnings.profile %}
+	    <span class='warning'> {{warning}}</span><br>
+	  {% endfor %}
+	{% endif %}
+	<br>
+	{% include 'gbe/profile/incl_performer.tmpl' %}	
+	{% include 'gbe/profile/incl_acts.tmpl' %}
+	{% include 'gbe/profile/incl_shows.tmpl' %}
+	{% include 'gbe/profile/incl_classes.tmpl' %}
+
+   </div>
+   
+
+   <div class='right_col'>
+
+   </div>
+{% endblock %}

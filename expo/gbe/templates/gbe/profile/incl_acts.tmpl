@@ -1,0 +1,10 @@
+	{% if acts %}
+	   <span class='heading acts'>
+	   	Acts
+	   </span><br>
+	   {% for act in acts %}
+	      <span class='show'> {{ act }} </span> <br>
+	   {% endfor %}
+	{% else %}
+	   {{ profile.display_name }} has no acts listed. <br>
+	{% endif %}

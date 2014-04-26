@@ -1,0 +1,10 @@
+	{% if performers %}
+	   <span class='heading performers'> 
+	   Performer Items
+	   </span><br>
+	  {% for performer in performers %}
+	     <span class='performer'>{{ performer }} </span> <br>
+	  {% endfor %}
+	{% else %}
+	   {{ profile.display_name }} has no stage personae listed. <br>
+	{% endif %}
