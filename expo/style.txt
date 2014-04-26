@@ -34,6 +34,10 @@ but
 *Quotes: prefer single-quotes unless you're enclosing a single-quote and can't
 be arsed to escape it. 
 
+* Prefer early return. If you know that you can exit a function with a value, do
+so. 
+
+
 *docstrings: all class and function definitions deserve good docstrings. In
 fact, I'd prefer a good docstring to actual code, if I had to choose. I can
 always fill in the code from your intent, but it's harder to fill in the intent
