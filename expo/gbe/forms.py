@@ -82,6 +82,15 @@ class RegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class UserCreateForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    
+    class Meta:
+        model = User
+        fields = ( "username", "email", 'first_name', 'last_name',
+                   'password1', 'password2')
+
         
 class BidderInfoForm(forms.ModelForm):
     required_css_class = 'required'

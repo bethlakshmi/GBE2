@@ -5,7 +5,7 @@ from django.template import loader, RequestContext
 from gbe.models import Event, Act, Performer
 from gbe.forms import *
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 
 def index(request):
@@ -233,17 +233,23 @@ def register (request):
     (profile produced by "update_profile")
     '''
     if request.method=='POST':
-        form = RegistrationForm(request.POST)
+        form = UserCreateForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            username = form.clean_username()
+            password = form.clean_password2()
+            form.save()
+            user = authenticate(username = username, 
+                                password = password)
+            login (request, user)
             profile_form = ProfileForm ( 
                 initial = {'user_object' : user})
-            logout(request)
             return HttpResponseRedirect('/update_profile/')
     else:
-        form = RegistrationForm()
+        form = UserCreateForm()
     return render(request, 'gbe/register.html', {
         'form':form})
+
+
 
 
 def logout_view (request):
