@@ -9,4 +9,8 @@
 {% else %}
     <p>Welcome, new user. Please log in.</p>
 {% endif %}
+    {% for event in events_list %}
+    {{ event }}
+    {% endfor %}
+
 {% endblock %}

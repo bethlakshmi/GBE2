@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+   Performer Edit
+{% endblock %}
+
+{% block content %}
+  {% if form.errors %}
+    <p style= "color:red"> There is an error on the form.  </p>
+
+  {% endif %}
+   <p class="vanilla">Manage your Stage Persona </p>
+   <form action="" method="post">
+   {% csrf_token %}
+
+   {% include "form_table.html" %}
+   <input type="submit" value="Submit Form"> 
+   </form>
+
+{% endblock %}

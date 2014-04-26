@@ -11,10 +11,12 @@ class Biddable (models.Model):
     '''
     title = models.CharField(max_length=128)  
     description = models.TextField(blank=True)
+    accepted = models.IntegerField(choices=acceptance_states, default=0 )    
     class Meta:
-#        abstract=True
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
+
+phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
 class Profile(models.Model):
     '''
@@ -23,11 +25,7 @@ class Profile(models.Model):
     expose with properties, I suppose)
     '''
     user_object = models.OneToOneField(User) 
-    stage_name = models.CharField(max_length=128, blank=True) 
-    display_name = models.CharField(max_length=128) 
-        # we really do need both legal and display name, we use the legal to verify 
-        # tickets purchased, and I'd like to add a switch for which name gets shown where 
-        # for bios
+    display_name = models.CharField(max_length=128, blank=True) 
       
     # used for linking tickets  
     purchase_email = models.CharField(max_length=64, default = '') 
@@ -44,7 +42,6 @@ class Profile(models.Model):
                              blank=True) 
     zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
-    phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     onsite_phone = models.CharField(max_length=50, 
@@ -61,83 +58,200 @@ class Profile(models.Model):
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
-    
+ 
+    def get_warnings(self, own_profile):
+        if not own_profile:     
+            return None
+        return {'profile':["This is a test warning about your profile"]}
+    def get_performers(self, own_profile):
+        solos = self.personae.all()
+        performers = list(solos)
+        for solo in solos:
+            performers += solo.combos.all()
+            performers += solo.troupes.all()
+        return performers
+    def get_acts(self, own_profile):
+        acts = []
+        performers = self.get_performers(own_profile)
+        for performer in performers:
+            acts += performer.acts.all()
+        return acts
+    def get_shows(self, own_profile):
+        shows = []
+        for act in self.get_acts(own_profile):
+            shows += act.appearing_in.all()
+        return shows
+    def is_teaching(self, own_profile):
+        classes = []
+        for teacher in self.personae.all():
+            classes += teacher.is_teaching.all()
+        return classes
+
+
     def __unicode__(self):  # Python 3: def __str__(self):
-        return self.display_name;
+        return self.display_name
         
-
-    # participant status
-    # haven't really thought this bit through yet, could change
-    # radically
-    # note: these are not privileges. privs are managed through the
-    # User object
-    # Betty - leaving this for now, but my recommendation is to leave most of these as 
-    # determined by the state of other involvement - so a performer is a performer iff
-    # they are in a show with an act.  The ways people can drop and be change will grow
-    # over time, and this makes for one more flag.
-
-    #is_paid = models.BooleanField()
-    #is_volunteer = models.BooleanField()
-    #is_staff = models.BooleanField()
-    #is_performer = models.BooleanField()
-    #is_vendor = models.BooleanField()
-    
-
-class Bio (models.Model):
+class Performer (models.Model):
     '''
-    A single performer, duo or small group, or a troupe.
+    Abstract base class for any solo, group, or troupe - anything that can appear
+    in a show lineup or teach a class
+    The fields are named as we would name them for a single performer. In all cases, 
+    when applied to an aggregate (group or troup) they apply to the aggregate as a 
+    whole. The Boston Baby Dolls DO NOT list awards won by members of the troupe, only
+    those won by the troup. (individuals can list their own, and these can roll up if 
+    we want). Likewise, the bio of the Baby Dolls is the bio of the company, not of 
+    the members, and so forth. 
     '''
-    contact = models.ForeignKey(Profile)
-    homepage = models.URLField(blank=True)
-    bio = models.TextField()
-    experience = models.IntegerField()
-    awards = models.TextField(blank=True)
-    hotel = models.BooleanField()
-#    promo_image = models.ImageField(upload_to="uploads/images")
-#    promo_video = models.FileField(upload_to="uploads/video", blank=True)
+    contact = models.ForeignKey(Profile, related_name='contact')
+                                             # the single person the expo should 
+                                             # talk to about Expo stuff. Could be the 
+                                             # solo performer, or a member of the troupe,
+                                             # or a designated agent, but this person
+                                             # is authorized to make decisions about 
+                                             # the Performer's expo appearances. 
+    name = models.CharField(max_length=100,     # How this Performer is listed
+                            unique=True)        # in a playbill. 
+    homepage = models.URLField (blank = True)
+    bio = models.TextField ()
+    experience = models.IntegerField ()       # in years
+    awards = models.TextField (blank = True)    
+    promo_image = models.FileField(upload_to="uploads/images", 
+                                   blank=True)
 
+    video_link = models.URLField (blank = True)
+    puffsheet  = models.FileField (upload_to="uploads/files", 
+                                   blank = True)  # "printed" press kit
+    festivals = models.TextField (blank = True)     # placeholder only
+
+    def __str__(self):
+        return self.name
+
+class Persona (Performer):
+    '''
+    The public persona of one person who performs or teaches. 
+    May be aggregated into a group or a troupe, 
+    or perform solo, or both. A single person might conceivably maintain two
+    distinct performance identities and therefore have multiple
+    Persona objects associated with their profile. For example, a
+    person who dances under one name and teaches under another would have multiple
+    Personae. 
+    performer_profile is the profile of the user who dons this persona. 
+    '''
+    performer_profile = models.ForeignKey(Profile, related_name="personae")   
+    is_teacher = models.BooleanField(default=False)
+    is_performer = models.BooleanField(default=False)
     
+    class Meta:
+        verbose_name_plural= 'personae'
+            
+class Troupe(Performer):
+    '''
+    Two or more performers working together as an established entity. A troupe
+    connotes an entity with a stable membership, a history, and hopefully a
+    future. This suggests that a troupe should have some sort of legal
+    existence, though this is not required for GBE. Further specification
+    welcomed. 
+    Troupes are distinct from Combos in their semantics, but at this time they 
+    share the same behavior. 
+    '''
+    membership = models.ManyToManyField (Persona, 
+                                         related_name='troupes')
+    creator = models.TextField (blank = True) # just to keep track of who made this
 
+
+
+class Combo (Performer):
+    '''
+    Two or more performers (Personae), working together, on a temporary or ad-hoc
+    basis. For example, two performers who put together a routine for the GBE
+    but do not otherwise perform together would be a Combo and not a Troupe. 
+    The distinction between Combo and Troupe is basically semantic, and the 
+    separation is intended to aid in maintaining that semantic distinction. If 
+    it is inconvenient, the separation need not persist in the code. 
+    '''
+    membership = models.ManyToManyField (Persona, 
+                                         related_name='combos')
+
+
+###################
+# Techinical info #
+###################
 class AudioInfo(models.Model):
     '''
     Information about the audio required for a particular Act
     '''
-    title = models.CharField(max_length=128)
-    artist = models.CharField(max_length=123)
-    track = models.FileField(upload_to="uploads/audio")
-    duration = models.TextField(max_length=50)  
-        # should write a DurationField for this to do it properly
-    need_mic = models.BooleanField(default=False)
-    notes = models.TextField()    
+    title = models.CharField (max_length=128, blank=True)
+    artist = models.CharField (max_length=123, blank=True)
+    track = models.FileField (upload_to='uploads/audio', blank=True)
+    duration = models.CharField (max_length=128,blank=True)  
+    need_mic = models.BooleanField (default=False, blank=True)
+    notes = models.TextField (blank=True)    
+    confirm_no_music = models.BooleanField (default=False)
 
-class LightingInfo(models.Model):
+    @property
+    def is_complete(self):
+        return (confirm_no_music or
+                (  title and
+                   artist and
+                   track and
+                   duration))
+
+class LightingInfo (models.Model):
     '''
     Information about the lighting needs of a particular Act
     '''
-    stage_color = models.CharField(max_length=25,
-                                   choices=stage_lighting_options )
-    stage_second_color = models.CharField(max_length=25,
-                                          choices=stage_lighting_options)
-    cyc_color = models.CharField(max_length='25', 
-                                 choices=stage_lighting_options)
-    follow_spot = models.BooleanField()
-    backlight = models.BooleanField()
-    notes = models.TextField()
+    stage_color = models.CharField (max_length=25,
+                                    choices=stage_lighting_options, 
+                                    blank=True)
+    stage_second_color = models.CharField (max_length=25,
+                                           choices=stage_lighting_options, 
+                                           blank=True)
+    cyc_color = models.CharField (max_length='25', 
+                                  choices=stage_lighting_options, 
+                                  blank=True)
+    follow_spot = models.BooleanField (default=True)
+    backlight = models.BooleanField (default=True)
+    notes = models.TextField (blank=True)
+
+    @property
+    def is_complete (self):
+        return ( stage_color and cyc_color)
 
 class PropsInfo(models.Model):
     '''
     Information about the props requirements for a particular Act
+    confirm field should be offered if the user tries to save with all values false and
+    no notes
     '''
-    set_props = models.BooleanField()
-    clear_props = models.BooleanField()
-    cue_props = models.BooleanField()
-    notes = models.TextField()
-                             
+    set_props = models.BooleanField (default=False)
+    clear_props = models.BooleanField (default=False)
+    cue_props = models.BooleanField (default=False)
+    notes = models.TextField (blank=True)
+    confirm = models.BooleanField (default = False)
+
+    
+    @property
+    def is_complete(self):
+        return (self.set_props or self.clear_props or self.cue_props or confirm)
+
 class TechInfo (models.Model):
-    audio = models.ForeignKey(AudioInfo)
-    lighting = models.ForeignKey(LightingInfo)
-    props = models.ForeignKey(PropsInfo)
-    order = models.IntegerField()    
+    '''
+    Gathers up technical info about an act in a show. 
+    '''
+    audio = models.OneToOneField (AudioInfo, blank=True)
+    lighting = models.OneToOneField (LightingInfo, blank=True)
+    props = models.OneToOneField (PropsInfo, blank=True)
+    
+    @property
+    def is_complete(self):
+        return (self.audio.is_complete and
+                self.lighting.is_complete and
+                self.props.is_complete)
+    
+
+#######
+# Act #
+#######
 
 class Act (Biddable):
     '''
@@ -150,13 +264,30 @@ class Act (Biddable):
     '''
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
-      # inherit title and description from Biddable
-    performer_bio = models.ForeignKey(Bio)
-    duration = models.CharField(max_length=50)
+    # inherit title and description from Biddable
+    owner = models.ForeignKey(Profile)
+    performer = models.ForeignKey(Performer,
+                                  related_name='acts')  # limit choices to the owner's Performers
     intro_text = models.TextField()
-    tech = models.ForeignKey(TechInfo)
-    performers = models.ManyToManyField(Profile)  # Perhaps should be
+    tech = models.ForeignKey(TechInfo, blank = True)
+    in_draft = models.BooleanField(default=True)
+    complete = models.BooleanField(default=False)
 
+
+    def _get_bid_fields(self):
+        return  ( ['owner',
+                    'title', 
+                    'description', 
+                    'performer', 
+                    'intro_text', ], 
+                   [ 'title', 
+                     'duration', 
+                     'description'],
+               )
+    bid_fields = property(_get_bid_fields)
+
+    def __str__ (self):
+        return str(self.performer) + ": "+self.title
 
 
 class Room(models.Model):
@@ -164,9 +295,10 @@ class Room(models.Model):
     A room at the expo center
     '''
     name = models.CharField(max_length=50)
+    capacity = models.IntegerField()
     overbook_size = models.IntegerField()
-
-
+    def __str__ (self):
+        return self.name
     
 class Event (models.Model):
     '''
@@ -179,44 +311,92 @@ class Event (models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()  # public-facing description 
     blurb = models.TextField()        # short description
-    duration = models.IntegerField()  # for now, let's store this 
-                                      # as good old half-hour blocks
+    duration = models.CharField(max_length=128) #Should be stored as durations
+
 
     ## run-specific info, in case we decide to return to the run idea
-    start_time = models.DateTimeField() # this won't last. Will have
-                                        # to  implement some scheduling
-    room = models.ForeignKey(Room)
+  #  room = models.ForeignKey(Room, blank=True)
     notes = models.TextField()  #internal notes about this event
-    organizer = models.ManyToManyField(Profile)  # Perhaps should be
-                                                 # more specific?
-
+    owner = models.ManyToManyField(Profile)  # Responsible party
+                                                
+    def __str__(self):
+        return self.title
 
 class Show (Event):
     '''
-    A Show is an Event consisting of a sequence of performances by Acts. 
+    A Show is an Event consisting of a sequence of Acts. 
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in")
-    mc = models.ManyToManyField(Profile, related_name="mc_for")      
+    mc = models.ManyToManyField(Persona, related_name="mc_for")      
     
                                                 
-class Class (Event):
+class Class (Event, Biddable):
     '''
     A Class is an Event where one or a few people
     teach/instruct/guide/mediate and a number of participants
-    spectate. Usually, there will be a limited space and
+    spectate/participate. Usually, there will be a limited space and
     pre-registration will be at least permitted and usually
     encourged. 
     '''
-    teacher = models.ForeignKey(Bio)  # not all teachers will be
-                                            # performers, but we're
-                                            # going to want
-                                            # performer-like info, so
-                                            # let's make them
-                                            # Performers. 
+    teacher = models.ForeignKey(Persona,  
+                                related_name='is_teaching')
     
-    registration = models.ManyToManyField(Profile)  # GBE attendees 
-                                                    # may register for classes
-                      
+    registration = models.ManyToManyField(Profile, 
+                                          related_name='classes')
+    type = models.IntegerField(choices=((0, "Lecture"), (1, "Movement"),
+                                        (2,"Workshop")))
+    minimum_enrollment = models.IntegerField (blank=True, default=1)
+    maximum_enrollment = models.IntegerField (blank=True, default=20)
+    organization = models.CharField(max_length=128, blank=True)    
+    type = models.CharField(max_length=128, 
+                            choices=class_options, 
+                            blank=True, 
+                            default="Lecture")
+    fee = models.IntegerField(blank=True, default=0)
+    other_teachers = models.CharField(max_length=128, blank=True)
+    length_minutes = models.IntegerField(choices=length_options, 
+                                         default=60)
+    history =  models.TextField(max_length = 500, blank=True)
+    run_before = models.TextField(max_length=500, blank=True)
+    schedule_constraints = models.CharField(max_length=128, blank=True)
+    space_needs = models.CharField(max_length=128, 
+                                   choices=space_options, 
+                                   blank=True, 
+                                   default='Please Choose an Option')
+    physical_restrictions =  models.TextField(max_length = 500, blank=True)
+    multiple_run =  models.CharField(max_length=20,
+                                choices=yesno_options, default="No") 
+    @property
+    def get_bid_fields(self):
+        return  (['title',
+                  'teacher',
+                  'description', 
+                  'blurb', 
+                  'maximum_enrollment',
+                  'minimum_enrollment',
+                  'organization',
+                  'type', 
+                  'fee', 
+                  'length_minutes',
+                  'history',
+                  'schedule_constraints',
+                  'space_needs',
+                  'physical_restrictions'
+              ], 
+                 ['title', 
+                  'teacher',
+                  'description',
+                  'maximum_enrollment', 
+                  'minimum_enrollment',
+                  'length_minutes',
+                  ])
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural='classes'
+
 class Bid(models.Model):
     '''
     A Bid is a proposal for an act, a class, a vendor, or whatnot.
@@ -232,9 +412,7 @@ class Bid(models.Model):
     class Meta:
         verbose_name = 'bid'
         verbose_name_plural = 'bids'
-
     
-
 class BidEvaluation(models.Model):
     '''
     A response to a bid, cast by a privileged GBE staff member
@@ -242,43 +420,13 @@ class BidEvaluation(models.Model):
     evaluator = models.ForeignKey(Profile)
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField()
-    bid = models.ForeignKey(Bid)
-
-class ActBid(Bid):
-    '''
-    An audition: a performer wants to perform in a show
-    '''
-    title = models.CharField(max_length=128, blank=True)
-    name = models.CharField(max_length=128, blank=True)
-    is_group = models.CharField(max_length=20,
-                                choices=yesno_options, default="No") 
-    homepage = models.URLField(blank=True)
-    other_performers = models.TextField(max_length = 500, blank=True)
-    experience = models.CharField(max_length=60,
-                                  choices=experience_options, default=3 )
-    bio =  models.TextField(max_length = 500, blank=True)
-    artist = models.CharField(max_length = 128, blank=True)
-    song_name = models.CharField(max_length = 128, blank=True)
-    act_length = models.TimeField(blank=True)
-    description = models.TextField(max_length = 500, blank=True)  
-    video_choice = models.CharField(max_length=60,
-                                  choices=video_options, default=2 )
-    video_link = models.URLField(blank=True)
-    promo_image = models.FileField(upload_to="uploads/images", blank=True)
-    hotel_choice = models.CharField(max_length=20,
-                                  choices=participate_options, default='Not Sure')
-    volunteer_choice = models.CharField(max_length=20,
-                                  choices=participate_options, default='Not Sure')
-    conference_choice = models.CharField(max_length=20,
-                                  choices=participate_options, default='Not Sure')
-    def __unicode__(self):  # Python 3: def __str__(self):
-        return self.bidder.display_name+':  '+self.title;
+    bid = models.ForeignKey(Biddable)
 
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)
     experience = models.CharField(max_length=20,
                                   choices=festival_experience, default='No')
-    actbid = models.ForeignKey(ActBid)
+    act = models.ForeignKey(Act)
 
 
 class ClassBid(Bid):
@@ -286,41 +434,9 @@ class ClassBid(Bid):
     A proposed class
     we can use this for all class-like items
     '''
-						
-    title = models.CharField(max_length=128, blank=True)
-    organization = models.CharField(max_length=128, blank=True)
-    type = models.CharField(max_length=128, 
-                            choices=class_options, 
-                            blank=True, 
-                            default="Lecture")
-    homepage = models.URLField(blank=True)
-    fee = models.IntegerField(blank=True, default=0)
-    other_teachers = models.CharField(max_length=128, blank=True)
-    description = models.TextField(max_length = 500, blank=True)  
-    length_minutes = models.IntegerField(choices=length_options, 
-                                         default=60)
-    min_size = models.IntegerField(blank=True, default=1)
-    max_size = models.IntegerField(blank=True, default=20)
-    history =  models.TextField(max_length = 500, blank=True)
-    run_before = models.TextField(max_length=500, blank=True)
-    schedule_constraints = models.CharField(max_length=128, blank=True)
-    space_needs = models.CharField(max_length=128, 
-                                   choices=space_options, 
-                                   blank=True, 
-                                   default='Please Choose an Option')
-    physical_restrictions =  models.TextField(max_length = 500, blank=True)
-    multiple_run =  models.CharField(max_length=20,
-                                choices=yesno_options, default="No") 
-    def __unicode__(self):  # Python 3: def __str__(self):
+    
+    def __unicode__(self):  
         return self.type+':  '+self.title;
-
-
-class ClassSchedule(models.Model):
-    day = models.CharField(max_length=128, choices=day_options)
-    time = models.CharField(max_length=128, choices=time_options)
-    availability = models.CharField(max_length=128, choices=schedule_options)
-    class_bid = models.ForeignKey(ClassBid)
-    bidder = models.ForeignKey(Profile)
 
 class VendorBid(Bid):
     '''

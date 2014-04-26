@@ -3,20 +3,20 @@
 # until I copy them oer
 
 participant_labels = {
-	'address1': ('Street Address'),
-	'address2': ('Street Address (cont.)'),
+    'address1': ('Street Address'),
+    'address2': ('Street Address (cont.)'),
 }
 
 participant_form_help_texts = {
-    'stage_name': ('The name used in your performance.  The Expo will include this \
-name in advertising, and it will be on your badge.  If you leave it blank, we will \
-use first and last name.'),
+#    'stage_name': ('The name used in your performance.  The Expo will include this \
+    #name in advertising, and it will be on your badge.  If you leave it blank, we will \
+    #use first and last name.'),
     'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, \
 such as cell phone.'),
     'offsite_preferred': ('Your preferred phone number (if different from above), \
 for communication before the Expo.  Use this if you prefer to get phone calls at a \
 phone you cannot bring to the Expo.'),
-        }
+}
 
 
 phone_validation_error_text = '''If Preferred contact is a Phone call or Text, \
@@ -51,6 +51,48 @@ confetti, etc.)'''
 promo_required = ("Please provide a photo.")
 promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
 
+persona_labels = { 'name'       : ('Stage Name'), 
+                   'homepage'   : ('Web Site'),
+                   'contact'    : ('Agent/Contact'), 
+                   'bio'        : ('Bio'),
+                   'experience' : ('Experience'),  
+                   'awards'     : ('Awards'),
+                   'promo_image': ('Promo Image'),
+                   'video_link' : ('Performance Video'),
+                   'puffsheet'  : ('Press kit/one-sheet'),
+                   'festivals'  : ('Festival Appearances and Honors'),
+               }
+
+
+persona_help_texts = {  
+'name' : 
+    ('This is the name you will be listed under when performing.'),
+'contact' : 
+    ('''The person GBE should contact about expo \
+    performances. Usually, this will be you.'''),
+'homepage' : 
+    ('This will be listed on your performer page.'),
+'bio' : 
+    ('This will be listed on your performer page.'),
+'video_link' : 
+    ('''Link to some video of you performing. This will be used for
+    evaluating your bid, and will not appear on your performer page.'''),
+'promo_image' : 
+    ('''This may be used by GBE for promotional purposes, and \
+    will appear on your performer page.'''),
+'puffsheet' : 
+    ('''If you have a one-sheet or other prepared presskit, \
+    you may upload it, and we'll include it in your promo page. '''),
+'experience' : 
+    ('''Number of years performing burlesque'''),
+'awards' : 
+    ('''Other awards and recognition of your work in burlesque, \
+    including festival appearances not listed above.'''),
+'festivals' : 
+    ('''If you have appeared in any of these festivals, let \
+    us know how you did. This information will appear on your performer page.'''),
+}
+
 actbid_labels = {
     'name': ('Stage Name or Troupe'),
     'homepage': ('Web Site'),
@@ -67,7 +109,7 @@ actbid_labels = {
 
 actbid_help_texts = {
     'name': ('''If you are a soloist, this is your stage name.  If you are a troupe, \
-this is your troupe name.  If you are a group, but not a troupe, please give the \
+This is your troupe name.  If you are a group, but not a troupe, please give the \
 names you would like to be introduced by.'''),
     'other_performers': ('Please list other people involved/required for this act.'),
 }

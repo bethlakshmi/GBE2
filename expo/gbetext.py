@@ -59,6 +59,12 @@ vendor_lighting_options = (('White', 'White'),
                           ('No lights (not recommended)', 'No lights'))
 
 
+acceptance_states = {(0,'No Decision'),
+                     (1,'Reject'),
+                      (2,'Wait List'), 
+                      (3,'Accepted'),
+                      }
+
 bid_states = (("Draft", "Draft"),
               ("Submitted", "Submitted"),
               ("Paid","Paid"),

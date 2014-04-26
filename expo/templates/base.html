@@ -3,10 +3,13 @@
 <html>
   <head>
     <title>{% block title %} {% endblock %}</title>
-    <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon">
+    <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon"/>
     <link rel="stylesheet" 
 	  type="text/css" 
-	  href= {% static "styles/base.css" %} media="all">
+	  href= {% static "styles/base.css" %} media="all"/>
+    <link rel="stylesheet" 
+	  type="text/css" 
+	  href= {% static "styles/menus.css" %} media="all"/>
 
   </head>
   <body>
@@ -16,6 +19,7 @@
       <div id="banner">  <img src= {% static "img/GBE_PageBanner.png" %} 
 			    alt="GBE Banner"/>
       </div>
+<<<<<<< HEAD
     
       <div id='cssmenu'>
       <ul>
@@ -79,9 +83,24 @@
     
     
             
+=======
+
+      {% include "menubar.tmpl" %}
+ 
+>>>>>>> origin/altbids
       <div id="main-content">
-        {% block content %}
-        {% endblock %}
+	<div id="left-sidebar" >
+	  <p> Sidebar item </p>
+	  <p> Sidebar item </p>
+	  <p> Sidebar item </p>
+	  <p> Sidebar item </p>
+	</div>    
+	
+	<div id="middle">
+          {% block content %}
+          {% endblock %}
+	</div>    
+	
       </div>
     </div>
   </body>
