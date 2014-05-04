@@ -2,9 +2,12 @@
 	   <span class='heading classes'> 
 	   Classes {{ profile.dispay_name }} is teaching:
 	   </span><br>
+	   {% if classes %}
 	  {% for class in classes %}
 	     <span class='class'>{{ class }} </span> <br>
 	  {% endfor %}
+	   <a href='/class/create'>Create another</a><br>
+	  {%endif %}
 	{% else %}
 	   {{ profile.display_name }} is not listed as teaching any classes 
 	   <a href='/class/create'>Create one</a><br>

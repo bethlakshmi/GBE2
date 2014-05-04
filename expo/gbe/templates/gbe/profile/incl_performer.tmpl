@@ -2,12 +2,18 @@
 	   <span class='heading performers'> 
 	   Performer Items
 	   </span><br>
+	   {% if performers %}
 	  {% for performer in performers %}
 	     <span class='performer'>{{ performer }} </span> <br>
+	     {% for alert in performer.alerts %}
+	     	<span class='alert'>{{alert}} </span><br>
+		{% endfor %}
 	  {% endfor %}
+	  	   <a href='/performer/create/'>Create another</a><br>
+	  {%endif%}
 	{% else %}
 	   {{ profile.display_name }} has no stage personae listed.  
-	   <a href='performer/create/'>Create one</a>
+	   <a href='/performer/create/'>Create one</a>
 <br>
 	  
 	{% endif %}

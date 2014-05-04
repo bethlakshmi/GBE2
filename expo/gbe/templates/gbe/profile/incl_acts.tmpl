@@ -1,16 +1,19 @@
 	{% if acts %}
 	   <span class='heading acts'>
-	   	Acts {{profile.display_name}} is appearing in
+	   	Acts {{profile.display_name}} is appearing in: 
 	   </span><br>
-	   
+	   {%if acts %}
 	   {% for act in acts %}
 	      <span class='show'> {{ act }} </span> <br>
 	      {% for alert in act.alerts %}
-	      	 {{ alert }}
+	      	<span class='alert'> {{ alert }}</span> <br>
 	      	 
 	      {% endfor %}
-
+	      
 	   {% endfor %}
+	   <a href='/act/create/'>Create another</a> <br>
+	   {%endif %}
 	{% else %}
-	   {{ profile.display_name }} has no acts listed. <br>
+	   {{ profile.display_name }} has no acts listed. 
+	   <a href='/act/create/'>Create one</a> <br>
 	{% endif %}

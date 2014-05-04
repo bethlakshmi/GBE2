@@ -128,12 +128,12 @@ def bid_act(request):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'form':form})
+                           {'forms':[form]})
     else:
         form = ActBidForm(initial={'owner':profile})
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'form':form})
+                       {'forms':[form]})
 
 
 @login_required
