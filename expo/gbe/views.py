@@ -24,7 +24,6 @@ def index(request):
             return render_to_response ('gbe/index_unregistered_user.tmpl', context_dict)
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
-        context_dict[alerts] = profile.get_alerts()
     else:
         template = loader.get_template("gbe/index_unregistered_user.tmpl")
     context = RequestContext (request, context_dict)
@@ -60,7 +59,6 @@ def view_profile(request, profile_id=None):
     own_profile =  (viewer_profile == requested_profile)
     template = loader.get_template('gbe/view_profile.tmpl')
     context = RequestContext (request, {'profile':requested_profile, 
-                                        'alerts':requested_profile.get_alerts(own_profile),
                                         'performers':requested_profile.get_performers(own_profile),
                                         'acts': requested_profile.get_acts(own_profile),
                                         'shows': requested_profile.get_shows(own_profile),

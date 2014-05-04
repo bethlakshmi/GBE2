@@ -1,7 +1,7 @@
 	
 	{% if shows %}
 	   <span class='heading shows'>
-	   	Shows
+	   	Shows {{ profile.display_name }} is appearing in:
 	   </span><br>
 	   {% for show in shows %}
 	      <span class='show'> {{ show }} </span> <br>

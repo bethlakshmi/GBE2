@@ -1,9 +1,15 @@
 	{% if acts %}
 	   <span class='heading acts'>
-	   	Acts
+	   	Acts {{profile.display_name}} is appearing in
 	   </span><br>
+	   
 	   {% for act in acts %}
 	      <span class='show'> {{ act }} </span> <br>
+	      {% for alert in act.alerts %}
+	      	 {{ alert }}
+	      	 
+	      {% endfor %}
+
 	   {% endfor %}
 	{% else %}
 	   {{ profile.display_name }} has no acts listed. <br>
