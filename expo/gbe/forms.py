@@ -73,8 +73,8 @@ class RegistrationForm(UserCreationForm):
     last_name = forms.CharField(required=True)
     class Meta:
         model=User
-        fields = {'username', 'first_name','last_name',
-                  'email', 'password1', 'password2'}
+        fields = ['username', 'first_name','last_name',
+                  'email', 'password1', 'password2']
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
@@ -88,8 +88,8 @@ class UserCreateForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ( "username", "email", 'first_name', 'last_name',
-                   'password1', 'password2')
+        fields = [ "username", "email", 'first_name', 'last_name',
+                   'password1', 'password2']
 
         
 class BidderInfoForm(forms.ModelForm):
@@ -108,7 +108,7 @@ class PersonaForm (forms.ModelForm):
     performer_profile = forms.widgets.HiddenInput()
     class Meta:
         model = Persona
-        fields = { 'name', 
+        fields = [ 'name', 
                    'homepage', 
                    'contact',
                    'bio', 
@@ -119,7 +119,7 @@ class PersonaForm (forms.ModelForm):
                    'puffsheet', 
                    'festivals',
                    'performer_profile'
-        }
+        ]
         
         help_texts = persona_help_texts
         labels = persona_labels
@@ -136,11 +136,11 @@ class ActForm (forms.ModelForm):
 #    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
     class Meta:
         model = Act
-        fields = { 'owner',
+        fields = [ 'owner',
                    'title', 
                    'description', 
                    'performer', 
-                   'intro_text', }
+                   'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
     duration = forms.CharField(max_length=128)
@@ -153,11 +153,11 @@ class ActBidForm(forms.ModelForm):
 class ActBidReviewForm(forms.ModelForm):
     class Meta:
         model = Act
-        fields = { 'owner',
+        fields = [ 'owner',
                    'title', 
                    'description', 
                    'performer', 
-                   'accepted',}
+                   'accepted',]
     
 class ClassBidForm(forms.ModelForm):
     class Meta:
