@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
@@ -9,9 +9,25 @@ from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 
 def index(request):
-    events = Event.objects.all()[:5]
-    template = loader.get_template("gbe/index.html")
-    context = RequestContext (request, {'events_list':events})
+    '''
+    one of two cases: 
+      - unknown user (sign in or register/browse expo)
+      - registered user (show objects/browse expo)
+    '''
+    context_dict = {}
+    context_dict['events_list']  = Event.objects.all()[:5]
+    if request.user.is_authenticated():
+        try:
+            profile = request.user.profile
+        except Profile.DoesNotExist:
+            context_dict['alerts']= "You seem to have screwed up the registration. Contact Scratch"
+            return render_to_response ('gbe/index_unregistered_user.tmpl', context_dict)
+        template = loader.get_template('gbe/index_registered_user.tmpl')
+        context_dict['profile'] = profile
+        context_dict[alerts] = profile.get_alerts()
+    else:
+        template = loader.get_template("gbe/index_unregistered_user.tmpl")
+    context = RequestContext (request, context_dict)
     return HttpResponse(template.render(context))
 
 def event(request, event_id):
@@ -44,7 +60,7 @@ def view_profile(request, profile_id=None):
     own_profile =  (viewer_profile == requested_profile)
     template = loader.get_template('gbe/view_profile.tmpl')
     context = RequestContext (request, {'profile':requested_profile, 
-                                        'warnings':requested_profile.get_warnings(own_profile),
+                                        'alerts':requested_profile.get_alerts(own_profile),
                                         'performers':requested_profile.get_performers(own_profile),
                                         'acts': requested_profile.get_acts(own_profile),
                                         'shows': requested_profile.get_shows(own_profile),
@@ -160,12 +176,12 @@ def bid_class(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'form':form})
+                           {'forms':[form]})
     else:
         form = ClassBidForm (initial = {'owner':owner, 'teachers':teachers})
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'form':form})
+                       {'forms':[form]})
 
 def review_act_bid(request, act_id):
     act = get_object_or_404(Act, pk=act_id)

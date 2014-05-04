@@ -6,5 +6,8 @@
 	     <span class='performer'>{{ performer }} </span> <br>
 	  {% endfor %}
 	{% else %}
-	   {{ profile.display_name }} has no stage personae listed. <br>
+	   {{ profile.display_name }} has no stage personae listed.  
+	   <a href='performer/create/'>Create one</a>
+<br>
+	  
 	{% endif %}

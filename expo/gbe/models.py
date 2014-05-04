@@ -59,7 +59,7 @@ class Profile(models.Model):
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
  
-    def get_warnings(self, own_profile):
+    def get_alerts(self, own_profile):
         if not own_profile:     
             return None
         return {'profile':["This is a test warning about your profile"]}

@@ -7,12 +7,14 @@
    <div class='left_col'>
    	{{ profile.display_name }}
 	<br>
-	{% if warnings.profile %}
+	{% if alerts %}
 	  <span class='alert'>
 	  	Hey! 
 	</span><br>
-	  {% for warning in warnings.profile %}
-	    <span class='warning'> {{warning}}</span><br>
+	  {% for key,alertlist in alerts.iteritems %}
+	  {% for alert in alertlist %}
+	    <span class='alert'> {{alert}}</span><br>
+	  {% endfor %}
 	  {% endfor %}
 	{% endif %}
 	<br>

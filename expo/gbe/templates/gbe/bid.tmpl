@@ -10,11 +10,12 @@
     <p style= "color:red"> There is an error on the form.  </p>
 
   {% endif %}
-   <p class="vanilla">Create an Act </p>
+   <p class="vanilla">{{title}} </p>
+
    <form action="" method="post">
    {% csrf_token %}
 
-   {% include "form_table.html" %}
+   {% include "form_table_wrapper.tmpl" %}
    <input type="submit" value="Submit Form"> 
    </form>
 
