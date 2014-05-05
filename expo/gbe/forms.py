@@ -150,7 +150,7 @@ class ActBidForm(forms.ModelForm):
         model = Act
         fields, required = Act().bid_fields
     def save (self, *args, **kwargs):
-        super(ActBidForm, self).save(*args, **kwargs)
+        return super(ActBidForm, self).save(*args, **kwargs)
 
 class ActBidReviewForm(forms.ModelForm):
     class Meta:
@@ -166,7 +166,7 @@ class ClassBidForm(forms.ModelForm):
         model = Class
         fields, required = Class().get_bid_fields
     def save(self, *args, **kwargs):
-        super(ClassBidForm, self).save(*args, **kwargs)
+        return super(ClassBidForm, self).save(*args, **kwargs)
 
 class ClassEditForm(forms.ModelForm):
     class Meta:

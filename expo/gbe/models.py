@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
 
 
+phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+
 class Biddable (models.Model):
     '''
     Abstract base class for items which can be Bid
@@ -11,12 +13,20 @@ class Biddable (models.Model):
     '''
     title = models.CharField(max_length=128)  
     description = models.TextField(blank=True)
+    submitted = models.BooleanField(default=False)
     accepted = models.IntegerField(choices=acceptance_states, default=0 )    
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
+    def __unicode__(self):
+        return self.title
 
-phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+    @property
+    def ready_for_review(self):
+        return self.submitted and self.accepted==0
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 class Profile(models.Model):
     '''
@@ -54,10 +64,12 @@ class Profile(models.Model):
                                          validators=[
                                              RegexValidator(regex=phone_regex,
                                                             message=phone_number_format_error)])
+    bid_reviewer = models.ManyToManyField(Biddable)
 
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
+    
 
     @property
     def alerts(self):
@@ -136,7 +148,7 @@ class Performer (models.Model):
         '''
         return alerts
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class Persona (Performer):
