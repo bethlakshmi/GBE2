@@ -1,0 +1,9 @@
+  <font color="red">{{ form.non_field_errors }}</font>
+
+  <p><font color=red>*</font> indicates a required field
+  </p>
+  <table border=0>
+    {% for form in forms %}
+    {% include "form_table.html" %}
+    {% endfor %}
+  </table>
