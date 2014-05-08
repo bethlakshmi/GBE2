@@ -58,12 +58,14 @@ def view_profile(request, profile_id=None):
             return HttpResponseRedirect("/")
     own_profile =  (viewer_profile == requested_profile)
     template = loader.get_template('gbe/view_profile.tmpl')
-    context = RequestContext (request, {'profile':requested_profile, 
-                                        'performers':requested_profile.get_performers(own_profile),
-                                        'acts': requested_profile.get_acts(own_profile),
-                                        'shows': requested_profile.get_shows(own_profile),
-                                        'classes': requested_profile.is_teaching(own_profile)
-                                })
+    context = RequestContext (request, 
+                              {'profile':requested_profile, 
+                               'performers':requested_profile.get_performers(own_profile),
+                               'acts': requested_profile.get_acts(own_profile),
+                               'shows': requested_profile.get_shows(own_profile),
+                               'classes': requested_profile.is_teaching(own_profile),
+                               'review_items': requested_profile.bids_to_review(own_profile)
+                           })
     return HttpResponse(template.render(context))
 
     
@@ -147,7 +149,9 @@ def edit_act(request, act_id):
 
 def review_acts (request):
     '''
-    Show a list of acts which need to be reviewed by the current user. 
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
     pass

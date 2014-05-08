@@ -1,14 +1,11 @@
 	{% if classes %}
 	   <span class='heading classes'> 
-	   Classes {{ profile.dispay_name }} is teaching:
+	    {{ profile.dispay_name }} has proposed these classes
 	   </span><br>
-	   {% if classes %}
-	  {% for class in classes %}
+	   {% if review_items %} {% for class in classes %}
 	     <span class='class'>{{ class }} </span> <br>
 	  {% endfor %}
-	   <a href='/class/create'>Create another</a><br>
 	  {%endif %}
 	{% else %}
-	   {{ profile.display_name }} is not listed as teaching any classes 
-	   <a href='/class/create'>Create one</a><br>
+	   {{ profile.display_name }} has not proposed any classes
 	{% endif %}

@@ -82,6 +82,12 @@ class Profile(models.Model):
             profile_alerts.append( "We need a number to reach you at during the expo" )
         return profile_alerts
 
+    def bids_to_review(self, own_profile):
+        to_review = []
+        for item in self.bid_reviewer.all():
+            to_review += item.bids_to_review
+        return to_review
+
     def get_performers(self, own_profile):
         solos = self.personae.all()
         performers = list(solos)
@@ -101,6 +107,10 @@ class Profile(models.Model):
             shows += act.appearing_in.all()
         return shows
     def is_teaching(self, own_profile):
+        '''
+        return a list of classes this user is teaching
+        (not a list of classes they are taking, that's another list)
+        '''
         classes = []
         for teacher in self.personae.all():
             classes += teacher.is_teaching.all()

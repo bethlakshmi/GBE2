@@ -1,0 +1,12 @@
+	   {% if review_items %}
+	   <span class='heading to_review'> 
+	    {{ profile.dispay_name }} has these bids to review
+	   </span><br>
+
+	  {% for review_item in review_items %}
+	     <span class='review_item'>{{ review_item }} </span> <br>
+	  {% endfor %}
+
+	{% else %}
+	   {{ profile.display_name }} has no items to review
+	   {% endif %}		   
