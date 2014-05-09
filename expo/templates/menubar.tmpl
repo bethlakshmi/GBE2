@@ -4,9 +4,9 @@
       <div id='cssmenu'>
       <ul>
         <li class='active'><a href='/'><span>Home</span></a></li>
-        <li class='has-sub'><a href='Iwantto'><span>I Want To...</span></a>
+        <li class='has-sub'><a href='/ticketing/'><span>I Want To...</span></a>
           <ul>
-             <li><a href='/tickets'><span>Buy Tickets</span></a></li>
+             <li><a href='/ticketing/'><span>Buy Tickets</span></a></li>
              <li><a href='/bid/act/'><span>Perform at the Expo</span></a></li>
              <li><a href='/bid/class/'><span>Submit A Class</span></a></li>
              <li><a href='/bid/panel/'><span>Suggest A Panel</span></a></li>
@@ -46,6 +46,13 @@
              <li class='last'><a href='Bio'><span>Staff</span></a></li>
           </ul>
        </li>
+       {% if user.is_authenticated and user.is_staff %}
+        <li class='has-sub'><a href='/ticketing/'><span>Ticket Admin</span></a>
+          <ul>
+             <li><a href='/Ticketing/stuff'><span>Not Used</span></a></li>
+          </ul>
+       </li>  
+       {% endif %}       
        {% if user.is_authenticated %}
        <li class='has-sub'><a href='/logout'><span>Logout</span></a>
           <ul>
