@@ -62,12 +62,14 @@ div#main-content{
 }
 
 div#middle {
-    overflow:scroll;
-
+    /* The menu scrolls are ugly and driving me crazy.  Change back if you want guys. -MDB */
+    
+    /* overflow:scroll; */
+    overflow: hidden;
 }
 
 div#left-sidebar {
-    width:200px;
+    width:125px;   /* was 200px or something like that.  -MDB */
     float:left;
     border: 1 solid black;
 }
