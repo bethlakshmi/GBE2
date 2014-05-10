@@ -66,6 +66,7 @@ div#middle {
     
     /* overflow:scroll; */
     overflow: hidden;
+    padding: 3px 3px 3px 6px;
 }
 
 div#left-sidebar {

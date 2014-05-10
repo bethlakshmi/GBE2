@@ -406,9 +406,9 @@ class Class (Event, Biddable):
     '''
     A Class is an Event where one or a few people
     teach/instruct/guide/mediate and a number of participants
-    spectate/participate. Usually, there will be a limited space and
-    pre-registration will be at least permitted and usually
-    encourged. 
+    spectate/participate.  Participation *may* be limited for workshops,
+    but is rarely limited for anything else.  Occupany information is requested to
+    give us a general sense of the teacher's expectations.
     '''
     teacher = models.ForeignKey(Persona,  
                                 related_name='is_teaching')
