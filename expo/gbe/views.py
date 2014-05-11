@@ -136,16 +136,36 @@ def bid_act(request):
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
-
-
 @login_required
 def edit_act(request, act_id):
+    '''
+    Modify an existing Act object. 
+    '''
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect ('accounts/profile/')
+        return HttpResponseRedirect('/accounts/profile/')
+    try:
+        act = Act.objects.filter(id=act_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')  # just fail for now
+    if act.owner != profile:
+        return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = ActForm(request.POST, initial = {fields:act.bid_fields})
+        form = ActEditForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/profile/')  
+        else:
+            return render (request,
+                           'gbe/edit.tmpl',
+                           {'forms':[form]})
+    else:
+        form = ActEditForm(instance = act)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form]})
+
+
 
 def review_acts (request):
     '''
@@ -196,6 +216,48 @@ def review_act_bid(request, act_id):
                        'gbe/bid.tmpl',
                        {'form':form})
                                 
+def edit_class(request, class_id):
+    '''
+    Edit an existing class.
+    '''
+    try:
+        owner = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    try:
+        the_class = Class.objects.filter(id=class_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')   # no class for this id, fail out
+    teachers = owner.personae.all()
+    if the_class.teacher not in teachers:
+        return HttpResponseRedirect('/')    # not a teacher for this class, fail out
+
+    if request.method == 'POST':
+        form = ClassEditForm(request.POST)
+        if form.is_valid():
+            new_class = form.save(commit=True)
+            return HttpResponseRedirect('/profile')
+        else:
+            return render (request, 
+                           'gbe/bid.tmpl', 
+                           {'forms':[form]})
+    else:
+        form = ClassEditForm (instance=the_class)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form]})
+
+def review_act_bid(request, act_id):
+    act = get_object_or_404(Act, pk=act_id)
+    if request.method == 'POST':
+        act.accepted = request.POST.accepted
+        return HttpResponseRedirect('/') # show us the act, or success message, or something
+    else:
+        form = ActBidReviewForm(instance=act)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'form':form})
+
 
     
 @login_required

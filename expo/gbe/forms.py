@@ -152,6 +152,13 @@ class ActBidForm(forms.ModelForm):
     def save (self, *args, **kwargs):
         return super(ActBidForm, self).save(*args, **kwargs)
 
+
+class ActEditForm(forms.ModelForm):
+    class Meta:
+        model = Act
+        fields = '__all__'
+
+
 class ActBidReviewForm(forms.ModelForm):
     class Meta:
         model = Act

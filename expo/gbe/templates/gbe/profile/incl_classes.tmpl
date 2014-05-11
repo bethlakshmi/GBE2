@@ -1,11 +1,18 @@
 	{% if classes %}
 	   <span class='heading classes'> 
-	    {{ profile.dispay_name }} has proposed these classes
+	    {{ profile.display_name }} has proposed these classes
 	   </span><br>
-	   {% if review_items %} {% for class in classes %}
+	   {% if classes %} 
+	   {% for class in classes %}
 	     <span class='class'>{{ class }} </span> <br>
+	     <a href='/class/edit/{{class.id}}'>Edit this class</a> <br>
+	     {% for alert in class.alerts %}
+	     <span class='alert'>{{alert}}</a>
+	     {% endfor %}	     
 	  {% endfor %}
 	  {%endif %}
 	{% else %}
 	   {{ profile.display_name }} has not proposed any classes
 	{% endif %}
+	<a href='/class/create'>Propose another class</a>
+<br>
