@@ -328,8 +328,9 @@ class Act (Biddable):
     # inherit title and description from Biddable
     owner = models.ForeignKey(Profile)
     performer = models.ForeignKey(Performer,
-                                  related_name='acts')  # limit choices to the owner's Performers
-    intro_text = models.TextField()
+                                  related_name='acts', 
+                                  )  # limit choices to the owner's Performers
+    intro_text = models.TextField(blank=True)
     tech = models.ForeignKey(TechInfo, blank = True)
     in_draft = models.BooleanField(default=True)
     complete = models.BooleanField(default=False)
@@ -342,10 +343,10 @@ class Act (Biddable):
         this_act_alerts=[]
         if not self.complete:
             this_act_alerts.append("This act is not complete and cannot be submitted for a show")
+        elif not self.submitted:
+            this_act_alerts.append("This act is complete and can be submitted whenever you like")
         return this_act_alerts
-                                                        
                                                            
-
     def _get_bid_fields(self):
         return  ( ['owner',
                     'title', 
@@ -353,11 +354,11 @@ class Act (Biddable):
                     'performer', 
                     'intro_text', ], 
                    [ 'title', 
-                     'duration', 
-                     'description'],
+                        ],
                )
-    bid_fields = property(_get_bid_fields)
 
+    bid_fields = property(_get_bid_fields)
+    
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 

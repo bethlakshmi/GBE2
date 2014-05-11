@@ -143,9 +143,9 @@ class ActForm (forms.ModelForm):
                    'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
-    duration = forms.CharField(max_length=128)
-    song_name = forms.CharField(max_length=128)
-    artist = forms.CharField(max_length=128)
+    duration = forms.CharField(max_length=128, required=False)
+    song_name = forms.CharField(max_length=128, required=False)
+    artist = forms.CharField(max_length=128, required=False)
     class Meta:
         model = Act
         fields, required = Act().bid_fields

@@ -5,7 +5,7 @@
 	   {%if acts %}
 	   {% for act in acts %}
 	      <span class='show'> {{ act }} </span> <br>
-	      <a href = '/act/edit/{{act.id}}'> Edit </a>
+	      <a href = '/act/edit/{{act.id}}'> Edit </a> <br>
 	      {% for alert in act.alerts %}
 	      	<span class='alert'> {{ alert }}</span> <br>	      	 
 	      {% endfor %}
