@@ -8,7 +8,7 @@
    	{{ profile.display_name }}
 	<br>
 	{% for alert in profile.alerts %}
-	   {{alert}} <br>
+	   <span class='alert'>{{alert}}</a> <br>
 	{% endfor %}
 	<br>
 	{% include 'gbe/profile/incl_performer.tmpl' %}	

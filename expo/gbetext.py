@@ -23,6 +23,10 @@ phone_number_format_error = '''Phone numbers must be in a standard US format, \
 time_format_error =  '''Time must be in the format ##:##.'''
 
 
+profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
+<a href='profile'>Fix this!</a>''',
+                  }
+
 contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
                    ('Text', 'Text'))
     

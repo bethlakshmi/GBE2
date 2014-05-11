@@ -1,6 +1,6 @@
 # literal text from gbe forms
 # see gbetext.py for the rules
-# until I copy them oer
+# until I copy them over
 
 participant_labels = {
     'address1': ('Street Address'),
@@ -8,9 +8,9 @@ participant_labels = {
 }
 
 participant_form_help_texts = {
-#    'stage_name': ('The name used in your performance.  The Expo will include this \
-    #name in advertising, and it will be on your badge.  If you leave it blank, we will \
-    #use first and last name.'),
+    'display_name': ('The name you want to be known by as an expo participant. This can \
+be a stage name, or your real-world name, or anything that you want to have printed on your \
+expo badge and other official expo communications. This defaults to your First and Last Name.'),
     'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, \
 such as cell phone.'),
     'offsite_preferred': ('Your preferred phone number (if different from above), \

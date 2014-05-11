@@ -73,13 +73,14 @@ class Profile(models.Model):
 
     @property
     def alerts(self):
+        import gbetext
         profile_alerts = []
         expo_commitments = []
         expo_commitments += self.get_shows(True)
         expo_commitments += self.is_teaching(True)
         if (len(expo_commitments) > 0 and 
             len(self.onsite_phone.strip()) == 0):
-            profile_alerts.append( "We need a number to reach you at during the expo" )
+            profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         return profile_alerts
 
     def bids_to_review(self, own_profile):

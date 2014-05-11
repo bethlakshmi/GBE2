@@ -26,7 +26,7 @@ class ParticipantForm(forms.ModelForm):
     class Meta:
         model = Profile
         # purchase_email should be display only
-        fields = [ 'email', 'display_name',
+        fields = [ 'first_name', 'last_name', 'email', 'display_name',
                    'address1', 'address2', 'city',
                    'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
                    'preferred_contact', 'best_time', 'how_heard'
