@@ -84,6 +84,8 @@ class RegistrationForm(UserCreationForm):
         return user
 
 class UserCreateForm(UserCreationForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     email = forms.EmailField(required=True)
     
     class Meta:
@@ -105,6 +107,8 @@ class BidderInfoForm(forms.ModelForm):
 
 
 class PersonaForm (forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     performer_profile = forms.widgets.HiddenInput()
     class Meta:
         model = Persona
@@ -132,6 +136,8 @@ class ComboForm (forms.ModelForm):
         model = Combo
 
 class ActForm (forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     duration = forms.CharField(max_length=128)
 #    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
     class Meta:
@@ -143,6 +149,8 @@ class ActForm (forms.ModelForm):
                    'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     duration = forms.CharField(max_length=128, required=False)
     song_name = forms.CharField(max_length=128, required=False)
     artist = forms.CharField(max_length=128, required=False)
@@ -154,6 +162,8 @@ class ActBidForm(forms.ModelForm):
 
 
 class ActEditForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = Act
         fields = '__all__'
@@ -169,6 +179,8 @@ class ActBidReviewForm(forms.ModelForm):
                    'accepted',]
     
 class ClassBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = Class
         fields, required = Class().get_bid_fields
@@ -176,6 +188,8 @@ class ClassBidForm(forms.ModelForm):
         return super(ClassBidForm, self).save(*args, **kwargs)
 
 class ClassEditForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = Class
         field = '__all__'

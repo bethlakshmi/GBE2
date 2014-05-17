@@ -7,8 +7,8 @@
         <li class='has-sub'><a href='/ticketing/'><span>I Want To...</span></a>
           <ul>
              <li><a href='/ticketing/'><span>Buy Tickets</span></a></li>
-             <li><a href='/bid/act/'><span>Perform at the Expo</span></a></li>
-             <li><a href='/bid/class/'><span>Submit A Class</span></a></li>
+             <li><a href='/act/create/'><span>Perform at the Expo</span></a></li>
+             <li><a href='/class/create/'><span>Submit A Class</span></a></li>
              <li><a href='/bid/panel/'><span>Suggest A Panel</span></a></li>
              <li><a href='/bid/panelsit/'><span>Sit On A Panel</span></a></li>
              <li><a href='/Calendar'><span>Volunteer</span></a></li>
@@ -39,17 +39,20 @@
              <li class='last'><a href='Calendar'><span>Schedule Of Events</span></a></li>
           </ul>
        </li>
-       <li><a href='fashionfair'><span>Vintage Fashion Fair</span></a></li>
+       <li><a href='/fashionfair'><span>Vintage Fashion Fair</span></a></li>
        <li class='has-sub last'><a href='About'><span>About Us/Contact</span></a>
           <ul>
-             <li><a href='Contact'><span>Contact</span></a></li>
-             <li class='last'><a href='Bio'><span>Staff</span></a></li>
+             <li><a href='/contact'><span>Contact</span></a></li>
+             <li class='last'><a href='/staffbio'><span>Staff</span></a></li>
           </ul>
        </li>
        {% if user.is_authenticated and user.is_staff %}
-        <li class='has-sub'><a href='/ticketing/'><span>Ticket Admin</span></a>
+        <li class='has-sub'><span>Special</span>
           <ul>
-             <li><a href='/Ticketing/stuff'><span>Not Used</span></a></li>
+            <li><a href='/review/acts'><span>Revew Acts</span></a></li>
+            <li><a href='/review/class'><span>Review Classes</span></a></li>
+            <li><a href='/schedule/stuff'><span>Scheduling</span></a></li>
+            <li><a href='/Ticketing/stuff'><span>Ticket Admin</span></a></li>
           </ul>
        </li>  
        {% endif %}       
