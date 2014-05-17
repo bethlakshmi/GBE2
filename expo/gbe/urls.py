@@ -10,42 +10,54 @@ from gbe import views
 # Which is what we usually want. 
 
 urlpatterns = patterns ('', 
+
+# landing page
                         url(r'^/?$', 
                             views.landing_page),
                         url(r'^/(\d)?$', 
                             views.landing_page),
                         url(r'index.html/?', 
                             views.landing_page),
-                        url(r'^techinfo/?$', 
-                            views.techinfo),
+
+# profile
                      #   url(r'^profile/?$',
                      #       views.view_profile),
                      #   url(r'^profile/(\d)/?$',
                      #       views.view_profile),
                         url(r'^profile/admin/(\d)/?$',
                             views.admin_profile),
+# acts
                         url(r'^act/create/?$',
                             views.bid_act),
                         url(r'^act/edit/(\d)/?$',
                             views.edit_act),
                         url(r'^act/review/(\d)/?$',
                             views.review_act),
-                        url(r'^performer/create/?$',
-                            views.register_as_performer),
-                        url(r'^persona/edit/(\d)/?$',
-                            views.edit_persona),
-                        url(r'^event/(P<event_id>\d+)/?$', 
-                            views.event), 
                         url(r'^act/(?P<act_id>\d+)/?$', 
                             views.act),
+
+# classes
                         url(r'^class/create/?$',
                             views.bid_class),
                         url(r'class/edit/(\d+)/?$', 
                             views.edit_class),
+
+# personae
+                        url(r'^performer/create/?$',
+                            views.register_persona),
+                        url(r'^persona/edit/(\d)/?$',
+                            views.edit_persona),
+
+# events   - not implemented, might not be
+                        url(r'^event/(P<event_id>\d+)/?$', 
+                            views.event), 
+
+# bid reviews
                         url(r'^bid/(?P<type>\w+)-(?P<response>\w+)', 
                             views.bid_response),
-                        url(r'^bid/index/?$', 
-                            views.test),
+
+
+# site utility stuff
                         url(r'^login/?$', 
                             login),
                         url(r'^logout/?$', 

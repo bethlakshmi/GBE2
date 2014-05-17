@@ -78,7 +78,7 @@ def techinfo(request):
 
     
 @login_required
-def register_as_performer(request):
+def register_persona(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
