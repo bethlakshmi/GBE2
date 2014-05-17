@@ -14,8 +14,6 @@ def index(request):
       - unknown user (sign in or register/browse expo)
       - registered user (show objects/browse expo)
     '''
-    context_dict = {}
-    context_dict['events_list']  = Event.objects.all()[:5]
     if request.user.is_authenticated():
         try:
             profile = request.user.profile
@@ -25,22 +23,14 @@ def index(request):
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
     else:
-        template = loader.get_template("gbe/index_unregistered_user.tmpl")
+        pass
     context = RequestContext (request, context_dict)
     return HttpResponse(template.render(context))
 
-def event(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.html', {'event':event})
 
-
-def techinfo(request):
-    form = TechInfoForm()
-    return render(request, 
-                  'gbe/techinfo.html', 
-                  {'form':form})
-
-def view_profile(request, profile_id=None):
+def landing_page(request, profile_id=None):
+    standard_context = {}
+    standard_context['events_list']  = Event.objects.all()[:5]
     if not request.user.is_authenticated():
         viewer_profile=None
     else:
@@ -53,20 +43,38 @@ def view_profile(request, profile_id=None):
         requested_profile = get_object_or_404(Profile, pk=profile_id)
     else:
         if viewer_profile:
-            requested_profile=viewer_profile
+            requested_profile = viewer_profile
         else:
-            return HttpResponseRedirect("/")
+            requested_profile = None
     own_profile =  (viewer_profile == requested_profile)
-    template = loader.get_template('gbe/view_profile.tmpl')
-    context = RequestContext (request, 
-                              {'profile':requested_profile, 
-                               'performers':requested_profile.get_performers(own_profile),
-                               'acts': requested_profile.get_acts(own_profile),
-                               'shows': requested_profile.get_shows(own_profile),
-                               'classes': requested_profile.is_teaching(own_profile),
-                               'review_items': requested_profile.bids_to_review(own_profile)
-                           })
+    template = loader.get_template('gbe/landing_page.tmpl')
+    if requested_profile:
+        context = RequestContext (request, 
+                                  {'profile':requested_profile, 
+                                   'standard_context' : standard_context,
+                                   'performers':requested_profile.get_performers(own_profile),
+                                   'acts': requested_profile.get_acts(own_profile),
+                                   'shows': requested_profile.get_shows(own_profile),
+                                   'classes': requested_profile.is_teaching(own_profile),
+                                   'review_items': requested_profile.bids_to_review(own_profile)
+                               })
+    else:
+        context = RequestContext (request,
+                                  {'standard_context' : standard_context
+                                  })
     return HttpResponse(template.render(context))
+
+
+def event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    return render(request, 'gbe/event.html', {'event':event})
+
+
+def techinfo(request):
+    form = TechInfoForm()
+    return render(request, 
+                  'gbe/techinfo.html', 
+                  {'form':form})
 
     
 @login_required

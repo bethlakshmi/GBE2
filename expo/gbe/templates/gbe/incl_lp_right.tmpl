@@ -1,0 +1,12 @@
+
+   	{{ profile.display_name }}'s Stuff
+	<br>
+	{% for alert in profile.alerts %}
+	   <span class='alert'>{{alert}}</a> <br>
+	{% endfor %}
+	<br>
+	{% include 'gbe/profile/incl_performer.tmpl' %}	
+	{% include 'gbe/profile/incl_acts.tmpl' %}
+	{% include 'gbe/profile/incl_shows.tmpl' %}
+	{% include 'gbe/profile/incl_classes.tmpl' %}
+	{% include 'gbe/profile/incl_bids.tmpl' %}
