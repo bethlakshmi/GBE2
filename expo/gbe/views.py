@@ -92,6 +92,35 @@ def register_as_performer(request):
                       'gbe/performer_edit.tmpl',
                       {'form':form})
                       
+@login_required
+def edit_persona(request, persona_id):
+    '''
+    Modify an existing Persona object. 
+    '''
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    try:
+        persona = Persona.objects.filter(id=persona_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')  # just fail for now
+    if persona.performer_profile != profile:
+        return HttpResponseRedirect('/')  # just fail for now    
+    if request.method == 'POST':
+        form = PersonaEditForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/profile/')  
+        else:
+            return render (request,
+                           'gbe/edit.tmpl',
+                           {'forms':[form]})
+    else:
+        form = PersonaEditForm(instance = persona)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form]})
+
 
 
 @login_required
@@ -99,30 +128,38 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
+    form = ActBidForm(prefix='theact')
+    audioform= AudioInfoBidForm(prefix='audio')
+    lightingform= LightingInfoBidForm(prefix='lighting')
+    propsform = PropsInfoBidForm(prefix='props')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/accounts/profile/')
+    
     if request.method == 'POST':
-        form = ActBidForm(request.POST)
-        if form.is_valid():
-            audio_info = AudioInfo()
-            audio_info.title=form.fields['song_name']
-            audio_info.artist=form.fields['artist']
-            audio_info.duration=form.fields['duration']
-            audio_info.save()
-            lighting = LightingInfo()
-            lighting.save()
-            props= PropsInfo()
-            props.save()
+        form = ActBidForm(request.POST, prefix='theact')
+        audioform= AudioInfoBidForm(request.POST, prefix='audio')
+        lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
+        propsform = PropsInfoBidForm(request.POST, prefix='props')
+
+        if  (form.is_valid() and 
+            audioform.is_valid() and 
+            lightingform.is_valid() and
+            propsform.is_valid()):
+
+            act = form.save(commit=False)
+            audioinfo = audioform.save()
+            lightinginfo = lightingform.save()
+            propsinfo= propsform.save()
 
             tech_info = TechInfo()
-            tech_info.audio = audio_info
-            tech_info.lighting = lighting
-            tech_info.props = props
+            tech_info.audio = audioinfo
+            tech_info.lighting = lightinginfo
+            tech_info.props = propsinfo
             
             tech_info.save()
-            act = form.save(commit=False)
+            
             act.tech=tech_info
             act.accepted = False
             act.save()
@@ -130,17 +167,22 @@ def bid_act(request):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form, audioform, lightingform, propsform]})
     else:
-        form = ActBidForm(initial={'owner':profile})
+        form = ActBidForm(initial = {'owner':profile}, prefix='theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form, audioform, lightingform, propsform]})
+
 @login_required
 def edit_act(request, act_id):
     '''
     Modify an existing Act object. 
     '''
+    form = ActEditForm(prefix='theact')
+    audioform= AudioInfoForm(prefix='audio')
+    lightingform= LightingInfoForm(prefix='lighting')
+    propsform = PropsInfoForm(prefix='props')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -152,29 +194,78 @@ def edit_act(request, act_id):
     if act.owner != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = ActEditForm(request.POST)
-        if form.is_valid():
+        form = ActBidForm(request.POST, prefix='act')
+        audioform= AudioInfoForm(request.POST, prefix='audio')
+        lightingform= LightingInfoForm(request.POST, prefix='lighting')
+        propsform = PropsInfoForm(request.POST, prefix='props')
+        if (form.is_valid() and
+            audioform.is_valid() and 
+            lightingform.is_valid() and
+            propsform.is_valid()):
+
+            act = form.save(commit=False)
+            audioinfo = audioform.save()
+            lightinginfo = lightingform.save()
+            propsinfo= propsform.save()
+
+            tech_info = TechInfo()
+            tech_info.audio = audioinfo
+            tech_info.lighting = lightinginfo
+            tech_info.props = propsinfo
+            
+            tech_info.save()
+            
+            act.tech=tech_info
+            act.accepted = False
+            act.save()
+
             return HttpResponseRedirect('/profile/')  
         else:
             return render (request,
                            'gbe/edit.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form, audioform, lightingform, propsform]})
     else:
-        form = ActEditForm(instance = act)
+        form = ActEditForm(instance = act, prefix = 'theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form, audioform, lightingform, propsform]})
 
 
 
-def review_acts (request):
+def review_act (request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
     To show: display all information about the bid, and a standard 
     review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
-    pass
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
+    if Act not in reviewer.review_types:
+        return HttpResponseRedirect('/class/create')   # also 404
+    try:
+        act = Act.objects.filter(id=act_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    # show act info and inputs for review
+    if request.method == 'POST':
+        form = BidEvaluationForm(request.POST)
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'bid':act,
+                        'form':form})
+    else:
+        form = BidEvaluationForm()
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'bid':act,
+                        'reviewer':reviewer,
+                        'form':form})
+
+
+    
 
 
 @login_required
@@ -230,7 +321,7 @@ def edit_class(request, class_id):
         return HttpResponseRedirect('/')   # no class for this id, fail out
     teachers = owner.personae.all()
     if the_class.teacher not in teachers:
-        return HttpResponseRedirect('/')    # not a teacher for this class, fail out
+        return HttpResponseRedirect('/' )   # not a teacher for this class, fail out
 
     if request.method == 'POST':
         form = ClassEditForm(request.POST)
@@ -274,6 +365,36 @@ def act(request, act_id):
 def profile(request):
     return render(request, 'gbe/profile.html')
     
+@login_required
+def admin_profile(request, profile_id):
+    try:
+        admin_profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # better redirect please
+    if not admin_profile.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
+    try:
+        user_profile=Profile.objects.filter(id=profile_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')   # better redirect please
+    if request.method == 'POST':
+        form = ProfileAdminForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            form.save(commit=True)
+            return HttpResponseRedirect('/profile/' + str(profile_id))
+        else:
+            return render(request, 'gbe/update_profile.html', 
+                          {'form':form})
+    else:
+        form = ProfileAdminForm(instance=user_profile,
+                              initial={'email':request.user.email, 
+                                         'first_name':request.user.first_name, 
+                                         'last_name':request.user.last_name,
+                                     })
+        return render(request, 'gbe/update_profile.html', 
+                      {'form':form})
+
+
 @login_required
 def update_profile(request):
     try:
@@ -328,9 +449,6 @@ def register (request):
         form = UserCreateForm()
     return render(request, 'gbe/register.html', {
         'form':form})
-
-
-
 
 def logout_view (request):
     '''

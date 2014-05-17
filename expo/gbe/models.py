@@ -14,19 +14,19 @@ class Biddable (models.Model):
     title = models.CharField(max_length=128)  
     description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
-    accepted = models.IntegerField(choices=acceptance_states, default=0 )    
+    accepted = models.IntegerField(choices=acceptance_states, default=0, blank=True )    
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
     def __unicode__(self):
         return self.title
 
+    def typeof(self):
+        return self.__class__
+
     @property
     def ready_for_review(self):
         return self.submitted and self.accepted==0
-    @property
-    def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 class Profile(models.Model):
     '''
@@ -64,7 +64,7 @@ class Profile(models.Model):
                                          validators=[
                                              RegexValidator(regex=phone_regex,
                                                             message=phone_number_format_error)])
-    bid_reviewer = models.ManyToManyField(Biddable)
+    bid_reviewer = models.TextField(blank=True)
 
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
@@ -82,12 +82,15 @@ class Profile(models.Model):
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         return profile_alerts
+    
+    @property
+    def review_types(self):
+        bid_types = [item.typeof() for item in self.bid_reviewer.all()]
+        return list(set(bid_types))
+
 
     def bids_to_review(self, own_profile):
-        to_review = []
-        for item in self.bid_reviewer.all():
-            to_review += item.bids_to_review
-        return to_review
+        return 'foo'
 
     def get_performers(self, own_profile):
         solos = self.personae.all()
@@ -174,8 +177,6 @@ class Persona (Performer):
     performer_profile is the profile of the user who dons this persona. 
     '''
     performer_profile = models.ForeignKey(Profile, related_name="personae")   
-    is_teacher = models.BooleanField(default=False)
-    is_performer = models.BooleanField(default=False)
 
     def append_alerts(self, alerts):
         '''
@@ -334,7 +335,15 @@ class Act (Biddable):
     intro_text = models.TextField(blank=True)
     tech = models.ForeignKey(TechInfo, blank = True)
     in_draft = models.BooleanField(default=True)
+
+    def typeof(self):
+        return self.__class__
+
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
     complete = models.BooleanField(default=False)
+
 
     @property
     def alerts(self):
@@ -354,9 +363,8 @@ class Act (Biddable):
                     'description', 
                     'performer', 
                     'intro_text', ], 
-                   [ 'title', 
-                        ],
-               )
+                  [ 'title',],
+              )
 
     bid_fields = property(_get_bid_fields)
     
@@ -440,6 +448,13 @@ class Class (Event, Biddable):
     physical_restrictions =  models.TextField(max_length = 500, blank=True)
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
+
+
+
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
+
     @property
     def get_bid_fields(self):
         return  (['title',

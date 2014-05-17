@@ -61,6 +61,20 @@ class ParticipantForm(forms.ModelForm):
           raise forms.ValidationError(phone_validation_error_text)
       return self.cleaned_data
 
+
+    
+class ProfileAdminForm(ParticipantForm):
+    '''
+    Form for administratively modifying a Profile
+    '''
+    bid_reviews = forms.MultipleChoiceField(choices=bid_review_options, required=False)
+    def save(self, commit=True):
+        form = super(ProfileAdminForm, self).save(commit=False)
+        form.bid_reviewer=",".join(self.cleaned_data('bid_reviewer'))
+        if commit:
+            form.save()
+
+
 class RegistrationForm(UserCreationForm):
     '''
     Form for creating a GBE user. Collects info for User object as
@@ -93,7 +107,8 @@ class UserCreateForm(UserCreationForm):
         fields = [ "username", "email", 'first_name', 'last_name',
                    'password1', 'password2']
 
-        
+    
+
 class BidderInfoForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -127,10 +142,17 @@ class PersonaForm (forms.ModelForm):
         
         help_texts = persona_help_texts
         labels = persona_labels
+
+class PersonaEditForm(forms.ModelForm):
+    class Meta:
+        model=Persona
+
+
 class TroupeForm (forms.ModelForm):
     class Meta:
         model = Troupe
         
+
 class ComboForm (forms.ModelForm):
     class Meta:
         model = Combo
@@ -149,11 +171,14 @@ class ActForm (forms.ModelForm):
                    'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
+<<<<<<< HEAD
     required_css_class = 'required'
     error_css_class = 'error'
     duration = forms.CharField(max_length=128, required=False)
     song_name = forms.CharField(max_length=128, required=False)
     artist = forms.CharField(max_length=128, required=False)
+=======
+>>>>>>> FETCH_HEAD
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -169,14 +194,10 @@ class ActEditForm(forms.ModelForm):
         fields = '__all__'
 
 
-class ActBidReviewForm(forms.ModelForm):
+class BidEvaluationForm(forms.ModelForm):
     class Meta:
-        model = Act
-        fields = [ 'owner',
-                   'title', 
-                   'description', 
-                   'performer', 
-                   'accepted',]
+        model = BidEvaluation
+        fields = '__all__'
     
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
@@ -275,6 +296,11 @@ class AudioInfoForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
 
+class AudioInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=AudioInfo
+        fields=['title','artist', 'duration']
+
 class LightingInfoForm(forms.ModelForm):
     class Meta:
         model=LightingInfo
@@ -283,11 +309,18 @@ class PropsInfoForm(forms.ModelForm):
     class Meta:
         model=PropsInfo
 
-from django.forms.models import inlineformset_factory
-class TechInfoForm(forms.Form):
+
+class LightingInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=LightingInfo
+        fields = []
+
+
+class PropsInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=PropsInfo
+        fields=[]
     
-    formsets = [inlineformset_factory(AudioInfo, TechInfo),
-                inlineformset_factory(LightingInfo,  TechInfo ),
-                inlineformset_factory(PropsInfo,  TechInfo)]
+
 
     

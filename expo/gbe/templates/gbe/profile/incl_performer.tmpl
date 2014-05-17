@@ -8,6 +8,7 @@
 	     {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert}} </span><br>
 		{% endfor %}
+		<a href='/persona/edit/{{ performer.id }}'>Edit</a><br>
 	  {% endfor %}
 	  	   <a href='/performer/create/'>Create another</a><br>
 	  {%endif%}
