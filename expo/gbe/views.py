@@ -128,30 +128,38 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
+    form = ActBidForm(prefix='theact')
+    audioform= AudioInfoBidForm(prefix='audio')
+    lightingform= LightingInfoBidForm(prefix='lighting')
+    propsform = PropsInfoBidForm(prefix='props')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/accounts/profile/')
+    
     if request.method == 'POST':
-        form = ActBidForm(request.POST)
-        if form.is_valid():
-            audio_info = AudioInfo()
-            audio_info.title=form.fields['song_name']
-            audio_info.artist=form.fields['artist']
-            audio_info.duration=form.fields['duration']
-            audio_info.save()
-            lighting = LightingInfo()
-            lighting.save()
-            props= PropsInfo()
-            props.save()
+        form = ActBidForm(request.POST, prefix='theact')
+        audioform= AudioInfoBidForm(request.POST, prefix='audio')
+        lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
+        propsform = PropsInfoBidForm(request.POST, prefix='props')
+
+        if  (form.is_valid() and 
+            audioform.is_valid() and 
+            lightingform.is_valid() and
+            propsform.is_valid()):
+
+            act = form.save(commit=False)
+            audioinfo = audioform.save()
+            lightinginfo = lightingform.save()
+            propsinfo= propsform.save()
 
             tech_info = TechInfo()
-            tech_info.audio = audio_info
-            tech_info.lighting = lighting
-            tech_info.props = props
+            tech_info.audio = audioinfo
+            tech_info.lighting = lightinginfo
+            tech_info.props = propsinfo
             
             tech_info.save()
-            act = form.save(commit=False)
+            
             act.tech=tech_info
             act.accepted = False
             act.save()
@@ -159,17 +167,22 @@ def bid_act(request):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form, audioform, lightingform, propsform]})
     else:
-        form = ActBidForm(initial={'owner':profile})
+        form = ActBidForm(initial = {'owner':profile}, prefix='theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form, audioform, lightingform, propsform]})
+
 @login_required
 def edit_act(request, act_id):
     '''
     Modify an existing Act object. 
     '''
+    form = ActEditForm(prefix='theact')
+    audioform= AudioInfoForm(prefix='audio')
+    lightingform= LightingInfoForm(prefix='lighting')
+    propsform = PropsInfoForm(prefix='props')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -181,18 +194,41 @@ def edit_act(request, act_id):
     if act.owner != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = ActEditForm(request.POST)
-        if form.is_valid():
+        form = ActBidForm(request.POST, prefix='act')
+        audioform= AudioInfoForm(request.POST, prefix='audio')
+        lightingform= LightingInfoForm(request.POST, prefix='lighting')
+        propsform = PropsInfoForm(request.POST, prefix='props')
+        if (form.is_valid() and
+            audioform.is_valid() and 
+            lightingform.is_valid() and
+            propsform.is_valid()):
+
+            act = form.save(commit=False)
+            audioinfo = audioform.save()
+            lightinginfo = lightingform.save()
+            propsinfo= propsform.save()
+
+            tech_info = TechInfo()
+            tech_info.audio = audioinfo
+            tech_info.lighting = lightinginfo
+            tech_info.props = propsinfo
+            
+            tech_info.save()
+            
+            act.tech=tech_info
+            act.accepted = False
+            act.save()
+
             return HttpResponseRedirect('/profile/')  
         else:
             return render (request,
                            'gbe/edit.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form, audioform, lightingform, propsform]})
     else:
-        form = ActEditForm(instance = act)
+        form = ActEditForm(instance = act, prefix = 'theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form, audioform, lightingform, propsform]})
 
 
 

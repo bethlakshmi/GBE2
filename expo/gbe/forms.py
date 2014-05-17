@@ -165,9 +165,6 @@ class ActForm (forms.ModelForm):
                    'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
-    duration = forms.CharField(max_length=128, required=False)
-    song_name = forms.CharField(max_length=128, required=False)
-    artist = forms.CharField(max_length=128, required=False)
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -279,6 +276,11 @@ class AudioInfoForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
 
+class AudioInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=AudioInfo
+        fields=['title','artist', 'duration']
+
 class LightingInfoForm(forms.ModelForm):
     class Meta:
         model=LightingInfo
@@ -287,11 +289,18 @@ class PropsInfoForm(forms.ModelForm):
     class Meta:
         model=PropsInfo
 
-from django.forms.models import inlineformset_factory
-class TechInfoForm(forms.Form):
+
+class LightingInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=LightingInfo
+        fields = []
+
+
+class PropsInfoBidForm(forms.ModelForm):
+    class Meta:
+        model=PropsInfo
+        fields=[]
     
-    formsets = [inlineformset_factory(AudioInfo, TechInfo),
-                inlineformset_factory(LightingInfo,  TechInfo ),
-                inlineformset_factory(PropsInfo,  TechInfo)]
+
 
     
