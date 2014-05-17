@@ -92,6 +92,35 @@ def register_as_performer(request):
                       'gbe/performer_edit.tmpl',
                       {'form':form})
                       
+@login_required
+def edit_persona(request, persona_id):
+    '''
+    Modify an existing Persona object. 
+    '''
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    try:
+        persona = Persona.objects.filter(id=persona_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')  # just fail for now
+    if persona.performer_profile != profile:
+        return HttpResponseRedirect('/')  # just fail for now    
+    if request.method == 'POST':
+        form = PersonaEditForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/profile/')  
+        else:
+            return render (request,
+                           'gbe/edit.tmpl',
+                           {'forms':[form]})
+    else:
+        form = PersonaEditForm(instance = persona)
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form]})
+
 
 
 @login_required
@@ -167,14 +196,40 @@ def edit_act(request, act_id):
 
 
 
-def review_acts (request):
+def review_act (request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
     To show: display all information about the bid, and a standard 
     review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
-    pass
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
+    if Act not in reviewer.review_types:
+        return HttpResponseRedirect('/class/create')   # also 404
+    try:
+        act = Act.objects.filter(id=act_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    # show act info and inputs for review
+    if request.method == 'POST':
+        form = BidEvaluationForm(request.POST)
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'bid':act,
+                        'form':form})
+    else:
+        form = BidEvaluationForm()
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'bid':act,
+                        'reviewer':reviewer,
+                        'form':form})
+
+
+    
 
 
 @login_required
@@ -230,7 +285,7 @@ def edit_class(request, class_id):
         return HttpResponseRedirect('/')   # no class for this id, fail out
     teachers = owner.personae.all()
     if the_class.teacher not in teachers:
-        return HttpResponseRedirect('/')    # not a teacher for this class, fail out
+        return HttpResponseRedirect('/' )   # not a teacher for this class, fail out
 
     if request.method == 'POST':
         form = ClassEditForm(request.POST)
@@ -274,6 +329,36 @@ def act(request, act_id):
 def profile(request):
     return render(request, 'gbe/profile.html')
     
+@login_required
+def admin_profile(request, profile_id):
+    try:
+        admin_profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # better redirect please
+    if not admin_profile.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
+    try:
+        user_profile=Profile.objects.filter(id=profile_id)[0]
+    except IndexError:
+        return HttpResponseRedirect('/')   # better redirect please
+    if request.method == 'POST':
+        form = ProfileAdminForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            form.save(commit=True)
+            return HttpResponseRedirect('/profile/' + str(profile_id))
+        else:
+            return render(request, 'gbe/update_profile.html', 
+                          {'form':form})
+    else:
+        form = ProfileAdminForm(instance=user_profile,
+                              initial={'email':request.user.email, 
+                                         'first_name':request.user.first_name, 
+                                         'last_name':request.user.last_name,
+                                     })
+        return render(request, 'gbe/update_profile.html', 
+                      {'form':form})
+
+
 @login_required
 def update_profile(request):
     try:
@@ -328,9 +413,6 @@ def register (request):
         form = UserCreateForm()
     return render(request, 'gbe/register.html', {
         'form':form})
-
-
-
 
 def logout_view (request):
     '''
