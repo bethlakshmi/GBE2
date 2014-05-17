@@ -64,7 +64,6 @@ class Profile(models.Model):
                                          validators=[
                                              RegexValidator(regex=phone_regex,
                                                             message=phone_number_format_error)])
-    bid_reviewer = models.TextField(blank=True)
 
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)

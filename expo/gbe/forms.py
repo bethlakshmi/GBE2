@@ -171,14 +171,11 @@ class ActForm (forms.ModelForm):
                    'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
-<<<<<<< HEAD
     required_css_class = 'required'
     error_css_class = 'error'
     duration = forms.CharField(max_length=128, required=False)
     song_name = forms.CharField(max_length=128, required=False)
     artist = forms.CharField(max_length=128, required=False)
-=======
->>>>>>> FETCH_HEAD
     class Meta:
         model = Act
         fields, required = Act().bid_fields
