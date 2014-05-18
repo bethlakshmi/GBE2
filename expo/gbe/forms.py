@@ -173,9 +173,6 @@ class ActForm (forms.ModelForm):
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    duration = forms.CharField(max_length=128, required=False)
-    song_name = forms.CharField(max_length=128, required=False)
-    artist = forms.CharField(max_length=128, required=False)
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -297,7 +294,7 @@ class AudioInfoBidForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
         fields=['title','artist']
-
+        labels= audioinfo_labels
 class LightingInfoForm(forms.ModelForm):
     class Meta:
         model=LightingInfo

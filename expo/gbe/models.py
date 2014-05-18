@@ -258,6 +258,7 @@ class AudioInfo(models.Model):
                    track
                    ))
 
+
 class LightingInfo (models.Model):
     '''
     Information about the lighting needs of a particular Act
@@ -359,10 +360,11 @@ class Act (Biddable):
                                                            
     def _get_bid_fields(self):
         return  ( ['owner',
-                    'title', 
-                    'description', 
-                    'performer', 
-                    'intro_text', ], 
+                   'title', 
+                   'description',
+                   'duration',
+                   'performer', 
+                   'intro_text', ], 
                   [ 'title',],
               )
 
