@@ -64,7 +64,6 @@ def view_profile(request, profile_id=None):
                                'acts': requested_profile.get_acts(own_profile),
                                'shows': requested_profile.get_shows(own_profile),
                                'classes': requested_profile.is_teaching(own_profile),
-                               'review_items': requested_profile.bids_to_review(own_profile)
                            })
     return HttpResponse(template.render(context))
 
@@ -243,24 +242,29 @@ def review_act (request, act_id):
         reviewer = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
-    if Act not in reviewer.review_types:
-        return HttpResponseRedirect('/class/create')   # also 404
+
     try:
         act = Act.objects.filter(id=act_id)[0]
+        actform = ActBidForm(instance = act, prefix = 'The Act')
+        audioform = AudioInfoBidForm(instance = act, prefix = 'Audio')
+	performer = PersonaForm(instance = act.performer, prefix = 'The Performer(s)')
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
     # show act info and inputs for review
     if request.method == 'POST':
         form = BidEvaluationForm(request.POST)
-        return render (request, 
-                       'gbe/bid_review.tmpl',
-                       {'bid':act,
-                        'form':form})
+        if form.is_valid():
+            evaluation = form.save(commit=True)
+            return HttpResponseRedirect('/profile')
+        else:
+            return render (request, 'gbe/bid_review.tmpl',
+                           {'bidinfo': [actform, audioform],
+                           'form':form})
     else:
-        form = BidEvaluationForm()
+        form = BidEvaluationForm(initial = {'evaluator':reviewer, 'bid':act})
         return render (request, 
                        'gbe/bid_review.tmpl',
-                       {'bid':act,
+                       {'bidinfo': [actform, audioform, performer],
                         'reviewer':reviewer,
                         'form':form})
 
@@ -295,17 +299,6 @@ def bid_class(request):
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
-
-def review_act_bid(request, act_id):
-    act = get_object_or_404(Act, pk=act_id)
-    if request.method == 'POST':
-        act.accepted = request.POST.accepted
-        return HttpResponseRedirect('/') # show us the act, or success message, or something
-    else:
-        form = ActBidReviewForm(instance=act)
-        return render (request, 
-                       'gbe/bid.tmpl',
-                       {'form':form})
                                 
 def edit_class(request, class_id):
     '''
@@ -337,19 +330,6 @@ def edit_class(request, class_id):
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
-
-def review_act_bid(request, act_id):
-    act = get_object_or_404(Act, pk=act_id)
-    if request.method == 'POST':
-        act.accepted = request.POST.accepted
-        return HttpResponseRedirect('/') # show us the act, or success message, or something
-    else:
-        form = ActBidReviewForm(instance=act)
-        return render (request, 
-                       'gbe/bid.tmpl',
-                       {'form':form})
-
-
     
 @login_required
 def bid_response(request,type,response):

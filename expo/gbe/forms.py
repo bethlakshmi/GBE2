@@ -173,9 +173,6 @@ class ActForm (forms.ModelForm):
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    duration = forms.CharField(max_length=128, required=False)
-    song_name = forms.CharField(max_length=128, required=False)
-    artist = forms.CharField(max_length=128, required=False)
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -192,10 +189,15 @@ class ActEditForm(forms.ModelForm):
 
 
 class BidEvaluationForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = BidEvaluation
-        fields = '__all__'
-    
+        fields = [ 'vote',
+                   'notes' ]
+    def save (self, *args, **kwargs):
+        return super(BidEvaluationForm, self).save(*args, **kwargs)
+   
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'

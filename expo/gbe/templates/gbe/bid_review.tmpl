@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+  {% if form.errors %}
+    <p style= "color:red"> There is an error on the form.  </p>
+  {% endif %}
+  <p class="vanilla">{{title}} </p>
+  <div>
+    <h2>Bid Information</h2>
+    <table>
+      {% for info in bidinfo %}
+        <tr><td colspan=2><br><h3>{{info.prefix}}</h3></td></tr>
+        {% for field in info %}
+        <tr>
+         <td>{{ field.label_tag }}
+            {% if field.help_text %}
+            <span class="dropt" title="Help">
+              <img src= "{% static "img/question.png" %}" alt="?"/>
+              <span style="width:200px;float:right;text-align:left;">
+                {{ field.help_text }}
+              </span>
+            </span>
+            {% endif %}
+         </td>
+         <td>{{ field.value }}</td>
+        </tr>
+        {% endfor %}
+     {% endfor %}
+    </table>
+  </div>
+  <div>
+    <p><font color=red>*</font> indicates a required field
+    </p>
+     <form action="" method="post">
+
+     {% include "form_table.html" %}
+     <input type="submit" value="Submit Form"> 
+     </form>
+  </div>
+{% endblock %}

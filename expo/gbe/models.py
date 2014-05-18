@@ -28,6 +28,7 @@ class Biddable (models.Model):
     def ready_for_review(self):
         return self.submitted and self.accepted==0
 
+
 class Profile(models.Model):
     '''
     The core data about any registered user of the GBE site, barring
@@ -82,14 +83,6 @@ class Profile(models.Model):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         return profile_alerts
     
-    @property
-    def review_types(self):
-        bid_types = [item.typeof() for item in self.bid_reviewer.all()]
-        return list(set(bid_types))
-
-
-    def bids_to_review(self, own_profile):
-        return 'foo'
 
     def get_performers(self, own_profile):
         solos = self.personae.all()
@@ -507,7 +500,7 @@ class BidEvaluation(models.Model):
     '''
     evaluator = models.ForeignKey(Profile)
     vote = models.IntegerField(choices = vote_options)
-    notes = models.TextField()
+    notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
 
 class PerformerFestivals(models.Model):
