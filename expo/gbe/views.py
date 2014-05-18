@@ -88,7 +88,11 @@ def register_persona(request):
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
-            return HttpResponseRedirect("/profile/"+ str(pid))
+            if request.GET['next']:
+                redirect_to = request.GET['next']
+            else:
+                redirect_to='/profile/'+str(pid)
+            return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 
                            'gbe/performer_edit.tmpl',
@@ -136,6 +140,7 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
+
     form = ActBidForm(prefix='theact')
     audioform= AudioInfoBidForm(prefix='audio')
     lightingform= LightingInfoBidForm(prefix='lighting')
@@ -144,7 +149,9 @@ def bid_act(request):
         profile = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/accounts/profile/')
-    
+    personae = profile.personae.all()
+    if len(personae) == 0:
+        return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
@@ -404,7 +411,6 @@ def profile(request, profile_id=None):
         
     
     
-
 def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones 
