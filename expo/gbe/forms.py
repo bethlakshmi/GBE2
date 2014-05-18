@@ -296,7 +296,7 @@ class AudioInfoForm(forms.ModelForm):
 class AudioInfoBidForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
-        fields=['title','artist', 'duration']
+        fields=['title','artist']
 
 class LightingInfoForm(forms.ModelForm):
     class Meta:

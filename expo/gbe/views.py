@@ -366,13 +366,54 @@ def bid_response(request,type,response):
 	return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
+    '''
+    Act detail view. Display depends on state of act and identity of viewer. 
+    '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 
-@login_required
-def profile(request):
-    return render(request, 'gbe/profile.html')
+def profile(request, profile_id=None):
+    '''
+    Display a profile. Display depends on user. If own profile, show everything and 
+    link to edit. If admin user, show everything and link to admin. 
+    For non-owners and unregistered, display TBD
+    '''
+    if request.user.is_authenticated:
+        try: 
+            viewer_profile = request.user.profile
+        except Profile.DoesNotExist:
+            return render (request, 'gbe/error.tmpl', 
+                           {'error' : "Not signed in"} )
+    try:
+        requested_profile = Profile.objects.filter(id=profile_id)[0]
+    except IndexError:
+        requested_profile = viewer_profile  
+    own_profile = requested_profile == viewer_profile  
+    viewer_is_admin = viewer_profile.user_object.is_staff
     
+    if viewer_is_admin:
+        return render (request, 'gbe/admin_view_profile.tmpl', 
+                       {'profile' : requested_profile,
+                        'user' : requested_profile.user_object})
+    else:
+        return render (request, 'gbe/view_profile.tmpl', 
+                       {'profile' : requested_profile,
+                        'user' : requested_profile.user_object,                        
+                        'viewer_is_admin':viewer_is_admin,
+                        'own_profile': own_profile})
+        
+    
+    
+
+def profiles(request):
+    '''
+    Profiles browse view. If implemented, this should show profiles. Which ones 
+    and how much information depends on the viewer. TBD
+    '''
+    return render (request, 'gbe/error.tmpl', 
+                   {'error' : "Not yet implemented"})
+    
+
 @login_required
 def admin_profile(request, profile_id):
     try:

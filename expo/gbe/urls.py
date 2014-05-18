@@ -20,10 +20,12 @@ urlpatterns = patterns ('',
                             views.landing_page),
 
 # profile
-                     #   url(r'^profile/?$',
-                     #       views.view_profile),
-                     #   url(r'^profile/(\d)/?$',
-                     #       views.view_profile),
+                        url(r'^profile/?$',
+                            views.profile),
+                        url(r'^profiles/?$',
+                            views.profiles),
+                        url(r'^profile/(\d)/?$',
+                            views.profile),
                         url(r'^profile/admin/(\d)/?$',
                             views.admin_profile),
 # acts
