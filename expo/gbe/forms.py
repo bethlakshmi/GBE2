@@ -164,8 +164,7 @@ class ActForm (forms.ModelForm):
 #    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
     class Meta:
         model = Act
-        fields = [ 'owner',
-                   'title', 
+        fields = [ 'title', 
                    'description', 
                    'performer', 
                    'intro_text', ]

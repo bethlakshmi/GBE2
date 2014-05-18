@@ -328,7 +328,6 @@ class Act (Biddable):
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
     # inherit title and description from Biddable
-    owner = models.ForeignKey(Profile)
     performer = models.ForeignKey(Performer,
                                   related_name='acts', 
                                   )  # limit choices to the owner's Performers
@@ -359,8 +358,7 @@ class Act (Biddable):
         return this_act_alerts
                                                            
     def _get_bid_fields(self):
-        return  ( ['owner',
-                   'title', 
+        return  ( ['title', 
                    'description',
                    'duration',
                    'performer', 
