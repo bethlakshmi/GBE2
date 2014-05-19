@@ -23,9 +23,14 @@ phone_validation_error_text = '''If Preferred contact is a Phone call or Text, \
 we need your phone number as either an Onsite phone or Offsite preferred.'''
 
 
+
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']
 phone_error3 = ['...or choose a contact method that does not require a phone.']
+
+audioinfo_labels = {
+    'title' : ('Track Title'),
+    'artist' : ('Track Artist')}
 
 bidder_info_phone_error = ''''A phone number we can use to reach you when you are at \
 the Expo, such as cell phone.'''

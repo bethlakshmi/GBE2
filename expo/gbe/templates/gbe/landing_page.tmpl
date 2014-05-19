@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}
+   Profile View  
+{% endblock %}
+
+{% block content %}
+   <div class='left_col'>
+   	{% include 'gbe/incl_lp_left.tmpl' %}
+   </div>
+   {% if profile %}
+   <div class='right_col'>
+   	{% include 'gbe/incl_lp_right.tmpl' %}
+   </div>
+   {% endif %}
+   
+
+   <div class='right_col'>
+
+   </div>
+{% endblock %}

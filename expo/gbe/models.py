@@ -39,7 +39,7 @@ class Profile(models.Model):
     display_name = models.CharField(max_length=128, blank=True) 
       
     # used for linking tickets  
-    purchase_email = models.CharField(max_length=64, default = '') 
+    purchase_email = models.CharField(max_length=64, blank=True, default='') 
  
     # contact info - I'd like to split this out to its own object
     # so we can do real validation 
@@ -238,7 +238,7 @@ class AudioInfo(models.Model):
     title = models.CharField (max_length=128, blank=True)
     artist = models.CharField (max_length=123, blank=True)
     track = models.FileField (upload_to='uploads/audio', blank=True)
-    duration = models.CharField (max_length=128,blank=True)  
+    track_duration = models.CharField (max_length=128,blank=True)  
     need_mic = models.BooleanField (default=False, blank=True)
     notes = models.TextField (blank=True)    
     confirm_no_music = models.BooleanField (default=False)
@@ -246,10 +246,11 @@ class AudioInfo(models.Model):
     @property
     def is_complete(self):
         return (confirm_no_music or
-                (  title and
-                   artist and
-                   track and
-                   duration))
+                (  (title and
+                   artist)  or
+                   track
+                   ))
+
 
 class LightingInfo (models.Model):
     '''
@@ -320,13 +321,13 @@ class Act (Biddable):
     #title = models.CharField(max_length=128)  
     #description = models.TextField(blank=True)
     # inherit title and description from Biddable
-    owner = models.ForeignKey(Profile)
     performer = models.ForeignKey(Performer,
                                   related_name='acts', 
                                   )  # limit choices to the owner's Performers
     intro_text = models.TextField(blank=True)
+    duration = models.CharField (max_length = 40, blank=True)
     tech = models.ForeignKey(TechInfo, blank = True)
-    in_draft = models.BooleanField(default=True)
+
 
     def typeof(self):
         return self.__class__
@@ -350,11 +351,11 @@ class Act (Biddable):
         return this_act_alerts
                                                            
     def _get_bid_fields(self):
-        return  ( ['owner',
-                    'title', 
-                    'description', 
-                    'performer', 
-                    'intro_text', ], 
+        return  ( ['title', 
+                   'description',
+                   'duration',
+                   'performer', 
+                   'intro_text', ], 
                   [ 'title',],
               )
 

@@ -12,10 +12,8 @@ def index(request):
     '''
     one of two cases: 
       - unknown user (sign in or register/browse expo)
-      - registered user (show objects/browse expo)
+      - registered user (show objects/browse expo) 
     '''
-    context_dict = {}
-    context_dict['events_list']  = Event.objects.all()[:5]
     if request.user.is_authenticated():
         try:
             profile = request.user.profile
@@ -25,22 +23,14 @@ def index(request):
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
     else:
-        template = loader.get_template("gbe/index_unregistered_user.tmpl")
+        pass
     context = RequestContext (request, context_dict)
     return HttpResponse(template.render(context))
 
-def event(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.html', {'event':event})
 
-
-def techinfo(request):
-    form = TechInfoForm()
-    return render(request, 
-                  'gbe/techinfo.html', 
-                  {'form':form})
-
-def view_profile(request, profile_id=None):
+def landing_page(request, profile_id=None):
+    standard_context = {}
+    standard_context['events_list']  = Event.objects.all()[:5]
     if not request.user.is_authenticated():
         viewer_profile=None
     else:
@@ -53,23 +43,43 @@ def view_profile(request, profile_id=None):
         requested_profile = get_object_or_404(Profile, pk=profile_id)
     else:
         if viewer_profile:
-            requested_profile=viewer_profile
+            requested_profile = viewer_profile
         else:
-            return HttpResponseRedirect("/")
+            requested_profile = None
     own_profile =  (viewer_profile == requested_profile)
-    template = loader.get_template('gbe/view_profile.tmpl')
-    context = RequestContext (request, 
-                              {'profile':requested_profile, 
-                               'performers':requested_profile.get_performers(own_profile),
-                               'acts': requested_profile.get_acts(own_profile),
-                               'shows': requested_profile.get_shows(own_profile),
-                               'classes': requested_profile.is_teaching(own_profile),
-                           })
+
+    template = loader.get_template('gbe/landing_page.tmpl')
+    if requested_profile:
+        context = RequestContext (request, 
+                                  {'profile':requested_profile, 
+                                   'standard_context' : standard_context,
+                                   'performers':requested_profile.get_performers(own_profile),
+                                   'acts': requested_profile.get_acts(own_profile),
+                                   'shows': requested_profile.get_shows(own_profile),
+                                   'classes': requested_profile.is_teaching(own_profile),
+                                   'review_items': requested_profile.bids_to_review(own_profile)
+                               })
+    else:
+        context = RequestContext (request,
+                                  {'standard_context' : standard_context
+                                  })
     return HttpResponse(template.render(context))
+
+
+def event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    return render(request, 'gbe/event.html', {'event':event})
+
+
+def techinfo(request):
+    form = TechInfoForm()
+    return render(request, 
+                  'gbe/techinfo.html', 
+                  {'form':form})
 
     
 @login_required
-def register_as_performer(request):
+def register_persona(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -79,7 +89,11 @@ def register_as_performer(request):
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
-            return HttpResponseRedirect("/profile/"+ str(pid))
+            if request.GET['next']:
+                redirect_to = request.GET['next']
+            else:
+                redirect_to='/profile/'+str(pid)
+            return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 
                            'gbe/performer_edit.tmpl',
@@ -127,6 +141,7 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
+
     form = ActBidForm(prefix='theact')
     audioform= AudioInfoBidForm(prefix='audio')
     lightingform= LightingInfoBidForm(prefix='lighting')
@@ -135,7 +150,9 @@ def bid_act(request):
         profile = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/accounts/profile/')
-    
+    personae = profile.personae.all()
+    if len(personae) == 0:
+        return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
@@ -338,13 +355,53 @@ def bid_response(request,type,response):
 	return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
+    '''
+    Act detail view. Display depends on state of act and identity of viewer. 
+    '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
 
-@login_required
-def profile(request):
-    return render(request, 'gbe/profile.html')
+def profile(request, profile_id=None):
+    '''
+    Display a profile. Display depends on user. If own profile, show everything and 
+    link to edit. If admin user, show everything and link to admin. 
+    For non-owners and unregistered, display TBD
+    '''
+    if request.user.is_authenticated:
+        try: 
+            viewer_profile = request.user.profile
+        except Profile.DoesNotExist:
+            return render (request, 'gbe/error.tmpl', 
+                           {'error' : "Not signed in"} )
+    try:
+        requested_profile = Profile.objects.filter(id=profile_id)[0]
+    except IndexError:
+        requested_profile = viewer_profile  
+    own_profile = requested_profile == viewer_profile  
+    viewer_is_admin = viewer_profile.user_object.is_staff
     
+    if viewer_is_admin:
+        return render (request, 'gbe/admin_view_profile.tmpl', 
+                       {'profile' : requested_profile,
+                        'user' : requested_profile.user_object})
+    else:
+        return render (request, 'gbe/view_profile.tmpl', 
+                       {'profile' : requested_profile,
+                        'user' : requested_profile.user_object,                        
+                        'viewer_is_admin':viewer_is_admin,
+                        'own_profile': own_profile})
+        
+    
+    
+def profiles(request):
+    '''
+    Profiles browse view. If implemented, this should show profiles. Which ones 
+    and how much information depends on the viewer. TBD
+    '''
+    return render (request, 'gbe/error.tmpl', 
+                   {'error' : "Not yet implemented"})
+    
+
 @login_required
 def admin_profile(request, profile_id):
     try:

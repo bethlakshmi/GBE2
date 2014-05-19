@@ -164,8 +164,7 @@ class ActForm (forms.ModelForm):
 #    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
     class Meta:
         model = Act
-        fields = [ 'owner',
-                   'title', 
+        fields = [ 'title', 
                    'description', 
                    'performer', 
                    'intro_text', ]
@@ -298,8 +297,8 @@ class AudioInfoForm(forms.ModelForm):
 class AudioInfoBidForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
-        fields=['title','artist', 'duration']
-
+        fields=['title','artist']
+        labels= audioinfo_labels
 class LightingInfoForm(forms.ModelForm):
     class Meta:
         model=LightingInfo
