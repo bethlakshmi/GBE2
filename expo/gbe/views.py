@@ -188,7 +188,7 @@ def bid_act(request):
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
         form = ActBidForm(initial = {'owner':profile}, prefix='theact')
-        form.fields['performer'].choices.choice(profile.get_performers(True))
+        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile=profile))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
@@ -299,7 +299,7 @@ def bid_class(request):
         return HttpResponseRedirect('/accounts/profile/')
     teachers = owner.personae.all()
     if len (teachers) == 0 :
-        return HttpResponseRedirect('/performer/create/')
+        return HttpResponseRedirect('/performer/create?next=/class/create')
     if request.method == 'POST':
         form = ClassBidForm(request.POST)
         if form.is_valid():
@@ -310,7 +310,9 @@ def bid_class(request):
                            'gbe/bid.tmpl', 
                            {'forms':[form]})
     else:
-        form = ClassBidForm (initial = {'owner':owner, 'teachers':teachers})
+        form = ClassBidForm (initial = {'owner':owner, })
+        form.fields['teacher']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile_id=owner.id))
+
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
