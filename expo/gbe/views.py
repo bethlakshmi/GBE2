@@ -79,7 +79,7 @@ def techinfo(request):
 
     
 @login_required
-def register_persona(request):
+def register_persona(request, **kwargs):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -89,6 +89,8 @@ def register_persona(request):
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
+#            if kwargs['redirect']:
+#                redirect_to = kwargs['redirect']
             if request.GET['next']:
                 redirect_to = request.GET['next']
             else:
@@ -152,6 +154,7 @@ def bid_act(request):
         return HttpResponseRedirect('/accounts/profile/')
     personae = profile.personae.all()
     if len(personae) == 0:
+#        register_persona(request, redirect='/act/create/')
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, prefix='theact')
@@ -186,6 +189,7 @@ def bid_act(request):
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
         form = ActBidForm(initial = {'owner':profile}, prefix='theact')
+        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile=profile))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
@@ -301,7 +305,7 @@ def bid_class(request):
         return HttpResponseRedirect('/accounts/profile/')
     teachers = owner.personae.all()
     if len (teachers) == 0 :
-        return HttpResponseRedirect('/performer/create/')
+        return HttpResponseRedirect('/performer/create?next=/class/create')
     if request.method == 'POST':
         form = ClassBidForm(request.POST)
         if form.is_valid():
@@ -312,7 +316,9 @@ def bid_class(request):
                            'gbe/bid.tmpl', 
                            {'forms':[form]})
     else:
-        form = ClassBidForm (initial = {'owner':owner, 'teachers':teachers})
+        form = ClassBidForm (initial = {'owner':owner, })
+        form.fields['teacher']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile_id=owner.id))
+
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
