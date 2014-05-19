@@ -78,7 +78,7 @@ def techinfo(request):
 
     
 @login_required
-def register_persona(request):
+def register_persona(request, **kwargs):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -88,6 +88,8 @@ def register_persona(request):
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
+#            if kwargs['redirect']:
+#                redirect_to = kwargs['redirect']
             if request.GET['next']:
                 redirect_to = request.GET['next']
             else:
@@ -151,6 +153,7 @@ def bid_act(request):
         return HttpResponseRedirect('/accounts/profile/')
     personae = profile.personae.all()
     if len(personae) == 0:
+#        register_persona(request, redirect='/act/create/')
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, prefix='theact')
@@ -185,6 +188,7 @@ def bid_act(request):
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
         form = ActBidForm(initial = {'owner':profile}, prefix='theact')
+        form.fields['performer'].choices.choice(profile.get_performers(True))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
