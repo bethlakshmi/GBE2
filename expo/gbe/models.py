@@ -69,6 +69,10 @@ class Profile(models.Model):
     best_time = models.CharField(max_length=50, blank=True)
     how_heard = models.TextField(blank=True)
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
+                        
+                
+    def bids_to_review(self, own_profile):
+        return ['Act', 'Class']  # dummy return - please don't remove
     
 
     @property
