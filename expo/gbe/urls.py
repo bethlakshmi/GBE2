@@ -58,11 +58,6 @@ urlpatterns = patterns ('',
                         url(r'^event/(P<event_id>\d+)/?$', 
                             views.event), 
 
-# bid reviews
-                        url(r'^bid/(?P<type>\w+)-(?P<response>\w+)', 
-                            views.bid_response),
-
-
 # site utility stuff
                         url(r'^login/?$', 
                             login),

@@ -28,7 +28,7 @@ combo_form_help_texts = {
     can be a member of your combo or an agent, but whoever it is will be authorized to speak \
     for and make decisions for you.'), 
     'name': ('If you leave this blank, it\'ll fill in with the names of the performers involved in \
-             this act.')
+             this act.'),
     'membership': ('Select the performers who will be on stage with you. If they have not created \
     a persona on the site, you can either create one for them, or just fill in their name in the \
     notes and we\'ll sort it out.'), # edit this text please
