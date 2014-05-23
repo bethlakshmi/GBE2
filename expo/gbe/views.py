@@ -405,6 +405,30 @@ def edit_class(request, class_id):
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
+
+
+@login_required
+def create_volunteer(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect("/profile/create?next=volunteer/create")
+    if request.method == 'POST':
+        form = VolunteerBidForm(request.POST)
+        if form.is_valid():
+            volunteer = form.save(commit=True)
+            return HttpResponseRedirect('/')
+        else:
+            return render (request, 
+                           'gbe/bid.tmpl', 
+                           {'forms':[form]})
+    else:
+        form = VolunteerBidForm(initial = {'profile':profile})
+        return render (request, 
+                       'gbe/bid.tmpl', 
+                       {'forms':[form]})
+                            
+
     
 @login_required
 def bid_response(request,type,response):
@@ -418,6 +442,9 @@ def act(request, act_id):
     '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
+
+
+
 
 def profile(request, profile_id=None):
     '''

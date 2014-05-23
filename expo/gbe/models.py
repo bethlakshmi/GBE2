@@ -14,7 +14,10 @@ class Biddable (models.Model):
     title = models.CharField(max_length=128)  
     description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
-    accepted = models.IntegerField(choices=acceptance_states, default=0, blank=True )    
+                              
+    accepted = models.IntegerField(choices=acceptance_states, 
+                                   default=0, 
+                                   blank=True)
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -521,6 +524,21 @@ class ClassBid(Bid):
     
     def __unicode__(self):  
         return self.type+':  '+self.title;
+
+class Volunteer(Biddable):
+    '''
+    Represents a conference attendee's participation as a volunteer. 
+    '''
+    profile = models.ForeignKey(Profile)
+    number_shifts = models.IntegerField(choices = volunteer_shift_options)
+    availability = models.TextField()
+    interests = models.TextField()
+    opt_outs = models.TextField(blank=True)
+    pre_event = models.BooleanField()
+    background = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return 'Volunteer: '+ self.profile.display_name
 
 class VendorBid(Bid):
     '''

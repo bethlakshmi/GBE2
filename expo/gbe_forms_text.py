@@ -34,6 +34,21 @@ combo_form_help_texts = {
     notes and we\'ll sort it out.'), # edit this text please
 }
 
+volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
+
+volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
+                                  ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
+                                  ('SH4', 'Friday late night'), ('SH5', 'Saturday morning'), 
+                                  ('SH6', 'Saturday afternoon'), ('SH7', 'Saturday night'), 
+                                  ('SH8', 'Saturday late night'), ('SH9', 'Sunday morning'), 
+                                  ('SH10', 'Sunday afternoon'), ('SH11', 'Sunday night'), 
+                                  ('SH12', 'Strike Crew'), ('SH13', 'Monday morning')]
+
+volunteer_interests_options = [('VA0', 'Registration'), ('VA1', 'Security/usher'), 
+                          ('VA2', 'Stage crew'), ('VA3', 'Stage Management'), 
+                          ('VA4', 'Conference Staff'), ('VA5', 'Tech crew'), 
+                          ('VA6', 'Vendor room'), ('VA7', 'Costume Exhibit'), ('VA8', 'Art Show')]
+
 
 
 phone_error1 = ['Phone number needed here']

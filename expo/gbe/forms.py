@@ -151,7 +151,7 @@ class PersonaEditForm(forms.ModelForm):
 class TroupeForm (forms.ModelForm):
     class Meta:
         model = Troupe
-        fields='__all__'
+        fields= '__all__'
 
 class ComboForm (forms.ModelForm):
     class Meta:
@@ -291,6 +291,17 @@ class VendorBidForm(forms.ModelForm):
 			super(VendorBidForm, self).clean()
 		return self.cleaned_data
 
+
+class VolunteerBidForm(forms.ModelForm):
+    title = forms.HiddenInput()
+    description = forms.HiddenInput()                            
+    availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
+                                             choices = volunteer_availability_options)
+    interests = forms.MultipleChoiceField(widget= forms.CheckboxSelectMultiple, 
+                                          choices = volunteer_interests_options)
+    class Meta:
+        model = Volunteer
+        fields = '__all__'
 
 class AudioInfoForm(forms.ModelForm):
     class Meta:

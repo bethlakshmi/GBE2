@@ -58,6 +58,11 @@ urlpatterns = patterns ('',
                         url(r'^event/(P<event_id>\d+)/?$', 
                             views.event), 
 
+
+#volunteers
+                        url(r'^volunteer/bid/?$',
+                            views.create_volunteer),
+
 # site utility stuff
                         url(r'^login/?$', 
                             login),

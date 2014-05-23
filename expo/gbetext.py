@@ -29,6 +29,9 @@ profile_alerts = {'onsite_phone':  '''We need a number to reach you at during th
 
 contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
                    ('Text', 'Text'))
+
+
+volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
     
 
 states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), 
