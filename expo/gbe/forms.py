@@ -151,11 +151,12 @@ class PersonaEditForm(forms.ModelForm):
 class TroupeForm (forms.ModelForm):
     class Meta:
         model = Troupe
-        
+        fields='__all__'
 
 class ComboForm (forms.ModelForm):
     class Meta:
         model = Combo
+        fields='__all__'
 
 class ActForm (forms.ModelForm):
     required_css_class = 'required'

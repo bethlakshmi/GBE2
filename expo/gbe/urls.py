@@ -49,6 +49,10 @@ urlpatterns = patterns ('',
                             views.register_persona),
                         url(r'^persona/edit/(\d)/?$',
                             views.edit_persona),
+                        url(r'^troupe/create/?$',
+                            views.create_troupe),
+                        url(r'^combo/create/?$',
+                            views.create_combo),
 
 # events   - not implemented, might not be
                         url(r'^event/(P<event_id>\d+)/?$', 

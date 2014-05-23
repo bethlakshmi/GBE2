@@ -106,7 +106,59 @@ def register_persona(request, **kwargs):
         return render(request, 
                       'gbe/performer_edit.tmpl',
                       {'form':form})
-                      
+             
+
+def create_troupe(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/?next=/troupe/create')
+    personae = profile.personae.all()
+    if len(personae) == 0:
+        return HttpResponseRedirect('/performer/create/?next=/troupe/create')
+    if request.method == 'POST':
+        form = TroupeForm(request.POST, request.FILES)
+        if form.is_valid():
+            troupe = form.save(commit=True)
+            troupe_id = troupe.pk
+            return HttpResponseRedirect('/')
+        else:
+            return render (request, 
+                           'gbe/performer_edit.tmpl',
+                           {'form':form})
+    else:
+        form = TroupeForm(initial={'contact':profile})
+        return render(request, 'gbe/performer_edit.tmpl',
+                      {'form':form})
+                                   
+         
+def create_combo(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/?next=/troupe/create')
+    personae = profile.personae.all()
+    if len(personae) == 0:
+        return HttpResponseRedirect('/performer/create/?next=/troupe/create')
+    if request.method == 'POST':
+        form = ComboForm(request.POST, request.FILES)
+        if form.is_valid():
+            troupe = form.save(commit=True)
+            troupe_id = troupe.pk
+            return HttpResponseRedirect('/')
+        else:
+            return render (request, 
+                           'gbe/performer_edit.tmpl',
+                           {'form':form})
+    else:
+        form = ComboForm(initial={'contact':profile})
+        return render(request, 'gbe/performer_edit.tmpl',
+                      {'form':form})
+                                   
+            
+
+
+
 @login_required
 def edit_persona(request, persona_id):
     '''
