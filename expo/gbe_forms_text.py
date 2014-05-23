@@ -23,6 +23,18 @@ phone_validation_error_text = '''If Preferred contact is a Phone call or Text, \
 we need your phone number as either an Onsite phone or Offsite preferred.'''
 
 
+combo_form_help_texts = {
+    'contact': ('The person we should contact about this act\'s appearance at the expo. This \
+    can be a member of your combo or an agent, but whoever it is will be authorized to speak \
+    for and make decisions for you.'), 
+    'name': ('If you leave this blank, it\'ll fill in with the names of the performers involved in \
+             this act.')
+    'membership': ('Select the performers who will be on stage with you. If they have not created \
+    a persona on the site, you can either create one for them, or just fill in their name in the \
+    notes and we\'ll sort it out.'), # edit this text please
+}
+
+
 
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']

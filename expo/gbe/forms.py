@@ -156,7 +156,8 @@ class TroupeForm (forms.ModelForm):
 class ComboForm (forms.ModelForm):
     class Meta:
         model = Combo
-        fields='__all__'
+        fields= ['contact', 'name', 'membership']
+
 
 class ActForm (forms.ModelForm):
     required_css_class = 'required'
