@@ -146,3 +146,6 @@ num_panel_options = (("One Panel","One Panel ($30 includes application fee)"),
 					("Two Panels","Two Panels ($75; if your work is not accepted, $45 will be refunded)"),
 					("Sculpture","My artwork is sculptural and needs to be displayed on a table ($30 includes app. fee)"))
 
+
+
+class_proposal_choices = [ ('Class', 'Class'), ('Panel', 'Panel'), ('Either', 'Either')]

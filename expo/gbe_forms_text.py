@@ -34,7 +34,6 @@ combo_form_help_texts = {
     notes and we\'ll sort it out.'), # edit this text please
 }
 
-volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
 
 volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
                                   ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
@@ -66,8 +65,28 @@ act_length_required = ("Act Length (mm:ss) is required.")
 act_length_too_long = ("The Act Length is too long.")  # note: this refers to the data 
                                                        # entered, not the time signified
 
-act_length_help_text = 'Length of entire act in mm:ss - please include any time \
-you are performing before or after your song.'
+act_help_texts = {
+    'duration':'Length of entire act in mm:ss - please include any time \
+    you are performing before or after your song.', 
+    'description':'Please give a brief description of your act. \
+    Stage kittens will retrieve costumes and props, but we cannot clean the stage \
+    after your act. Please do not leave anything on the stage (water, glitter, \
+    confetti, etc.)', 
+    'performer': 'Select the stage persona, combo, or troupe who will be \
+    performing. Hit "create" to create a new persona, troupe, or combo.',
+}
+
+
+act_labels = {
+    'name': ('Stage Name or Troupe'),
+    'homepage': ('Web Site'),
+    'song_name': 'Title of Song',
+    'artist': 'Name of Artist',
+    'video_choice': 'Video Description',
+    'video_link': 'Link to Video',
+    'hotel_choice': 'Are you staying in the hotel?',
+}
+
 
 bio_required = ("Performer/Troupe history is required.")
 bio_too_long = ("The History is too long.")
@@ -75,10 +94,6 @@ bio_help_text = 'Please give a brief performer/troupe history.'
 
 act_description_required =  ("Description of the Act is required.")
 act_description_too_long =  ("The Description  is too long.")
-act_description_help_text = '''Please give a brief description of your act. \
-Stage kittens will retrieve costumes and props, but we cannot clean the stage \
-after your act. Please do not leave anything on the stage (water, glitter, \
-confetti, etc.)'''
 
 promo_required = ("Please provide a photo.")
 promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
@@ -126,27 +141,6 @@ persona_help_texts = {
 }
 
 bid_review_options = { 'Accepted', 'Declined', 'Waitlist'}
-
-actbid_labels = {
-    'name': ('Stage Name or Troupe'),
-    'homepage': ('Web Site'),
-    'is_group': ('Is this a Troupe Performance?'),
-    'other_performers': ('Fellow performers'),
-    'song_name': 'Title of Song',
-    'artist': 'Name of Artist',
-    'video_choice': 'Video Description',
-    'video_link': 'Link to Video',
-    'hotel_choice': 'Are you staying in the hotel?',
-    'volunteer_choice': 'Are you volunteering for the event?',
-    'conference_choice': 'Are you attending the conference?',
-}
-
-actbid_help_texts = {
-    'name': ('''If you are a soloist, this is your stage name.  If you are a troupe, \
-This is your troupe name.  If you are a group, but not a troupe, please give the \
-names you would like to be introduced by.'''),
-    'other_performers': ('Please list other people involved/required for this act.'),
-}
 
 actbid_error_messages = {
     'title': {

@@ -42,7 +42,10 @@ urlpatterns = patterns ('',
                         url(r'^class/create/?$',
                             views.bid_class),
                         url(r'class/edit/(\d+)/?$', 
-                            views.edit_class),
+                            views.edit_class),                        
+                        url(r'^class/propose/?$',
+                            views.propose_class),
+
 
 # personae
                         url(r'^performer/create/?$',
@@ -62,6 +65,7 @@ urlpatterns = patterns ('',
 #volunteers
                         url(r'^volunteer/bid/?$',
                             views.create_volunteer),
+
 
 # site utility stuff
                         url(r'^login/?$', 
