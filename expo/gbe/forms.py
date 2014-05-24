@@ -143,10 +143,6 @@ class PersonaForm (forms.ModelForm):
         help_texts = persona_help_texts
         labels = persona_labels
 
-class PersonaEditForm(forms.ModelForm):
-    class Meta:
-        model=Persona
-
 
 class TroupeForm (forms.ModelForm):
     class Meta:
@@ -196,10 +192,7 @@ class BidEvaluationForm(forms.ModelForm):
     error_css_class = 'error'
     class Meta:
         model = BidEvaluation
-        fields = [ 'vote',
-                   'notes' ]
-    def save (self, *args, **kwargs):
-        return super(BidEvaluationForm, self).save(*args, **kwargs)
+        fields = '__all__'
    
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'

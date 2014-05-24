@@ -414,7 +414,7 @@ class Show (Event):
                                                 
 class Class (Event, Biddable):
     '''
-    A Class is an Event where one or a few people
+    A Class is an Event whProfileere one or a few people
     teach/instruct/guide/mediate and a number of participants
     spectate/participate.  Participation *may* be limited for workshops,
     but is rarely limited for anything else.  Occupany information is requested to
@@ -510,6 +510,10 @@ class BidEvaluation(models.Model):
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
+    
+    def __unicode__(self):
+        return self.bid.title+": "+self.evaluator.display_name
+
 
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)

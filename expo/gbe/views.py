@@ -175,15 +175,15 @@ def edit_persona(request, persona_id):
     if persona.performer_profile != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = PersonaEditForm(request.POST)
+        form = PersonaForm(request.POST, instance=persona)
         if form.is_valid():
-            return HttpResponseRedirect('/profile/')  
+            return HttpResponseRedirect('/')  
         else:
             return render (request,
-                           'gbe/edit.tmpl',
+                           'gbe/bid.tmpl',
                            {'forms':[form]})
     else:
-        form = PersonaEditForm(instance = persona)
+        form = PersonaForm(instance = persona)
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
@@ -294,7 +294,7 @@ def edit_act(request, act_id):
             return HttpResponseRedirect('/profile/')  
         else:
             return render (request,
-                           'gbe/edit.tmpl',
+                           'gbe/bid.tmpl',
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
         form = ActEditForm(instance = act, prefix = 'theact')
@@ -323,21 +323,30 @@ def review_act (request, act_id):
 	performer = PersonaForm(instance = act.performer, prefix = 'The Performer(s)')
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+    '''
+    if user has previously reviewed the act, provide his review for update
+    '''
+    try:
+        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, evaluator_id=reviewer.id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator = reviewer, bid = act)
+
     # show act info and inputs for review
     if request.method == 'POST':
-        form = BidEvaluationForm(request.POST)
+        form = BidEvaluationForm(request.POST, instance = bid_eval)
         if form.is_valid():
             evaluation = form.save(commit=False)
             evaluation.evaluator = reviewer
             evaluation.bid = act
             evaluation.save()
-            return HttpResponseRedirect('/profile')
+            return HttpResponseRedirect('/')
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [actform, audioform],
                            'form':form})
     else:
-        form = BidEvaluationForm(initial = {'evaluator':reviewer, 'bid':act})
+        form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [actform, audioform, performer],
