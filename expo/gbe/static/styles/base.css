@@ -69,6 +69,7 @@ div#middle {
     padding: 3px 3px 3px 6px;
 }
 
+/* I can't see where these are used - commenting out in case I'm wrong -BB */
 div#left-sidebar {
     width:125px;   /* was 200px or something like that.  -MDB */
     float:left;
@@ -80,6 +81,39 @@ div#right-sidebar {
     border: 1 solid black;
 }
 
+div.left_col {
+    float:left;
+    margin: 10px;
+    padding: 10px;
+}
+
+div.right_col {
+    width:40%;
+    float:right;
+    border: 1px solid black;
+    margin: 10px;
+    padding: 10px;
+}
+
+/* used in bid review and readonly forms */
+div.review-pane {
+    border: 1px solid black;
+    margin: 10px;
+    padding: 10px;
+    background-color: #E3E3E3;
+}
+
+h2.review-title
+{
+    margin: 0px;
+    padding: 0px;
+}
+
+h3.readonlyform
+{
+    margin: 0px;
+    padding: 0px;
+}
 
 
 span.dropt {border-bottom: background: white;}

@@ -334,13 +334,13 @@ def review_act (request, act_id):
             return HttpResponseRedirect('/profile')
         else:
             return render (request, 'gbe/bid_review.tmpl',
-                           {'bidinfo': [actform, audioform],
+                           {'readonlyform': [actform, audioform],
                            'form':form})
     else:
         form = BidEvaluationForm(initial = {'evaluator':reviewer, 'bid':act})
         return render (request, 
                        'gbe/bid_review.tmpl',
-                       {'bidinfo': [actform, audioform, performer],
+                       {'readonlyform': [actform, audioform, performer],
                         'reviewer':reviewer,
                         'form':form})
 
