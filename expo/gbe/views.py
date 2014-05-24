@@ -584,7 +584,24 @@ def logout_view (request):
     logout(request)
     return HttpResponseRedirect('/')
 
-def test(request):
-    return render(request, 'bids/index.html')
+
+
+
+def propose_class (request):
+    '''
+    Handle suggestions for classes from the great unwashed 
+    '''
+    if request.method=='POST':
+        form = ClassProposalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/')  # where to?
+        else:
+            return render(request, 'gbe/class_proposal.tmpl',
+                          { 'form' : form } )
+    else:
+        form = ClassProposalForm()
+        return render (request, 'gbe/class_proposal.tmpl',
+                       {'form' : form } )
   
 

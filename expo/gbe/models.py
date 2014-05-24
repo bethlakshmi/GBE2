@@ -588,3 +588,12 @@ A request for a space in the marketplace.
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.bidder.display_name;
                 
+
+
+
+class ClassProposal(models.Model):
+    title = models.CharField(max_length=128)
+    proposal = models.TextField()
+    
+    def __unicode__(self):
+        return self.title

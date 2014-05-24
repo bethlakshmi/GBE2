@@ -174,6 +174,7 @@ class ActForm (forms.ModelForm):
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    help_texts=act_help_texts
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -184,6 +185,7 @@ class ActBidForm(forms.ModelForm):
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    help_texts=act_help_texts
     class Meta:
         model = Act
         fields = '__all__'
@@ -333,5 +335,9 @@ class PropsInfoBidForm(forms.ModelForm):
         fields=[]
     
 
+class ClassProposalForm(forms.ModelForm):
+    class Meta:
+        model = ClassProposal
+        fields = '__all__'
 
     
