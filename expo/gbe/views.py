@@ -234,14 +234,16 @@ def bid_act(request):
             act.tech=tech_info
             act.accepted = False
             act.save()
-            return HttpResponseRedirect('/profile/')  
+            return HttpResponseRedirect('/')  
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form, audioform, lightingform, propsform]})
+                           {'forms':[form, audioform, lightingform, propsform], 
+                           } )
     else:
         form = ActBidForm(initial = {'owner':profile}, prefix='theact')
-        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile=profile))
+        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
+                                                         objects.filter(performer_profile=profile))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
@@ -263,8 +265,6 @@ def edit_act(request, act_id):
         act = Act.objects.filter(id=act_id)[0]
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
-    if act.owner != profile:
-        return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
         form = ActBidForm(request.POST, prefix='act')
         audioform= AudioInfoForm(request.POST, prefix='audio')
@@ -327,7 +327,10 @@ def review_act (request, act_id):
     if request.method == 'POST':
         form = BidEvaluationForm(request.POST)
         if form.is_valid():
-            evaluation = form.save(commit=True)
+            evaluation = form.save(commit=False)
+            evaluation.evaluator = reviewer
+            evaluation.bid = act
+            evaluation.save()
             return HttpResponseRedirect('/profile')
         else:
             return render (request, 'gbe/bid_review.tmpl',
