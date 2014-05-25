@@ -332,8 +332,6 @@ class Act (Biddable):
     intro_text = models.TextField(blank=True)
     duration = models.CharField (max_length = 40, blank=True)
     tech = models.ForeignKey(TechInfo, blank = True)
-    owner = models.ForeignKey(Profile)
-
 
     def typeof(self):
         return self.__class__
@@ -357,8 +355,7 @@ class Act (Biddable):
         return this_act_alerts
                                                            
     def _get_bid_fields(self):
-        return  ( ['owner',
-                   'title', 
+        return  ( ['title', 
                    'description',
                    'duration',
                    'performer', 

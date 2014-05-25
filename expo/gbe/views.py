@@ -291,7 +291,7 @@ def edit_act(request, act_id):
             act.accepted = False
             act.save()
 
-            return HttpResponseRedirect('/profile/')  
+            return HttpResponseRedirect('/')  
         else:
             return render (request,
                            'gbe/bid.tmpl',
