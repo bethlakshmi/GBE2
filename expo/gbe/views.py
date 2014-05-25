@@ -266,7 +266,7 @@ def edit_act(request, act_id):
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
     if request.method == 'POST':
-        form = ActBidForm(request.POST, prefix='act')
+        form = ActBidForm(request.POST, prefix='theact')
         audioform= AudioInfoForm(request.POST, prefix='audio')
         lightingform= LightingInfoForm(request.POST, prefix='lighting')
         propsform = PropsInfoForm(request.POST, prefix='props')
@@ -297,7 +297,7 @@ def edit_act(request, act_id):
                            'gbe/bid.tmpl',
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
-        form = ActEditForm(instance = act, prefix = 'theact')
+        form = ActEditForm(instance = act, prefix='theact')
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
