@@ -632,6 +632,6 @@ def propose_class (request):
     else:
         form = ClassProposalForm()
         return render (request, 'gbe/class_proposal.tmpl',
-                       {'form' : form } )
+                       {'form' : form})
   
 

@@ -255,3 +255,22 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
 					('Sunday, 12p to 4pm', 'Sunday, 12p to 4pm'),
 					('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
 					('Sunday after 8pm', 'Sunday after 8pm'))
+
+
+
+# Would like to be able to insert this into the class proposal form from upstream
+
+class_proposal_form_text = {
+    'header': 'Thanks for your interest in the GBE. Suggestions welcome for classes you\'d like to see. \
+    Name and email address are optional: fill in if you\'d like updates about classes and panels at the \
+    next Expo. '
+}
+
+class_proposal_help_texts = {
+    'name' : 'If you\'d like to get updates about classes and panels at the expo, \
+    fill in your name and email address. Or don\'t, if you prefer, it\'s up to you.',
+    'title': 'Your suggested title for this class or panel',
+    'proposal': 'What does this class look like in your mind? Consider telling us about material to \
+    cover, target audience, etc',
+    'type': 'Is this a class? A panel? Do you care?'
+}

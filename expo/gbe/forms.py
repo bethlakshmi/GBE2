@@ -324,5 +324,6 @@ class ClassProposalForm(forms.ModelForm):
     class Meta:
         model = ClassProposal
         fields = '__all__'
+        help_texts= class_proposal_help_texts
 
     
