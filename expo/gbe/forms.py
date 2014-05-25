@@ -124,7 +124,6 @@ class BidderInfoForm(forms.ModelForm):
 class PersonaForm (forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    performer_profile = forms.widgets.HiddenInput()
     class Meta:
         model = Persona
         fields = [ 'name', 
@@ -142,7 +141,7 @@ class PersonaForm (forms.ModelForm):
         
         help_texts = persona_help_texts
         labels = persona_labels
-
+        widgets = {'performer_profile': forms.HiddenInput()}
 
 class TroupeForm (forms.ModelForm):
     class Meta:
@@ -155,17 +154,6 @@ class ComboForm (forms.ModelForm):
         fields= ['contact', 'name', 'membership']
 
 
-class ActForm (forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    duration = forms.CharField(max_length=128)
-#    duration = forms.TimeField(input_formats=['%H:%M:%S', '%H:%M'])
-    class Meta:
-        model = Act
-        fields = [ 'title', 
-                   'description', 
-                   'performer', 
-                   'intro_text', ]
 
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
@@ -190,10 +178,14 @@ class ActEditForm(forms.ModelForm):
 class BidEvaluationForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+
     class Meta:
         model = BidEvaluation
         fields = '__all__'
-   
+        widgets = {'evaluator': forms.HiddenInput(),
+		   'bid': forms.HiddenInput()}
+
+
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'

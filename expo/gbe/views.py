@@ -177,6 +177,7 @@ def edit_persona(request, persona_id):
     if request.method == 'POST':
         form = PersonaForm(request.POST, instance=persona)
         if form.is_valid():
+            performer = form.save(commit=True)
             return HttpResponseRedirect('/')  
         else:
             return render (request,
