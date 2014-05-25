@@ -305,6 +305,11 @@ def edit_act(request, act_id):
 
 
 
+def review_acts(request):
+    return render (request, 'gbe/error.tmpl', 
+                   {'error' : "Not yet implemented"} )
+
+
 def review_act (request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
