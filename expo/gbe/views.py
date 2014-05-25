@@ -207,10 +207,10 @@ def bid_act(request):
         return HttpResponseRedirect('/accounts/profile/')
     personae = profile.personae.all()
     if len(personae) == 0:
-#        register_persona(request, redirect='/act/create/')
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
-        form = ActBidForm(request.POST, prefix='theact')
+        form = ActBidForm(request.POST, 
+                          prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
         lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
         propsform = PropsInfoBidForm(request.POST, prefix='props')
@@ -242,7 +242,10 @@ def bid_act(request):
                            {'forms':[form, audioform, lightingform, propsform], 
                            } )
     else:
-        form = ActBidForm(initial = {'owner':profile}, prefix='theact')
+        form = ActBidForm(initial = {'owner':profile,
+                                     'performer': personae[0]}, 
+                                     prefix='theact')
+                          
         form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
                                                          objects.filter(performer_profile=profile))
         return render (request, 
