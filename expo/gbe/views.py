@@ -359,8 +359,24 @@ def review_act (request, act_id):
                         'reviewer':reviewer,
                         'form':form})
 
+def review_act_list (request):
+    '''
+    Show the list of act bids, review results,
+    and give a way to update the reviews 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
 
+    try:
+        acts = Act.objects.filter(submitted=True)
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
     
+    return render (request, 'gbe/bid_review_list.tmpl',
+		   {'bids': acts, 'review_path': '/act/review/'})
+
 
 
 @login_required

@@ -37,6 +37,8 @@ urlpatterns = patterns ('',
                             views.review_acts),
                         url(r'^act/review/(\d)/?$',
                             views.review_act),
+                        url(r'^act/reviewlist/?$',
+                            views.review_act_list),
                         url(r'^act/(?P<act_id>\d+)/?$', 
                             views.act),
 

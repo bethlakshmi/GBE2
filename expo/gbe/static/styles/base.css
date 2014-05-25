@@ -115,6 +115,13 @@ h3.readonlyform
     padding: 0px;
 }
 
+.bid-table
+{
+    border: 1px solid black;
+    border-collapse:collapse;
+    padding: 2px;
+ }
+
 
 span.dropt {border-bottom: background: white;}
 span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
