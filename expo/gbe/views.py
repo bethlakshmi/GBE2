@@ -264,33 +264,26 @@ def edit_act(request, act_id):
         return HttpResponseRedirect('/accounts/profile/')
     try:
         act = Act.objects.filter(id=act_id)[0]
+        audio = act.tech.audio
+        lighting = act.tech.lighting
+        props = act.tech.props
+
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
     if request.method == 'POST':
-        form = ActBidForm(request.POST, prefix='theact')
-        audioform= AudioInfoForm(request.POST, prefix='audio')
-        lightingform= LightingInfoForm(request.POST, prefix='lighting')
-        propsform = PropsInfoForm(request.POST, prefix='props')
+        form = ActBidForm(request.POST,  instance=act, prefix = 'theact')
+        audioform= AudioInfoForm(request.POST, instance = audio,  prefix='audio')
+        lightingform= LightingInfoForm(request.POST, instance = lighting, prefix='lighting')
+        propsform = PropsInfoForm(request.POST, instance = props,  prefix='props')
         if (form.is_valid() and
             audioform.is_valid() and 
             lightingform.is_valid() and
             propsform.is_valid()):
 
-            act = form.save(commit=False)
-            audioinfo = audioform.save()
-            lightinginfo = lightingform.save()
-            propsinfo= propsform.save()
-
-            tech_info = TechInfo()
-            tech_info.audio = audioinfo
-            tech_info.lighting = lightinginfo
-            tech_info.props = propsinfo
-            
-            tech_info.save()
-            
-            act.tech=tech_info
-            act.accepted = False
-            act.save()
+            audioform.save()
+            lightingform.save()
+            propsform.save()
+            form.save()
 
             return HttpResponseRedirect('/')  
         else:
@@ -299,6 +292,9 @@ def edit_act(request, act_id):
                            {'forms':[form, audioform, lightingform, propsform]})
     else:
         form = ActEditForm(instance = act, prefix='theact')
+        audioform= AudioInfoForm(prefix='audio', instance = audio)
+        lightingform= LightingInfoForm(prefix='lighting', instance = lighting)
+        propsform = PropsInfoForm(prefix='props', instance = props)
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
