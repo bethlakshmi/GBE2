@@ -98,7 +98,7 @@ class Profile(models.Model):
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         if not self.complete:
-            profile_alers.append("something's not right with your profile")
+            profile_alerts.append("something's not right with your profile")
         return profile_alerts
     
 
