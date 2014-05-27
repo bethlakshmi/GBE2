@@ -49,6 +49,15 @@ volunteer_interests_options = [('VA0', 'Registration'), ('VA1', 'Security/usher'
                           ('VA6', 'Vendor room'), ('VA7', 'Costume Exhibit'), ('VA8', 'Art Show')]
 
 
+volunteer_labels = {
+    'number_shifts': 'How many shifts would you like to work?',
+    'interests':'What are your particular areas of interest?',
+    'availability': 'Please select shifts when you will be available to volunteer',
+    'opt_outs': 'Are there events that we should make sure to not schedule you during?',
+    'pre_event': 'Are you interested in helping with pre-event tasks?',
+    'background': 'Tell us about your background, including relevant skills and experience'
+
+}
 
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']
@@ -233,11 +242,15 @@ offsite_vendor_help_text = '''A phone number for your business landline, if \
 different from above.'''
 vendor_description_help_text = '''Please describe your good or services in 250 words \
 or less. We will publish this text on the website.'''
+
 vendor_labels = {
-	'vend_time':  ('I\'d like to vend...'),
-	'want_help': ('Help Wanted'),
-	'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
-	'help_description': ('Tell Us About the Person You\'d Like to Hire ')
+    'title':'Company or business name',
+    'vend_time':  ('I\'d like to vend...'),
+    'want_help': ('Help Wanted'),
+    'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
+    'help_description': ('Tell Us About the Person You\'d Like to Hire '),
+    'website':'Company website',
+
 }
 vendor_help_texts = {
 	'vend_time':  ('I\'d like to vend...'),

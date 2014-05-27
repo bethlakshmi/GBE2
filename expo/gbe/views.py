@@ -445,18 +445,21 @@ def create_volunteer(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect("/profile/create?next=volunteer/create")
+        return HttpResponseRedirect("accounts/profile?next=volunteer/create")
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
-            volunteer = form.save(commit=True)
+            volunteer = form.save()
             return HttpResponseRedirect('/')
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
                            {'forms':[form]})
     else:
-        form = VolunteerBidForm(initial = {'profile':profile})
+        form = VolunteerBidForm(initial = {'profile':profile,
+                                           'title':'volunteer bid: '+ profile.display_name,
+                                           'description':'volunteer bid',
+                                           'submitted':True})
         return render (request, 
                        'gbe/bid.tmpl', 
                        {'forms':[form]})
@@ -468,9 +471,9 @@ def create_vendor(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResonseRedirect("/profile/create?next=vendor/create")
+        return HttpResponseRedirect("/accounts/profile/?next=vendor/create")
     if request.method == 'POST':
-        form = NewVendorBidForm(request.POST)
+        form = VendorBidForm(request.POST)
         if form.is_valid():
             vendor = form.save()
             return HttpResponseRedirect("/")
@@ -479,7 +482,7 @@ def create_vendor(request):
                            'gbe/bid.tmpl',
                            {'forms':[form]})
     else:
-        form = NewVendorBidForm(initial = {'profile':profile})
+        form = VendorBidForm(initial = {'profile':profile})
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})

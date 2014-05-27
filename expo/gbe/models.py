@@ -98,7 +98,7 @@ class Profile(models.Model):
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         if not self.complete:
-            profile_alerts.append("something's not right with your profile")
+            profile_alers.append("something's not right with your profile")
         return profile_alerts
     
 
@@ -560,11 +560,11 @@ class Volunteer(Biddable):
     Represents a conference attendee's participation as a volunteer. 
     '''
     profile = models.ForeignKey(Profile)
-    number_shifts = models.IntegerField(choices = volunteer_shift_options)
+    number_shifts = models.IntegerField(choices = volunteer_shift_options, default=1)
     availability = models.TextField()
     interests = models.TextField()
     opt_outs = models.TextField(blank=True)
-    pre_event = models.BooleanField()
+    pre_event = models.BooleanField(choices= boolean_options, default=False)
     background = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -581,9 +581,9 @@ class Vendor(Biddable):
     website = models.URLField(blank=True)
     physical_address = models.TextField(blank=True)  # if we need physical address?
     logo = models.FileField(upload_to="uploads/images", blank=True)
-    want_help = models.BooleanField(choices = boolean_options, blank=True)
+    want_help = models.BooleanField(choices = boolean_options, blank=True, default=False)
     help_description = models.TextField(blank=True)
-    preferred_slots = models.TextField(blank=True)
+    help_times = models.TextField(blank=True)
     def __unicode__(self): 
         return self.title  # "title" here is company name
 	

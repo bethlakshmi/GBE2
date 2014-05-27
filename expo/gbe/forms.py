@@ -212,15 +212,24 @@ class VolunteerBidForm(forms.ModelForm):
     class Meta:
         model = Volunteer
         fields = '__all__'
+        widgets = {'accepted': forms.HiddenInput(), 
+                   'submitted' : forms.HiddenInput(),
+                   'title' : forms.HiddenInput(), 
+                   'description' : forms.HiddenInput(),
+                   'profile' : forms.HiddenInput()}
+        labels = volunteer_labels
 
-
-class NewVendorBidForm(forms.ModelForm):
-    preferred_slots = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
+class VendorBidForm(forms.ModelForm):
+    help_times = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
                                                 choices = vendor_schedule_options)
     class Meta:
         model=Vendor
         fields = '__all__'
-        widgets = {'profile': forms.HiddenInput()}
+        labels = vendor_labels
+        widgets = {'accepted': forms.HiddenInput(), 
+                   'submitted' : forms.HiddenInput(),
+                   'profile' : forms.HiddenInput()}
+
 
 class AudioInfoForm(forms.ModelForm):
     class Meta:
