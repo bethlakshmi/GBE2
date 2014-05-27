@@ -92,6 +92,7 @@ festival_list = (('GBE', 'The Great Burlesque Exposition'),
 festival_experience = ( ('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
 yesno_options = (("Yes", "Yes"), ("No", "No"))
+boolean_options = ((True, "Yes"), (False, "No"))
 
 video_options = (('0', "I don't have any video of myself performing"), 
                  ('1', "This is video of me but not the act I'm submitting"),

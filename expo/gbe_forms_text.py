@@ -247,6 +247,16 @@ vendor_help_texts = {
 	and advertising'''),
 }
 
+vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
+                           ('VSH1', 'Saturday, 12p to 4pm'), 
+                           ('VSH2', 'Saturday, 4pm to 8pm'), 
+                           ('VSH3', 'Saturday after 8pm'), 
+                           ('VSH4', 'Sunday, 9am to noon'), 
+                           ('VSH5', 'Sunday, 12p to 4pm'), 
+                           ('VSH6', 'Sunday, 4pm to 8pm'), 
+                           ('VSH7', 'Sunday after 8pm')]
+
+
 help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
 					('Saturday, 12p to 4pm','Saturday, 12p to 4pm'),
 					('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),

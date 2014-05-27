@@ -570,29 +570,22 @@ class Volunteer(Biddable):
     def __unicode__(self):
         return 'Volunteer: '+ self.profile.display_name
 
-class VendorBid(Bid):
+
+class Vendor(Biddable):
     '''
-    A request for a space in the marketplace.
-    Vendors have to bid, too
+    A request for space in the Expo marketplace. 
+    Note that company name is stored in the title field inherited from Biddable, 
+    and description is also inherited
     '''
-    vend_time = models.CharField(max_length=128, choices=vend_time_options, default=" ")
-    company = models.CharField(max_length=128, blank=True)
-    description = models.TextField(max_length=500, blank=True)
+    profile = models.ForeignKey(Profile)
     website = models.URLField(blank=True)
+    physical_address = models.TextField(blank=True)  # if we need physical address?
     logo = models.FileField(upload_to="uploads/images", blank=True)
-    want_help = models.CharField(max_length=128, choices=yesno_options, blank=True)
-    Saturday_9AM_to_12PM = models.BooleanField()
-    Saturday_12PM_to_4PM = models.BooleanField()
-    Saturday_4PM_to_8PM = models.BooleanField()
-    Saturday_after_8PM = models.BooleanField()
-    Sunday_9AM_to_12PM = models.BooleanField()
-    Sunday_12PM_to_4PM = models.BooleanField()
-    Sunday_4PM_to_8PM = models.BooleanField()
-    Sunday_after_8PM = models.BooleanField()
-    help_description = models.TextField(max_length=500, blank=True)
-    
-    def __unicode__(self):  # Python 3: def __str__(self):
-        return self.company;
+    want_help = models.BooleanField(choices = boolean_options, blank=True)
+    help_description = models.TextField(blank=True)
+    preferred_slots = models.TextField(blank=True)
+    def __unicode__(self): 
+        return self.title  # "title" here is company name
 	
 class AdBid(Bid):
     '''

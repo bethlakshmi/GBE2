@@ -71,6 +71,10 @@ urlpatterns = patterns ('',
                             views.create_volunteer),
 
 
+#vendors 
+                        url(r'^vendor/bid/?$',
+                            views.create_vendor),
+
 # site utility stuff
                         url(r'^login/?$', 
                             login),

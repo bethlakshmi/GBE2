@@ -464,6 +464,27 @@ def create_volunteer(request):
 
     
 @login_required
+def create_vendor(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResonseRedirect("/profile/create?next=vendor/create")
+    if request.method == 'POST':
+        form = NewVendorBidForm(request.POST)
+        if form.is_valid():
+            vendor = form.save()
+            return HttpResponseRedirect("/")
+        else:
+            return render (request,
+                           'gbe/bid.tmpl',
+                           {'forms':[form]})
+    else:
+        form = NewVendorBidForm(initial = {'profile':profile})
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form]})
+
+@login_required
 def bid_response(request,type,response):
 	if response == "error":
 		return render(request, 'bids/'+response+'.html')
