@@ -20,7 +20,7 @@ class BrownPaperSettings(models.Model):
     last_poll_time = models.DateTimeField()
     
     def __unicode__(self):
-        return 'Settings:  %s (%s) - %s' % (self.developer_id, self.client_id, self.last_poll_time)
+        return 'Settings:  %s (%s) - %s' % (self.developer_token, self.client_username, self.last_poll_time)
     
     
 class BrownPaperEvents(models.Model):
@@ -51,7 +51,7 @@ class TicketItem(models.Model):
     modified_by = models.ForeignKey(User)
 
     def __unicode__(self):
-        return 'TicketItem:  %s' % self.title
+        return self.title
         
 class Purchaser(models.Model):
     '''
@@ -79,7 +79,7 @@ class Purchaser(models.Model):
     matched_to_user = models.ForeignKey(User, default=None)
     
     def __unicode__(self):
-        return 'Purchaser:  %s %s (%s)' % (self.first_name, self.last_name, self.email)
+        return '%s %s (%s)' % (self.first_name, self.last_name, self.email)
         
 class Transaction(models.Model):
     ''' 
@@ -99,5 +99,5 @@ class Transaction(models.Model):
     import_date = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
-        return 'Transaction:  %s' % self.reference
+        return self.reference
     
