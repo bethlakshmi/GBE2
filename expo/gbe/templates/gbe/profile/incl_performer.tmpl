@@ -6,7 +6,7 @@
 	  {% for performer in performers %}
 	     <span class='performer'>{{ performer }} </span> <br>
 	     {% for alert in performer.alerts %}
-	     	<span class='alert'>{{alert}} </span><br>
+	     	<span class='alert'>{{alert | safe}} </span><br>
 		{% endfor %}
 		<a href='/persona/edit/{{ performer.id }}'>Edit</a><br>
 	  {% endfor %}

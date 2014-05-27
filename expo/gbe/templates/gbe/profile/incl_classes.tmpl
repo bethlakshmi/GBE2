@@ -7,7 +7,7 @@
 	     <span class='class'>{{ class }} </span> <br>
 	     <a href='/class/edit/{{class.id}}'>Edit this class</a> <br>
 	     {% for alert in class.alerts %}
-	     <span class='alert'>{{alert}}</a>
+	     <span class='alert'>{{alert | safe }}</a>
 	     {% endfor %}	     
 	  {% endfor %}
 	  {%endif %}

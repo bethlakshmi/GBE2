@@ -27,6 +27,15 @@ profile_alerts = {'onsite_phone':  '''We need a number to reach you at during th
 <a href='accounts/profile'>Fix this!</a>''',
                   }
 
+
+act_alerts = {
+    'act_complete': 'This act is complete and can be submitted whenever you like. \
+    <a href = "/act/submit/%d/"> Submit Now </a>',
+    'act_incomplete': 'This act is not complete and cannot be submitted for a show. \
+    <a href ="/act/edit/%d/"> Review/Edit This Act </a>'
+    }
+    
+
 contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
                    ('Text', 'Text'))
 

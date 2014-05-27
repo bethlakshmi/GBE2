@@ -373,9 +373,9 @@ class Act (Biddable):
         '''
         this_act_alerts=[]
         if self.complete and not self.submitted:
-            this_act_alerts.append("This act is complete and can be submitted whenever you like")
+            this_act_alerts.append(act_alerts['act_complete'] % self.id)
         elif not self.complete:
-            this_act_alerts.append("This act is not complete and cannot be submitted for a show")
+            this_act_alerts.append(act_alerts['act_incomplete'] % self.id)
 
         return this_act_alerts
                                                            

@@ -6,9 +6,11 @@
 	   {% for act in acts %}
 	      <span class='show'> {{ act }} </span> <br>
 	      <a href = '/act/edit/{{act.id}}'> Edit </a> <br>
+
 	      {% for alert in act.alerts %}
-	      	<span class='alert'> {{ alert }}</span> <br>	      	 
+	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
 	      {% endfor %}
+
 	   {% endfor %}
 	   <a href='/act/create/'>Create another</a> <br>
 	   {%endif %}

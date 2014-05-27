@@ -41,6 +41,8 @@ urlpatterns = patterns ('',
                             views.review_act_list),
                         url(r'^act/(?P<act_id>\d+)/?$', 
                             views.act),
+                        url(r'^act/submit/(\d)/?$',
+                            views.submit_act),
 
 # classes
                         url(r'^class/create/?$',

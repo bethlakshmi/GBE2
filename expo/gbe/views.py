@@ -91,7 +91,7 @@ def register_persona(request, **kwargs):
             pid = profile.pk
 #            if kwargs['redirect']:
 #                redirect_to = kwargs['redirect']
-            if request.GET['next']:
+            if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
                 redirect_to='/profile/'+str(pid)
@@ -376,6 +376,28 @@ def review_act_list (request):
     return render (request, 'gbe/bid_review_list.tmpl',
 		   {'bids': acts, 'review_path': '/act/review/'})
 
+
+@login_required
+def submit_act(request, act_id):
+    try:
+        submitter = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')  # don't bother with next redirect, they can't own this act!
+    try:
+        the_act = Act.objects.get(id=act_id)
+    except Act.DoesNotExist:
+        return HttpResponseRedirect('/')  # no such act
+    if the_act not in submitter.get_acts(True):
+        return render (request, 
+                       'gbe/error.tmpl', 
+                       {'error' : 'You don\'t own that act.'})
+    else:
+        the_act.submitted= True             # Should show a review screen with a submit button
+        the_act.save()                      # but I want to review how bid review is working to 
+        return HttpResponseRedirect('/')    # see if I can make use of existing code before 
+                                            # implementing
+
+        
 
 
 @login_required
