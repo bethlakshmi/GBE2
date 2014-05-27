@@ -165,7 +165,6 @@ class ActBidForm(forms.ModelForm):
     def save (self, *args, **kwargs):
         return super(ActBidForm, self).save(*args, **kwargs)
 
-
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -173,6 +172,8 @@ class ActEditForm(forms.ModelForm):
     class Meta:
         model = Act
         fields = '__all__'
+
+
 
 
 class BidEvaluationForm(forms.ModelForm):

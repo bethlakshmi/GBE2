@@ -196,7 +196,6 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
-
     form = ActBidForm(prefix='theact')
     audioform= AudioInfoBidForm(prefix='audio')
     lightingform= LightingInfoBidForm(prefix='lighting')
@@ -235,7 +234,10 @@ def bid_act(request):
             act.tech=tech_info
             act.accepted = False
             act.save()
-            return HttpResponseRedirect('/')  
+            if not act.performer:
+                return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
+            else:
+                return HttpResponseRedirect('/')  
         else:
             return render (request,
                            'gbe/bid.tmpl',
@@ -325,7 +327,8 @@ def review_act (request, act_id):
         act = Act.objects.filter(id=act_id)[0]
         actform = ActBidForm(instance = act, prefix = 'The Act')
         audioform = AudioInfoBidForm(instance = act, prefix = 'Audio')
-	performer = PersonaForm(instance = act.performer, prefix = 'The Performer(s)')
+	performer = PersonaForm(instance = act.performer, 
+                                prefix = 'The Performer(s)')
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
     

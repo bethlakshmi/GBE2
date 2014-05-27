@@ -346,8 +346,8 @@ class Act (Biddable):
     linked to Acts. 
     '''
     performer = models.ForeignKey(Performer,
-                                  related_name='acts', 
-                                  )  # limit choices to the owner's Performers
+                                  related_name='acts', blank=True, null=True )
+         
     intro_text = models.TextField(blank=True)
     duration = models.CharField (max_length = 40, blank=True)
     tech = models.ForeignKey(TechInfo, blank = True)
