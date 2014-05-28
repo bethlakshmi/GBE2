@@ -12,4 +12,6 @@ def index(request):
     context = {}
     return render(request, 'ticketing\index.html', context)
 
-
+def ticket_items(request):
+    context = {}
+    return render(request, 'ticketing\TicketItems.html', context)
