@@ -42,6 +42,7 @@ class TicketItem(models.Model):
     'Fan Admission', 'The Main Event', and so forth.  A ticket may admit to multiple
     events.  
     '''    
+    ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
     description = models.TextField()
     active = models.BooleanField(default=False)
