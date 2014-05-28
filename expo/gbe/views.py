@@ -28,7 +28,7 @@ def index(request):
     return HttpResponse(template.render(context))
 
 
-def landing_page(request, profile_id=None):
+def landing_page(request):
     standard_context = {}
     standard_context['events_list']  = Event.objects.all()[:5]
     if not request.user.is_authenticated():
@@ -39,30 +39,20 @@ def landing_page(request, profile_id=None):
         except Profile.DoesNotExist:
             viewer_profile=None
 
-    if profile_id:
-        requested_profile = get_object_or_404(Profile, pk=profile_id)
-    else:
-        if viewer_profile:
-            requested_profile = viewer_profile
-        else:
-            requested_profile = None
-    own_profile =  (viewer_profile == requested_profile)
-
     template = loader.get_template('gbe/landing_page.tmpl')
-    if requested_profile:
+    if viewer_profile:
         context = RequestContext (request, 
-                                  {'profile':requested_profile, 
+                                  {'profile':viewer_profile, 
                                    'standard_context' : standard_context,
-                                   'performers':requested_profile.get_performers(own_profile),
-                                   'acts': requested_profile.get_acts(own_profile),
-                                   'shows': requested_profile.get_shows(own_profile),
-                                   'classes': requested_profile.is_teaching(own_profile),
-                                   'review_items': requested_profile.bids_to_review(own_profile)
+                                   'performers':viewer_profile.get_performers(),
+                                   'acts': viewer_profile.get_acts(),
+                                   'shows': viewer_profile.get_shows(),
+                                   'classes': viewer_profile.is_teaching(),
+                                   'review_items': viewer_profile.bids_to_review()
                                })
     else:
         context = RequestContext (request,
-                                  {'standard_context' : standard_context
-                                  })
+                                  {'standard_context' : standard_context })
     return HttpResponse(template.render(context))
 
 
@@ -390,7 +380,7 @@ def submit_act(request, act_id):
         the_act = Act.objects.get(id=act_id)
     except Act.DoesNotExist:
         return HttpResponseRedirect('/')  # no such act
-    if the_act not in submitter.get_acts(True):
+    if the_act not in submitter.get_acts():
         return render (request, 
                        'gbe/error.tmpl', 
                        {'error' : 'You don\'t own that act.'})

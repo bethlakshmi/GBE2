@@ -3,6 +3,13 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
 
+group_perms_map = {
+    'Act Reviewers': 'Act',
+    'Class Reviewers':'Class',
+    'Volunteer Reviewers':'Volunteer',
+    'Vendor Reviewers':'Vendor' 
+}
+
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -74,8 +81,9 @@ class Profile(models.Model):
     preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
                         
                 
-    def bids_to_review(self, own_profile):
-        return ['Act', 'Class']  # dummy return - please don't remove
+    def bids_to_review(self):
+        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
+        return [rg for rg in review_groups if eval(rg).bids_to_review]
 
     @property
     def complete(self):
@@ -92,8 +100,8 @@ class Profile(models.Model):
         import gbetext
         profile_alerts = []
         expo_commitments = []
-        expo_commitments += self.get_shows(True)
-        expo_commitments += self.is_teaching(True)
+        expo_commitments += self.get_shows()
+        expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
@@ -102,25 +110,25 @@ class Profile(models.Model):
         return profile_alerts
     
 
-    def get_performers(self, own_profile):
+    def get_performers(self):
         solos = self.personae.all()
         performers = list(solos)
         for solo in solos:
             performers += solo.combos.all()
             performers += solo.troupes.all()
         return performers
-    def get_acts(self, own_profile):
+    def get_acts(self):
         acts = []
-        performers = self.get_performers(own_profile)
+        performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
         return acts
-    def get_shows(self, own_profile):
+    def get_shows(self):
         shows = []
-        for act in self.get_acts(own_profile):
+        for act in self.get_acts():
             shows += act.appearing_in.all()
         return shows
-    def is_teaching(self, own_profile):
+    def is_teaching(self):
         '''
         return a list of classes this user is teaching
         (not a list of classes they are taking, that's another list)
@@ -279,6 +287,10 @@ class AudioInfo(models.Model):
                    ))
 
 
+    def __unicode__(self):
+        return "AudioInfo: "+ self.techinfo.act.title
+
+
 class LightingInfo (models.Model):
     '''
     Information about the lighting needs of a particular Act
@@ -300,6 +312,10 @@ class LightingInfo (models.Model):
     def is_complete (self):
         return ( self.stage_color and self.cyc_color)
 
+
+    def __unicode__(self):
+        return "LightingInfo: "+self.techinfo.act.title
+
 class PropsInfo(models.Model):
     '''
     Information about the props requirements for a particular Act
@@ -317,6 +333,9 @@ class PropsInfo(models.Model):
     def is_complete(self):
         return (self.set_props or self.clear_props or self.cue_props or self.confirm)
 
+    def __unicode__(self):
+        return "PropsInfo: " +self.techinfo.act.title
+
 class TechInfo (models.Model):
     '''
     Gathers up technical info about an act in a show. 
@@ -331,6 +350,8 @@ class TechInfo (models.Model):
                 self.lighting.is_complete and
                 self.props.is_complete)
     
+    def __unicode__(self):
+        return "Techinfo: "+ self.act.title
 
 #######
 # Act #
@@ -350,7 +371,7 @@ class Act (Biddable):
          
     intro_text = models.TextField(blank=True)
     duration = models.CharField (max_length = 40, blank=True)
-    tech = models.ForeignKey(TechInfo, blank = True)
+    tech = models.OneToOneField(TechInfo, blank = True)
 
     def typeof(self):
         return self.__class__

@@ -14,8 +14,6 @@ urlpatterns = patterns ('',
 # landing page
                         url(r'^/?$', 
                             views.landing_page),
-                        url(r'^/(\d)?$', 
-                            views.landing_page),
                         url(r'index.html/?', 
                             views.landing_page),
 
