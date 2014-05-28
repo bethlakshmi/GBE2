@@ -610,8 +610,11 @@ def update_profile(request):
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
         if form.is_valid():
-            form.save(commit=True)
-            return HttpResponseRedirect("/profile/"+str(request.user.profile.id))
+            form.save(commit=False)
+            if profile.display_name.strip() == '':
+                profile.display_name = request.user.first_name + ' ' + request.user.last_name
+            profile.save()
+            return HttpResponseRedirect("/")
         else:
             return render(request, 'gbe/update_profile.html', 
                       {'form': form})
