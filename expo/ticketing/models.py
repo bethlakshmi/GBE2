@@ -1,6 +1,6 @@
 # 
 # models.py - Contains Django Database Models for Ticketing - Defines Database Schema
-# edited by mdb 5/6/2014
+# edited by mdb 5/28/2014
 #
 
 # python manage.py sql ticketing
@@ -52,7 +52,7 @@ class TicketItem(models.Model):
     modified_by = models.CharField(max_length=30)
 
     def __unicode__(self):
-        return self.title
+        return '%s %s' % (self.ticket_id, self.title)
         
 class Purchaser(models.Model):
     '''
