@@ -18,14 +18,15 @@
     </tr>
     {% for bid in bids %}
     <tr class="bid-table">
-      {% for key, value in bid.items %}
-      {% if key != 'id' %}
-      <td class="bid-table">{{ value }}</td>
-      {% endif %}
-      {% endfor %}
-      <td class="bid-table">
-        <a href="{{ review_path }}{{ bid.id }}">Review</a>
-      </td>
+        {% for value in bid %}
+          {% if not forloop.last  %}
+            <td class="bid-table">{{ value }}</td>
+          {% else %}
+            <td class="bid-table">
+              <a href="{{ review_path }}{{ value }}">Review</a>
+            </td>
+          {% endif %}
+        {% endfor %}
     </tr>
     {% endfor %}
   </table>
