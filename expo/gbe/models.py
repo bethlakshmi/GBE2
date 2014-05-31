@@ -379,6 +379,15 @@ class Act (Biddable):
     @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
+
+    @property
+    def bid_review_display(self):    
+        return type(self).objects.filter(submitted=True).select_related().values_list('performer__name','title', 'bid__last_update')
+ 
+    @property
+    def bid_review_header(self):
+        return  (['Performer', 'Act Title', 'Last Update'])
+
     @property
     def complete(self):
         return (self.tech.is_complete and
@@ -613,7 +622,7 @@ class Vendor(Biddable):
     help_times = models.TextField(blank=True)
     def __unicode__(self): 
         return self.title  # "title" here is company name
-	
+
 class AdBid(Bid):
     '''
     A request for a space in the marketplace.

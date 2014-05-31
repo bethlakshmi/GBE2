@@ -11,12 +11,16 @@
 
   <table class="bid-table">
     <tr class="bid-table">
-      <th class="bid-table">Bid</th>
+      {% for header_item in header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
       <th class="bid-table">Review</th>
     </tr>
     {% for bid in bids %}
     <tr class="bid-table">
-      <td class="bid-table">{{ bid }}</td>
+      {% for value in bid %}
+      <td class="bid-table">{{ value }}</td>
+      {% endfor %}
       <td class="bid-table">
         <a href="{{ review_path }}{{ bid.id }}">Review</a>
       </td>

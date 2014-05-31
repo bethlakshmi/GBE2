@@ -366,13 +366,15 @@ def review_act_list (request):
         return HttpResponseRedirect('/')   # should go to 404?
 
     try:
-        acts = Act.objects.filter(submitted=True)
+        acts = Act().bid_review_display
+	header = Act().bid_review_header
         reviews = BidEvaluation.objects.filter(evaluator=reviewer)
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
-                  {'bids': acts, 'review_path': '/act/review/'})
+                  {'header': header, 'bids': acts, 'reviews': reviews,
+		   'review_path': '/act/review/'})
 
 
 @login_required
