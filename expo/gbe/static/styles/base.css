@@ -66,7 +66,7 @@ div#middle {
     
     /* overflow:scroll; */
     overflow: hidden;
-    padding: 3px 3px 3px 6px;
+    padding: 10px 3px 10px 20px;
 }
 
 /* I can't see where these are used - commenting out in case I'm wrong -BB */
