@@ -393,11 +393,17 @@ class Act (Biddable):
         Return a list of alerts pertaining to this object
         '''
         this_act_alerts=[]
-        if self.complete and not self.submitted:
-            this_act_alerts.append(act_alerts['act_complete'] % self.id)
-        elif not self.complete:
-            this_act_alerts.append(act_alerts['act_incomplete'] % self.id)
-
+        if self.complete:     ### TODO: jpk: refactor this, please, it's awful. -jpk
+            if self.submitted:
+                this_act_alerts.append(act_alerts['act_complete_submitted'] % self.id)
+            else:
+                this_act_alerts.append(act_alerts['act_complete_not_submitted'] % self.id)
+        else:
+            if self.submitted:
+                this_act_alerts.append(act_alerts['act_incomplete_submitted'] % self.id)
+            else:
+                this_act_alerts.append(act_alerts['act_incomplete_not_submitted'] % self.id)
+        
         return this_act_alerts
                                                            
     def _get_bid_fields(self):

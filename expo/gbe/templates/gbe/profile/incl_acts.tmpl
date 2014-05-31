@@ -4,9 +4,8 @@
 	   </span><br>
 	   {%if acts %}
 	   {% for act in acts %}
-	      <span class='show'> {{ act }} </span> <br>
-	      <a href = '/act/edit/{{act.id}}'> Edit </a> <br>
-
+	      <span class='act'> <a href = '/act/edit/{{act.id}}'> {{ act }} </a> </span> 
+	      (Click to edit)<br>	      
 	      {% for alert in act.alerts %}
 	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
 	      {% endfor %}
