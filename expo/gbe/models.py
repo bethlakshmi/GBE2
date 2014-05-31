@@ -380,7 +380,7 @@ class Act (Biddable):
 
     @property
     def bid_review_display(self):    
-        return type(self).objects.filter(submitted=True).select_related().values_list('performer__name','title', 'bid__last_update')
+        return type(self).objects.filter(submitted=True).select_related().values('performer__name','title', 'bid__last_update', 'id')
  
     @property
     def bid_review_header(self):
