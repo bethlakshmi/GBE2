@@ -235,9 +235,8 @@ def bid_act(request):
                            } )
     else:
         form = ActBidForm(initial = {'owner':profile,
-                                     'performer': personae[0]}, 
+                                     'performer': personae[0] }, 
                                      prefix='theact')
-                          
         form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
                                                          objects.filter(performer_profile=profile), 
                                                          empty_label="--Create New Performer--")
@@ -266,6 +265,7 @@ def edit_act(request, act_id):
 
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
+
     if request.method == 'POST':
         form = ActBidForm(request.POST,  instance=act, prefix = 'theact')
         audioform= AudioInfoForm(request.POST, instance = audio,  prefix='audio')
@@ -291,15 +291,18 @@ def edit_act(request, act_id):
         audioform= AudioInfoForm(prefix='audio', instance = audio)
         lightingform= LightingInfoForm(prefix='lighting', instance = lighting)
         propsform = PropsInfoForm(prefix='props', instance = props)
+        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
+                                                         objects.filter(performer_profile=profile), 
+                                                         empty_label="--Create New Performer--")
+
+        if not act.complete:
+            form.fields['submitted'].widget = forms.HiddenInput()
+
+
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
 
-
-
-def review_acts(request):
-    return render (request, 'gbe/error.tmpl', 
-                   {'error' : "Not yet implemented"} )
 
 @login_required
 def review_act (request, act_id):

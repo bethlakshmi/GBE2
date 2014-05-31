@@ -31,7 +31,7 @@ profile_alerts = {'onsite_phone':  '''We need a number to reach you at during th
 act_alerts = {
     'act_complete_not_submitted': 
     'This act is complete and can be submitted whenever you like. \
-    <a href = "/act/submit/%d/"> Submit Now </a>',
+    <a href = "/act/edit/%d/"> Review and Submit Now </a>',
     'act_complete_submitted': 
     'This act is complete and has been submitted for review.\
     <a href ="/act/edit/%d/"> You can still edit the act. </a>',

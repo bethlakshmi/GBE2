@@ -136,7 +136,7 @@ class PersonaForm (forms.ModelForm):
                    'video_link',
                    'puffsheet', 
                    'festivals',
-                   'performer_profile'
+                   'performer_profile', 
         ]
         
         help_texts = persona_help_texts
@@ -159,9 +159,11 @@ class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
+
     class Meta:
         model = Act
         fields, required = Act().bid_fields
+
     def save (self, *args, **kwargs):
         return super(ActBidForm, self).save(*args, **kwargs)
 
@@ -169,11 +171,16 @@ class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
+
     class Meta:
         model = Act
         fields = '__all__'
+        widgets = {'accepted': forms.HiddenInput(),
+                   'tech': forms.HiddenInput()
+                   }
 
-
+    def save (self, *args, **kwargs):
+        return super(ActBidForm, self).save(*args, **kwargs)
 
 
 class BidEvaluationForm(forms.ModelForm):
