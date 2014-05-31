@@ -239,7 +239,8 @@ def bid_act(request):
                                      prefix='theact')
                           
         form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
-                                                         objects.filter(performer_profile=profile))
+                                                         objects.filter(performer_profile=profile), 
+                                                         empty_label="--Create New Performer--")
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
