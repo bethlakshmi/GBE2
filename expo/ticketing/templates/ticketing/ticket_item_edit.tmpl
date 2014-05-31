@@ -5,13 +5,12 @@
 {% endblock %}
 {% block content %}
 
-Your are editing ticket item:  {{ item_id }}
+<b>Your are editing the below Ticket Item.</b>
+<br><br>
+Notes:  Ticket Item Id must be unique.  Editing it will create a new Ticket Item.
 
 <form action="" method="post">
-{% csrf_token %}
-<table>
-{{ form }}
-</table>
+{% include "form_table_wrapper.tmpl" %}
 <br>
 <input type="submit" value="Save Ticket Item"> 
 </form>

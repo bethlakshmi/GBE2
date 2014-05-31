@@ -8,7 +8,9 @@
 <H3>
 Click on a type of ticket to edit or delete it, or click the button below to add.
 </H3>
-Note:  The Show to Users flag below indicates of the ticket item is displayed to end users.  By default it is "false".
+Note:  The Show to Public flag below indicates of the ticket item is displayed to end users.  By default it is "false".
+<br>
+To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
 <br><br>
 
 {% if ticket_items|length > 0 %}
@@ -42,9 +44,8 @@ Note:  The Show to Users flag below indicates of the ticket item is displayed to
 <form method="POST" action={% url 'ticket_items' %} enctype="multipart/form-data">
 {% csrf_token %}
     <input type="hidden" name="Import" value="1">
-    <input type="submit" value="Import New Ticket Items"> 
+    <input type="submit" value="Synchronize with Brown Paper Tickets"> 
 </form>
-
 
 {% endblock %}
 

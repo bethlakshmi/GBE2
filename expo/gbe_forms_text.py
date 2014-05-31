@@ -297,3 +297,11 @@ class_proposal_help_texts = {
     cover, target audience, etc',
     'type': 'Is this a class? A panel? Do you care?'
 }
+
+ticket_item_labels = {
+    'ticket_id': 'Ticket Item Id:',
+    'title':'Title:',
+    'active': 'Display Item to Users?:',
+    'cost': 'Ticket Price:',
+
+}

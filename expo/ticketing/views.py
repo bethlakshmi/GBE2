@@ -17,15 +17,16 @@ def index(request):
     equivalent of cost.php from the old site.
     '''
     
-    context = {}
+    ticket_items =  TicketItem.objects.all()
+    
+    context = {'ticket_items': ticket_items, 'user_id':request.user.id }
     return render(request, 'ticketing\index.html', context)
-
+    
 def ticket_items(request):
     '''
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    
     if not (request.user.is_authenticated() and request.user.is_staff):
         raise Http404
         
@@ -41,7 +42,6 @@ def import_ticket_items():
     Function is used to initiate an import from BPT or other sources of 
     new Ticket Items.  It will not override existing items.
     '''
-    
     import_item_list = get_bpt_price_list()
     db_item_list = TicketItem.objects.all()
     
@@ -51,50 +51,27 @@ def import_ticket_items():
             
 def ticket_item_edit(request, item_id=None):
     '''
-    Used to create a form for editing ticket, adding or removing ticket items.
-    
-    note:  we need to check if the item is a duplicate before saving... 
-    
+    Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    
     if not (request.user.is_authenticated() and request.user.is_staff):
         raise Http404
-        
-    if (item_id != None):
-        item = get_object_or_404(TicketItem, id=item_id)
-    
+
     if (request.method == 'POST'):
         form = TicketItemForm(request.POST)
-    else:
-        form = TicketItemForm()
-        
-        
-        
-
-
-    
-    context = {'item_id': item_id, 'form': form}
-    
-    return render(request, r'ticketing\ticket_item_edit.tmpl', context)
-    
-    
-'''
-    if request.method=='POST':
-        form = ClassProposalForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/')  # where to?
-        else:
-            return render(request, 'gbe/class_proposal.tmpl',
-                          { 'form' : form } )
+            form.save(str(request.user.profile))
+            form.save_m2m()
+            return HttpResponseRedirect('/ticketing/ticket_items')
     else:
-        form = ClassProposalForm()
-        return render (request, 'gbe/class_proposal.tmpl',
-                       {'form' : form})
-                       
-                       
-'''
-    
+        if (item_id != None):
+            item = get_object_or_404(TicketItem, id=item_id)
+            form = TicketItemForm(instance=item)
+        else:
+            form = TicketItemForm()
+
+    context = {'forms': [form,]} 
+    return render(request, r'ticketing\ticket_item_edit.tmpl', context)
+
             
             
             
