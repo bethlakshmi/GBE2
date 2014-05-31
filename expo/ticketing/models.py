@@ -1,6 +1,6 @@
 # 
 # models.py - Contains Django Database Models for Ticketing - Defines Database Schema
-# edited by mdb 5/6/2014
+# edited by mdb 5/28/2014
 #
 
 # python manage.py sql ticketing
@@ -42,16 +42,17 @@ class TicketItem(models.Model):
     'Fan Admission', 'The Main Event', and so forth.  A ticket may admit to multiple
     events.  
     '''    
+    ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
     description = models.TextField()
     active = models.BooleanField(default=False)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
     linked_events = models.ManyToManyField('gbe.Event')
     datestamp = models.DateTimeField(auto_now=True)
-    modified_by = models.ForeignKey(User)
+    modified_by = models.CharField(max_length=30)
 
     def __unicode__(self):
-        return self.title
+        return '%s %s' % (self.ticket_id, self.title)
         
 class Purchaser(models.Model):
     '''

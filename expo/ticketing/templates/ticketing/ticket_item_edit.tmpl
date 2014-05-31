@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+  Great Burlesque Exposition 
+{% endblock %}
+{% block content %}
+
+<b>Your are editing the below Ticket Item.</b>
+<br><br>
+Notes:  Ticket Item Id must be unique.  Editing it will create a new Ticket Item.
+<br>
+TBD:  Ability to delete a ticket.
+
+<form action="" method="post">
+{% include "form_table_wrapper.tmpl" %}
+<br>
+<input type="submit" value="Save Ticket Item"> 
+</form>
+
+{% endblock %}
+
+
+

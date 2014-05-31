@@ -150,11 +150,12 @@ def bpt_price_to_ticketitem(event_id, bpt_price):
     '''
 
     t_item = TicketItem()
-    t_item.id = '%s-%s' % (event_id, bpt_price.find('price_id').text)
+    t_item.ticket_id = '%s-%s' % (event_id, bpt_price.find('price_id').text)
     t_item.title = bpt_price.find('name').text
-    t_item.active = bpt_price.find('live').text
+    t_item.active = False
     t_item.cost = bpt_price.find('value').text
-    t_item.description = '*** Auto-Import from BPT ***'    
+    t_item.description = '*** Please Fill In ***'    
+    t_item.modified_by = 'BPT Auto Import'
     
     return t_item
    

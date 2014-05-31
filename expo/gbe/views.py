@@ -301,7 +301,7 @@ def review_acts(request):
     return render (request, 'gbe/error.tmpl', 
                    {'error' : "Not yet implemented"} )
 
-
+@login_required
 def review_act (request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
@@ -318,7 +318,7 @@ def review_act (request, act_id):
         act = Act.objects.filter(id=act_id)[0]
         actform = ActBidForm(instance = act, prefix = 'The Act')
         audioform = AudioInfoBidForm(instance = act, prefix = 'Audio')
-	performer = PersonaForm(instance = act.performer, 
+        performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
@@ -351,7 +351,7 @@ def review_act (request, act_id):
                        {'readonlyform': [actform, audioform, performer],
                         'reviewer':reviewer,
                         'form':form})
-
+@login_required
 def review_act_list (request):
     '''
     Show the list of act bids, review results,
@@ -364,11 +364,12 @@ def review_act_list (request):
 
     try:
         acts = Act.objects.filter(submitted=True)
+        reviews = BidEvaluation.objects.filter(evaluator=reviewer)
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
-		   {'bids': acts, 'review_path': '/act/review/'})
+                  {'bids': acts, 'review_path': '/act/review/'})
 
 
 @login_required

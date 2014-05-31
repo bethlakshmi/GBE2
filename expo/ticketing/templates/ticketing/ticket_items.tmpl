@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+  Great Burlesque Exposition 
+{% endblock %}
+{% block content %}
+
+<H3>
+Click on a type of ticket to edit or delete it, or click the button below to add.
+</H3>
+Note:  The Show to Public flag below indicates of the ticket item is displayed to end users.  By default it is "false".
+<br>
+To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
+<br><br>
+
+{% if ticket_items|length > 0 %}
+
+<table border=1> <tr>
+  <th>Ticket Item Id</th>
+  <th>Title</th>
+  <th>Description</th>
+  <th>Show to Public</th>
+  <th>Ticket Price</th>
+  <th>Last Modified By</th>
+  <th>Modified Date</th>
+ </tr> 
+{% for item in ticket_items %}    
+<tr>    
+  <td><a href={% url 'ticket_item_edit' item.id %}> {{item.ticket_id}} </a></td>
+  <td>{{ item.title }}</td>
+  <td>{{ item.description }}</td>
+  <td>{{ item.active }}</td>
+  <td>{{ item.cost }}</td>
+  <td>{{ item.modified_by }}</td>
+  <td>{{ item.datestamp }}</td>
+<tr>    
+{% endfor %}        
+</table>
+
+{% endif %}
+
+<br>
+
+<form method="POST" action={% url 'ticket_items' %} enctype="multipart/form-data">
+{% csrf_token %}
+    <input type="hidden" name="Import" value="1">
+    <input type="submit" value="Synchronize with Brown Paper Tickets"> 
+</form>
+
+{% endblock %}
+
+
+
