@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  GBE: Profile
+  Update Your Profile
 {% endblock %}
 
 {% block content %}
-<p class="vanilla">We promise your profile will only be used by the Great Burlesque 
-Exposition.  It will not be resold, but the Expo reserves the right to use your contact 
-info to alert you to important aspects of the Expo, your ticket purchases, and any 
-volunteer working, teaching, performances or other participation that you have selected 
-to participate in.</p>
+<p class="vanilla">
+<span class='header'>Your Profile</span><br>
+
+Your privacy is very important to us. We promise that your information
+will not be sold or traded. That said, we need your complete and
+accurate contact information in order to alert you to important
+aspects of the event: your ticket purchases and personal schedule,
+news, events, and deadlines. Your profile information will be visible
+to the department head associated with any role or activity you've
+elected to be involved with (that is, if you're performing, our
+selection committee and stage managers will be able to see your
+profile information. If you're teaching, the conference committee
+members and staff will be able to see your profile information,
+etc.).
+</p>
+   
 <form method="POST" action="/accounts/profile/" enctype="multipart/form-data">
     {% include "form_table.html" %}
 
