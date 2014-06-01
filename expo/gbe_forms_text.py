@@ -6,6 +6,7 @@ participant_labels = {
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
     'best_time':('Best time to call'),
+    'offsite_preferred':('Offsite phone'),
 
 
 }
