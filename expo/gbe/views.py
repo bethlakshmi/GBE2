@@ -627,6 +627,8 @@ def update_profile(request):
                                          'last_name':request.user.last_name,
                                          'display_name':display_name
                                      })
+        form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
+            
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 

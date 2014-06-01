@@ -7,6 +7,16 @@ participant_labels = {
     'address2': ('Street Address (cont.)'),
 }
 
+how_heard_options = [('Previous attendee', 'Previous attendee'), 
+                     ('Facebook', 'Facebook'), 
+                     ('Yahoo! Group', 'Yahoo! Group'), 
+                     ('Received a direct email', 'Received a direct email'), 
+                     ('Word of mouth', 'Word of mouth'), 
+                     ('Saw a postcard', 'Saw a postcard'), 
+                     ('Saw a print ad', 'Saw a print ad'), 
+                     ('B.A.B.E.', 'B.A.B.E.'), 
+                     ('Other', 'Other')]
+
 participant_form_help_texts = {
     'display_name': ('The name you want to be known by as an expo participant. This can \
 be a stage name, or your real-world name, or anything that you want to have printed on your \

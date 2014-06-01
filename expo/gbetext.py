@@ -44,9 +44,11 @@ act_alerts = {
 
     }
     
+best_time_to_call_options = [('Any', 'Any'), 
+                             ('Mornings', 'Mornings'), 
+                             ('Afternoons', 'Afternoons'), 
+                             ('Evenings', 'Evenings')]
 
-contact_options = (('Email', 'Email'), ('Phone call', 'Phone call'),
-                   ('Text', 'Text'))
 
 
 volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
@@ -68,7 +70,7 @@ states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'),
                   ('SC', 'South Carolina'), ('SD', 'South Dakota'), ('TN', 'Tennessee'), 
                   ('TX', 'Texas'), ('UT', 'Utah'), ('VT', 'Vermont'), ('VA', 'Virginia'), 
                   ('WA', 'Washington'), ('WV', 'West Virginia'), ('WI', 'Wisconsin'), 
-                  ('WY', 'Wyoming')]
+                  ('WY', 'Wyoming'), ('OTHER', 'Other/Non-US')]
 
 
 stage_lighting_options = (('White', 'White'), ('Amber', 'Amber'),

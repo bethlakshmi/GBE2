@@ -13,7 +13,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = [ 'display_name',
                    'purchase_email', 'address1', 'address2', 'city', 'state', 'zip_code',
-                   'country', 'onsite_phone', 'best_time', 'how_heard', 'preferred_contact'
+                   'country', 'onsite_phone', 'best_time', 'how_heard'
                   ]
 
 class ParticipantForm(forms.ModelForm):
@@ -22,42 +22,41 @@ class ParticipantForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-
+    how_heard = forms.CheckboxSelectMultiple(choices = how_heard_options)
     class Meta:
         model = Profile
         # purchase_email should be display only
         fields = [ 'first_name', 'last_name', 'email', 'display_name',
                    'address1', 'address2', 'city',
                    'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
-                   'preferred_contact', 'best_time', 'how_heard'
+                   'best_time', 'how_heard'
                   ]
         labels = participant_labels
         help_texts = participant_form_help_texts
+        
 
     # overload save to make sure there is always a display name
     def save(self, commit=True):
-      partform = super(ParticipantForm, self).save(commit=False)
-      partform.user_object.email = self.cleaned_data['email']
-      partform.user_object.first_name = self.cleaned_data['first_name']
-      partform.user_object.last_name = self.cleaned_data['last_name']
-      if self.cleaned_data['display_name']:
-          pass   # if they enter a display name, respect it
-      else:
-        partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
-      if commit:
-         partform.save()
-         partform.user_object.save()
+        partform = super(ParticipantForm, self).save(commit=False)
+        partform.user_object.email = self.cleaned_data['email']
+        partform.user_object.first_name = self.cleaned_data['first_name']
+        partform.user_object.last_name = self.cleaned_data['last_name']
+        if len(self.cleaned_data['display_name'].strip()) >0:
+            pass   # if they enter a display name, respect it
+        else:
+            partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
+        if commit:
+            partform.save()
+            partform.user_object.save()
          
     def clean(self):
       super(ParticipantForm, self).clean()
-      contact = self.cleaned_data.get('preferred_contact')
       onsite = self.cleaned_data.get('onsite_phone')
       offsite = self.cleaned_data.get('offsite_preferred')
       if contact == 'Phone call' or contact == 'Text':
         if onsite == '' and offsite == '':
           self._errors['onsite_phone']=self.error_class([phone_error1])
           self._errors['offsite_preferred']=self.error_class([phone_error2])
-          self._errors['preferred_contact']=self.error_class([phone_error3])
           raise forms.ValidationError(phone_validation_error_text)
       return self.cleaned_data
 

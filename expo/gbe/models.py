@@ -76,10 +76,8 @@ class Profile(models.Model):
                                              RegexValidator(regex=phone_regex,
                                                             message=phone_number_format_error)])
 
-    best_time = models.CharField(max_length=50, blank=True)
+    best_time = models.CharField(max_length=50, choices=best_time_to_call_options, default='Any', blank=True)
     how_heard = models.TextField(blank=True)
-    preferred_contact = models.CharField(max_length=50, choices=contact_options, default="Email");
-                        
                 
     def bids_to_review(self):
         review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
