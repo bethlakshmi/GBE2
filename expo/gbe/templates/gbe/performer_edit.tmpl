@@ -10,7 +10,7 @@
 
   {% endif %}
    <p class="vanilla">Manage your Stage Persona </p>
-   <form action="" method="post">
+   <form action="" method="post" enctype="multipart/form-data">
    {% csrf_token %}
 
    {% include "form_table.html" %}

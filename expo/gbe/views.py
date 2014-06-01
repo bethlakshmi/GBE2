@@ -28,6 +28,7 @@ def index(request):
     return HttpResponse(template.render(context))
 
 
+
 def landing_page(request):
     standard_context = {}
     standard_context['events_list']  = Event.objects.all()[:5]
@@ -56,16 +57,12 @@ def landing_page(request):
     return HttpResponse(template.render(context))
 
 
+    
+
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
-
-def techinfo(request):
-    form = TechInfoForm()
-    return render(request, 
-                  'gbe/techinfo.html', 
-                  {'form':form})
 
     
 @login_required
@@ -84,7 +81,7 @@ def register_persona(request, **kwargs):
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
-                redirect_to='/profile/'+str(pid)
+                redirect_to='/'
             return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 
@@ -165,9 +162,11 @@ def edit_persona(request, persona_id):
     if persona.performer_profile != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = PersonaForm(request.POST, instance=persona)
+        form = PersonaForm(request.POST, 
+                           request.FILES,
+                           instance=persona)
         if form.is_valid():
-            performer = form.save(commit=True)
+            performer = form.save()
             return HttpResponseRedirect('/')  
         else:
             return render (request,
@@ -199,6 +198,7 @@ def bid_act(request):
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, 
+                          request.FILES,
                           prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
         lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
@@ -267,7 +267,7 @@ def edit_act(request, act_id):
         return HttpResponseRedirect('/')  # just fail for now
 
     if request.method == 'POST':
-        form = ActBidForm(request.POST,  instance=act, prefix = 'theact')
+        form = ActBidForm(request.POST, request.FILES,  instance=act, prefix = 'theact')
         audioform= AudioInfoForm(request.POST, instance = audio,  prefix='audio')
         lightingform= LightingInfoForm(request.POST, instance = lighting, prefix='lighting')
         propsform = PropsInfoForm(request.POST, instance = props,  prefix='props')
@@ -354,6 +354,8 @@ def review_act (request, act_id):
                        {'readonlyform': [actform, audioform, performer],
                         'reviewer':reviewer,
                         'form':form})
+
+
 @login_required
 def review_act_list (request):
     '''

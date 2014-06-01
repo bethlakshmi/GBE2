@@ -163,8 +163,8 @@ class ActBidForm(forms.ModelForm):
         model = Act
         fields, required = Act().bid_fields
 
-    def save (self, *args, **kwargs):
-        return super(ActBidForm, self).save(*args, **kwargs)
+#    def save (self, *args, **kwargs):
+#        return super(ActBidForm, self).save(*args, **kwargs)
 
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
@@ -178,8 +178,8 @@ class ActEditForm(forms.ModelForm):
                    'tech': forms.HiddenInput()
                    }
 
-    def save (self, *args, **kwargs):
-        return super(ActBidForm, self).save(*args, **kwargs)
+#    def save (self, *args, **kwargs):
+#        return super(ActBidForm, self).save(*args, **kwargs)
 
 
 class BidEvaluationForm(forms.ModelForm):

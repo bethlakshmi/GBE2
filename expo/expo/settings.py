@@ -55,6 +55,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
+FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler",
+                        "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+
+
 ROOT_URLCONF = 'expo.urls'
 
 WSGI_APPLICATION = 'expo.wsgi.application'
