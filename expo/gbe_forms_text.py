@@ -22,9 +22,9 @@ how_heard_options = [('Previous attendee', 'Previous attendee'),
                      ('Other', 'Other')]
 
 participant_form_help_texts = {
-    'display_name': ('The name you want to be known by as an expo participant. This can \
+    'display_name': ('The name you want to be known by as an Expo participant. This can \
 be a stage name, or your real-world name, or anything that you want to have printed on your \
-expo badge and other official expo communications. This defaults to your First and Last Name.'),
+Expo badge and other official Expo communications. This defaults to your First and Last Name.'),
     'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, \
 such as cell phone.'),
     'offsite_preferred': ('Your preferred phone number (if different from above), \
@@ -38,7 +38,7 @@ we need your phone number as either an Onsite phone or Offsite preferred.'''
 
 
 combo_form_help_texts = {
-    'contact': ('The person we should contact about this act\'s appearance at the expo. This \
+    'contact': ('The person we should contact about this act\'s appearance at the Expo. This \
     can be a member of your combo or an agent, but whoever it is will be authorized to speak \
     for and make decisions for you.'), 
     'name': ('If you leave this blank, it\'ll fill in with the names of the performers involved in \
@@ -137,7 +137,7 @@ persona_help_texts = {
 'name' : 
     ('This is the name you will be listed under when performing.'),
 'contact' : 
-    ('''The person GBE should contact about expo \
+    ('''The person GBE should contact about Expo \
     performances. Usually, this will be you.'''),
 'homepage' : 
     ('This will be listed on your performer page.'),
@@ -303,7 +303,7 @@ class_proposal_form_text = {
 }
 
 class_proposal_help_texts = {
-    'name' : 'If you\'d like to get updates about classes and panels at the expo, \
+    'name' : 'If you\'d like to get updates about classes and panels at the Expo, \
     fill in your name and email address. Or don\'t, if you prefer, it\'s up to you.',
     'title': 'Your suggested title for this class or panel',
     'proposal': 'What does this class look like in your mind? Consider telling us about material to \
