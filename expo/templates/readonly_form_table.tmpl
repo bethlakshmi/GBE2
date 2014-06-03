@@ -1,5 +1,4 @@
    {% load staticfiles %}
-
     <table>
       {% for info in readonlyform %}
         <tr><td colspan=2><br><h3 class="readonlyform">{{info.prefix}}</h3></td></tr>
@@ -15,7 +14,17 @@
             </span>
             {% endif %}
          </td>
-         <td>{{ field.value }}</td>
+         <td>
+          {% if field.value %}
+            {% if field.field.widget.input_type == "url" %}
+              <a href="{{field.value}}">Go to {{ field.label }}</a>
+            {% elif field.field.widget.input_type == "file" %}
+              <a href="/{{field.value}}">Go to {{ field.label }}</a>
+            {% else %}
+              {{ field.value }}
+            {% endif %}
+          {% endif %} 
+         </td>
         </tr>
         {% endfor %}
      {% endfor %}
