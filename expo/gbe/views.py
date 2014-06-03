@@ -368,15 +368,24 @@ def review_act_list (request):
         return HttpResponseRedirect('/')   # should go to 404?
 
     try:
-        acts = Act().bid_review_display
-	header = Act().bid_review_header
-        reviews = BidEvaluation.objects.filter(evaluator=reviewer)
+        header = Act().bid_review_header
+        acts = Act.objects.filter(submitted=True)
+        review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 'evaluator')
+        rows = []
+        for act in acts:
+            bid_row = []
+            bid_row.append(("bid", Act.objects.filter(submitted=True).filter(id=act.id).select_related().values_list('performer__name',
+                                                                                                                'title',
+                                                                                                                'bid__last_update')))
+            bid_row.append(("reviews", review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')))
+            bid_row.append(("id", act.id))
+            rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect('/')   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'bids': acts, 'reviews': reviews,
-		   'review_path': '/act/review/'})
+                  {'header': header, 'rows': rows,
+                   'review_path': '/act/review/'})
 
 
 @login_required

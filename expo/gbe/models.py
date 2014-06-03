@@ -377,14 +377,10 @@ class Act (Biddable):
     @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
-
-    @property
-    def bid_review_display(self):
-        return type(self).objects.filter(submitted=True).select_related().values_list('performer__name', 'title', 'bid__last_update', 'id')
  
     @property
     def bid_review_header(self):
-        return  (['Performer', 'Act Title', 'Last Update'])
+        return  (['Performer', 'Act Title', 'Last Update', 'Reviews', 'Action'])
 
     @property
     def complete(self):
@@ -558,6 +554,8 @@ class Bid(models.Model):
         verbose_name = 'bid'
         verbose_name_plural = 'bids'
     
+
+    
 class BidEvaluation(models.Model):
     '''
     A response to a bid, cast by a privileged GBE staff member
@@ -569,7 +567,6 @@ class BidEvaluation(models.Model):
     
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
-
 
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)

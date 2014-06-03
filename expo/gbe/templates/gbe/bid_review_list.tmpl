@@ -14,21 +14,38 @@
       {% for header_item in header %}
       <th class="bid-table">{{ header_item }}</th>
       {% endfor %}
-      <th class="bid-table">Review</th>
     </tr>
-    {% for bid in bids %}
-    <tr class="bid-table">
-        {% for value in bid %}
-          {% if not forloop.last  %}
-            <td class="bid-table">{{ value }}</td>
-          {% else %}
+    {% for row in rows %}
+      <tr class="bid-table">
+        {% for type, item in row %}
+          {% if type = "bid" %}
+            {% for bid in item %}
+              {% for value in bid %}
+          <td class="bid-table">
+            {{ value }}
+          </td>
+              {% endfor %}
+            {% endfor %}
+          {% endif %}
+          {% if type = "reviews" %}
+          <td class="bid-table">
+              {% for review in item %}
+                <b>Act:</b> {{ review.bid }}<br>
+                <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
+                <b>Recommendation:</b> {{ review.get_vote_display }}<br>
+                <b>Comment:</b> {{ review.notes }}<br>
+                {% if not forloop.last  %}<hr class="bid-table">{% endif %}
+              {% endfor %}
+          </td>
+          {% endif %}
+          {% if type = "id" %}
             <td class="bid-table">
-              <a href="{{ review_path }}{{ value }}">Review</a>
+              <a href="{{ review_path }}{{ item }}">Review</a>
             </td>
           {% endif %}
         {% endfor %}
-    </tr>
+      </tr>
     {% endfor %}
   </table>
-     
 {% endblock %}
+
