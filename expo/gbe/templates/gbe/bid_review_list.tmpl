@@ -30,7 +30,6 @@
           {% if type = "reviews" %}
           <td class="bid-table">
               {% for review in item %}
-                <b>Act:</b> {{ review.bid }}<br>
                 <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
                 <b>Recommendation:</b> {{ review.get_vote_display }}<br>
                 <b>Comment:</b> {{ review.notes }}<br>

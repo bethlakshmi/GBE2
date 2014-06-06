@@ -383,6 +383,10 @@ class Act (Biddable):
         return  (['Performer', 'Act Title', 'Last Update', 'Reviews', 'Action'])
 
     @property
+    def bid_review_summary(self):
+        return  ([(self.performer.name, self.title, Bid(self).last_update)])
+
+    @property
     def complete(self):
         return (self.tech.is_complete and
                 self.performer.complete and

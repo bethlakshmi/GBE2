@@ -374,9 +374,7 @@ def review_act_list (request):
         rows = []
         for act in acts:
             bid_row = []
-            bid_row.append(("bid", Act.objects.filter(submitted=True).filter(id=act.id).select_related().values_list('performer__name',
-                                                                                                                'title',
-                                                                                                                'bid__last_update')))
+            bid_row.append(("bid", act.bid_review_summary))
             bid_row.append(("reviews", review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')))
             bid_row.append(("id", act.id))
             rows.append(bid_row)
