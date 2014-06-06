@@ -162,7 +162,7 @@ persona_help_texts = {
     us know how you did. This information will appear on your performer page.'''),
 }
 
-bid_review_options = { 'Accepted', 'Declined', 'Waitlist'}
+bid_review_options = ( 'Accepted', 'Declined', 'Waitlist')
 
 actbid_error_messages = {
     'title': {

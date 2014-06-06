@@ -20,7 +20,7 @@ def index(request):
     ticket_items =  TicketItem.objects.all()
     
     context = {'ticket_items': ticket_items, 'user_id':request.user.id }
-    return render(request, 'ticketing\index.html', context)
+    return render(request, 'ticketing/index.html', context)
     
 def ticket_items(request):
     '''
@@ -35,7 +35,7 @@ def ticket_items(request):
         
     ticket_items = TicketItem.objects.all()
     context = {'ticket_items' : ticket_items}
-    return render(request, r'ticketing\ticket_items.tmpl', context)
+    return render(request, r'ticketing/ticket_items.tmpl', context)
 
 def import_ticket_items():
     '''
@@ -70,7 +70,7 @@ def ticket_item_edit(request, item_id=None):
             form = TicketItemForm()
 
     context = {'forms': [form,]} 
-    return render(request, r'ticketing\ticket_item_edit.tmpl', context)
+    return render(request, r'ticketing/ticket_item_edit.tmpl', context)
 
             
             
