@@ -39,9 +39,14 @@
             <td>
               {{ field }}
             </td>
+          {% if field.errors %}
+	  <tr>
+	    <td>&nbsp;</td>
             <td>
               <font color="red">{{ field.errors }}</font>
             </td>
+	  </tr>
+	  {% endif %}
         </tr>
     {% endfor %}
   </table>

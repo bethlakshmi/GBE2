@@ -25,6 +25,9 @@ class Biddable (models.Model):
     accepted = models.IntegerField(choices=acceptance_states, 
                                    default=0, 
                                    blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -546,6 +549,9 @@ class Bid(models.Model):
     '''
     A Bid is a proposal for an act, a class, a vendor, or whatnot.
     This is the abstract base for these various bids.
+    
+    DEPRECATED? - should be removed when all Bid classes are converted to
+    Biddable.  Do not extend off of this class.
     '''
     bid_item = models.ForeignKey(Biddable, null=True, blank=True)
     bidder = models.ForeignKey(Profile)

@@ -3,7 +3,7 @@ from gbe.models import *
 
 
 admin.site.register( Profile )
-admin.site.register( Bid )
+admin.site.register( Biddable )
 admin.site.register( Act )
 admin.site.register( Show )
 admin.site.register( Class )

@@ -49,16 +49,6 @@ class ParticipantForm(forms.ModelForm):
             partform.save()
             partform.user_object.save()
          
-    def clean(self):
-      super(ParticipantForm, self).clean()
-      onsite = self.cleaned_data.get('onsite_phone')
-      offsite = self.cleaned_data.get('offsite_preferred')
-      if contact == 'Phone call' or contact == 'Text':
-        if onsite == '' and offsite == '':
-          self._errors['onsite_phone']=self.error_class([phone_error1])
-          self._errors['offsite_preferred']=self.error_class([phone_error2])
-          raise forms.ValidationError(phone_validation_error_text)
-      return self.cleaned_data
 
 
     
