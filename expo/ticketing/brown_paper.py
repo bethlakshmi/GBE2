@@ -18,11 +18,10 @@ from ticketing.models import *
 def perform_bpt_api_call(api_call):
     '''
     Used to make various calls to the Brown Paper Tickets API system.
-    
     event_call - the API call to be performed.
+    
     Returns: a Simple XML element tree or None for an error.
     '''
-    print api_call
     
     try:
         req = urllib2.Request(api_call)
@@ -102,7 +101,7 @@ def get_bpt_event_date_list(event_id):
         return None
     
     date_list = []
-    for date in date_xml.iter('date_id'):
+    for date in date_xml.findall('.//date_id'):
         date_list.append(date.text)
     return date_list
 
@@ -125,7 +124,7 @@ def get_bpt_price_list():
                 (get_bpt_developer_id(), event.bpt_event_id, date)           
             price_xml = perform_bpt_api_call(price_call)
             
-            for price in price_xml.iter('price'):
+            for price in price_xml.findall('.//price'):
                 ti_list.append(bpt_price_to_ticketitem(event.bpt_event_id, price))
             
     return ti_list
