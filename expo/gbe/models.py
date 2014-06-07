@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
+from datetime import datetime
+import pytz
 
 group_perms_map = {
     'Act Reviewers': 'Act',
@@ -387,7 +389,7 @@ class Act (Biddable):
 
     @property
     def bid_review_summary(self):
-        return  ([(self.performer.name, self.title, Bid(self).last_update)])
+        return  ([(self.performer.name, self.title, self.updated_at.astimezone(pytz.timezone('America/New_York')))])
 
     @property
     def complete(self):
