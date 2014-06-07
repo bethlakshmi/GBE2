@@ -22,6 +22,8 @@ def perform_bpt_api_call(api_call):
     event_call - the API call to be performed.
     Returns: a Simple XML element tree or None for an error.
     '''
+    print api_call
+    
     try:
         req = urllib2.Request(api_call)
         req.add_header('Accept', 'application/json')
@@ -92,28 +94,17 @@ def get_bpt_event_date_list(event_id):
     Returns: the date list requested, as a python list.
     '''
     
-    date_call = 'https://www.brownpapertickets.com/api2/datelist?id=%s&event_id=%s' % \
+    date_call = 'http://www.brownpapertickets.com/api2/datelist?id=%s&event_id=%s' % \
         (get_bpt_developer_id(), event_id)
     date_xml = perform_bpt_api_call(date_call)
+    
+    if (date_xml == None):
+        return None
     
     date_list = []
     for date in date_xml.iter('date_id'):
         date_list.append(date.text)
     return date_list
-
-def get_bpt_event_list():
-    '''
-    Used to obtain an array of the current events we watch on the BPT website.  This is taken
-    from the database.  
-    
-    Returns: An array of BPT event numbers.
-    '''
-    
-    if (BrownPaperEvents.objects.count() <= 0):
-        return None
-    settings = BrownPaperSettings.objects.all()[0]     
-    return settings.last_poll_time
-    
 
 def get_bpt_price_list():
     '''
@@ -130,7 +121,7 @@ def get_bpt_price_list():
     for event in BrownPaperEvents.objects.all():
         for date in get_bpt_event_date_list(event.bpt_event_id):
         
-            price_call = 'https://www.brownpapertickets.com/api2/pricelist?id=%s&event_id=%s&date_id=%s' % \
+            price_call = 'http://www.brownpapertickets.com/api2/pricelist?id=%s&event_id=%s&date_id=%s' % \
                 (get_bpt_developer_id(), event.bpt_event_id, date)           
             price_xml = perform_bpt_api_call(price_call)
             
