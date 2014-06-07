@@ -100,10 +100,10 @@ class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
-    
+    username = forms.CharField(label=username_label, help_text=username_help)
     class Meta:
         model = User
-        fields = [ "username", "email", 'first_name', 'last_name',
+        fields = [ 'username', 'email', 'first_name', 'last_name',
                    'password1', 'password2']
 
     
@@ -190,7 +190,7 @@ class BidEvaluationForm(forms.ModelForm):
         model = BidEvaluation
         fields = '__all__'
         widgets = {'evaluator': forms.HiddenInput(),
-		   'bid': forms.HiddenInput()}
+                   'bid': forms.HiddenInput()}
 
 
 class ClassBidForm(forms.ModelForm):

@@ -318,3 +318,6 @@ ticket_item_labels = {
     'cost': 'Ticket Price:',
 
 }
+
+username_label = 'Login'
+username_help = 'Required. 30 characters or fewer. Letters, digits and @ . + - _ only.'
