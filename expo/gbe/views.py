@@ -342,7 +342,7 @@ def review_act (request, act_id):
             evaluation.evaluator = reviewer
             evaluation.bid = act
             evaluation.save()
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/act/review_list')
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [actform, audioform],
@@ -495,7 +495,83 @@ def create_volunteer(request):
                        'gbe/bid.tmpl', 
                        {'forms':[form]})
                             
+@login_required
+def review_volunteer (request, volunteer_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
 
+    try:
+        volunteer = Volunteer.objects.filter(id=volunteer_id)[0]
+        volform = VolunteerBidForm(instance = volunteer, prefix = 'The Volunteer')
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+    '''
+    if user has previously reviewed the act, provide his review for update
+    '''
+    try:
+        bid_eval = BidEvaluation.objects.filter(bid_id=volunteer_id, evaluator_id=reviewer.id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator = reviewer, bid = volunteer)
+
+    # show act info and inputs for review
+    if request.method == 'POST':
+        form = BidEvaluationForm(request.POST, instance = bid_eval)
+        if form.is_valid():
+            evaluation = form.save(commit=False)
+            evaluation.evaluator = reviewer
+            evaluation.bid = volunteer
+            evaluation.save()
+            return HttpResponseRedirect('/volunteer/reviewlist')
+        else:
+            return render (request, 'gbe/bid_review.tmpl',
+                           {'readonlyform': [volform],
+                           'form':form})
+    else:
+        form = BidEvaluationForm(instance = bid_eval)
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'readonlyform': [volform],
+                        'reviewer':reviewer,
+                        'form':form})
+
+
+@login_required
+def review_volunteer_list (request):
+    '''
+    Show the list of act bids, review results,
+    and give a way to update the reviews 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
+
+    try:
+        header = Volunteer().bid_review_header
+        volunteers = Volunteer.objects.filter(submitted=True)
+        review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
+        rows = []
+        for volunteer in volunteers:
+            bid_row = []
+            bid_row.append(("bid", volunteer.bid_review_summary))
+            bid_row.append(("reviews", review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')))
+            bid_row.append(("id", volunteer.id))
+            rows.append(bid_row)
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+    return render (request, 'gbe/bid_review_list.tmpl',
+                  {'header': header, 'rows': rows,
+                   'review_path': '/volunteer/review/'})
     
 @login_required
 def create_vendor(request):
@@ -620,6 +696,7 @@ def update_profile(request):
             if profile.display_name.strip() == '':
                 profile.display_name = request.user.first_name + ' ' + request.user.last_name
             profile.save()
+            form.save()
             return HttpResponseRedirect("/")
         else:
             return render(request, 'gbe/update_profile.html', 
@@ -637,7 +714,6 @@ def update_profile(request):
                                          'display_name':display_name
                                      })
         form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
-            
         return render(request, 'gbe/update_profile.html', 
                       {'form': form})
 

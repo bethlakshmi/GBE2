@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
+from gbe_forms_text import *
 from datetime import datetime
 import pytz
 
@@ -109,7 +110,7 @@ class Profile(models.Model):
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
         if not self.complete:
-            profile_alerts.append("something's not right with your profile")
+            profile_alerts.append(gbetext.profile_alerts['complete'])
         return profile_alerts
     
 
@@ -612,6 +613,17 @@ class Volunteer(Biddable):
 
     def __unicode__(self):
         return 'Volunteer: '+ self.profile.display_name
+    @property
+    def bid_review_header(self):
+        return  (['Name', 'Interests'])
+
+    @property
+    def bid_review_summary(self):
+        interest_string = ''
+        for option_id, option_value in volunteer_interests_options:
+            if option_id in self.interests:
+                interest_string += option_value + ', '
+        return  ([(self.profile.display_name, interest_string)])
 
 
 class Vendor(Biddable):

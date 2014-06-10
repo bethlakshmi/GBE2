@@ -69,7 +69,12 @@ urlpatterns = patterns ('',
 #volunteers
                         url(r'^volunteer/bid/?$',
                             views.create_volunteer),
-
+                        url(r'^volunteer/review/?$',
+                            views.review_volunteer_list),
+                        url(r'^volunteer/review/(\d)/?$',
+                            views.review_volunteer),
+                        url(r'^volunteer/reviewlist/?$',
+                            views.review_volunteer_list),
 
 #vendors 
                         url(r'^vendor/bid/?$',
