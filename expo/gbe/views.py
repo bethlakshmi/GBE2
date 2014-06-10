@@ -342,7 +342,7 @@ def review_act (request, act_id):
             evaluation.evaluator = reviewer
             evaluation.bid = act
             evaluation.save()
-            return HttpResponseRedirect('/act/review_list')
+            return HttpResponseRedirect('/act/reviewlist')
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [actform, audioform],
