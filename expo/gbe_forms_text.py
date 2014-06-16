@@ -12,8 +12,27 @@ participant_labels = {
 }
 
 profile_preferences_help_texts= {
+    'inform_about': 'If you check these, we might send you some email once in a while.',
+    'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.'
+}
+
+profile_preferences_labels = {
+    'inform_about': 'Please let me know about...',
+    'in_hotel': 'I am staying at the hotel'
     
 }
+
+
+inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'), 
+                        ('Volunteering', 'Volunteering'), 
+                        ('Performing', 'Performing'), 
+                        ('Vending', 'Vending'), 
+                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'), 
+                        ('Teaching', 'Teaching'), 
+                        ('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes')]
+
+
+
 how_heard_options = [('Previous attendee', 'Previous attendee'), 
                      ('Facebook', 'Facebook'), 
                      ('Yahoo! Group', 'Yahoo! Group'), 
@@ -296,13 +315,6 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
 					('Sunday after 8pm', 'Sunday after 8pm'))
 
 
-inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'), 
-                        ('Volunteering', 'Volunteering'), 
-                        ('Performing', 'Performing'), 
-                        ('Vending', 'Vending'), 
-                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'), 
-                        ('Teaching', 'Teaching'), 
-                        ('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes')]
 
 
 # Would like to be able to insert this into the class proposal form from upstream
