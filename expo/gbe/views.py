@@ -715,6 +715,7 @@ def update_profile(request):
                                      })
         prefs_form = ProfilePreferencesForm()
         form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
+        prefs_form.fields['inform_about'].widget = forms.CheckboxSelectMultiple(choices=inform_about_options)
         return render(request, 'gbe/update_profile.html', 
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 

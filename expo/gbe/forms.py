@@ -260,5 +260,5 @@ class ClassProposalForm(forms.ModelForm):
 class ProfilePreferencesForm(forms.ModelForm):
     class Meta:
         model = ProfilePreferences
-        fields = '__all__'
+        fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
