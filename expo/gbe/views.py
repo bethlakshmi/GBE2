@@ -28,7 +28,6 @@ def index(request):
     return HttpResponse(template.render(context))
 
 
-
 def landing_page(request):
     standard_context = {}
     standard_context['events_list']  = Event.objects.all()[:5]
@@ -57,12 +56,16 @@ def landing_page(request):
     return HttpResponse(template.render(context))
 
 
-    
-
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
+
+def techinfo(request):
+    form = TechInfoForm()
+    return render(request, 
+                  'gbe/techinfo.html', 
+                  {'form':form})
 
     
 @login_required
@@ -81,7 +84,7 @@ def register_persona(request, **kwargs):
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
-                redirect_to='/'
+                redirect_to='/profile/'+str(pid)
             return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 
@@ -162,11 +165,9 @@ def edit_persona(request, persona_id):
     if persona.performer_profile != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = PersonaForm(request.POST, 
-                           request.FILES,
-                           instance=persona)
+        form = PersonaForm(request.POST, instance=persona)
         if form.is_valid():
-            performer = form.save()
+            performer = form.save(commit=True)
             return HttpResponseRedirect('/')  
         else:
             return render (request,
@@ -198,7 +199,6 @@ def bid_act(request):
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
         form = ActBidForm(request.POST, 
-                          request.FILES,
                           prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
         lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
@@ -235,11 +235,11 @@ def bid_act(request):
                            } )
     else:
         form = ActBidForm(initial = {'owner':profile,
-                                     'performer': personae[0] }, 
+                                     'performer': personae[0]}, 
                                      prefix='theact')
+                          
         form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
-                                                         objects.filter(performer_profile=profile), 
-                                                         empty_label="--Create New Performer--")
+                                                         objects.filter(performer_profile=profile))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
@@ -265,9 +265,8 @@ def edit_act(request, act_id):
 
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
-
     if request.method == 'POST':
-        form = ActBidForm(request.POST, request.FILES,  instance=act, prefix = 'theact')
+        form = ActBidForm(request.POST,  instance=act, prefix = 'theact')
         audioform= AudioInfoForm(request.POST, instance = audio,  prefix='audio')
         lightingform= LightingInfoForm(request.POST, instance = lighting, prefix='lighting')
         propsform = PropsInfoForm(request.POST, instance = props,  prefix='props')
@@ -291,20 +290,17 @@ def edit_act(request, act_id):
         audioform= AudioInfoForm(prefix='audio', instance = audio)
         lightingform= LightingInfoForm(prefix='lighting', instance = lighting)
         propsform = PropsInfoForm(prefix='props', instance = props)
-        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
-                                                         objects.filter(performer_profile=profile), 
-                                                         empty_label="--Create New Performer--")
-
-        if not act.complete:
-            form.fields['submitted'].widget = forms.HiddenInput()
-
-
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form, audioform, lightingform, propsform]})
 
 
-@login_required
+
+def review_acts(request):
+    return render (request, 'gbe/error.tmpl', 
+                   {'error' : "Not yet implemented"} )
+
+
 def review_act (request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
@@ -355,8 +351,6 @@ def review_act (request, act_id):
                         'reviewer':reviewer,
                         'form':form})
 
-
-@login_required
 def review_act_list (request):
     '''
     Show the list of act bids, review results,
@@ -368,6 +362,7 @@ def review_act_list (request):
         return HttpResponseRedirect('/')   # should go to 404?
 
     try:
+
         header = Act().bid_review_header
         acts = Act.objects.filter(submitted=True)
         review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 'evaluator')
@@ -384,6 +379,7 @@ def review_act_list (request):
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'review_path': '/act/review/'})
+
 
 
 @login_required
@@ -596,9 +592,9 @@ def create_vendor(request):
 
 @login_required
 def bid_response(request,type,response):
-	if response == "error":
-		return render(request, 'bids/'+response+'.html')
-	return render(request, 'bids/'+type+response+'.html')
+    if response == "error":
+        return render(request, 'bids/'+response+'.html')
+    return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
     '''
@@ -688,11 +684,15 @@ def update_profile(request):
     except Profile.DoesNotExist:
       profile = Profile()
       profile.user_object = request.user
-    
+      profile.preferences = ProfilePreferences()
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
+        prefs_form = ProfilePreferencesForm(request.POST, instance=profile.preferences)
+        if prefs_form.is_valid():
+            prefs_form.save(commit=True)
         if form.is_valid():
-            form.save(commit=False)
+            profile = form.save(commit=True)
+            
             if profile.display_name.strip() == '':
                 profile.display_name = request.user.first_name + ' ' + request.user.last_name
             profile.save()
@@ -700,7 +700,7 @@ def update_profile(request):
             return HttpResponseRedirect("/")
         else:
             return render(request, 'gbe/update_profile.html', 
-                      {'form': form})
+                          {'forms': (form,prefs_form)})
 
     else:
         if profile.display_name.strip() == '':
@@ -713,9 +713,10 @@ def update_profile(request):
                                          'last_name':request.user.last_name,
                                          'display_name':display_name
                                      })
+        prefs_form = ProfilePreferencesForm()
         form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
         return render(request, 'gbe/update_profile.html', 
-                      {'form': form})
+                      {'left_forms': [form], 'right_forms':[prefs_form]})
 
 
 def register (request):
@@ -770,4 +771,3 @@ def propose_class (request):
         return render (request, 'gbe/class_proposal.tmpl',
                        {'form' : form})
   
-

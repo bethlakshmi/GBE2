@@ -20,11 +20,21 @@ profile information. If you're teaching, the conference committee
 members and staff will be able to see your profile information,
 etc.).
 </p>
-   
-<form method="POST" action="" enctype="multipart/form-data">
-    {% include "form_table.html" %}
 
+
+<form method="POST" action="" enctype="multipart/form-data">
+<div class = "left_col">
+  {% for form in left_forms %}
+    {% include "form_table.html" %}
+  {% endfor %}
     <input type="submit" value="Update my account"> 
+</div>
+
+<div class = "right_col">
+  {% for form in right_forms %}
+  {%include "form_table.html" %}
+  {% endfor %}
+
      
 </form>
 

@@ -11,6 +11,9 @@ participant_labels = {
 
 }
 
+profile_preferences_help_texts= {
+    
+}
 how_heard_options = [('Previous attendee', 'Previous attendee'), 
                      ('Facebook', 'Facebook'), 
                      ('Yahoo! Group', 'Yahoo! Group'), 
@@ -292,6 +295,14 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
 					('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
 					('Sunday after 8pm', 'Sunday after 8pm'))
 
+
+inform_about_options = ['Pre-event Organizing',
+                        'Volunteering', 
+                        'Performing',
+                        'Vending',
+                        'Sponsoring/Advertising',
+                        'Teaching', 
+                        'Exhibiting Art or Costumes']
 
 
 # Would like to be able to insert this into the class proposal form from upstream

@@ -680,3 +680,19 @@ class ClassProposal(models.Model):
     
     def __unicode__(self):
         return self.title
+
+
+class ProfilePreferences(models.Model):
+    '''
+    User-settable preferences controlling interaction with the 
+    Expo and with the site. 
+    '''
+    profile = models.OneToOneField(Profile,
+                                   related_name='preferences')
+    in_hotel = models.CharField(max_length=10, 
+                                blank=True, 
+                                choices= yes_no_maybe_options)
+    inform_about = models.TextField(blank=True)
+    show_hotel_infobox = models.BooleanField(default=True)
+
+    

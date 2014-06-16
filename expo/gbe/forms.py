@@ -13,7 +13,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = [ 'display_name',
                    'purchase_email', 'address1', 'address2', 'city', 'state', 'zip_code',
-                   'country', 'onsite_phone', 'best_time', 'how_heard'
+                   'country', 'onsite_phone', 'best_time', 'how_heard', 
                   ]
 
 class ParticipantForm(forms.ModelForm):
@@ -22,32 +22,31 @@ class ParticipantForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-    how_heard = forms.CheckboxSelectMultiple(choices = how_heard_options)
+
     class Meta:
         model = Profile
         # purchase_email should be display only
         fields = [ 'first_name', 'last_name', 'email', 'display_name',
                    'address1', 'address2', 'city',
                    'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
-                   'best_time', 'how_heard'
+                    'best_time', 'how_heard'
                   ]
         labels = participant_labels
         help_texts = participant_form_help_texts
-        
 
     # overload save to make sure there is always a display name
     def save(self, commit=True):
-        partform = super(ParticipantForm, self).save(commit=False)
-        partform.user_object.email = self.cleaned_data['email']
-        partform.user_object.first_name = self.cleaned_data['first_name']
-        partform.user_object.last_name = self.cleaned_data['last_name']
-        if len(self.cleaned_data['display_name'].strip()) >0:
-            pass   # if they enter a display name, respect it
-        else:
-            partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
-        if commit:
-            partform.save()
-            partform.user_object.save()
+      partform = super(ParticipantForm, self).save(commit=False)
+      partform.user_object.email = self.cleaned_data['email']
+      partform.user_object.first_name = self.cleaned_data['first_name']
+      partform.user_object.last_name = self.cleaned_data['last_name']
+      if self.cleaned_data['display_name']:
+          pass   # if they enter a display name, respect it
+      else:
+        partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
+      if commit:
+         partform.save()
+         partform.user_object.save()
          
 
 
@@ -125,7 +124,7 @@ class PersonaForm (forms.ModelForm):
                    'video_link',
                    'puffsheet', 
                    'festivals',
-                   'performer_profile', 
+                   'performer_profile'
         ]
         
         help_texts = persona_help_texts
@@ -148,28 +147,21 @@ class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
-
     class Meta:
         model = Act
         fields, required = Act().bid_fields
-
-#    def save (self, *args, **kwargs):
-#        return super(ActBidForm, self).save(*args, **kwargs)
+    def save (self, *args, **kwargs):
+        return super(ActBidForm, self).save(*args, **kwargs)
 
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
-
     class Meta:
         model = Act
         fields = '__all__'
-        widgets = {'accepted': forms.HiddenInput(),
-                   'tech': forms.HiddenInput()
-                   }
 
-#    def save (self, *args, **kwargs):
-#        return super(ActBidForm, self).save(*args, **kwargs)
+
 
 
 class BidEvaluationForm(forms.ModelForm):
@@ -181,6 +173,7 @@ class BidEvaluationForm(forms.ModelForm):
         fields = '__all__'
         widgets = {'evaluator': forms.HiddenInput(),
                    'bid': forms.HiddenInput()}
+
 
 
 class ClassBidForm(forms.ModelForm):
@@ -264,4 +257,8 @@ class ClassProposalForm(forms.ModelForm):
         fields = '__all__'
         help_texts= class_proposal_help_texts
 
-    
+class ProfilePreferencesForm(forms.ModelForm):
+    class Meta:
+        model = ProfilePreferences
+        fields = '__all__'
+        help_texts = profile_preferences_help_texts
