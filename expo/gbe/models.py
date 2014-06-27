@@ -587,16 +587,6 @@ class PerformerFestivals(models.Model):
                                   choices=festival_experience, default='No')
     act = models.ForeignKey(Act)
 
-
-class ClassBid(Bid):
-    '''
-    A proposed class
-    we can use this for all class-like items
-    '''
-    
-    def __unicode__(self):  
-        return self.type+':  '+self.title;
-
     
 
 class Volunteer(Biddable):
@@ -642,7 +632,7 @@ class Vendor(Biddable):
     def __unicode__(self): 
         return self.title  # "title" here is company name
 
-class AdBid(Bid):
+class AdBid(Biddable):
     '''
     A request for a space in the marketplace.
     Vendors have to bid, too
@@ -653,7 +643,7 @@ class AdBid(Bid):
         return self.company;
 
 
-class ArtBid(Bid):
+class ArtBid(Biddable):
     '''
 A request for a space in the marketplace.
 	Vendors have to bid, too
