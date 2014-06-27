@@ -681,22 +681,19 @@ def admin_profile(request, profile_id):
 def update_profile(request):
     try:
       profile = request.user.profile
+ 
     except Profile.DoesNotExist:
       profile = Profile()
       profile.user_object = request.user
       profile.save()
       profile.preferences = ProfilePreferences()
+      profile.preferences.save()
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
         prefs_form = ProfilePreferencesForm(request.POST, instance=profile.preferences)
         if prefs_form.is_valid():
             prefs_form.save(commit=True)
         if form.is_valid():
-            profile = form.save(commit=True)
-            
-            if profile.display_name.strip() == '':
-                profile.display_name = request.user.first_name + ' ' + request.user.last_name
-            profile.save()
             form.save()
             return HttpResponseRedirect("/")
         else:
