@@ -684,6 +684,7 @@ def update_profile(request):
     except Profile.DoesNotExist:
       profile = Profile()
       profile.user_object = request.user
+      profile.save()
       profile.preferences = ProfilePreferences()
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
