@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.contrib.auth.views import login, logout
+from django.contrib.auth.views import *
 from gbe import views
 
 
@@ -85,14 +85,28 @@ urlpatterns = patterns ('',
                             login),
                         url(r'^logout/?$', 
                             views.logout_view),
-                        url(r'^accounts/profile/?$', 
-                            views.landing_page),
-                        url(r'^accounts/register/?$',
-                            views.register),
                         url(r'^accounts/login/?$', 
                             login), 
                         url(r'^accounts/logout/?$', 
-                            logout),
+                            views.logout_view),
+                        url(r'^accounts/register/?$',
+                            views.register),
                         url(r'update_profile/?$', 
                             views.update_profile),
+                        url(r'^accounts/profile/?$', 
+                            views.landing_page),
+                         
+# password reset 
+                        url(r'^accounts/password/reset/?$',
+                            password_reset,
+                            {'post_reset_redirect' : '/accounts/password/reset/done/'},
+                            name="password_reset"),
+                        url(r'^accounts/password/reset/done/?$',
+                            password_reset_done),
+                        url(r'^accounts/password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', 
+                            password_reset_confirm, 
+                            {'post_reset_redirect' : '/accounts/password/reset/complete/'}),
+                        url(r'^accounts/password/reset/complete/?$', 
+                            password_reset_complete)
+                        
                         ) 
