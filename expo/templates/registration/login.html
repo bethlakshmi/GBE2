@@ -11,13 +11,21 @@
 <br><br>
   <form action="" method=post>
     {% csrf_token %}
-    <label for="username">Login: </label>
-    <input type="text" name="username" value="" id="username"/>
-    <label for="password">Password: </label>
-    <input type="password" name="password" value="" id="password"/>
-
-
-    <input type="submit" value="login"/>
+    <a href="/accounts/password/reset/">Help!</a> I forgot my password!
+    <br><br>
+    <table>
+    <tr>
+      <td><label for="username">Login: </label></td>
+      <td><input type="text" name="username" value="" id="username"/></td>
+    </tr>
+    <tr>
+      <td><label for="password">Password: </label></td>
+      <td><input type="password" name="password" value="" id="password"/></td>
+    </tr>
+    <tr>
+      <td colspan=2 align=center><input type="submit" value="Login"/></td>
+    </tr>
+    </table>
     <input type="hidden" name="next" value = "{{next |escape}}" />
   </form>
 {% endblock %}
