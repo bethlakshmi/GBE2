@@ -62,34 +62,13 @@ class ProfileAdminForm(ParticipantForm):
         if commit:
             form.save()
 
-
-class RegistrationForm(UserCreationForm):
-    '''
-    Form for creating a GBE user. Collects info for User object as
-    well as for user's profile (Participant object)
-    '''
-    required_css_class = 'required'
-    error_css_class = 'error'
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
-    class Meta:
-        model=User
-        fields = ['username', 'first_name','last_name',
-                  'email', 'password1', 'password2']
-
-    def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
-        user.email=self.cleaned_data['email']
-        if commit:
-            user.save()
-        return user
-
 class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
     username = forms.CharField(label=username_label, help_text=username_help)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
     class Meta:
         model = User
         fields = [ 'username', 'email', 'first_name', 'last_name',
