@@ -168,7 +168,7 @@ class Performer (models.Model):
                             unique=True)        # in a playbill. 
     homepage = models.URLField (blank = True)
     bio = models.TextField ()
-    experience = models.IntegerField ()       # in years
+    experience = models.PositiveIntegerField ()       # in years
     awards = models.TextField (blank = True)    
     promo_image = models.FileField(upload_to="uploads/images", 
                                    blank=True)
