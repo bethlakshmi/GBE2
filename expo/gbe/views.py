@@ -273,18 +273,26 @@ def edit_act(request, act_id):
         if (form.is_valid() and
             audioform.is_valid() and 
             lightingform.is_valid() and
-            propsform.is_valid()):
-
+            propsform.is_valid() ):
             audioform.save()
             lightingform.save()
             propsform.save()
             form.save()
-
-            return HttpResponseRedirect('/')  
         else:
             return render (request,
                            'gbe/bid.tmpl',
                            {'forms':[form, audioform, lightingform, propsform]})
+        if 'submit' in request.POST.keys():
+            if act.complete:
+                act.submitted = True
+                return HttpResponseRedirect('/')  
+            else:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form, audioform, lightingform, propsform], 
+                                'errors':['Cannot submit incomplete act']})
+        else:
+            return HttpResponseRedirect('/')  
     else:
         form = ActEditForm(instance = act, prefix='theact')
         audioform= AudioInfoForm(prefix='audio', instance = audio)
