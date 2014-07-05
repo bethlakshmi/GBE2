@@ -398,7 +398,7 @@ class Act (Biddable):
                 self.performer.complete and
                 self.intro_text is not '' and
                 self.duration is not '')
-
+    
 
     @property
     def alerts(self):
@@ -474,12 +474,12 @@ class Show (Event):
     mc = models.ManyToManyField(Persona, related_name="mc_for")      
     
                                                 
-class Class (Event, Biddable):
+class Class (Biddable, Event):
     '''
-    A Class is an Event whProfileere one or a few people
+    A Class is an Event where one or a few people
     teach/instruct/guide/mediate and a number of participants
     spectate/participate.  Participation *may* be limited for workshops,
-    but is rarely limited for anything else.  Occupany information is requested to
+    but is rarely limited for anything else.  Occupancy information is requested to
     give us a general sense of the teacher's expectations.
     '''
     teacher = models.ForeignKey(Persona,  
@@ -541,31 +541,20 @@ class Class (Event, Biddable):
                   'minimum_enrollment',
                   'length_minutes',
                   ])
+    @property
+    def complete(self):
+        return (self.title is not '' and
+                self.teacher is not None and
+                self.description is not '' and
+                self.blurb is not '' 
+                )
 
     def __str__(self):
         return self.title
+        
 
     class Meta:
         verbose_name_plural='classes'
-
-class Bid(models.Model):
-    '''
-    A Bid is a proposal for an act, a class, a vendor, or whatnot.
-    This is the abstract base for these various bids.
-    
-    DEPRECATED? - should be removed when all Bid classes are converted to
-    Biddable.  Do not extend off of this class.
-    '''
-    bid_item = models.ForeignKey(Biddable, null=True, blank=True)
-    bidder = models.ForeignKey(Profile)
-    state = models.CharField(max_length=20,
-                             choices=bid_states, default="Draft") 
-    last_update = models.DateTimeField()
-    created_date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'bid'
-        verbose_name_plural = 'bids'
     
 
     

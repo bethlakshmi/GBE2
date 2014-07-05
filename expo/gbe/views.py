@@ -431,6 +431,17 @@ def bid_class(request):
         form = ClassBidForm(request.POST)
         if form.is_valid():
             new_class = form.save(commit=True)
+            if 'submit' in request.POST.keys():
+                if new_class.complete:
+                    new_class.submitted=True                    
+                    new_class.save()
+                    return HttpResponseRedirect("/")
+                else:
+                    return render (request, 
+                                   'gbe/bid.tmpl', 
+                                   {'forms':[form], 
+                                    'errors':['Cannot submit, class is not complete']})
+            new_class.save()
             return HttpResponseRedirect('/profile')
         else:
             return render (request, 
@@ -486,6 +497,9 @@ def create_volunteer(request):
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
             volunteer = form.save()
+            if 'submit' in request.POST.keys():
+                volunteer.submitted = True
+                volunteer.save()
             return HttpResponseRedirect('/')
         else:
             return render (request, 
@@ -703,6 +717,10 @@ def update_profile(request):
         if prefs_form.is_valid():
             prefs_form.save(commit=True)
         if form.is_valid():
+            form.save(commit=True)
+            if profile.display_name.strip() == '':
+                profile.display_name = request.user.first_name + ' ' + request.user.last_name
+            profile.save()
             form.save()
             return HttpResponseRedirect("/")
         else:

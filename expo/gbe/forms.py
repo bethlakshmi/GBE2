@@ -173,8 +173,8 @@ class ClassBidForm(forms.ModelForm):
     class Meta:
         model = Class
         fields, required = Class().get_bid_fields
-    def save(self, *args, **kwargs):
-        return super(ClassBidForm, self).save(*args, **kwargs)
+#    def save(self, *args, **kwargs):
+#        return super(ClassBidForm, self).save(*args, **kwargs)
 
 class ClassEditForm(forms.ModelForm):
     required_css_class = 'required'
