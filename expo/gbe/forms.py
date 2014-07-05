@@ -95,7 +95,6 @@ class PersonaForm (forms.ModelForm):
         model = Persona
         fields = [ 'name', 
                    'homepage', 
-                   'contact',
                    'bio', 
                    'experience',
                    'awards', 
@@ -103,12 +102,14 @@ class PersonaForm (forms.ModelForm):
                    'video_link',
                    'puffsheet', 
                    'festivals',
-                   'performer_profile'
+                   'performer_profile',
+                   'contact'
         ]
         
         help_texts = persona_help_texts
         labels = persona_labels
-        widgets = {'performer_profile': forms.HiddenInput()}
+        widgets = {'performer_profile': forms.HiddenInput(), 
+                   'contact':forms.HiddenInput()}
 
 class TroupeForm (forms.ModelForm):
     class Meta:
