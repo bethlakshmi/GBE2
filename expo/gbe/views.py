@@ -186,10 +186,10 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
-    form = ActBidForm(prefix='theact')
-    audioform= AudioInfoBidForm(prefix='audio')
-    lightingform= LightingInfoBidForm(prefix='lighting')
-    propsform = PropsInfoBidForm(prefix='props')
+    form = ActEditForm(prefix='theact')
+    audioform= AudioInfoForm(prefix='audio')
+    lightingform= LightingInfoForm(prefix='lighting')
+    propsform = PropsInfoForm(prefix='props')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -198,7 +198,7 @@ def bid_act(request):
     if len(personae) == 0:
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
-        form = ActBidForm(request.POST, 
+        form = ActEditForm(request.POST, 
                           prefix='theact')
         audioform= AudioInfoBidForm(request.POST, prefix='audio')
         lightingform= LightingInfoBidForm(request.POST, prefix='lighting')
@@ -234,7 +234,7 @@ def bid_act(request):
                            {'forms':[form, audioform, lightingform, propsform], 
                            } )
     else:
-        form = ActBidForm(initial = {'owner':profile,
+        form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
                                      prefix='theact')
                           

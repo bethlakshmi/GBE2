@@ -120,8 +120,6 @@ class ComboForm (forms.ModelForm):
         model = Combo
         fields= ['contact', 'name', 'membership']
 
-
-
 class ActBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -138,11 +136,25 @@ class ActEditForm(forms.ModelForm):
     help_texts=act_help_texts
     class Meta:
         model = Act
+        fields, required = Act().bid_fields
+
+class ActDraftForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    help_texts=act_help_texts
+    class Meta:
+        model = Act
         fields = '__all__'
 
+class ActSubmitForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    help_texts=act_help_texts
+    class Meta:
+        model = Act
+        fields = '__all__'
 
-
-
+        
 class BidEvaluationForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -169,7 +181,7 @@ class ClassEditForm(forms.ModelForm):
     error_css_class = 'error'
     class Meta:
         model = Class
-        field = '__all__'
+        fields = '__all__'
 
 class VolunteerBidForm(forms.ModelForm):
     title = forms.HiddenInput()
