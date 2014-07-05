@@ -285,6 +285,7 @@ def edit_act(request, act_id):
         if 'submit' in request.POST.keys():
             if act.complete:
                 act.submitted = True
+                act.save()
                 return HttpResponseRedirect('/')  
             else:
                 return render (request,
