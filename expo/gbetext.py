@@ -34,14 +34,11 @@ act_alerts = {
     'This act is complete and can be submitted whenever you like. \
     <a href = "/act/edit/%d/"> Review and Submit Now </a>',
     'act_complete_submitted': 
-    'This act is complete and has been submitted for review.\
-    <a href ="/act/edit/%d/"> You can still edit the act. </a>',
+    'This act is complete and has been submitted for review.',
     'act_incomplete_not_submitted': 
-    'This act is not complete and cannot be submitted for a show. \
-    <a href ="/act/edit/%d/"> Review/Edit This Act </a>',
+    'This act is not complete and cannot be submitted for a show. ', 
     'act_incomplete_submitted': 
-    'This act is not complete but it has been submitted for a show. WTF??\
-    <a href ="/act/edit/%d/"> Review/Edit This Act </a>'
+    'This act is not complete but it has been submitted for a show. WTF???'
 
     }
     
@@ -49,8 +46,6 @@ best_time_to_call_options = [('Any', 'Any'),
                              ('Mornings', 'Mornings'), 
                              ('Afternoons', 'Afternoons'), 
                              ('Evenings', 'Evenings')]
-
-
 
 volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
     
