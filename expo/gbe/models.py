@@ -72,7 +72,6 @@ class Profile(models.Model):
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     onsite_phone = models.CharField(max_length=50, 
-                                    blank=True, 
                                     validators=[
                                         RegexValidator(regex=phone_regex,
                                                        message=phone_number_format_error)])

@@ -92,7 +92,7 @@ def register_persona(request, **kwargs):
                            {'form':form})
     else:
         form = PersonaForm (initial= {'performer_profile' : profile,
-                                                  'contact' : profile } )
+                                      'contact' : profile } )
         return render(request, 
                       'gbe/performer_edit.tmpl',
                       {'form':form})
@@ -706,11 +706,11 @@ def update_profile(request):
       profile = request.user.profile
  
     except Profile.DoesNotExist:
-      profile = Profile()
-      profile.user_object = request.user
-      profile.save()
-      profile.preferences = ProfilePreferences()
-      profile.preferences.save()
+        profile = Profile()
+        profile.user_object = request.user
+        profile.save()
+        profile.preferences = ProfilePreferences()
+        profile.preferences.save()
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
         prefs_form = ProfilePreferencesForm(request.POST, instance=profile.preferences)
@@ -724,8 +724,10 @@ def update_profile(request):
             form.save()
             return HttpResponseRedirect("/")
         else:
-            return render(request, 'gbe/update_profile.html', 
-                          {'forms': (form,prefs_form)})
+            form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
+            prefs_form.fields['inform_about'].widget = forms.CheckboxSelectMultiple(choices=inform_about_options)
+            return render(request, 'gbe/update_profile.html',
+                      {'left_forms': [form], 'right_forms':[prefs_form]})
 
     else:
         if profile.display_name.strip() == '':
@@ -733,11 +735,10 @@ def update_profile(request):
         else:
             display_name = profile.display_name
         form = ParticipantForm( instance = profile, 
-                                initial={'email':request.user.email, 
-                                         'first_name':request.user.first_name, 
-                                         'last_name':request.user.last_name,
-                                         'display_name':display_name
-                                     })
+                                initial= { 'email' : request.user.email, 
+                                           'first_name' : request.user.first_name, 
+                                           'last_name' : request.user.last_name,
+                                           'display_name' : display_name })
         prefs_form = ProfilePreferencesForm()
         form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
         prefs_form.fields['inform_about'].widget = forms.CheckboxSelectMultiple(choices=inform_about_options)

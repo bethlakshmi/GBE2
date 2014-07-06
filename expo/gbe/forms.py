@@ -22,7 +22,7 @@ class ParticipantForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-
+    onsite_phone = forms.CharField(required=True)
     class Meta:
         model = Profile
         # purchase_email should be display only
@@ -33,22 +33,6 @@ class ParticipantForm(forms.ModelForm):
                   ]
         labels = participant_labels
         help_texts = participant_form_help_texts
-
-    # overload save to make sure there is always a display name
-    def save(self, commit=True):
-      partform = super(ParticipantForm, self).save(commit=False)
-      partform.user_object.email = self.cleaned_data['email']
-      partform.user_object.first_name = self.cleaned_data['first_name']
-      partform.user_object.last_name = self.cleaned_data['last_name']
-      if self.cleaned_data['display_name']:
-          pass   # if they enter a display name, respect it
-      else:
-        partform.display_name = self.cleaned_data['first_name']+" "+self.cleaned_data['last_name']
-      if commit:
-         partform.save()
-         partform.user_object.save()
-         
-
 
     
 class ProfileAdminForm(ParticipantForm):
