@@ -177,7 +177,8 @@ def edit_persona(request, persona_id):
         form = PersonaForm(instance = persona)
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form], 
+                        'nodraft':'What should this say, Scratch?'})
 
 
 
