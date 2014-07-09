@@ -72,14 +72,12 @@ class Profile(models.Model):
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     onsite_phone = models.CharField(max_length=50, 
-                                    validators=[
-                                        RegexValidator(regex=phone_regex,
-                                                       message=phone_number_format_error)])
+                                    validators=[ RegexValidator(regex=phone_regex,
+                                                                message=phone_number_format_error) ])
     offsite_preferred = models.CharField(max_length=50, 
                                          blank=True,
-                                         validators=[
-                                             RegexValidator(regex=phone_regex,
-                                                            message=phone_number_format_error)])
+                                         validators=[ RegexValidator(regex=phone_regex,
+                                                                     message=phone_number_format_error)])
 
     best_time = models.CharField(max_length=50, choices=best_time_to_call_options, default='Any', blank=True)
     how_heard = models.TextField(blank=True)
@@ -648,9 +646,9 @@ A request for a space in the marketplace.
 
 
 class ClassProposal(models.Model):
+    title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
-    title = models.CharField(max_length = 128)
     proposal = models.TextField()
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,

@@ -792,10 +792,13 @@ def propose_class (request):
             form.save()
             return HttpResponseRedirect('/')  # where to?
         else:
-            return render(request, 'gbe/class_proposal.tmpl',
-                          { 'form' : form } )
+            template = loader.get_template('gbe/class_proposal.tmpl')
+            context = RequestContext (request, {'form': form})
+            return HttpResponse(template.render(context))
     else:
         form = ClassProposalForm()
-        return render (request, 'gbe/class_proposal.tmpl',
-                       {'form' : form})
-  
+        template = loader.get_template('gbe/class_proposal.tmpl')
+        context = RequestContext (request, {'form': form})
+        return HttpResponse(template.render(context))
+
+

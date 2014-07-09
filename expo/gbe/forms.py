@@ -242,8 +242,9 @@ class ClassProposalForm(forms.ModelForm):
     class Meta:
         model = ClassProposal
         fields = '__all__'
+        required = ['title']
         help_texts= class_proposal_help_texts
-
+        
 class ProfilePreferencesForm(forms.ModelForm):
     class Meta:
         model = ProfilePreferences
