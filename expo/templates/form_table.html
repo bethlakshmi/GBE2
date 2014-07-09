@@ -7,6 +7,10 @@
     {% for hidden in form.hidden_fields %}
     {{ hidden }}
     {% endfor %}
+  {% if form.formtitle %}
+  <span class=formtitle> {{ form.formtitle }}<span>
+  {% endif %}
+
     <table border=0>
     {# Include the visible fields #}
     {% for field in form.visible_fields %}

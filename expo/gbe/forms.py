@@ -198,34 +198,45 @@ class VendorBidForm(forms.ModelForm):
 
 
 class AudioInfoForm(forms.ModelForm):
+    formtitle="Audio Info"
     class Meta:
         model=AudioInfo
 
+
 class AudioInfoBidForm(forms.ModelForm):
+    formtitle="Audio Info"
     class Meta:
         model=AudioInfo
         fields=['title','artist']
+
+        
         labels= audioinfo_labels
+
 class LightingInfoForm(forms.ModelForm):
+    formtitle="Lighting Info"
     class Meta:
         model=LightingInfo
 
+
 class PropsInfoForm(forms.ModelForm):
+    formtitle="Props Info"
     class Meta:
         model=PropsInfo
 
 
 class LightingInfoBidForm(forms.ModelForm):
+    formtitle="Lighting Info"
     class Meta:
         model=LightingInfo
         fields = []
-
+        
 
 class PropsInfoBidForm(forms.ModelForm):
+    formtitle="Props Info"
     class Meta:
         model=PropsInfo
         fields=[]
-    
+
 
 class ClassProposalForm(forms.ModelForm):
     class Meta:
