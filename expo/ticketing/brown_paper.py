@@ -2,11 +2,6 @@
 # brown_paper.py - Contains Functions for Integration with Brown Paper Tickets
 # edited by mdb 5/25/2014
 #
-# 9MLmigzTE2
-# marcus.deboyz@gmail.com
-# 2014-01-01 00:00:00
-#
-# 704952
 #
 
 import urllib2
@@ -84,6 +79,23 @@ def set_bpt_last_poll_time():
     settings = BrownPaperSettings.objects.all()[0]  
     settings.last_poll_time = timezone.now()
     settings.save()
+
+def get_bpt_event_description(event_id):
+    '''
+    Used to get the description of the event as given in BPT.
+ 
+    event_id - the event id for the event to query
+    Returns: the description.
+    '''
+    
+    event_call = 'http://www.brownpapertickets.com/api2/eventlist?id=%s&client=%s&event_id=%s' % \
+        (get_bpt_developer_id(), get_bpt_client_id(), event_id)    
+    event_xml = perform_bpt_api_call(event_call)
+    
+    if (event_xml == None):
+        return None
+    
+    return event_xml.find('.//e_description').text
     
 def get_bpt_event_date_list(event_id):
     '''
@@ -118,6 +130,8 @@ def get_bpt_price_list():
     ti_list = []
            
     for event in BrownPaperEvents.objects.all():
+        event_text = get_bpt_event_description(event.bpt_event_id)
+        
         for date in get_bpt_event_date_list(event.bpt_event_id):
         
             price_call = 'http://www.brownpapertickets.com/api2/pricelist?id=%s&event_id=%s&date_id=%s' % \
@@ -125,17 +139,18 @@ def get_bpt_price_list():
             price_xml = perform_bpt_api_call(price_call)
             
             for price in price_xml.findall('.//price'):
-                ti_list.append(bpt_price_to_ticketitem(event.bpt_event_id, price))
+                ti_list.append(bpt_price_to_ticketitem(event.bpt_event_id, price, event_text))
             
     return ti_list
 
-def bpt_price_to_ticketitem(event_id, bpt_price):
+def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
     '''
     Function takes an XML price object from the BPT pricelist call and returns an
     equivalent TicketItem object.
     
     event_id - the Event ID associated with this price
     bpt_price - the price object from the BPT call
+    event_text - Text that describes the event from BPT
     Returns:  the TicketItem
     '''
 
@@ -144,7 +159,7 @@ def bpt_price_to_ticketitem(event_id, bpt_price):
     t_item.title = bpt_price.find('name').text
     t_item.active = False
     t_item.cost = bpt_price.find('value').text
-    t_item.description = '*** Please Fill In ***'    
+    t_item.description = event_text    
     t_item.modified_by = 'BPT Auto Import'
     
     return t_item

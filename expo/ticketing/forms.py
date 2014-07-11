@@ -34,29 +34,5 @@ class TicketItemForm(forms.ModelForm):
             form.save()
         return form
 
-                   
 
-'''
-    ticket_id = models.CharField(max_length=30)
-    title = models.CharField(max_length=50)
-    description = models.TextField()
-    active = models.BooleanField(default=False)
-    cost = models.DecimalField(max_digits=20, decimal_places=2)
-    linked_events = models.ManyToManyField('gbe.Event')
-    datestamp = models.DateTimeField(auto_now=True)
-    modified_by = models.CharField(max_length=30)
-
-    
-class VendorBidForm(forms.ModelForm):
-    help_times = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
-                                                choices = vendor_schedule_options)
-    class Meta:
-        model=Vendor
-        fields = '__all__'
-        labels = vendor_labels
-        widgets = {'accepted': forms.HiddenInput(), 
-                   'submitted' : forms.HiddenInput(),
-                   'profile' : forms.HiddenInput()}
-                   
-'''
 

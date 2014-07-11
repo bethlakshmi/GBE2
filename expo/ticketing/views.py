@@ -57,11 +57,23 @@ def ticket_item_edit(request, item_id=None):
         raise Http404
 
     if (request.method == 'POST'):
-        form = TicketItemForm(request.POST)
-        if form.is_valid():
-            form.save(str(request.user.profile))
-            form.save_m2m()
+    
+        if 'delete_item' in request.POST:
+            # Delete this item based on the item_id in the URL
+            
+            item = TicketItem.objects.filter(id=item_id)
+            if (item != None):
+                item.delete()
             return HttpResponseRedirect('/ticketing/ticket_items')
+            
+        else:
+            # save the item using the Forms API
+    
+            form = TicketItemForm(request.POST)
+            if form.is_valid():
+                form.save(str(request.user.profile))
+                form.save_m2m()
+                return HttpResponseRedirect('/ticketing/ticket_items')
     else:
         if (item_id != None):
             item = get_object_or_404(TicketItem, id=item_id)
