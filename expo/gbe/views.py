@@ -505,7 +505,8 @@ def create_volunteer(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form]})
+                           {'forms':[form], 
+                            'nodraft':'Submit'})
     else:
         form = VolunteerBidForm(initial = {'profile':profile,
                                            'title':'volunteer bid: '+ profile.display_name,
@@ -513,7 +514,8 @@ def create_volunteer(request):
                                            'submitted':True})
         return render (request, 
                        'gbe/bid.tmpl', 
-                       {'forms':[form]})
+                       {'forms':[form],
+                        'nodraft':'Submit'})
                             
 @login_required
 def review_volunteer (request, volunteer_id):
