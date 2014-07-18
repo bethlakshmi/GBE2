@@ -1,8 +1,9 @@
 
-   	{{ profile.display_name }}'s Stuff
+   	<b>{{ profile.display_name }}'s Stuff</b>
+	<br>
 	<br>
 	{% for alert in profile.alerts %}
-	   <span class='alert'>{{alert}}</a> <br>
+	   <span class='alert'>{{alert|safe}}</a> <br>
 	{% endfor %}
 	<br>
 	{% include 'gbe/profile/incl_performer.tmpl' %}	

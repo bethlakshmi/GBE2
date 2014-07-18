@@ -9,10 +9,13 @@
 	     {% for alert in class.alerts %}
 	     <span class='alert'>{{alert | safe }}</a>
 	     {% endfor %}	     
+	<a href='/class/create'>Propose another class</a>
 	  {% endfor %}
 	  {%endif %}
 	{% else %}
 	   {{ profile.display_name }} has not proposed any classes
+	<a href='/class/create'>Propose a class</a>
 	{% endif %}
-	<a href='/class/create'>Propose another class</a>
+	
+
 <br>
