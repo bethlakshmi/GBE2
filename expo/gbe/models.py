@@ -86,15 +86,7 @@ class Profile(models.Model):
         review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
         return [rg for rg in review_groups if eval(rg).bids_to_review]
 
-    @property
-    def complete(self):
-        return ( self.address1 and
-                 self.city and
-                 self.state and
-                 self.zip_code and
-                 self.country and
-                 (self.onsite_phone or not self.get_acts() ))
-                 
+ 
 
     @property
     def alerts(self):
@@ -106,8 +98,7 @@ class Profile(models.Model):
         if (len(expo_commitments) > 0 and 
             len(self.onsite_phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
-        if not self.complete:
-            profile_alerts.append(gbetext.profile_alerts['complete'])
+ 
         return profile_alerts
     
 
