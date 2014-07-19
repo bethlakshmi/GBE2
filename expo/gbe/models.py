@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
 from gbe_forms_text import *
 from datetime import datetime
+import expomodelfields
+
 import pytz
 
 group_perms_map = {
@@ -12,6 +14,8 @@ group_perms_map = {
     'Volunteer Reviewers':'Volunteer',
     'Vendor Reviewers':'Vendor' 
 }
+
+
 
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
@@ -362,7 +366,7 @@ class Act (Biddable):
                                   related_name='acts', blank=True, null=True )
          
     intro_text = models.TextField(blank=True)
-    duration = models.CharField (max_length = 40, blank=True)
+    duration = expomodelfields.DurationField() 
     tech = models.OneToOneField(TechInfo, blank = True)
 
     def typeof(self):
