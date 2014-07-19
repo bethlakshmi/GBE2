@@ -1,4 +1,6 @@
-	   {% if review_items %}
+      {% if user.is_staff %}
+	{% if review_items %}
+	   <b>Reviews</b><br>
 	   <span class='heading to_review'> 
 	    {{ profile.dispay_name }} has these bids to review
 	   </span><br>
@@ -9,4 +11,5 @@
 
 	{% else %}
 	   {{ profile.display_name }} has no items to review
-	   {% endif %}		   
+	   {% endif %}
+      {% endif %}

@@ -1,7 +1,9 @@
 
-   	<b>{{ profile.display_name }}'s Stuff</b>
-	<br>
-	<br>
+   	<h3>{% if profile.display_name %}
+            {{ profile.display_name }}'s
+            {% else %}
+            Your
+            {% endif %} Stuff</h3>
 	{% for alert in profile.alerts %}
 	   <span class='alert'>{{alert|safe}}</a> <br>
 	{% endfor %}
