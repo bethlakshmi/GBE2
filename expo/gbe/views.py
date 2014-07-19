@@ -444,7 +444,7 @@ def edit_class(request, class_id):
         return HttpResponseRedirect('/' )   # not a teacher for this class, fail out
 
     if request.method == 'POST':
-        form = ClassEditForm(request.POST)
+        form = ClassBidForm(request.POST)
         if form.is_valid():
             new_class = form.save(commit=True)
             return HttpResponseRedirect('/profile')
@@ -453,7 +453,7 @@ def edit_class(request, class_id):
                            'gbe/bid.tmpl', 
                            {'forms':[form]})
     else:
-        form = ClassEditForm (instance=the_class)
+        form = ClassBidForm (instance=the_class)
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form]})
