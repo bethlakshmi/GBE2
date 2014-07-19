@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load ticketing_filters %}
+{% load staticfiles %}
+
 {% block title %}
   Great Burlesque Exposition 
 {% endblock %}
@@ -8,7 +10,7 @@
 
 <H3>Ticket Purchase Options for the Great Burlesque Expo 2015</H3>
 {% if user.is_authenticated %}
-    Welcome, {{ user.profile }}! <br><br>
+    Welcome, {{ user.profile.display_name }}! <br><br>
 {% endif %}
  
 Thanks for your interest in the Great Burlesque Expo.
@@ -48,7 +50,7 @@ please read the descriptions carefully.
 {% endfor %}
 
 <tr><td>
-    <img src='images/divider.gif'>
+    <img src='{% static "img/divider.gif" %}'>
     </td>
 </tr>
 </table>
