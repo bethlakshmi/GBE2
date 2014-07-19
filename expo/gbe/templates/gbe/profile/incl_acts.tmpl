@@ -1,8 +1,7 @@
 	{% if acts %}
 	   <span class='heading acts'>
-	   	Acts {{profile.display_name}} is appearing in: 
+	       <b>Act Bids</b>
 	   </span><br>
-	   {%if acts %}
 	   {% for act in acts %}
 	      <span class='act'> <a href = '/act/edit/{{act.id}}'> {{ act }} </a> </span> 
 	      (Click to edit)<br>	      
@@ -11,9 +10,13 @@
 	      {% endfor %}
 
 	   {% endfor %}
-	   <a href='/act/create/'>Create another</a> <br>
-	   {%endif %}
+	   <ul class="rightsidebar">
+	     <li><a href='/act/create/'>Propose another act</a></li>
+	   </ul>
 	{% else %}
-	   {{ profile.display_name }} has no acts listed. 
-	   <a href='/act/create/'>Create one</a> <br>
+	   {{ profile.display_name }} has no acts listed.
+	   
+	   <ul class="rightsidebar">
+	     <li><a href='/act/create/'>Propose an act</a></li>
+	   </ul>
 	{% endif %}

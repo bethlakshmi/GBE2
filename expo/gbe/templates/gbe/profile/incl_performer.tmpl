@@ -1,20 +1,22 @@
 {% if performers %}
 	  <span class='heading performers'> 
-	   Performer Items
+	   <b>Performer Items</b>
 	   </span><br>
     {% if performers %}
         {% for performer in performers %}
 	     <span class='performer'><a href='/persona/edit/{{ performer.id }}'>{{ performer }}
-	     	   	</a> </span>(click to edit) <br>
+	     	   	</a> </span>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
 	    {% endfor %}
         {% endfor %}
      {%endif%}
      {% else %}
-	   {{ profile.display_name }} has no stage personae listed.  
+	   {{ profile.display_name }} has no stage personae listed.<br>
 {% endif %}
-	   <a href='/performer/create/'>Create a new stage persona</a><br>
-	   <a href='/troupe/create/'>Create a troupe</a><br>
-	   <a href='/combo/create/'>Create a combo</a><br>
-	   <br>
+         <ul class="rightsidebar">
+	   <li><a href='/performer/create/'>Create a new stage persona</a><br></li>
+	   <li><a href='/troupe/create/'>Create a troupe</a><br></li>
+	   <li><a href='/combo/create/'>Create a combo</a><br></li>
+	 </ul>
+	 <br>
