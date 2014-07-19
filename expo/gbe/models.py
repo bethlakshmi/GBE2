@@ -269,7 +269,7 @@ class AudioInfo(models.Model):
     title = models.CharField (max_length=128, blank=True)
     artist = models.CharField (max_length=123, blank=True)
     track = models.FileField (upload_to='uploads/audio', blank=True)
-    track_duration = models.CharField (max_length=128,blank=True)  
+    track_duration = expomodelfields.DurationField()
     need_mic = models.BooleanField (default=False, blank=True)
     notes = models.TextField (blank=True)    
     confirm_no_music = models.BooleanField (default=False)
@@ -388,8 +388,7 @@ class Act (Biddable):
     def complete(self):
         return (self.tech.is_complete and
                 self.performer.complete and
-                self.intro_text is not '' and
-                self.duration is not '')
+                self.intro_text is not '')
     
 
     @property
@@ -447,7 +446,7 @@ class Event (models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()  # public-facing description 
     blurb = models.TextField()        # short description
-    duration = models.CharField(max_length=128) #Should be stored as durations
+    duration = expomodelfields.DurationField()
 
 
     ## run-specific info, in case we decide to return to the run idea
