@@ -545,7 +545,15 @@ class Class (Biddable, Event):
                 self.description is not '' and
                 self.blurb is not '' 
                 )
+    @property
+    def bid_review_header(self):
+        return  (['Title', 'Teacher', 'Type', 'Last Update', 'Reviews', 'Action'])
 
+    @property
+    def bid_review_summary(self):
+        return  ([(self.title, self.teacher, self.type, self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+    
+    
     def __str__(self):
         return self.title
         

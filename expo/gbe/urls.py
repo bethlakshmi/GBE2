@@ -49,7 +49,12 @@ urlpatterns = patterns ('',
                             views.edit_class),                        
                         url(r'^class/propose/?$',
                             views.propose_class),
-
+                        url(r'^class/review/?$',
+                            views.review_class_list),
+                        url(r'^class/review/(\d+)/?$',
+                            views.review_class),
+                        url(r'^class/reviewlist/?$',
+                            views.review_class_list),
 
 # personae
                         url(r'^performer/create/?$',
