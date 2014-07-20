@@ -165,3 +165,12 @@ num_panel_options = (("One Panel","One Panel ($30 includes application fee)"),
 
 
 class_proposal_choices = [ ('Class', 'Class'), ('Panel', 'Panel'), ('Either', 'Either')]
+
+#####  Static Text options for the Scheduler
+ 
+###    Options for schedule blocking
+blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
+
+###    Options for time types
+time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
+             ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
