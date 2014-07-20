@@ -33,7 +33,23 @@ class ParticipantForm(forms.ModelForm):
                   ]
         labels = participant_labels
         help_texts = participant_form_help_texts
+        
+    def save(self, commit=True):
+        partform = super(ParticipantForm, self).save(commit=False)
+        partform.user_object.email = self.cleaned_data['email']
+        if len(self.cleaned_data['first_name'].strip()) > 0:
+            partform.user_object.first_name = self.cleaned_data['first_name'].strip()
+        if len(self.cleaned_data['last_name'].strip()) > 0:
+            partform.user_object.last_name = self.cleaned_data['last_name'].strip()
 
+        if self.cleaned_data['display_name']:
+            pass   # if they enter a display name, respect it
+        else:
+            partform.display_name = " ".join ([self.cleaned_data['first_name'],
+                                               self.cleaned_data['last_name']])
+        if commit:
+            partform.save()
+            partform.user_object.save()
     
 class ProfileAdminForm(ParticipantForm):
     '''
