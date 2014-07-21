@@ -799,7 +799,9 @@ def update_profile(request):
                                            'last_name' : request.user.last_name,
                                            'display_name' : display_name,
                                            'how_heard':eval(profile.how_heard) })
-        prefs_form = ProfilePreferencesForm(prefix='prefs',instance=profile.preferences)
+        prefs_form = ProfilePreferencesForm(prefix='prefs',
+                                            instance=profile.preferences, 
+                                            initial = {'inform_about': eval(profile.preferences.inform_about)})
 
         return render(request, 'gbe/update_profile.html', 
                       {'left_forms': [form], 'right_forms':[prefs_form]})
