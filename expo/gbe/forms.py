@@ -23,6 +23,8 @@ class ParticipantForm(forms.ModelForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     onsite_phone = forms.CharField(required=True)
+    how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
+                                           widget=forms.CheckboxSelectMultiple())
     class Meta:
         model = Profile
         # purchase_email should be display only
@@ -41,7 +43,6 @@ class ParticipantForm(forms.ModelForm):
             partform.user_object.first_name = self.cleaned_data['first_name'].strip()
         if len(self.cleaned_data['last_name'].strip()) > 0:
             partform.user_object.last_name = self.cleaned_data['last_name'].strip()
-
         if self.cleaned_data['display_name']:
             pass   # if they enter a display name, respect it
         else:
@@ -262,6 +263,8 @@ class ClassProposalForm(forms.ModelForm):
         help_texts= class_proposal_help_texts
         
 class ProfilePreferencesForm(forms.ModelForm):
+    inform_about=forms.MultipleChoiceField(choices=inform_about_options,
+                                           widget=forms.CheckboxSelectMultiple())
     class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel']

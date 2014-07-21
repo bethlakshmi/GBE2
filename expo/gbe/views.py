@@ -757,29 +757,34 @@ def admin_profile(request, profile_id):
 @login_required
 def update_profile(request):
     try:
-      profile = request.user.profile
- 
+        profile = request.user.profile
+        
     except Profile.DoesNotExist:
         profile = Profile()
         profile.user_object = request.user
         profile.save()
         profile.preferences = ProfilePreferences()
         profile.preferences.save()
+        profile.save()
     if request.method=='POST':
         form = ParticipantForm(request.POST, instance = profile)
-        prefs_form = ProfilePreferencesForm(request.POST, instance=profile.preferences)
-        if prefs_form.is_valid():
-            prefs_form.save(commit=True)
+        prefs_form = ProfilePreferencesForm(request.POST, 
+                                            instance=profile.preferences,
+                                            prefix='prefs')
+        
         if form.is_valid():
             form.save(commit=True)
             if profile.display_name.strip() == '':
-                profile.display_name = request.user.first_name + ' ' + request.user.last_name
+                profile.display_name = " ".join ([request.user.first_name.strip(), 
+                                                  request.user.last_name.strip()])
+            if prefs_form.is_valid():
+                prefs_form.save(commit=True)
+                profile.preferences = prefs_form.save()
             profile.save()
+            
             form.save()
             return HttpResponseRedirect("/")
         else:
-            form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
-            prefs_form.fields['inform_about'].widget = forms.CheckboxSelectMultiple(choices=inform_about_options)
             return render(request, 'gbe/update_profile.html',
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 
@@ -792,10 +797,10 @@ def update_profile(request):
                                 initial= { 'email' : request.user.email, 
                                            'first_name' : request.user.first_name, 
                                            'last_name' : request.user.last_name,
-                                           'display_name' : display_name })
-        prefs_form = ProfilePreferencesForm()
-        form.fields['how_heard'].widget= forms.CheckboxSelectMultiple(choices=how_heard_options)
-        prefs_form.fields['inform_about'].widget = forms.CheckboxSelectMultiple(choices=inform_about_options)
+                                           'display_name' : display_name,
+                                           'how_heard':eval(profile.how_heard) })
+        prefs_form = ProfilePreferencesForm(prefix='prefs',instance=profile.preferences)
+
         return render(request, 'gbe/update_profile.html', 
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 
