@@ -793,15 +793,23 @@ def update_profile(request):
             display_name = request.user.first_name + ' ' + request.user.last_name
         else:
             display_name = profile.display_name
+        if len(profile.how_heard.strip()) > 0:
+            how_heard_initial = eval(profile.how_heard)
+        else:
+            how_heard_initial = []
         form = ParticipantForm( instance = profile, 
                                 initial= { 'email' : request.user.email, 
                                            'first_name' : request.user.first_name, 
                                            'last_name' : request.user.last_name,
                                            'display_name' : display_name,
-                                           'how_heard':eval(profile.how_heard) })
+                                           'how_heard': how_heard_initial })
+        if len(profile.preferences.inform_about.strip()) >0:
+            inform_initial = eval(profile.preferences.inform_about)
+        else:
+            inform_initial = []
         prefs_form = ProfilePreferencesForm(prefix='prefs',
                                             instance=profile.preferences, 
-                                            initial = {'inform_about': eval(profile.preferences.inform_about)})
+                                            initial = {'inform_about': inform_initial })
 
         return render(request, 'gbe/update_profile.html', 
                       {'left_forms': [form], 'right_forms':[prefs_form]})

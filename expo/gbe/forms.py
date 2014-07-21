@@ -24,6 +24,7 @@ class ParticipantForm(forms.ModelForm):
     last_name = forms.CharField(required=True)
     onsite_phone = forms.CharField(required=True)
     how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
+                                          required=False,
                                            widget=forms.CheckboxSelectMultiple())
     class Meta:
         model = Profile
@@ -264,6 +265,7 @@ class ClassProposalForm(forms.ModelForm):
         
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
+                                           required=False,
                                            widget=forms.CheckboxSelectMultiple())
     class Meta:
         model = ProfilePreferences
