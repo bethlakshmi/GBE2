@@ -262,6 +262,65 @@ def bid_act(request):
                        {'forms':[form], 'title': title})
 
 @login_required
+def bid_act_troupe(request):
+    '''
+    Create a proposed Act object. 
+    '''
+    title = 'Propose a Troupe Act'
+
+    form = ActEditForm(prefix='theact')
+    audioform= AudioInfoForm(prefix='audio')
+    lightingform= LightingInfoForm(prefix='lighting')
+    propsform = PropsInfoForm(prefix='props')
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')
+    troupe = profile.personae.all()
+    if len(troupe) == 0:
+        return HttpResponseRedirect("/troupe/create?next=/act/create")
+    if request.method == 'POST':
+        form = ActEditForm(request.POST, 
+                          prefix='theact')
+        if  form.is_valid():
+            act = form.save(commit=False)
+            techinfo = TechInfo()
+            audioinfo = AudioInfo()
+            audioinfo.save()
+            techinfo.audio = audioinfo
+            propsinfo = PropsInfo()
+            propsinfo.save()
+            techinfo.props = propsinfo 
+            lightinginfo = LightingInfo()
+            lightinginfo.save()
+            techinfo.lighting = lightinginfo
+            techinfo.save()
+            
+            act.tech=techinfo
+            act.submitted = False
+            act.accepted = False
+            act.save()
+            if not act.performer:
+                return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
+            else:
+                return HttpResponseRedirect('/')  
+        else:
+            return render (request,
+                           'gbe/bid.tmpl',
+                           {'forms':[form ], 'title': title
+                           } )
+    else:
+        form = ActEditForm(initial = {'owner':profile,
+                                     'performer': personae[0]}, 
+                                     prefix='theact')
+                          
+        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
+                                                         objects.filter(performer_profile=profile))
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form], 'title': title})
+    
+@login_required
 def edit_act(request, act_id):
     '''
     Modify an existing Act object. 

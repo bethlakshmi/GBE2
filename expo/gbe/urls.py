@@ -29,6 +29,8 @@ urlpatterns = patterns ('',
 # acts
                         url(r'^act/create/?$',
                             views.bid_act),
+                        url(r'^act/createtroupe/?$',
+                            views.bid_act_troupe),
                         url(r'^act/edit/(\d+)/?$',
                             views.edit_act),
                         url(r'^act/review/?$',
