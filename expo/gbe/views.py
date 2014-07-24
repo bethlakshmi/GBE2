@@ -70,6 +70,8 @@ def techinfo(request):
     
 @login_required
 def register_persona(request, **kwargs):
+    title = 'Tell Us About Your Stage Persona'
+    submit_button = 'Save Persona'
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -87,18 +89,22 @@ def register_persona(request, **kwargs):
                 redirect_to='/profile/'+str(pid)
             return HttpResponseRedirect(redirect_to)
         else:
-            return render (request, 
-                           'gbe/performer_edit.tmpl',
-                           {'form':form})
+            return render (request, 'gbe/bid.tmpl',
+                           {'forms': [form],
+                            'nodraft': submit_button,
+                            'title': title })
     else:
         form = PersonaForm (initial= {'performer_profile' : profile,
                                       'contact' : profile } )
-        return render(request, 
-                      'gbe/performer_edit.tmpl',
-                      {'form':form})
+        return render(request,'gbe/bid.tmpl',
+                      {'forms': [form],
+                       'nodraft': submit_button,
+                       'title': title })
              
 
 def create_troupe(request):
+    title = 'Tell Us About Your Troupe'
+    submit_button = 'Save Troupe'
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -113,16 +119,22 @@ def create_troupe(request):
             troupe_id = troupe.pk
             return HttpResponseRedirect('/')
         else:
-            return render (request, 
-                           'gbe/performer_edit.tmpl',
-                           {'form':form})
+            return render (request, 'gbe/bid.tmpl',
+                      {'forms': [form],
+                       'nodraft': submit_button,
+                       'title': title })
     else:
         form = TroupeForm(initial={'contact':profile})
-        return render(request, 'gbe/performer_edit.tmpl',
-                      {'form':form})
+        return render(request, 'gbe/bid.tmpl',
+                      {'forms': [form],
+                       'nodraft': submit_button,
+                       'title': title})
                                    
          
 def create_combo(request):
+    title = 'Who is in this Combination?'
+    submit_button = 'Save Combination'
+
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -137,13 +149,16 @@ def create_combo(request):
             troupe_id = troupe.pk
             return HttpResponseRedirect('/')
         else:
-            return render (request, 
-                           'gbe/performer_edit.tmpl',
-                           {'form':form})
+            return render (request, 'gbe/bid.tmpl',
+                           {'forms': [form],
+                            'nodraft': submit_button,
+                            'title': title })
     else:
         form = ComboForm(initial={'contact':profile})
-        return render(request, 'gbe/performer_edit.tmpl',
-                      {'form':form})
+        return render(request, 'gbe/bid.tmpl',
+                      {'forms': [form],
+                       'nodraft': submit_button,
+                       'title': title })
                                    
             
 
@@ -154,6 +169,8 @@ def edit_persona(request, persona_id):
     '''
     Modify an existing Persona object. 
     '''
+    title = 'Tell Us About Your Stage Persona'
+    submit_button = 'Save Persona'
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -172,13 +189,16 @@ def edit_persona(request, persona_id):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form],
+                            'nodraft': submit_button,
+                            'title': title })
     else:
         form = PersonaForm(instance = persona)
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 
-                        'nodraft':'What should this say, Scratch?'})
+                       {'forms':[form],
+                        'nodraft': submit_button,
+                        'title': title })
 
 
 
@@ -187,6 +207,8 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
+    title = 'Propose an Act'
+
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
     lightingform= LightingInfoForm(prefix='lighting')
@@ -226,7 +248,7 @@ def bid_act(request):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form ], 
+                           {'forms':[form ], 'title': title
                            } )
     else:
         form = ActEditForm(initial = {'owner':profile,
@@ -237,13 +259,14 @@ def bid_act(request):
                                                          objects.filter(performer_profile=profile))
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form], 'title': title})
 
 @login_required
 def edit_act(request, act_id):
     '''
     Modify an existing Act object. 
     '''
+    title = 'Edit Your Act Proposal'
     form = ActEditForm(prefix='theact')
     try:
         profile = request.user.profile
@@ -269,7 +292,7 @@ def edit_act(request, act_id):
             else:
                 return render (request,
                                'gbe/bid.tmpl',
-                               {'forms':[form], 
+                               {'forms':[form], 'title': [title],
                                 'errors':['Cannot submit incomplete act']})
         else:
             return HttpResponseRedirect('/')  
@@ -277,7 +300,7 @@ def edit_act(request, act_id):
         form = ActEditForm(instance = act, prefix='theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form], 'title': [title]})
 
 
 @login_required
@@ -392,6 +415,7 @@ def bid_class(request):
     Propose a class. Bidder is volunteering to teach this class - we have to 
     confirm that they understand and accept this. 
     '''
+    title = "Propose a Class"
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
@@ -418,19 +442,21 @@ def bid_class(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form]})
+                           {'forms':[form], 'title': title})
     else:
         form = ClassBidForm (initial = {'owner':owner, })
         form.fields['teacher']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile_id=owner.id))
 
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form], 'title': title})
                                 
 def edit_class(request, class_id):
     '''
     Edit an existing class.
     '''
+    title = "Propose a Class"
+
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
@@ -451,12 +477,12 @@ def edit_class(request, class_id):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form]})
+                           {'forms':[form], 'title': title})
     else:
         form = ClassBidForm (instance=the_class)
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       {'forms':[form], 'title': title})
 
 @login_required
 def review_class (request, class_id):
@@ -541,6 +567,7 @@ def review_class_list (request):
 
 @login_required
 def create_volunteer(request):
+    title = "Volunteer at the Expo"
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -556,7 +583,7 @@ def create_volunteer(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 
+                           {'forms':[form], 'title': title,
                             'nodraft':'Submit'})
     else:
         form = VolunteerBidForm(initial = {'profile':profile,
@@ -565,7 +592,7 @@ def create_volunteer(request):
                                            'submitted':True})
         return render (request, 
                        'gbe/bid.tmpl', 
-                       {'forms':[form],
+                       {'forms':[form], 'title': title,
                         'nodraft':'Submit'})
                             
 @login_required
@@ -648,6 +675,7 @@ def review_volunteer_list (request):
     
 @login_required
 def create_vendor(request):
+    title = "Vendor Application"
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -659,13 +687,13 @@ def create_vendor(request):
             return HttpResponseRedirect("/")
         else:
             return render (request,
-                           'gbe/bid.tmpl',
-                           {'forms':[form]})
+                           'gbe/bid.tmpl', 
+                           {'forms':[form], 'title': title})
     else:
         form = VendorBidForm(initial = {'profile':profile})
         return render (request, 
-                       'gbe/bid.tmpl',
-                       {'forms':[form]})
+                       'gbe/bid.tmpl', 
+                       {'forms':[form], 'title': title})
 
 @login_required
 def bid_response(request,type,response):

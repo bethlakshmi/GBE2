@@ -114,11 +114,17 @@ class PersonaForm (forms.ModelForm):
                    'contact':forms.HiddenInput()}
 
 class TroupeForm (forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = Troupe
         fields= '__all__'
+        help_texts = persona_help_texts
+        labels = persona_labels
 
 class ComboForm (forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = Combo
         fields= ['contact', 'name', 'membership']
