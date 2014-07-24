@@ -25,7 +25,8 @@ class ParticipantForm(forms.ModelForm):
     onsite_phone = forms.CharField(required=True)
     how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
                                           required=False,
-                                           widget=forms.CheckboxSelectMultiple())
+                                           widget=forms.CheckboxSelectMultiple(),
+					   label=participant_labels['how_heard'])
     class Meta:
         model = Profile
         # purchase_email should be display only
@@ -272,8 +273,10 @@ class ClassProposalForm(forms.ModelForm):
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
                                            required=False,
-                                           widget=forms.CheckboxSelectMultiple())
+                                           widget=forms.CheckboxSelectMultiple(),
+					   label=profile_preferences_labels['inform_about'])
     class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel']
         help_texts = profile_preferences_help_texts
+        labels = profile_preferences_labels

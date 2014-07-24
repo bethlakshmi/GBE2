@@ -7,12 +7,11 @@ participant_labels = {
     'address2': ('Street Address (cont.)'),
     'best_time':('Best time to call'),
     'offsite_preferred':('Offsite phone'),
-
+    'how_heard': "How did you hear about The Expo?"
 
 }
 
 profile_preferences_help_texts= {
-    'inform_about': 'If you check these, we might send you some email once in a while.',
     'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.'
 }
 
@@ -23,8 +22,9 @@ profile_preferences_labels = {
 }
 
 
+
 inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'), 
-                        ('Volunteering', 'Volunteering'), 
+                        ('Volunteering', 'Volunteering at the Expo'), 
                         ('Performing', 'Performing'), 
                         ('Vending', 'Vending'), 
                         ('Sponsoring/Advertising',  'Sponsoring/Advertising'), 
@@ -33,7 +33,7 @@ inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'),
 
 
 
-how_heard_options = [('Previous attendee', 'Previous attendee'), 
+how_heard_options = [('Previous attendee', 'Attended Previously'), 
                      ('Facebook', 'Facebook'), 
                      ('Yahoo! Group', 'Yahoo! Group'), 
                      ('Received a direct email', 'Received a direct email'), 
@@ -93,6 +93,7 @@ volunteer_labels = {
     'background': 'Tell us about your background, including relevant skills and experience'
 
 }
+
 
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']

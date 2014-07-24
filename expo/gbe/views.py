@@ -829,7 +829,7 @@ def admin_profile(request, profile_id):
             form.save(commit=True)
             return HttpResponseRedirect('/profile/' + str(profile_id))
         else:
-            return render(request, 'gbe/update_profile.html', 
+            return render(request, 'gbe/update_profile.tmpl', 
                           {'form':form})
     else:
         form = ProfileAdminForm(instance=user_profile,
@@ -837,7 +837,7 @@ def admin_profile(request, profile_id):
                                          'first_name':request.user.first_name, 
                                          'last_name':request.user.last_name,
                                      })
-        return render(request, 'gbe/update_profile.html', 
+        return render(request, 'gbe/update_profile.tmpl', 
                       {'form':form})
 
 
@@ -872,7 +872,7 @@ def update_profile(request):
             form.save()
             return HttpResponseRedirect("/")
         else:
-            return render(request, 'gbe/update_profile.html',
+            return render(request, 'gbe/update_profile.tmpl',
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 
     else:
@@ -898,7 +898,7 @@ def update_profile(request):
                                             instance=profile.preferences, 
                                             initial = {'inform_about': inform_initial })
 
-        return render(request, 'gbe/update_profile.html', 
+        return render(request, 'gbe/update_profile.tmpl', 
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 
 
