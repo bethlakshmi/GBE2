@@ -8,13 +8,6 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = [ 'display_name',
-                   'purchase_email', 'address1', 'address2', 'city', 'state', 'zip_code',
-                   'country', 'onsite_phone', 'best_time', 'how_heard', 
-                  ]
 
 class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
@@ -22,17 +15,17 @@ class ParticipantForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-    onsite_phone = forms.CharField(required=True)
+    phone = forms.CharField(required=True)
     how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
                                           required=False,
-                                           widget=forms.CheckboxSelectMultiple(),
-					   label=participant_labels['how_heard'])
+                                          widget=forms.CheckboxSelectMultiple(),
+                                          label=participant_labels['how_heard'])
     class Meta:
         model = Profile
         # purchase_email should be display only
-        fields = [ 'first_name', 'last_name', 'email', 'display_name',
+        fields = [ 'first_name', 'last_name', 'display_name', 'email', 
                    'address1', 'address2', 'city',
-                   'state', 'zip_code', 'country', 'onsite_phone', 'offsite_preferred',
+                   'state', 'zip_code', 'country', 'phone', 
                     'best_time', 'how_heard'
                   ]
         labels = participant_labels
@@ -77,18 +70,6 @@ class UserCreateForm(UserCreationForm):
         fields = [ 'username', 'email', 'first_name', 'last_name',
                    'password1', 'password2']
 
-    
-
-class BidderInfoForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    email = forms.EmailField(required=True)
-    onsite_phone = forms.CharField(required=True,
-          help_text=bidder_info_phone_error)
-
-    class Meta:
-        model = Profile
-        fields = [ 'onsite_phone', 'email']
 
 
 class PersonaForm (forms.ModelForm):
@@ -102,8 +83,6 @@ class PersonaForm (forms.ModelForm):
                    'experience',
                    'awards', 
                    'promo_image',
-                   'video_link',
-                   'puffsheet', 
                    'festivals',
                    'performer_profile',
                    'contact'

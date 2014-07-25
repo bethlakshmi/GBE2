@@ -3,6 +3,7 @@
 # until I copy them over
 
 participant_labels = {
+    'display_name': ('Badge Name'),
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
     'best_time':('Best time to call'),
@@ -47,7 +48,7 @@ participant_form_help_texts = {
     'display_name': ('The name you want to be known by as an Expo participant. This can \
 be a stage name, or your real-world name, or anything that you want to have printed on your \
 Expo badge and other official Expo communications. This defaults to your First and Last Name.'),
-    'onsite_phone': ('A phone number we can use to reach you when you are at the Expo, \
+    'phone': ('A phone number we can use to reach you when you are at the Expo, \
 such as cell phone.'),
     'offsite_preferred': ('Your preferred phone number (if different from above), \
 for communication before the Expo.  Use this if you prefer to get phone calls at a \
@@ -119,6 +120,8 @@ act_help_texts = {
     confetti, etc.)', 
     'performer': 'Select the stage persona, combo, or troupe who will be \
     performing. Hit "create" to create a new persona, troupe, or combo.',
+    'video_link' : 'Link to some video of your performance, or a similar act. This \
+    will be used for evaluating your bid, and will not appear on your performer page.'
 }
 
 
@@ -131,6 +134,7 @@ act_labels = {
     'video_link': 'Link to Video',
     'hotel_choice': 'Are you staying in the hotel?',
 }
+
 
 
 bio_required = ("Performer/Troupe history is required.")
@@ -150,7 +154,6 @@ persona_labels = { 'name'       : ('Stage Name'),
                    'experience' : ('Experience'),  
                    'awards'     : ('Awards'),
                    'promo_image': ('Promo Image'),
-                   'video_link' : ('Performance Video'),
                    'puffsheet'  : ('Press kit/one-sheet'),
                    'festivals'  : ('Festival Appearances and Honors'),
                }
@@ -166,9 +169,6 @@ persona_help_texts = {
     ('This will be listed on your performer page.'),
 'bio' : 
     ('This will be listed on your performer page.'),
-'video_link' : 
-    ('''Link to some video of you performing. This will be used for
-    evaluating your bid, and will not appear on your performer page.'''),
 'promo_image' : 
     ('''This may be used by GBE for promotional purposes, and \
     will appear on your performer page.'''),

@@ -260,6 +260,8 @@ def bid_act(request):
                                'gbe/bid.tmpl',
                                {'forms':[form], 'title': title,
                                 'errors':['Cannot submit incomplete act']})
+        else:
+            return HttpResponseRedirect('/')  
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
@@ -981,8 +983,6 @@ def register (request):
             user = authenticate(username = username, 
                                 password = password)
             login (request, user)
-            profile_form = ProfileForm ( 
-                initial = {'user_object' : user})
             return HttpResponseRedirect('/update_profile/')
     else:
         form = UserCreateForm()

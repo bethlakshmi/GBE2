@@ -75,13 +75,9 @@ class Profile(models.Model):
     country = models.CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
-    onsite_phone = models.CharField(max_length=50, 
+    phone = models.CharField(max_length=50, 
                                     validators=[ RegexValidator(regex=phone_regex,
                                                                 message=phone_number_format_error) ])
-    offsite_preferred = models.CharField(max_length=50, 
-                                         blank=True,
-                                         validators=[ RegexValidator(regex=phone_regex,
-                                                                     message=phone_number_format_error)])
 
     best_time = models.CharField(max_length=50, choices=best_time_to_call_options, default='Any', blank=True)
     how_heard = models.TextField(blank=True)
@@ -100,7 +96,7 @@ class Profile(models.Model):
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
-            len(self.onsite_phone.strip()) == 0):
+            len(self.phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
  
         return profile_alerts
@@ -165,9 +161,6 @@ class Performer (models.Model):
     promo_image = models.FileField(upload_to="uploads/images", 
                                    blank=True)
 
-    video_link = models.URLField (blank = True)
-    puffsheet  = models.FileField (upload_to="uploads/files", 
-                                   blank = True)  # "printed" press kit
     festivals = models.TextField (blank = True)     # placeholder only
     def append_alerts(self, alerts):
         '''
@@ -368,7 +361,11 @@ class Act (Biddable):
     intro_text = models.TextField(blank=True)
     duration = expomodelfields.DurationField() 
     tech = models.OneToOneField(TechInfo, blank = True)
-
+    video_link = models.URLField (blank = True)
+    video_choice = models.CharField(max_length=2, 
+                             choices = video_options,
+                             blank=True) 
+    
     def typeof(self):
         return self.__class__
 
@@ -417,7 +414,9 @@ class Act (Biddable):
         return  ( ['title', 
                    'description',
                    'duration',
-                   'performer', 
+                   'performer',
+                   'video_link',
+                   'video_choice',
                    'intro_text', ], 
                   [ 'title',],
               )
