@@ -362,7 +362,27 @@ def edit_act(request, act_id):
                        'gbe/bid.tmpl',
                        {'forms':[form], 'title': title})
 
+@login_required
+def view_act (request, act_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    try:
+        act = Act.objects.filter(id=act_id)[0]
+        actform = ActBidForm(instance = act, prefix = 'The Act')
+        performer = PersonaForm(instance = act.performer, 
+                                prefix = 'The Performer(s)')
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
 
+    return render (request, 'gbe/bid_view.tmpl',
+                   {'readonlyform': [actform, performer]})
+    
+    
 @login_required
 def review_act (request, act_id):
     '''
@@ -379,7 +399,6 @@ def review_act (request, act_id):
     try:
         act = Act.objects.filter(id=act_id)[0]
         actform = ActBidForm(instance = act, prefix = 'The Act')
-        audioform = AudioInfoBidForm(instance = act, prefix = 'Audio')
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
@@ -410,7 +429,7 @@ def review_act (request, act_id):
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
-                       {'readonlyform': [actform, audioform, performer],
+                       {'readonlyform': [actform, performer],
                         'reviewer':reviewer,
                         'form':form})
 

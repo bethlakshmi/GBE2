@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+  {% if form.errors %}
+    <p style= "color:red"> There is an error on the form.  </p>
+  {% endif %}
+  <p class="vanilla">{{title}} </p>
+  <div class="review-pane">
+    <h2 class="review-title">Bid Information</h2>
+     Submitted proposals cannot be modified, please contact the expo for any issues or concerns.  We'll be in contact during or after our review process.
+     {% include "readonly_form_table.tmpl" %}
+
+  </div>
+{% endblock %}

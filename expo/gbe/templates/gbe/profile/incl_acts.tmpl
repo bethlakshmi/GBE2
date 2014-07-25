@@ -3,8 +3,13 @@
 	       <b>Act Bids</b>
 	   </span><br>
 	   {% for act in acts %}
-	      <span class='act'> <a href = '/act/edit/{{act.id}}'> {{ act }} </a> </span> 
-	      (Click to edit)<br>	      
+	      <span class='act'>
+	       {% if act.submitted %}<a href = '/act/view/{{act.id}}'> {{ act }} </a>(Click to view)<br>
+	       {% else %}<a href = '/act/edit/{{act.id}}'> {{ act }} </a>(Click to edit)<br>
+	       {% endif %}
+
+	      </span> 
+	         
 	      {% for alert in act.alerts %}
 	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
 	      {% endfor %}
