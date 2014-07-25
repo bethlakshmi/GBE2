@@ -9,6 +9,9 @@
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
   {% endif %}
+    {% if error %}
+    <p style= "color:red"> {{ error }}  </p>
+    {% endif %}
   <p class="vanilla">{{title}} </p>
   <div class="review-pane">
     <h2 class="review-title">Bid Information</h2>

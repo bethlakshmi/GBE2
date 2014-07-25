@@ -331,9 +331,12 @@ def edit_act(request, act_id):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect('/accounts/profile/')
+        return HttpResponseRedirect('/accounts/profile/')   
+
     try:
         act = Act.objects.filter(id=act_id)[0]
+        if act.performer.contact != profile:
+          return HttpResponseRedirect('/')  # just fail for now 
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
     if request.method == 'POST':
@@ -372,6 +375,8 @@ def view_act (request, act_id):
     '''
     try:
         act = Act.objects.filter(id=act_id)[0]
+        if act.performer.contact != request.user.profile:
+          return HttpResponseRedirect('/')  # just fail for now    
         actform = ActBidForm(instance = act, prefix = 'The Act')
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
@@ -395,6 +400,9 @@ def review_act (request, act_id):
         reviewer = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
+
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
 
     try:
         act = Act.objects.filter(id=act_id)[0]
@@ -443,6 +451,9 @@ def review_act_list (request):
         reviewer = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
+
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
 
     try:
 
@@ -576,6 +587,9 @@ def review_class (request, class_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
+
     try:
         aclass = Class.objects.filter(id=class_id)[0]
         classform = ClassBidForm(instance = aclass, prefix = 'The Class')
@@ -623,6 +637,10 @@ def review_class_list (request):
         reviewer = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
+
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
+
 
     try:
 
@@ -687,6 +705,9 @@ def review_volunteer (request, volunteer_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
+
     try:
         volunteer = Volunteer.objects.filter(id=volunteer_id)[0]
         volform = VolunteerBidForm(instance = volunteer, prefix = 'The Volunteer')
@@ -733,6 +754,9 @@ def review_volunteer_list (request):
         reviewer = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
+
+    if not reviewer.user_object.is_staff:
+        return HttpResponseRedirect('/')   # better redirect please
 
     try:
         header = Volunteer().bid_review_header
