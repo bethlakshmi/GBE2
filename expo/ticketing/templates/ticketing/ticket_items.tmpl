@@ -27,8 +27,8 @@ To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
 {% for item in ticket_items %}    
 <tr>    
   <td><a href={% url 'ticket_item_edit' item.id %}> {{item.ticket_id}} </a></td>
-  <td>{{ item.title }}</td>
-  <td>{{ item.description }}</td>
+  <td>{{ item.title |safe }}</td>
+  <td>{{ item.description |safe }}</td>
   <td>{{ item.active }}</td>
   <td>{{ item.cost }}</td>
   <td>{{ item.modified_by }}</td>
