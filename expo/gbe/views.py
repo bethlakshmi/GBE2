@@ -244,13 +244,22 @@ def bid_act(request):
             act.save()
             if not act.performer:
                 return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
-            else:
-                return HttpResponseRedirect('/')  
+
         else:
             return render (request,
                            'gbe/bid.tmpl',
                            {'forms':[form ], 'title': title
                            } )
+        if 'submit' in request.POST.keys():
+            if act.complete:
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect('/')  
+            else:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form], 'title': title,
+                                'errors':['Cannot submit incomplete act']})
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
@@ -303,13 +312,22 @@ def bid_act_troupe(request):
             act.save()
             if not act.performer:
                 return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
-            else:
-                return HttpResponseRedirect('/')  
+ 
         else:
             return render (request,
                            'gbe/bid.tmpl',
                            {'forms':[form ], 'title': title
                            } )
+        if 'submit' in request.POST.keys():
+            if act.complete:
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect('/')  
+            else:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form], 'title': title,
+                                'errors':['Cannot submit incomplete act']})
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
