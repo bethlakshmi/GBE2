@@ -386,10 +386,13 @@ class Act (Biddable):
 
     @property
     def complete(self):
+        return (self.performer.complete and
+                self.intro_text is not '')
+    @property
+    def tech_ready(self):
         return (self.tech.is_complete and
                 self.performer.complete and
                 self.intro_text is not '')
-    
 
     @property
     def alerts(self):

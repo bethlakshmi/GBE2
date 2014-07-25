@@ -6,11 +6,16 @@
 {% endblock %}
 
 {% block content %}
+   <h3>{{title}} </h3>
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
 
   {% endif %}
-   <h3>{{title}} </h3>
+  {% if errors %}
+    {% for error in errors %}
+    <p style= "color:red">{{error}}</p>
+    {% endfor %}
+  {% endif %}
 
    <form action="" method="post" enctype="multipart/form-data">
 

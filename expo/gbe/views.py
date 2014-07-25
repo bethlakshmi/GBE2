@@ -227,6 +227,7 @@ def bid_act(request):
             act = form.save(commit=False)
             techinfo = TechInfo()
             audioinfo = AudioInfo()
+            audioinfo.track_duration = "00:00"
             audioinfo.save()
             techinfo.audio = audioinfo
             propsinfo = PropsInfo()
@@ -342,7 +343,7 @@ def edit_act(request, act_id):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form]})
+                           {'forms':[form], 'title': title})
         if 'submit' in request.POST.keys():
             if act.complete:
                 act.submitted = True
@@ -351,7 +352,7 @@ def edit_act(request, act_id):
             else:
                 return render (request,
                                'gbe/bid.tmpl',
-                               {'forms':[form], 'title': [title],
+                               {'forms':[form], 'title': title,
                                 'errors':['Cannot submit incomplete act']})
         else:
             return HttpResponseRedirect('/')  
@@ -359,7 +360,7 @@ def edit_act(request, act_id):
         form = ActEditForm(instance = act, prefix='theact')
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 'title': [title]})
+                       {'forms':[form], 'title': title})
 
 
 @login_required
