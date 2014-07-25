@@ -265,8 +265,8 @@ def bid_act(request):
                                      'performer': personae[0]}, 
                                      prefix='theact')
                           
-        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
-                                                         objects.filter(performer_profile=profile))
+        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
+                                                         objects.filter(contact=profile))            
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 'title': title})
@@ -333,8 +333,8 @@ def bid_act_troupe(request):
                                      'performer': personae[0]}, 
                                      prefix='theact')
                           
-        form.fields['performer']= forms.ModelChoiceField(queryset=Persona.
-                                                         objects.filter(performer_profile=profile))
+        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
+                                                         objects.filter(contact=profile))  
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 'title': title})
@@ -379,6 +379,8 @@ def edit_act(request, act_id):
             return HttpResponseRedirect('/')  
     else:
         form = ActEditForm(instance = act, prefix='theact')
+        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
+                                                         objects.filter(contact=profile))  
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 'title': title})
