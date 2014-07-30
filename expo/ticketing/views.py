@@ -1,6 +1,6 @@
 # 
 # views.py - Contains Django Views for Ticketing
-# edited by mdb 5/28/2014
+# edited by mdb 7/30/2014
 #
 
 from django.shortcuts import render, get_object_or_404, render_to_response
@@ -71,7 +71,7 @@ def ticket_item_edit(request, item_id=None):
     
             form = TicketItemForm(request.POST)
             if form.is_valid():
-                form.save(str(request.user.profile))
+                form.save(str(request.user))
                 form.save_m2m()
                 return HttpResponseRedirect('/ticketing/ticket_items')
     else:
