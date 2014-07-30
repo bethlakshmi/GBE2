@@ -9,10 +9,9 @@
 {% block content %}
 
 <H3>Ticket Purchase Options for the Great Burlesque Expo 2015</H3>
-{% if user.is_authenticated %}
-    Welcome, {{ user.profile.display_name }}! <br><br>
-{% endif %}
- 
+
+Welcome! 
+<br> 
 Thanks for your interest in the Great Burlesque Expo.
 Below are the ticket options available for purchase.  
 There are many ways you can be a part of the convention, so
@@ -33,7 +32,7 @@ please read the descriptions carefully.
     <td align=\"right\"> ${{ item.cost|floatformat:2 }} </td>
 </tr>
 <tr valign="top">
-    <td align=\"left\" colspan=2> {{ item.description }} </td>
+    <td align=\"left\" colspan=2> {{ item.description | safe }} </td>
 </tr>
 <tr valign="top">
 </tr>

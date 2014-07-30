@@ -8,6 +8,8 @@ import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
 from ticketing.models import *
+import bleach
+import HTMLParser
 
     
 def perform_bpt_api_call(api_call):
@@ -95,7 +97,9 @@ def get_bpt_event_description(event_id):
     if (event_xml == None):
         return None
     
-    return event_xml.find('.//e_description').text
+    h = HTMLParser.HTMLParser()
+    descr = h.unescape(event_xml.find('.//e_description').text)
+    return descr
     
 def get_bpt_event_date_list(event_id):
     '''
