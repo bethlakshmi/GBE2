@@ -359,7 +359,7 @@ class Act (Biddable):
                                   related_name='acts', blank=True, null=True )
          
     intro_text = models.TextField(blank=True)
-    duration = expomodelfields.DurationField() 
+    duration = expomodelfields.DurationField(blank=True) 
     tech = models.OneToOneField(TechInfo, blank = True)
     video_link = models.URLField (blank = True)
     video_choice = models.CharField(max_length=2, 
@@ -384,7 +384,7 @@ class Act (Biddable):
     @property
     def complete(self):
         return (self.performer.complete and
-                self.intro_text is not '')
+                self.title is not '')
     @property
     def tech_ready(self):
         return (self.tech.is_complete and
@@ -418,7 +418,7 @@ class Act (Biddable):
                    'video_link',
                    'video_choice',
                    'intro_text', ], 
-                  [ 'title',],
+                  [ 'title', 'description'],
               )
 
     bid_fields = property(_get_bid_fields)
