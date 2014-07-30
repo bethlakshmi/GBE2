@@ -8,7 +8,6 @@ import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
 from ticketing.models import *
-import bleach
 import HTMLParser
 
     
