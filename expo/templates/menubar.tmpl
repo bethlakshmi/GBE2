@@ -46,26 +46,41 @@
              <li class='last'><a href='/staffbio'><span>Staff</span></a></li>
           </ul>
        </li>
-       {% if user.is_authenticated and user.is_staff %}
-      <li class='has-sub'><a href='Special'><span>Special</span></a>
-          <ul>
-            <li><a href='/act/reviewlist'><span>Revew Acts</span></a></li>
-            <li><a href='/class/reviewlist'><span>Review Classes</span></a></li>
-            <li><a href='/volunteer/reviewlist'><span>Review Volunteers</span></a></li>
-            <li><a href='/vendor/reviewlist'><span>Review Vendors</span></a></li>
-            <li><a href='/schedule/stuff'><span>Scheduling</span></a></li>
-            
-            
+
+       {% if user.profile.special_privs %}
+
+         <li class='has-sub'><a href='Special'><span>Special</span></a>
+           <ul>
+             {% for priv in user.profile.special_privs %}
+               <li>
+                 <a href='{{ priv.url }}'>
+                   <span>{{ priv.title }}
+                   </span>
+		 </a>
+	       </li>   
+	     {% endfor %}
+
+
+
+	    {% if user.profile.special_privs.ticketing %}
             <li class='has-sub'><a href='/ticketing/'><span>Ticket Admin</span></a>
                 <ul>
-                    <li><a href='/ticketing/ticket_items'><span>Ticket Items</span></a></li>
+		{% for tpriv in user.profile.special_privs.ticketing %}
+		<li> <a href='{{ tpriv.url }}'><span>{{tpriv.title}}</span></a> </li>
+		{% endfor %}
                 </ul>
             </li>
-          
-          
-          </ul>
-       </li>  
-       {% endif %}       
+	    
+          {% endif %}
+</ul>
+      {% endif %}
+{% comment %}
+                    <li><a href='/ticketing/ticket_items'><span>Ticket Items</span></a></li>
+{% endcomment %}
+
+
+   
+      
        {% if user.is_authenticated %}
        <li class='has-sub'><a href='/logout'><span>Logout</span></a>
           <ul>

@@ -174,3 +174,18 @@ blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 ###    Options for time types
 time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
+
+
+special_privileges= {'Scheduling Mavens': 
+                     {'url':'/schedule/stuff', 'title':'Scheduling'},
+                     'Act Reviewers':
+                     {'url':'/act/reviewlist', 'title':'Revew Acts'},
+                     'Class Reviewers':
+                     {'url':'/class/reviewlist', 'title':'Review Classes'},
+                     'Volunteer Reviewers':
+                     {'url':'/volunteer/reviewlist', 'title':'Review Volunteers'},
+                     'Vendor Reviewers':
+                     {'url':'/vendor/reviewlist', 'title':'Review Vendors'}, 
+                     'Ticketing - Admin':
+                        {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
+                  }

@@ -76,17 +76,24 @@ class Profile(models.Model):
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     phone = models.CharField(max_length=50, 
-                                    validators=[ RegexValidator(regex=phone_regex,
-                                                                message=phone_number_format_error) ])
+                             validators=[ RegexValidator(regex=phone_regex,
+                                                         message=phone_number_format_error) ])
 
-    best_time = models.CharField(max_length=50, choices=best_time_to_call_options, default='Any', blank=True)
+    best_time = models.CharField(max_length=50, 
+                                 choices=best_time_to_call_options, 
+                                 default='Any', 
+                                 blank=True)
     how_heard = models.TextField(blank=True)
                 
     def bids_to_review(self):
-        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
-        return [rg for rg in review_groups if eval(rg).bids_to_review]
+#        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
+#        return [rg for rg in review_groups if eval(rg).bids_to_review]
+        return []
+    @property
+    def special_privs(self):
+        privs = [ special_privileges.get(group.name, None) for group in self.user_object.groups.all()]
 
- 
+        return privs
 
     @property
     def alerts(self):
