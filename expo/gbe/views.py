@@ -474,7 +474,7 @@ def review_act_list (request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if not 'Act Reviewers' in request.user.profile.privilege_groups:
         return HttpResponseRedirect('/')   # better redirect please
 
     try:
@@ -660,7 +660,7 @@ def review_class_list (request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if  'Class Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect('/')   # better redirect please
 
 
@@ -777,7 +777,7 @@ def review_volunteer_list (request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if 'Volunteer Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect('/')   # better redirect please
 
     try:
