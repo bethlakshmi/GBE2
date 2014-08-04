@@ -27,7 +27,7 @@ def ticket_items(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if 'Ticketing - Admin' not in request.user.profile.special_privs:
+    if 'Ticketing - Admin' not in request.user.profile.privilege_groups:
         raise Http404
         
     if ('Import' in request.POST):

@@ -91,9 +91,14 @@ class Profile(models.Model):
         return []
     @property
     def special_privs(self):
-        privs = [ special_privileges.get(group.name, None) for group in self.user_object.groups.all()]
-
+        privs = [ special_privileges.get(group, None) for group in 
+                  self.privilege_groups]
         return privs
+
+    @property
+    def privilege_groups(self):
+        groups =  [ group.name for group in self.user_object.groups.all() ]
+        return groups
 
     @property
     def alerts(self):
