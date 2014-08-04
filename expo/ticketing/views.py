@@ -4,7 +4,7 @@
 #
 
 from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
@@ -27,7 +27,7 @@ def ticket_items(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if 'Ticketing - Admin' not in request.user.profile.special_privs:
         raise Http404
         
     if ('Import' in request.POST):
