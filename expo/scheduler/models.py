@@ -36,7 +36,7 @@ class EventTypes(models.Model):
     what kind of an event an Event is.
     '''
 
-    event_types = models.CharField(max_length=256, default = 'Event')
+    type = models.CharField(max_length=256)
 
 class MasterEvent(EventTypes, models.Model):
     '''
@@ -73,7 +73,7 @@ class MasterEvent(EventTypes, models.Model):
     def __unicode__(self):
         return self.name
 
-class SchedEvent(EventTypes, models.Model):
+class SchedEvent(models.Model):
     '''
     A container object to describe events on the timeline of the
     Master Event object.  Can be recursively assigned.
@@ -99,7 +99,7 @@ class SchedEvent(EventTypes, models.Model):
     soft_time = models.TimeField(time_text[3])
     blocking = models.CharField(max_length=8, choices = blocking_text,
                                 default = 'False')
-
+    event_type = models.ForeignKey(EventTypes)
 
     ###  The below options are JSON object stored in the DB.
     ###  The are pack into JSON objects in the forms file.
@@ -150,9 +150,16 @@ class Locations(Schedulable, Properties, models.Model):
     ###  which are stored as a JSON object containing 
     ###  a tuple of tuple pairs.  Can only have one type,
     ###  otherwise, is a type of property
-    room_type = models.CharField(max_length=16)
+    room_type = models.ForeignKey(RoomTypes)
 
     def __unicode__(self):
         return self.name
+
+class RoomTypes(Properties, models.Model):
+    '''
+    The Types of Rooms available to be scheduled.
+    '''
+
+    type = models.CharField(max_length=64)
 
 ##  This program has been brought to you by the language c and the number F.
