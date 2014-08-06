@@ -10,7 +10,8 @@ urlpatterns = patterns('',
     url('^$', views.index, name='index'),
     url(r'^ticket_items/?$', views.ticket_items, name='ticket_items'),
     url(r'^ticket_item_edit/?$', views.ticket_item_edit, name='ticket_item_edit'),
-    url(r'^ticket_item_edit/(?P<item_id>\d+)/?$', views.ticket_item_edit, name='ticket_item_edit')
+    url(r'^ticket_item_edit/(?P<item_id>\d+)/?$', views.ticket_item_edit, name='ticket_item_edit'),
+    url(r'^transactions/?$', views.transactions, name='transactions'),
     
 )
 

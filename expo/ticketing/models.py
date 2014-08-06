@@ -74,7 +74,7 @@ class Purchaser(models.Model):
     email = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
     
-    # Note - if this is null, then we don't know who to match this purchase to in our
+    # Note - if this is none, then we don't know who to match this purchase to in our
     # system.  This scenario will be pretty common. 
     
     matched_to_user = models.ForeignKey(User, default=None)
@@ -82,6 +82,28 @@ class Purchaser(models.Model):
     def __unicode__(self):
         return '%s %s (%s)' % (self.first_name, self.last_name, self.email)
         
+    def __eq__(self, other):
+        if not isinstance(other, Purchaser):
+            return False
+        
+        if ((self.first_name != other.first_name) or 
+            (self.last_name != other.last_name) or 
+            (self.address != other.address) or 
+            (self.city != other.city) or 
+            (self.state != other.state) or 
+            (self.zip != other.zip) or 
+            (self.country != other.country) or 
+            (self.email != other.email) or 
+            (self.phone != other.phone)):
+            return False
+        return True
+    
+    def __ne__(self, other):
+        if not isinstance(other, Purchaser):
+            return True
+        return not self.__eq__(other)
+        
+    
 class Transaction(models.Model):
     ''' 
     This class holds transaction records from an external source - in this case,
@@ -100,5 +122,5 @@ class Transaction(models.Model):
     import_date = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
-        return self.reference
+        return '%s (%s)' % (self.reference, self.purchaser)
     

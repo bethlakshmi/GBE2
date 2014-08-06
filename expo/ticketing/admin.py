@@ -12,4 +12,7 @@ admin.site.register( BrownPaperSettings )
 admin.site.register( BrownPaperEvents )
 admin.site.register( TicketItem )
 admin.site.register( Purchaser )
+admin.site.register( Transaction )
+
+
 

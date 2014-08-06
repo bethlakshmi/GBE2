@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
+import pytz
 
 # Create your views here.
 
@@ -40,6 +41,32 @@ def ticket_items(request):
     context = {'ticket_items' : ticket_items}
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
+def transactions(request):
+    '''
+    Represents the view for working with ticket items.  This will have a
+    list of current ticket items, and the ability to synch them.
+    '''
+    if not (request.user.is_authenticated() and request.user.is_staff):
+        raise Http404
+    
+    count = -1
+    error = ''
+    
+    if ('Sync' in request.POST):
+        try:
+            count = process_bpt_order_list()
+        except Exception as e:
+            error = 'Error processing transactions:  ' + str(e)
+        
+    transactions = Transaction.objects.all()
+    purchasers = Purchaser.objects.all()
+    sync_time = get_bpt_last_poll_time()
+    
+    context = {'transactions' : transactions, 'purchasers' : purchasers, 
+        'sync_time' : sync_time, 'error' : error, 'count' : count}
+    return render(request, r'ticketing/transactions.tmpl', context) 
+    
+    
 def import_ticket_items():
     '''
     Function is used to initiate an import from BPT or other sources of 
@@ -63,6 +90,8 @@ def ticket_item_edit(request, item_id=None):
     
         if 'delete_item' in request.POST:
             # Delete this item based on the item_id in the URL
+            
+            # NOTE:  THIS NEEDS TO CHECK IF THE ITEM IS USED IN A TRANSACTION FIRST!
             
             item = TicketItem.objects.filter(id=item_id)
             if (item != None):

@@ -166,8 +166,167 @@ def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
     t_item.modified_by = 'BPT Auto Import'
     
     return t_item
-   
+    
+    
+def process_bpt_order_list():
+    '''
+    Used to get the list of current orders in the BPT database and update the 
+    transaction table accordingly.  
 
+    "Well, let the record show that this is one of many corrections that have now been made accordingly. "
+        -- Sue Harrington, 'How's Your News?'         
+    
+    Returns: the number of transactions imported.
+    '''
+    
+    if (BrownPaperEvents.objects.count() <= 0):
+        return 0
+    
+    count = 0
+    
+    for event in BrownPaperEvents.objects.all():
+        order_list_call = 'http://www.brownpapertickets.com/api2/orderlist?id=%s&event_id=%s&account=%s&includetracker=1' % \
+            (get_bpt_developer_id(), event.bpt_event_id, get_bpt_client_id())           
+        order_list_xml = perform_bpt_api_call(order_list_call)
+        
+       
+        for bpt_order in order_list_xml.findall('.//item'):
+            ticket_number = bpt_order.find('ticket_number').text
+            
+            if not (transaction_reference_exists(ticket_number)):
+                bpt_save_order_to_database(event.bpt_event_id, bpt_order)
+                count += 1
+            
+      
+    set_bpt_last_poll_time()
+    return count
+    
+
+def bpt_save_order_to_database(event_id, bpt_order):
+    '''
+    Function takes an XML order object from the BPT order list call and returns an
+    equivalent transaction object. 
+        
+    event_id - the ID of the event associated to this order
+    bpt_order - the order object from the BPT call
+    Returns:  the Transaction object.  May throw an exception.
+    '''
+    
+    trans = Transaction()
+   
+    # Locate the TicketItem or throw exception if it doesn't exist.  
+    
+    ticket_item_id = '%s-%s' % (event_id, bpt_order.find('price_id').text)
+    trans.ticket_item = TicketItem.objects.get(ticket_id=ticket_item_id)
+    trans.amount = trans.ticket_item.cost
+    
+    # Build a purchaser object.
+    
+    purchaser = Purchaser()
+    purchaser.first_name = str(bpt_order.find('fname').text)
+    purchaser.last_name = str(bpt_order.find('lname').text)
+    purchaser.address = str(bpt_order.find('address').text )
+    purchaser.city = str(bpt_order.find('city').text)
+    purchaser.state = str(bpt_order.find('state').text)
+    purchaser.zip = str(bpt_order.find('zip').text)
+    purchaser.country = str(bpt_order.find('country').text)
+    purchaser.email = str(bpt_order.find('email').text)
+    purchaser.phone = str(bpt_order.find('phone').text)
+    
+    # This is a little bit of a hack.. if we don't know who the user is that
+    # purchased the ticket, we assign it to the admin user. 
+    
+    purchaser.matched_to_user = User.objects.get(username='admin')
+    
+    # Attempt to see if purchaser exists in database, otherwise it is new.
+        
+    pur_id = locate_matching_purchaser(purchaser)
+    if (pur_id != -1):
+        print "Found Purchaser"
+        trans.purchaser = Purchaser.objects.get(id=pur_id)
+    else:
+        trans.purchaser = purchaser
+        purchaser.save()
+        
+    # Build out the remainder of the transaction.
+    
+    trans.order_date = bpt_order.find('order_time').text
+    trans.shipping_method = str(bpt_order.find('shipping_method').text)
+    trans.order_notes = str(bpt_order.find('order_notes').text)
+    trans.reference = bpt_order.find('ticket_number').text
+    trans.payment_source = 'Brown Paper Tickets'    
+    
+    trans.save()
+
+    
+def locate_matching_purchaser(other_pur):
+    '''
+    Function returns a purchaser object ID if the given purchaser is equivalent
+    to one found in the database.  Otherwise returns -1
+    
+    other_p - the purchaser to use for comparison.
+    returns - the ID if it exists, otherwise -1
+    '''
+    
+    for pur in Purchaser.objects.all():
+        if (pur == other_pur):
+            return pur.id
+    return -1
+    
+    
+def transaction_reference_exists(ref_id):
+    '''
+    Function checks to see if a transaction with the given reference ID exists
+    in the database.  If so, we don't want to duplicat the information.
+    
+    ref_id - the reference id to check.
+    returns - true if it exists, false if not.
+    '''
+    
+    return (Transaction.objects.filter(reference=ref_id).count() > 0)
+    
+'''
+
+/* function process_bpt_order_list
+ * 
+ * Used to get the list of current orders in the BPT database and update the 
+ * transaction table accordingly.
+ *
+ * Returns: Number of transactions imported.
+ */
+function process_bpt_order_list()
+{
+	$count = 0;
+	truncate_limbo_table();
+	$event_array = get_bpt_event_list();
+	
+	
+	foreach ($event_array as $event_id)
+	{
+		$order_list_call = sprintf("https://www.brownpapertickets.com/api2/orderlist?id=%s&event_id=%s&account=%s&includetracker=1", 
+			get_bpt_developer_id(), $event_id, get_bpt_client_id());
+		$order_list_xml = perform_bpt_api_call($order_list_call);
+		
+		foreach ($order_list_xml->item as $order)
+		{		
+			if (!transaction_reference_exists((string)$order->ticket_number))
+			{
+				create_trans_from_bpt_order($event_id, $order, $trans);
+				if ($trans == null)
+					continue;
+				for ($i = 0; $i < (int)$order->quantity; $i++)
+				{	
+					$trans->save_to_db(true, false);
+					$count++;
+				}
+			}
+		}
+	}
+	set_bpt_last_poll_time();
+	return $count;
+}
+   
+'''   
 
         
   
