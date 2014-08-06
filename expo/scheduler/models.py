@@ -133,6 +133,12 @@ class Schedulable(models.Model):
     def blocking(self):
         return self.block
 
+class RoomTypes(Properties, models.Model):
+    '''
+    The Types of Rooms available to be scheduled.
+    '''
+
+    type = models.CharField(max_length=64)        
 
 ###  Object classes to manage locations and rooms.
 
@@ -154,12 +160,5 @@ class Locations(Schedulable, Properties, models.Model):
 
     def __unicode__(self):
         return self.name
-
-class RoomTypes(Properties, models.Model):
-    '''
-    The Types of Rooms available to be scheduled.
-    '''
-
-    type = models.CharField(max_length=64)
 
 ##  This program has been brought to you by the language c and the number F.
