@@ -368,15 +368,16 @@ def edit_act(request, act_id):
                            'gbe/bid.tmpl',
                            {'forms':[form], 'title': title})
         if 'submit' in request.POST.keys():
-            if act.complete:
-                act.submitted = True
-                act.save()
-                return HttpResponseRedirect('/')  
-            else:
+            problems = act.validation_problems_for_submit()
+            if problems:
                 return render (request,
                                'gbe/bid.tmpl',
                                {'forms':[form], 'title': title,
-                                'errors':['Cannot submit incomplete act']})
+                                'errors':problems})
+            else:
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect('/')  
         else:
             return HttpResponseRedirect('/')  
     else:

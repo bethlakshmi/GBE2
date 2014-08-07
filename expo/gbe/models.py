@@ -377,7 +377,19 @@ class Act (Biddable):
     video_choice = models.CharField(max_length=2, 
                              choices = video_options,
                              blank=True) 
+   
+
+    is_not_blank = ('len(%s) > 0', '%s cannot be blank')
+
+    validation_list = [ ('title', is_not_blank),
+                        ('description', is_not_blank),
+                        ('video_choice', is_not_blank),
+                        ('intro_text', is_not_blank)]
     
+    def validation_problems_for_submit(self):
+        return [(fn[1] %field) for (field, fn) in self.validation_list if 
+                not eval(fn[0] % ('self.' + field))]
+ 
     def typeof(self):
         return self.__class__
 
@@ -400,6 +412,9 @@ class Act (Biddable):
                 len(self.description) >0 and
                 len(self.intro_text) >0 and
                 len(self.video_choice) >0)
+
+    
+
 
     @property
     def tech_ready(self):
