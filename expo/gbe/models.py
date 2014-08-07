@@ -381,14 +381,14 @@ class Act (Biddable):
 
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
 
-    validation_list = [ ('title', is_not_blank),
-                        ('description', is_not_blank),
-                        ('video_choice', is_not_blank),
-                        ('intro_text', is_not_blank)]
+    validation_list = [ (('title', 'Title'), is_not_blank),
+                        (('description', 'Description'), is_not_blank),
+                        (('video_choice','Video Choice'), is_not_blank),
+                        (('intro_text','Intro Text'), is_not_blank)]
     
     def validation_problems_for_submit(self):
-        return [(fn[1] %field) for (field, fn) in self.validation_list if 
-                not eval(fn[0] % ('self.' + field))]
+        return [fn[1] %field[1] for (field, fn) in self.validation_list if 
+                not eval(fn[0] % ('self.' + field[0]))]
  
     def typeof(self):
         return self.__class__
