@@ -396,7 +396,11 @@ class Act (Biddable):
     @property
     def complete(self):
         return (self.performer.complete and
-                self.title is not '')
+                len(self.title) > 0 and
+                len(self.description) >0 and
+                len(self.intro_text) >0 and
+                len(self.video_choice) >0)
+
     @property
     def tech_ready(self):
         return (self.tech.is_complete and
