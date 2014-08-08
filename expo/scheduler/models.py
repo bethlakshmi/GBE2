@@ -10,8 +10,7 @@ from gbetext import *
 
 class Properties(models.Model):
     '''
-    What properties an item has.  Include this class in the inheritance
-    chain to give an object properties and property checking.
+    What properties an item or room has.
     '''
 
     property_name = models.CharField(max_length = 256)
@@ -19,16 +18,29 @@ class Properties(models.Model):
     def __unicode__(self):
         return self.property_name
 
-class Property(models.Model):
-    '''
-    Individual Property handler, allows a property to have multiple
-    field values, such as True/False, Integer, Choice List, etc.
+#class Property(models.Model):
+#    '''
+#    Individual Property handler, allows a property to have multiple
+#    field values, such as True/False, Integer, Choice List, etc.
+#    '''
+
+#    property_info = models.CharField(max_length = 64)
+
+#    def __unicode__(self):
+#        return self.property_info
+
+class Items(models.Model):
+    '''                                                                                                                 
+    Physical items that can be tracked on a schedule and in a location.                                                 
     '''
 
-    property_info = models.CharField(max_length = 64)
+    name = models.CharField(max_length=64)
+    description = models.TextField()
+
+    item_properties = models.ForeignKey(Properties)
 
     def __unicode__(self):
-        return self.property_info
+        return self.name
 
 class EventTypes(models.Model):
     '''
@@ -36,9 +48,13 @@ class EventTypes(models.Model):
     what kind of an event an Event is.
     '''
 
-    type = models.CharField(max_length=256)
+    type = models.CharField(max_length=64)
+    description = models.TextField()
 
-class MasterEvent(EventTypes, models.Model):
+    def __unicode__(self):
+        return self.type
+
+class MasterEvent(models.Model):
     '''
     A container object, within which event objects and item resources
     can be assigned.  Requires a start and stop date/time to be created.
@@ -66,14 +82,39 @@ class MasterEvent(EventTypes, models.Model):
 
     ###  These data object are stored as JSON object in the DB.
     ###  Gets packed into JSON objects in the forms file.
-    item_list = models.CharField(max_length = 2048)
+    item_list = models.ManyToManyField(Items)
     viewable = models.CharField(max_length = 2048)
+    event_types = models.ManyToManyField(EventTypes)
     ##event_type = models.CharField(max_length = 256, choices = event_types)
 
     def __unicode__(self):
         return self.name
 
-class SchedEvent(models.Model):
+class Schedulable(MasterEvent, models.Model):
+    '''
+    Handles the schedulability information for class that can be scheduled.
+    Add this class to any class that you want to have inherit the ability
+    to be scheduled.
+    Properties are:
+        availability - DateTimes the item is available
+        blocking - False, Hard, or Soft - issues warning for conflicts
+    '''
+
+    block = models.CharField(max_length=8, choices = blocking_text,
+                                default = 'False')
+
+    ###  Availability is a list of Start Date/Time | Stop Date/Time pairs
+    ###  stored as a JSON object in the DB, set in the forms file.
+
+    available = models.CharField(max_length = 2048)
+
+    def availability(self):
+        return self.available
+
+    def blocking(self):
+        return self.block
+
+class SchedEvent(Schedulable, models.Model):
     '''
     A container object to describe events on the timeline of the
     Master Event object.  Can be recursively assigned.
@@ -99,57 +140,39 @@ class SchedEvent(models.Model):
     soft_time = models.TimeField(time_text[3])
     blocking = models.CharField(max_length=8, choices = blocking_text,
                                 default = 'False')
-    event_type = models.ForeignKey(EventTypes)
+    #event_type = models.ForeignKey(MasterEvent.event_types)
+    #event_type = models.CharField(max_length=64, choices = event_types)
 
     ###  The below options are JSON object stored in the DB.
     ###  The are pack into JSON objects in the forms file.
     viewable = models.CharField(max_length=2048)
     ##event_type = models.CharField(max_length = 256, choices = event_types)
-    item_list = models.CharField(max_length=2048)
+    #item_list = models.ManyToManyField(MasterEvent.item_list)
 
     def __unicode__(self):
         return self.name  
 
-class Schedulable(models.Model):
-    '''
-    Handles the schedulability information for class that can be scheduled.
-    Add this class to any class that you want to have inherit the ability
-    to be scheduled.
-    Properties are:
-        availability - DateTimes the item is available
-        blocking - False, Hard, or Soft - issues warning for conflicts
-    '''
-
-    block = models.CharField(max_length=8, choices = blocking_text,
-                                default = 'False')
-
-    ###  Availability is a list of Start Date/Time | Stop Date/Time pairs
-    ###  stored as a JSON object in the DB, set in the forms file.
-    available = models.CharField(max_length = 2048)
-
-    def availability(self):
-        return self.available
-
-    def blocking(self):
-        return self.block
-
-class RoomTypes(Properties, models.Model):
+class RoomTypes(models.Model):
     '''
     The Types of Rooms available to be scheduled.
     '''
 
     type = models.CharField(max_length=64)        
+    descriptions = models.TextField()
+
+    def __unicode__(self):
+        return self.type
 
 ###  Object classes to manage locations and rooms.
 
-class Locations(Schedulable, Properties, models.Model):
+class Locations(Schedulable, models.Model):
     '''
     The types of locations available at the event site.  Has
     Properties for the various qualities of the space (has carpet
     or no, has movement space, has tables and chairs, etc).
     '''
 
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
     description = models.TextField()
 
     ###  room_type is a choice from available room types,
@@ -157,6 +180,7 @@ class Locations(Schedulable, Properties, models.Model):
     ###  a tuple of tuple pairs.  Can only have one type,
     ###  otherwise, is a type of property
     room_type = models.ForeignKey(RoomTypes)
+    room_properties = models.ForeignKey(Properties)
 
     def __unicode__(self):
         return self.name
