@@ -188,4 +188,10 @@ special_privileges= {'Scheduling Mavens':
                      {'url':'/vendor/reviewlist', 'title':'Review Vendors'}, 
                      'Ticketing - Admin':
                         {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
+                     'Ticketing - Edit Item':
+                     {'url':'/ticketing/ticket_item_edit/',
+                      'title':'Ticket Item Edit'},
+                     'Ticketing - Transactions':
+                     {'url':'/ticketing/transactions', 'title':'Ticketing Transactions'},
+
                   }
