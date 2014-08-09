@@ -654,6 +654,7 @@ class Vendor(Biddable):
     profile = models.ForeignKey(Profile)
     website = models.URLField(blank=True)
     physical_address = models.TextField(blank=True)  # if we need physical address?
+    publish_physical_address = models.BooleanField(default=False)
     logo = models.FileField(upload_to="uploads/images", blank=True)
     want_help = models.BooleanField(choices = boolean_options, blank=True, default=False)
     help_description = models.TextField(blank=True)

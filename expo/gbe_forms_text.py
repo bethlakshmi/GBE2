@@ -291,6 +291,8 @@ vendor_labels = {
     'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
     'help_description': ('Tell Us About the Person You\'d Like to Hire '),
     'website':'Company website',
+    'physical_address':'Business Address',
+    'publish_physical_address':'Publish my business address'
 
 }
 vendor_help_texts = {
@@ -300,7 +302,8 @@ vendor_help_texts = {
     'logo': ('''Please provide any logo you would like displayed on our website \
     and advertising'''),
     'description':('''The information you enter here will be displayed on the website \
-    exactly as you enter it, so please double-check it before hitting submit''')
+    exactly as you enter it, so please double-check it before hitting submit'''),
+    'pyhsical_address':('''Help text TBD''')
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
