@@ -7,7 +7,7 @@ import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
-
+from gbe import expoformfields
 
 class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
@@ -109,40 +109,21 @@ class ComboForm (forms.ModelForm):
         model = Combo
         fields= ['contact', 'name', 'membership']
 
-class ActBidForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    help_texts=act_help_texts
-    class Meta:
-        model = Act
-        fields, required = Act().bid_fields
-    def save (self, *args, **kwargs):
-        return super(ActBidForm, self).save(*args, **kwargs)
-
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
+    act_duration = expoformfields.DurationFormField(required=False)
+    song_duration = expoformfields.DurationFormField(required=False)
+    song_artist = forms.CharField(required=False)
+    song_title = forms.CharField(required=False)
+    shows_preferences = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                                  choices=act_shows_options,
+                                                  label=act_bid_labels['shows_preferences'])
     class Meta:
         model = Act
         fields, required = Act().bid_fields
-
-class ActDraftForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    help_texts=act_help_texts
-    class Meta:
-        model = Act
-        fields = '__all__'
-
-class ActSubmitForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    help_texts=act_help_texts
-    class Meta:
-        model = Act
-        fields = '__all__'
-
+        labels = act_bid_labels
         
 class BidEvaluationForm(forms.ModelForm):
     required_css_class = 'required'
@@ -206,41 +187,16 @@ class AudioInfoForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
 
-
-class AudioInfoBidForm(forms.ModelForm):
-    formtitle="Audio Info"
-    class Meta:
-        model=AudioInfo
-        fields=['title','artist']
-
-        
-        labels= audioinfo_labels
-
 class LightingInfoForm(forms.ModelForm):
     formtitle="Lighting Info"
     class Meta:
         model=LightingInfo
 
 
-class PropsInfoForm(forms.ModelForm):
-    formtitle="Props Info"
+class StageInfoForm(forms.ModelForm):
+    formtitle="Stage Info"
     class Meta:
-        model=PropsInfo
-
-
-class LightingInfoBidForm(forms.ModelForm):
-    formtitle="Lighting Info"
-    class Meta:
-        model=LightingInfo
-        fields = []
-        
-
-class PropsInfoBidForm(forms.ModelForm):
-    formtitle="Props Info"
-    class Meta:
-        model=PropsInfo
-        fields=[]
-
+        model=StageInfo
 
 class ClassProposalForm(forms.ModelForm):
     class Meta:

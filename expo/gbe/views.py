@@ -160,10 +160,7 @@ def create_combo(request):
                        'nodraft': submit_button,
                        'title': title })
                                    
-            
-
-
-
+    
 @login_required
 def edit_persona(request, persona_id):
     '''
@@ -212,7 +209,7 @@ def bid_act(request):
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
     lightingform= LightingInfoForm(prefix='lighting')
-    propsform = PropsInfoForm(prefix='props')
+    stageform = StageInfoForm(prefix='stage')
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -230,9 +227,9 @@ def bid_act(request):
             audioinfo.track_duration = "00:00"
             audioinfo.save()
             techinfo.audio = audioinfo
-            propsinfo = PropsInfo()
-            propsinfo.save()
-            techinfo.props = propsinfo 
+            stageinfo = StageInfo()
+            stageinfo.save()
+            techinfo.stage = stageinfo 
             lightinginfo = LightingInfo()
             lightinginfo.save()
             techinfo.lighting = lightinginfo
@@ -250,16 +247,19 @@ def bid_act(request):
                            'gbe/bid.tmpl',
                            {'forms':[form ], 'title': title
                            } )
+
+
         if 'submit' in request.POST.keys():
-            if act.complete:
-                act.submitted = True
-                act.save()
-                return HttpResponseRedirect('/')  
-            else:
+            problems = act.validation_problems_for_submit()
+            if problems:
                 return render (request,
                                'gbe/bid.tmpl',
                                {'forms':[form], 'title': title,
-                                'errors':['Cannot submit incomplete act']})
+                                'errors':problems})
+            else:
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect('/')  
         else:
             return HttpResponseRedirect('/')  
     else:
@@ -269,74 +269,6 @@ def bid_act(request):
                           
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile))            
-        return render (request, 
-                       'gbe/bid.tmpl',
-                       {'forms':[form], 'title': title})
-
-@login_required
-def bid_act_troupe(request):
-    '''
-    Create a proposed Act object. 
-    '''
-    title = 'Propose a Troupe Act'
-
-    form = ActEditForm(prefix='theact')
-    audioform= AudioInfoForm(prefix='audio')
-    lightingform= LightingInfoForm(prefix='lighting')
-    propsform = PropsInfoForm(prefix='props')
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        return HttpResponseRedirect('/accounts/profile/')
-    troupe = profile.personae.all()
-    if len(troupe) == 0:
-        return HttpResponseRedirect("/troupe/create?next=/act/create")
-    if request.method == 'POST':
-        form = ActEditForm(request.POST, 
-                          prefix='theact')
-        if  form.is_valid():
-            act = form.save(commit=False)
-            techinfo = TechInfo()
-            audioinfo = AudioInfo()
-            audioinfo.save()
-            techinfo.audio = audioinfo
-            propsinfo = PropsInfo()
-            propsinfo.save()
-            techinfo.props = propsinfo 
-            lightinginfo = LightingInfo()
-            lightinginfo.save()
-            techinfo.lighting = lightinginfo
-            techinfo.save()
-            
-            act.tech=techinfo
-            act.submitted = False
-            act.accepted = False
-            act.save()
-            if not act.performer:
-                return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
- 
-        else:
-            return render (request,
-                           'gbe/bid.tmpl',
-                           {'forms':[form ], 'title': title
-                           } )
-        if 'submit' in request.POST.keys():
-            if act.complete:
-                act.submitted = True
-                act.save()
-                return HttpResponseRedirect('/')  
-            else:
-                return render (request,
-                               'gbe/bid.tmpl',
-                               {'forms':[form], 'title': title,
-                                'errors':['Cannot submit incomplete act']})
-    else:
-        form = ActEditForm(initial = {'owner':profile,
-                                     'performer': personae[0]}, 
-                                     prefix='theact')
-                          
-        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
-                                                         objects.filter(contact=profile))  
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 'title': title})

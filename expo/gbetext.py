@@ -39,7 +39,16 @@ act_alerts = {
     'This act is not complete but it has been submitted for a show. WTF???'
 
     }
-    
+   
+
+act_shows_options  = [ (0, 'The Bordello (Fri. Late)'), 
+                       (1, 'The Main Event, in competition'),
+                       (2, 'The Main Event, not in competition'), 
+                       (3, 'The Newcomer\'s Showcase'),
+                       ]
+
+
+ 
 best_time_to_call_options = [('Any', 'Any'), 
                              ('Mornings', 'Mornings'), 
                              ('Afternoons', 'Afternoons'), 
@@ -179,7 +188,7 @@ time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
 special_privileges= {'Scheduling Mavens': 
                      {'url':'/schedule/stuff', 'title':'Scheduling'},
                      'Act Reviewers':
-                     {'url':'/act/reviewlist', 'title':'Revew Acts'},
+                     {'url':'/act/reviewlist', 'title':'Review Acts'},
                      'Class Reviewers':
                      {'url':'/class/reviewlist', 'title':'Review Classes'},
                      'Volunteer Reviewers':
@@ -187,11 +196,10 @@ special_privileges= {'Scheduling Mavens':
                      'Vendor Reviewers':
                      {'url':'/vendor/reviewlist', 'title':'Review Vendors'}, 
                      'Ticketing - Admin':
-                        {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
+                     {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
                      'Ticketing - Edit Item':
                      {'url':'/ticketing/ticket_item_edit/',
                       'title':'Ticket Item Edit'},
                      'Ticketing - Transactions':
                      {'url':'/ticketing/transactions', 'title':'Ticketing Transactions'},
-
                   }

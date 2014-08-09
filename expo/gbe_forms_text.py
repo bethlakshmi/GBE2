@@ -112,8 +112,9 @@ act_length_too_long = ("The Act Length is too long.")  # note: this refers to th
                                                        # entered, not the time signified
 
 act_help_texts = {
-    'duration':'Length of entire act in mm:ss - please include any time \
+    'act_duration':'Length of entire act in mm:ss - please include any time \
     you are performing before or after your song.', 
+    'song_duration':'Duration of your recorded musical accompaniment',
     'description':'Please give a brief description of your act. \
     Stage kittens will retrieve costumes and props, but we cannot clean the stage \
     after your act. Please do not leave anything on the stage (water, glitter, \
@@ -124,15 +125,18 @@ act_help_texts = {
     will be used for evaluating your bid, and will not appear on your performer page.'
 }
 
-
-act_labels = {
-    'name': ('Stage Name or Troupe'),
-    'homepage': ('Web Site'),
-    'song_name': 'Title of Song',
-    'artist': 'Name of Artist',
-    'video_choice': 'Video Description',
-    'video_link': 'Link to Video',
-    'hotel_choice': 'Are you staying in the hotel?',
+act_bid_labels = {
+    'performer' :'Performer',
+    'title': 'Name of Act',
+    'shows_preferences':'I am interested in:',
+    'song_title':'Name of Song',
+    'song_artist':'Song Artist',
+    'song_duration':'Duration of Song',
+    'act_duration':'Duration of Act',
+    'description':'Description of Act',
+    'video_choice':'Video Notes',
+    'why_you':'Why would you like to perform at the expo?',
+    'video_link':'URL of Video'
 }
 
 
