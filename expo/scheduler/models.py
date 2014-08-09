@@ -90,7 +90,7 @@ class MasterEvent(models.Model):
     def __unicode__(self):
         return self.name
 
-class Schedulable(MasterEvent, models.Model):
+class Schedulable(models.Model):
     '''
     Handles the schedulability information for class that can be scheduled.
     Add this class to any class that you want to have inherit the ability
