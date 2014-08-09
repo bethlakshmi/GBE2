@@ -317,12 +317,14 @@ class LightingInfo (models.Model):
     def __unicode__(self):
         return "LightingInfo: "+self.techinfo.act.title
 
-class PropsInfo(models.Model):
+class StageInfo(models.Model):
     '''
-    Information about the props requirements for a particular Act
+    Information about the stage requirements for a particular Act
     confirm field should be offered if the user tries to save with all values false and
     no notes
     '''
+    act_duration = expomodelfields.DurationField()
+    intro_text = models.TextField(blank=True)
     set_props = models.BooleanField (default=False)
     clear_props = models.BooleanField (default=False)
     cue_props = models.BooleanField (default=False)
@@ -335,21 +337,22 @@ class PropsInfo(models.Model):
         return (self.set_props or self.clear_props or self.cue_props or self.confirm)
 
     def __unicode__(self):
-        return "PropsInfo: " +self.techinfo.act.title
+        return "StageInfo: " +self.techinfo.act.title
 
 class TechInfo (models.Model):
     '''
     Gathers up technical info about an act in a show. 
     '''
+    
     audio = models.OneToOneField (AudioInfo, blank=True)
     lighting = models.OneToOneField (LightingInfo, blank=True)
-    props = models.OneToOneField (PropsInfo, blank=True)
+    stage = models.OneToOneField (StageInfo, blank=True)
     
     @property
     def is_complete(self):
         return (self.audio.is_complete and
                 self.lighting.is_complete and
-                self.props.is_complete)
+                self.stage.is_complete)
     
     def __unicode__(self):
         return "Techinfo: "+ self.act.title
@@ -370,14 +373,14 @@ class Act (Biddable):
     performer = models.ForeignKey(Performer,
                                   related_name='acts', blank=True, null=True )
          
-    intro_text = models.TextField(blank=True)
-    duration = expomodelfields.DurationField(blank=True) 
+
     tech = models.OneToOneField(TechInfo, blank = True)
     video_link = models.URLField (blank = True)
     video_choice = models.CharField(max_length=2, 
                              choices = video_options,
                              blank=True) 
-   
+    shows_preferences = models.TextField(blank=True)
+    why_you = models.TextField(blank=True)
 
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
 
@@ -403,7 +406,9 @@ class Act (Biddable):
 
     @property
     def bid_review_summary(self):
-        return  ([(self.performer.name, self.title, self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+        return  ([(self.performer.name, 
+                   self.title, 
+                   self.updated_at.astimezone(pytz.timezone('America/New_York')))])
 
     @property
     def complete(self):
@@ -442,14 +447,18 @@ class Act (Biddable):
         return this_act_alerts
                                                            
     def _get_bid_fields(self):
-        return  ( ['title', 
-                   'description',
-                   'duration',
-                   'performer',
-                   'video_link',
-                   'video_choice',
-                   'intro_text', ], 
-                  [ 'title', 'description'],
+        return (['performer',
+                 'shows_preferences',
+                 'title', 
+                 'song_title',
+                 'song_artist', 
+                 'song_duration',
+                 'act_duration',
+                 'video_link',
+                 'video_choice',
+                 'description',
+                 'why_you'],
+        [ 'title', 'description'],
               )
 
     bid_fields = property(_get_bid_fields)
