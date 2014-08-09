@@ -284,6 +284,7 @@ vendor_description_help_text = '''Please describe your good or services in 250 w
 or less. We will publish this text on the website.'''
 
 vendor_labels = {
+    'description': 'Description of Goods or Services',
     'title':'Company or business name',
     'vend_time':  ('I\'d like to vend...'),
     'want_help': ('Help Wanted'),
@@ -293,11 +294,13 @@ vendor_labels = {
 
 }
 vendor_help_texts = {
-	'vend_time':  ('I\'d like to vend...'),
-	'want_help': ('''Would you like us to help you find someone to work at your \
-	booth or table with you?'''),
-	'logo': ('''Please provide any logo you would like displayed on our website \
-	and advertising'''),
+    'vend_time':  ('I\'d like to vend...'),
+    'want_help': ('''Would you like us to help you find someone to work at your \
+    booth or table with you?'''),
+    'logo': ('''Please provide any logo you would like displayed on our website \
+    and advertising'''),
+    'description':('''The information you enter here will be displayed on the website \
+    exactly as you enter it, so please double-check it before hitting submit''')
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 

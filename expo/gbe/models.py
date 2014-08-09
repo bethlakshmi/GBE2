@@ -445,8 +445,9 @@ class Act (Biddable):
                 this_act_alerts.append(act_alerts['act_incomplete_not_submitted'] % self.id)
         
         return this_act_alerts
-                                                           
-    def _get_bid_fields(self):
+
+    @property
+    def bid_fields(self):
         return (['performer',
                  'shows_preferences',
                  'title', 
@@ -460,8 +461,6 @@ class Act (Biddable):
                  'why_you'],
         [ 'title', 'description'],
               )
-
-    bid_fields = property(_get_bid_fields)
     
     def __str__ (self):
         return str(self.performer) + ": "+self.title
