@@ -173,12 +173,14 @@ class VolunteerBidForm(forms.ModelForm):
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    description = forms.CharField(required=True, widget = forms.Textarea)
+    description = forms.CharField(required=True, 
+                                  widget = forms.Textarea)
     help_times = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
                                                 choices = vendor_schedule_options)
     class Meta:
         model=Vendor
         fields = '__all__'
+        help_texts = vendor_help_texts
         labels = vendor_labels
         widgets = {'accepted': forms.HiddenInput(), 
                    'submitted' : forms.HiddenInput(),

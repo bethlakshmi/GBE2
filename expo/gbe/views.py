@@ -733,7 +733,7 @@ def review_volunteer_list (request):
     
 @login_required
 def create_vendor(request):
-    title = "Vendor Application"
+    form_title = "Vendor Application"
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -746,12 +746,12 @@ def create_vendor(request):
         else:
             return render (request,
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 'title': title})
+                           {'forms':[form], 'form_title': form_title})
     else:
         form = VendorBidForm(initial = {'profile':profile})
         return render (request, 
                        'gbe/bid.tmpl', 
-                       {'forms':[form], 'title': title})
+                       {'forms':[form], 'form_title': form_title})
 
 @login_required
 def bid_response(request,type,response):

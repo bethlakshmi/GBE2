@@ -2,11 +2,11 @@
 {% extends 'base.html' %}
 
 {% block title %}
-   Performer Edit
+   {{form_title}}
 {% endblock %}
 
 {% block content %}
-   <h3>{{title}} </h3>
+   <h3>{{form_title}} </h3>
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
 
