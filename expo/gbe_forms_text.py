@@ -303,7 +303,12 @@ vendor_help_texts = {
     and advertising'''),
     'description':('''The information you enter here will be displayed on the website \
     exactly as you enter it, so please double-check it before hitting submit'''),
-    'pyhsical_address':('''Help text TBD''')
+    'physical_address':('''Help text TBD'''),
+    'help_description':('''The Great Burlesque Exposition can help you find people \
+    to work for you. Please use this field to describe what sort of work you want done \
+    (booth staff, models, hand out flyers, set-up or teardown staff) and any \
+    requirements (for example, "must be able to lift 40 pounds", "must be knowledgeable \
+    about corsets", "must be able to drive a standard").'''),
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
