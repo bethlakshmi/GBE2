@@ -59,7 +59,7 @@ def get_bpt_client_id():
   
 def get_bpt_last_poll_time():
     '''
-    Used to obtain the last time the system poled BPT for transactions.
+    Used to obtain the last time the system polled BPT for transactions.
  
     Returns: the last poll time, or None if it doesn't exist.
     '''
@@ -71,7 +71,7 @@ def get_bpt_last_poll_time():
     
 def set_bpt_last_poll_time():
     '''
-    Used to set the last time the system poled BPT for transactions to current time.
+    Used to set the last time the system polled BPT for transactions to current time.
  
     Returns: nothing.
     '''
@@ -277,7 +277,7 @@ def locate_matching_purchaser(other_pur):
 def transaction_reference_exists(ref_id):
     '''
     Function checks to see if a transaction with the given reference ID exists
-    in the database.  If so, we don't want to duplicat the information.
+    in the database.  If so, we don't want to duplicate the information.
     
     ref_id - the reference id to check.
     returns - true if it exists, false if not.

@@ -10,8 +10,6 @@ from ticketing.forms import *
 from ticketing.brown_paper import *
 import pytz
 
-# Create your views here.
-
 def index(request):
     '''
     Represents the view for the main screen.  This will eventually be the 
@@ -20,7 +18,8 @@ def index(request):
     
     ticket_items =  TicketItem.objects.all()
     
-    context = {'ticket_items': ticket_items, 'user_id':request.user.id }
+    context = {'ticket_items' : ticket_items, 
+               'user_id' : request.user.id }
     return render(request, 'ticketing/index.html', context)
     
 def ticket_items(request):
@@ -46,7 +45,10 @@ def transactions(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if not request.user.is_authenticated():
+        raise Http404
+        
+    if 'Ticketing - Transactions' not in request.user.profile.privilege_groups:
         raise Http404
     
     count = -1
@@ -62,8 +64,11 @@ def transactions(request):
     purchasers = Purchaser.objects.all()
     sync_time = get_bpt_last_poll_time()
     
-    context = {'transactions' : transactions, 'purchasers' : purchasers, 
-        'sync_time' : sync_time, 'error' : error, 'count' : count}
+    context = {'transactions' : transactions, 
+               'purchasers' : purchasers, 
+               'sync_time' : sync_time, 
+               'error' : error, 
+               'count' : count}
     return render(request, r'ticketing/transactions.tmpl', context) 
     
     
@@ -83,9 +88,12 @@ def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if not request.user.is_authenticated():
         raise Http404
 
+    if 'Ticketing - Edit Item' not in request.user.profile.privilege_groups:
+        raise Http404
+            
     if (request.method == 'POST'):
     
         if 'delete_item' in request.POST:

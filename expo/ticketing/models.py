@@ -20,7 +20,9 @@ class BrownPaperSettings(models.Model):
     last_poll_time = models.DateTimeField()
     
     def __unicode__(self):
-        return 'Settings:  %s (%s) - %s' % (self.developer_token, self.client_username, self.last_poll_time)
+        return 'Settings:  %s (%s) - %s' % (self.developer_token, 
+                                            self.client_username, 
+                                            self.last_poll_time)
     
     
 class BrownPaperEvents(models.Model):
