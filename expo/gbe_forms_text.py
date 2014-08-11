@@ -72,6 +72,20 @@ combo_form_help_texts = {
 }
 
 
+combo_header_text = '''A combo is a one-off group of performers working together. If \
+you want to put together an act with someone you don't usually work with, a combo \
+is probably what you're doing. If you have a group that performs together regularly, \
+it's probably a <a href='/troupe/create'>troupe</a>. '''
+
+
+troupe_header_text = '''A troupe is an established group of performers who work \
+together regularly under a collective name. If you are performing with a group of \
+performers that has a website, mailing list, or engagements as that group, then \
+you are probably a troupe. If you want to put something special together just for \
+the Expo, it's probably a <a href='/combo/create/'>combo</a>.'''
+
+
+
 volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
                                   ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
                                   ('SH4', 'Friday late night'), ('SH5', 'Saturday morning'), 
@@ -303,7 +317,9 @@ vendor_help_texts = {
     and advertising'''),
     'description':('''The information you enter here will be displayed on the website \
     exactly as you enter it, so please double-check it before hitting submit'''),
-    'physical_address':('''Help text TBD'''),
+    'physical_address':('''If your business address is different from the address \
+    you used when you registered for the website, please enter your business address here.'''),
+
     'help_description':('''The Great Burlesque Exposition can help you find people \
     to work for you. Please use this field to describe what sort of work you want done \
     (booth staff, models, hand out flyers, set-up or teardown staff) and any \
@@ -336,9 +352,10 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
 # Would like to be able to insert this into the class proposal form from upstream
 
 class_proposal_form_text = {
-    'header': 'Thanks for your interest in the GBE. Suggestions welcome for classes you\'d like to see. \
-    Name and email address are optional: fill in if you\'d like updates about classes and panels at the \
-    next Expo. '
+    'header': '''Thanks for your interest in the Great Burlesque Expo. Suggestions \
+    are welcome for classes you\'d like to see offered. 
+    Name and email address are optional: fill in if you\'d like updates about \
+    classes and panels at the next Expo. '''
 }
 
 class_proposal_help_texts = {

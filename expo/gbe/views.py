@@ -7,6 +7,7 @@ from gbe.forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
+import gbe_forms_text
 
 def index(request):
     '''
@@ -70,7 +71,8 @@ def techinfo(request):
     
 @login_required
 def register_persona(request, **kwargs):
-    title = 'Tell Us About Your Stage Persona'
+    page_title = 'Stage Persona'
+    view_title = 'Tell Us About Your Stage Persona'
     submit_button = 'Save Persona'
     try:
         profile = request.user.profile
@@ -92,18 +94,22 @@ def register_persona(request, **kwargs):
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
                             'nodraft': submit_button,
-                            'title': title })
+                            'page_title': page_title, 
+                            'view_title':view_title, })
     else:
         form = PersonaForm (initial= {'performer_profile' : profile,
-                                      'contact' : profile } )
+                                      'contact' : profile, 
+                                      } )
         return render(request,'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
-                       'title': title })
+                       'page_title': page_title, 
+                       'view_title':view_title})
              
 
 def create_troupe(request):
-    title = 'Tell Us About Your Troupe'
+    page_title = 'Manage Troupe'
+    view_title = 'Tell Us About Your Troupe'
     submit_button = 'Save Troupe'
     try:
         profile = request.user.profile
@@ -122,18 +128,23 @@ def create_troupe(request):
             return render (request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
-                       'title': title })
+                       'page_title': page_title,
+                       'view_title': view_title,
+                       'view_header_text':troupe_header_text})
     else:
         form = TroupeForm(initial={'contact':profile})
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
-                       'title': title})
+                       'page_title': page_title, 
+                       'view_title': view_title,
+                       'view_header_text':troupe_header_text})
                                    
          
 def create_combo(request):
-    title = 'Who is in this Combination?'
-    submit_button = 'Save Combination'
+    page_title = 'Manage Combo'
+    view_title = 'Who is in this Combo?'
+    submit_button = 'Save Combo'
 
     try:
         profile = request.user.profile
@@ -152,13 +163,17 @@ def create_combo(request):
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
                             'nodraft': submit_button,
-                            'title': title })
+                            'page_title': page_title,
+                            'view_title':view_title,
+                            'view_header_text':combo_header_text})
     else:
         form = ComboForm(initial={'contact':profile})
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
-                       'title': title })
+                       'page_title': page_title,
+                       'view_title':view_title,
+                       'view_header_text':combo_header_text })
                                    
     
 @login_required
@@ -166,7 +181,8 @@ def edit_persona(request, persona_id):
     '''
     Modify an existing Persona object. 
     '''
-    title = 'Tell Us About Your Stage Persona'
+    page_title = 'Manage Persona'
+    view_title = 'Tell Us About Your Stage Persona'
     submit_button = 'Save Persona'
     try:
         profile = request.user.profile
@@ -188,14 +204,19 @@ def edit_persona(request, persona_id):
                            'gbe/bid.tmpl',
                            {'forms':[form],
                             'nodraft': submit_button,
-                            'title': title })
+                            'page_title': page_title,                             
+                            'view_title': view_title, 
+                        })
     else:
         form = PersonaForm(instance = persona)
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form],
                         'nodraft': submit_button,
-                        'title': title })
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                    })  
+                        
 
 
 
@@ -204,7 +225,8 @@ def bid_act(request):
     '''
     Create a proposed Act object. 
     '''
-    title = 'Propose an Act'
+    page_title = 'Propose Act'
+    view_title = 'Propose an Act'
 
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
@@ -223,13 +245,10 @@ def bid_act(request):
         if  form.is_valid():
             act = form.save(commit=False)
             techinfo = TechInfo()
-            audioinfo = AudioInfo()
-            audioinfo.track_duration = "00:00"
-            audioinfo.save()
-            techinfo.audio = audioinfo
-            stageinfo = StageInfo()
-            stageinfo.save()
-            techinfo.stage = stageinfo 
+            audioinfoform = AudioInfoForm(request.POST, prefix='theact')
+            techinfo.audio = audioinfoform.save()
+            stageinfoform = StageInfoForm(request.POST, prefix='theact')
+            techinfo.stage = stageinfoform.save()
             lightinginfo = LightingInfo()
             lightinginfo.save()
             techinfo.lighting = lightinginfo
@@ -245,8 +264,12 @@ def bid_act(request):
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form ], 'title': title
-                           } )
+                           {'forms':[form ], 
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                    })  
+                        
+
 
 
         if 'submit' in request.POST.keys():
@@ -254,7 +277,9 @@ def bid_act(request):
             if problems:
                 return render (request,
                                'gbe/bid.tmpl',
-                               {'forms':[form], 'title': title,
+                               {'forms':[form], 
+                                'page_title': page_title,                            
+                                'view_title': view_title, 
                                 'errors':problems})
             else:
                 act.submitted = True
@@ -268,17 +293,21 @@ def bid_act(request):
                                      prefix='theact')
                           
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
-                                                         objects.filter(contact=profile))            
+                                                         objects.filter(contact=profile)) 
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 'title': title})
-    
+                       {'forms':[form], 
+                        'page_title': page_title,                            
+                        'view_title': view_title, 
+                        })
+
 @login_required
 def edit_act(request, act_id):
     '''
     Modify an existing Act object. 
     '''
-    title = 'Edit Your Act Proposal'
+    page_title = 'Edit Act Proposal'
+    view_title = 'Edit Your Act Proposal'
     form = ActEditForm(prefix='theact')
     try:
         profile = request.user.profile
@@ -291,21 +320,52 @@ def edit_act(request, act_id):
           return HttpResponseRedirect('/')  # just fail for now 
     except IndexError:
         return HttpResponseRedirect('/')  # just fail for now
+    audio_info = act.tech.audio
+    stage_info = act.tech.stage
     if request.method == 'POST':
-        form = ActBidForm(request.POST,  instance=act, prefix = 'theact')
-        if form.is_valid():
+        form = ActEditForm(request.POST,  
+                           instance=act, 
+                           prefix = 'theact', 
+                           initial = { 
+                               'track_title':audio_info.track_title,
+                               'track_artist':audio_info.track_artist,
+                               'track_duration':audio_info.track_duration,
+                               'act_duration':stage_info.act_duration
+                           })
+
+        audioform = AudioInfoForm(request.POST, prefix='theact', instance=audio_info)
+        stageform = StageInfoForm(request.POST, prefix='theact', instance=stage_info)
+
+        if all( [form.is_valid(), 
+                 audioform.is_valid(),
+                 stageform.is_valid() ] ):
+
+            tech = act.tech
+            tech.audio = audioform.save()
+            tech.stage = stageform.save()
+
+            
+            tech.save()
             form.save()
+            return HttpResponseRedirect('/')
         else:
             return render (request,
                            'gbe/bid.tmpl',
-                           {'forms':[form], 'title': title})
+                           {'forms':[form],
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                        })
+                    
         if 'submit' in request.POST.keys():
             problems = act.validation_problems_for_submit()
             if problems:
                 return render (request,
                                'gbe/bid.tmpl',
-                               {'forms':[form], 'title': title,
-                                'errors':problems})
+                               {'forms':[form], 
+                                'page_title': page_title,                            
+                                'view_title': view_title, 
+                                'errors':problems
+                            })
             else:
                 act.submitted = True
                 act.save()
@@ -313,12 +373,26 @@ def edit_act(request, act_id):
         else:
             return HttpResponseRedirect('/')  
     else:
-        form = ActEditForm(instance = act, prefix='theact')
+        audio_info = act.tech.audio
+        stage_info = act.tech.stage
+
+        form = ActEditForm(instance = act, 
+                           prefix='theact', 
+                           initial = { 
+                               'track_title':audio_info.track_title,
+                               'track_artist':audio_info.track_artist,
+                               'track_duration':audio_info.track_duration,
+                               'act_duration':stage_info.act_duration
+                           })
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile))  
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 'title': title})
+                       {'forms':[form],
+                        'page_title': page_title,                            
+                        'view_title': view_title, 
+                        })
+                    
 
 @login_required
 def view_act (request, act_id):
@@ -460,7 +534,8 @@ def bid_class(request):
     Propose a class. Bidder is volunteering to teach this class - we have to 
     confirm that they understand and accept this. 
     '''
-    title = "Propose a Class"
+    page_title = "Propose a Class"
+    view_title = "Propose a Class"
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
@@ -487,21 +562,29 @@ def bid_class(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 'title': title})
+                           {'forms':[form],
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                        })
     else:
         form = ClassBidForm (initial = {'owner':owner, })
-        form.fields['teacher']= forms.ModelChoiceField(queryset=Persona.objects.filter(performer_profile_id=owner.id))
+        form.fields['teacher']= forms.ModelChoiceField(queryset=
+                                                       Persona.objects.
+                                                       filter(performer_profile_id=owner.id))
 
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 'title': title})
+                       {'forms':[form], 
+                        'page_title': page_title,                            
+                        'view_title': view_title, 
+                        })
                                 
 def edit_class(request, class_id):
     '''
     Edit an existing class.
     '''
-    title = "Propose a Class"
-
+    page_title = "Edit Class"
+    view_title = "Edit Your Class Proposal"
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
@@ -522,12 +605,19 @@ def edit_class(request, class_id):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 'title': title})
+                           {'forms':[form], 
+                        'page_title': page_title,                            
+                        'view_title': view_title, 
+                        })
     else:
         form = ClassBidForm (instance=the_class)
         return render (request, 
                        'gbe/bid.tmpl',
-                       {'forms':[form], 'title': title})
+                       {'forms':[form], 
+                        'page_title': page_title,                            
+                        'view_title': view_title, 
+                        })
+
 
 @login_required
 def review_class (request, class_id):
@@ -619,6 +709,7 @@ def review_class_list (request):
 
 @login_required
 def create_volunteer(request):
+
     title = "Volunteer at the Expo"
     try:
         profile = request.user.profile
@@ -635,7 +726,9 @@ def create_volunteer(request):
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 'title': title,
+                           {'forms':[form], 
+                            'page_title': title,
+                            'view_title': title,
                             'nodraft':'Submit'})
     else:
         form = VolunteerBidForm(initial = {'profile':profile,
@@ -644,7 +737,9 @@ def create_volunteer(request):
                                            'submitted':True})
         return render (request, 
                        'gbe/bid.tmpl', 
-                       {'forms':[form], 'title': title,
+                       {'forms':[form], 
+                        'page_title': title,
+                        'view_title': title,
                         'nodraft':'Submit'})
                             
 @login_required
@@ -733,7 +828,8 @@ def review_volunteer_list (request):
     
 @login_required
 def create_vendor(request):
-    form_title = "Vendor Application"
+
+    title = "Vendor Application"
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -746,12 +842,17 @@ def create_vendor(request):
         else:
             return render (request,
                            'gbe/bid.tmpl', 
-                           {'forms':[form], 'form_title': form_title})
+                           {'forms':[form], 
+                            'page_title':title, 
+                            'view_title':title})
     else:
-        form = VendorBidForm(initial = {'profile':profile})
+        form = VendorBidForm(initial = {'profile':profile,
+                                        'physical_address':profile.address})
         return render (request, 
                        'gbe/bid.tmpl', 
-                       {'forms':[form], 'form_title': form_title})
+                       {'forms':[form], 
+                        'page_title': title,
+                        'view_title':title})
 
 @login_required
 def bid_response(request,type,response):

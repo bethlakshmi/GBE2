@@ -7,7 +7,7 @@ import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
-from gbe import expoformfields
+from expoformfields import DurationFormField
 
 class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
@@ -113,18 +113,21 @@ class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     help_texts=act_help_texts
-    act_duration = expoformfields.DurationFormField(required=False)
-    song_duration = expoformfields.DurationFormField(required=False)
-    song_artist = forms.CharField(required=False)
-    song_title = forms.CharField(required=False)
+    act_duration = DurationFormField(required=False)
+    track_duration = DurationFormField(required=False)
+    track_artist = forms.CharField(required=False)
+    track_title = forms.CharField(required=False)
     shows_preferences = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                   choices=act_shows_options,
                                                   label=act_bid_labels['shows_preferences'])
     class Meta:
         model = Act
         fields, required = Act().bid_fields
+        fields += ['act_duration', 'track_duration', 'track_artist', 'track_title']
         labels = act_bid_labels
         
+
+
 class BidEvaluationForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'

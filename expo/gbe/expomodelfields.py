@@ -1,7 +1,18 @@
 from django.db import models
 from django.db.models.fields import IntegerField
 from expoformfields import DurationFormField
-import datetime
+from datetime import timedelta
+from django.core.exceptions import ValidationError
+
+
+class Duration(timedelta):
+    def __init__ (self, *args, **kwargs):
+        super(timedelta, self)
+    
+
+    def __str__(self):
+        return ':'.join(map(str, [self.seconds/60,self.seconds%60]))
+
 
 class DurationField(IntegerField):
     __metaclass__ = models.SubfieldBase
@@ -9,20 +20,33 @@ class DurationField(IntegerField):
     def contribute_to_class(self, cls, name):
         super(DurationField, self).contribute_to_class(cls, name)
 
+    def get_internal_type(self):
+        return 'DurationField'
+
+    def db_type(self, connection=None):
+        return 'bigint'
     
     def to_python(self, value):
         if not value:
             return None
         if isinstance(value, (int, long)):
-            return datetime.timedelta(seconds=value)
+            return Duration(seconds=value)
         elif isinstance(value, (basestring, unicode)):
-            minutes, seconds = map(int, value.split(':'))
-            return datetime.timedelta(seconds=(seconds + minutes*60))
-        elif not isinstance(value, datetime.timedelta):
-            raise ValidationError('Unable to convert %s to timedelta.' % value)
+            try:
+                minutes, seconds = map(int, value.split(':'))
+                return Duration(seconds=(seconds + minutes*60))
+            except:
+                raise ValidationError ('That didn\'t look like a duration to me')
+        elif not isinstance(value, timedelta):
+            raise ValidationError('Unable to convert %s to Duration.' % value)
         return value
+
+    def get_prep_value(self, value):
+            minutes, seconds = divmod(value.seconds, 60)
+            return "%02d:%02d" % (minutes, seconds)
               
     def get_db_prep_value(self, value, connection, prepared=False):
+        
         return value.seconds + (86400 * value.days)
 
     def value_to_string(self, instance):

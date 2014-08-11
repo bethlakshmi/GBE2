@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from gbetext import *    # all literal text including option sets lives in gbetext.py
 from gbe_forms_text import *
 from datetime import datetime
-import expomodelfields
+from  expomodelfields import DurationField
+
 
 import pytz
 
@@ -89,6 +90,22 @@ class Profile(models.Model):
 #        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
 #        return [rg for rg in review_groups if eval(rg).bids_to_review]
         return []
+
+    @property 
+    def address(self):
+        address_string =str(self.address1.strip() + '\n' + self.address2.strip()).strip()
+        if len(address_string) == 0:
+            return ''
+        if     (len(self.city) == 0 or 
+                len(self.country) == 0 or 
+                len (self.state) == 0 or 
+                len(self.zip_code) == 0):
+            return ''
+        return address_string + '\n' + ' '.join ((self.city + ',', 
+                                                  self.state,  
+                                                  self.zip_code, 
+                                                  self.country))
+        
     @property
     def special_privs(self):
         privs = [ special_privileges.get(group, None) for group in 
@@ -271,10 +288,10 @@ class AudioInfo(models.Model):
     '''
     Information about the audio required for a particular Act
     '''
-    title = models.CharField (max_length=128, blank=True)
-    artist = models.CharField (max_length=123, blank=True)
+    track_title = models.CharField (max_length=128, blank=True)
+    track_artist = models.CharField (max_length=123, blank=True)
     track = models.FileField (upload_to='uploads/audio', blank=True)
-    track_duration = expomodelfields.DurationField()
+    track_duration = DurationField(blank=True)
     need_mic = models.BooleanField (default=False, blank=True)
     notes = models.TextField (blank=True)    
     confirm_no_music = models.BooleanField (default=False)
@@ -323,7 +340,7 @@ class StageInfo(models.Model):
     confirm field should be offered if the user tries to save with all values false and
     no notes
     '''
-    act_duration = expomodelfields.DurationField()
+    act_duration = DurationField()
     intro_text = models.TextField(blank=True)
     set_props = models.BooleanField (default=False)
     clear_props = models.BooleanField (default=False)
@@ -418,9 +435,6 @@ class Act (Biddable):
                 len(self.intro_text) >0 and
                 len(self.video_choice) >0)
 
-    
-
-
     @property
     def tech_ready(self):
         return (self.tech.is_complete and
@@ -451,9 +465,9 @@ class Act (Biddable):
         return (['performer',
                  'shows_preferences',
                  'title', 
-                 'song_title',
-                 'song_artist', 
-                 'song_duration',
+                 'track_title',
+                 'track_artist', 
+                 'track_duration',
                  'act_duration',
                  'video_link',
                  'video_choice',
@@ -487,7 +501,7 @@ class Event (models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()  # public-facing description 
     blurb = models.TextField()        # short description
-    duration = expomodelfields.DurationField()
+    duration = DurationField()
 
 
     ## run-specific info, in case we decide to return to the run idea
@@ -653,7 +667,7 @@ class Vendor(Biddable):
     '''
     profile = models.ForeignKey(Profile)
     website = models.URLField(blank=True)
-    physical_address = models.TextField(blank=True)  # if we need physical address?
+    physical_address = models.TextField()  # require physical address
     publish_physical_address = models.BooleanField(default=False)
     logo = models.FileField(upload_to="uploads/images", blank=True)
     want_help = models.BooleanField(choices = boolean_options, blank=True, default=False)
