@@ -102,7 +102,8 @@ volunteer_interests_options = [('VA0', 'Registration'), ('VA1', 'Security/usher'
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
     'interests':'What are your particular areas of interest?',
-    'availability': 'Please select shifts when you will be available to volunteer',
+    'availability': 'I am available...',
+    'unavailability': 'I am unavailable...',
     'opt_outs': 'Are there events that we should make sure to not schedule you during?',
     'pre_event': 'Are you interested in helping with pre-event tasks?',
     'background': 'Tell us about your background, including relevant skills and experience'

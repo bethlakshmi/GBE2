@@ -161,6 +161,9 @@ class VolunteerBidForm(forms.ModelForm):
     description = forms.HiddenInput()                            
     availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                              choices = volunteer_availability_options)
+    unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
+                                             choices = volunteer_availability_options)
+
     interests = forms.MultipleChoiceField(widget= forms.CheckboxSelectMultiple, 
                                           choices = volunteer_interests_options)
     class Meta:
