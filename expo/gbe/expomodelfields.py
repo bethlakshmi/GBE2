@@ -46,8 +46,16 @@ class DurationField(IntegerField):
             return "%02d:%02d" % (minutes, seconds)
               
     def get_db_prep_value(self, value, connection, prepared=False):
-        
-        return value.seconds + (86400 * value.days)
+        if value == None:
+            return 0
+        if isinstance(value, timedelta):
+            return value.seconds + (86400 * value.days)
+        try:
+            value = int(value)
+            return value
+        except:
+            return 0
+#            raise ValueError('%s is not a reasonable value for a duration' % value)
 
     def value_to_string(self, instance):
         timedelta = getattr(instance, self.name)
