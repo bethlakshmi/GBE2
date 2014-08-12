@@ -139,6 +139,10 @@ length_options = ((30, "30"),
                   (90, "90"),
                   (120,"120"))
 
+class_length_options = ( (60, "60"),
+                         (90, "90"),
+                         (120,"120"))
+
 space_options = (('Movement Class Floor', (("0","Don't Care about Floor"),
                                            ("1","Carpet"),
                                            ("2","Dance Floor"),

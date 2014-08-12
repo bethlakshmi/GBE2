@@ -143,11 +143,15 @@ class BidEvaluationForm(forms.ModelForm):
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    schedule_constraints = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
+                                                     choices = class_schedule_options)
+ 
+
     class Meta:
         model = Class
         fields, required = Class().get_bid_fields
-#    def save(self, *args, **kwargs):
-#        return super(ClassBidForm, self).save(*args, **kwargs)
+        help_texts = classbid_help_texts
+        labels = classbid_labels
 
 class ClassEditForm(forms.ModelForm):
     required_css_class = 'required'

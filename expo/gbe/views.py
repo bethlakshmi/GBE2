@@ -534,8 +534,8 @@ def bid_class(request):
     Propose a class. Bidder is volunteering to teach this class - we have to 
     confirm that they understand and accept this. 
     '''
-    page_title = "Propose a Class"
-    view_title = "Propose a Class"
+    page_title = "Submit a Class"
+    view_title = "Submit a Class"
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:

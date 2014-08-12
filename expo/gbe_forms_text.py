@@ -230,16 +230,15 @@ advertising and in any schedule of events. The description should be 1-2 paragra
 
 classbid_labels = {
 	'min_size': ('Minimum Size'),
-	'max_size': ('Maxiumum Size'),
-	'history': ('Previous Experience'),
+	'max_size': ('Maximum Students'),
+	'history': ('Have You Taught This Class Before?'),
 	'other_teachers': ('Fellow Teachers'),
 	'run_before': 'Has the Class been run Before?',
 	'fee': 'Materials Fee',
 	'space_needs': 'Room Preferences',
-	'physical_restrictions': 'Physical Restrictions',
-	'schedule_constraints': 'Scheduling Constraints',
+	'schedule_constraints': 'Preferred Teaching Times',
 	'multiple_run': 'Are you willing to run the class more than once?',
-	'length_minutes': ('Class Length'),
+	'length_minutes': ('Length in Minutes'),
 }
 
 classbid_help_texts = {
@@ -247,26 +246,31 @@ classbid_help_texts = {
 	helps the convention meet both teacher expectations and class size needs. If \
 	you\'re not sure, make the minimum 1'''),
 	'max_size': ('The maximum number of people that the class can accomodate.'),
-	'history': ('Previous Experience'),
-	'other_teachers': ('''This is a preliminary list. You\'ll be asked to confirm \
-	fellow teachers if the class is confirmed. Additional teachers are eligible for \
-	discounts, however a large number of teachers for a single event is likely to \
-	diminish the discount level provided for the group.'''),
+	'history': ('Have you taught this class before? Where and when?'),
 	'run_before': ('If the class has been run before, please let us know where and when.'),
-	'fee': ('Materials Fee'),
+	'fee': ('We strongly suggest that your materials fee not exceed $10'), 
 	'space_needs': ('Room Preferences'),
 	'physical_restrictions': ('Physical Restrictions'),
 	'schedule_constraints': ('Scheduling Constraints'),
 	'multiple_run': ('Are you willing to run the class more than once?'),
-	'length_minutes': ('''Length class in minutes - please note that classes are \
-asked to end 10 minutes shorter than the full slot length, so a 60 minute class is \
-really 50 minutes.'''),
+	'length_minutes': ('''Please note that classes are \
+        asked to end 10 minutes shorter than the full slot length, \
+        so a 60 minute class is really 50 minutes.'''),
 }
 classbid_error_messages = {
     'length_minutes': {
         'required': ("Class Length (in minutes) is required."),
         'max_length': ("The Class Length is too long."),
     }}
+
+class_schedule_options = [('0', 'Friday Afternoon'), 
+                           ('1', 'Saturday Morning'), 
+                           ('2', 'Saturday Afternoon'), 
+                           ('3', 'Sunday Morning'), 
+                           ('4', 'Sunday Afternoon')] 
+
+
+
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
 space_type_error1 = ('''A workshop has seating in a ring around the room, other options are not \

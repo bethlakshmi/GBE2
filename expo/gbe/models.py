@@ -532,7 +532,8 @@ class Class (Biddable, Event):
                                 related_name='is_teaching')
     
     registration = models.ManyToManyField(Profile, 
-                                          related_name='classes')
+                                          related_name='classes',
+                                          blank=True)
     type = models.IntegerField(choices=((0, "Lecture"), (1, "Movement"),
                                         (2,"Workshop")))
     minimum_enrollment = models.IntegerField (blank=True, default=1)
@@ -544,11 +545,13 @@ class Class (Biddable, Event):
                             default="Lecture")
     fee = models.IntegerField(blank=True, default=0)
     other_teachers = models.CharField(max_length=128, blank=True)
-    length_minutes = models.IntegerField(choices=length_options, 
-                                         default=60)
+    length_minutes = models.IntegerField(choices=class_length_options, 
+                                         default=60, )
     history =  models.TextField(max_length = 500, blank=True)
     run_before = models.TextField(max_length=500, blank=True)
-    schedule_constraints = models.CharField(max_length=128, blank=True)
+    schedule_constraints = models.CharField(max_length=128,
+                                            choices=class_schedule_options, 
+                                            blank=True)
     space_needs = models.CharField(max_length=128, 
                                    choices=space_options, 
                                    blank=True, 
@@ -568,25 +571,18 @@ class Class (Biddable, Event):
         return  (['title',
                   'teacher',
                   'description', 
-                  'blurb', 
                   'maximum_enrollment',
-                  'minimum_enrollment',
-                  'organization',
                   'type', 
                   'fee', 
                   'length_minutes',
                   'history',
                   'schedule_constraints',
                   'space_needs',
-                  'physical_restrictions'
               ], 
-                 ['title', 
-                  'teacher',
-                  'description',
-                  'maximum_enrollment', 
-                  'minimum_enrollment',
-                  'length_minutes',
-                  ])
+                 [ 'title'])
+
+
+
     @property
     def complete(self):
         return (self.title is not '' and
