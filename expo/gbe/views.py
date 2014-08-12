@@ -709,8 +709,8 @@ def review_class_list (request):
 
 @login_required
 def create_volunteer(request):
-
-    title = "Volunteer at the Expo"
+    page_title = 'Volunteer'
+    view_title = "Volunteer at the Expo"
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -727,8 +727,8 @@ def create_volunteer(request):
             return render (request, 
                            'gbe/bid.tmpl', 
                            {'forms':[form], 
-                            'page_title': title,
-                            'view_title': title,
+                            'page_title': page_title,
+                            'view_title': view_title,
                             'nodraft':'Submit'})
     else:
         form = VolunteerBidForm(initial = {'profile':profile,
@@ -738,8 +738,8 @@ def create_volunteer(request):
         return render (request, 
                        'gbe/bid.tmpl', 
                        {'forms':[form], 
-                        'page_title': title,
-                        'view_title': title,
+                        'page_title': page_title,
+                        'view_title': view_title,
                         'nodraft':'Submit'})
                             
 @login_required
