@@ -340,7 +340,7 @@ class StageInfo(models.Model):
     confirm field should be offered if the user tries to save with all values false and
     no notes
     '''
-    act_duration = DurationField()
+    act_duration = DurationField(blank=True)
     intro_text = models.TextField(blank=True)
     set_props = models.BooleanField (default=False)
     clear_props = models.BooleanField (default=False)
