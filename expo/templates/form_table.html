@@ -15,13 +15,13 @@
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
         <tr>
-            <td>
+            <td class="form_label">
               {% if field.css_classes == 'required' %}
               <font color="red">*</font>
               {% elif field.errors %}
-              <font color="red">!</font>
+              <font color="red">!</font>&nbsp;&nbsp;
               {% else %}
-              &nbsp;&nbsp; 
+               
               {% endif %} 
               {% if field.errors %}
                 <font color="red">
