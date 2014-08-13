@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 import gbe_forms_text
+from ticketingfuncs import compute_submission
 
 def index(request):
     '''
@@ -268,9 +269,6 @@ def bid_act(request):
                             'page_title': page_title,                            
                             'view_title': view_title, 
                     })  
-                        
-
-
 
         if 'submit' in request.POST.keys():
             problems = act.validation_problems_for_submit()
@@ -281,12 +279,20 @@ def bid_act(request):
                                 'page_title': page_title,                            
                                 'view_title': view_title, 
                                 'errors':problems})
+                
             else:
                 act.submitted = True
+
                 act.save()
-                return HttpResponseRedirect('/')  
+                details = {'user':request.user,
+                           'is_submission_fee':True,
+                           'bid':act}
+                return render(request, 
+                              'gbe/submission.tmpl',
+                              compute_submission(details))
+    
         else:
-            return HttpResponseRedirect('/')  
+            return HttpResponseRedirect('/fail1')  
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
@@ -317,9 +323,9 @@ def edit_act(request, act_id):
     try:
         act = Act.objects.filter(id=act_id)[0]
         if act.performer.contact != profile:
-          return HttpResponseRedirect('/')  # just fail for now 
+          return HttpResponseRedirect('/fail1')  # just fail for now 
     except IndexError:
-        return HttpResponseRedirect('/')  # just fail for now
+        return HttpResponseRedirect('/fail2')  # just fail for now
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     if request.method == 'POST':
@@ -347,7 +353,7 @@ def edit_act(request, act_id):
             
             tech.save()
             form.save()
-            return HttpResponseRedirect('/')
+#            return HttpResponseRedirect('/wtf')
         else:
             return render (request,
                            'gbe/bid.tmpl',
@@ -355,7 +361,9 @@ def edit_act(request, act_id):
                             'page_title': page_title,                            
                             'view_title': view_title, 
                         })
-                    
+
+
+
         if 'submit' in request.POST.keys():
             problems = act.validation_problems_for_submit()
             if problems:
@@ -364,14 +372,22 @@ def edit_act(request, act_id):
                                {'forms':[form], 
                                 'page_title': page_title,                            
                                 'view_title': view_title, 
-                                'errors':problems
-                            })
+                                'errors':problems})
+                
             else:
                 act.submitted = True
+
                 act.save()
-                return HttpResponseRedirect('/')  
+                details = {'user':request.user,
+                           'is_submission_fee':True,
+                           'bid':act}
+                return render(request, 
+                              'gbe/submission.tmpl',
+                              compute_submission(details))
+                    
+
         else:
-            return HttpResponseRedirect('/')  
+            return HttpResponseRedirect('/notsubmit')  
     else:
         audio_info = act.tech.audio
         stage_info = act.tech.stage
