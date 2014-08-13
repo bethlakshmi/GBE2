@@ -69,3 +69,6 @@ class DurationField(IntegerField):
         defaults = {"help_text": "Enter duration in the format: MM:SS"}
         defaults.update(kwargs)
         return form_class(**defaults)
+
+
+        

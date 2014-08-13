@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
+from datetime import datetime
 import pytz
 
 def index(request):
@@ -124,9 +125,34 @@ def ticket_item_edit(request, item_id=None):
     context = {'forms': [form,]} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
 
-            
-            
-            
+
+def testsubmit(request, reference, event):
+
+    transaction = Transaction()
+    transaction.reference=reference.split('ID-')[0]
+    transaction.ticket_item = TicketItem.objects.all()[0]
+
+    transaction.order_date = datetime.now()
+    transaction.shipping_method = 'dummy string'
+    transaction.order_notes = 'dummy string'
+    transaction.amount = '30.34'
+
+
+    purchaser = Purchaser()
+    purchaser.matched_to_user = request.user
+    
+    purchaser.first_name=request.user.first_name
+    purchaser.last_name=request.user.last_name
+    purchaser.address=request.user.profile.address1
+    purchaser.city=request.user.profile.city
+    purchaser.zip=request.user.profile.zip_code
+    purchaser.country=request.user.profile.country
+    purchaser.email=request.user.email
+    purchaser.phone=request.user.profile.phone
+    purchaser.save()
+    transaction.purchaser=purchaser
+    transaction.save()
+    return HttpResponseRedirect('/ticketing/testsubmitworked')
             
     
     

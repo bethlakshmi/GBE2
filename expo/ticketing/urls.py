@@ -12,7 +12,8 @@ urlpatterns = patterns('',
     url(r'^ticket_item_edit/?$', views.ticket_item_edit, name='ticket_item_edit'),
     url(r'^ticket_item_edit/(?P<item_id>\d+)/?$', views.ticket_item_edit, name='ticket_item_edit'),
     url(r'^transactions/?$', views.transactions, name='transactions'),
-    
+    url(r'^test/brownpaper/(.*)/(.*)/?$',      # fix regex!
+        views.testsubmit)
 )
 
 
