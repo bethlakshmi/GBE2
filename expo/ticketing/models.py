@@ -79,7 +79,7 @@ class Purchaser(models.Model):
     country = models.CharField(max_length=50, blank=True)
     email = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=50, blank=True)
-    reference = models.CharField(max_length=40, blank=True)
+    reference = models.CharField(max_length=64, blank=True)
 
     # Note - if no reference exists, we have to do the hard/fun part.
     
@@ -133,7 +133,7 @@ class Transaction(models.Model):
     order_date = models.DateTimeField()
     shipping_method = models.CharField(max_length=50)
     order_notes = models.TextField()
-    reference = models.CharField(max_length=40)
+    reference = models.CharField(max_length=64)
     payment_source = models.CharField(max_length=30)
     import_date = models.DateTimeField(auto_now=True)
     
@@ -160,13 +160,15 @@ class Referral(models.Model):
     '''
     user = models.ForeignKey(gbe.models.User)
     datetime = models.DateTimeField(auto_now_add=True)
-    reference = models.CharField(max_length=40)
+    reference = models.CharField(max_length=64)
     codeword = models.CharField(max_length=20)
     event = models.ForeignKey(BrownPaperEvents)
-    transaction = models.ForeignKey(Transaction)
+#    transaction = models.ForeignKey(Transaction, blank=True)
+
+# I want this field, but django is resisting 
 
     def __unicode__(self):
-        return '%s %s %s %s' %(self.user.profile.DisplayName, 
+        return '%s %s %s %s' %(self.user.profile.display_name, 
                                self.datetime, 
                                self.codeword, 
                                self.event)

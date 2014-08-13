@@ -403,7 +403,6 @@ class Act (Biddable):
 
     validation_list = [ (('title', 'Title'), is_not_blank),
                         (('description', 'Description'), is_not_blank),
-                        (('video_choice','Video Choice'), is_not_blank),
                         ]
     
     def validation_problems_for_submit(self):

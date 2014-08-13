@@ -5,14 +5,20 @@ from datetime import datetime
 
 def compute_submission(details):
     baseURL = '/ticketing/test/brownpaper/'
-    token_string = ' '.join( map(str, [ details['user'], details['bid'], datetime.now()]))
-    hash = md5(token_string).hexdigest()
-    
+    details['token_string'] =' '.join( map(str, [ details['user'], details['bid'], datetime.now()]))
+    details['token']= md5(details['token_string']).hexdigest()
     event = ticketing.models.BrownPaperEvents.objects.get(act_submission_event= details['is_submission_fee'])
+    details['event']=event
+    details['link'] = baseURL + 'ID-'+details['token'] +'/'+event.bpt_event_id
+    create_referral(details)
+    return details
 
-    
-    link = baseURL + 'ID-'+hash +'/'+event.bpt_event_id
-    return {'link':link,
-            'token':hash,
-            'token_string':token_string}
 
+def create_referral(details):
+    ref = ticketing.models.Referral()
+    ref.user = details['user']
+    ref.reference = details['token']
+    ref.codeword = 'pistachio'
+    ref.event=details['event']
+    ref.save()
+    details['reference'] = ref  #hang on to the pointer for now
