@@ -158,7 +158,7 @@ class Referral(models.Model):
     There are many complications about linking Transactions to Referrals and Purchasers. 
 
     '''
-    user = models.ForeignKey(gbe.models.User)
+    user = models.ForeignKey(User)
     datetime = models.DateTimeField(auto_now_add=True)
     reference = models.CharField(max_length=64)
     codeword = models.CharField(max_length=20)
