@@ -1,4 +1,5 @@
 from django.db import models
+from gbe.expomodelfields import DurationField
 from django.core.validators import RegexValidator
 
 # all literal text including option sets lives in gbetext.py
@@ -17,6 +18,37 @@ class Properties(models.Model):
 
     def __unicode__(self):
         return self.property_name
+
+class RoomTypes(models.Model):
+    '''
+    The Types of Rooms available to be scheduled.
+    '''
+
+    type = models.CharField(max_length=64)        
+    descriptions = models.TextField()
+
+    def __unicode__(self):
+        return self.type
+
+class Locations(models.Model):
+    '''
+    The types of locations available at the event site.  Has
+    Properties for the various qualities of the space (has carpet
+    or no, has movement space, has tables and chairs, etc).
+    '''
+
+    name = models.CharField(max_length=64)
+    description = models.TextField()
+
+    ###  room_type is a choice from available room types,
+    ###  which are stored as a JSON object containing 
+    ###  a tuple of tuple pairs.  Can only have one type,
+    ###  otherwise, is a type of property
+    room_type = models.ForeignKey(RoomTypes)
+    room_properties = models.ForeignKey(Properties)
+
+    def __unicode__(self):
+        return self.name
 
 #class Property(models.Model):
 #    '''
@@ -107,6 +139,8 @@ class Schedulable(models.Model):
     ###  stored as a JSON object in the DB, set in the forms file.
 
     available = models.CharField(max_length = 2048)
+    hard_time = DurationField(blank = True)
+    soft_time = DurationField(blank = True)
 
     def availability(self):
         return self.available
@@ -136,10 +170,11 @@ class SchedEvent(Schedulable, models.Model):
     '''
 
     name = models.CharField(max_length = 128)
-    hard_time = models.TimeField(time_text[2])
-    soft_time = models.TimeField(time_text[3])
-    blocking = models.CharField(max_length=8, choices = blocking_text,
-                                default = 'False')
+
+    #hard_time = models.TimeField(time_text[2])
+    #soft_time = models.TimeField(time_text[3])
+    #blocking = models.CharField(max_length=8, choices = blocking_text,
+    #                            default = 'False')
     #event_type = models.ForeignKey(MasterEvent.event_types)
     #event_type = models.CharField(max_length=64, choices = event_types)
 
@@ -149,40 +184,8 @@ class SchedEvent(Schedulable, models.Model):
     ##event_type = models.CharField(max_length = 256, choices = event_types)
     #item_list = models.ManyToManyField(MasterEvent.item_list)
 
+    location = models.ForeignKey(Locations)
     def __unicode__(self):
         return self.name  
-
-class RoomTypes(models.Model):
-    '''
-    The Types of Rooms available to be scheduled.
-    '''
-
-    type = models.CharField(max_length=64)        
-    descriptions = models.TextField()
-
-    def __unicode__(self):
-        return self.type
-
-###  Object classes to manage locations and rooms.
-
-class Locations(Schedulable, models.Model):
-    '''
-    The types of locations available at the event site.  Has
-    Properties for the various qualities of the space (has carpet
-    or no, has movement space, has tables and chairs, etc).
-    '''
-
-    name = models.CharField(max_length=64)
-    description = models.TextField()
-
-    ###  room_type is a choice from available room types,
-    ###  which are stored as a JSON object containing 
-    ###  a tuple of tuple pairs.  Can only have one type,
-    ###  otherwise, is a type of property
-    room_type = models.ForeignKey(RoomTypes)
-    room_properties = models.ForeignKey(Properties)
-
-    def __unicode__(self):
-        return self.name
 
 ##  This program has been brought to you by the language c and the number F.
