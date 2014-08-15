@@ -112,7 +112,6 @@ class ComboForm (forms.ModelForm):
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    help_texts=act_help_texts
     act_duration = DurationFormField(required=False)
     track_duration = DurationFormField(required=False)
     track_artist = forms.CharField(required=False)
@@ -125,7 +124,8 @@ class ActEditForm(forms.ModelForm):
         fields, required = Act().bid_fields
         fields += ['act_duration', 'track_duration', 'track_artist', 'track_title']
         labels = act_bid_labels
-        
+        help_texts=act_help_texts
+  
 
 
 class BidEvaluationForm(forms.ModelForm):

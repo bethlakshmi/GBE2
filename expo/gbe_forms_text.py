@@ -150,7 +150,7 @@ act_bid_labels = {
     'act_duration':'Duration of Act',
     'description':'Description of Act',
     'video_choice':'Video Notes',
-    'why_you':'Why would you like to perform at the expo?',
+    'why_you':'Why Would You Like to Perform at The Great Burlesque Exposition?',
     'video_link':'URL of Video'
 }
 
