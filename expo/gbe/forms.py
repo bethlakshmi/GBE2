@@ -112,13 +112,15 @@ class ComboForm (forms.ModelForm):
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    act_duration = DurationFormField(required=False)
-    track_duration = DurationFormField(required=False)
+    act_duration = DurationFormField(required=False, help_text = act_help_texts['act_duration'])
+    track_duration = DurationFormField(required=False, help_text = act_help_texts['track_duration'],
+                                       label = act_bid_labels['track_duration'])
     track_artist = forms.CharField(required=False)
     track_title = forms.CharField(required=False)
     shows_preferences = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                                   choices=act_shows_options,
-                                                  label=act_bid_labels['shows_preferences'])
+                                                  label=act_bid_labels['shows_preferences'],
+                                                  help_text = act_help_texts['shows_preferences'])
     class Meta:
         model = Act
         fields, required = Act().bid_fields

@@ -127,9 +127,13 @@ act_length_too_long = ("The Act Length is too long.")  # note: this refers to th
                                                        # entered, not the time signified
 
 act_help_texts = {
+    'shows_preferences':'Check as many as apply to you',
     'act_duration':'Length of entire act in mm:ss - please include any time \
     you are performing before or after your song.', 
-    'song_duration':'Duration of your recorded musical accompaniment',
+    'track_duration':'Please enter the duration of your music or backing track in \
+    minutes and seconds. Something that was four minutes and twenty seconds would be \
+    entered as "04:20". Remember, the maximum duration for an act in competition in \
+    The Main Event is 5 minutes for a soloist, 7 minutes for a group',
     'description':'Please give a brief description of your act. \
     Stage kittens will retrieve costumes and props, but we cannot clean the stage \
     after your act. Please do not leave anything on the stage (water, glitter, \
@@ -137,7 +141,10 @@ act_help_texts = {
     'performer': 'Select the stage persona, combo, or troupe who will be \
     performing. Hit "create" to create a new persona, troupe, or combo.',
     'video_link' : 'Link to some video of your performance, or a similar act. This \
-    will be used for evaluating your bid, and will not appear on your performer page.'
+    will be used for evaluating your bid, and will not appear on your performer page.',
+    'shows_preferences':'Check as many as apply to you',
+    'video_link':'Make sure to include \'http://\' '
+
 }
 
 act_bid_labels = {
@@ -146,7 +153,7 @@ act_bid_labels = {
     'shows_preferences':'I am interested in:',
     'song_title':'Name of Song',
     'song_artist':'Song Artist',
-    'song_duration':'Duration of Song',
+    'track_duration':'Duration of Song',
     'act_duration':'Duration of Act',
     'description':'Description of Act',
     'video_choice':'Video Notes',
