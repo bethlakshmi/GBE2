@@ -308,8 +308,6 @@ panel_help_texts = {
 	where and when.'''),
 }
 
-offsite_vendor_help_text = '''A phone number for your business landline, if \
-different from above.'''
 vendor_description_help_text = '''Please describe your good or services in 250 words \
 or less. We will publish this text on the website.'''
 

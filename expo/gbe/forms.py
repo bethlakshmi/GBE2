@@ -191,9 +191,13 @@ class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     description = forms.CharField(required=True, 
-                                  widget = forms.Textarea)
+                                  widget = forms.Textarea,
+                                  help_text = vendor_help_texts['description'],
+                                  label = vendor_labels['description'])
     help_times = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
-                                                choices = vendor_schedule_options)
+                                                choices = vendor_schedule_options,
+                                                label = vendor_labels['help_times'])
+  
     class Meta:
         model=Vendor
         fields = '__all__'
