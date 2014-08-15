@@ -237,7 +237,7 @@ advertising and in any schedule of events. The description should be 1-2 paragra
 
 classbid_labels = {
 	'min_size': ('Minimum Size'),
-	'max_size': ('Maximum Students'),
+	'maximum_enrollment': ('Maximum Students'),
 	'history': ('Have You Taught This Class Before?'),
 	'other_teachers': ('Fellow Teachers'),
 	'run_before': 'Has the Class been run Before?',

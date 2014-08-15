@@ -146,7 +146,8 @@ class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     schedule_constraints = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
-                                                     choices = class_schedule_options)
+                                                     choices = class_schedule_options,
+                                                     label = classbid_labels['schedule_constraints'])
  
 
     class Meta:
