@@ -167,9 +167,11 @@ class VolunteerBidForm(forms.ModelForm):
     title = forms.HiddenInput()
     description = forms.HiddenInput()                            
     availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
-                                             choices = volunteer_availability_options)
+                                             choices = volunteer_availability_options,
+                                             label = volunteer_labels['availability'])
     unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
-                                             choices = volunteer_availability_options)
+                                             choices = volunteer_availability_options,
+                                             label = volunteer_labels['unavailability'])
 
     interests = forms.MultipleChoiceField(widget= forms.CheckboxSelectMultiple, 
                                           choices = volunteer_interests_options)
@@ -182,6 +184,8 @@ class VolunteerBidForm(forms.ModelForm):
                    'description' : forms.HiddenInput(),
                    'profile' : forms.HiddenInput()}
         labels = volunteer_labels
+        help_texts = volunteer_help_texts
+
 
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
