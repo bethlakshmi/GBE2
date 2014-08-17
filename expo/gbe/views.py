@@ -300,11 +300,13 @@ def bid_act(request):
                           
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile)) 
+        draft_fields = Act().bid_draft_fields
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
                         'page_title': page_title,                            
-                        'view_title': view_title, 
+                        'view_title': view_title,
+                        'draft_fields': draft_fields
                         })
 
 @login_required
@@ -402,11 +404,14 @@ def edit_act(request, act_id):
                            })
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile))  
+ 
+        draft_fields = Act().bid_draft_fields
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form],
                         'page_title': page_title,                            
-                        'view_title': view_title, 
+                        'view_title': view_title,
+                        'draft_fields': draft_fields
                         })
                     
 

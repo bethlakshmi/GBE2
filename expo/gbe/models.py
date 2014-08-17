@@ -472,9 +472,13 @@ class Act (Biddable):
                  'video_choice',
                  'description',
                  'why_you'],
-        [ 'title', 'description'],
+                [ 'title', 'description', 'shows_preferences', 'performer'],
               )
     
+    @property
+    def bid_draft_fields(self):
+        return (['title', 'performer'])
+
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
