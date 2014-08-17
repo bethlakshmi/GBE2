@@ -241,8 +241,17 @@ def bid_act(request):
     if len(personae) == 0:
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
-        form = ActEditForm(request.POST, 
+        '''
+        If this is a formal submit request, then do all the checking.
+        If this is a draft, only a few fields are needed, use a form with fewer
+        required fields (same model)
+        '''
+        if 'submit' in request.POST.keys():
+            form = ActEditForm(request.POST, 
                           prefix='theact')
+        else:
+            form = ActEditDraftForm(request.POST, 
+                          prefix='theact')	    
         if  form.is_valid():
             act = form.save(commit=False)
             techinfo = TechInfo()
@@ -290,6 +299,9 @@ def bid_act(request):
                 return render(request, 
                               'gbe/submission.tmpl',
                               compute_submission(details))
+        else:
+            return HttpResponseRedirect('/')
+
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
