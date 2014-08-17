@@ -196,6 +196,7 @@ class VendorBidForm(forms.ModelForm):
                                   label = vendor_labels['description'])
     help_times = forms.MultipleChoiceField(widget = forms.CheckboxSelectMultiple,
                                                 choices = vendor_schedule_options,
+                                                required=False,
                                                 label = vendor_labels['help_times'])
   
     class Meta:
