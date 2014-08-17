@@ -290,9 +290,6 @@ def bid_act(request):
                 return render(request, 
                               'gbe/submission.tmpl',
                               compute_submission(details))
-    
-        else:
-            return HttpResponseRedirect('/fail1')  
     else:
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
