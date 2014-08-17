@@ -597,7 +597,6 @@ def bid_class(request):
         form.fields['teacher']= forms.ModelChoiceField(queryset=
                                                        Persona.objects.
                                                        filter(performer_profile_id=owner.id))
-
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 

@@ -548,9 +548,7 @@ class Class (Biddable, Event):
                                          default=60, blank=True)
     history =  models.TextField(max_length = 500, blank=True)
     run_before = models.TextField(max_length=500, blank=True)
-    schedule_constraints = models.CharField(max_length=128,
-                                            choices=class_schedule_options, 
-                                            blank=True)
+    schedule_constraints = models.TextField(blank=True)
     space_needs = models.CharField(max_length=128, 
                                    choices=space_options, 
                                    blank=True, 
