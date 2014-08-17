@@ -654,11 +654,13 @@ def edit_class(request, class_id):
                         })
     else:
         form = ClassBidForm (instance=the_class)
+        draft_fields = Class().get_draft_fields
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
                         'page_title': page_title,                            
-                        'view_title': view_title, 
+                        'view_title': view_title,
+                        'draft_fields': draft_fields
                         })
 
 @login_required
