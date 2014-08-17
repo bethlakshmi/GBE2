@@ -340,7 +340,23 @@ def edit_act(request, act_id):
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     if request.method == 'POST':
-        form = ActEditForm(request.POST,  
+        '''
+        If this is a formal submit request, then do all the checking.
+        If this is a draft, only a few fields are needed, use a form with fewer
+        required fields (same model)
+        '''
+        if 'submit' in request.POST.keys():
+            form = ActEditForm(request.POST,  
+                           instance=act, 
+                           prefix = 'theact', 
+                           initial = { 
+                               'track_title':audio_info.track_title,
+                               'track_artist':audio_info.track_artist,
+                               'track_duration':audio_info.track_duration,
+                               'act_duration':stage_info.act_duration
+                           })
+        else:
+            form = ActEditDraftForm(request.POST,  
                            instance=act, 
                            prefix = 'theact', 
                            initial = { 
@@ -398,7 +414,7 @@ def edit_act(request, act_id):
                     
 
         else:
-            return HttpResponseRedirect('/notsubmit')  
+            return HttpResponseRedirect('/')
     else:
         audio_info = act.tech.audio
         stage_info = act.tech.stage
