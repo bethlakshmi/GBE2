@@ -4,12 +4,20 @@
 	   </span><br>
 	   {% if classes %} 
 	   {% for class in classes %}
-	     <span class='class'><a href='/class/edit/{{class.id}}'>{{ class }} </a></span>
-	     (Click to edit)<br>
-	     {% for alert in class.alerts %}
-	     <span class='alert'>{{alert | safe }}</a>
-	     {% endfor %}	     
-
+              <span class='class'>
+              {% if class.submitted %}
+		  <a href = '/class/view/{{class.id}}'> {{ class }} </a>
+		  (Click to view)<br>
+	       {% else %}
+	       	  <a href='/class/edit/{{class.id}}'>{{ class }} </a>
+	          (Click to edit)<br>
+	       {% endif %}
+	      </span> 
+	         
+	       {% for alert in class.alerts %}
+	       <span class='alert'>{{alert | safe }}</a>
+	       {% endfor %}	     
+ 
 	  {% endfor %}
 	 <ul class="rightsidebar">
 	   <li><a href='/class/create'>Propose another class</a></li>

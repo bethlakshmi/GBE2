@@ -659,6 +659,28 @@ def edit_class(request, class_id):
                         'view_title': view_title, 
                         })
 
+@login_required
+def view_class (request, class_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    try:
+        classbid = Class.objects.filter(id=class_id)[0]
+        if classbid.teacher.contact != request.user.profile:
+          return HttpResponseRedirect('/')  # just fail for now    
+        classform = ClassBidForm(instance = classbid, prefix = 'The Class')
+        teacher = PersonaForm(instance = classbid.teacher, 
+                                prefix = 'The Teacher(s)')
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+
+    return render (request, 'gbe/bid_view.tmpl',
+                   {'readonlyform': [classform, teacher]})
+    
 
 @login_required
 def review_class (request, class_id):
