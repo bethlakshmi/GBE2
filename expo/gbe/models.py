@@ -545,7 +545,7 @@ class Class (Biddable, Event):
     fee = models.IntegerField(blank=True, default=0)
     other_teachers = models.CharField(max_length=128, blank=True)
     length_minutes = models.IntegerField(choices=class_length_options, 
-                                         default=60, )
+                                         default=60, blank=True)
     history =  models.TextField(max_length = 500, blank=True)
     run_before = models.TextField(max_length=500, blank=True)
     schedule_constraints = models.CharField(max_length=128,

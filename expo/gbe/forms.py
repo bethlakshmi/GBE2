@@ -156,12 +156,25 @@ class ClassBidForm(forms.ModelForm):
         help_texts = classbid_help_texts
         labels = classbid_labels
 
-class ClassEditForm(forms.ModelForm):
+class ClassBidDraftForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    schedule_constraints = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
+                                                     choices = class_schedule_options,
+                                                     required = False,
+                                                     label = classbid_labels['schedule_constraints'])
+    ''' Needed this to override forced required value in Biddable.  Not sure why - it's
+    allowed to be blank '''
+    description = forms.CharField(required=False, 
+                                  widget = forms.Textarea)
+
     class Meta:
         model = Class
-        fields = '__all__'
+        fields, requiredsubmit = Class().get_bid_fields
+        required = ['title', 'teacher']
+        help_texts = classbid_help_texts
+        labels = classbid_labels
+
 
 class VolunteerBidForm(forms.ModelForm):
     title = forms.HiddenInput()
@@ -236,7 +249,7 @@ class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
                                            required=False,
                                            widget=forms.CheckboxSelectMultiple(),
-					   label=profile_preferences_labels['inform_about'])
+                                           label=profile_preferences_labels['inform_about'])
     class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel']

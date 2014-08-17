@@ -560,7 +560,16 @@ def bid_class(request):
     if len (teachers) == 0 :
         return HttpResponseRedirect('/performer/create?next=/class/create')
     if request.method == 'POST':
-        form = ClassBidForm(request.POST)
+        '''
+        If this is a formal submit request, then do all the checking.
+        If this is a draft, only a few fields are needed, use a form with fewer
+        required fields (same model)
+        '''
+        if 'submit' in request.POST.keys():
+            form = ClassBidForm(request.POST)
+        else:
+            form = ClassBidDraftForm(request.POST)
+
         if form.is_valid():
             new_class = form.save(commit=True)
             if 'submit' in request.POST.keys():
@@ -582,8 +591,9 @@ def bid_class(request):
                             'page_title': page_title,                            
                             'view_title': view_title, 
                         })
+
     else:
-        form = ClassBidForm (initial = {'owner':owner, })
+        form = ClassBidForm (initial = {'owner':owner, 'teacher': teachers[0] })
         form.fields['teacher']= forms.ModelChoiceField(queryset=
                                                        Persona.objects.
                                                        filter(performer_profile_id=owner.id))
@@ -594,7 +604,8 @@ def bid_class(request):
                         'page_title': page_title,                            
                         'view_title': view_title, 
                         })
-                                
+
+    
 def edit_class(request, class_id):
     '''
     Edit an existing class.
@@ -614,9 +625,24 @@ def edit_class(request, class_id):
         return HttpResponseRedirect('/' )   # not a teacher for this class, fail out
 
     if request.method == 'POST':
-        form = ClassBidForm(request.POST)
+        if 'submit' in request.POST.keys():
+            form = ClassBidForm(request.POST, instance=the_class)
+        else:
+            form = ClassBidDraftForm(request.POST, instance=the_class)
+
         if form.is_valid():
-            new_class = form.save(commit=True)
+            the_class = form.save(commit=True)
+            if 'submit' in request.POST.keys():
+                if the_class.complete:
+                    the_class.submitted=True                    
+                    the_class.save()
+                    return HttpResponseRedirect("/")
+                else:
+                    return render (request, 
+                                   'gbe/bid.tmpl', 
+                                   {'forms':[form], 
+                                    'errors':['Cannot submit, class is not complete']})
+            the_class.save()
             return HttpResponseRedirect('/profile')
         else:
             return render (request, 

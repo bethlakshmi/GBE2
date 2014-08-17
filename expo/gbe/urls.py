@@ -58,6 +58,7 @@ urlpatterns = patterns ('',
                         url(r'^class/reviewlist/?$',
                             views.review_class_list),
 
+
 # personae
                         url(r'^performer/create/?$',
                             views.register_persona),
