@@ -121,6 +121,11 @@ class ActEditForm(forms.ModelForm):
                                                   choices=act_shows_options,
                                                   label=act_bid_labels['shows_preferences'],
                                                   help_text = act_help_texts['shows_preferences'])
+    description = forms.CharField(required=True,
+                                  label = act_bid_labels['description'],
+                                  help_text = act_help_texts['description'],
+                                  widget = forms.Textarea)
+
     class Meta:
         model = Act
         fields, required = Act().bid_fields
