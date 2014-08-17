@@ -25,8 +25,13 @@
               {% endif %} 
               {% if field.errors %}
                 <font color="red">
-              {% endif %} 
-              {{ field.label_tag }} 
+              {% endif %}
+              {% if field.name in draft_fields %}
+	        <b>{{ field.label_tag }}</b>
+	      {% else %}
+	        {{ field.label_tag }}
+	      {% endif %}
+
               {% if field.errors %}
                 </font>
               {% endif %} 

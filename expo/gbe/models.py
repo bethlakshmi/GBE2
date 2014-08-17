@@ -580,6 +580,10 @@ class Class (Biddable, Event):
 
 
     @property
+    def get_draft_fields(self):
+        return  (['title', 'teacher'])
+
+    @property
     def complete(self):
         return (self.title is not '' and
                 self.teacher is not None and

@@ -171,7 +171,7 @@ class ClassBidDraftForm(forms.ModelForm):
     class Meta:
         model = Class
         fields, requiredsubmit = Class().get_bid_fields
-        required = ['title', 'teacher']
+        required = Class().get_draft_fields
         help_texts = classbid_help_texts
         labels = classbid_labels
 

@@ -1,6 +1,11 @@
   <font color="red">{{ form.non_field_errors }}</font>
 
-  <p><font color=red>*</font> indicates a required field
+  <p>
+    <font color=red>*</font> indicates a required field
+    {% if not nodraft %}
+      <br>
+      <b>bold text</b> indicates a field required for draft submission
+    {% endif %}
   </p>
     {% for form in forms %}
     {% include "form_table.html" %}
