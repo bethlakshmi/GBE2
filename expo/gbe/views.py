@@ -1040,9 +1040,13 @@ def edit_vendor(request, vendor_id):
         else:
             return HttpResponseRedirect('/')
     else:
- 
+        if len(vendor.help_times.strip()) > 0:
+            help_times_initial = eval(vendor.help_times)
+        else:
+            help_times_initial = []
         form = VendorBidForm(instance = vendor, 
-                           prefix='thebiz')
+                           prefix='thebiz',
+                           initial = { 'help_times': help_times_initial })
  
         return render (request, 
                        'gbe/bid.tmpl',
