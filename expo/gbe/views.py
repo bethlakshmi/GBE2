@@ -197,7 +197,7 @@ def edit_persona(request, persona_id):
     if persona.performer_profile != profile:
         return HttpResponseRedirect('/')  # just fail for now    
     if request.method == 'POST':
-        form = PersonaForm(request.POST, instance=persona)
+        form = PersonaForm(request.POST, request.FILES, instance=persona)
         if form.is_valid():
             performer = form.save(commit=True)
             return HttpResponseRedirect('/')  
