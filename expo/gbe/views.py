@@ -462,7 +462,7 @@ def view_act (request, act_id):
         act = Act.objects.filter(id=act_id)[0]
         if act.performer.contact != request.user.profile:
           return HttpResponseRedirect('/')  # just fail for now    
-        actform = ActBidForm(instance = act, prefix = 'The Act')
+        actform = ActEditForm(instance = act, prefix = 'The Act')
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:

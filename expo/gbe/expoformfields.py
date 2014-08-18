@@ -39,6 +39,6 @@ class DurationFormField(CharField):
         try:
             return self.parse_to_duration(value)
         except ValueError:
-            raise FormValidationError('Enter a proper value, you git!')
+            raise FormValidationError('Please enter your duration as mm:ss')
 
 #class GridSelectFormField

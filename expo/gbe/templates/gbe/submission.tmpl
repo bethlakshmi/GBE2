@@ -6,25 +6,25 @@
 {% endblock %}
 
 {% block content %}
-<h2>{{view_title}}</h2>
-<p>Thank you for submitting your application to {{sub_verb}} at the Great Burlesque Exposition.
-Your application will go to our panel of reviewers as soon as your submission fee has been paid. </p>
+<FONT SIZE="+2">Thank you for submitting your work for The Great Burlesque Expo!</FONT>
 
-<p>Ahem.</p>
+<P><font color=red>This draft has not yet been submitted.</font><P>
 
-<p>Yes, about that. There is just one more detail to attend to. A small matter of the fee. 
-If you follow the link below, you'll be discreetly whisked away to the Brown Paper Tickets site to pay your application fee. 
+<H3>Fee has not been Paid</H3>
 
-<p>Some more blather here.</p>
+Thank you for participating in The Great Burlesque Exposition!  Our records show
+that you have not paid your related fees.  You can pay at Brown Paper Tickets by
+following the below link.<br><br>
 
+If you have just paid the fee, please note it may take up to 5 minutes
+to show in our system.  If, after 10 minutes, you continue to have problems, please mail
+to <a href="mailto:registrar@burlesque-expo.com?subject=[Fee Payment problem]">The Registrar</a> for help with your problem.<br><br>
 
-<p><a href='{{link}}'>Pay application fee</a></p>
+<a href="{{link}}" target="_blank">Make Payment at Brown Paper Tickets</a>
 
+<br><br>The draft you've saved will appear in your home page - your application
+details have been locked.  The conference committee will not review
+your idea until you submit payment... so please be aware of our deadlines.<br>
 
-<p>Once you pay your application fee, your application details will be locked so the reviewers can review. </p>
-
-
-<p>Your token is {{token}}</p>
-<p>Your tokenstring is {{token_string}}</p>
 
 {% endblock %}

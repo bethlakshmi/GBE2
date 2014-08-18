@@ -83,7 +83,6 @@ class PersonaForm (forms.ModelForm):
                    'experience',
                    'awards', 
                    'promo_image',
-                   'festivals',
                    'performer_profile',
                    'contact'
         ]
