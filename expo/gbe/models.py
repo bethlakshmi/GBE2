@@ -580,7 +580,7 @@ class Class (Biddable, Event):
                   'schedule_constraints',
                   'space_needs',
               ], 
-                 [ 'title'])
+                 [ 'title', 'teacher', 'description', 'schedule_constraints'])
 
 
     @property

@@ -16,7 +16,7 @@
     {% for field in form.visible_fields %}
         <tr>
             <td class="form_label">
-              {% if field.css_classes == 'required' %}
+              {% if field.css_classes == 'required' or field.name in submit_fields %}
               <font color="red">*</font>
               {% elif field.errors %}
               <font color="red">!</font>&nbsp;&nbsp;
