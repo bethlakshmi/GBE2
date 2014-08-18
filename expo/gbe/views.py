@@ -958,7 +958,7 @@ def create_vendor(request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect("/accounts/profile/?next=vendor/create")
     if request.method == 'POST':
-        form = VendorBidForm(request.POST)
+        form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
             vendor = form.save()
             return HttpResponseRedirect("/")
@@ -1001,7 +1001,7 @@ def edit_vendor(request, vendor_id):
         If this is a draft, only a few fields are needed, use a form with fewer
         required fields (same model)
         '''
-        form = VendorBidForm(request.POST,  
+        form = VendorBidForm(request.POST, request.FILES,
                            instance=vendor, 
                            prefix = 'thebiz')
 
