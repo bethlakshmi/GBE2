@@ -1,0 +1,24 @@
+	{% if vendors %}
+	   <span class='heading vendors'>
+	       <b>Vendor Bids</b>
+	   </span><br>
+	   {% for vendor in vendors %}
+	      <span class='vendor'>
+	       {% if vendor.submitted %}<a href = '/vendor/view/{{vendor.id}}'> {{ vendor }} </a>(Click to view)<br>
+	       {% else %}<a href = '/vendor/edit/{{vendor.id}}'> {{ vendor }} </a>(Click to edit)<br>
+	       {% endif %}
+
+	      </span> 
+	         
+	      {% for alert in vendor.alerts %}
+	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
+	      {% endfor %}
+
+	   {% endfor %}
+	   <ul class="rightsidebar">
+	     <li><a href='/vendor/create/'>Propose another business</a></li>
+	   </ul>
+	   <br>
+	{% endif %}
+vendor form is here
+<br>

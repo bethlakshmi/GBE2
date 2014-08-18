@@ -50,6 +50,7 @@ def landing_page(request):
                                    'acts': viewer_profile.get_acts(),
                                    'shows': viewer_profile.get_shows(),
                                    'classes': viewer_profile.is_teaching(),
+                                   'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'review_items': viewer_profile.bids_to_review()
                                })
     else:
@@ -975,6 +976,103 @@ def create_vendor(request):
                        {'forms':[form], 
                         'page_title': title,
                         'view_title':title})
+
+@login_required
+def edit_vendor(request, vendor_id):
+
+    page_title = 'Edit Vendor Application'
+    view_title = 'Edit Your Vendor Application'
+    form = VendorBidForm(prefix='thebiz')
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/accounts/profile/')   
+
+    try:
+        vendor = Vendor.objects.filter(id=vendor_id)[0]
+        if vendor.profile != profile:
+          return HttpResponseRedirect('/fail1')  # just fail for now 
+    except IndexError:
+        return HttpResponseRedirect('/fail2')  # just fail for now
+ 
+    if request.method == 'POST':
+        '''
+        If this is a formal submit request, then do all the checking.
+        If this is a draft, only a few fields are needed, use a form with fewer
+        required fields (same model)
+        '''
+        form = VendorBidForm(request.POST,  
+                           instance=vendor, 
+                           prefix = 'thebiz')
+
+        if form.is_valid():
+            form.save()
+#            return HttpResponseRedirect('/wtf')
+        else:
+            return render (request,
+                           'gbe/bid.tmpl',
+                           {'forms':[form],
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                       })
+
+        if 'submit' in request.POST.keys():
+            problems = vendor.validation_problems_for_submit()
+            if problems:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form], 
+                               'page_title': page_title,                            
+                               'view_title': view_title,
+                               'errors':problems})
+            else:
+                vendor.submitted = True
+
+                vendor.save()
+                details = {'user':request.user,
+                           'is_submission_fee':True,
+                           'bid':vendor}
+                return render(request, 
+                              'gbe/submission.tmpl',
+#                              compute_submission(details)
+			      )
+
+        else:
+            return HttpResponseRedirect('/')
+    else:
+ 
+        form = VendorBidForm(instance = vendor, 
+                           prefix='thebiz')
+ 
+        return render (request, 
+                       'gbe/bid.tmpl',
+                       {'forms':[form],
+                        'page_title': page_title,                            
+                        'view_title': view_title,
+                        })
+                    
+@login_required
+def view_vendor (request, vendor_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    try:
+        vendor = Vendor.objects.filter(id=vendor_id)[0]
+        if vendor.profile != request.user.profile:
+          return HttpResponseRedirect('/')  # just fail for now    
+        vendorform = VendorBidForm(instance = vendor, prefix = 'The Business')
+        profile = ParticipantForm(instance = vendor.profile, 
+                                prefix = 'The Contact Info')
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+
+    return render (request, 'gbe/bid_view.tmpl',
+                   {'readonlyform': [vendorform, profile]})
+    
 
 @login_required
 def bid_response(request,type,response):

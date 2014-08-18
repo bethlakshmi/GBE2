@@ -87,8 +87,18 @@ urlpatterns = patterns ('',
                             views.review_volunteer_list),
 
 #vendors 
-                        url(r'^vendor/bid/?$',
+                        url(r'^vendor/create/?$',
                             views.create_vendor),
+                         url(r'^vendor/edit/(\d+)/?$',
+                            views.edit_vendor),
+                        url(r'^vendor/view/(\d+)/?$',
+                            views.view_vendor),
+#                        url(r'^vendor/review/?$',
+#                            views.review_vendor_list),
+#                        url(r'^vendor/review/(\d+)/?$',
+#                            views.review_vendor),
+#                        url(r'^vendor/reviewlist/?$',
+#                            views.review_vendor_list),
 
 # site utility stuff
                         url(r'^login/?$', 
