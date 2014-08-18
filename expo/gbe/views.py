@@ -660,6 +660,8 @@ def edit_class(request, class_id):
     except IndexError:
         return HttpResponseRedirect('/')   # no class for this id, fail out
     teachers = owner.personae.all()
+    draft_fields = Class().get_draft_fields
+
     if the_class.teacher not in teachers:
         return HttpResponseRedirect('/' )   # not a teacher for this class, fail out
 
@@ -680,16 +682,22 @@ def edit_class(request, class_id):
                     return render (request, 
                                    'gbe/bid.tmpl', 
                                    {'forms':[form], 
+                                    'page_title': page_title,                            
+                                    'view_title': view_title,
+                                    'draft_fields': draft_fields,
                                     'errors':['Cannot submit, class is not complete']})
             the_class.save()
             return HttpResponseRedirect('/profile')
         else:
+            fields, requiredsub = Class().get_bid_fields
             return render (request, 
                            'gbe/bid.tmpl', 
                            {'forms':[form], 
-                        'page_title': page_title,                            
-                        'view_title': view_title, 
-                        })
+                            'page_title': page_title,                            
+                            'view_title': view_title, 
+                            'draft_fields': draft_fields,
+                            'submit_fields': requiredsub
+                       })
     else:
         form = ClassBidForm (instance=the_class)
         draft_fields = Class().get_draft_fields
