@@ -344,6 +344,8 @@ def edit_act(request, act_id):
         return HttpResponseRedirect('/fail2')  # just fail for now
     audio_info = act.tech.audio
     stage_info = act.tech.stage
+    draft_fields = Act().bid_draft_fields
+
     if request.method == 'POST':
         '''
         If this is a formal submit request, then do all the checking.
@@ -387,12 +389,15 @@ def edit_act(request, act_id):
             form.save()
 #            return HttpResponseRedirect('/wtf')
         else:
+            fields, requiredsub = Act().bid_fields
             return render (request,
                            'gbe/bid.tmpl',
                            {'forms':[form],
                             'page_title': page_title,                            
                             'view_title': view_title, 
-                        })
+                            'draft_fields': draft_fields,
+                            'submit_fields': requiredsub
+                       })
 
 
 
@@ -402,10 +407,10 @@ def edit_act(request, act_id):
                 return render (request,
                                'gbe/bid.tmpl',
                                {'forms':[form], 
-                                'page_title': page_title,                            
-                                'view_title': view_title, 
-                                'errors':problems})
-                
+                               'page_title': page_title,                            
+                               'view_title': view_title,
+                               'draft_fields': draft_fields,
+                               'errors':problems})
             else:
                 act.submitted = True
 
@@ -435,7 +440,6 @@ def edit_act(request, act_id):
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile))  
  
-        draft_fields = Act().bid_draft_fields
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form],
