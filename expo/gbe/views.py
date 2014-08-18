@@ -238,6 +238,8 @@ def bid_act(request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/accounts/profile/')
     personae = profile.personae.all()
+    draft_fields = Act().bid_draft_fields
+    
     if len(personae) == 0:
         return HttpResponseRedirect("/performer/create?next=/act/create")
     if request.method == 'POST':
@@ -272,11 +274,14 @@ def bid_act(request):
                 return HttpResponseRedirect('/performer/create?next=/act/edit/'+str(act.id))
 
         else:
+            fields, requiredsub = Act().bid_fields
             return render (request,
                            'gbe/bid.tmpl',
                            {'forms':[form ], 
                             'page_title': page_title,                            
-                            'view_title': view_title
+                            'view_title': view_title,
+                            'draft_fields': draft_fields,
+                            'submit_fields': requiredsub
                     })  
 
         if 'submit' in request.POST.keys():
@@ -286,7 +291,8 @@ def bid_act(request):
                                'gbe/bid.tmpl',
                                {'forms':[form], 
                                 'page_title': page_title,                            
-                                'view_title': view_title, 
+                                'view_title': view_title,
+                                'draft_fields': draft_fields,
                                 'errors':problems})
                 
             else:
@@ -309,7 +315,6 @@ def bid_act(request):
                           
         form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
                                                          objects.filter(contact=profile)) 
-        draft_fields = Act().bid_draft_fields
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
