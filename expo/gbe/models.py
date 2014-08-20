@@ -121,6 +121,9 @@ class Profile(models.Model):
     def alerts(self):
         import gbetext
         profile_alerts = []
+        if ( len(self.display_name.strip()) == 0 or
+             len(self.purchase_email.strip()) == 0  ):
+            profile_alerts.append(gbetext.profile_alerts['empty_profile'])
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
