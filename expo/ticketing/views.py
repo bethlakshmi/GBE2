@@ -1,6 +1,6 @@
 # 
 # views.py - Contains Django Views for Ticketing
-# edited by mdb 7/30/2014
+# edited by mdb 8/18/2014
 #
 
 from django.shortcuts import render, get_object_or_404, render_to_response
@@ -8,8 +8,9 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
-from datetime import datetime
 import pytz
+
+# Create your views here.
 
 def index(request):
     '''
@@ -19,8 +20,7 @@ def index(request):
     
     ticket_items =  TicketItem.objects.all()
     
-    context = {'ticket_items' : ticket_items, 
-               'user_id' : request.user.id }
+    context = {'ticket_items': ticket_items, 'user_id':request.user.id }
     return render(request, 'ticketing/index.html', context)
     
 def ticket_items(request):
@@ -46,10 +46,7 @@ def transactions(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not request.user.is_authenticated():
-        raise Http404
-        
-    if 'Ticketing - Transactions' not in request.user.profile.privilege_groups:
+    if not (request.user.is_authenticated() and request.user.is_staff):
         raise Http404
     
     count = -1
@@ -65,11 +62,8 @@ def transactions(request):
     purchasers = Purchaser.objects.all()
     sync_time = get_bpt_last_poll_time()
     
-    context = {'transactions' : transactions, 
-               'purchasers' : purchasers, 
-               'sync_time' : sync_time, 
-               'error' : error, 
-               'count' : count}
+    context = {'transactions' : transactions, 'purchasers' : purchasers, 
+        'sync_time' : sync_time, 'error' : error, 'count' : count}
     return render(request, r'ticketing/transactions.tmpl', context) 
     
     
@@ -89,24 +83,36 @@ def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    if not request.user.is_authenticated():
+    if not (request.user.is_authenticated() and request.user.is_staff):
         raise Http404
+        
+    error = ''
 
-    if 'Ticketing - Edit Item' not in request.user.profile.privilege_groups:
-        raise Http404
-            
     if (request.method == 'POST'):
     
         if 'delete_item' in request.POST:
             # Delete this item based on the item_id in the URL
             
-            # NOTE:  THIS NEEDS TO CHECK IF THE ITEM IS USED IN A TRANSACTION FIRST!
+            item = TicketItem.objects.filter(id=item_id)[0]
+            if (item == None):
+                return HttpResponseRedirect('/ticketing/ticket_items')
             
-            item = TicketItem.objects.filter(id=item_id)
-            if (item != None):
+            # Check to see if ticket item is used in a transaction before deleting.
+            
+            trans_exists = False    
+            for trans in Transaction.objects.all():
+                print "%s %s" % (trans.ticket_item.ticket_id, item.ticket_id)
+                if (trans.ticket_item.ticket_id == item.ticket_id):
+                    trans_exists = True
+                    break
+            
+            if (not trans_exists):
                 item.delete()
-            return HttpResponseRedirect('/ticketing/ticket_items')
-            
+                return HttpResponseRedirect('/ticketing/ticket_items')
+            else:
+                error = 'ERROR:  Cannot remove Ticket Item:  It is used in a Transaction.'
+                form = TicketItemForm(instance=item)
+                
         else:
             # save the item using the Forms API
     
@@ -122,37 +128,12 @@ def ticket_item_edit(request, item_id=None):
         else:
             form = TicketItemForm()
 
-    context = {'forms': [form,]} 
+    context = {'forms': [form,], 'error':error} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
 
-
-def testsubmit(request, reference, event):
-
-    transaction = Transaction()
-    transaction.reference=reference.split('ID-')[0]
-    transaction.ticket_item = TicketItem.objects.all()[0]
-
-    transaction.order_date = datetime.now()
-    transaction.shipping_method = 'dummy string'
-    transaction.order_notes = 'dummy string'
-    transaction.amount = '30.34'
-
-
-    purchaser = Purchaser()
-    purchaser.matched_to_user = request.user
-    
-    purchaser.first_name=request.user.first_name
-    purchaser.last_name=request.user.last_name
-    purchaser.address=request.user.profile.address1
-    purchaser.city=request.user.profile.city
-    purchaser.zip=request.user.profile.zip_code
-    purchaser.country=request.user.profile.country
-    purchaser.email=request.user.email
-    purchaser.phone=request.user.profile.phone
-    purchaser.save()
-    transaction.purchaser=purchaser
-    transaction.save()
-    return HttpResponseRedirect('/ticketing/testsubmitworked')
+            
+            
+            
             
     
     
