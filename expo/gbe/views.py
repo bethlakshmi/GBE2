@@ -1034,8 +1034,8 @@ def edit_vendor(request, vendor_id):
                            'bid':vendor}
                 return render(request, 
                               'gbe/submission.tmpl',
-#                              compute_submission(details)
-			      )
+                              compute_submission(details)
+                              )
 
         else:
             return HttpResponseRedirect('/')
