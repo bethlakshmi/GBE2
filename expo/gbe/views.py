@@ -1188,6 +1188,8 @@ def update_profile(request):
             if profile.display_name.strip() == '':
                 profile.display_name = " ".join ([request.user.first_name.strip(), 
                                                   request.user.last_name.strip()])
+            if profile.purchase_email.strip() == '':
+                profile.purchase_email = request.user.email.strip()
             if prefs_form.is_valid():
                 prefs_form.save(commit=True)
                 profile.preferences = prefs_form.save()
