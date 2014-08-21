@@ -14,35 +14,33 @@ from gbe.models import *
 from ticketing.brown_paper import *
 from gbetext import *   
 
-def performer_act_submittal_link(username):
+def performer_act_submittal_link(user_id):
     '''
     defines the act submission url for BPT to be used for payment.  In other words,
     this gives you a string that a given user should go to at BPT to pay the fee.
     
-    I removed the argument for user_name as it is not used.  -mdb
-      
+    user_id - the integer User ID of the user.  
     returns - the URL string described above.  
     '''
     
     act_sub_events = BrownPaperEvents.objects.filter(act_submission_event=True)
     if (act_sub_events.count() > 0):
-        return 'http://www.brownpapertickets.com/event/ID-' + username + '/' + act_sub_events[0].bpt_event_id
+        return 'http://www.brownpapertickets.com/event/ID-' + unicode(user_id) + '/' + act_sub_events[0].bpt_event_id
     return None
     
     
-def vendor_submittal_link():
+def vendor_submittal_link(user_id):
     '''
     defines the vendor url for BPT to be used for payment.  In other words,
     this gives you a string that a given user should go to at BPT to pay the fee.
     
-    I forgot to add this function when I did the initial submit of this.  -mdb
-    
+    user_id - the integer User ID of the user.  
     returns - the URL string described above.  
     '''
     
     vendor_events = BrownPaperEvents.objects.filter(vendor_submission_event=True)
     if (vendor_events.count() > 0):
-        return 'http://www.brownpapertickets.com/event/ID-' + username + '/' + vendor_events[0].bpt_event_id
+        return 'http://www.brownpapertickets.com/event/ID-' + unicode(user_id) + '/' + vendor_events[0].bpt_event_id
     return None
     
 

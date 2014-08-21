@@ -309,7 +309,7 @@ def bid_act(request):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': performer_act_submittal_link(request.user.username),
+                           {'link': performer_act_submittal_link(request.user.id),
                             'page_title': page_title
                             })
         else:
@@ -430,7 +430,7 @@ def edit_act(request, act_id):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': performer_act_submittal_link(request.user.username),
+                           {'link': performer_act_submittal_link(request.user.id),
                             'page_title': page_title
                             })
                     
