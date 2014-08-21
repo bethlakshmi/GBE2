@@ -42,7 +42,7 @@ def vendor_submittal_link():
     
     vendor_events = BrownPaperEvents.objects.filter(vendor_submission_event=True)
     if (vendor_events.count() > 0):
-        return 'http://www.brownpapertickets.com/event/%s' % vendor_events[0].bpt_event_id
+        return 'http://www.brownpapertickets.com/event/ID-' + username + '/' + vendor_events[0].bpt_event_id
     return None
     
 
