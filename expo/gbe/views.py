@@ -298,21 +298,20 @@ def bid_act(request):
                                 'errors':problems})
                 
             else:
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
                 if (verify_performer_app_paid(request.user.username)):
+                    act.submitted = True
+                    act.save()
+                    return HttpResponseRedirect('/')
+                else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
                            {'link': performer_act_submittal_link(request.user.username),
                             'page_title': page_title
                             })
-                else: 
-                    act.submitted = True
-                    act.save()
-                    details = {'user':request.user,
-                           'is_submission_fee':True,
-                           'bid':act}
-                    return render(request, 
-                              'gbe/submission.tmpl',
-                              compute_submission(details))
         else:
             return HttpResponseRedirect('/')
 

@@ -86,7 +86,7 @@ def verify_performer_app_paid(user_name):
             acts_submitted += 1
         
     #print "Purchased Count:  %s  Submitted Count:  %s" % (act_fees_purchased, acts_submitted)
-    return act_fees_purchased >= acts_submitted
+    return act_fees_purchased > acts_submitted
    
 
 def verify_vendor_app_paid(user_name):
