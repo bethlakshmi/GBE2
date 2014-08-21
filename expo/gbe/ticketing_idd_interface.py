@@ -130,7 +130,7 @@ def verify_vendor_app_paid(user_name):
         
     #print "Purchased Count:  %s  Submitted Count:  %s" % (vendor_fees_purchased, vendor_apps_submitted)
         
-    return vendor_fees_purchased >= vendor_apps_submitted
+    return vendor_fees_purchased > vendor_apps_submitted
     return False
     
 def verify_event_paid(user_name, event_id):
