@@ -14,7 +14,7 @@ from gbe.models import *
 from ticketing.brown_paper import *
 from gbetext import *   
 
-def performer_act_submittal_link():
+def performer_act_submittal_link(username):
     '''
     defines the act submission url for BPT to be used for payment.  In other words,
     this gives you a string that a given user should go to at BPT to pay the fee.
@@ -26,7 +26,7 @@ def performer_act_submittal_link():
     
     act_sub_events = BrownPaperEvents.objects.filter(act_submission_event=True)
     if (act_sub_events.count() > 0):
-        return 'http://www.brownpapertickets.com/event/%s' % act_sub_events[0].bpt_event_id
+        return 'http://www.brownpapertickets.com/event/ID-' + username + '/' + act_sub_events[0].bpt_event_id
     return None
     
     

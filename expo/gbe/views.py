@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
 from gbe.models import Event, Act, Performer
 from gbe.forms import *
+from gbe.ticketing_idd_interface import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
@@ -20,7 +21,7 @@ def index(request):
         try:
             profile = request.user.profile
         except Profile.DoesNotExist:
-            context_dict['alerts']= "You seem to have screwed up the registration. Contact Scratch"
+            context_dict['alerts']= "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
             return render_to_response ('gbe/index_unregistered_user.tmpl', context_dict)
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
@@ -297,13 +298,19 @@ def bid_act(request):
                                 'errors':problems})
                 
             else:
-                act.submitted = True
-
-                act.save()
-                details = {'user':request.user,
+                if (verify_performer_app_paid(request.user.username)):
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': performer_act_submittal_link(request.user.username),
+                            'page_title': page_title
+                            })
+                else: 
+                    act.submitted = True
+                    act.save()
+                    details = {'user':request.user,
                            'is_submission_fee':True,
                            'bid':act}
-                return render(request, 
+                    return render(request, 
                               'gbe/submission.tmpl',
                               compute_submission(details))
         else:
