@@ -230,7 +230,7 @@ def bid_act(request):
     '''
     page_title = 'Propose Act'
     view_title = 'Propose an Act'
-    fee_link = performer_act_submittal_link(request.user.username)
+    fee_link = performer_act_submittal_link(request.user.id)
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
     lightingform= LightingInfoForm(prefix='lighting')
@@ -340,7 +340,7 @@ def edit_act(request, act_id):
     '''
     page_title = 'Edit Act Proposal'
     view_title = 'Edit Your Act Proposal'
-    fee_link = performer_act_submittal_link(request.user.username)
+    fee_link = performer_act_submittal_link(request.user.id)
     form = ActEditForm(prefix='theact')
     try:
         profile = request.user.profile
@@ -968,7 +968,7 @@ def review_volunteer_list (request):
 def create_vendor(request):
 
     title = "Vendor Application"
-    fee_link = vendor_submittal_link(request.user.username)
+    fee_link = vendor_submittal_link(request.user.id)
 
     try:
         profile = request.user.profile
@@ -1026,7 +1026,7 @@ def edit_vendor(request, vendor_id):
     page_title = 'Edit Vendor Application'
     view_title = 'Edit Your Vendor Application'
     form = VendorBidForm(prefix='thebiz')
-    fee_link = vendor_submittal_link(request.user.username)
+    fee_link = vendor_submittal_link(request.user.id)
 
     try:
         profile = request.user.profile
