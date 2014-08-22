@@ -26,3 +26,7 @@ expo/gbe/templates/gbe/GBE2.komodoproject
 Text-1.txt
 
 *.sqlplite3
+
+expo/gbe/ticketing_idd_interface.py
+
+expo/gbe/views.py
