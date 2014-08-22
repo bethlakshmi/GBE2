@@ -30,7 +30,7 @@ def performer_act_submittal_link(username):
     return None
     
     
-def vendor_submittal_link():
+def vendor_submittal_link(username):
     '''
     defines the vendor url for BPT to be used for payment.  In other words,
     this gives you a string that a given user should go to at BPT to pay the fee.
@@ -121,14 +121,14 @@ def verify_vendor_app_paid(user_name):
    
         try:
             # I'm anticipating a user may not exist, so just skip for an exception   
-            vendor_user_name = vendor.profile.user_object_username
+            vendor_user_name = vendor.profile.user_object.username
         except:
             pass
         
         if vendor_user_name == unicode(user_name):
             vendor_apps_submitted += 1
         
-    #print "Purchased Count:  %s  Submitted Count:  %s" % (vendor_fees_purchased, vendor_apps_submitted)
+    print "Purchased Count:  %s  Submitted Count:  %s" % (vendor_fees_purchased, vendor_apps_submitted)
         
     return vendor_fees_purchased > vendor_apps_submitted
     return False

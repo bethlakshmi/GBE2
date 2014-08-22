@@ -433,8 +433,6 @@ def edit_act(request, act_id):
                            {'link': performer_act_submittal_link(request.user.username),
                             'page_title': page_title
                             })
-                    
-
         else:
             return HttpResponseRedirect('/')
     else:
@@ -972,13 +970,36 @@ def create_vendor(request):
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
             vendor = form.save()
-            return HttpResponseRedirect("/")
         else:
             return render (request,
                            'gbe/bid.tmpl', 
                            {'forms':[form], 
                             'page_title':title, 
                             'view_title':title})
+        if 'submit' in request.POST.keys():
+            problems = vendor.validation_problems_for_submit()
+            if problems:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form], 
+                               'page_title': page_title,                            
+                               'view_title': view_title,
+                               'errors':problems})
+            else:
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_vendor_app_paid(request.user.username)):
+                    vendor.submitted = True
+                    vendor.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': vendor_submittal_link(request.user.username),
+                            'page_title': page_title
+                            })
     else:
         form = VendorBidForm(initial = {'profile':profile,
                                         'physical_address':profile.address})
@@ -1037,17 +1058,20 @@ def edit_vendor(request, vendor_id):
                                'view_title': view_title,
                                'errors':problems})
             else:
-                vendor.submitted = True
-
-                vendor.save()
-                details = {'user':request.user,
-                           'is_submission_fee':True,
-                           'bid':vendor}
-                return render(request, 
-                              'gbe/submission.tmpl',
-                              compute_submission(details)
-                              )
-
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_vendor_app_paid(request.user.username)):
+                    vendor.submitted = True
+                    vendor.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': vendor_submittal_link(request.user.username),
+                            'page_title': page_title
+                            })
         else:
             return HttpResponseRedirect('/')
     else:
