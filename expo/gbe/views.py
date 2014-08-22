@@ -230,7 +230,7 @@ def bid_act(request):
     '''
     page_title = 'Propose Act'
     view_title = 'Propose an Act'
-
+    fee_link = performer_act_submittal_link(request.user.username)
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
     lightingform= LightingInfoForm(prefix='lighting')
@@ -283,6 +283,7 @@ def bid_act(request):
                             'page_title': page_title,                            
                             'view_title': view_title,
                             'draft_fields': draft_fields,
+                            'fee_link': fee_link,
                             'submit_fields': requiredsub
                     })  
 
@@ -295,6 +296,7 @@ def bid_act(request):
                                 'page_title': page_title,                            
                                 'view_title': view_title,
                                 'draft_fields': draft_fields,
+                                'fee_link': fee_link,
                                 'errors':problems})
                 
             else:
@@ -309,7 +311,7 @@ def bid_act(request):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': performer_act_submittal_link(request.user.username),
+                           {'link': fee_link,
                             'page_title': page_title
                             })
         else:
@@ -327,6 +329,7 @@ def bid_act(request):
                        {'forms':[form], 
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link,
                         'draft_fields': draft_fields
                         })
 
@@ -337,6 +340,7 @@ def edit_act(request, act_id):
     '''
     page_title = 'Edit Act Proposal'
     view_title = 'Edit Your Act Proposal'
+    fee_link = performer_act_submittal_link(request.user.username)
     form = ActEditForm(prefix='theact')
     try:
         profile = request.user.profile
@@ -394,7 +398,6 @@ def edit_act(request, act_id):
             
             tech.save()
             form.save()
-#            return HttpResponseRedirect('/wtf')
         else:
             fields, requiredsub = Act().bid_fields
             return render (request,
@@ -403,6 +406,7 @@ def edit_act(request, act_id):
                             'page_title': page_title,                            
                             'view_title': view_title, 
                             'draft_fields': draft_fields,
+                            'fee_link': fee_link,
                             'submit_fields': requiredsub
                        })
 
@@ -417,6 +421,7 @@ def edit_act(request, act_id):
                                'page_title': page_title,                            
                                'view_title': view_title,
                                'draft_fields': draft_fields,
+                               'fee_link': fee_link,
                                'errors':problems})
             else:
                 '''
@@ -430,7 +435,7 @@ def edit_act(request, act_id):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': performer_act_submittal_link(request.user.username),
+                           {'link': fee_link,
                             'page_title': page_title
                             })
         else:
@@ -455,6 +460,7 @@ def edit_act(request, act_id):
                        {'forms':[form],
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link,
                         'draft_fields': draft_fields
                         })
                     
@@ -962,6 +968,8 @@ def review_volunteer_list (request):
 def create_vendor(request):
 
     title = "Vendor Application"
+    fee_link = vendor_submittal_link(request.user.username)
+
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -975,6 +983,7 @@ def create_vendor(request):
                            'gbe/bid.tmpl', 
                            {'forms':[form], 
                             'page_title':title, 
+                            'fee_link': fee_link,
                             'view_title':title})
         if 'submit' in request.POST.keys():
             problems = vendor.validation_problems_for_submit()
@@ -984,6 +993,7 @@ def create_vendor(request):
                                {'forms':[form], 
                                'page_title': page_title,                            
                                'view_title': view_title,
+                               'fee_link': fee_link,
                                'errors':problems})
             else:
                 '''
@@ -997,7 +1007,7 @@ def create_vendor(request):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': vendor_submittal_link(request.user.username),
+                           {'link': fee_link,
                             'page_title': page_title
                             })
     else:
@@ -1006,6 +1016,7 @@ def create_vendor(request):
         return render (request, 
                        'gbe/bid.tmpl', 
                        {'forms':[form], 
+                        'fee_link': fee_link,
                         'page_title': title,
                         'view_title':title})
 
@@ -1015,6 +1026,8 @@ def edit_vendor(request, vendor_id):
     page_title = 'Edit Vendor Application'
     view_title = 'Edit Your Vendor Application'
     form = VendorBidForm(prefix='thebiz')
+    fee_link = vendor_submittal_link(request.user.username)
+
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -1046,7 +1059,8 @@ def edit_vendor(request, vendor_id):
                            {'forms':[form],
                             'page_title': page_title,                            
                             'view_title': view_title, 
-                       })
+                            'fee_link': fee_link
+                            })
 
         if 'submit' in request.POST.keys():
             problems = vendor.validation_problems_for_submit()
@@ -1056,6 +1070,7 @@ def edit_vendor(request, vendor_id):
                                {'forms':[form], 
                                'page_title': page_title,                            
                                'view_title': view_title,
+                               'fee_link': fee_link,
                                'errors':problems})
             else:
                 '''
@@ -1069,7 +1084,7 @@ def edit_vendor(request, vendor_id):
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
-                           {'link': vendor_submittal_link(request.user.username),
+                           {'link': fee_link,
                             'page_title': page_title
                             })
         else:
@@ -1088,6 +1103,7 @@ def edit_vendor(request, vendor_id):
                        {'forms':[form],
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link
                         })
                     
 @login_required
