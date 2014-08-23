@@ -1,5 +1,7 @@
   <font color="red">{{ form.non_field_errors }}</font>
-
+  {% if fee_link %}
+    Pay your fee at <a href="{{ fee_link }}">Brown Paper Tickets</a>, first.
+  {% endif %}
   <p>
     <font color=red>*</font> indicates a required field
     {% if not nodraft and draft_fields %}
