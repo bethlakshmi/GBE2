@@ -1,1 +1,11 @@
-
+<p>This is your personal homepage.  If you're logged in, you'll see all sorts of cool
+stuff about you on the right-hand side of this page. Things like the status of your
+submissions (acts and classes), your personal schedule (for classes you're teaching,
+shows your performing in, or shifts you've volunteered for) and all sorts of other
+cool stuff.
+</p>
+{% if not user.is_authenticated %}
+<p>
+The first step to logging in is <a href="/accounts/register/">creating an account</a>
+</p>
+{% endif %}

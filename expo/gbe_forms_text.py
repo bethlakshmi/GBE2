@@ -373,11 +373,18 @@ class_proposal_form_text = {
 
 class_proposal_help_texts = {
     'name' : 'If you\'d like to get updates about classes and panels at the Expo, \
-    fill in your name and email address. Or don\'t, if you prefer, it\'s up to you.',
+    fill in your email address.',
     'title': 'Your suggested title for this class or panel',
     'proposal': 'What does this class look like in your mind? Consider telling us about material to \
-    cover, target audience, etc',
-    'type': 'Is this a class? A panel? Do you care?'
+    cover, target audience, etc.',
+    'type': 'Is this a class (a lecture or workshop with a single teacher) or a panel (a less formal discussion with multiple participants)?'
+}
+
+class_proposal_labels = {
+    'title' : 'Name of Class',
+    'name' : 'Your Contact Info',
+    'proposal': 'Class Description',
+    'type': 'Type of Class'
 }
 
 ticket_item_labels = {

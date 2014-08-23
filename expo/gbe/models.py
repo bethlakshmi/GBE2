@@ -696,8 +696,8 @@ class AdBid(Biddable):
 
 class ArtBid(Biddable):
     '''
-A request for a space in the marketplace.
-	Vendors have to bid, too
+    A request for a space in the marketplace.
+    Vendors have to bid, too
     '''
     bio = models.TextField(max_length=500, blank=True)
     works = models.TextField(max_length=500, blank=True)
@@ -718,6 +718,7 @@ class ClassProposal(models.Model):
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,
                              default = 'Class')
+    display = models.BooleanField(default = False)
     
     def __unicode__(self):
         return self.title
