@@ -265,9 +265,10 @@ class StageInfoForm(forms.ModelForm):
 class ClassProposalForm(forms.ModelForm):
     class Meta:
         model = ClassProposal
-        fields = '__all__'
+        fields = ['name', 'title', 'type', 'proposal']
         required = ['title']
         help_texts= class_proposal_help_texts
+        labels = class_proposal_labels
         
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,

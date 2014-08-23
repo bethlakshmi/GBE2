@@ -4,46 +4,66 @@
       <div id='cssmenu'>
       <ul>
         <li class='active'><a href='/'><span>Home</span></a></li>
+        <li class='has-sub'><a href='Schedule'><span>Shows</span></a>
+          <ul>
+             <li><a href='http://www.burlesque-expo.com/rhinestone-revue'><span>Rhinestone Review</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/late-friday'><span>Late Friday</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/the-main-event'><span>The Main Event</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/sunday-showcase'><span>Sunday Showcase</span></a></li>
+             <li class='last'><a href='http://www.burlesque-expo.com/special-guests'><span>Special Guests</span></a></li>
+          </ul>
+        </li>
+        <li class='has-sub'><a href='Conference'><span>The Conference</span></a>
+          <ul>
+             <li><a href='http://www.burlesque-expo.com/panels'><span>Panels</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/classes'><span>Classes</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/master-classes-2015'><span>Master Class 2015</span></a></li>
+             <li class='last'><a href='/class/create/'><span>Teach a Class</span></a></li>
+          </ul>
+        </li>
+       <li class='has-sub'><a href='Events'><span>Special Events</span></a>
+          <ul>
+             <li><a href='http://www.burlesque-expo.com/costumes'><span>Costumes</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/free-classes'><span>Free Classes!</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/parties'><span>Parties</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/the-art-show'><span>The Art Show</span></a></li>
+             <li class='last'><a href='http://www.burlesque-expo.com/shopping'><span>Shopping</span></a></li>
+          </ul>
+       </li> 
         <li class='has-sub'><a href='/ticketing/'><span>I Want To...</span></a>
           <ul>
-             <li><a href='/ticketing/'><span>Buy Tickets</span></a></li>
-             <li><a href='/act/create/'><span>Perform at the Expo</span></a></li>
-             <li><a href='/class/create/'><span>Submit A Class</span></a></li>
-             <li><a href='/class/propose/'><span>Suggest A Class or Panel</span></a></li>
+             <li><a href='/ticketing/'><span>...Buy Tickets</span></a></li>
+             <li><a href='/act/create/'><span>...Perform at the Expo</span></a></li>
+             <li><a href='/vendor/create'><span>...Sell My Stuff</span></a></li>
+             <li><a href='/class/create/'><span>...Submit A Class</span></a></li>
+             <li><a href='/volunteer/bid'><span>...Volunteer</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/be-an-artist'><span>...Be An Artist</span></a></li>
+            <li><a href='/class/propose/'><span>...Suggest A Class or Panel</span></a></li>
+             {% comment %}
+             These are not ready for prime time, but we don't quite have a test site yet,
+             Hiding them in a grotesque way until we do.
+             {% endcomment %}
+             {% if user.username == "bethlakshmi" or user.username == "gbeadmin" %}
              <li><a href='/bid/panelsit/'><span>Sit On A Panel</span></a></li>
-             <li><a href='/volunteer/bid'><span>Volunteer</span></a></li>
              <li><a href='/bid/costume/'><span>Display Costume</span></a></li>
-             <li><a href='/vendor/create'><span>Sell My Stuff</span></a></li>
              <li><a href='/bid/ad/'><span>Advertise</span></a></li>
-             <li class='last'><a href='/hotel'><span>Reserve a Hotel Room</span></a></li>
+             {% endif %}
+             <li class='last'><a href='https://aws.passkey.com/event/11159123/owner/371/home'><span>Reserve a Hotel Room</span></a></li>
           </ul>
        </li>
-       <li class='has-sub'><a href='Schedule'><span>Shows</span></a>
+
+
+
+      <li class='has-sub last'><a href='About'><span>Getting Here</span></a>
           <ul>
-             <li><a href='DisplayEvent/1'><span>Rhinestone Review</span></a></li>
-             <li><a href='DisplayEvent/2'><span>Late Friday</span></a></li>
-             <li><a href='#'><span>The Main Event</span></a></li>
-             <li class='last'><a href='DisplayEvent/4'><span>Sunday Showcase</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/directions'><span>Directions</span></a></li>
+             <li class='last'><a href='https://aws.passkey.com/event/11159123/owner/371/home'><span>Reserve a Hotel Room</span></a></li>
           </ul>
-       </li>
-       <li class='has-sub'><a href='Conference'><span>The Conference</span></a>
+      </li>
+      <li class='has-sub last'><a href='About'><span>About Us</span></a>
           <ul>
-             <li><a href='Calendar'><span>Class Schedule</span></a></li>
-             <li><a href='Schedule'><span>Class Descriptions</span></a></li>
-             <li class='last'><a href='Bio'><span>Teachers</span></a></li>
-          </ul>
-       </li>
-       <li class='has-sub'><a href='Events'><span>Events at GBE</span></a>
-          <ul>
-             <li><a href='Schedule'><span>All Events</span></a></li>
-             <li class='last'><a href='Calendar'><span>Schedule Of Events</span></a></li>
-          </ul>
-       </li>
-       <li><a href='/fashionfair'><span>Vintage Fashion Fair</span></a></li>
-       <li class='has-sub last'><a href='About'><span>About Us/Contact</span></a>
-          <ul>
-             <li><a href='/contact'><span>Contact</span></a></li>
-             <li class='last'><a href='/staffbio'><span>Staff</span></a></li>
+             <li><a href='http://www.burlesque-expo.com/roll-of-winners'><span>The Roll of Winners</span></a></li>
+             <li class='last'><a href='http://www.burlesque-expo.com/get-in-touch'><span>Get In Touch</span></a></li>
           </ul>
        </li>
 

@@ -121,6 +121,9 @@ class Profile(models.Model):
     def alerts(self):
         import gbetext
         profile_alerts = []
+        if ( len(self.display_name.strip()) == 0 or
+             len(self.purchase_email.strip()) == 0  ):
+            profile_alerts.append(gbetext.profile_alerts['empty_profile'])
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
@@ -693,8 +696,8 @@ class AdBid(Biddable):
 
 class ArtBid(Biddable):
     '''
-A request for a space in the marketplace.
-	Vendors have to bid, too
+    A request for a space in the marketplace.
+    Vendors have to bid, too
     '''
     bio = models.TextField(max_length=500, blank=True)
     works = models.TextField(max_length=500, blank=True)
@@ -715,6 +718,7 @@ class ClassProposal(models.Model):
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,
                              default = 'Class')
+    display = models.BooleanField(default = False)
     
     def __unicode__(self):
         return self.title

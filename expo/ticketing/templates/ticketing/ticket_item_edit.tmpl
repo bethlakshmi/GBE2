@@ -9,6 +9,15 @@
 <br><br>
 Notes:  Ticket Item Id must be unique.  Editing it will create a new Ticket Item.
 
+{% if error %}
+<font color=red>
+<br>
+<br>
+{{error}}
+<br>
+<br>
+</font>
+{% endif %}
 
 <form action="" method="post">
 {% include "form_table_wrapper.tmpl" %}

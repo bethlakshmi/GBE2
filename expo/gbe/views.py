@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
 from gbe.models import Event, Act, Performer
 from gbe.forms import *
+from gbe.ticketing_idd_interface import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
@@ -20,7 +21,7 @@ def index(request):
         try:
             profile = request.user.profile
         except Profile.DoesNotExist:
-            context_dict['alerts']= "You seem to have screwed up the registration. Contact Scratch"
+            context_dict['alerts']= "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
             return render_to_response ('gbe/index_unregistered_user.tmpl', context_dict)
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
@@ -229,7 +230,7 @@ def bid_act(request):
     '''
     page_title = 'Propose Act'
     view_title = 'Propose an Act'
-
+    fee_link = performer_act_submittal_link(request.user.id)
     form = ActEditForm(prefix='theact')
     audioform= AudioInfoForm(prefix='audio')
     lightingform= LightingInfoForm(prefix='lighting')
@@ -282,6 +283,7 @@ def bid_act(request):
                             'page_title': page_title,                            
                             'view_title': view_title,
                             'draft_fields': draft_fields,
+                            'fee_link': fee_link,
                             'submit_fields': requiredsub
                     })  
 
@@ -294,18 +296,24 @@ def bid_act(request):
                                 'page_title': page_title,                            
                                 'view_title': view_title,
                                 'draft_fields': draft_fields,
+                                'fee_link': fee_link,
                                 'errors':problems})
                 
             else:
-                act.submitted = True
-
-                act.save()
-                details = {'user':request.user,
-                           'is_submission_fee':True,
-                           'bid':act}
-                return render(request, 
-                              'gbe/submission.tmpl',
-                              compute_submission(details))
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_performer_app_paid(request.user.username)):
+                    act.submitted = True
+                    act.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': fee_link,
+                            'page_title': page_title
+                            })
         else:
             return HttpResponseRedirect('/')
 
@@ -321,6 +329,7 @@ def bid_act(request):
                        {'forms':[form], 
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link,
                         'draft_fields': draft_fields
                         })
 
@@ -331,6 +340,7 @@ def edit_act(request, act_id):
     '''
     page_title = 'Edit Act Proposal'
     view_title = 'Edit Your Act Proposal'
+    fee_link = performer_act_submittal_link(request.user.id)
     form = ActEditForm(prefix='theact')
     try:
         profile = request.user.profile
@@ -388,7 +398,6 @@ def edit_act(request, act_id):
             
             tech.save()
             form.save()
-#            return HttpResponseRedirect('/wtf')
         else:
             fields, requiredsub = Act().bid_fields
             return render (request,
@@ -397,6 +406,7 @@ def edit_act(request, act_id):
                             'page_title': page_title,                            
                             'view_title': view_title, 
                             'draft_fields': draft_fields,
+                            'fee_link': fee_link,
                             'submit_fields': requiredsub
                        })
 
@@ -411,19 +421,23 @@ def edit_act(request, act_id):
                                'page_title': page_title,                            
                                'view_title': view_title,
                                'draft_fields': draft_fields,
+                               'fee_link': fee_link,
                                'errors':problems})
             else:
-                act.submitted = True
-
-                act.save()
-                details = {'user':request.user,
-                           'is_submission_fee':True,
-                           'bid':act}
-                return render(request, 
-                              'gbe/submission.tmpl',
-                              compute_submission(details))
-                    
-
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_performer_app_paid(request.user.username)):
+                    act.submitted = True
+                    act.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': fee_link,
+                            'page_title': page_title
+                            })
         else:
             return HttpResponseRedirect('/')
     else:
@@ -446,6 +460,7 @@ def edit_act(request, act_id):
                        {'forms':[form],
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link,
                         'draft_fields': draft_fields
                         })
                     
@@ -953,6 +968,8 @@ def review_volunteer_list (request):
 def create_vendor(request):
 
     title = "Vendor Application"
+    fee_link = vendor_submittal_link(request.user.id)
+
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -961,19 +978,45 @@ def create_vendor(request):
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
             vendor = form.save()
-            return HttpResponseRedirect("/")
         else:
             return render (request,
                            'gbe/bid.tmpl', 
                            {'forms':[form], 
                             'page_title':title, 
+                            'fee_link': fee_link,
                             'view_title':title})
+        if 'submit' in request.POST.keys():
+            problems = vendor.validation_problems_for_submit()
+            if problems:
+                return render (request,
+                               'gbe/bid.tmpl',
+                               {'forms':[form], 
+                               'page_title': page_title,                            
+                               'view_title': view_title,
+                               'fee_link': fee_link,
+                               'errors':problems})
+            else:
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_vendor_app_paid(request.user.username)):
+                    vendor.submitted = True
+                    vendor.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': fee_link,
+                            'page_title': page_title
+                            })
     else:
         form = VendorBidForm(initial = {'profile':profile,
                                         'physical_address':profile.address})
         return render (request, 
                        'gbe/bid.tmpl', 
                        {'forms':[form], 
+                        'fee_link': fee_link,
                         'page_title': title,
                         'view_title':title})
 
@@ -983,6 +1026,8 @@ def edit_vendor(request, vendor_id):
     page_title = 'Edit Vendor Application'
     view_title = 'Edit Your Vendor Application'
     form = VendorBidForm(prefix='thebiz')
+    fee_link = vendor_submittal_link(request.user.id)
+
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -1014,7 +1059,8 @@ def edit_vendor(request, vendor_id):
                            {'forms':[form],
                             'page_title': page_title,                            
                             'view_title': view_title, 
-                       })
+                            'fee_link': fee_link
+                            })
 
         if 'submit' in request.POST.keys():
             problems = vendor.validation_problems_for_submit()
@@ -1024,19 +1070,23 @@ def edit_vendor(request, vendor_id):
                                {'forms':[form], 
                                'page_title': page_title,                            
                                'view_title': view_title,
+                               'fee_link': fee_link,
                                'errors':problems})
             else:
-                vendor.submitted = True
-
-                vendor.save()
-                details = {'user':request.user,
-                           'is_submission_fee':True,
-                           'bid':vendor}
-                return render(request, 
-                              'gbe/submission.tmpl',
-                              compute_submission(details)
-                              )
-
+                '''
+                If this is a formal submit request, did they pay?
+                They can't submit w/out paying
+                '''
+                if (verify_vendor_app_paid(request.user.username)):
+                    vendor.submitted = True
+                    vendor.save()
+                    return HttpResponseRedirect('/')
+                else: 
+                    page_title = 'Act Payment'
+                    return render(request,'gbe/please_pay.tmpl',
+                           {'link': fee_link,
+                            'page_title': page_title
+                            })
         else:
             return HttpResponseRedirect('/')
     else:
@@ -1053,6 +1103,7 @@ def edit_vendor(request, vendor_id):
                        {'forms':[form],
                         'page_title': page_title,                            
                         'view_title': view_title,
+                        'fee_link': fee_link
                         })
                     
 @login_required
@@ -1188,6 +1239,8 @@ def update_profile(request):
             if profile.display_name.strip() == '':
                 profile.display_name = " ".join ([request.user.first_name.strip(), 
                                                   request.user.last_name.strip()])
+            if profile.purchase_email.strip() == '':
+                profile.purchase_email = request.user.email.strip()
             if prefs_form.is_valid():
                 prefs_form.save(commit=True)
                 profile.preferences = prefs_form.save()
@@ -1277,5 +1330,6 @@ def propose_class (request):
         template = loader.get_template('gbe/class_proposal.tmpl')
         context = RequestContext (request, {'form': form})
         return HttpResponse(template.render(context))
+
 
 
