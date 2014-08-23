@@ -91,7 +91,7 @@ def register_persona(request, **kwargs):
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
-                redirect_to='/profile/'+str(pid)
+                redirect_to='/'
             return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 'gbe/bid.tmpl',
@@ -644,7 +644,7 @@ def bid_class(request):
                                     'draft_fields': draft_fields,
                                     'errors':['Cannot submit, class is not complete']})
             new_class.save()
-            return HttpResponseRedirect('/profile')
+            return HttpResponseRedirect('/')
         else:
             fields, requiredsub = Class().get_bid_fields
             return render (request, 
@@ -712,7 +712,7 @@ def edit_class(request, class_id):
                                     'draft_fields': draft_fields,
                                     'errors':['Cannot submit, class is not complete']})
             the_class.save()
-            return HttpResponseRedirect('/profile')
+            return HttpResponseRedirect('/')
         else:
             fields, requiredsub = Class().get_bid_fields
             return render (request, 
