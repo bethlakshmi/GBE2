@@ -309,8 +309,10 @@ class AudioInfo(models.Model):
 
 
     def __unicode__(self):
-        return "AudioInfo: "+ self.techinfo.act.title
-
+        try:
+            return "AudioInfo: "+ self.techinfo.act.title
+        except:
+            return "AudioInfo: (deleted act)" 
 
 class LightingInfo (models.Model):
     '''
@@ -335,7 +337,10 @@ class LightingInfo (models.Model):
 
 
     def __unicode__(self):
-        return "LightingInfo: "+self.techinfo.act.title
+        try:
+            return "LightingInfo: "+self.techinfo.act.title
+        except:
+            return "LightingInfo: (deleted act)"
 
 class StageInfo(models.Model):
     '''
@@ -357,7 +362,10 @@ class StageInfo(models.Model):
         return (self.set_props or self.clear_props or self.cue_props or self.confirm)
 
     def __unicode__(self):
-        return "StageInfo: " +self.techinfo.act.title
+        try:
+            return "StageInfo: " +self.techinfo.act.title
+        except:
+            return "StageInfo: (deleted act)"
 
 class TechInfo (models.Model):
     '''
@@ -375,7 +383,10 @@ class TechInfo (models.Model):
                 self.stage.is_complete)
     
     def __unicode__(self):
-        return "Techinfo: "+ self.act.title
+        try:
+            return "Techinfo: "+ self.act.title
+        except:
+            return "Techinfo: (deleted act)"
 
 #######
 # Act #

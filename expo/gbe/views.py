@@ -477,7 +477,16 @@ def view_act (request, act_id):
         act = Act.objects.filter(id=act_id)[0]
         if act.performer.contact != request.user.profile:
           return HttpResponseRedirect('/')  # just fail for now    
-        actform = ActEditForm(instance = act, prefix = 'The Act')
+        audio_info = act.tech.audio
+        stage_info = act.tech.stage
+        actform = ActEditForm(instance = act, 
+                           prefix='The Act', 
+                           initial = { 
+                               'track_title':audio_info.track_title,
+                               'track_artist':audio_info.track_artist,
+                               'track_duration':audio_info.track_duration,
+                               'act_duration':stage_info.act_duration
+                           })
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
@@ -506,7 +515,18 @@ def review_act (request, act_id):
 
     try:
         act = Act.objects.filter(id=act_id)[0]
-        actform = ActEditForm(instance = act, prefix = 'The Act')
+        audio_info = act.tech.audio
+        stage_info = act.tech.stage
+
+        actform = ActEditForm(instance = act, 
+                           prefix='The Act', 
+                           initial = { 
+                               'track_title':audio_info.track_title,
+                               'track_artist':audio_info.track_artist,
+                               'track_duration':audio_info.track_duration,
+                               'act_duration':stage_info.act_duration
+                           })
+ 
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
