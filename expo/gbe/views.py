@@ -1351,5 +1351,84 @@ def propose_class (request):
         context = RequestContext (request, {'form': form})
         return HttpResponse(template.render(context))
 
+def panel_create(request):
+    '''
+    View for creating a panel.  Boilerplate for now, more later.
+    '''
 
+    pass
+
+def panel_list(request):
+    '''
+    View for getting a list of all panels that meets regex in request.
+    Boilerplate.
+    '''
+
+    pass
+
+def panel_view(request, panel_id):
+    '''
+    View for viewing a panel.
+    Boilerplate.
+    '''
+
+    pass
+
+def panel_edit(request, panel_id):
+    '''
+    View for editting a panel.
+    Boilerplate.
+    '''
+
+    pass
+
+def panel_delete(request, panel_id):
+    '''
+    View to delete a panel.  Deleting only marks panel as deleted, does not
+    actually remove the data from the DB.
+    Boilerplate.
+    '''
+
+    pass
+
+def ad_create(request):
+    '''
+    View to create an advertisement.
+    Boilerplate
+    '''
+
+    pass
+
+def ad_list(request):
+    '''
+    View to get a list of advertisements.
+    Boilerplate
+    '''
+
+    pass
+
+def ad_edit(request, ad_id):
+    '''
+    View to edit or alter an advertisement.
+    Boilerplate
+    '''
+
+    pass
+
+def ad_view(request, ad_id):
+    '''
+    View an advertisement.
+    Boilerplate
+    '''
+
+    pass
+
+def ad_delete(request, ad_id):
+    '''
+    Delete an advertisement.  Deletion does not remove the ad from the database,
+    but marks it as deleted.
+    Boilerplate
+    '''
+
+    pass
 

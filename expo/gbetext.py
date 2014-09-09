@@ -24,15 +24,15 @@ time_format_error =  '''Time must be in the format ##:##.'''
 
 
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
-<a href='update_profile'>Fix this!</a>''',
+<a href='{% url 'profile_edit' %}'>Fix this!</a>''',
                   'empty_profile':  '''Your profile needs an update, please review it, and save it. \
-<a href='update_profile'>Update it now!</a>'''
+<a href='{% url 'profile_edit' %}'>Update it now!</a>'''
                   }
 
 act_alerts = {
     'act_complete_not_submitted': 
-    'This act is complete and can be submitted whenever you like. \
-    <a href = "/act/edit/%d/"> Review and Submit Now </a>',
+    '''This act is complete and can be submitted whenever you like. \
+    <a href = '{% url 'act_edit' act_id %}'> Review and Submit Now </a>''',
     'act_complete_submitted': 
     'This act is complete and has been submitted for review.',
     'act_incomplete_not_submitted': 

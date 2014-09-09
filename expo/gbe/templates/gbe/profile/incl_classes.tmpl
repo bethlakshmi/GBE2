@@ -6,10 +6,10 @@
 	   {% for class in classes %}
               <span class='class'>
               {% if class.submitted %}
-		  <a href = '/class/view/{{class.id}}'> {{ class }} </a>
+		  <a href = '{% url 'class_view' class.id%}'> {{ class }} </a>
 		  (Click to view)<br>
 	       {% else %}
-	       	  <a href='/class/edit/{{class.id}}'>{{ class }} </a>
+	       	  <a href='{% url 'class_edit' class.id %}'>{{ class }} </a>
 	          (Click to edit)<br>
 	       {% endif %}
 	      </span> 
@@ -20,13 +20,13 @@
  
 	  {% endfor %}
 	 <ul class="rightsidebar">
-	   <li><a href='/class/create'>Propose another class</a></li>
+	   <li><a href='{% url 'class_create' %}'>Propose another class</a></li>
 	 </ul>
 	 {%endif %}
 	{% else %}
 	   {{ profile.display_name }} has not proposed any classes
 	 <ul class="rightsidebar">
-	   <li><a href='/class/create'>Propose a class</a></li>
+	   <li><a href='{% url 'class_create' %}'>Propose a class</a></li>
 	 </ul>
 	{% endif %}
 	

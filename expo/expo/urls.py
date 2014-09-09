@@ -6,8 +6,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-                       url(r'^', include('gbe.urls')), 
+                       url(r'^', include('gbe.urls', namespace = 'gbe')), 
                        url(r'^admin/', include(admin.site.urls)),
-                       url(r'^ticketing/', include('ticketing.urls')),
-                       url(r'^scheduler/', include('scheduler.urls')),
+                       url(r'^ticketing/', include('ticketing.urls', namespace = 'ticketing')),
+                       url(r'^scheduler/', include('scheduler.urls', namespace = 'scheduler')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -27,6 +27,6 @@
     <input type="hidden" name="next" value = "{{next |escape}}" />
   </form>
   
-    <a href="/accounts/password/reset/">Help!</a> I forgot my password!
+    <a href='{% url 'password_reset' %}'>Help!</a> I forgot my password!
 
 {% endblock %}
