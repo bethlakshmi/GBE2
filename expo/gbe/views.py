@@ -1432,3 +1432,31 @@ def ad_delete(request, ad_id):
 
     pass
 
+def bios_staff(request):
+    '''
+    Display the staff bios, pulled from their profiles.
+    '''
+
+    pass
+
+def bios_teachers(request):
+    '''
+    Display the teachers bios, pulled from their profiles.
+    '''
+
+    pass
+
+def bios_volunteer(request):
+    '''
+    Display the volunteer bios, pulled from their profiles.
+    '''
+
+    pass
+
+def special(request):
+    '''
+    Edit special privledges.
+    '''
+
+    pass
+

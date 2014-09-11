@@ -110,7 +110,7 @@ urlpatterns = patterns ('',
                         url(r'^volunteer/review/(\d+)/?$',
                             views.review_volunteer, name = 'volunteer_review'),
                         url(r'^volunteer/reviewlist/?$',
-                            views.review_volunteer_list, name = volunteer_review_list),
+                            views.review_volunteer_list, name = 'volunteer_review_list'),
 
 #vendors 
                         url(r'^vendor/create/?$',
