@@ -28,7 +28,15 @@ urlpatterns = patterns ('',
                             views.admin_profile, name = 'admin_profile'),
                         url(r'^profile/edit/(\d+)/?$',
                             views.admin_profile, name = 'profile_edit'),
-                       
+
+# bios - bios are a consolidation of several elements from profile
+                        url(r'^bios/staff/?$',
+                            views.bios_staff, name = 'bios_staff'),
+                        url(r'^bios/teachers/?$',
+                            views.bios_teachers, name = 'bios_teacher'),
+                        url(r'^/bios/volunteers/?$',
+                            views.bios_volunteer, name = 'bios_volunteer'),
+
 # acts
                         url(r'^act/create/?$',
                             views.bid_act, name = 'act_create'),
@@ -51,10 +59,12 @@ urlpatterns = patterns ('',
                         url(r'^class/create/?$',
                             views.bid_class, name = 'class_create'),
                         url(r'class/edit/(\d+)/?$', 
-                            views.edit_class, name = 'class_edit'),                        
-                         url(r'^class/view/(\d+)/?$',
+                            views.edit_class, name = 'class_edit'),
+                        url(r'^class/?$',
+                            views.class_list, name = 'class_list'),
+                        url(r'^class/view/(\d+)/?$',
                             views.view_class, name = 'class_view'),
-                       url(r'^class/propose/?$',
+                        url(r'^class/propose/?$',
                             views.propose_class, name = 'class_propose'),
                         url(r'^class/review/?$',
                             views.review_class_list, name = 'class_review'),
@@ -74,6 +84,8 @@ urlpatterns = patterns ('',
                             views.panel_edit, name = 'panel_edit'),
                         url(r'^panel/delete/(\d+)/?$',
                             views.panel_delete, name = 'panel_delete'),
+                        url(r'^panel/volunteer/?$',
+                            views.panel_volunteer, name = 'panel_volunteer'),
 
 # ads
                         url(r'^ad/list/?$',
@@ -98,8 +110,10 @@ urlpatterns = patterns ('',
                             views.create_combo, name = 'combo_create'),
 
 # events   - not implemented, might not be
-                        url(r'^event/(P<event_id>\d+)/?$', 
-                            views.event, name = 'event_view'), 
+                        url(r'^events/?$',
+                            views.events_list, name = 'events_list'),
+                        url(r'^events/(P<event_id>\d+)/?$', 
+                            views.event, name = 'events_view'), 
 
 
 #volunteers
@@ -111,10 +125,14 @@ urlpatterns = patterns ('',
                             views.review_volunteer, name = 'volunteer_review'),
                         url(r'^volunteer/reviewlist/?$',
                             views.review_volunteer_list, name = 'volunteer_review_list'),
+                        url(r'^volunteer/?$',
+                            views.volunteer, name = 'volunteer'),
+                            #  plain volunteer is for users to use to volunteer
+                            #  to help with tech, classes, panels, etc.
 
 #vendors 
                         url(r'^vendor/create/?$',
-                            views.create_vendor, name = 'vender_create'),
+                            views.create_vendor, name = 'vendor_create'),
                          url(r'^vendor/edit/(\d+)/?$',
                             views.edit_vendor, name = 'vendor_edit'),
                         url(r'^vendor/view/(\d+)/?$',
@@ -125,6 +143,18 @@ urlpatterns = patterns ('',
 #                            views.review_vendor),
 #                        url(r'^vendor/reviewlist/?$',
 #                            views.review_vendor_list),
+
+# miscellaneous URLs
+                        url(r'^cosume_display/?$',
+                            views.costume_display, name = 'costume_display'),
+                        url(r'^reserve_hotel/?$',
+                            views.reserve_hotel, name = 'reserve_hotel'),
+                        url(r'^fashion_faire/$',
+                            views.fashion_faire, name = 'fashion_faire'),
+                        url(r'^about_us/?$',
+                            views.about, name = 'about'),
+                        url(r'^contact/?$',
+                            views.contact, name = 'contact'),
 
 # site utility stuff
                         url(r'^login/?$', 
@@ -141,7 +171,8 @@ urlpatterns = patterns ('',
                             views.update_profile, name = 'profile_update'),
                         url(r'^accounts/profile/?$', 
                             views.landing_page, name = 'profile_view'),
-                         
+                        url(r'^special/?$',
+                            views.special, name = 'special'),                         
 # password reset 
                         url(r'^accounts/password/reset/?$',
                             password_reset,

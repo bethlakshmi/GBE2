@@ -689,6 +689,12 @@ def bid_class(request):
                         'draft_fields': draft_fields
                         })
 
+def class_list(request):
+    '''
+    Gives an end user a list of class with (short) descriptions.
+    '''
+
+    pass
     
 def edit_class(request, class_id):
     '''
@@ -1351,6 +1357,13 @@ def propose_class (request):
         context = RequestContext (request, {'form': form})
         return HttpResponse(template.render(context))
 
+def events_list(request):
+    '''
+    Returns a list of the various events, with short descriptions.
+    '''
+
+    pass
+
 def panel_create(request):
     '''
     View for creating a panel.  Boilerplate for now, more later.
@@ -1387,6 +1400,13 @@ def panel_delete(request, panel_id):
     View to delete a panel.  Deleting only marks panel as deleted, does not
     actually remove the data from the DB.
     Boilerplate.
+    '''
+
+    pass
+
+def panel_volunteer(request):
+    '''
+    Volunteer to chair or sit on a panel.
     '''
 
     pass
@@ -1456,6 +1476,51 @@ def bios_volunteer(request):
 def special(request):
     '''
     Edit special privledges.
+    '''
+
+    pass
+
+def volunteer(request):
+    '''
+    Gateway to volunteering pages for users.  Either places links to individual
+    pages for panel, class, tech, etc volunteering, or a more flexible widget to
+    deal with all type of volunteering.
+    '''
+
+    pass
+
+def costume_display(request):
+    '''
+    Costume Display.  May move this and a few other things into a separate app?
+    '''
+
+    pass
+
+def reserve_hotel(request):
+    '''
+    Reserve a hotel.  Redirects user to appropriate hotel page with a token
+    or whatever else the hotel needs to know that the user gets a discount.
+    '''
+
+    pass
+
+def fashion_faire(request):
+    '''
+    The Vintage Fashion Faire.  Change this to be a static page?
+    '''
+
+    pass
+
+def about(request):
+    '''
+    About Us info page.  Change this to be a static page?
+    '''
+
+    pass
+
+def contact(request):
+    '''
+    Contact Us info page.  Change this to be a static page?
     '''
 
     pass

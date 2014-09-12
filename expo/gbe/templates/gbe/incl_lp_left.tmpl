@@ -6,6 +6,6 @@ cool stuff.
 </p>
 {% if not user.is_authenticated %}
 <p>
-The first step to logging in is <a href='{% url 'register' %}'>creating an account</a>
+The first step to logging in is <a href='{% url 'gbe:register' %}'>creating an account</a>
 </p>
 {% endif %}
