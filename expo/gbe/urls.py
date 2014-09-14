@@ -26,8 +26,8 @@ urlpatterns = patterns ('',
                             views.profile, name = 'profile_view'),
                         url(r'^profile/admin/(\d+)/?$',
                             views.admin_profile, name = 'admin_profile'),
-                        url(r'^profile/edit/(\d+)/?$',
-                            views.admin_profile, name = 'profile_edit'),
+                        url(r'^profile/edit/?$',
+                            views.profile_edit, name = 'profile_edit'),
 
 # bios - bios are a consolidation of several elements from profile
                         url(r'^bios/staff/?$',
