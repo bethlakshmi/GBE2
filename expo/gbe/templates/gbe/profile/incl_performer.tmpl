@@ -4,7 +4,7 @@
 	   </span><br>
     {% if performers %}
         {% for performer in performers %}
-	     <span class='performer'><a href='{% url 'persona_edit' performer.id %}'>{{ performer }}
+	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.id %}'>{{ performer }}
 	     	   	</a> </span>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
@@ -15,8 +15,8 @@
 	   {{ profile.display_name }} has no stage personae listed.<br>
 {% endif %}
          <ul class="rightsidebar">
-	   <li><a href='{% url 'persona_create' %}'>Create a new stage persona</a><br></li>
-	   <li><a href='{% url 'troupe_create' %}'>Create a troupe</a><br></li>
-	   <li><a href='{% url 'combo_create' %}'>Create a combo</a><br></li>
+	   <li><a href='{% url 'gbe:persona_create' %}'>Create a new stage persona</a><br></li>
+	   <li><a href='{% url 'gbe:troupe_create' %}'>Create a troupe</a><br></li>
+	   <li><a href='{% url 'gbe:combo_create' %}'>Create a combo</a><br></li>
 	 </ul>
 	 <br>

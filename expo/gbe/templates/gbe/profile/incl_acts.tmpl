@@ -4,8 +4,8 @@
 	   </span><br>
 	   {% for act in acts %}
 	      <span class='act'>
-	       {% if act.submitted %}<a href = '{% url 'act_view' act.id %}'> {{ act }} </a>(Click to view)<br>
-	       {% else %}<a href = '{% url 'act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
+	       {% if act.submitted %}<a href = '{% url 'gbe:act_view' act.id %}'> {{ act }} </a>(Click to view)<br>
+	       {% else %}<a href = '{% url 'gbe:act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
 	       {% endif %}
 
 	      </span> 
@@ -16,12 +16,12 @@
 
 	   {% endfor %}
 	   <ul class="rightsidebar">
-	     <li><a href='{% url 'act_create' %}'>Propose another act</a></li>
+	     <li><a href='{% url 'gbe:act_create' %}'>Propose another act</a></li>
 	   </ul>
 	{% else %}
 	   {{ profile.display_name }} has no acts listed.
 	   
 	   <ul class="rightsidebar">
-	     <li><a href='{% url 'act_create' %}'>Propose an act</a></li>
+	     <li><a href='{% url 'gbe:act_create' %}'>Propose an act</a></li>
 	   </ul>
 	{% endif %}
