@@ -75,14 +75,14 @@ combo_form_help_texts = {
 combo_header_text = '''A combo is a one-off group of performers working together. If \
 you want to put together an act with someone you don't usually work with, a combo \
 is probably what you're doing. If you have a group that performs together regularly, \
-it's probably a <a href='{% url 'troupe_create' %}'>troupe</a>. '''
+it's probably a <a href='{% url 'gbe:troupe_create' %}'>troupe</a>. '''
 
 
 troupe_header_text = '''A troupe is an established group of performers who work \
 together regularly under a collective name. If you are performing with a group of \
 performers that has a website, mailing list, or engagements as that group, then \
 you are probably a troupe. If you want to put something special together just for \
-the Expo, it's probably a <a href='{% url 'combo_create' %}'>combo</a>.'''
+the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
 
 

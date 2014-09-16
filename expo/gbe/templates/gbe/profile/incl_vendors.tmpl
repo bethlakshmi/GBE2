@@ -4,7 +4,7 @@
 	   </span><br>
 	   {% for vendor in vendors %}
 	      <span class='vendor'>
-	       {% if vendor.submitted %}<a href = '{% url 'vendor_view' vendor.id%}'> {{ vendor }} </a>(Click to view)<br>
+	       {% if vendor.submitted %}<a href = '{% url 'gbe:vendor_view' vendor.id%}'> {{ vendor }} </a>(Click to view)<br>
 	       {% else %}<a href = '{% url 'gbe:vendor_edit' vendor.id %}'> {{ vendor }} </a>(Click to edit)<br>
 	       {% endif %}
 
