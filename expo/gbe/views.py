@@ -1040,9 +1040,39 @@ def review_vendor(request, vendor_id):
                         'reviewer':reviewer,
                         'form':form})
     
+ 
+@login_required
+def review_vendor_list (request):
+    '''
+    Show the list of act bids, review results,
+    and give a way to update the reviews 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
 
-def review_vendor_list(request):
-    pass
+    if 'Vendor Reviewers' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect('/')   # better redirect please
+
+    try:
+        header = Vendor().bid_review_header
+        vendors = Vendor.objects.filter(submitted=True)
+        review_query = BidEvaluation.objects.filter(bid=vendors).select_related('evaluator').order_by('bid', 'evaluator')
+        rows = []
+        for vendor in vendors:
+            bid_row = []
+            bid_row.append(("bid", vendor.bid_review_summary))
+            bid_row.append(("reviews", review_query.filter(bid=vendor.id).select_related('evaluator').order_by('evaluator')))
+            bid_row.append(("id", vendor.id))
+            rows.append(bid_row)
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+    return render (request, 'gbe/bid_review_list.tmpl',
+                  {'header': header, 'rows': rows,
+                   'review_path': '/vendor/review/'})
+    
 
 @login_required
 def create_vendor(request):

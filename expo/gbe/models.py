@@ -693,6 +693,14 @@ class Vendor(Biddable):
     def validation_problems_for_submit(self):
         return []
 
+    @property
+    def bid_review_header(self):
+        return  (['Bidder', 'Business Name', 'Website', 'Last Update', 'Reviews', 'Action'])
+
+    @property
+    def bid_review_summary(self):
+        return ([(self.profile.display_name, self.title, self.website,self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+
 
 class AdBid(Biddable):
     '''
