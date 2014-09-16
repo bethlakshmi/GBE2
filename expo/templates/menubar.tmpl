@@ -84,7 +84,7 @@
        {% if user.is_authenticated %}
        <li class='has-sub'><a href='{% url 'gbe:logout' %}'><span>Logout</span></a>
           <ul>
-             <li><a href='{% url 'gbe:profile_edit' %}'><span>Update Profile</span></a></li>
+             <li><a href='{% url 'gbe:profile_update' %}'><span>Update Profile</span></a></li>
           </ul>
        </li>
        {% else %}

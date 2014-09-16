@@ -24,9 +24,9 @@ time_format_error =  '''Time must be in the format ##:##.'''
 
 
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
-<a href='{% url 'profile_edit' %}'>Fix this!</a>''',
+<a href='{% url 'profile_update' %}'>Fix this!</a>''',
                   'empty_profile':  '''Your profile needs an update, please review it, and save it. \
-<a href='{% url 'profile_edit' %}'>Update it now!</a>'''
+<a href='{% url 'profile_update' %}'>Update it now!</a>'''
                   }
 
 act_alerts = {

@@ -1525,9 +1525,3 @@ def contact(request):
 
     pass
 
-def profile_edit(request):
-    '''
-    To allow a user to edit their own profile.
-    '''
-
-    pass
