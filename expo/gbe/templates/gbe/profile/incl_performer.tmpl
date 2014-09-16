@@ -4,7 +4,7 @@
 	   </span><br>
     {% if performers %}
         {% for performer in performers %}
-	     <span class='performer'><a href='{% url 'persona_edit' performer.id %}'>{{ performer }}
+	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.id %}'>{{ performer }}
 	     	   	</a> </span>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
