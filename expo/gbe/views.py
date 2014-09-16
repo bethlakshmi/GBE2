@@ -991,7 +991,7 @@ def review_volunteer_list (request):
                    'review_path': '/volunteer/review/'})
     
 
-def review_vendor(request):
+def review_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
     To show: display all information about the bid, and a standard 
@@ -1003,13 +1003,13 @@ def review_vendor(request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
-    if 'Volunteer Reviewer' not in reviewer.special_privs:
+    if 'Vendor Reviewers' not in reviewer.privilege_groups:
         return HttpResponseRedirect('/')   # better redirect please
     try:
         vendor = Vendor.objects.filter(id=vendor_id)[0]
         volform = VendorBidForm(instance = vendor, prefix = 'The Vendor')
     except IndexError:
-        return HttpResponseRedirect('/')   # 404 please, thanks.
+        return HttpResponseRedirect('http://www.google.com')   # 404 please, thanks.
     
     '''
     if user has previously reviewed the act, provide his review for update
@@ -1720,7 +1720,7 @@ def review_act (request, act_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect('/')   # should go to 404?
 
-    if 'Act Reviewer' not in reviewer.special_privs:
+    if 'Act Reviewers' not in reviewer.privilege_groups:
         return HttpResponseRedirect('/')   # better redirect please
 
     try:
