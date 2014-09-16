@@ -990,6 +990,57 @@ def review_volunteer_list (request):
                   {'header': header, 'rows': rows,
                    'review_path': '/volunteer/review/'})
     
+
+def review_vendor(request):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect('/')   # should go to 404?
+
+    if 'Volunteer Reviewer' not in reviewer.special_privs:
+        return HttpResponseRedirect('/')   # better redirect please
+    try:
+        vendor = Vendor.objects.filter(id=vendor_id)[0]
+        volform = VendorBidForm(instance = vendor, prefix = 'The Vendor')
+    except IndexError:
+        return HttpResponseRedirect('/')   # 404 please, thanks.
+    
+    '''
+    if user has previously reviewed the act, provide his review for update
+    '''
+    try:
+        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id, evaluator_id=reviewer.id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator = reviewer, bid = vendor)
+
+    # show act info and inputs for review
+    if request.method == 'POST':
+        form = BidEvaluationForm(request.POST, instance = bid_eval)
+        if form.is_valid():
+            evaluation = form.save(commit=False)
+            evaluation.evaluator = reviewer
+            evaluation.bid = vendor
+            evaluation.save()
+            return HttpResponseRedirect('/vendor/reviewlist')
+        else:
+            return render (request, 'gbe/bid_review.tmpl',
+                           {'readonlyform': [volform],
+                           'form':form})
+    else:
+        form = BidEvaluationForm(instance = bid_eval)
+        return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'readonlyform': [volform],
+                        'reviewer':reviewer,
+                        'form':form})
+    
+
 def review_vendor_list(request):
     pass
 
@@ -1039,6 +1090,10 @@ def create_vendor(request):
                            {'link': fee_link,
                             'page_title': page_title
                             })
+        else:   #saving a draft
+            if form.is_valid():
+                vendor = form.save()
+                return HttpResponseRedirect('/')
     else:
         form = VendorBidForm(initial = {'profile':profile,
                                         'physical_address':profile.address})
