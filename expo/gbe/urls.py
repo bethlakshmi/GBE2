@@ -145,14 +145,8 @@ urlpatterns = patterns ('',
 # miscellaneous URLs
                         url(r'^cosume_display/?$',
                             views.costume_display, name = 'costume_display'),
-                        url(r'^reserve_hotel/?$',
-                            views.reserve_hotel, name = 'reserve_hotel'),
                         url(r'^fashion_faire/$',
                             views.fashion_faire, name = 'fashion_faire'),
-                        url(r'^about_us/?$',
-                            views.about, name = 'about'),
-                        url(r'^contact/?$',
-                            views.contact, name = 'contact'),
 
 # site utility stuff
                         url(r'^login/?$', 

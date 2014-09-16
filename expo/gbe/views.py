@@ -1496,14 +1496,6 @@ def costume_display(request):
 
     pass
 
-def reserve_hotel(request):
-    '''
-    Reserve a hotel.  Redirects user to appropriate hotel page with a token
-    or whatever else the hotel needs to know that the user gets a discount.
-    '''
-
-    pass
-
 def fashion_faire(request):
     '''
     The Vintage Fashion Faire.  Change this to be a static page?
@@ -1511,17 +1503,4 @@ def fashion_faire(request):
 
     pass
 
-def about(request):
-    '''
-    About Us info page.  Change this to be a static page?
-    '''
-
-    pass
-
-def contact(request):
-    '''
-    Contact Us info page.  Change this to be a static page?
-    '''
-
-    pass
 
