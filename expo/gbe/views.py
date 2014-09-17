@@ -2490,9 +2490,15 @@ def costume_display(request):
 
 def fashion_faire(request):
     '''
-    The Vintage Fashion Faire.  Change this to be a static page?
+    The Vintage Fashion Faire.  Glorified vendor list
     '''
-
-    pass
-
+    vendors = list(Vendor.objects.filter(accepted=3))
+    vendor_rows = [vendors[i*3:i*3+3] for i in range(len(vendors)/3)]
+    if len(vendors)%3>0:
+        vendor_rows.append(vendors[-(len(vendors)%3):])
+    template = 'gbe/fashionfair.tmpl'
+    context = {'vendor_rows':vendor_rows}
+    return render(request, template, context)
+    
+    
 
