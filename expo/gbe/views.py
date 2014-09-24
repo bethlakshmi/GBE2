@@ -10,6 +10,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from ticketingfuncs import compute_submission
+from django.core.urlresolvers import reverse
 
 def index(request):
     '''
@@ -80,7 +81,7 @@ def register_persona(request, **kwargs):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = PersonaForm(request.POST, request.FILES)
         if form.is_valid():
@@ -117,16 +118,16 @@ def create_troupe(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile')+'?next='+reverse('gbe.views.troupe_create'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     personae = profile.personae.all()
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('gbe.views.performer_create')+'?next='+reverse('gbe.views.troupe_create'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = TroupeForm(request.POST, request.FILES)
         if form.is_valid():
             troupe = form.save(commit=True)
             troupe_id = troupe.pk
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid.tmpl',
                       {'forms': [form],
@@ -152,16 +153,16 @@ def create_combo(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile')+'?next='+reverse('gbe.views.troupe_create'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     personae = profile.personae.all()
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('gbe.views.performer_create')+'?next='+reverse('troupe_create'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = ComboForm(request.POST, request.FILES)
         if form.is_valid():
             troupe = form.save(commit=True)
             troupe_id = troupe.pk
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')
         else:
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
@@ -190,18 +191,18 @@ def edit_persona(request, persona_id):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     try:
         persona = Persona.objects.filter(id=persona_id)[0]
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))  # just fail for now
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # just fail for now
     if persona.performer_profile != profile:
-        return HttpResponseRedirect(reverse('gbe.views.home'))  # just fail for now    
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # just fail for now    
     if request.method == 'POST':
         form = PersonaForm(request.POST, request.FILES, instance=persona)
         if form.is_valid():
             performer = form.save(commit=True)
-            return HttpResponseRedirect(reverse('gbe.views.home'))  
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  
         else:
             return render (request,
                            'gbe/bid.tmpl',
@@ -238,12 +239,12 @@ def bid_act(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     personae = profile.personae.all()
     draft_fields = Act().bid_draft_fields
     
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('gbe.views.performer_create')+'?next='+reverse('gbe.views.act_create'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('act_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         '''
         If this is a formal submit request, then do all the checking.
@@ -273,7 +274,7 @@ def bid_act(request):
             act.accepted = False
             act.save()
             if not act.performer:
-                return HttpResponseRedirect(reverse('gbe.views.performer_create')+'?next='+reverse('gbe.views.act_edit')+str(act.id))
+                return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('.act_edit', urlconf='gbe.urls', args=[str(act.id)]))
 
         else:
             fields, requiredsub = Act().bid_fields
@@ -307,7 +308,7 @@ def bid_act(request):
                 if (verify_performer_app_paid(request.user.username)):
                     act.submitted = True
                     act.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
@@ -315,7 +316,7 @@ def bid_act(request):
                             'page_title': page_title
                             })
         else:
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     else:
         form = ActEditForm(initial = {'owner':profile,
@@ -345,7 +346,7 @@ def edit_act(request, act_id):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))   
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))   
 
     try:
         act = Act.objects.filter(id=act_id)[0]
@@ -431,7 +432,7 @@ def edit_act(request, act_id):
                 if (verify_performer_app_paid(request.user.username)):
                     act.submitted = True
                     act.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
@@ -439,7 +440,7 @@ def edit_act(request, act_id):
                             'page_title': page_title
                             })
         else:
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         audio_info = act.tech.audio
         stage_info = act.tech.stage
@@ -476,7 +477,7 @@ def view_act (request, act_id):
     try:
         act = Act.objects.filter(id=act_id)[0]
         if act.performer.contact != request.user.profile:
-          return HttpResponseRedirect(reverse('gbe.views.home'))  # just fail for now    
+          return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')  # just fail for now    
         audio_info = act.tech.audio
         stage_info = act.tech.stage
         actform = ActEditForm(instance = act, 
@@ -490,7 +491,7 @@ def view_act (request, act_id):
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
 
     return render (request, 'gbe/bid_view.tmpl',
@@ -508,10 +509,10 @@ def review_act (request, act_id):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if not reviewer.user_object.is_staff:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         act = Act.objects.filter(id=act_id)[0]
@@ -530,7 +531,7 @@ def review_act (request, act_id):
         performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     '''
     if user has previously reviewed the act, provide his review for update
@@ -548,7 +549,7 @@ def review_act (request, act_id):
             evaluation.evaluator = reviewer
             evaluation.bid = act
             evaluation.save()
-            return HttpResponseRedirect(reverse('gbe.views.act_review_list'))
+            return HttpResponseRedirect(reverse('act_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [actform, audioform],
@@ -570,10 +571,10 @@ def review_act_list (request):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if not 'Act Reviewers' in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
 
@@ -588,7 +589,7 @@ def review_act_list (request):
             bid_row.append(("id", act.id))
             rows.append(bid_row)
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
@@ -601,11 +602,11 @@ def submit_act(request, act_id):
     try:
         submitter = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))  # don't bother with next redirect, they can't own this act!
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # don't bother with next redirect, they can't own this act!
     try:
         the_act = Act.objects.get(id=act_id)
     except Act.DoesNotExist:
-        return HttpResponseRedirect(reverse(gbe.home))  # no such act
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # no such act
     if the_act not in submitter.get_acts():
         return render (request, 
                        'gbe/error.tmpl', 
@@ -613,7 +614,7 @@ def submit_act(request, act_id):
     else:
         the_act.submitted= True             # Should show a review screen with a submit button
         the_act.save()                      # but I want to review how bid review is working to 
-        return HttpResponseRedirect(reverse('gbe.views.home'))    # see if I can make use of existing code before 
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                                             # implementing
 
         
@@ -630,13 +631,13 @@ def bid_class(request):
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     
     teachers = owner.personae.all()
     draft_fields = Class().get_draft_fields
 
     if len (teachers) == 0 :
-        return HttpResponseRedirect(reverse('gbe.views.performer_create')+'?next='+reverse('class_create'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('class_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         '''
         If this is a formal submit request, then do all the checking.
@@ -654,7 +655,7 @@ def bid_class(request):
                 if new_class.complete:
                     new_class.submitted=True                    
                     new_class.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else:
                     return render (request, 
                                    'gbe/bid.tmpl', 
@@ -664,7 +665,7 @@ def bid_class(request):
                                     'draft_fields': draft_fields,
                                     'errors':['Cannot submit, class is not complete']})
             new_class.save()
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Class().get_bid_fields
             return render (request, 
@@ -705,16 +706,16 @@ def edit_class(request, class_id):
     try:
         owner = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     try:
         the_class = Class.objects.filter(id=class_id)[0]
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # no class for this id, fail out
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # no class for this id, fail out
     teachers = owner.personae.all()
     draft_fields = Class().get_draft_fields
 
     if the_class.teacher not in teachers:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # not a teacher for this class, fail out
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # not a teacher for this class, fail out
 
     if request.method == 'POST':
         if 'submit' in request.POST.keys():
@@ -728,7 +729,7 @@ def edit_class(request, class_id):
                 if the_class.complete:
                     the_class.submitted=True                    
                     the_class.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else:
                     return render (request, 
                                    'gbe/bid.tmpl', 
@@ -738,7 +739,7 @@ def edit_class(request, class_id):
                                     'draft_fields': draft_fields,
                                     'errors':['Cannot submit, class is not complete']})
             the_class.save()
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Class().get_bid_fields
             return render (request, 
@@ -771,12 +772,12 @@ def view_class (request, class_id):
     try:
         classbid = Class.objects.filter(id=class_id)[0]
         if classbid.teacher.contact != request.user.profile:
-          return HttpResponseRedirect(reverse('gbe.views.home'))  # just fail for now    
+          return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # just fail for now    
         classform = ClassBidForm(instance = classbid, prefix = 'The Class')
         teacher = PersonaForm(instance = classbid.teacher, 
                                 prefix = 'The Teacher(s)')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
 
     return render (request, 'gbe/bid_view.tmpl',
@@ -794,10 +795,10 @@ def review_class (request, class_id):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if not reviewer.user_object.is_staff:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         aclass = Class.objects.filter(id=class_id)[0]
@@ -805,7 +806,7 @@ def review_class (request, class_id):
         teacher = PersonaForm(instance = aclass.teacher,
                                 prefix = 'The Teacher(s)')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     '''
     if user has previously reviewed the class, provide his review for update
@@ -823,7 +824,7 @@ def review_class (request, class_id):
             evaluation.evaluator = reviewer
             evaluation.bid = aclass
             evaluation.save()
-            return HttpResponseRedirect(reverse('class_review_list'))
+            return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [classform],
@@ -845,10 +846,10 @@ def review_class_list (request):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if  'Class Reviewers' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
 
     try:
@@ -864,7 +865,7 @@ def review_class_list (request):
             bid_row.append(("id", aclass.id))
             rows.append(bid_row)
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
@@ -878,7 +879,7 @@ def create_volunteer(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile')+'?next='+reverse('volunteer_create'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('volunteer_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
@@ -886,7 +887,7 @@ def create_volunteer(request):
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
@@ -917,16 +918,16 @@ def review_volunteer (request, volunteer_id):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if not reviewer.user_object.is_staff:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         volunteer = Volunteer.objects.filter(id=volunteer_id)[0]
         volform = VolunteerBidForm(instance = volunteer, prefix = 'The Volunteer')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     '''
     if user has previously reviewed the act, provide his review for update
@@ -944,7 +945,7 @@ def review_volunteer (request, volunteer_id):
             evaluation.evaluator = reviewer
             evaluation.bid = volunteer
             evaluation.save()
-            return HttpResponseRedirect(reverse('gbe.views.volunteer_review_list'))
+            return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [volform],
@@ -967,10 +968,10 @@ def review_volunteer_list (request):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if 'Volunteer Reviewers' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         header = Volunteer().bid_review_header
@@ -984,7 +985,7 @@ def review_volunteer_list (request):
             bid_row.append(("id", volunteer.id))
             rows.append(bid_row)
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
@@ -1001,15 +1002,15 @@ def review_vendor(request, vendor_id):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if 'Vendor Reviewers' not in reviewer.privilege_groups:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     try:
         vendor = Vendor.objects.filter(id=vendor_id)[0]
         volform = VendorBidForm(instance = vendor, prefix = 'The Vendor')
     except IndexError:
-        return HttpResponseRedirect('http://www.google.com')   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     '''
     if user has previously reviewed the act, provide his review for update
@@ -1027,7 +1028,7 @@ def review_vendor(request, vendor_id):
             evaluation.evaluator = reviewer
             evaluation.bid = vendor
             evaluation.save()
-            return HttpResponseRedirect(reverse('gbe.views.vendor_review_list'))
+            return HttpResponseRedirect(reverse('vendor_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [volform],
@@ -1050,10 +1051,10 @@ def review_vendor_list (request):
     try:
         reviewer = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # should go to 404?
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if 'Vendor Reviewers' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         header = Vendor().bid_review_header
@@ -1067,7 +1068,7 @@ def review_vendor_list (request):
             bid_row.append(("id", vendor.id))
             rows.append(bid_row)
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
@@ -1083,7 +1084,7 @@ def create_vendor(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.accounts_profile')+'?next='+reverse('gbe.views.vendor_create'))
+        return HttpResponseRedirect(reverse('accounts_profile', urlconf='gbe.urls')+'?next='+reverse('vendor_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
@@ -1113,7 +1114,7 @@ def create_vendor(request):
                 if (verify_vendor_app_paid(request.user.username)):
                     vendor.submitted = True
                     vendor.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
@@ -1123,7 +1124,7 @@ def create_vendor(request):
         else:   #saving a draft
             if form.is_valid():
                 vendor = form.save()
-                return HttpResponseRedirect(reverse('gbe.views.home'))
+                return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         form = VendorBidForm(initial = {'profile':profile,
                                         'physical_address':profile.address})
@@ -1145,7 +1146,7 @@ def edit_vendor(request, vendor_id):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.profile'))   
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
 
     try:
         vendor = Vendor.objects.filter(id=vendor_id)[0]
@@ -1194,7 +1195,7 @@ def edit_vendor(request, vendor_id):
                 if (verify_vendor_app_paid(request.user.username)):
                     vendor.submitted = True
                     vendor.save()
-                    return HttpResponseRedirect(reverse('gbe.views.home'))
+                    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
                     page_title = 'Act Payment'
                     return render(request,'gbe/please_pay.tmpl',
@@ -1202,7 +1203,7 @@ def edit_vendor(request, vendor_id):
                             'page_title': page_title
                             })
         else:
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         if len(vendor.help_times.strip()) > 0:
             help_times_initial = eval(vendor.help_times)
@@ -1231,12 +1232,12 @@ def view_vendor (request, vendor_id):
     try:
         vendor = Vendor.objects.filter(id=vendor_id)[0]
         if vendor.profile != request.user.profile:
-          return HttpResponseRedirect(reverse('gbe.views.home'))
+          return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         vendorform = VendorBidForm(instance = vendor, prefix = 'The Business')
         profile = ParticipantForm(instance = vendor.profile, 
                                 prefix = 'The Contact Info')
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     
 
     return render (request, 'gbe/bid_view.tmpl',
@@ -1305,18 +1306,19 @@ def admin_profile(request, profile_id):
     try:
         admin_profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     if not admin_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     try:
         user_profile=Profile.objects.filter(id=profile_id)[0]
     except IndexError:
-        return HttpResponseRedirect(reverse('gbe.views.home'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     if request.method == 'POST':
         form = ProfileAdminForm(request.POST, instance=user_profile)
         if form.is_valid():
             form.save(commit=True)
-            return HttpResponseRedirect(reverse('gbe.views.profile') + str(profile_id))
+            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls', 
+                                                args=[str(profile_id)]))
         else:
             return render(request, 'gbe/update_profile.tmpl', 
                           {'form':form})
@@ -1361,7 +1363,7 @@ def update_profile(request):
             profile.save()
             
             form.save()
-            return HttpResponseRedirect(reverse('gbe.views.home'))
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render(request, 'gbe/update_profile.tmpl',
                       {'left_forms': [form], 'right_forms':[prefs_form]})
@@ -1408,7 +1410,7 @@ def register (request):
             user = authenticate(username = username, 
                                 password = password)
             login (request, user)
-            return HttpResponseRedirect(reverse('gbe.views.profile'))
+            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     else:
         form = UserCreateForm()
     return render(request, 'gbe/register.html', {
@@ -1421,7 +1423,7 @@ def logout_view (request):
     # if there's any cleanup to do, do it here. 
 
     logout(request)
-    return HttpResponseRedirect(reverse('gbe.views.home'))
+    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
 
@@ -1434,7 +1436,7 @@ def propose_class (request):
         form = ClassProposalForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('gbe.views.home'))  # where to?
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # where to?
         else:
             template = loader.get_template('gbe/class_proposal.tmpl')
             context = RequestContext (request, {'form': form})
