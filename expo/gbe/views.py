@@ -93,7 +93,7 @@ def register_persona(request, **kwargs):
                 redirect_to = request.GET['next']
             else:
                 redirect_to='/'
-            return HttpResponseRedirect(redirect_to)
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
@@ -274,7 +274,7 @@ def bid_act(request):
             act.accepted = False
             act.save()
             if not act.performer:
-                return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('.act_edit', urlconf='gbe.urls', args=[str(act.id)]))
+                return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('act_edit', urlconf='gbe.urls', args=[str(act.id)]))
 
         else:
             fields, requiredsub = Act().bid_fields
