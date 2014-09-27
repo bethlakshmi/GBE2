@@ -511,7 +511,7 @@ def review_act (request, act_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if not 'Act Reviewers' in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
@@ -799,7 +799,7 @@ def review_class (request, class_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if  'Class Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
@@ -925,7 +925,7 @@ def review_volunteer (request, volunteer_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if not reviewer.user_object.is_staff:
+    if 'Volunteer Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
