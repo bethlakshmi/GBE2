@@ -92,8 +92,8 @@ def register_persona(request, **kwargs):
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
-                redirect_to='/'
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+                redirect_to=reverse('home', urlconf='gbe.urls')
+            return HttpResponseRedirect(redirect_to)
         else:
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
