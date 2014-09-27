@@ -745,14 +745,15 @@ class ClassProposal(models.Model):
     
     @property
     def bid_review_header(self):
-        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Placeholder','Action'])
+        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Published','Action'])
 
     @property
     def bid_review_summary(self):
-        return  (self.title, 
-                   self.proposal,
-                   self.type,
-                   self.name)
+        if self.display:
+            published = "Yes"
+        else:
+            published = ""
+        return  (self.title, self.proposal, self.type, self.name, published)
 
 
 class ProfilePreferences(models.Model):

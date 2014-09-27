@@ -23,16 +23,15 @@
           		</td>	
 		{% endfor %}	   
           <td class="bid-table">
-	  {% if row.reviewer %}
-                <b>Reviewer:</b> {{ row.review.evaluator.display_name }}<br>
+ 	  {% if row.reviewer %}
+               <b>Reviewer:</b> {{ row.review.evaluator.display_name }}<br>
                 <b>Recommendation:</b> {{ row.review.get_vote_display }}<br>
                 <b>Comment:</b> {{ row.review.notes }}<br>
-	{% endif %}	
+ 	  {% endif %}	
           </td>
-
-            <td class="bid-table">
-              <a href="{{ action1_link }}/{{ item }}">{{ action1_text }}</a>
-            </td>
+          <td class="bid-table">
+              <a href="{{ row.review_url }}">{% if row.action1 %}{{ row.action1 }}{% else %}Review{% endif %}</a>
+          </td>
 
         
       </tr>
