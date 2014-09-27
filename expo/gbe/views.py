@@ -863,7 +863,7 @@ def review_class_list (request):
         for aclass in classes:
             bid_row = {}
             bid_row['bid']=  aclass.bid_review_summary
-            bid_row['review'] =  review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')
+            bid_row['reviews'] =  review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')
             bid_row['id']=aclass.id
             bid_row['review_url'] = reverse('class_review', urlconf='gbe.urls', args=[aclass.id])
             rows.append(bid_row)

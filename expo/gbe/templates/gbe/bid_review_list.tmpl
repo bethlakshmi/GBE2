@@ -21,14 +21,16 @@
 	                <td class="bid-table">      
             		{{ value }}
           		</td>	
-		{% endfor %}	   
+		{% endfor %}
+          {% if "Reviews" in header %}
           <td class="bid-table">
- 	  {% if row.reviewer %}
-               <b>Reviewer:</b> {{ row.review.evaluator.display_name }}<br>
-                <b>Recommendation:</b> {{ row.review.get_vote_display }}<br>
-                <b>Comment:</b> {{ row.review.notes }}<br>
- 	  {% endif %}	
+ 	  {% for review in row.reviews %}
+               <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
+                <b>Recommendation:</b> {{ review.get_vote_display }}<br>
+                <b>Comment:</b> {{ review.notes }}<br>
+ 	  {% endfor %}	
           </td>
+          {% endif %}
           <td class="bid-table">
               <a href="{{ row.review_url }}">{% if row.action1 %}{{ row.action1 }}{% else %}Review{% endif %}</a>
           </td>
