@@ -7,6 +7,7 @@ from datetime import datetime
 from  expomodelfields import DurationField
 
 
+
 import pytz
 
 group_perms_map = {
@@ -15,7 +16,6 @@ group_perms_map = {
     'Volunteer Reviewers':'Volunteer',
     'Vendor Reviewers':'Vendor' 
 }
-
 
 
 
@@ -108,6 +108,7 @@ class Profile(models.Model):
         
     @property
     def special_privs(self):
+        from gbetext import special_privileges
         privs = [ special_privileges.get(group, None) for group in 
                   self.privilege_groups]
         return privs

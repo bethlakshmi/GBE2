@@ -190,22 +190,33 @@ blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
 
+from django.core.urlresolvers import reverse
 
-special_privileges= {'Scheduling Mavens': 
-                     {'url':'/schedule/stuff', 'title':'Scheduling'},
-                     'Act Reviewers':
-                     {'url':'/act/reviewlist', 'title':'Review Acts'},
-                     'Class Reviewers':
-                     {'url':'/class/reviewlist', 'title':'Review Classes'},
-                     'Volunteer Reviewers':
-                     {'url':'/volunteer/reviewlist', 'title':'Review Volunteers'},
-                     'Vendor Reviewers':
-                     {'url':'/vendor/reviewlist', 'title':'Review Vendors'}, 
-                     'Ticketing - Admin':
-                     {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
-                     'Ticketing - Edit Item':
-                     {'url':'/ticketing/ticket_item_edit/',
-                      'title':'Ticket Item Edit'},
-                     'Ticketing - Transactions':
-                     {'url':'/ticketing/transactions', 'title':'Ticketing Transactions'},
-                  }
+
+#{'Scheduling Mavens': 
+#                     {'url':reverse('stuff', urlconf='scheduling.urls'), 
+ #                     'title':'Scheduling'},
+
+
+special_privileges= {'Act Reviewers':
+                        {'url':reverse('act_review_list', urlconf='gbe.urls'),
+                         'title':'Review Acts'},
+                    'Class Reviewers':
+                        {'url':reverse('class_review_list', urlconf='gbe.urls'),
+                         'title':'Review Classes'},
+                    'Volunteer Reviewers':
+                        {'url':reverse('volunteer_review_list',urlconf='gbe.urls'),
+                         'title':'Review Volunteers'},
+                    'Vendor Reviewers':
+                        {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
+                         'title':'Review Vendors'}, 
+                    'Ticketing - Admin':
+                        {'url':reverse('ticket_items',urlconf='ticketing.urls'),
+                         'title':'Ticket Items'},
+                    'Ticketing - Edit Item':
+                        {'url':reverse('ticket_item_edit',urlconf='ticketing.urls'),
+                         'title':'Ticket Item Edit'},
+                    'Ticketing - Transactions':
+                        {'url':reverse('transactions', urlconf='ticketing.urls'),
+                         'title':'Ticketing Transactions'},
+                    }
