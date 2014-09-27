@@ -1084,7 +1084,7 @@ def review_vendor_list (request):
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('vendor_review', urlconf='gbe.urls')})
-==
+
 
 @login_required
 def create_vendor(request):
