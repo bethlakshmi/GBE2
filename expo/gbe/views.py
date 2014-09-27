@@ -593,7 +593,8 @@ def review_act_list (request):
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'review_path': reverse('act_review', urlconf='gbe.urls')})
+                   'action1_text': 'Review',
+                   'action1_link':  reverse('act_review', urlconf='gbe.urls')})
 
 
 
@@ -869,94 +870,9 @@ def review_class_list (request):
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'review_path': reverse('class_review', urlconf='gbe.urls')})
+                   'action1_text': 'Review',
+                   'action1_link': reverse('class_review', urlconf='gbe.urls')})
 
-@login_required
-def review_proposal (request, class_id):
-    '''
-    Show a bid  which needs to be reviewed by the current user. 
-    To show: display all information about the bid, and a standard 
-    review form.
-    If user is not a reviewer, politely decline to show anything. 
-    '''
-    try:
-        reviewer = request.user.profile
-    except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
-
-    if not reviewer.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-
-    try:
-        aclass = Class.objects.filter(id=class_id)[0]
-        classform = ClassBidForm(instance = aclass, prefix = 'The Class')
-        teacher = PersonaForm(instance = aclass.teacher,
-                                prefix = 'The Teacher(s)')
-    except IndexError:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
-    
-    '''
-    if user has previously reviewed the class, provide his review for update
-    '''
-    try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=class_id, evaluator_id=reviewer.id)[0]
-    except:
-        bid_eval = BidEvaluation(evaluator = reviewer, bid = aclass)
-
-    # show class info and inputs for review
-    if request.method == 'POST':
-        form = BidEvaluationForm(request.POST, instance = bid_eval)
-        if form.is_valid():
-            evaluation = form.save(commit=False)
-            evaluation.evaluator = reviewer
-            evaluation.bid = aclass
-            evaluation.save()
-            return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
-        else:
-            return render (request, 'gbe/bid_review.tmpl',
-                           {'readonlyform': [classform],
-                           'form':form})
-    else:
-        form = BidEvaluationForm(instance = bid_eval)
-        return render (request, 
-                       'gbe/bid_review.tmpl',
-                       {'readonlyform': [classform, teacher],
-                        'reviewer':reviewer,
-                        'form':form})
-
-@login_required
-def review_proposal_list (request):
-    '''
-    Show the list of class bids, review results,
-    and give a way to update the reviews 
-    '''
-    try:
-        reviewer = request.user.profile
-    except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
-
-    if  'Class Reviewers' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-
-
-    try:
-
-        header = Class().bid_review_header
-        classes = Class.objects.filter(submitted=True)
-        review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
-        rows = []
-        for aclass in classes:
-            bid_row = []
-            bid_row.append(("bid", aclass.bid_review_summary))
-            bid_row.append(("reviews", review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')))
-            bid_row.append(("id", aclass.id))
-            rows.append(bid_row)
-    except IndexError:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
-    
-    return render (request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows,
-                   'review_path': reverse('class_review', urlconf='gbe.urls')})
 
 
 @login_required
@@ -1076,7 +992,8 @@ def review_volunteer_list (request):
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'review_path': reverse('volunteer_review', urlconf='gbe.urls') })
+                   'action1_text': 'Review',
+                   'action1_link': reverse('volunteer_review', urlconf='gbe.urls') })
     
 
 def review_vendor(request, vendor_id):
@@ -1159,8 +1076,8 @@ def review_vendor_list (request):
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'review_path': reverse('vendor_review', urlconf='gbe.urls')})
-    
+                   'action1_text': 'Review',
+                   'action1_link': reverse('vendor_review', urlconf='gbe.urls')})
 
 @login_required
 def create_vendor(request):
@@ -1533,7 +1450,82 @@ def propose_class (request):
         template = loader.get_template('gbe/class_proposal.tmpl')
         context = RequestContext (request, {'form': form})
         return HttpResponse(template.render(context))
+    
+    
+@login_required
+def publish_proposal (request, class_id):
+    '''
+    Edit an existing proposal.  This is only available to the proposal reviewer.
+    The only use here is to prep and publish a proposal, so it's a different user
+    community than the traditional "edit" thread, so it's named "publish" instead.
+    '''
+    page_title = "Edit Proposal"
+    view_title = "Edit & Publish Proposal"
 
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('homer', urlconf='gbe.urls'))   # better redirect please
+
+    try:
+        the_class = ClassProposal.objects.filter(id=class_id)[0]
+    except IndexError:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # no class for this id, fail out
+
+    if request.method == 'POST':
+        form = ClassProposalForm(request.POST, instance=the_class)
+
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('proposal_review_list', urlconf='gbe.urls'))
+        else:
+            template = loader.get_template('gbe/class_proposal.tmpl')
+            context = RequestContext (request, {'form': form})
+            return HttpResponse(template.render(context))
+    else:
+        form = ClassProposalForm(instance=the_class)
+        template = loader.get_template('gbe/class_proposal.tmpl')
+        context = RequestContext (request, {'form': form})
+        return HttpResponse(template.render(context))
+
+@login_required
+def review_proposal_list (request):
+    '''
+    Show the list of class bids, review results,
+    and give a way to update the reviews 
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+
+    try:
+
+        header = ClassProposal().bid_review_header
+        classes = ClassProposal.objects.all()
+        review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
+        rows = []
+        for aclass in classes:
+            bid_row = []
+            bid_row.append(("bid", aclass.bid_review_summary))
+            bid_row.append(("id", aclass.id))
+            rows.append(bid_row)
+    except IndexError:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
+    
+    return render (request, 'gbe/bid_review_list.tmpl',
+                  {'header': header, 'rows': rows,
+                   'action1_text': 'Get Presenters',
+                   'action1_link': reverse('proposal_publish', urlconf='gbe.urls')})
+
+ 
 def events_list(request):
     '''
     Returns a list of the various events, with short descriptions.

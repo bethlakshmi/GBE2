@@ -742,6 +742,17 @@ class ClassProposal(models.Model):
     
     def __unicode__(self):
         return self.title
+    
+    @property
+    def bid_review_header(self):
+        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Action'])
+
+    @property
+    def bid_review_summary(self):
+        return  ([(self.title, 
+                   self.proposal,
+                   self.type,
+                   self.name)])
 
 
 class ProfilePreferences(models.Model):
