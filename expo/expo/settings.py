@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 MEDIA_URL = '/'
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
