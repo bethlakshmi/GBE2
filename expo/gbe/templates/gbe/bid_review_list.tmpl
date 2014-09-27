@@ -17,32 +17,24 @@
     </tr>
     {% for row in rows %}
       <tr class="bid-table">
-        {% for type, item in row %}
-          {% if type = "bid" %}
-            {% for bid in item %}
-              {% for value in bid %}
+              {% for value in row.bid %}
+	                <td class="bid-table">      
+            		{{ value }}
+          		</td>	
+		{% endfor %}	   
           <td class="bid-table">
-            {{ value }}
+	  {% if row.reviewer %}
+                <b>Reviewer:</b> {{ row.review.evaluator.display_name }}<br>
+                <b>Recommendation:</b> {{ row.review.get_vote_display }}<br>
+                <b>Comment:</b> {{ row.review.notes }}<br>
+	{% endif %}	
           </td>
-              {% endfor %}
-            {% endfor %}
-          {% endif %}
-          {% if type = "reviews" %}
-          <td class="bid-table">
-              {% for review in item %}
-                <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
-                <b>Recommendation:</b> {{ review.get_vote_display }}<br>
-                <b>Comment:</b> {{ review.notes }}<br>
-                {% if not forloop.last  %}<hr class="bid-table">{% endif %}
-              {% endfor %}
-          </td>
-          {% endif %}
-          {% if type = "id" %}
+
             <td class="bid-table">
               <a href="{{ action1_link }}/{{ item }}">{{ action1_text }}</a>
             </td>
-          {% endif %}
-        {% endfor %}
+
+        
       </tr>
     {% endfor %}
   </table>
