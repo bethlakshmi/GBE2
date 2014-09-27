@@ -745,14 +745,14 @@ class ClassProposal(models.Model):
     
     @property
     def bid_review_header(self):
-        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Action'])
+        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Placeholder','Action'])
 
     @property
     def bid_review_summary(self):
-        return  ([(self.title, 
+        return  (self.title, 
                    self.proposal,
                    self.type,
-                   self.name)])
+                   self.name)
 
 
 class ProfilePreferences(models.Model):

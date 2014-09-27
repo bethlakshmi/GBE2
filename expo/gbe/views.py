@@ -1517,12 +1517,12 @@ def review_proposal_list (request):
 
         header = ClassProposal().bid_review_header
         classes = ClassProposal.objects.all()
-        review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for aclass in classes:
-            bid_row = []
-            bid_row.append(("bid", aclass.bid_review_summary))
-            bid_row.append(("id", aclass.id))
+            bid_row = {}
+            bid_row['bid'] = aclass.bid_review_summary
+            bid_row['id'] =  aclass.id
+            bid_row['review_url'] = reverse('proposal_publish', urlconf='gbe.urls', args=[aclass.id])
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.

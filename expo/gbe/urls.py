@@ -74,7 +74,7 @@ urlpatterns = patterns ('',
                         url(r'^classpropose/edit/?$',
                             views.review_proposal_list, name = 'proposal_publish'),
                         url(r'^classpropose/edit/(\d+)/?$',
-                            views.publish_proposal),
+                            views.publish_proposal, name = 'proposal_publish'),
                         url(r'^classpropose/reviewlist/?$',
                             views.review_proposal_list, name = 'proposal_review_list'),
 
