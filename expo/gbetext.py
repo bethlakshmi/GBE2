@@ -204,6 +204,9 @@ special_privileges= {'Act Reviewers':
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
+                    'Proposal Reviewers':
+                        {'url':reverse('proposal_review_list', urlconf='gbe.urls'),
+                         'title':'Review Proposals'},
                     'Volunteer Reviewers':
                         {'url':reverse('volunteer_review_list',urlconf='gbe.urls'),
                          'title':'Review Volunteers'},

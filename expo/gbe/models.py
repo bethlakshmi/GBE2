@@ -664,7 +664,7 @@ class Volunteer(Biddable):
         return 'Volunteer: '+ self.profile.display_name
     @property
     def bid_review_header(self):
-        return  (['Name', 'Interests'])
+        return  (['Name', 'Interests', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
