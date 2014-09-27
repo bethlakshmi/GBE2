@@ -437,9 +437,9 @@ class Act (Biddable):
 
     @property
     def bid_review_summary(self):
-        return  ([(self.performer.name, 
+        return  (self.performer.name, 
                    self.title, 
-                   self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+                   self.updated_at.astimezone(pytz.timezone('America/New_York')))
 
     @property
     def complete(self):
@@ -615,7 +615,7 @@ class Class (Biddable, Event):
 
     @property
     def bid_review_summary(self):
-        return  ([(self.title, self.teacher, self.type, self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+        return  (self.title, self.teacher, self.type, self.updated_at.astimezone(pytz.timezone('America/New_York')))
     
     
     def __str__(self):
@@ -672,7 +672,7 @@ class Volunteer(Biddable):
         for option_id, option_value in volunteer_interests_options:
             if option_id in self.interests:
                 interest_string += option_value + ', '
-        return  ([(self.profile.display_name, interest_string)])
+        return  (self.profile.display_name, interest_string)
 
 
 class Vendor(Biddable):
@@ -700,7 +700,7 @@ class Vendor(Biddable):
 
     @property
     def bid_review_summary(self):
-        return ([(self.profile.display_name, self.title, self.website,self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+        return (self.profile.display_name, self.title, self.website,self.updated_at.astimezone(pytz.timezone('America/New_York')))
 
 
 class AdBid(Biddable):

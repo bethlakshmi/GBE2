@@ -583,10 +583,11 @@ def review_act_list (request):
         review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for act in acts:
-            bid_row = []
-            bid_row.append(("bid", act.bid_review_summary))
-            bid_row.append(("reviews", review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')))
-            bid_row.append(("id", act.id))
+            bid_row = {}
+            bid_row['bid'] = act.bid_review_summary
+            bid_row['reviews'] = review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')
+            bid_row['id'] =  act.id
+            bid_row['review_url'] = reverse('act_review', urlconf='gbe.urls', args=[act.id])
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')   # 404 please, thanks.
@@ -859,10 +860,11 @@ def review_class_list (request):
         review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for aclass in classes:
-            bid_row = []
-            bid_row.append(("bid", aclass.bid_review_summary))
-            bid_row.append(("reviews", review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')))
-            bid_row.append(("id", aclass.id))
+            bid_row = {}
+            bid_row['bid']=  aclass.bid_review_summary
+            bid_row['review'] =  review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')
+            bid_row['id']=aclass.id
+            bid_row['review_url'] = reverse('class_review', urlconf='gbe.urls', args=[aclass.id])
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
@@ -1066,10 +1068,11 @@ def review_volunteer_list (request):
         review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for volunteer in volunteers:
-            bid_row = []
-            bid_row.append(("bid", volunteer.bid_review_summary))
-            bid_row.append(("reviews", review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')))
-            bid_row.append(("id", volunteer.id))
+            bid_row = {}
+            bid_row['bid']= volunteer.bid_review_summary
+            bid_row['reviews']= review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')
+            bid_row['id'] = volunteer.id
+            bid_row['review_url'] = reverse('volunteer_review', urlconf='gbe.urls', args=[volunteer.id])
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
@@ -1149,17 +1152,20 @@ def review_vendor_list (request):
         review_query = BidEvaluation.objects.filter(bid=vendors).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for vendor in vendors:
-            bid_row = []
-            bid_row.append(("bid", vendor.bid_review_summary))
-            bid_row.append(("reviews", review_query.filter(bid=vendor.id).select_related('evaluator').order_by('evaluator')))
-            bid_row.append(("id", vendor.id))
+            bid_row = {}
+            bid_row['bid'] = vendor.bid_review_summary
+            bid_row['reviews']= review_query.filter(bid=vendor.id).select_related('evaluator').order_by('evaluator')
+            bid_row['id']= vendor.id
+            bid_row['review_url']= reverse('vendor_review', 
+                                           urlconf='gbe.urls', 
+                                           args=[vendor.id])
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'review_path': reverse('vendor_review', urlconf='gbe.urls')})
+                   'review_path': 'vendor_review'})
     
 
 @login_required
