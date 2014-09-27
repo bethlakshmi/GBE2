@@ -1601,9 +1601,9 @@ def conference_volunteer(request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     
-    teachers = owner.personae.all()
+    presenters = owner.personae.all()
 
-    if len (teachers) == 0 :
+    if len (presenters) == 0 :
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('conference_volunteer', urlconf='gbe.urls'))
 
     
@@ -1612,8 +1612,20 @@ def conference_volunteer(request):
         classes = ClassProposal.objects.filter(display=True)
         rows = []
         for aclass in classes:
+            form = ConferenceVolunteerForm(initial = {'bid': aclass, 'presenter': presenters[0] },
+                                           prefix=str(aclass.id))
+            form.fields['presenter']= forms.ModelChoiceField(queryset=Performer.
+                                                         objects.filter(contact=owner), empty_label=None) 
+            if aclass.type == "Class":
+              form.fields['how_volunteer']= forms.ChoiceField(choices=class_participation_types)
+              form.fields['how_volunteer'].widget.attrs['readonly'] = True
+            elif aclass.type == "Panel":
+              form.fields['how_volunteer']= forms.ChoiceField(choices=panel_participation_types, initial="Panelist")
+            else:
+              form.fields['how_volunteer']= forms.ChoiceField(choices=conference_participation_types)
             bid_row = {}
             bid_row['conf_item'] = aclass.presenter_bid_info
+            bid_row['form'] = form
             rows.append(bid_row)
 
     except IndexError:

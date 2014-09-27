@@ -284,6 +284,16 @@ class ProposalPublishForm(forms.ModelForm):
         help_texts= proposal_edit_help_texts
         labels = proposal_edit_labels	
         
+class ConferenceVolunteerForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = ConferenceVolunteer
+        fields, required = ConferenceVolunteer().bid_fields
+        widgets = {'bid': forms.HiddenInput()}
+
+
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
                                            required=False,

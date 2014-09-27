@@ -639,6 +639,9 @@ class BidEvaluation(models.Model):
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
 
+
+    
+    
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)
     experience = models.CharField(max_length=20,
@@ -757,13 +760,36 @@ class ClassProposal(models.Model):
 
     @property
     def presenter_bid_header(self):
-        return  (['Title', 'Proposal', 'Type'])
+        return  (['Title', 'Proposal', 'Type', 'Details'])
 
     @property
     def presenter_bid_info(self):
         return  (self.title, self.proposal, self.type)
 
-
+class ConferenceVolunteer(models.Model):
+    '''
+    A response to a bid, cast by a privileged GBE staff member
+    '''
+    presenter = models.ForeignKey(Persona,  
+                                related_name='conf_volunteer')
+    bid = models.ForeignKey(ClassProposal)
+    how_volunteer = models.CharField (max_length = 20, 
+                             choices = conference_participation_types,
+                             default = 'Any of the Above')
+    qualification = models.TextField(blank='True')
+    volunteering = models.BooleanField(blank='True')
+    def __unicode__(self):
+        return self.bid.title+": "+self.evaluator.display_name
+    
+    @property
+    def bid_fields(self):
+        return (['volunteering',
+                 'presenter',
+                 'bid',
+                 'how_volunteer', 
+                 'qualification'],
+                ['presenter', 'bid', 'how_volunteer'],
+              )
 class ProfilePreferences(models.Model):
     '''
     User-settable preferences controlling interaction with the 

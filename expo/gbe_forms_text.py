@@ -413,3 +413,14 @@ ticket_item_labels = {
 
 username_label = 'Login'
 username_help = 'Required. 30 characters or fewer. Letters, digits and @ . + - _ only.'
+
+conference_participation_types = [('Teacher', 'Teacher'), 
+                        ('Moderator', 'Moderator'), 
+                        ('Panelist', 'Panelist'), 
+                        ('Any of the Above', 'Any of the Above')] 
+
+panel_participation_types = [('Moderator', 'Moderator'), 
+                        ('Panelist', 'Panelist'), 
+                        ('Any of the Above', 'Any of the Above')]
+
+class_participation_types = [('Teacher', 'Teacher')]

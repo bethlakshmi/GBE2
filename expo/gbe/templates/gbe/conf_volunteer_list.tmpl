@@ -17,12 +17,14 @@
     </tr>
     {% for row in rows %}
       <tr class="bid-table">
-              {% for value in row.conf_item %}
-	                <td class="bid-table">      
-            		{{ value }}
-          		</td>	
-	      {% endfor %}
-
+          {% for value in row.conf_item %}
+	  <td class="bid-table">      
+              {{ value }}
+          </td>	
+	  {% endfor %}
+	  <td class="bid-table">      
+              {{ row.form.as_p }}
+          </td>	
         
       </tr>
     {% endfor %}
