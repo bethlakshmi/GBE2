@@ -387,6 +387,22 @@ class_proposal_labels = {
     'type': 'Type of Class'
 }
 
+proposal_edit_help_texts = {
+    'name' : 'Name or email of submitter',
+    'title': 'This will be published in the presenter opportunity page',
+    'proposal': 'Description for what the Expo would like to offer.',
+    'type': 'Class, panel or either one would be OK.  If "either" - volunteers will be able to choose to be a teacher, moderator, or presenter',
+    'display': 'When this is checked, the item will appear on the "Volunteer to Present" page.'
+
+}
+
+proposal_edit_labels = {
+    'title' : 'Name of Class',
+    'name' : 'Submitter Info',
+    'proposal': 'Description',
+    'type': 'Type of Class/Panel',
+    'display': 'Solicit Presenters?'
+}
 ticket_item_labels = {
     'ticket_id': 'Ticket Item Id:',
     'title':'Title:',

@@ -1468,6 +1468,7 @@ def publish_proposal (request, class_id):
     '''
     page_title = "Edit Proposal"
     view_title = "Edit & Publish Proposal"
+    submit_button = "Save Proposal"
 
     try:
         reviewer = request.user.profile
@@ -1483,20 +1484,29 @@ def publish_proposal (request, class_id):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # no class for this id, fail out
 
     if request.method == 'POST':
-        form = ClassProposalForm(request.POST, instance=the_class)
+        form = ProposalPublishForm(request.POST, instance=the_class)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('proposal_review_list', urlconf='gbe.urls'))
         else:
-            template = loader.get_template('gbe/class_proposal.tmpl')
-            context = RequestContext (request, {'form': form})
+            template = loader.get_template('gbe/bid.tmpl')
+            context = RequestContext (request, {'forms': [form],
+                        'page_title': page_title,                            
+                        'view_title': view_title,
+                        'nodraft': submit_button})
             return HttpResponse(template.render(context))
     else:
-        form = ClassProposalForm(instance=the_class)
-        template = loader.get_template('gbe/class_proposal.tmpl')
-        context = RequestContext (request, {'form': form})
+        form = ProposalPublishForm(instance=the_class)
+        template = loader.get_template('gbe/bid.tmpl')
+        context = RequestContext (request, {'forms': [form],
+                        'page_title': page_title,                            
+                        'view_title': view_title,
+                        'nodraft': submit_button})
         return HttpResponse(template.render(context))
+    
+    
+
 
 @login_required
 def review_proposal_list (request):

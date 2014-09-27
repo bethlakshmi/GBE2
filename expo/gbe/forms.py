@@ -274,6 +274,15 @@ class ClassProposalForm(forms.ModelForm):
         required = ['title']
         help_texts= class_proposal_help_texts
         labels = class_proposal_labels
+
+class ProposalPublishForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    class Meta:
+        model = ClassProposal
+        fields = ['title', 'type', 'proposal', 'name', 'display']
+        help_texts= proposal_edit_help_texts
+        labels = proposal_edit_labels	
         
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
