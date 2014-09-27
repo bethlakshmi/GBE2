@@ -90,8 +90,9 @@ urlpatterns = patterns ('',
                             views.panel_edit, name = 'panel_edit'),
                         url(r'^panel/delete/(\d+)/?$',
                             views.panel_delete, name = 'panel_delete'),
-                        url(r'^panel/volunteer/?$',
-                            views.panel_volunteer, name = 'panel_volunteer'),
+# conference
+                        url(r'^conference/volunteer/?$',
+                            views.conference_volunteer, name = 'conference_volunteer'),
 
 # ads
                         url(r'^ad/list/?$',

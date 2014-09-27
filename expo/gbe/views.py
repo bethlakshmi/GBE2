@@ -1539,7 +1539,6 @@ def review_proposal_list (request):
     
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
-                   'action1_text': 'Get Presenters',
                    'action1_link': reverse('proposal_publish', urlconf='gbe.urls')})
 
  
@@ -1590,12 +1589,39 @@ def panel_delete(request, panel_id):
 
     pass
 
-def panel_volunteer(request):
+def conference_volunteer(request):
     '''
-    Volunteer to chair or sit on a panel.
+    Volunteer to chair or sit on a panel or teach a class.
+    Builds out from Class Proposal
     '''
+    page_title = "Volunteer for the Conference"
+    view_title = "Volunteer to be a Teacher or Panelist"
+    try:
+        owner = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
+    
+    teachers = owner.personae.all()
 
-    pass
+    if len (teachers) == 0 :
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('conference_volunteer', urlconf='gbe.urls'))
+
+    
+    try:
+        header = ClassProposal().presenter_bid_header
+        classes = ClassProposal.objects.filter(display=True)
+        rows = []
+        for aclass in classes:
+            bid_row = {}
+            bid_row['conf_item'] = aclass.presenter_bid_info
+            rows.append(bid_row)
+
+    except IndexError:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
+    
+    return render (request, 'gbe/conf_volunteer_list.tmpl', 
+                  {view_title: view_title, page_title: page_title,
+                   'header': header, 'rows': rows})
 
 def ad_create(request):
     '''

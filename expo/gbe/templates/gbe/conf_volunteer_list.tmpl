@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+  <p class="vanilla">{{title}} </p>
+  <h2 class="review-title">{{ view_title }}</h2>
+
+  <table class="bid-table">
+    <tr class="bid-table">
+      {% for header_item in header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+    </tr>
+    {% for row in rows %}
+      <tr class="bid-table">
+              {% for value in row.conf_item %}
+	                <td class="bid-table">      
+            		{{ value }}
+          		</td>	
+	      {% endfor %}
+
+        
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+

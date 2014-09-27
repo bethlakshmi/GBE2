@@ -755,6 +755,14 @@ class ClassProposal(models.Model):
             published = ""
         return  (self.title, self.proposal, self.type, self.name, published)
 
+    @property
+    def presenter_bid_header(self):
+        return  (['Title', 'Proposal', 'Type'])
+
+    @property
+    def presenter_bid_info(self):
+        return  (self.title, self.proposal, self.type)
+
 
 class ProfilePreferences(models.Model):
     '''
