@@ -201,11 +201,14 @@ class ClassBidDraftForm(forms.ModelForm):
 
 
 class VolunteerBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()                            
     availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                              choices = volunteer_availability_options,
-                                             label = volunteer_labels['availability'])
+                                             label = volunteer_labels['availability'],
+                                             required = True)
     unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                              choices = volunteer_availability_options,
                                              label = volunteer_labels['unavailability'])
@@ -263,6 +266,8 @@ class StageInfoForm(forms.ModelForm):
         model=StageInfo
 
 class ClassProposalForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     class Meta:
         model = ClassProposal
         fields = ['name', 'title', 'type', 'proposal']
