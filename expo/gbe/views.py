@@ -1613,9 +1613,7 @@ def conference_volunteer(request):
     if request.method == 'POST':
         error = "start of work---"
         for aclass in classes:
-            error += "class: "+aclass.title+" + "+str(aclass.id)+'-volunteering'+' -+- '
             if str(aclass.id)+'-volunteering' in request.POST.keys():
-                error += "MATCH: "+str(aclass.id)+'-volunteering'+' -+- '
                 try:
                     volunteer = ConferenceVolunteer.objects.filter(bid=aclass).filter(
                                            presenter=request.POST.get(str(aclass.id)+'-presenter'))[0]
