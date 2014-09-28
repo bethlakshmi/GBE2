@@ -1606,33 +1606,59 @@ def conference_volunteer(request):
     if len (presenters) == 0 :
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('conference_volunteer', urlconf='gbe.urls'))
 
-    
-    try:
-        header = ClassProposal().presenter_bid_header
-        classes = ClassProposal.objects.filter(display=True)
+    header = ClassProposal().presenter_bid_header
+    header += ConferenceVolunteer().presenter_bid_header
+    classes = ClassProposal.objects.filter(display=True)
+
+    if request.method == 'POST':
+        error = "start of work---"
+        for aclass in classes:
+            error += "class: "+aclass.title+" + "+str(aclass.id)+'-volunteering'+' -+- '
+            if str(aclass.id)+'-volunteering' in request.POST.keys():
+                error += "MATCH: "+str(aclass.id)+'-volunteering'+' -+- '
+                try:
+                    volunteer = ConferenceVolunteer.objects.filter(bid=aclass).filter(
+                                           presenter=request.POST.get(str(aclass.id)+'-presenter'))[0]
+                except IndexError:
+                    volunteer = ConferenceVolunteer()
+
+                form = ConferenceVolunteerForm(request.POST, instance=volunteer,
+                                               prefix=str(aclass.id))
+                if form.is_valid():
+                    form.save()
+                else:
+                    return render (request, 'gbe/error.tmpl', 
+                                   {'error': 'There was an error saving your presentation request, please try again.'})
+
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    else: 
+      try:
         rows = []
         for aclass in classes:
             form = ConferenceVolunteerForm(initial = {'bid': aclass, 'presenter': presenters[0] },
                                            prefix=str(aclass.id))
             form.fields['presenter']= forms.ModelChoiceField(queryset=Performer.
-                                                         objects.filter(contact=owner), empty_label=None) 
+                                                         objects.filter(contact=owner),
+                                                         empty_label=None) 
             if aclass.type == "Class":
               form.fields['how_volunteer']= forms.ChoiceField(choices=class_participation_types)
               form.fields['how_volunteer'].widget.attrs['readonly'] = True
             elif aclass.type == "Panel":
-              form.fields['how_volunteer']= forms.ChoiceField(choices=panel_participation_types, initial="Panelist")
+              form.fields['how_volunteer']= forms.ChoiceField(choices=panel_participation_types,
+                                                              initial="Panelist")
             else:
               form.fields['how_volunteer']= forms.ChoiceField(choices=conference_participation_types)
+            form.fields['how_volunteer'].widget.attrs['class'] = 'how_volunteer'
             bid_row = {}
             bid_row['conf_item'] = aclass.presenter_bid_info
             bid_row['form'] = form
             rows.append(bid_row)
 
-    except IndexError:
+      except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
-    return render (request, 'gbe/conf_volunteer_list.tmpl', 
-                  {view_title: view_title, page_title: page_title,
+      return render (request, 'gbe/conf_volunteer_list.tmpl', 
+                  {'view_title': view_title, 'page_title': page_title,
                    'header': header, 'rows': rows})
 
 def ad_create(request):

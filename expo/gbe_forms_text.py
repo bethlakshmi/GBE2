@@ -403,6 +403,15 @@ proposal_edit_labels = {
     'type': 'Type of Class/Panel',
     'display': 'Solicit Presenters?'
 }
+
+presenter_help_text = {
+    'volunteering' : 'Are you interested in volunteering for this opportunity?',
+    'presenter': 'Please provide a background we can use for you as a presenter.',
+    'bid' : '',
+    'how_volunteer' : 'What role would you prefer?',
+    'qualification' : 'Please describe any qualities that make you particualrly great for this opportunity.'
+}
+
 ticket_item_labels = {
     'ticket_id': 'Ticket Item Id:',
     'title':'Title:',

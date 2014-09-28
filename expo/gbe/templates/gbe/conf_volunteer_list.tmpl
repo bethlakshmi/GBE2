@@ -2,12 +2,18 @@
 {% load staticfiles %}
 
 {% block title %}
-   Review Bids
+   {{ page_title }}
 {% endblock %}
 
 {% block content %}
-  <p class="vanilla">{{title}} </p>
   <h2 class="review-title">{{ view_title }}</h2>
+  <p>
+  Please check the box and fill out the relevant information for any class or panel you might
+  be interested in.
+  </p>
+  
+  <form action="" method="post">
+  {% csrf_token %}
 
   <table class="bid-table">
     <tr class="bid-table">
@@ -21,13 +27,30 @@
 	  <td class="bid-table">      
               {{ value }}
           </td>	
-	  {% endfor %}
-	  <td class="bid-table">      
-              {{ row.form.as_p }}
-          </td>	
+          {% endfor %}
+          {# Include the visible fields #}
+          {% for field in row.form.visible_fields %}
+	  <td class="bid-form">
+              {% if field.errors %}
+              <font color="red">!</font>&nbsp;&nbsp;
+              {% endif %}
+              {{ field }}
+              {% if field.errors %}
+              </br>
+              <font color="red">{{ field.errors }}</font>
+              {% endif %}
+          </td>
+        {% endfor %}
         
+        {# Include the hidden fields #}
+        {% for hidden in row.form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
       </tr>
     {% endfor %}
   </table>
+  </br></br>
+  <input type="submit" value="Submit"> 
+  </form>
 {% endblock %}
 

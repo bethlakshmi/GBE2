@@ -760,7 +760,7 @@ class ClassProposal(models.Model):
 
     @property
     def presenter_bid_header(self):
-        return  (['Title', 'Proposal', 'Type', 'Details'])
+        return  (['Title', 'Proposal', 'Type'])
 
     @property
     def presenter_bid_info(self):
@@ -779,17 +779,22 @@ class ConferenceVolunteer(models.Model):
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(blank='True')
     def __unicode__(self):
-        return self.bid.title+": "+self.evaluator.display_name
+        return self.bid.title+": "+self.presenter.name
     
     @property
     def bid_fields(self):
         return (['volunteering',
                  'presenter',
-                 'bid',
+                 'bid', 
                  'how_volunteer', 
                  'qualification'],
                 ['presenter', 'bid', 'how_volunteer'],
               )
+    @property
+    def presenter_bid_header(self):
+        return  (['Interested', 'Presenter', 'Role', 'Qualification'])
+
+
 class ProfilePreferences(models.Model):
     '''
     User-settable preferences controlling interaction with the 

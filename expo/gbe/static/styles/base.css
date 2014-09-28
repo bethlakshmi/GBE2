@@ -122,7 +122,20 @@ h3.readonlyform
     border-collapse:collapse;
     padding: 2px;
  }
+ 
+.bid-form
+{
+    border: 1px solid black;
+    border-collapse:collapse;
+    padding: 2px;
+    text-align: center;
+ }
 
+.how_volunteer
+{
+    width: 125;
+ }
+ 
 hr.bid-table
 {
     border: 0; height: 1px;
