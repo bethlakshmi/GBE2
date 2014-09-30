@@ -164,6 +164,14 @@ class BidEvaluationForm(forms.ModelForm):
         widgets = {'evaluator': forms.HiddenInput(),
                    'bid': forms.HiddenInput()}
 
+class BidStateChangeForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = Biddable
+        fields = ['accepted',]
+        required = ['accepted']
 
 
 class ClassBidForm(forms.ModelForm):

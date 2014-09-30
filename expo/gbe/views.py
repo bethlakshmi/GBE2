@@ -833,11 +833,17 @@ def review_class (request, class_id):
                            'form':form})
     else:
         form = BidEvaluationForm(instance = bid_eval)
+# BB - needs a privilege control - this goes only to coordinator
+        actionform = BidStateChangeForm(instance = aclass)
+        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [classform, teacher],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL':reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id]) })
 
 @login_required
 def review_class_list (request):

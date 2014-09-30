@@ -96,6 +96,11 @@ acceptance_states = ((0,'No Decision'),
                      (2,'Wait List'), 
                      (3,'Accepted'))
 
+class_acceptance_states = (
+                     (1,'Reject'),
+                     (2,'Wait List'), 
+                     (3,'Accepted'))
+
 bid_states = (("Draft", "Draft"),
               ("Submitted", "Submitted"),
               ("Paid","Paid"),

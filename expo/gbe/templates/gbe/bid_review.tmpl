@@ -18,10 +18,21 @@
   <div>
     <p><font color=red>*</font> indicates a required field
     </p>
-     <form action="" method="post">
-
-     {% include "form_table.html" %}
-     <input type="submit" value="Submit Form"> 
-     </form>
+    <div class=left_col>
+      <form action="" method="post">
+      {% include "form_table.html" %}
+      <input type="submit" value="Submit Form"> 
+      </form>
+    </div>
+    <div class=right_col>
+      <h2>Bid Control for Coordinator</h2>
+      {% if actionURL %}
+        <form action="{{ actionURL }}" method="post">
+        {% csrf_token %}
+        {{ actionform.as_p }}
+        <input type="submit" value="Submit Form"> 
+        </form>
+      {% endif %}
+    </div>
   </div>
 {% endblock %}
