@@ -1127,7 +1127,7 @@ def create_vendor(request):
                     vendor.save()
                     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
-                    page_title = 'Act Payment'
+                    page_title = 'Vendor Payment'
                     return render(request,'gbe/please_pay.tmpl',
                            {'link': fee_link,
                             'page_title': page_title
@@ -1208,7 +1208,7 @@ def edit_vendor(request, vendor_id):
                     vendor.save()
                     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
-                    page_title = 'Act Payment'
+                    page_title = 'Vendor Payment'
                     return render(request,'gbe/please_pay.tmpl',
                            {'link': fee_link,
                             'page_title': page_title
