@@ -170,7 +170,7 @@ class BidStateChangeForm(forms.ModelForm):
 
     class Meta:
         model = Biddable
-        fields = ['accepted',]
+        fields = ['accepted']
         required = ['accepted']
 
 

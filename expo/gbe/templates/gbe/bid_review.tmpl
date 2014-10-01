@@ -27,6 +27,16 @@
     {% if actionURL %}
     <div class=right_col>
       <h2>Bid Control for Coordinator</h2>
+        {% if actionform.errors %}
+        <p style= "color:red"> There is an error on the form.  </p>
+          {% for field in actionform.visible_fields %}
+            <ul>
+              {% if field.errors %}
+              <li>{{ field.errors }}</li>
+              {% endif %}
+            </ul>
+          {% endfor %}
+        {% endif %}
         <form action="{{ actionURL }}" method="post">
         {% csrf_token %}
         {{ actionform.as_p }}

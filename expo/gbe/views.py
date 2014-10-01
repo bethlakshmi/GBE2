@@ -222,6 +222,45 @@ def edit_persona(request, persona_id):
                     })  
                         
 
+@login_required
+def bid_changestate (request, bid_id):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    else:
+            actionform = False;
+            actionURL = False;
+    try:
+        bid = Biddable.objects.filter(id=bid_id)[0]
+    except IndexError:
+        # BB - need a better response for all things for "class"
+        return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))   # 404 please, thanks.
+    
+    # show class info and inputs for review
+    if request.method == 'POST':
+        form = BidStateChangeForm(request.POST, instance=bid)
+        if form.is_valid():
+            bid = form.save()
+            return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
+        else:
+            # BB - need a better response.
+            return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'actionform': form,
+                        'actionURL': 'test' })
+
+    return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
 
 
 @login_required
@@ -802,13 +841,6 @@ def review_class (request, class_id):
     if  'Class Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
-    if  'Class Coordinator' in request.user.profile.privilege_groups:
-        actionform = BidStateChangeForm(instance = aclass)
-        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
-        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
-    else:
-            actionform = False;
-            actionURL = False;
     try:
         aclass = Class.objects.filter(id=class_id)[0]
         classform = ClassBidForm(instance = aclass, prefix = 'The Class')
@@ -816,7 +848,15 @@ def review_class (request, class_id):
                                 prefix = 'The Teacher(s)')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
-    
+ 
+    if  'Class Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = aclass)
+        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
+    else:
+            actionform = False;
+            actionURL = False;
+   
     '''
     if user has previously reviewed the class, provide his review for update
     '''
