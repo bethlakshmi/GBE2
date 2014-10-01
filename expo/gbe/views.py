@@ -809,7 +809,16 @@ def review_class (request, class_id):
                                 prefix = 'The Teacher(s)')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
-    
+ 
+    if  'Class Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = aclass)
+        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
+    else:
+        actionform = False;
+        actionURL = False;
+
+   
     '''
     if user has previously reviewed the class, provide his review for update
     '''
@@ -830,12 +839,12 @@ def review_class (request, class_id):
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [classform],
-                           'form':form})
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL })
     else:
         form = BidEvaluationForm(instance = bid_eval)
-# BB - needs a privilege control - this goes only to coordinator
-        actionform = BidStateChangeForm(instance = aclass)
-        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+        
 
         return render (request, 
                        'gbe/bid_review.tmpl',
@@ -843,7 +852,7 @@ def review_class (request, class_id):
                         'reviewer':reviewer,
                         'form':form,
                         'actionform':actionform,
-                        'actionURL':reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id]) })
+                        'actionURL': actionURL })
 
 @login_required
 def review_class_list (request):
@@ -1481,7 +1490,7 @@ def publish_proposal (request, class_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('homer', urlconf='gbe.urls'))   # better redirect please
 
     try:
@@ -1525,7 +1534,7 @@ def review_proposal_list (request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
 

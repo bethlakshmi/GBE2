@@ -24,15 +24,15 @@
       <input type="submit" value="Submit Form"> 
       </form>
     </div>
+    {% if actionURL %}
     <div class=right_col>
       <h2>Bid Control for Coordinator</h2>
-      {% if actionURL %}
         <form action="{{ actionURL }}" method="post">
         {% csrf_token %}
         {{ actionform.as_p }}
         <input type="submit" value="Submit Form"> 
         </form>
-      {% endif %}
     </div>
+    {% endif %}
   </div>
 {% endblock %}
