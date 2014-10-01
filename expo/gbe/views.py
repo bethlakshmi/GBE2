@@ -802,6 +802,13 @@ def review_class (request, class_id):
     if  'Class Reviewers' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
+    if  'Class Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = aclass)
+        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
+    else:
+            actionform = False;
+            actionURL = False;
     try:
         aclass = Class.objects.filter(id=class_id)[0]
         classform = ClassBidForm(instance = aclass, prefix = 'The Class')
@@ -809,16 +816,7 @@ def review_class (request, class_id):
                                 prefix = 'The Teacher(s)')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
- 
-    if  'Class Coordinator' in request.user.profile.privilege_groups:
-        actionform = BidStateChangeForm(instance = aclass)
-        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
-        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
-    else:
-        actionform = False;
-        actionURL = False;
-
-   
+    
     '''
     if user has previously reviewed the class, provide his review for update
     '''
@@ -839,9 +837,7 @@ def review_class (request, class_id):
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [classform],
-                           'form':form,
-                           'actionform':actionform,
-                           'actionURL': actionURL })
+                           'form':form})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         
@@ -1296,8 +1292,7 @@ def profile(request, profile_id=None):
         try: 
             viewer_profile = request.user.profile
         except Profile.DoesNotExist:
-            return render (request, 'gbe/error.tmpl', 
-                           {'error' : "Not signed in"} )
+            return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
     try:
         requested_profile = Profile.objects.filter(id=profile_id)[0]
     except IndexError:
