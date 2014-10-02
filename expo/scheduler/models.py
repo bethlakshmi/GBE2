@@ -1,6 +1,7 @@
 from django.db import models
 from gbe.expomodelfields import DurationField
 from django.core.validators import RegexValidator
+from datetime import timedelta
 
 # all literal text including option sets lives in gbetext.py
 from gbetext import *
@@ -40,36 +41,8 @@ class Locations(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField()
 
-    ###  room_type is a choice from available room types,
-    ###  which are stored as a JSON object containing 
-    ###  a tuple of tuple pairs.  Can only have one type,
-    ###  otherwise, is a type of property
     room_type = models.ForeignKey(RoomTypes)
     room_properties = models.ForeignKey(Properties)
-
-    def __unicode__(self):
-        return self.name
-
-#class Property(models.Model):
-#    '''
-#    Individual Property handler, allows a property to have multiple
-#    field values, such as True/False, Integer, Choice List, etc.
-#    '''
-
-#    property_info = models.CharField(max_length = 64)
-
-#    def __unicode__(self):
-#        return self.property_info
-
-class Items(models.Model):
-    '''                                                                                                                 
-    Physical items that can be tracked on a schedule and in a location.                                                 
-    '''
-
-    name = models.CharField(max_length=64)
-    description = models.TextField()
-
-    item_properties = models.ForeignKey(Properties)
 
     def __unicode__(self):
         return self.name
@@ -98,10 +71,6 @@ class MasterEvent(models.Model):
             contain.  Aay include Event, Users, Locations, or any type
             of table that can be scheduled.  Can include a subtype.
         viewable - Defines who can view the event on the schedule.
-        item_list - List of items contained in the MasterEvent.  Each
-            item corrosponds to an entry in DB for table for that
-            items type, and is the index for that item.  SubTypes 
-            corrospond to a subtype field on that table.
         event_type - The types of events the MasterEvent can contain.
     '''
 
@@ -112,12 +81,8 @@ class MasterEvent(models.Model):
     blocking = models.CharField(max_length=8, choices = blocking_text,
                                 default = 'False')
 
-    ###  These data object are stored as JSON object in the DB.
-    ###  Gets packed into JSON objects in the forms file.
-    item_list = models.ManyToManyField(Items)
     viewable = models.CharField(max_length = 2048)
     event_types = models.ManyToManyField(EventTypes)
-    ##event_type = models.CharField(max_length = 256, choices = event_types)
 
     def __unicode__(self):
         return self.name
@@ -126,66 +91,67 @@ class Schedulable(models.Model):
     '''
     Handles the schedulability information for class that can be scheduled.
     Add this class to any class that you want to have inherit the ability
-    to be scheduled.
-    Properties are:
-        availability - DateTimes the item is available
-        blocking - False, Hard, or Soft - issues warning for conflicts
+    to be scheduled as an event.
     '''
 
-    block = models.CharField(max_length=8, choices = blocking_text,
-                                default = 'False')
-
-    ###  Availability is a list of Start Date/Time | Stop Date/Time pairs
-    ###  stored as a JSON object in the DB, set in the forms file.
-
-    available = models.CharField(max_length = 2048)
-    hard_time = DurationField(blank = True)
-    soft_time = DurationField(blank = True)
-
+    @property
     def availability(self):
-        return self.available
+        '''
+    Returns the availability of the object as a dictionary.
+        '''
+        return self.availability
 
-    def blocking(self):
-        return self.block
+    @property 
+    def duration(self):
+        '''
+    Returns the duration of the event as a DurationField.
+        '''
+        return datetime.timedelta(0)
 
-class SchedEvent(Schedulable, models.Model):
-    '''
-    A container object to describe events on the timeline of the
-    Master Event object.  Can be recursively assigned.
-    Properties:
-        hard_time, soft_time - Duration.  HardTime is the bounded
-            time the event runs.  SoftTime is the combined times of all
-            subevents and the local SoftTime.  A warning is given if
-            total SoftTime is larger then the HardTime.  Setting 
-            HardTime to 0 disables the warning, and causes the event
-            to be scheduled for the total SoftTime.
-        viewable - Defines who can view the event on the schedule.
-        blocking - False, Hard, or Soft - issues warnings over conflicts
-        item_type - List of the types of items the Event can
-            contain.  Aay include Event, Users, Locations, or any type
-            of table that can be scheduled.  Can include a subtype in the
-            form of Type.Sub.
-        item_list - List of items contained in the Event.
-        event_type - The types of events this event can contain.
-    '''
+    @property
+    def is_event(self):
+        '''
+    Returns True if this is an event.
+        '''
+        return True
 
-    name = models.CharField(max_length = 128)
+    @property
+    def viewability(self):
+        '''
+    Returns a list of people who are able to view the event on a calendar
+    or schedule.
+        '''
+        return self.viewability
 
-    #hard_time = models.TimeField(time_text[2])
-    #soft_time = models.TimeField(time_text[3])
-    #blocking = models.CharField(max_length=8, choices = blocking_text,
-    #                            default = 'False')
-    #event_type = models.ForeignKey(MasterEvent.event_types)
-    #event_type = models.CharField(max_length=64, choices = event_types)
+    @property
+    def location(self, check_time):
+        '''
+    Return the location is scheduled to occur at.  Return void or null
+    if the location is not set yet.
+        '''
+        return self.location
 
-    ###  The below options are JSON object stored in the DB.
-    ###  The are pack into JSON objects in the forms file.
-    viewable = models.CharField(max_length=2048)
-    ##event_type = models.CharField(max_length = 256, choices = event_types)
-    #item_list = models.ManyToManyField(MasterEvent.item_list)
-
-    location = models.ForeignKey(Locations)
+    @property
     def __unicode__(self):
         return self.name  
+
+class Resource(models.model):
+    '''
+    Inheritable class that makes things into resources that be scheduled.
+    '''
+
+    @property
+    def availability(self):
+        '''
+    Returns the availability of the object as a dictionary.
+        '''
+        return self.availability
+
+    @property
+    def at_event(self, check_time):
+        '''
+    Returns the event_id of the event this resources is scheduled to be at.
+        '''
+        return self.at_event
 
 ##  This program has been brought to you by the language c and the number F.

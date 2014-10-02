@@ -1,4 +1,16 @@
+from django.shortcuts import render, get_object_or_404, render_to_response
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.forms import UserCreationForm
+from django.template import loader, RequestContext
+from scheduler.models import *
+from scheduler.forms import *
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.contrib.auth import login, logout, authenticate
+from django.forms.models import inlineformset_factory
+import gbe_forms_text
+from django.core.urlresolvers import reverse
+
 
 # Create your views here.
 
@@ -10,12 +22,23 @@ def class_schedule(request):
 
     pass
 
+@login_required
 def event_schedule(request):
     '''
     Schedule an event.
     '''
 
-    pass
+    page_title = 'Schedule an Event'
+    view_title = 'Add an Event to the Calendar'
+    submit_button = 'Schedule Event'
+    update_button = 'Update Event Info'    
+
+    try:
+        event_id = request.event_id
+    except:
+        pass
+
+    form = 
 
 def panel_schedule(request):
     '''
