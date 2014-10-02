@@ -38,7 +38,7 @@ def event_schedule(request):
     except:
         pass
 
-    form = 
+#    form = 
 
 def panel_schedule(request):
     '''

@@ -19,56 +19,16 @@ class MasterEventTabularInline(admin.TabularInline):
         ('Event Types',{'fields': ['event_type']}),
         ]
 
-class SchedEventTabularInline(admin.TabularInline):
-    '''
-    Tool to create and enter data into an Event.
-    '''
-
-    model = SchedEvent
-    
-    fieldsets = [
-        ('Event Name', {'fields': ['name']}),
-        ('Hard Time', {'fields': ['hard_time']}),
-        ('Soft Time', {'fields': ['soft_time']}),
-        ('Blocking', {'fields': ['blocking']}),
-        ('Event Types', {'fields': ['event_type']}),
-        ('Include Types', {'fields': ['item_type']})
-        ]
-
 class EventIncludes(admin.ModelAdmin):
     '''
     The fields that contain multiple entries within a Master Event.
     '''
 
     fieldsets = [
-        ('Included Items', {'fields': ['item_list']}),
         ('Viewable', {'fields': ['viewable']}),
         ]
 
-    inlines = [MasterEventTabularInline, SchedEventTabularInline]
-
-class ItemsInline(admin.TabularInline):
-    '''
-    Create a list of Items in inventory to be tracked.
-    '''
-
-    fieldsets = [
-        ('Item Name', {'fields': ['name']}),
-        ]
-
-    model = Items
-
-class ItemsIncludes(admin.ModelAdmin):
-    '''
-    List of inventory items that can be tracked.
-    '''
-
-    fieldsets = [
-        ('Item Name', {'fields': ['name']}),
-        ('Description', {'fields': ['description']}),
-    ]
-
-    inlines = [ItemsInline]
+    inlines = [MasterEventTabularInline]
 
 class EventTypesInline(admin.TabularInline):
     '''
@@ -147,8 +107,6 @@ class RoomTypesInclude(admin.ModelAdmin):
 
 
 admin.site.register(MasterEvent)
-admin.site.register(SchedEvent)
-admin.site.register(Items)
 admin.site.register(Locations)
 admin.site.register(Properties)
 admin.site.register(EventTypes)

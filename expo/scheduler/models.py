@@ -135,7 +135,7 @@ class Schedulable(models.Model):
     def __unicode__(self):
         return self.name  
 
-class Resource(models.model):
+class Resource(models.Model):
     '''
     Inheritable class that makes things into resources that be scheduled.
     '''
