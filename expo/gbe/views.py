@@ -222,6 +222,45 @@ def edit_persona(request, persona_id):
                     })  
                         
 
+@login_required
+def bid_changestate (request, bid_id):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    else:
+            actionform = False;
+            actionURL = False;
+    try:
+        bid = Biddable.objects.filter(id=bid_id)[0]
+    except IndexError:
+        # BB - need a better response for all things for "class"
+        return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))   # 404 please, thanks.
+    
+    # show class info and inputs for review
+    if request.method == 'POST':
+        form = BidStateChangeForm(request.POST, instance=bid)
+        if form.is_valid():
+            bid = form.save()
+            return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
+        else:
+            # BB - need a better response.
+            return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'actionform': form,
+                        'actionURL': 'test' })
+
+    return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
 
 
 @login_required
@@ -809,7 +848,15 @@ def review_class (request, class_id):
                                 prefix = 'The Teacher(s)')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
-    
+ 
+    if  'Class Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = aclass)
+        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
+        actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
+    else:
+            actionform = False;
+            actionURL = False;
+   
     '''
     if user has previously reviewed the class, provide his review for update
     '''
@@ -833,11 +880,15 @@ def review_class (request, class_id):
                            'form':form})
     else:
         form = BidEvaluationForm(instance = bid_eval)
+        
+
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [classform, teacher],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL': actionURL })
 
 @login_required
 def review_class_list (request):
@@ -1127,7 +1178,7 @@ def create_vendor(request):
                     vendor.save()
                     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
-                    page_title = 'Act Payment'
+                    page_title = 'Vendor Payment'
                     return render(request,'gbe/please_pay.tmpl',
                            {'link': fee_link,
                             'page_title': page_title
@@ -1208,7 +1259,7 @@ def edit_vendor(request, vendor_id):
                     vendor.save()
                     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else: 
-                    page_title = 'Act Payment'
+                    page_title = 'Vendor Payment'
                     return render(request,'gbe/please_pay.tmpl',
                            {'link': fee_link,
                             'page_title': page_title
@@ -1281,8 +1332,7 @@ def profile(request, profile_id=None):
         try: 
             viewer_profile = request.user.profile
         except Profile.DoesNotExist:
-            return render (request, 'gbe/error.tmpl', 
-                           {'error' : "Not signed in"} )
+            return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
     try:
         requested_profile = Profile.objects.filter(id=profile_id)[0]
     except IndexError:
@@ -1475,7 +1525,7 @@ def publish_proposal (request, class_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('homer', urlconf='gbe.urls'))   # better redirect please
 
     try:
@@ -1519,7 +1569,7 @@ def review_proposal_list (request):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if  'Proposal Reviewers' not in request.user.profile.privilege_groups:
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
 

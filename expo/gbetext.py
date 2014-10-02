@@ -96,6 +96,11 @@ acceptance_states = ((0,'No Decision'),
                      (2,'Wait List'), 
                      (3,'Accepted'))
 
+class_acceptance_states = (
+                     (1,'Reject'),
+                     (2,'Wait List'), 
+                     (3,'Accepted'))
+
 bid_states = (("Draft", "Draft"),
               ("Submitted", "Submitted"),
               ("Paid","Paid"),
@@ -204,7 +209,7 @@ special_privileges= {'Act Reviewers':
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
-                    'Proposal Reviewers':
+                    'Class Coordinator':
                         {'url':reverse('proposal_review_list', urlconf='gbe.urls'),
                          'title':'Review Proposals'},
                     'Volunteer Reviewers':
