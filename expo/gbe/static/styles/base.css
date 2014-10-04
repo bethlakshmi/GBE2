@@ -131,6 +131,11 @@ h3.readonlyform
     text-align: center;
  }
 
+.errorlist
+{
+    color: red;
+}
+
 .how_volunteer
 {
     width: 125;

@@ -737,7 +737,7 @@ class ClassProposal(models.Model):
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
-    proposal = models.TextField()
+    proposal = models.TextField(max_length=100)
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,
                              default = 'Class')

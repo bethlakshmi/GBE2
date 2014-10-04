@@ -276,6 +276,10 @@ class StageInfoForm(forms.ModelForm):
 class ClassProposalForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    proposal = forms.CharField(max_length = 500,
+                               widget = forms.Textarea,
+                               help_text = class_proposal_help_texts['proposal'],
+                               label = class_proposal_labels['proposal'])
     class Meta:
         model = ClassProposal
         fields = ['name', 'title', 'type', 'proposal']
@@ -286,6 +290,10 @@ class ClassProposalForm(forms.ModelForm):
 class ProposalPublishForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    proposal = forms.CharField(max_length = 500,
+                               widget = forms.Textarea,
+                               help_text = class_proposal_help_texts['proposal'],
+                               label = class_proposal_labels['proposal'])
     class Meta:
         model = ClassProposal
         fields = ['title', 'type', 'proposal', 'name', 'display']

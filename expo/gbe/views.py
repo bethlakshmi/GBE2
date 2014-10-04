@@ -1576,7 +1576,7 @@ def review_proposal_list (request):
     try:
 
         header = ClassProposal().bid_review_header
-        classes = ClassProposal.objects.all()
+        classes = ClassProposal.objects.all().order_by('type', 'title')
         rows = []
         for aclass in classes:
             bid_row = {}
@@ -1658,7 +1658,7 @@ def conference_volunteer(request):
 
     header = ClassProposal().presenter_bid_header
     header += ConferenceVolunteer().presenter_bid_header
-    classes = ClassProposal.objects.filter(display=True)
+    classes = ClassProposal.objects.filter(display=True).order_by('type', 'title')
 
     if request.method == 'POST':
         error = "start of work---"
