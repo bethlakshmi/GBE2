@@ -45,6 +45,9 @@ class Biddable (models.Model):
     def typeof(self):
         return self.__class__
 
+    def typeof(self):
+        return self.__class__
+
     @property
     def ready_for_review(self):
         return self.submitted and self.accepted==0
@@ -699,11 +702,13 @@ class Vendor(Biddable):
 
     @property
     def bid_review_header(self):
-        return  (['Bidder', 'Business Name', 'Website', 'Last Update', 'Reviews', 'Action'])
+        return  (['Bidder', 'Business Name', 'Website', 'Last Update', 'State', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
-        return (self.profile.display_name, self.title, self.website,self.updated_at.astimezone(pytz.timezone('America/New_York')))
+        return (self.profile.display_name, self.title, self.website,
+                self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                acceptance_states[self.accepted][1])
 
 
 class AdBid(Biddable):

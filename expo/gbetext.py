@@ -199,6 +199,9 @@ from django.core.urlresolvers import reverse
 special_privileges= {'Act Reviewers':
                         {'url':reverse('act_review_list', urlconf='gbe.urls'),
                          'title':'Review Acts'},
+                    'Act Coordinator':
+                        {'',
+                         ''},
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
@@ -208,9 +211,15 @@ special_privileges= {'Act Reviewers':
                     'Volunteer Reviewers':
                         {'url':reverse('volunteer_review_list',urlconf='gbe.urls'),
                          'title':'Review Volunteers'},
+                    'Volunteer Coordinator':
+                        {'',
+                         ''},
                     'Vendor Reviewers':
                         {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
                          'title':'Review Vendors'}, 
+                    'Vendor Coordinator':
+                        {'',
+                         ''},
                     'Ticketing - Admin':
                         {'url':reverse('ticket_items',urlconf='ticketing.urls'),
                          'title':'Ticket Items'},

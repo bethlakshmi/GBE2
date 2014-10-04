@@ -71,7 +71,7 @@ urlpatterns = patterns ('',
 # BB - needs to have a handler - not review class.  I think there can be a default
 # for all bids that only change state (classes, vendors, ? )
                         url(r'^class/changestate/(\d+)/?$',
-                            views.bid_changestate, name='class_changestate'),
+                            views.class_changestate, name='class_changestate'),
 
 #proposals
                         url(r'^class/propose/?$',
@@ -155,6 +155,8 @@ urlpatterns = patterns ('',
                             views.review_vendor_list, name='vendor_review'),
                         url(r'^vendor/reviewlist/?$',
                             views.review_vendor_list, name='vendor_review_list'),
+                        url(r'^vendor/changestate/(\d+)/?$',
+                            views.vendor_changestate, name='vendor_changestate'),
 
 # miscellaneous URLs
                         url(r'^cosume_display/?$',

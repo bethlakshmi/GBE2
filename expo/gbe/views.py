@@ -223,47 +223,6 @@ def edit_persona(request, persona_id):
                         
 
 @login_required
-def bid_changestate (request, bid_id):
-    '''
-    The generic function to change a bid to a new state (accepted,
-    rejected, etc.).  This can work for any Biddable class, but may
-    be an add-on to other work for a given class type.
-    NOTE: only call on a post request
-    '''
-    try:
-        reviewer = request.user.profile
-    except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
-
-    if  'Class Coordinator' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-
-    else:
-            actionform = False;
-            actionURL = False;
-    try:
-        bid = Biddable.objects.filter(id=bid_id)[0]
-    except IndexError:
-        # BB - need a better response for all things for "class"
-        return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))   # 404 please, thanks.
-    
-    # show class info and inputs for review
-    if request.method == 'POST':
-        form = BidStateChangeForm(request.POST, instance=bid)
-        if form.is_valid():
-            bid = form.save()
-            return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
-        else:
-            # BB - need a better response.
-            return render (request, 
-                       'gbe/bid_review.tmpl',
-                       {'actionform': form,
-                        'actionURL': 'test' })
-
-    return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
-
-
-@login_required
 def bid_act(request):
     '''
     Create a proposed Act object. 
@@ -875,8 +834,11 @@ def review_class (request, class_id):
             return HttpResponseRedirect(reverse('class_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
-                           {'readonlyform': [classform],
-                           'form':form})
+                           {'readonlyform': [classform, teacher],
+                           'reviewer':reviewer,
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         
@@ -924,6 +886,25 @@ def review_class_list (request):
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('class_review', urlconf='gbe.urls')})
+
+@login_required
+def class_changestate (request, bid_id):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    return bid_changestate (request, bid_id, 'class_review_list')
+
 
 
 
@@ -1069,6 +1050,13 @@ def review_vendor(request, vendor_id):
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
+    if  'Class Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = vendor)
+        actionURL = reverse('vendor_changestate', urlconf='gbe.urls', args=[vendor_id])
+    else:
+            actionform = False;
+            actionURL = False;
+   
     '''
     if user has previously reviewed the act, provide his review for update
     '''
@@ -1089,14 +1077,19 @@ def review_vendor(request, vendor_id):
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [volform],
-                           'form':form})
+                           'reviewer':reviewer,
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [volform],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL': actionURL})
     
  
 @login_required
@@ -1134,6 +1127,24 @@ def review_vendor_list (request):
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('vendor_review', urlconf='gbe.urls')})
+
+@login_required
+def vendor_changestate (request, bid_id):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Class Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    return bid_changestate (request, bid_id, 'vendor_review_list')
 
 
 @login_required
@@ -1810,4 +1821,32 @@ def fashion_faire(request):
     return render(request, template, context)
     
     
+@login_required
+def bid_changestate (request, bid_id, redirectURL):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request, and call from within a specific type of bid changestate
+    function
+    '''
+
+    try:
+        bid = Biddable.objects.filter(id=bid_id)[0]
+    except IndexError:
+        return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))   
+    
+    # show class info and inputs for review
+    if request.method == 'POST':
+        form = BidStateChangeForm(request.POST, instance=bid)
+        if form.is_valid():
+            bid = form.save()
+            return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))
+        else:
+            return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'actionform': False,
+                        'actionURL': False })
+
+    return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))
 

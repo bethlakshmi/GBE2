@@ -25,7 +25,8 @@
           {% if "Reviews" in header %}
           <td class="bid-table">
  	  {% for review in row.reviews %}
-               <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
+               {% if not forloop.first %}<hr/>{% endif %}
+                <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
                 <b>Recommendation:</b> {{ review.get_vote_display }}<br>
                 <b>Comment:</b> {{ review.notes }}<br>
  	  {% endfor %}	
