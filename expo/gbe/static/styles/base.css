@@ -213,7 +213,7 @@ div.vdesc
   width: 250px;
 }
 
-.vendor
+div.vendor
 {
    border:solid 2px black; 
    table-layout: fixed;
