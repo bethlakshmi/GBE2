@@ -760,7 +760,7 @@ class ClassProposal(models.Model):
 
     @property
     def presenter_bid_header(self):
-        return  (['Title', 'Proposal', 'Type'])
+        return  (['Title', 'Proposal'])
 
     @property
     def presenter_bid_info(self):

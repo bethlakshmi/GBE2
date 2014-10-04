@@ -17,19 +17,49 @@
   <form action="" method="post">
   {% csrf_token %}
 
+
+{% for row in rows %}
+      
+{% ifchanged row.conf_item.2 %}
+{% if not forloop.first %}</table>{% endif %}
+<h3>{{row.conf_item.2}}</h3>
+
+<p>
+  {% if row.conf_item.2 == "Class" %}
+    The Great Burlesque Exposition is looking for Teachers for the following
+    Classes.  Classes will run as part of our conference tracks and are taught
+    by individuals with subject matter expertise in the class topic.
+  {% elif row.conf_item.2 == "Panel" %}
+    The Great Burlesque Exposition is looking for Moderators and Panelists
+    for the following Panels.  Moderators are expected to organize the other
+    Panelist volunteers, guide the discussion and be prepared with points for
+    discussion in the panel they are moderating.  Panelists are expected to
+    provide a unique perspective on the topic of the panel and to be able to
+    participate eloquently in a discussion of the topic.
+  {% elif row.conf_item.2 == "Either" %}
+    The following opportunities may be provided as a Class or a Panel.  The
+    Great Burlesque Exposition is open to both interested teachers and panelists
+    and will make the decision based on the level of interest and degree of
+    expertise of it's volunteers.
+  {% endif %}
+</p>
   <table class="bid-table">
-    <tr class="bid-table">
+     <tr class="bid-table">
       {% for header_item in header %}
-      <th class="bid-table">{{ header_item }}</th>
+        <th class="bid-table">{{ header_item }}</th>
       {% endfor %}
-    </tr>
-    {% for row in rows %}
+     </tr>
+{% endifchanged %}
+      
+      
       <tr class="bid-table">
-          {% for value in row.conf_item %}
-	  <td class="bid-table">      
-              {{ value }}
+          {# Skip the type - it's shown as a header #}
+	  <td class="title">      
+              {{ row.conf_item.0 }}
           </td>	
-          {% endfor %}
+	  <td class="describe">      
+              {{ row.conf_item.1 }}
+          </td>
           {# Include the visible fields #}
           {% for field in row.form.visible_fields %}
 	  <td class="bid-form">

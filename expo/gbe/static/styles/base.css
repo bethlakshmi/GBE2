@@ -222,5 +222,17 @@ div.vendor
    background-color: white;
 }
 
+td.title
+{
+  border: solid 1px black; 
+  width: 20%;
+  padding: 2px;
+}
 
+td.describe
+{
+  border:solid 1px black; 
+  width: 40%;
+  padding: 2px;
+}
 
