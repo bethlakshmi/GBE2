@@ -1652,13 +1652,17 @@ def conference_volunteer(request):
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     
     presenters = owner.personae.all()
-
+    classes = ClassProposal.objects.filter(display=True).order_by('type', 'title')
+    # if there's no classes to work with, save the user the bother, and
+    # just let them know
+    if len(classes) == 0:
+        return render (request, 'gbe/conf_volunteer_list.tmpl', 
+                   {'view_title': view_title, 'page_title': page_title})
     if len (presenters) == 0 :
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('conference_volunteer', urlconf='gbe.urls'))
 
     header = ClassProposal().presenter_bid_header
     header += ConferenceVolunteer().presenter_bid_header
-    classes = ClassProposal.objects.filter(display=True).order_by('type', 'title')
 
     if request.method == 'POST':
         error = "start of work---"

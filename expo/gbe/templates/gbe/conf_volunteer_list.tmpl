@@ -7,6 +7,8 @@
 
 {% block content %}
   <h2 class="review-title">{{ view_title }}</h2>
+  {% if rows and rows|length > 0 %}
+
   <p>
   Please check the box and fill out the relevant information for any class or panel you might
   be interested in.
@@ -49,8 +51,19 @@
       </tr>
     {% endfor %}
   </table>
-  </br></br>
   <input type="submit" value="Submit"> 
   </form>
+  {% else %}
+    There are no conference presentation opportunities at this time.
+    <br/><br/>
+    If you have a class you would like to teach - please propose it on our
+    <a href='{% url 'gbe:class_create' %}'>class proposal form</a>.
+    <br/>
+    If you have an idea for a panel, please
+    <a href='{% url 'gbe:class_propose' %}'>let us know</a>.
+  </br></br>
+
+  {% endif %}
+
 {% endblock %}
 
