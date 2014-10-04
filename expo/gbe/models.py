@@ -32,7 +32,7 @@ class Biddable (models.Model):
                               
     accepted = models.IntegerField(choices=acceptance_states, 
                                    default=0, 
-                                   blank=True)
+                                   blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -611,13 +611,13 @@ class Class (Biddable, Event):
                 )
     @property
     def bid_review_header(self):
-        return  (['Title', 'Teacher', 'Type', 'Last Update', 'Reviews', 'Action'])
+        return  (['Title', 'Teacher', 'Type', 'Last Update', 'State', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
-        return  (self.title, self.teacher, self.type, self.updated_at.astimezone(pytz.timezone('America/New_York')))
-    
-    
+        return  (self.title, self.teacher, self.type,
+                self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                acceptance_states[self.accepted][1])
     def __str__(self):
         return self.title
         

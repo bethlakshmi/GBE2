@@ -851,7 +851,6 @@ def review_class (request, class_id):
  
     if  'Class Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = aclass)
-        actionform.fields['accepted']= forms.ChoiceField(choices=class_acceptance_states, required=True)
         actionURL = reverse('class_changestate', urlconf='gbe.urls', args=[aclass.id])
     else:
             actionform = False;

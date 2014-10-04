@@ -236,3 +236,9 @@ td.describe
   padding: 2px;
 }
 
+.helptext
+{
+  font-style: italic;
+  color: grey;
+}
+

@@ -172,6 +172,8 @@ class BidStateChangeForm(forms.ModelForm):
         model = Biddable
         fields = ['accepted']
         required = ['accepted']
+        labels = acceptance_labels
+        help_texts = acceptance_help_texts
 
 
 class ClassBidForm(forms.ModelForm):

@@ -39,7 +39,8 @@
         {% endif %}
         <form action="{{ actionURL }}" method="post">
         {% csrf_token %}
-        {{ actionform.as_p }}
+        {{ actionform.as_table }}
+        <br><br>
         <input type="submit" value="Submit Form"> 
         </form>
     </div>

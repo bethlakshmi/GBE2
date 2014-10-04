@@ -101,13 +101,6 @@ class_acceptance_states = (
                      (2,'Wait List'), 
                      (3,'Accepted'))
 
-bid_states = (("Draft", "Draft"),
-              ("Submitted", "Submitted"),
-              ("Paid","Paid"),
-              ("Accepted","Accepted"),
-              ("Rejected","Rejected"),
-              ("On Hold","On Hold"))
-
 vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
                 (4, "No Comment"), (5, "Weak No"), (6, "No"), 
                 (7, "Strong No"), (0, "Undecided"), (-1, "Author"))

@@ -216,6 +216,16 @@ persona_help_texts = {
 
 bid_review_options = ( 'Accepted', 'Declined', 'Waitlist')
 
+acceptance_labels = {
+    'accepted' : ('Change Bid State')
+}
+
+acceptance_help_texts = {
+    'accepted' : ('Accept - will show the item on public pages as part of GBE, \
+                     Accept or Reject - will show up on the bidder\'s home page')
+}
+
+
 actbid_error_messages = {
     'title': {
         'required': ("The Title is required."),
