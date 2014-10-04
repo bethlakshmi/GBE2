@@ -1050,7 +1050,7 @@ def review_vendor(request, vendor_id):
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
-    if  'Class Coordinator' in request.user.profile.privilege_groups:
+    if  'Vendor Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = vendor)
         actionURL = reverse('vendor_changestate', urlconf='gbe.urls', args=[vendor_id])
     else:
@@ -1141,7 +1141,7 @@ def vendor_changestate (request, bid_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
-    if  'Class Coordinator' not in request.user.profile.privilege_groups:
+    if  'Vendor Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     return bid_changestate (request, bid_id, 'vendor_review_list')

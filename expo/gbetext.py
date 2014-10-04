@@ -200,8 +200,8 @@ special_privileges= {'Act Reviewers':
                         {'url':reverse('act_review_list', urlconf='gbe.urls'),
                          'title':'Review Acts'},
                     'Act Coordinator':
-                        {'',
-                         ''},
+                        {'url': '',
+                         'title':''},
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
@@ -212,14 +212,14 @@ special_privileges= {'Act Reviewers':
                         {'url':reverse('volunteer_review_list',urlconf='gbe.urls'),
                          'title':'Review Volunteers'},
                     'Volunteer Coordinator':
-                        {'',
-                         ''},
+                        {'url': '',
+                         'title': ''},
                     'Vendor Reviewers':
                         {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
                          'title':'Review Vendors'}, 
                     'Vendor Coordinator':
-                        {'',
-                         ''},
+                        {'url': '',
+                         'title':''},
                     'Ticketing - Admin':
                         {'url':reverse('ticket_items',urlconf='ticketing.urls'),
                          'title':'Ticket Items'},
