@@ -748,10 +748,15 @@ def bid_class(request):
 
 def class_list(request):
     '''
-    Gives an end user a list of class with (short) descriptions.
+    Gives an end user a list of the accepted class with descriptions.
+    If the class is scheduled, it should also show day/time for class.
     '''
-
-    pass
+    try:
+        classes = Class.objects.filter(accepted='3')
+    except:
+        classes = None
+    return render(request, 'gbe/class_list.tmpl',
+                  {'classes': classes})
     
 def edit_class(request, class_id):
     '''
@@ -1880,9 +1885,8 @@ def fashion_faire(request):
 @login_required
 def bid_changestate (request, bid_id, redirectURL):
     '''
-    The generic function to change a bid to a new state (accepted,
-    rejected, etc.).  This can work for any Biddable class, but may
-    be an add-on to other work for a given class type.
+    The generic function to change a bid to a new state (accepted, rejected, etc.).
+    This can work for any Biddable class, but may be an add-on to other work for a given class type.
     NOTE: only call on a post request, and call from within a specific type of bid changestate
     function
     '''

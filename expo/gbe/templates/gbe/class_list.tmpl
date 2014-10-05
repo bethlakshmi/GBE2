@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}
+  Great Burlesque Exposition: Conference Classes
+{% endblock %}
+
+{% block content %}
+   
+   <H1>Class Descriptions 2012</H1>
+   <div class=body>
+     <p>
+     The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of
+     class time over threee days.  It is the original Professional Development Conference for
+     burlesque performers, founded on the philosophy that "If we don't take ourselves seriously,
+     no one else will either".
+     </p>
+     <p>
+     Whether you're looking to boost a skill set to the next level or develop some new skills,
+     The Conference has something for you from costuming to publicity to philosophical
+     discussions.  
+     </p>
+   </div>
+
+
+   <table class="list_table" align=left>
+   {% for class in classes %}
+      <tr class="lrow">
+      	 <td class="lcell">
+	   <h3 class="lname">
+	   {{class.title}}
+	   </h3>
+	   <div class="ldetails">
+	    Taught by: <i>teacher</i>
+	    <br/>
+	    January 1, 2015 - 3:00 PM, Duration: {{class.duration}}
+	    <br/>
+	    Fee:  {{class.fee}}
+	   </div>
+	   <div class="ldesc">
+	    {{class.description}}
+	   </div>
+	 </td>
+      </tr>
+   {% endfor %} 
+   </table>
+
+{% endblock %}
