@@ -154,10 +154,7 @@ class Profile(models.Model):
     def get_shows(self):
         shows = []
         for act in self.get_acts():
-            try:
-                shows += Show.objects.filter(acts=act)
-            except Show.DoesNotExist:
-                shows += []
+            shows += act.appearing_in.all()
         return shows
     def is_teaching(self):
         '''
@@ -444,10 +441,17 @@ class Act (Biddable):
     @property
     def bid_review_summary(self):
         try:
-            thisshow = Show.objects.filter(acts=self)[0]
-            show_name = thisshow.nice_name
-        except:
+            shows = self.appearing_in.all()
             show_name = ''
+            first = True
+            for show in shows:
+                if first:
+                    show_name += show.title
+                    first = False
+                else:
+                    show_name += ', ' + show.title
+        except:
+            show_name = 'Show Search Error'
 
         return  (self.performer.name, 
                    self.title, 
@@ -547,11 +551,13 @@ class Event (models.Model):
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
-    BB - working around here, trying to get a sense of assigning acts to Shows better than it
-    was...
+    BB - so... what threw me is that Acts are *not* many to many with Shows.  An Act is
+    in one show and one show only.  In 9 years of running the Expo, this has never, ever changed
+    BUT - (a) changing Acts in the live DB will be painful, (b) many to many is more flexible
+    (c) - we can control with business logic, so I'm OK with leaving it.
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
-    # mc = models.ManyToManyField(Persona, related_name="mc_for")      
+    mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)      
 
     def __str__(self):
         return self.title 

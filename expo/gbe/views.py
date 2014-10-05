@@ -533,17 +533,11 @@ def review_act (request, act_id):
     
     if  'Act Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = act)
-
-        try:
-            shows = Show.objects.all()
-            actionform.fields['show'] = forms.ModelChoiceField(choices=shows,
-                                                     widget=forms.Select,
-                                                     required=True,
-                                                     initial=show_id,
+        # BB - wants order by start date, just don't know how...
+        # BB - wants initial to be currently cast show
+        actionform.fields['show'] = forms.ModelChoiceField(queryset=Show.objects.all(),
+                                                     empty_label=None,
                                                      label='Pick a Show')
-        except:
-            shows = None
-
 
         actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
     else:
@@ -632,7 +626,26 @@ def act_changestate (request, bid_id):
     if  'Act Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
+    if request.method == 'POST':
+        act = Act.objects.filter(id=bid_id)[0]
 
+        # Clear out previous castings
+        shows = act.appearing_in.all()
+        for show in shows:
+            show.acts.remove(act)
+            show.save()
+
+        # if the act has been accepted, set the show.
+        if request.POST['show'] and (request.POST['accepted'] == '3' or
+                                     request.POST['accepted'] == '2'):
+            # Set this one
+            try:
+                show = Show.objects.filter(id=request.POST['show'])[0]
+            except:
+                return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+            show.acts.add(act)
+            show.save()
+            
     return bid_changestate (request, bid_id, 'act_review_list')
 
 
