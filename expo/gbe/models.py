@@ -154,7 +154,10 @@ class Profile(models.Model):
     def get_shows(self):
         shows = []
         for act in self.get_acts():
-            shows += act.appearing_in.all()
+            try:
+                shows += Show.objects.filter(acts=act)
+            except Show.DoesNotExist:
+                shows += []
         return shows
     def is_teaching(self):
         '''
@@ -436,13 +439,21 @@ class Act (Biddable):
  
     @property
     def bid_review_header(self):
-        return  (['Performer', 'Act Title', 'Last Update', 'Reviews', 'Action'])
+        return  (['Performer', 'Act Title', 'Last Update', 'State', 'Show', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
+        try:
+            thisshow = Show.objects.filter(acts=self)[0]
+            show_name = thisshow.nice_name
+        except:
+            show_name = ''
+
         return  (self.performer.name, 
                    self.title, 
-                   self.updated_at.astimezone(pytz.timezone('America/New_York')))
+                   self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                   acceptance_states[self.accepted][1], show_name)
+
 
     @property
     def complete(self):
@@ -500,16 +511,6 @@ class Act (Biddable):
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
-
-class Room(models.Model):
-    '''
-    A room at the expo center
-    '''
-    name = models.CharField(max_length=50)
-    capacity = models.IntegerField()
-    overbook_size = models.IntegerField()
-    def __str__ (self):
-        return self.name
     
 class Event (models.Model):
     '''
@@ -526,7 +527,6 @@ class Event (models.Model):
 
 
     ## run-specific info, in case we decide to return to the run idea
-  #  room = models.ForeignKey(Room, blank=True)
     notes = models.TextField()  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
                                                 
@@ -535,12 +535,24 @@ class Event (models.Model):
 
 class Show (Event):
     '''
-    A Show is an Event consisting of a sequence of Acts. 
+    A Show is an Event consisting of a sequence of Acts.
+    BB - this is a stub until we have Scheduling setup as we want.
     '''
-    acts = models.ManyToManyField(Act, related_name="appearing_in")
-    mc = models.ManyToManyField(Persona, related_name="mc_for")      
-    
-                                                
+    acts = models.OneToOneField(Act, related_name="appearing_in")
+    name = models.CharField(max_length=128, 
+                            choices=all_shows_options, 
+                            blank=False)     
+    def __str__(self):
+        return self.nice_name + ": " + self.acts.title
+
+    @property
+    def nice_name(self):
+        show_name = "empty"
+        for x,y in all_shows_options:
+            if str(x) == self.name:
+                show_name = y
+        return show_name
+
 class Class (Biddable, Event):
     '''
     A Class is an Event where one or a few people

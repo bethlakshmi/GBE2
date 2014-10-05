@@ -531,6 +531,24 @@ def review_act (request, act_id):
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
+    if  'Act Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = act)
+        # BB - needs to change what the choice set is when we have working schedule items
+        try:
+            show_id = Show.objects.filter(acts=act)[0].name
+        except:
+            show_id = '0'
+        actionform.fields['show'] = forms.ChoiceField(choices=all_shows_options,
+                                                     widget=forms.Select,
+                                                     required=True,
+                                                     initial=show_id,
+                                                     label='Pick a Show')
+
+        actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
+    else:
+            actionform = False;
+            actionURL = False;
+
     '''
     if user has previously reviewed the act, provide his review for update
     '''
@@ -550,15 +568,20 @@ def review_act (request, act_id):
             return HttpResponseRedirect(reverse('act_review_list', urlconf='gbe.urls'))
         else:
             return render (request, 'gbe/bid_review.tmpl',
-                           {'readonlyform': [actform, audioform],
-                           'form':form})
+                           {'readonlyform': [actform, performer],
+                           'reviewer':reviewer,
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [actform, performer],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL': actionURL})
 
 @login_required
 def review_act_list (request):
@@ -575,9 +598,8 @@ def review_act_list (request):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
-
         header = Act().bid_review_header
-        acts = Act.objects.filter(submitted=True)
+        acts = Act.objects.filter(submitted=True).order_by('accepted', 'performer')
         review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for act in acts:
@@ -588,12 +610,46 @@ def review_act_list (request):
             bid_row['review_url'] = reverse('act_review', urlconf='gbe.urls', args=[act.id])
             rows.append(bid_row)
     except IndexError:
-        return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')   # 404 please, thanks.
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   
     
     return render (request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows,
-                   'action1_text': 'Review',
-                   'action1_link':  reverse('act_review', urlconf='gbe.urls')})
+                  {'header': header, 'rows': rows})
+
+@login_required
+def act_changestate (request, bid_id):
+    '''
+    The generic function to change a bid to a new state (accepted,
+    rejected, etc.).  This can work for any Biddable class, but may
+    be an add-on to other work for a given class type.
+    NOTE: only call on a post request
+    '''
+    try:
+        reviewer = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
+
+    if  'Act Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    if request.method == 'POST':
+        act = Act.objects.filter(id=bid_id)[0]
+        # if the act has been accepted, set the show.
+        if request.POST['show'] and request.POST['accepted'] == '3':
+            try:
+                show = Show.objects.filter(acts=act)[0]
+            except:
+                show = Show()
+                show.acts=act
+            show.name=request.POST['show']
+            show.save()
+        # otherwise, make sure no show is present
+        else:
+            try:
+                show = Show.objects.filter(acts=act)[0]
+                show.delete()
+            except:
+                return bid_changestate (request, bid_id, 'act_review_list')
+    return bid_changestate (request, bid_id, 'act_review_list')
 
 
 
@@ -869,7 +925,7 @@ def review_class_list (request):
     try:
 
         header = Class().bid_review_header
-        classes = Class.objects.filter(submitted=True)
+        classes = Class.objects.filter(submitted=True).order_by('accepted', 'title')
         review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for aclass in classes:
@@ -1108,7 +1164,7 @@ def review_vendor_list (request):
 
     try:
         header = Vendor().bid_review_header
-        vendors = Vendor.objects.filter(submitted=True)
+        vendors = Vendor.objects.filter(submitted=True).order_by('accepted', 'title')
         review_query = BidEvaluation.objects.filter(bid=vendors).select_related('evaluator').order_by('bid', 'evaluator')
         rows = []
         for vendor in vendors:

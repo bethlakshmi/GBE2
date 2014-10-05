@@ -1,11 +1,13 @@
 	
 	{% if shows %}
 	   <span class='heading shows'>
-	   	Shows {{ profile.display_name }} is appearing in:
+	   	<b>Shows {{ profile.display_name }} is appearing in:</b>
 	   </span><br>
 	   {% for show in shows %}
 	      <span class='show'> {{ show }} </span> <br>
 	   {% endfor %}
 	{% else %}
-	   {{ profile.display_name }} is not scheduled for any shows at this time. <br><br>
+	   {{ profile.display_name }} is not scheduled for any shows at this time. 
 	{% endif %}
+
+<br>

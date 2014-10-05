@@ -49,6 +49,7 @@ act_shows_options  = [ (0, 'The Bordello (Fri. Late)'),
                        (3, 'The Newcomer\'s Showcase'),
                        ]
 
+all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 
  
 best_time_to_call_options = [('Any', 'Any'), 
