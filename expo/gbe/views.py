@@ -533,16 +533,17 @@ def review_act (request, act_id):
     
     if  'Act Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = act)
-        # BB - needs to change what the choice set is when we have working schedule items
+
         try:
-            show_id = Show.objects.filter(acts=act)[0].name
-        except:
-            show_id = '0'
-        actionform.fields['show'] = forms.ChoiceField(choices=all_shows_options,
+            shows = Show.objects.all()
+            actionform.fields['show'] = forms.ModelChoiceField(choices=shows,
                                                      widget=forms.Select,
                                                      required=True,
                                                      initial=show_id,
                                                      label='Pick a Show')
+        except:
+            shows = None
+
 
         actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
     else:
@@ -631,24 +632,7 @@ def act_changestate (request, bid_id):
     if  'Act Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
-    if request.method == 'POST':
-        act = Act.objects.filter(id=bid_id)[0]
-        # if the act has been accepted, set the show.
-        if request.POST['show'] and request.POST['accepted'] == '3':
-            try:
-                show = Show.objects.filter(acts=act)[0]
-            except:
-                show = Show()
-                show.acts=act
-            show.name=request.POST['show']
-            show.save()
-        # otherwise, make sure no show is present
-        else:
-            try:
-                show = Show.objects.filter(acts=act)[0]
-                show.delete()
-            except:
-                return bid_changestate (request, bid_id, 'act_review_list')
+
     return bid_changestate (request, bid_id, 'act_review_list')
 
 

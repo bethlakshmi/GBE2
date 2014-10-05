@@ -511,6 +511,16 @@ class Act (Biddable):
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
+
+class Room(models.Model):
+    '''
+    A room at the expo center
+    '''
+    name = models.CharField(max_length=50)
+    capacity = models.IntegerField()
+    overbook_size = models.IntegerField()
+    def __str__ (self):
+        return self.name
     
 class Event (models.Model):
     '''
@@ -521,13 +531,14 @@ class Event (models.Model):
     from participant bids.  
     '''
     title = models.CharField(max_length=128)
-    description = models.TextField()  # public-facing description 
-    blurb = models.TextField()        # short description
+    description = models.TextField()            # public-facing description 
+    blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
 
 
     ## run-specific info, in case we decide to return to the run idea
-    notes = models.TextField()  #internal notes about this event
+    #  room = models.ForeignKey(Room, blank=True)
+    notes = models.TextField(blank=True)  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
                                                 
     def __str__(self):
@@ -536,22 +547,15 @@ class Event (models.Model):
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
-    BB - this is a stub until we have Scheduling setup as we want.
+    BB - working around here, trying to get a sense of assigning acts to Shows better than it
+    was...
     '''
-    acts = models.OneToOneField(Act, related_name="appearing_in")
-    name = models.CharField(max_length=128, 
-                            choices=all_shows_options, 
-                            blank=False)     
-    def __str__(self):
-        return self.nice_name + ": " + self.acts.title
+    acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
+    # mc = models.ManyToManyField(Persona, related_name="mc_for")      
 
-    @property
-    def nice_name(self):
-        show_name = "empty"
-        for x,y in all_shows_options:
-            if str(x) == self.name:
-                show_name = y
-        return show_name
+    def __str__(self):
+        return self.title 
+
 
 class Class (Biddable, Event):
     '''
