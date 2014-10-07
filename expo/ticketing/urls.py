@@ -7,11 +7,11 @@ from django.conf.urls import patterns, url
 from ticketing import views
 
 urlpatterns = patterns('', 
-    url('^$', views.index, name='index'),
-    url(r'^ticket_items/?$', views.ticket_items, name='ticket_items'),
-    url(r'^ticket_item_edit/?$', views.ticket_item_edit, name='ticket_item_edit'),
-    url(r'^ticket_item_edit/(?P<item_id>\d+)/?$', views.ticket_item_edit, name='ticket_item_edit'),
-    url(r'^transactions/?$', views.transactions, name='transactions'),
+    url('^ticketing/$', views.index, name='index'),
+    url(r'^ticketing/ticket_items/?$', views.ticket_items, name='ticket_items'),
+    url(r'^ticketing/ticket_item_edit/?$', views.ticket_item_edit, name='ticket_item_edit'),
+    url(r'^ticketing/ticket_item_edit/(?P<item_id>\d+)/?$', views.ticket_item_edit, name='ticket_item_edit'),
+    url(r'^ticketing/transactions/?$', views.transactions, name='transactions'),
     
 )
 
