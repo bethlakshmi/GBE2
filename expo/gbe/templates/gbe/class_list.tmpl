@@ -21,26 +21,26 @@
    </div>
 
    {% for class in classes %}
-   <div class="classblock" id={{class.id}}>
-      <h2 class="classheader">
+   <div class="listblock" id={{class.id}}>
+      <h2 class="listheader">
       {{class.title}}
       </h2>
-      <div class="ldetails">
-	 <label class="classlabel">Taught by:</label> <i>teacher</i>
+      <div class="listdetails">
+	 <label class="listlabel">Taught by:</label> <i>{{class.teacher}}</i>
 	 <br/>
-	 <label class="classlabel">Time:</label> <i>January 1, 2015 - 3:00 PM, 
+	 <label class="listlabel">Time:</label> <i>January 1, 2015 - 3:00 PM, 
 	 {% if class.duration %}{{class.duration}} (mm:ss)
 	 {% else %}{{class.length_minutes}} minutes{% endif %}
 	 </i><br/>
 	 {%if not class.fee == 0%}
-         <label class="classlabel">Fee:</label> {{class.fee}}
+         <label class="listlabel">Fee:</label> {{class.fee}}
 	 {%endif%}
       </div>
-      <div class="ldesc">
+      <div class="listdesc">
 	 {{class.description}}
       </div>
    </div>
-   <hr class="classline">
+   <hr class="listline">
    {% endfor %} 
 
 {% endblock %}
