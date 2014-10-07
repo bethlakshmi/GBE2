@@ -20,27 +20,27 @@
      </p>
    </div>
 
-
-   <table class="list_table" align=left>
    {% for class in classes %}
-      <tr class="lrow">
-      	 <td class="lcell">
-	   <h3 class="lname">
-	   {{class.title}}
-	   </h3>
-	   <div class="ldetails">
-	    Taught by: <i>teacher</i>
-	    <br/>
-	    January 1, 2015 - 3:00 PM, Duration: {{class.duration}}
-	    <br/>
-	    Fee:  {{class.fee}}
-	   </div>
-	   <div class="ldesc">
-	    {{class.description}}
-	   </div>
-	 </td>
-      </tr>
+   <div class="classblock" id={{class.id}}>
+      <h2 class="classheader">
+      {{class.title}}
+      </h2>
+      <div class="ldetails">
+	 <label class="classlabel">Taught by:</label> <i>teacher</i>
+	 <br/>
+	 <label class="classlabel">Time:</label> <i>January 1, 2015 - 3:00 PM, 
+	 {% if class.duration %}{{class.duration}} (mm:ss)
+	 {% else %}{{class.length_minutes}} minutes{% endif %}
+	 </i><br/>
+	 {%if not class.fee == 0%}
+         <label class="classlabel">Fee:</label> {{class.fee}}
+	 {%endif%}
+      </div>
+      <div class="ldesc">
+	 {{class.description}}
+      </div>
+   </div>
+   <hr class="classline">
    {% endfor %} 
-   </table>
 
 {% endblock %}
