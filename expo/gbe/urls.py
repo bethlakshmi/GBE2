@@ -128,6 +128,9 @@ urlpatterns = patterns ('',
                         url(r'^events/(P<event_id>\d+)/?$', 
                             views.event, name = 'events_view'), 
 
+# shows   - test only right now
+                        url(r'^shows/?$',
+                            views.shows_list, name = 'shows_list'),
 
 #volunteers
                         url(r'^volunteer/bid/?$',

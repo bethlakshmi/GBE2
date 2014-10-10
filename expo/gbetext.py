@@ -130,6 +130,11 @@ experience_options = (('0', "I'm not a burlesque performer"),
                       ('4',"5-6 years"),
                       ('5',"more than 6 years"))
 
+event_options = (('Special', "Special Event"),
+                 ('Master',"Master Class"),
+                 ('Drop-In',"Drop-In Class"))
+
+
 class_options = (('Lecture', "Lecture"),
                  ('Movement', "Movement"),
                  ('Panel', "Panel"),
@@ -231,3 +236,5 @@ special_privileges= {'Act Reviewers':
                         {'url':reverse('transactions', urlconf='ticketing.urls'),
                          'title':'Ticketing Transactions'},
                     }
+
+

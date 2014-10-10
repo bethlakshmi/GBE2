@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}
+  Great Burlesque Exposition: {{title}}
+{% endblock %}
+
+{% block content %}
+   
+   <H1>{{title}}</H1>
+   <div class=body>
+     {{view_header_text | safe}}
+ 
+   </div>
+
+   {% for event in events %}
+   <div class="listblock" id={{class.id}}>
+      <h2 class="listheader">
+      {{event.payload.title}}
+      </h2>
+      <div class="listdetails">
+	 <label class="listlabel">Taught by:</label> <i>{{event.teacher}}</i>
+	 <br/>
+	 <label class="listlabel">Time:</label> <i>January 1, 2015 - 3:00 PM, 
+	 {% if event.duration %}{{class.duration}} (mm:ss)
+	 {% else %}{{event.length_minutes}} minutes{% endif %}
+	 </i><br/>
+	 {% for name, value in event.payload.details %}
+         <label class="listlabel">{{name}}:</label> {{value}}<br>
+	 {% endfor %}
+      </div>
+      <div class="listdesc">
+	 {{event.payload.description}}
+      </div>
+   </div>
+   <hr class="listline">
+   {% endfor %} 
+
+{% endblock %}

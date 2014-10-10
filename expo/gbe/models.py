@@ -547,21 +547,53 @@ class Event (models.Model):
                                                 
     def __str__(self):
         return self.title
+    
+    @property
+    def payload(self):
+        payload = {}
+        payload['title'] = self.title
+        payload['description'] = self.description
+        return payload
+
+    @property
+    def calendar_type(self):
+        return calendar_types[0]
 
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
-    BB - so... what threw me is that Acts are *not* many to many with Shows.  An Act is
-    in one show and one show only.  In 9 years of running the Expo, this has never, ever changed
-    BUT - (a) changing Acts in the live DB will be painful, (b) many to many is more flexible
-    (c) - we can control with business logic, so I'm OK with leaving it.
+    BB - remove acts when Jon has resources ready, and redo the view logic for accept act.
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
     mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)      
 
     def __str__(self):
+        return self.title
+    
+
+class GenericEvent (Event):
+    '''
+    Any event except for a show or a class
+    '''
+    type = models.CharField(max_length=128, 
+                            choices=event_options, 
+                            blank=False, 
+                            default="Special")
+
+    def __str__(self):
         return self.title 
 
+    @property
+    def payload(self):
+        payload = {}
+        type = ""
+        for key, value in event_options:
+            if self.type == key:
+                type = value
+
+        payload['title'] = type + ":  " + self.title
+        payload['description'] = self.description
+        return payload
 
 class Class (Biddable, Event):
     '''
@@ -601,7 +633,19 @@ class Class (Biddable, Event):
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
 
+    @property
+    def payload(self):
+        payload = {}
+        payload['title'] =  self.title
+        payload['description'] = self.description
+        payload['details'] = [(classdisplay_labels['type'], self.type)]
+        if not self.fee == 0:
+            payload['details'] += [(classdisplay_labels['fee'], self.fee)]
+        return payload
 
+    @property
+    def calendar_type(self):
+        return calendar_types[1]
 
     @property
     def bids_to_review(self):

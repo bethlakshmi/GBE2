@@ -632,9 +632,9 @@ def act_changestate (request, bid_id):
         # Clear out previous castings
         shows = act.appearing_in.all()
         for show in shows:
-            show.acts.remove(act)
+            show.remove(act)
             show.save()
-
+ 
         # if the act has been accepted, set the show.
         if request.POST['show'] and (request.POST['accepted'] == '3' or
                                      request.POST['accepted'] == '2'):
@@ -752,8 +752,10 @@ def class_list(request):
         classes = Class.objects.filter(accepted='3')
     except:
         classes = None
-    return render(request, 'gbe/class_list.tmpl',
-                  {'classes': classes})
+    return render(request, 'gbe/event_list.tmpl',
+                  {'title': class_list_title,
+                   'view_header_text': class_list_text,
+                   'events': classes})
     
 def edit_class(request, class_id):
     '''
@@ -1664,8 +1666,30 @@ def events_list(request):
     '''
     Returns a list of the various events, with short descriptions.
     '''
-
+    try:
+        events = GenericEvent.objects.all()
+    except:
+        events = None
+    return render(request, 'gbe/event_list.tmpl',
+                  {'title': event_list_title,
+                   'view_header_text': event_list_text,
+                   'events': events})
     pass
+
+
+def shows_list(request):
+    '''
+    Mostly to test event display
+    '''
+    try:
+        shows = Show.objects.all()
+    except:
+        shows = None
+    return render(request, 'gbe/event_list.tmpl',
+                  {'title': show_list_title,
+                   'view_header_text': show_list_text,
+                   'events': shows})
+
 
 def panel_create(request):
     '''
