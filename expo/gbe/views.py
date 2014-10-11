@@ -1667,7 +1667,7 @@ def events_list(request):
     Returns a list of the various events, with short descriptions.
     '''
     try:
-        events = GenericEvent.objects.all()
+        events = Event.objects.all()
     except:
         events = None
     return render(request, 'gbe/event_list.tmpl',
