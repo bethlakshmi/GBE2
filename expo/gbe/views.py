@@ -1673,7 +1673,9 @@ def events_list(request):
     return render(request, 'gbe/event_list.tmpl',
                   {'title': event_list_title,
                    'view_header_text': event_list_text,
-                   'events': events})
+                   'events': events,
+                   'show_tickets': True,
+                   'user_id':request.user.id })
     pass
 
 

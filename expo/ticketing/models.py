@@ -46,7 +46,7 @@ class TicketItem(models.Model):
     description = models.TextField()
     active = models.BooleanField(default=False)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
-    linked_events = models.ManyToManyField('gbe.Event')
+    linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item')
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
 

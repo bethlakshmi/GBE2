@@ -7,7 +7,6 @@ from datetime import datetime
 from  expomodelfields import DurationField
 
 
-
 import pytz
 
 group_perms_map = {
@@ -558,6 +557,11 @@ class Event (models.Model):
     @property
     def calendar_type(self):
         return calendar_types[0]
+
+    @property
+    def get_tickets(self):
+        return self.ticketing_item.all()
+ 
 
 class Show (Event):
     '''
