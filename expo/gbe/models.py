@@ -1,7 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from gbetext import *    # all literal text including option sets lives in gbetext.py
+from scheduler.models import EventItem, LocationItem
+from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
 from  expomodelfields import DurationField
@@ -9,12 +10,6 @@ from  expomodelfields import DurationField
 
 import pytz
 
-group_perms_map = {
-    'Act Reviewers': 'Act',
-    'Class Reviewers':'Class',
-    'Volunteer Reviewers':'Volunteer',
-    'Vendor Reviewers':'Vendor' 
-}
 
 
 
@@ -52,7 +47,7 @@ class Biddable (models.Model):
         return self.submitted and self.accepted==0
 
 
-class Profile(models.Model):
+class Profile(WorkerItem):
     '''
     The core data about any registered user of the GBE site, barring
     the information gathered up in the User object. (which we'll
@@ -89,8 +84,6 @@ class Profile(models.Model):
     how_heard = models.TextField(blank=True)
                 
     def bids_to_review(self):
-#        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
-#        return [rg for rg in review_groups if eval(rg).bids_to_review]
         return []
 
     @property 
@@ -515,7 +508,7 @@ class Act (Biddable):
         return str(self.performer) + ": "+self.title
 
 
-class Room(models.Model):
+class Room(LocationItem):
     '''
     A room at the expo center
     '''
@@ -525,7 +518,7 @@ class Room(models.Model):
     def __str__ (self):
         return self.name
     
-class Event (models.Model):
+class Event (EventItem):
     '''
     Event is the base class for any scheduled happening at the expo. 
     Events fall broadly into "shows" and "classes". Classes break down
@@ -538,9 +531,6 @@ class Event (models.Model):
     blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
 
-
-    ## run-specific info, in case we decide to return to the run idea
-    #  room = models.ForeignKey(Room, blank=True)
     notes = models.TextField(blank=True)  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
                                                 
@@ -553,6 +543,10 @@ class Event (models.Model):
         payload['title'] = self.title
         payload['description'] = self.description
         return payload
+
+    @property
+    def sched_duration(self):
+        return self.duration
 
     @property
     def calendar_type(self):
