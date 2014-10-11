@@ -110,7 +110,7 @@ class Profile(models.Model):
         
     @property
     def special_privs(self):
-        from gbetext import special_privileges
+        from special_privileges import special_privileges
         privs = [ special_privileges.get(group, None) for group in 
                   self.privilege_groups]
         return privs
