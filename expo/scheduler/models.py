@@ -31,14 +31,15 @@ class Schedulable(models.Model):
         return self.start_time + self.duration
 
     
-
-
-
 class ResourceItem (models.Model):
     '''
     The payload for a resource
     '''
     objects = InheritanceManager()
+    @property
+    def payload(self):
+        return self._payload
+
     @property 
     def _name(self):
         return self.sched_name
@@ -47,18 +48,17 @@ class Resource(models.Model):
     '''
     A person, place, or thing that can be allocated for an event. 
     A resource has a payload and properties derived from that payload. 
+    This is basically a tag interface, allowing us to select all resources. 
     '''
-    objects = InheritanceManager()
     @property
-    def item(self):
+    def item (self):
         return self._item
-    @property
-    def name(self):
-        return self.item.sched_name
+
+    pass
     
 class LocationItem(ResourceItem):
     '''
-    A wrapper class for a conference location
+    "Payload" object for a Location
     '''
     objects = InheritanceManager()
     pass
@@ -72,7 +72,7 @@ class Location(Resource):
 
 class WorkerItem(ResourceItem):
     '''
-    Wrapper class for a person as resource (staff/volunteer/teacher)
+    Payload object for a person as resource (staff/volunteer/teacher)
     '''
     objects = InheritanceManager()
     pass
@@ -85,12 +85,19 @@ class Worker (Resource):
     _item = models.ForeignKey(WorkerItem)
 
 class EquipmentItem(ResourceItem):
+    '''
+    Payload object for an allocatable item
+    Not currently used
+    '''
     objects = InheritanceManager()
     pass
 
 class Equipment(Resource):
     '''
     An allocatable thing
+    Not currently used. Probably needs a good bit of development before we can really use it
+    (we'd like to be able to allocate single objects, sets of objects, and quantities of objects
+    at the very least - this requires a bit of design)
     '''
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
@@ -102,6 +109,10 @@ class EventItem (models.Model):
     ALL requirements must be stated as properties.
     '''
     objects = InheritanceManager()
+    @property
+    def payload(self):
+        return self._payload
+
     @property 
     def duration(self):
         return self.sched_duration

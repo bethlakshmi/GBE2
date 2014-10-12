@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import EventItem, LocationItem
+from scheduler.models import EventItem, LocationItem, WorkerItem
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
@@ -158,6 +158,11 @@ class Profile(WorkerItem):
             classes += teacher.is_teaching.all()
         return classes
 
+    def sched_payload(self):
+        return { 'name': self.display_name
+             }
+            
+        
 
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
@@ -504,6 +509,12 @@ class Act (Biddable):
     def bid_draft_fields(self):
         return (['title', 'performer'])
 
+    @property
+    def sched_payload(self):
+        return { 'duration' : self.tech.stage.act_duration,
+                 'title': self.title,
+                 'description': self.description,
+             }
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
@@ -538,11 +549,12 @@ class Event (EventItem):
         return self.title
     
     @property
-    def payload(self):
-        payload = {}
-        payload['title'] = self.title
-        payload['description'] = self.description
-        return payload
+    def sched_payload(self):
+        
+        return { 'duration': self.duration,
+                 'title':self.title,
+                 'description':self.description,
+             }
 
     @property
     def sched_duration(self):
@@ -582,16 +594,13 @@ class GenericEvent (Event):
         return self.title 
 
     @property
-    def payload(self):
-        payload = {}
-        type = ""
-        for key, value in event_options:
-            if self.type == key:
-                type = value
+    def sched_payload(self):
+        return {
+            'type': event_options[self.type],
+            'title':  self.title,
+            'description' : self.description,
+            }
 
-        payload['title'] = type + ":  " + self.title
-        payload['description'] = self.description
-        return payload
 
 class Class (Biddable, Event):
     '''
@@ -632,13 +641,16 @@ class Class (Biddable, Event):
                                 choices=yesno_options, default="No") 
 
     @property
-    def payload(self):
+    def sched_payload(self):
         payload = {}
+        details =
+        details= {classdisplay_labels['type']] :  self.type}
+        if not self.fee == 0:
+            details [classdisplay_labels['fee']] =  self.fee
+
+        payload ['details'] = details
         payload['title'] =  self.title
         payload['description'] = self.description
-        payload['details'] = [(classdisplay_labels['type'], self.type)]
-        if not self.fee == 0:
-            payload['details'] += [(classdisplay_labels['fee'], self.fee)]
         return payload
 
     @property
