@@ -18,6 +18,9 @@ example_string = '''this is a multiline string. a newline
 # models
 
 
+
+landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
+
 phone_number_format_error = '''Phone numbers must be in a standard US format, \
                                such as ###-###-###.'''
 time_format_error =  '''Time must be in the format ##:##.'''

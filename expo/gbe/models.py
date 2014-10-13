@@ -643,8 +643,8 @@ class Class (Biddable, Event):
     @property
     def sched_payload(self):
         payload = {}
-        details =
-        details= {classdisplay_labels['type']] :  self.type}
+        details = {}
+        details= {classdisplay_labels['type'] :  self.type}
         if not self.fee == 0:
             details [classdisplay_labels['fee']] =  self.fee
 

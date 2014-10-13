@@ -22,7 +22,7 @@ def index(request):
         try:
             profile = request.user.profile
         except Profile.DoesNotExist:
-            context_dict['alerts']= "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
+            context_dict['alerts']= landing_page_no_profile_alert
             return render_to_response ('gbe/index_unregistered_user.tmpl', context_dict)
         template = loader.get_template('gbe/index_registered_user.tmpl')
         context_dict['profile'] = profile
