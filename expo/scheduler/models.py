@@ -116,6 +116,10 @@ class EventItem (models.Model):
     @property 
     def duration(self):
         return self.sched_duration
+    
+    def __str__(self):
+        child = EventItem.objects.get_subclass(id=self.id)
+        return child.type + ":  " + child.title
         
 class Event (Schedulable):
     '''

@@ -584,7 +584,8 @@ class Show (Event):
     BB - remove acts when Jon has resources ready, and redo the view logic for accept act.
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
-    mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)      
+    mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)
+    type = "Show"
 
     def __str__(self):
         return self.title
