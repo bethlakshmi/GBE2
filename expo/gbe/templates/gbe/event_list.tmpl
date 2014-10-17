@@ -15,21 +15,21 @@
    {% for event in events %}
    <div class="listblock" id={{class.id}}>
       <h2 class="listheader">
-      {{event.payload.title}}
+      {{event.sched_payload.title}}
       </h2>
       <div class="listdetails">
 	 <label class="listlabel">Taught by:</label> <i>{{event.teacher}}</i>
 	 <br/>
 	 <label class="listlabel">Time:</label> <i>January 1, 2015 - 3:00 PM, 
-	 {% if event.duration %}{{class.duration}} (mm:ss)
+	 {% if event.duration %}{{event.duration}} (mm:ss)
 	 {% else %}{{event.length_minutes}} minutes{% endif %}
 	 </i><br/>
-	 {% for name, value in event.payload.details %}
+	 {% for name, value in event.sched_payload.details.items %}
          <label class="listlabel">{{name}}:</label> {{value}}<br>
 	 {% endfor %}
       </div>
       <div class="listdesc">
-	 {{event.payload.description}}
+	 {{event.sched_payload.description}}
       </div>
       {% if show_tickets %}
       <div>

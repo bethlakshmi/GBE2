@@ -36,3 +36,5 @@ expo/templates/form_table_wrapper.tmpl
 expo/gbe/templates/gbe/bid_review_list.tmpl
 
 expo/gbe/views.py
+
+*.txt
