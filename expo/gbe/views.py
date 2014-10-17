@@ -1366,8 +1366,11 @@ def view_vendor (request, vendor_id):
         if vendor.profile != request.user.profile:
           return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         vendorform = VendorBidForm(instance = vendor, prefix = 'The Business')
-        profile = ParticipantForm(instance = vendor.profile, 
-                                prefix = 'The Contact Info')
+        profile = ParticipantForm(instance = vendor.profile,
+                                  initial= { 'email' : request.user.email, 
+                                           'first_name' : request.user.first_name, 
+                                           'last_name' : request.user.last_name},
+                                  prefix = 'The Contact Info')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     
