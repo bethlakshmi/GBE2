@@ -313,7 +313,10 @@ class AudioInfo(models.Model):
         try:
             return "AudioInfo: "+ self.techinfo.act.title
         except:
-            return "AudioInfo: (deleted act)" 
+            return "AudioInfo: (deleted act)"
+
+    class Meta:
+        verbose_name_plural='audio info'
 
 class LightingInfo (models.Model):
     '''
@@ -342,6 +345,8 @@ class LightingInfo (models.Model):
             return "LightingInfo: "+self.techinfo.act.title
         except:
             return "LightingInfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='lighting info'
 
 class StageInfo(models.Model):
     '''
@@ -367,6 +372,8 @@ class StageInfo(models.Model):
             return "StageInfo: " +self.techinfo.act.title
         except:
             return "StageInfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='stage info'
 
 class TechInfo (models.Model):
     '''
@@ -388,6 +395,8 @@ class TechInfo (models.Model):
             return "Techinfo: "+ self.act.title
         except:
             return "Techinfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='tech info'
 
 #######
 # Act #
@@ -727,6 +736,8 @@ class PerformerFestivals(models.Model):
                                   choices=festival_experience, default='No')
     act = models.ForeignKey(Act)
 
+    class Meta:
+        verbose_name_plural='performer festivals'
     
 
 class Volunteer(Biddable):
@@ -889,4 +900,5 @@ class ProfilePreferences(models.Model):
     inform_about = models.TextField(blank=True)
     show_hotel_infobox = models.BooleanField(default=True)
 
-    
+    class Meta:
+        verbose_name_plural='profile preferences'
