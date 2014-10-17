@@ -1,21 +1,15 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from gbetext import *    # all literal text including option sets lives in gbetext.py
+from scheduler.models import EventItem, LocationItem, WorkerItem
+from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
 from  expomodelfields import DurationField
 
 
-
 import pytz
 
-group_perms_map = {
-    'Act Reviewers': 'Act',
-    'Class Reviewers':'Class',
-    'Volunteer Reviewers':'Volunteer',
-    'Vendor Reviewers':'Vendor' 
-}
 
 
 
@@ -53,7 +47,7 @@ class Biddable (models.Model):
         return self.submitted and self.accepted==0
 
 
-class Profile(models.Model):
+class Profile(WorkerItem):
     '''
     The core data about any registered user of the GBE site, barring
     the information gathered up in the User object. (which we'll
@@ -90,8 +84,6 @@ class Profile(models.Model):
     how_heard = models.TextField(blank=True)
                 
     def bids_to_review(self):
-#        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
-#        return [rg for rg in review_groups if eval(rg).bids_to_review]
         return []
 
     @property 
@@ -111,7 +103,7 @@ class Profile(models.Model):
         
     @property
     def special_privs(self):
-        from gbetext import special_privileges
+        from special_privileges import special_privileges
         privs = [ special_privileges.get(group, None) for group in 
                   self.privilege_groups]
         return privs
@@ -166,6 +158,11 @@ class Profile(models.Model):
             classes += teacher.is_teaching.all()
         return classes
 
+    def sched_payload(self):
+        return { 'name': self.display_name
+             }
+            
+        
 
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
@@ -512,11 +509,17 @@ class Act (Biddable):
     def bid_draft_fields(self):
         return (['title', 'performer'])
 
+    @property
+    def sched_payload(self):
+        return { 'duration' : self.tech.stage.act_duration,
+                 'title': self.title,
+                 'description': self.description,
+             }
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
 
-class Room(models.Model):
+class Room(LocationItem):
     '''
     A room at the expo center
     '''
@@ -526,7 +529,7 @@ class Room(models.Model):
     def __str__ (self):
         return self.name
     
-class Event (models.Model):
+class Event (EventItem):
     '''
     Event is the base class for any scheduled happening at the expo. 
     Events fall broadly into "shows" and "classes". Classes break down
@@ -539,28 +542,64 @@ class Event (models.Model):
     blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
 
-
-    ## run-specific info, in case we decide to return to the run idea
-    #  room = models.ForeignKey(Room, blank=True)
     notes = models.TextField(blank=True)  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
                                                 
     def __str__(self):
         return self.title
+    
+    @property
+    def sched_payload(self):
+        
+        return { 'duration': self.duration,
+                 'title':self.title,
+                 'description':self.description,
+             }
+
+    @property
+    def sched_duration(self):
+        return self.duration
+
+    @property
+    def calendar_type(self):
+        return calendar_types[0]
+
+    @property
+    def get_tickets(self):
+        return self.ticketing_item.all()
+ 
 
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
-    BB - so... what threw me is that Acts are *not* many to many with Shows.  An Act is
-    in one show and one show only.  In 9 years of running the Expo, this has never, ever changed
-    BUT - (a) changing Acts in the live DB will be painful, (b) many to many is more flexible
-    (c) - we can control with business logic, so I'm OK with leaving it.
+    BB - remove acts when Jon has resources ready, and redo the view logic for accept act.
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
     mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)      
 
     def __str__(self):
+        return self.title
+    
+
+class GenericEvent (Event):
+    '''
+    Any event except for a show or a class
+    '''
+    type = models.CharField(max_length=128, 
+                            choices=event_options, 
+                            blank=False, 
+                            default="Special")
+
+    def __str__(self):
         return self.title 
+
+    @property
+    def sched_payload(self):
+        return {
+            'type': event_options[self.type],
+            'title':  self.title,
+            'description' : self.description,
+            }
 
 
 class Class (Biddable, Event):
@@ -601,7 +640,22 @@ class Class (Biddable, Event):
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
 
+    @property
+    def sched_payload(self):
+        payload = {}
+        details = {}
+        details= {classdisplay_labels['type'] :  self.type}
+        if not self.fee == 0:
+            details [classdisplay_labels['fee']] =  self.fee
 
+        payload ['details'] = details
+        payload['title'] =  self.title
+        payload['description'] = self.description
+        return payload
+
+    @property
+    def calendar_type(self):
+        return calendar_types[1]
 
     @property
     def bids_to_review(self):

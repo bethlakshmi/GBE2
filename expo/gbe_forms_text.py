@@ -261,6 +261,19 @@ classbid_labels = {
 	'length_minutes': ('Length in Minutes'),
 }
 
+classdisplay_labels = {
+	'type': ('Class Style'),
+	'fee': ('Materials Fee (paid to teacher)'),
+	'history': ('Have You Taught This Class Before?'),
+	'other_teachers': ('Fellow Teachers'),
+	'run_before': 'Has the Class been run Before?',
+	'fee': 'Materials Fee',
+	'space_needs': 'Room Preferences',
+	'schedule_constraints': 'Preferred Teaching Times',
+	'multiple_run': 'Are you willing to run the class more than once?',
+	'length_minutes': ('Length in Minutes'),
+}
+
 classbid_help_texts = {
 	'min_size': ('''The minimum number of people required for your class. This guideline \
 	helps the convention meet both teacher expectations and class size needs. If \
@@ -443,3 +456,30 @@ panel_participation_types = [('Moderator', 'Moderator'),
                         ('Any of the Above', 'Any of the Above')]
 
 class_participation_types = [('Teacher', 'Teacher')]
+
+calendar_types = { 0:'General',
+                   1:'Conference'}
+
+class_list_title = '''Class Descriptions 2014'''
+show_list_title = '''Shows 2014'''
+event_list_title = '''All Generic Events'''
+
+class_list_text = '''    <p> \
+     The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
+     class time over threee days.  It is the original Professional Development Conference for \
+     burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
+     no one else will either". \
+     </p> \
+     <p> \
+     Whether you're looking to boost a skill set to the next level or develop some new skills, \
+     The Conference has something for you from costuming to publicity to philosophical \
+     discussions.   \
+     </p>'''
+
+show_list_text = '''    <p> \
+     The Burlesque Expo has a lot of great shows.  If we want to use this, we'll describe that. \
+     </p> '''
+
+event_list_text = '''    <p> \
+     The Burlesque Expo has a lot of other events. This is everything except shows and classes\
+     </p> '''

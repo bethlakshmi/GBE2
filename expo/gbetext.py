@@ -18,6 +18,9 @@ example_string = '''this is a multiline string. a newline
 # models
 
 
+
+landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
+
 phone_number_format_error = '''Phone numbers must be in a standard US format, \
                                such as ###-###-###.'''
 time_format_error =  '''Time must be in the format ##:##.'''
@@ -130,6 +133,11 @@ experience_options = (('0', "I'm not a burlesque performer"),
                       ('4',"5-6 years"),
                       ('5',"more than 6 years"))
 
+event_options = (('Special', "Special Event"),
+                 ('Master',"Master Class"),
+                 ('Drop-In',"Drop-In Class"))
+
+
 class_options = (('Lecture', "Lecture"),
                  ('Movement', "Movement"),
                  ('Panel', "Panel"),
@@ -189,45 +197,3 @@ blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
 
-from django.core.urlresolvers import reverse
-
-
-#{'Scheduling Mavens': 
-#                     {'url':reverse('stuff', urlconf='scheduling.urls'), 
- #                     'title':'Scheduling'},
-
-
-special_privileges= {'Act Reviewers':
-                        {'url':reverse('act_review_list', urlconf='gbe.urls'),
-                         'title':'Review Acts'},
-                    'Act Coordinator':
-                        {'url': '',
-                         'title':''},
-                    'Class Reviewers':
-                        {'url':reverse('class_review_list', urlconf='gbe.urls'),
-                         'title':'Review Classes'},
-                    'Class Coordinator':
-                        {'url':reverse('proposal_review_list', urlconf='gbe.urls'),
-                         'title':'Review Proposals'},
-                    'Volunteer Reviewers':
-                        {'url':reverse('volunteer_review_list',urlconf='gbe.urls'),
-                         'title':'Review Volunteers'},
-                    'Volunteer Coordinator':
-                        {'url': '',
-                         'title': ''},
-                    'Vendor Reviewers':
-                        {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
-                         'title':'Review Vendors'}, 
-                    'Vendor Coordinator':
-                        {'url': '',
-                         'title':''},
-                    'Ticketing - Admin':
-                        {'url':reverse('ticket_items',urlconf='ticketing.urls'),
-                         'title':'Ticket Items'},
-                    'Ticketing - Edit Item':
-                        {'url':reverse('ticket_item_edit',urlconf='ticketing.urls'),
-                         'title':'Ticket Item Edit'},
-                    'Ticketing - Transactions':
-                        {'url':reverse('transactions', urlconf='ticketing.urls'),
-                         'title':'Ticketing Transactions'},
-                    }
