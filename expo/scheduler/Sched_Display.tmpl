@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ Table.Name }}
+    {% block content %}
+    <h1><a href="{{ Table.Link }}">{{ Table.Name }}</a></h1>
+{% endblock %}
+
+<table>
+<CAPTION ALIGN="top">
+<li><a href="{{ Table.X_Name.Link }}">{{ Table.X_Name.Text }}</a></li></CAPTION>
+
+    {% for row in Table.rows %}
+        <tr>
+
+        {% for cell in row %}
+            {% if 'BG_Color' in cell %}
+                <td { BgColor = {% cell.BG_Color %};
+
+            {% else %}
+                <td {
+            {% endif %}
+            {% for side in cell.Borders %}
+                {% if side in (Top, Left, Right, Bottom) %}
+                    Border-{% side %}: Solid 2px {%cell['Border_Color'] %};
+                {% else %}
+                    Border-{% side %}: Blank;
+                {% endif %}
+                    <li><a href="{% cell.Link %}">{% cell.Text %}</a><li>
+                </td>
+        {% endfor %}
+    {% endfor %}
+</tr>
+</table>
