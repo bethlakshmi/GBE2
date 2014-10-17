@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Events List
+{% endblock %}
+
+{% block content %}
+  <p class="vanilla">{{title}} </p>
+  <h2 class="review-title">Events Information</h2>
+
+  <table class="events-table">
+    <tr class="events-table">
+      {% for header_item in header %}
+        <th class="event-table">{{ header_item }}</th>
+      {% endfor %}
+    </tr>
+    {% for row in rows %}
+      <tr class="event-table">
+              {% for value in row.event %}
+	                <td class="event-table">      
+            		{{ value }}
+          		</td>	
+		{% endfor %}
+
+          <td class="event-table">
+              <a href="{{ row.schedule_url }}">
+	          {% if row.action1 %}
+ 		    {{ row.action1 }}
+ 		  {% else %}
+		      Schedule
+		  {% endif %}</a>
+          </td>
+
+        
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
