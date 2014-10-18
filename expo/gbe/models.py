@@ -553,6 +553,8 @@ class Event (EventItem):
 
     notes = models.TextField(blank=True)  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
+    
+    event_id = models.AutoField(primary_key=True)
                                                 
     def __str__(self):
         return self.title
@@ -724,7 +726,8 @@ class BidEvaluation(models.Model):
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
-    
+    bid_id = models.AutoField(primary_key=True)
+
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
 

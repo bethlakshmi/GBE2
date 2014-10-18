@@ -109,6 +109,8 @@ class EventItem (models.Model):
     ALL requirements must be stated as properties.
     '''
     objects = InheritanceManager()
+    eventitem_id = models.AutoField(primary_key=True)
+
     @property
     def payload(self):
         return self.sched_payload
@@ -118,7 +120,7 @@ class EventItem (models.Model):
         return self.sched_duration
     
     def __str__(self):
-        child = EventItem.objects.get_subclass(id=self.id)
+        child = EventItem.objects.get_subclass(event=self.eventitem_id)
         return child.type + ":  " + child.title
         
 class Event (Schedulable):
