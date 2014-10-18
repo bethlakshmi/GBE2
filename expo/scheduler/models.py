@@ -24,7 +24,7 @@ class Schedulable(models.Model):
     def duration(self):
         return self._duration
 
-    start_time = models.TimeField(blank=True)
+    start_time = models.DateTimeField(blank=True)
     
     @property
     def end_time(self):
@@ -111,7 +111,7 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     @property
     def payload(self):
-        return self._payload
+        return self.sched_payload
 
     @property 
     def duration(self):
@@ -126,7 +126,7 @@ class Event (Schedulable):
     An Event is a schedulable item with a conference model item as its payload. 
     '''
     objects = InheritanceManager()
-    
+    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
 
     @property
     def duration(self):
