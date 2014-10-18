@@ -39,8 +39,8 @@ def get_events_display_info():
                    'scheduled_events':items.scheduler_events.all()}
                   for item in eventitems]
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
-                    'locations': [event.location for event in entry['scheduled_events']]
-                    'datetime': [event.start_time for event in entry['scheduled_events']]
+                    'locations': [event.location for event in entry['scheduled_events']],
+                    'datetime': [event.start_time for event in entry['scheduled_events']],
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['type']
                     }
@@ -50,6 +50,13 @@ def get_events_display_info():
 def class_schedule(request):
     '''
     Schedule a class.
+    '''
+
+    pass
+
+def event_schedule(request):
+    '''
+    Schedule a event.
     '''
 
     pass

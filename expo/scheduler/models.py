@@ -121,7 +121,7 @@ class EventItem (models.Model):
     
     def __str__(self):
         child = EventItem.objects.get_subclass(event=self.eventitem_id)
-        return child.type + ":  " + child.title
+        return child.type + ":  " + child.title 
         
 class Event (Schedulable):
     '''
