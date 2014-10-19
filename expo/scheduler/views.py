@@ -33,10 +33,10 @@ def get_events_display_info():
     "Conference event items" = things in the conference model which extend EventItems and therefore 
     could be Events
     '''
-    eventitems = EventItems.objects.select_subclasses()
+    eventitems = EventItem.objects.select_subclasses()
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
-                   'scheduled_events':items.scheduler_events.all()}
+                   'scheduled_events':item.scheduler_events.all()}
                   for item in eventitems]
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
                     'locations': [event.location for event in entry['scheduled_events']],
