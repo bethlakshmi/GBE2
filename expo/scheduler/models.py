@@ -139,6 +139,9 @@ class Event (Schedulable):
     def duration(self):
         return self.item._duration
 
+    def __str__(self):
+        return self.eventitem
+
 class ResourceAllocation(Schedulable):
     '''
     Joins a particular Resource to a particular Event
