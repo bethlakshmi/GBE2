@@ -283,3 +283,56 @@ td.describe
   padding: 0 0.25em;
   background: white;
 }
+
+
+/*Schedule detail view*/
+.sched_block
+{
+  
+}
+.sched_detail_title
+{
+  color: #333333;
+  font-family: Impact, Charcoal, sans-serif;
+  letter-spacing: 1px;
+}
+.sched_detail
+{
+ font-weight: bold;
+}
+.sched_times
+{
+  
+}
+.sched_length
+{
+  
+}
+.sched_details
+{
+  
+}
+.sched_desc
+{
+  padding-top: 10px;
+}
+.tickets
+{
+  
+}
+.ticket_link
+{
+  
+}
+.ticket_list
+{
+  
+}
+.ticket_list_item
+{
+  
+}
+.ticket_name
+{
+ font-weight: bold;
+}

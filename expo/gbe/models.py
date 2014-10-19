@@ -662,7 +662,7 @@ class Class (Biddable, Event):
 
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
-        payload['description'] = self.description
+        payload['description'] = self.event_ptr.description
         return payload
 
     @property

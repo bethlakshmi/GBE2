@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'GBE_scheduler.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     
-    url(r'^class/?$',
+    url(r'^classes/?$',
         views.class_schedule, name = 'class_schedule'),
     url(r'^events/?$',
         views.event_list, name = 'event_schedule'),
@@ -18,5 +18,7 @@ urlpatterns = patterns('',
     url(r'^calendar/?$',
         views.calendar, name = 'calendar'),
     url(r'^calendar/(?P<cal_type>w+)/?$',
-        views.calendar_view, name = 'calendar_view')
+        views.calendar_view, name = 'calendar_view'),
+    url(r'^details/(\d+)/?$',
+        views.detail_view, name = 'detail_view')
 )

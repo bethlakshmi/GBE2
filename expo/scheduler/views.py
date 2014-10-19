@@ -47,6 +47,17 @@ def get_events_display_info():
                    for entry in eventitems]
     return eventslist
 
+def get_event_display_info(eventitem_id):
+    '''
+    Helper for displaying a single of event. Same idea as get_events_display_info - but for
+    only one eventitem.  
+    '''
+    item = EventItem.objects.get_subclass(event=eventitem_id)
+    eventitem_view = {'event': item, 
+                      'scheduled_events':item.scheduler_events.all()}
+
+    return eventitem_view
+
 def class_schedule(request):
     '''
     Schedule a class.
@@ -109,4 +120,14 @@ def calendar_view(request, cal_type = 'Event', cal_format = 'Block'):
     '''
 
     pass
+
+def detail_view(request, eventitem_id):
+    '''
+    Takes the id of a single event and displays all its details in a template
+    '''
+    eventitem_view = get_event_display_info(eventitem_id)
+    template = 'scheduler/event_detail.tmpl'
+    return render(request, template, {'eventitem': eventitem_view,
+                                      'show_tickets': True,
+                                      'user_id':request.user.id})
 

@@ -1,9 +1,11 @@
 from django.db import models
-from gbe.expomodelfields import DurationField
 from django.core.validators import RegexValidator
-from datetime import timedelta
+from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
+from gbe.expomodelfields import DurationField
+
+import pytz
 
 
 ##  Object classes for the scheduler and calendar portions of the
@@ -20,16 +22,24 @@ class Schedulable(models.Model):
     indirection model: we don't want to store scheduler data in the conference model. 
     '''
     objects = InheritanceManager()
+    start_time = models.DateTimeField(blank=True)
+
     @property 
     def duration(self):
         return self._duration
-
-    start_time = models.DateTimeField(blank=True)
     
     @property
     def end_time(self):
         return self.start_time + self.duration
+    
+    def __unicode__(self):
+        if self.start_time:
+            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+        else:
+            return "No Start Time"
 
+    class Meta:
+        verbose_name_plural='Schedulable Items'
     
 class ResourceItem (models.Model):
     '''
@@ -119,7 +129,8 @@ class EventItem (models.Model):
     def duration(self):
         return self.sched_duration
     
-    def __str__(self):
+    @property
+    def describe(self):
         child = EventItem.objects.get_subclass(event=self.eventitem_id)
         ids = "event - " + str(child.event_id)
         try:
@@ -127,7 +138,13 @@ class EventItem (models.Model):
         except:
             ids += ""
         return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
+    
+    def __str__(self):
+        return str(self.describe)
         
+    def __unicode__(self):
+        return unicode(self.describe)
+
 class Event (Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload. 
@@ -140,7 +157,16 @@ class Event (Schedulable):
         return self.item._duration
 
     def __str__(self):
-        return self.eventitem
+        try:
+            return self.eventitem.describe
+        except:
+            return "No Event Item"
+
+    def __unicode__(self):
+        try:
+            return self.eventitem.describe
+        except:
+            return "No Event Item"
 
 class ResourceAllocation(Schedulable):
     '''
