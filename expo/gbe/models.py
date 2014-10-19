@@ -608,7 +608,7 @@ class GenericEvent (Event):
     @property
     def sched_payload(self):
         return {
-            'type': event_options[self.type],
+            'type': self.type,
             'title':  self.title,
             'description' : self.description,
             }
@@ -661,7 +661,7 @@ class Class (Biddable, Event):
             details [classdisplay_labels['fee']] =  self.fee
 
         payload ['details'] = details
-        payload['title'] =  self.title
+        payload['title'] =  self.event_ptr.title
         payload['description'] = self.description
         return payload
 

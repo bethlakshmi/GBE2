@@ -121,7 +121,12 @@ class EventItem (models.Model):
     
     def __str__(self):
         child = EventItem.objects.get_subclass(event=self.eventitem_id)
-        return child.type + ":  " + child.title 
+        ids = "event - " + str(child.event_id)
+        try:
+            ids += ', bid - ' + str(child.id)
+        except:
+            ids += ""
+        return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
         
 class Event (Schedulable):
     '''
