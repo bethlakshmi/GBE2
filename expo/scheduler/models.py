@@ -38,6 +38,12 @@ class Schedulable(models.Model):
         else:
             return "No Start Time"
 
+    def __str__(self):
+        if self.start_time:
+            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+        else:
+            return "No Start Time"
+
     class Meta:
         verbose_name_plural='Schedulable Items'
     
@@ -53,6 +59,19 @@ class ResourceItem (models.Model):
     @property 
     def _name(self):
         return self.sched_name
+    
+    @property
+    def describe(self):
+        child = ResourceItem.objects.get_subclass(id=self.id)
+        return child.__class__.__name__ + ":  " + child.describe
+
+    def __str__(self):
+        return str(self.describe)
+        
+    def __unicode__(self):
+        return unicode(self.describe)
+    
+    pass
 
 class Resource(models.Model):
     '''
@@ -60,11 +79,21 @@ class Resource(models.Model):
     A resource has a payload and properties derived from that payload. 
     This is basically a tag interface, allowing us to select all resources. 
     '''
+    objects = InheritanceManager()
+
     @property
     def item (self):
         return self._item
 
+    def __str__(self):
+        return Resource.objects.get_subclass(id=self.id)
+        
+    def __unicode__(self):
+        return Resource.objects.get_subclass(id=self.id)
+    
     pass
+    
+    
     
 class LocationItem(ResourceItem):
     '''
@@ -72,6 +101,15 @@ class LocationItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+    @property
+    def describe(self):
+        return LocationItem.objects.get_subclass(id=self.id).name
+
+    def __str__(self):
+        return str(self.describe)
+        
+    def __unicode__(self):
+        return unicode(self.describe)
 
 class Location(Resource):
     '''
@@ -79,12 +117,35 @@ class Location(Resource):
     '''
     objects = InheritanceManager()
     _item = models.ForeignKey(LocationItem)
+    
+    def __str__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Location Item"
+
+    def __unicode__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Location Item"
 
 class WorkerItem(ResourceItem):
     '''
     Payload object for a person as resource (staff/volunteer/teacher)
     '''
     objects = InheritanceManager()
+    
+    @property
+    def describe(self):
+        return WorkerItem.objects.get_subclass(id=self.id).display_name
+
+    def __str__(self):
+        return str(self.describe)
+        
+    def __unicode__(self):
+        return unicode(self.describe)
+    
     pass
 
 class Worker (Resource):
@@ -93,6 +154,18 @@ class Worker (Resource):
     An allocatable person
     '''
     _item = models.ForeignKey(WorkerItem)
+    
+    def __str__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Worker Item"
+
+    def __unicode__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Worker Item"
 
 class EquipmentItem(ResourceItem):
     '''
@@ -100,6 +173,17 @@ class EquipmentItem(ResourceItem):
     Not currently used
     '''
     objects = InheritanceManager()
+    
+    @property
+    def describe(self):
+        return "Equipment Item"
+
+    def __str__(self):
+        return str(self.describe)
+        
+    def __unicode__(self):
+        return unicode(self.describe)
+    
     pass
 
 class Equipment(Resource):
@@ -177,3 +261,14 @@ class ResourceAllocation(Schedulable):
     event = models.ForeignKey(Event, related_name="resources_allocated")
     resource = models.ForeignKey(Resource, related_name="allocations")
 
+    def __str__(self):
+        try:
+            return str(self.start_time.astimezone(pytz.timezone('America/New_York'))) + " :: Event: " + str(self.event) + " == " + str(Resource.objects.get_subclass(id=self.resource.id))
+        except:
+            return "Missing an Item"
+
+    def __unicode__(self):
+        try:
+            return unicode(self.start_time.astimezone(pytz.timezone('America/New_York'))) + " :: Event: " + unicode(self.event) + " == " + unicode(Resource.objects.get_subclass(id=self.resource.id))
+        except:
+            return "Missing an Item"
