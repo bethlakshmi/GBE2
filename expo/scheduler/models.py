@@ -251,6 +251,11 @@ class Event (Schedulable):
             return self.eventitem.describe
         except:
             return "No Event Item"
+        
+    @property
+    def location(self):
+        return Location.objects.filter(allocations__event=self)
+
 
 class ResourceAllocation(Schedulable):
     '''
@@ -263,12 +268,18 @@ class ResourceAllocation(Schedulable):
 
     def __str__(self):
         try:
-            return str(self.start_time.astimezone(pytz.timezone('America/New_York'))) + " :: Event: " + str(self.event) + " == " + str(Resource.objects.get_subclass(id=self.resource.id))
+            return str(self.start_time.astimezone(pytz.timezone('America/New_York'))) + \
+                   " :: Event: " + str(self.event) + " == " + \
+                   str(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
+                   ": " + str(Resource.objects.get_subclass(id=self.resource.id))
         except:
             return "Missing an Item"
 
     def __unicode__(self):
         try:
-            return unicode(self.start_time.astimezone(pytz.timezone('America/New_York'))) + " :: Event: " + unicode(self.event) + " == " + unicode(Resource.objects.get_subclass(id=self.resource.id))
+            return unicode(self.start_time.astimezone(pytz.timezone('America/New_York'))) + \
+                   " :: Event: " + unicode(self.event) + " == " + \
+                   unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
+                   ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
         except:
             return "Missing an Item"
