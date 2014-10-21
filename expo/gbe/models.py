@@ -10,9 +10,6 @@ from  expomodelfields import DurationField
 
 import pytz
 
-
-
-
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
 class Biddable (models.Model):
@@ -733,7 +730,7 @@ class BidEvaluation(models.Model):
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
-    bid_id = models.AutoField(primary_key=True)
+#    bid_id = models.AutoField(primary_key=True)
 
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
