@@ -672,6 +672,7 @@ def submit_act(request, act_id):
 
         
 
+class_durations = {0:0, 1:60, 2:90,3:120}
 
 @login_required
 def bid_class(request):
@@ -703,6 +704,8 @@ def bid_class(request):
             form = ClassBidDraftForm(request.POST)
 
         if form.is_valid():
+            new_class = form.save(commit=False)
+            new_class.duration = timedelta(0,new_class.length_minutes)
             new_class = form.save(commit=True)
             if 'submit' in request.POST.keys():
                 if new_class.complete:
@@ -784,10 +787,15 @@ def edit_class(request, class_id):
             form = ClassBidDraftForm(request.POST, instance=the_class)
 
         if form.is_valid():
+            the_class = form.save(commit=False)
+            the_class.duration = timedelta(0,the_class.length_minutes)
             the_class = form.save(commit=True)
+
+           
             if 'submit' in request.POST.keys():
                 if the_class.complete:
                     the_class.submitted=True                    
+
                     the_class.save()
                     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
                 else:
