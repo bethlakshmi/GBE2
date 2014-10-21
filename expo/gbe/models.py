@@ -5,6 +5,7 @@ from scheduler.models import EventItem, LocationItem, WorkerItem
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
+from datetime import timedelta
 from  expomodelfields import DurationField
 
 
@@ -654,15 +655,17 @@ class Class (Biddable, Event):
 
     @property
     def sched_payload(self):
+        
         payload = {}
         details = {}
-        details= {classdisplay_labels['type'] :  self.type}
+        details= {'type' : self.type }
         if not self.fee == 0:
             details [classdisplay_labels['fee']] =  self.fee
 
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
+        payload['duration'] = timedelta(0, self.length_minutes)
         return payload
 
     @property
@@ -834,6 +837,9 @@ class ArtBid(Biddable):
 
 
 class ClassProposal(models.Model):
+    '''
+    A proposal for a class that someone else ought to teach. NOT a class bid - don't get these confused!
+    '''
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
@@ -868,7 +874,7 @@ class ClassProposal(models.Model):
 
 class ConferenceVolunteer(models.Model):
     '''
-    A response to a bid, cast by a privileged GBE staff member
+    An individual wishing to participate in the conference as a volunteer
     '''
     presenter = models.ForeignKey(Persona,  
                                 related_name='conf_volunteer')

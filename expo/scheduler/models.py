@@ -22,11 +22,15 @@ class Schedulable(models.Model):
     indirection model: we don't want to store scheduler data in the conference model. 
     '''
     objects = InheritanceManager()
-    start_time = models.DateTimeField(blank=True)
+
 
     @property 
     def duration(self):
         return self._duration
+
+    @property
+    def start_time(self):
+        return self.start_time
     
     @property
     def end_time(self):
@@ -239,6 +243,8 @@ class Event (Schedulable):
     '''
     objects = InheritanceManager()
     eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
+
+    start_time = models.DateTimeField(blank=True)
 
     @property
     def duration(self):

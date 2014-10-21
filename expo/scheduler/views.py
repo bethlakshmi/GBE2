@@ -42,7 +42,7 @@ def get_events_display_info():
                     'locations': [event.location for event in entry['scheduled_events']],
                     'datetime': [event.start_time for event in entry['scheduled_events']],
                     'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['type']
+                    'type':entry['confitem'].sched_payload['details']['type']
                     }
                    for entry in eventitems]
     return eventslist
