@@ -21,9 +21,8 @@ def selfcast(sobj):
     Pretty rudimentary, can probably be improved
     '''
     try:
-        return sobj.typeof().objects.get(pk=sobj.pk)
+        return sobj.typeof().objects.get(pk=sobj.child.id)
     except:
-        print "failed"
         return sobj
 
 

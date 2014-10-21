@@ -665,7 +665,7 @@ class Class (Biddable, Event):
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
-        payload['duration'] = timedelta(0, self.length_minutes)
+        payload['duration'] = self.duration
         return payload
 
     @property

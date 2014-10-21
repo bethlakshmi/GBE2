@@ -15,22 +15,26 @@
         <th class="event-table">{{ header_item }}</th>
       {% endfor %}
     </tr>
-    {% for row in rows %}
+    {% for event in events %}
       <tr class="event-table">
-              {% for value in row.event %}
-	                <td class="event-table">      
-            		{{ value }}
-          		</td>	
-		{% endfor %}
 
-          <td class="event-table">
-              <a href="{{ row.schedule_url }}">
-	          {% if row.action1 %}
- 		    {{ row.action1 }}
- 		  {% else %}
-		      Schedule
-		  {% endif %}</a>
-          </td>
+	                <td class="event-table">      
+            		{{ event.title }}
+          		</td>	
+
+	                <td class="event-table">      
+			   {{ event.location  }}
+          		</td>	
+	                <td class="event-table">      
+            		{{ event.start_time }}
+          		</td>	
+	                <td class="event-table">      
+            		{{ event.duration }}
+          		</td>	
+	                <td class="event-table">      
+            		{{ event.type }}
+          		</td>	
+
       </tr>
     {% endfor %}
   </table>
