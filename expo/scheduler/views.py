@@ -42,7 +42,9 @@ def get_events_display_info():
                     'locations': [event.location for event in entry['scheduled_events']],
                     'datetime': [event.start_time for event in entry['scheduled_events']],
                     'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['details']['type']
+                    'type':entry['confitem'].sched_payload['details']['type'],
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [entry['eventitem'].eventitem_id])
                     }
                    for entry in eventitems]
     return eventslist
@@ -86,7 +88,7 @@ def event_list(request):
     else:
         return render_to_response ('gbe/index')  # works?
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type',]
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Detail']
     events = get_events_display_info()
 
 
