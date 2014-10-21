@@ -21,8 +21,9 @@ def selfcast(sobj):
     Pretty rudimentary, can probably be improved
     '''
     try:
-        return sobj.typeof.objects.get(id=sobj.id)
+        return sobj.typeof().objects.get(pk=sobj.pk)
     except:
+        print "failed"
         return sobj
 
 
@@ -89,9 +90,9 @@ def event_list(request):
     header  = [ 'Title','Location','Date/Time','Duration','Type',]
     events = get_events_display_info()
 
-    form = EventsDisplayForm()
+
     template = 'scheduler/events_review_list.tmpl'
-    return render(request, template, {'form' : form})
+    return render(request, template, { 'events':events, 'header':header})
 
 
 
