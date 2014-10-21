@@ -129,5 +129,6 @@ def detail_view(request, eventitem_id):
     template = 'scheduler/event_detail.tmpl'
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
+                                      'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
 

@@ -562,14 +562,17 @@ class Event (EventItem):
     @property
     def sched_payload(self):
         
-        return { 'duration': self.duration,
-                 'title':self.title,
+        return { 'title':self.title,
                  'description':self.description,
              }
 
     @property
     def sched_duration(self):
         return self.duration
+    
+    @property
+    def bio_payload(self):
+        return None
 
     @property
     def calendar_type(self):
@@ -664,6 +667,10 @@ class Class (Biddable, Event):
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
         return payload
+
+    @property
+    def bio_payload(self):
+        return [self.teacher]
 
     @property
     def calendar_type(self):

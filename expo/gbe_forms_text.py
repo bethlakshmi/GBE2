@@ -262,7 +262,7 @@ classbid_labels = {
 }
 
 classdisplay_labels = {
-	'type': ('Class Style'),
+	'type': ('Class Type'),
 	'fee': ('Materials Fee (paid to teacher)'),
 	'history': ('Have You Taught This Class Before?'),
 	'other_teachers': ('Fellow Teachers'),

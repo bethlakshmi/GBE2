@@ -209,6 +209,10 @@ class EventItem (models.Model):
     def payload(self):
         return self.sched_payload
 
+    @property
+    def bios(self):
+        return self.bio_payload
+
     @property 
     def duration(self):
         return self.sched_duration
