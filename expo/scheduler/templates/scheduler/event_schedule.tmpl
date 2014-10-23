@@ -48,15 +48,8 @@
 
   <form method="POST" action="" enctype="multipart/form-data">
 
-{% comment %}
-  {{ form.day.label_tag }}:  {{ form.day }} <br>
-  {{ form.start_time.label_tag }}:  {{ form.start_time }} <br>
-  {{ form.location.label_tag }}:  {{ form.location }} <br>
-
-  {{ form.duration.label_tag }}:  {{ form.duration }} <br>
-  
-{% endcomment %}
   {% include "form_table.html" %}
+  <input type = "submit" name="submit" value="Submit">
   </form>
    
 
