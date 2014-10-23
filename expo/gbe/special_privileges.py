@@ -2,17 +2,12 @@
 from django.core.urlresolvers import reverse
 
 
-#{'Scheduling Mavens': 
-#                     {'url':reverse('stuff', urlconf='scheduling.urls'), 
- #                     'title':'Scheduling'},
-
 
 special_privileges= {'Act Reviewers':
-                        {'url':reverse('act_review_list', urlconf='gbe.urls'),
-                         'title':'Review Acts'},
-                    'Act Coordinator':
-                        {'url': '',
-                         'title':''},
+                     {'url':reverse('act_review_list', urlconf='gbe.urls'),
+                      'title':'Review Acts'},
+                     'Act Coordinator':
+                     {'url': '','title':''},
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
@@ -28,9 +23,12 @@ special_privileges= {'Act Reviewers':
                     'Vendor Reviewers':
                         {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
                          'title':'Review Vendors'}, 
-                    'Vendor Coordinator':
-                        {'url': '',
+                     'Vendor Coordinator':
+                     {'url': '',
                          'title':''},
+                     'Scheduling Mavens': 
+                     {'url': '',
+                      'title':''},
                     'Ticketing - Admin':
                         {'url':reverse('ticket_items',urlconf='ticketing.urls'),
                          'title':'Ticket Items'},
