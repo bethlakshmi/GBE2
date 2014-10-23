@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+  Great Burlesque Exposition: {{eventitem.event.payload.title}}
+{% endblock %}
+
+{% block content %}
+ 
+{% if tickets %}
+  {% include "ticket_link.tmpl" %}
+{% endif %}  
+   <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
+   <div class="sched_block">
+      <div class="sched_desc">
+	 {{eventitem.event.payload.description}}
+      <div class="sched_details">
+        {% for name, value in eventitem.event.payload.details.items %}
+        <label class="sched_detail">{{name}}:</label> {{value}}<br>
+        {% endfor %}
+      </div>
+      </div>
+
+      <div class="sched_times">
+	  {% for sched_event in eventitem.scheduled_events %}
+	  <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time}}<br>
+	    {% for location in sched_event.location %}
+	  <label class="sched_detail">Location:  </label>{{ location }}<br>
+	    {% endfor %}
+	  <br>
+	  {% endfor %}
+      </div>
+   </div>
+
+   <div class="bio_block">
+    {% for bio in eventitem.event.bios %}
+    <div class="bio_words">
+      <h2>About {{bio.name}}</h2>
+      {{bio.bio}}
+      <br><br>
+    </div>
+    {% if bio.promo_image %}
+      <div class="bio_image_block">
+      <img src="/{{bio.promo_image}}" class="sched_bio_image">
+      </div>
+    {% endif %}
+    {% endfor %}
+   </div>
+
+  <form method="POST" action="" enctype="multipart/form-data">
+
+{% comment %}
+  {{ form.day.label_tag }}:  {{ form.day }} <br>
+  {{ form.start_time.label_tag }}:  {{ form.start_time }} <br>
+  {{ form.location.label_tag }}:  {{ form.location }} <br>
+
+  {{ form.duration.label_tag }}:  {{ form.duration }} <br>
+  
+{% endcomment %}
+  {% include "form_table.html" %}
+  </form>
+   
+
+{% endblock %}

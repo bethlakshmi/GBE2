@@ -20,5 +20,9 @@ urlpatterns = patterns('',
     url(r'^calendar/(?P<cal_type>w+)/?$',
         views.calendar_view, name = 'calendar_view'),
     url(r'^details/(\d+)/?$',
-        views.detail_view, name = 'detail_view')
+        views.detail_view, name = 'detail_view'),
+    url(r'^event/edit/(\d+)/?$', 
+        views.edit_event, name = 'edit_event'),
+            
+                    
 )

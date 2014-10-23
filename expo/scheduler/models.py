@@ -237,6 +237,14 @@ class EventItem (models.Model):
     def __unicode__(self):
         return unicode(self.describe)
 
+conference_days = ( 
+    (datetime(2015, 02, 19), 'Thursday'),
+    (datetime(2015, 02, 20), 'Friday'),
+    (datetime(2015, 02, 21), 'Saturday'),
+    (datetime(2015, 02, 22), 'Sunday'),
+)
+    
+
 class Event (Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload. 

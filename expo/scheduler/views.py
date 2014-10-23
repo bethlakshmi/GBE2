@@ -157,3 +157,23 @@ def detail_view(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
 
+
+def edit_event(request, eventitem_id):
+    '''
+    Add an item to the conference schedule and/or set its schedule details (start
+    time, location, duration, or allocations)
+    Takes a scheduler.EventItem id
+    '''
+    profile = validate_perms(request, ('Scheduling Mavens',))
+    if not profile:
+        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
+
+    eventitem_view = get_event_display_info(eventitem_id)
+    template = 'scheduler/event_schedule.tmpl'
+    form = EventScheduleForm()
+    return render(request, template, {'eventitem': eventitem_view,
+                                      'form': form,
+                                      'show_tickets': True,
+                                      'tickets': eventitem_view['event'].get_tickets,
+                                      'user_id':request.user.id})
+    
