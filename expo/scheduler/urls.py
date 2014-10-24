@@ -21,7 +21,7 @@ urlpatterns = patterns('',
         views.calendar_view, name = 'calendar_view'),
     url(r'^scheduler/details/(\d+)/?$',
         views.detail_view, name = 'detail_view'),
-    url(r'^/scheduler/event/edit/(\d+)/?$', 
+    url(r'^scheduler/event/edit/(\d+)/?$', 
         views.edit_event, name = 'edit_event'),
             
                     
