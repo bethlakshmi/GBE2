@@ -3,24 +3,35 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
-import datetime
+from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 
-class ScheduleEvent(forms.ModelForm):
+conference_days = ( 
+    (datetime(2015, 02, 19), 'Thursday'),
+    (datetime(2015, 02, 20), 'Friday'),
+    (datetime(2015, 02, 21), 'Saturday'),
+    (datetime(2015, 02, 22), 'Sunday'),
+)
 
-    required_css_class = 'required'
-    error_css_class = 'error'
-#    start_time = 
-    location = models.CharField(max_length=64)
-    parent_event = models.CharField(max_length = 128)
 
-    def conflict(check_time, check_item, parent_event, item_type = 'Location'):
-        '''
-    Check event tree for a conflict of check_item at check_time.  Returns True if check_item
-    is scheduled at check_time.  Uses parent_event to enter tree at a known location.
-        '''
+
+time_start = 8 * 60
+time_stop = 23 * 60 + 30
+conference_times = [(time(mins/60, mins%60), str(mins/60) +":"+str(mins%60)  ) 
+                    for mins in range (time_start, time_stop, 30)]
+
+
+
+class EventScheduleForm(forms.Form):
+    day = forms.ChoiceField(choices = conference_days)
+    time = forms.ChoiceField(choices = conference_times)
+    location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
+    duration = DurationFormField()
+
+
+
 
     

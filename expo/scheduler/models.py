@@ -22,25 +22,29 @@ class Schedulable(models.Model):
     indirection model: we don't want to store scheduler data in the conference model. 
     '''
     objects = InheritanceManager()
-    start_time = models.DateTimeField(blank=True)
+
 
     @property 
     def duration(self):
         return self._duration
+
+    @property
+    def start_time(self):
+        return self.starttime
     
     @property
     def end_time(self):
-        return self.start_time + self.duration
+        return self.starttime + self.duration
     
     def __unicode__(self):
         if self.start_time:
-            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
         else:
             return "No Start Time"
 
     def __str__(self):
         if self.start_time:
-            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
         else:
             return "No Start Time"
 
@@ -80,6 +84,7 @@ class Resource(models.Model):
     This is basically a tag interface, allowing us to select all resources. 
     '''
     objects = InheritanceManager()
+
 
     @property
     def item (self):
@@ -209,6 +214,10 @@ class EventItem (models.Model):
     def payload(self):
         return self.sched_payload
 
+    @property
+    def bios(self):
+        return self.bio_payload
+
     @property 
     def duration(self):
         return self.sched_duration
@@ -229,12 +238,16 @@ class EventItem (models.Model):
     def __unicode__(self):
         return unicode(self.describe)
 
+    
+
 class Event (Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload. 
     '''
     objects = InheritanceManager()
     eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
+                             
+    starttime = models.DateTimeField(blank=True)
 
     @property
     def duration(self):
@@ -265,6 +278,10 @@ class ResourceAllocation(Schedulable):
     objects = InheritanceManager()
     event = models.ForeignKey(Event, related_name="resources_allocated")
     resource = models.ForeignKey(Resource, related_name="allocations")
+
+    @property 
+    def start_time(self):
+        return self.event.starttime
 
     def __str__(self):
         try:

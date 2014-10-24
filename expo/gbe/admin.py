@@ -1,27 +1,40 @@
 from django.contrib import admin
 from gbe.models import *
 
+class BidAdmin(admin.ModelAdmin):
+    list_display = (str, 'submitted', 'accepted')
+    list_filter = ['submitted', 'accepted']
+    
+class ActAdmin(admin.ModelAdmin):
+    list_display = ('title', 'performer', 'submitted', 'accepted')
+    list_filter = ['submitted', 'accepted']
 
-admin.site.register( Profile )
+class PerformerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact')
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'user_object', 'phone', 'purchase_email')
+    
+admin.site.register( Profile, ProfileAdmin )
 admin.site.register( Biddable )
-admin.site.register( Act )
+admin.site.register( Act, ActAdmin )
+admin.site.register( Class, BidAdmin )
+admin.site.register( Vendor, BidAdmin )
+admin.site.register( Volunteer, BidAdmin )
 admin.site.register( Show )
-admin.site.register( Class )
 admin.site.register( Room )
 admin.site.register( ClassProposal )
 admin.site.register( BidEvaluation )
-admin.site.register( Performer )
 admin.site.register( TechInfo )
 admin.site.register( AudioInfo )
 admin.site.register( LightingInfo )
 admin.site.register( StageInfo )
 admin.site.register( PerformerFestivals )
 admin.site.register( ProfilePreferences )
-admin.site.register( Persona )
-admin.site.register( Combo )
-admin.site.register( Troupe )
-admin.site.register( Vendor )
-admin.site.register( Volunteer )
+admin.site.register( Persona, PerformerAdmin )
+admin.site.register( Performer, PerformerAdmin )
+admin.site.register( Combo, PerformerAdmin )
+admin.site.register( Troupe, PerformerAdmin )
 admin.site.register( ConferenceVolunteer )
 admin.site.register( GenericEvent )
 admin.site.register( Event )

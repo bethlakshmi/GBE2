@@ -5,13 +5,11 @@ from scheduler.models import EventItem, LocationItem, WorkerItem
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
+from datetime import timedelta
 from  expomodelfields import DurationField
 
 
 import pytz
-
-
-
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -523,6 +521,7 @@ class Act (Biddable):
         return { 'duration' : self.tech.stage.act_duration,
                  'title': self.title,
                  'description': self.description,
+                 'details': {'type': 'act'}
              }
     def __str__ (self):
         return str(self.performer) + ": "+self.title
@@ -562,14 +561,19 @@ class Event (EventItem):
     @property
     def sched_payload(self):
         
-        return { 'duration': self.duration,
-                 'title':self.title,
+        return { 'title':self.title,
                  'description':self.description,
-             }
+                 'duration':self.duration,
+                 'details': {'type': ''}
+               }
 
     @property
     def sched_duration(self):
         return self.duration
+    
+    @property
+    def bio_payload(self):
+        return None
 
     @property
     def calendar_type(self):
@@ -611,6 +615,8 @@ class GenericEvent (Event):
             'type': self.type,
             'title':  self.title,
             'description' : self.description,
+            'duration':self.duration,
+            'details': {'type': self.type}
             }
 
 
@@ -654,16 +660,22 @@ class Class (Biddable, Event):
 
     @property
     def sched_payload(self):
+        
         payload = {}
         details = {}
-        details= {classdisplay_labels['type'] :  self.type}
+        details= {'type' : self.type }
         if not self.fee == 0:
             details [classdisplay_labels['fee']] =  self.fee
 
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
+        payload['duration'] = self.duration
         return payload
+
+    @property
+    def bio_payload(self):
+        return [self.teacher]
 
     @property
     def calendar_type(self):
@@ -726,7 +738,6 @@ class BidEvaluation(models.Model):
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
-    bid_id = models.AutoField(primary_key=True)
 
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
@@ -830,6 +841,9 @@ class ArtBid(Biddable):
 
 
 class ClassProposal(models.Model):
+    '''
+    A proposal for a class that someone else ought to teach. NOT a class bid - don't get these confused!
+    '''
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
@@ -864,7 +878,7 @@ class ClassProposal(models.Model):
 
 class ConferenceVolunteer(models.Model):
     '''
-    A response to a bid, cast by a privileged GBE staff member
+    An individual wishing to participate in the conference as a volunteer
     '''
     presenter = models.ForeignKey(Persona,  
                                 related_name='conf_volunteer')

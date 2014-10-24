@@ -288,7 +288,30 @@ td.describe
 /*Schedule detail view*/
 .sched_block
 {
-  
+    margin: 10px;
+    width: 100%;
+}
+.sched_desc
+{
+  padding-top: 10px;
+  align:left;
+  width:80%;
+  display: inline-block;
+  vertical-align: top;
+}
+.sched_times
+{
+  width:15%;
+  align: right;
+  display: inline-block;
+  border: 1px solid black;
+  padding: 5px;
+}
+.bio_block
+{
+    border: 1px solid black;
+    margin: 10px;
+    padding: 10px;
 }
 .sched_detail_title
 {
@@ -300,22 +323,14 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_times
-{
-  
-}
 .sched_length
 {
   
 }
 .sched_details
 {
-  
 }
-.sched_desc
-{
-  padding-top: 10px;
-}
+
 .tickets
 {
   
@@ -335,4 +350,22 @@ td.describe
 .ticket_name
 {
  font-weight: bold;
+}
+.sched_bio_image
+{
+  width: 300px;
+  margin: 3px;
+  display: inline-block;
+}
+.bio_image_block
+{
+  width: 28%;
+  text-align:right;
+  display: inline-block;
+}
+.bio_words
+{
+  width: 70%;
+  display: inline-block;
+  vertical-align: top;
 }

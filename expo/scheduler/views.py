@@ -10,9 +10,35 @@ from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from django.core.urlresolvers import reverse
-
+from datetime import datetime
+from datetime import time as dttime
 
 # Create your views here.
+
+
+def validate_profile(request):
+    '''
+    Return the user profile if any
+    '''
+    from gbe.models import Profile
+    if request.user.is_authenticated():
+        try:
+            return request.user.profile
+        except Profile.DoesNotExist:
+            return False
+
+
+def validate_perms(request, perms):
+    '''
+    Validate that the requesting user has the stated permissions
+    Returns profile object if perms exist, False if not
+    '''
+    profile = validate_profile(request)
+    if not profile:
+        return False
+    if any([perm in profile.privilege_groups for perm in perms]):
+        return profile
+    return False
 
 def selfcast(sobj):
     '''
@@ -21,7 +47,7 @@ def selfcast(sobj):
     Pretty rudimentary, can probably be improved
     '''
     try:
-        return sobj.typeof.objects.get(id=sobj.id)
+        return sobj.typeof().objects.get(pk=sobj.child.id)
     except:
         return sobj
 
@@ -42,7 +68,9 @@ def get_events_display_info():
                     'locations': [event.location for event in entry['scheduled_events']],
                     'datetime': [event.start_time for event in entry['scheduled_events']],
                     'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['type']
+                    'type':entry['confitem'].sched_payload['details']['type'],
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [entry['eventitem'].eventitem_id])
                     }
                    for entry in eventitems]
     return eventslist
@@ -52,7 +80,8 @@ def get_event_display_info(eventitem_id):
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
     only one eventitem.  
     '''
-    item = EventItem.objects.get_subclass(event=eventitem_id)
+    item = selfcast(EventItem.objects.get_subclass(event=eventitem_id))
+    
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all()}
 
@@ -65,33 +94,30 @@ def class_schedule(request):
 
     pass
 
-def event_schedule(request):
-    '''
-    Schedule a event.
-    '''
 
-    pass
+
+def event_schedule(request, event_id):
+    '''
+    Schedule a event: create a scheduler.event object, set start time/day, and allocate a room
+    '''
+    
+
 
 @login_required
 def event_list(request):
     '''
     List of events (all)
     '''
-    from gbe.models import Profile
-    if request.user.is_authenticated():
-        try:
-            profile = request.user.profile
-        except Profile.DoesNotExist:
-            return render_to_response ('gbe/index_unregistered_user.tmpl')  # works?
-    else:
-        return render_to_response ('gbe/index')  # works?
-
-    header  = [ 'Title','Location','Date/Time','Duration','Type',]
+    profile = validate_perms(request, ('Scheduling Mavens',))
+    if not profile:
+        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
+                                                             
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Detail']
     events = get_events_display_info()
 
-    form = EventsDisplayForm()
+
     template = 'scheduler/events_review_list.tmpl'
-    return render(request, template, {'form' : form})
+    return render(request, template, { 'events':events, 'header':header})
 
 
 
@@ -129,5 +155,51 @@ def detail_view(request, eventitem_id):
     template = 'scheduler/event_detail.tmpl'
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
+                                      'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
 
+
+def edit_event(request, eventitem_id):
+    '''
+    Add an item to the conference schedule and/or set its schedule details (start
+    time, location, duration, or allocations)
+    Takes a scheduler.EventItem id
+    '''
+    profile = validate_perms(request, ('Scheduling Mavens',))
+    if not profile:
+        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
+
+    if request.method=='POST':
+        item =  EventItem.objects.get(event=eventitem_id)
+        if len(item.scheduler_events.all())==0:
+               # Creating a new scheduler.Event and allocating a room
+            form = EventScheduleForm(request.POST)
+            
+            s_event = Event()
+            s_event.eventitem = item
+            day = datetime.strptime(request.POST['day'], '%Y-%m-%d %H:%M:%S')
+            time = dttime(request.POST['time'])
+            s_event.starttime = day.combine(time)
+            s_event.save()
+              ## set up a Resource
+            res = Location()
+            res._item = request.location
+            res.save()
+            
+              ## set up a Resource Allocation
+            loc_allocation = ResourceAllocation()
+            loc_allocation.event = s_event
+            loc_allocation.resource = res
+            loc_allocation.save()
+            # next: set duration on child
+            
+            return render (reverse('home', urlconf='gbe'))
+    eventitem_view = get_event_display_info(eventitem_id)
+    template = 'scheduler/event_schedule.tmpl'
+    form = EventScheduleForm()
+    return render(request, template, {'eventitem': eventitem_view,
+                                      'form': form,
+                                      'show_tickets': True,
+                                      'tickets': eventitem_view['event'].get_tickets,
+                                      'user_id':request.user.id})
+    

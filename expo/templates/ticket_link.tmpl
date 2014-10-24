@@ -1,0 +1,16 @@
+{% load ticketing_filters %}
+
+      <div class="tickets">
+	<br>
+	<b>Buy any of these tickets to get into this great event!</b><br>
+	<ul class="ticket_list"></ul>
+	{% for ticket in tickets %}
+	  <li class="ticket_list_item">
+	    <span class="ticket_name">{{ ticket.title }}</span> - 
+	    <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ ticket.ticket_id|bpt_event }}/" target="_blank" class="ticket_link">
+            Buy it now!
+            </a>
+	  </li>
+	{% endfor %}
+	</ul>
+      </div>
