@@ -13,8 +13,11 @@ class table:
     
 
     def __init__(self, rows=type(None), columns=type(None)):
-        """Initalizes a table, add creates the default list of columns in the table, which must have at
-        least something in it.  Also the defailt list of rows, which can be empty."""
+        '''
+    Initalizes a table, add creates the default list of columns in the table, 
+    which must have at least something in it.  Also the defailt list of rows, 
+    which can be empty.
+        '''
 
         if columns == type(None):
           self._col_list=[]
@@ -53,9 +56,11 @@ class table:
                 exec "self.row"+str(rownum+1)+"["+str(colnum+1)+"]=type(None)"
 
     def __call__(self, row, column):
-        """Returns object (or value) stores in the table cell located at (row, column).
-        Duplicate method that is called by a different batch of things then __getitem__.
-        """
+        '''
+    Returns object (or value) stores in the table cell located at (row, column).
+    Duplicate method that is called by a different batch of things then 
+    __getitem__.
+        '''
 
         colnum=self.col0[column]
         rownum=self.row0[row]
@@ -63,9 +68,11 @@ class table:
         return tmp
  
     def __getitem__(self, location, item=type(None)):
-        """Returns object (or value) stores in thetable cell located at (row, column).
-        Duplicate method that is called by a different batch of things then __call__.
-        """
+        '''
+    Returns object (or value) stores in thetable cell located at (row, column).
+    Duplicate method that is called by a different batch of things then 
+    __call__.
+        '''
 
         row=location[0]
         column=location[1]
@@ -75,8 +82,9 @@ class table:
         return tmp
 
     def __setitem__(self, location, item=type(None)):
-        """Sets table cell located at location to object or value passed in as item.
-        """
+        '''
+    Sets table cell located at location to object or value passed in as item.
+        '''
 
         row=location[0]
         column=location[1]
@@ -85,9 +93,10 @@ class table:
         exec "self.row"+str(rownum)+"["+str(colnum)+"]=item"
 
     def addcol(self, column, item=type(None)):
-        """Adds an empty column to the table.  Recurses through list of rows, and add empty
-        column entry to the row dictionary.
-        """
+        '''
+    Adds an empty column to the table.  Recurses through list of rows, and 
+    add empty column entry to the row dictionary.
+        '''
 
         if column not in self._col_list:
           self._col_list.append(column)
@@ -95,13 +104,23 @@ class table:
           for rownum in range(len(self._row_list)):
             exec "self.row"+str(rownum+1)+"["+str(self.col0[column])+"]=type(None)"
             
+    def getrow(self, row):
+        '''
+    Return the specified row as a list. 
+        '''
+
+        return_row = []
+        for column in self._col_list:
+            return_row.append(self[row, column])
+        return return_row
 
     def addrow(self, rowdata, settings=type(None)):
-        """Adds a row to the table.  Can take either just the row name and creates an empty row,
-        or a dictionary of the values to be set.
-        """
+        '''
+    Adds a row to the table.  Can take either just the row name and creates 
+    an empty row, or a dictionary of the values to be set.
+        '''
 
-        if type(rowdata)==type(""):
+        if type(rowdata) in (type(''), type(0), type(0.0)):
           row=rowdata
         elif type(rowdata) in (type([]), type(())):
           row=rowdata[0]
@@ -122,4 +141,13 @@ class table:
         elif type(settings) in table.coltypes or settings==type(None): 
           for colnum in range(len(self._col_list)):
             exec "self.row"+str(rownum)+"["+str(colnum+1)+"]=type(None)"             
+    def getcol(self, col):
+        '''
+    Return the specified row as a list. 
+        '''
+
+        return_col = []
+        for row in self._row_list:
+            return_col.append(self[row, column])
+        return return_col
 

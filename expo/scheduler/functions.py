@@ -1,10 +1,13 @@
+# 2014.10.24 16:52:10 EDT
 from table import table
 from datetime import datetime
-#from gbe.duration import Duration
+from datetime import timedelta
+from calendar import timegm
 from duration import Duration
+from random import choice
 
 def TablePrep(Events, Duration):
-    '''
+    """
     Accepts an unordered list of events, and returns a table ready to be
     sent to the Sched_Display template.  Events is a list, with each entry
     having properties for the appropriate information for each event, 
@@ -13,8 +16,8 @@ def TablePrep(Events, Duration):
     determine what colors each event is displayed with.  Duration is the
     length, in minutes, of each cell in the table.  StartTime and StopTime
     are both DateTime objects (integers with 
-    '''
-
+    """
+    PrettyFormat = '%a %I:%M %p'
     Table = table([], [])
     times = []
     colors = [
@@ -30,59 +33,60 @@ def TablePrep(Events, Duration):
         {'FG_Color': 'Black', 'BG_Color': 'Silver', 'Border_Color': 'DarkSlateGray'}
         ]
     types = {}
-
     for Event in Events:
-
-        min = int(Event['StartTime'].minute / Duration) * Duration
-        StartTime = Event['StartTime'].strftime('%a %I:'+ str(min) +' %p')
-        starttime = Event['StartTime'].hour *60 + Event['StartTime'].minute
-        stoptime = Event['StopTime'].hour *60 + Event['StopTime'].minute
+        min = str(int(Event['StartTime'].minute / Duration) * Duration)
+        if len(min) == 1:
+            min = '0' + min
+        Time = Event['StartTime']
+        starttime = timegm(Event['StartTime'].utctimetuple())
+        stoptime = timegm(Event['StopTime'].utctimetuple())
         time = int(starttime / Duration) * Duration
         location = Event['Location']
-
-        if (location) not in Table._col_list:
+        if location not in Table._col_list:
             Table.addcol(location)
-
-        if StartTime not in Table._row_list:
-        ###  Fix calc of StartTime to be added to row list
-        ###  Needs to work on intervals of Duration, so that an event that
-        ###  begins at 9:05 and one that starts at 9:00 end up in the same
-        ###  hour block
-            Table.addrow(StartTime)
+        if starttime not in Table._row_list:
+            Table.addrow(starttime)
             times.append(starttime)
             times.sort()
-        starttime = Event['StartTime'].hour *60 + Event['StartTime'].minute
-        stoptime = Event['StopTime'].hour *60 + Event['StopTime'].minute
-        time = int(starttime / Duration) * Duration
-
         Cell = {}
         Cell['Text'] = Event['Text']
         Cell['Link'] = Event['Link']
-        
         if ['Color'] not in dir(Event):
             if Event['Type'] in types.keys():
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = types[Event['Type']]
+                (Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'],) = types[Event['Type']]
             else:
                 color_set = choice(colors)
                 colors.remove(color_set)
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = color_set
+                (Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'],) = color_set
                 types[Event['Type']] = color_set
-
-        cells = int((starttime - stoptime)/Duration +.8)
+        cells = int((starttime - stoptime) / Duration + 0.8)
         if cells == 1:
-            Cell['Borders'] = ['Top', 'Left', 'Right', 'Bottom']
-            Table[location, time] = Cell
-        else:
+            Cell['Borders'] = ['Top',
+             'Left',
+             'Right',
+             'Bottom']
+            Table[starttime, location] = Cell
+        elif cells >= 2:
             Cell['Borders'] = ['Top', 'Left', 'Right']
-            Table[location, time] = Cell
+            if starttime not in Table._row_list:
+                Table.addrow(starttime)
+            Table[starttime, location] = Cell
             cells = cells - 1
-            while cells != 1:
-                time = time + Duration
-                Cell['Text'], Cell['Link'] = '', ''
+            while cells >= 2:
+                Time = Time + timedelta(0, Duration * 60)
+                (Cell['Text'], Cell['Link'],) = ('', '')
                 Cell['Borders'] = ['Left', 'Right']
-                Table[location, time] = Cell
-            time = time + Duration
-            Cell['Text'], Cell['Link'] = '', ''
+                if starttime not in Table._row_list:
+                    Table.addrow(starttime)
+                Table[starttime, location] = Cell
+                print cells
+                cells = cells - 1
+
+            Time = Time + timedelta(0, Duration * 60)
+            (Cell['Text'], Cell['Link'],) = ('', '')
             Cell['Borders'] = ['Left', 'Right', 'Bottom']
-            Table[location, time] = Cell
+            if starttime not in Table._row_list:
+                Table.addrow(starttime)
+            Table[starttime, location] = Cell
+
     return Table
