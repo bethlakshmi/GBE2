@@ -21,7 +21,7 @@
       </div>
 
       <div class="sched_times">
-	  {% for sched_event in eventitem.scheduled_events %}
+	  {% for sched_event in eventitem.scheduler_events %}
 	  <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time}}<br>
 	    {% for location in sched_event.location %}
 	  <label class="sched_detail">Location:  </label>{{ location }}<br>

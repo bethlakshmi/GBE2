@@ -20,7 +20,8 @@ conference_days = (
 
 time_start = 8 * 60
 time_stop = 23 * 60 + 30
-conference_times = [(time(mins/60, mins%60), str(mins/60) +":"+str(mins%60)  ) for mins in range (time_start, time_stop, 30)]
+conference_times = [(time(mins/60, mins%60), str(mins/60) +":"+str(mins%60)  ) 
+                    for mins in range (time_start, time_stop, 30)]
 
 
 

@@ -30,21 +30,21 @@ class Schedulable(models.Model):
 
     @property
     def start_time(self):
-        return self.start_time
+        return self.starttime
     
     @property
     def end_time(self):
-        return self.start_time + self.duration
+        return self.starttime + self.duration
     
     def __unicode__(self):
         if self.start_time:
-            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
         else:
             return "No Start Time"
 
     def __str__(self):
         if self.start_time:
-            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
         else:
             return "No Start Time"
 
@@ -84,6 +84,7 @@ class Resource(models.Model):
     This is basically a tag interface, allowing us to select all resources. 
     '''
     objects = InheritanceManager()
+
 
     @property
     def item (self):
@@ -237,12 +238,6 @@ class EventItem (models.Model):
     def __unicode__(self):
         return unicode(self.describe)
 
-conference_days = ( 
-    (datetime(2015, 02, 19), 'Thursday'),
-    (datetime(2015, 02, 20), 'Friday'),
-    (datetime(2015, 02, 21), 'Saturday'),
-    (datetime(2015, 02, 22), 'Sunday'),
-)
     
 
 class Event (Schedulable):
@@ -251,8 +246,8 @@ class Event (Schedulable):
     '''
     objects = InheritanceManager()
     eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
-
-    start_time = models.DateTimeField(blank=True)
+                             
+    starttime = models.DateTimeField(blank=True)
 
     @property
     def duration(self):
@@ -283,6 +278,10 @@ class ResourceAllocation(Schedulable):
     objects = InheritanceManager()
     event = models.ForeignKey(Event, related_name="resources_allocated")
     resource = models.ForeignKey(Resource, related_name="allocations")
+
+    @property 
+    def start_time(self):
+        return self.event.starttime
 
     def __str__(self):
         try:

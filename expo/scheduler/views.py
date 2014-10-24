@@ -10,7 +10,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from django.core.urlresolvers import reverse
-
+from datetime import datetime
+from datetime import time as dttime
 
 # Create your views here.
 
@@ -168,6 +169,31 @@ def edit_event(request, eventitem_id):
     if not profile:
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
 
+    if request.method=='POST':
+        item =  EventItem.objects.get(event=eventitem_id)
+        if len(item.scheduler_events.all())==0:
+               # Creating a new scheduler.Event and allocating a room
+            form = EventScheduleForm(request.POST)
+            
+            s_event = Event()
+            s_event.eventitem = item
+            day = datetime.strptime(request.POST['day'], '%Y-%m-%d %H:%M:%S')
+            time = dttime(request.POST['time'])
+            s_event.starttime = day.combine(time)
+            s_event.save()
+              ## set up a Resource
+            res = Location()
+            res._item = request.location
+            res.save()
+            
+              ## set up a Resource Allocation
+            loc_allocation = ResourceAllocation()
+            loc_allocation.event = s_event
+            loc_allocation.resource = res
+            loc_allocation.save()
+            # next: set duration on child
+            
+            return render (reverse('home', urlconf='gbe'))
     eventitem_view = get_event_display_info(eventitem_id)
     template = 'scheduler/event_schedule.tmpl'
     form = EventScheduleForm()
