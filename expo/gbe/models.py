@@ -521,6 +521,7 @@ class Act (Biddable):
         return { 'duration' : self.tech.stage.act_duration,
                  'title': self.title,
                  'description': self.description,
+                 'details': {'type': 'act'}
              }
     def __str__ (self):
         return str(self.performer) + ": "+self.title
@@ -562,7 +563,9 @@ class Event (EventItem):
         
         return { 'title':self.title,
                  'description':self.description,
-             }
+                 'duration':self.duration,
+                 'details': {'type': ''}
+               }
 
     @property
     def sched_duration(self):
@@ -612,6 +615,8 @@ class GenericEvent (Event):
             'type': self.type,
             'title':  self.title,
             'description' : self.description,
+            'duration':self.duration,
+            'details': {'type': self.type}
             }
 
 
