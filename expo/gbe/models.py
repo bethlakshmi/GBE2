@@ -161,11 +161,14 @@ class Profile(WorkerItem):
              }
             
         
-
+    @property
+    def describe(self):
+        return self.display_name
+    
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
         
-class Performer (models.Model):
+class Performer (WorkerItem):
     '''
     Abstract base class for any solo, group, or troupe - anything that can appear
     in a show lineup or teach a class
@@ -203,6 +206,10 @@ class Performer (models.Model):
     @property
     def complete(self):
         return True
+    
+    @property
+    def describe(self):
+        return self.name
 
     def __unicode__(self):
         return self.name

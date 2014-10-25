@@ -171,6 +171,15 @@ day_options = (('Fri', "Friday"),
                ('Sat', "Saturday"),
                ('Sun', "Sunday"))
 
+role_options = (('Teacher', "Teacher"),
+               ('Performer', "Performer"),
+               ('Volunteer', "Volunteer"),
+               ('Panelist', "Panelist"),
+               ('Moderator', "Moderator"),
+               ('Staff Lead', "Staff Lead"),
+               ('Technical Director', "Technical Director"),
+               ('Producer',"Producer"))
+
 vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
 						 "Saturday & Sunday, noon to 8pm ONLY."))
 ad_type_options = (("Full Page, Premium","Full Page, Premium"),

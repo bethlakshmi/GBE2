@@ -143,7 +143,9 @@ class WorkerItem(ResourceItem):
     
     @property
     def describe(self):
-        return WorkerItem.objects.get_subclass(id=self.id).display_name
+        child = WorkerItem.objects.get_subclass(id=self.id)
+        
+        return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
         return str(self.describe)
@@ -159,6 +161,9 @@ class Worker (Resource):
     An allocatable person
     '''
     _item = models.ForeignKey(WorkerItem)
+    role = models.CharField(max_length=50,
+                                    choices=role_options, 
+                                    blank=True)
     
     def __str__(self):
         try:

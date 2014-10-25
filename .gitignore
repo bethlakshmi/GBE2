@@ -38,3 +38,7 @@ expo/gbe/templates/gbe/bid_review_list.tmpl
 expo/gbe/views.py
 
 *.txt
+
+expo/performer.json
+
+expo/profilesinherit.json
