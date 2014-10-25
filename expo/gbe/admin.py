@@ -2,11 +2,11 @@ from django.contrib import admin
 from gbe.models import *
 
 class BidAdmin(admin.ModelAdmin):
-    list_display = (str, 'submitted', 'accepted')
+    list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted']
     
 class ActAdmin(admin.ModelAdmin):
-    list_display = ('title', 'performer', 'submitted', 'accepted')
+    list_display = ('title', 'performer', 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted']
 
 class PerformerAdmin(admin.ModelAdmin):
