@@ -19,7 +19,8 @@ class BrownPaperSettings(models.Model):
     
     def __unicode__(self):
         return 'Settings:  %s (%s) - %s' % (self.developer_token, self.client_username, self.last_poll_time)
-    
+    class Meta:
+        verbose_name_plural='Brown Paper Settings'
     
 class BrownPaperEvents(models.Model):
     '''
@@ -34,6 +35,8 @@ class BrownPaperEvents(models.Model):
     
     def __unicode__(self):
         return self.bpt_event_id
+    class Meta:
+        verbose_name_plural='Brown Paper Events'
         
 class TicketItem(models.Model):
     '''

@@ -48,7 +48,9 @@ def landing_page(request):
         context = RequestContext (request, 
                                   {'profile':viewer_profile, 
                                    'standard_context' : standard_context,
-                                   'performers':viewer_profile.get_performers(),
+                                   'personae':viewer_profile.get_personae(),
+                                   'troupes':viewer_profile.get_troupes(),
+                                   'combos':viewer_profile.get_combos(),
                                    'acts': viewer_profile.get_acts(),
                                    'shows': viewer_profile.get_shows(),
                                    'classes': viewer_profile.is_teaching(),
@@ -111,7 +113,7 @@ def register_persona(request, **kwargs):
                        'view_title':view_title})
              
 
-def create_troupe(request):
+def edit_troupe(request, troupe_id=None):
     page_title = 'Manage Troupe'
     view_title = 'Tell Us About Your Troupe'
     submit_button = 'Save Troupe'
@@ -122,13 +124,24 @@ def create_troupe(request):
     personae = profile.personae.all()
     if len(personae) == 0:
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+    if troupe_id:
+        try:
+            troupe = Troupe.objects.filter(id=troupe_id)[0]
+        except:
+            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+    else:
+        troupe = Troupe();
+        
     if request.method == 'POST':
-        form = TroupeForm(request.POST, request.FILES)
+        form = TroupeForm(request.POST, request.FILES, instance=troupe)
         if form.is_valid():
-            troupe = form.save(commit=True)
-            troupe_id = troupe.pk
+            form.save(commit=True)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
+            form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
+                                                       objects.filter(id=profile.id),
+                                                       empty_label=None,
+                                                       label=persona_labels['contact']) 
             return render (request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
@@ -136,7 +149,11 @@ def create_troupe(request):
                        'view_title': view_title,
                        'view_header_text':troupe_header_text})
     else:
-        form = TroupeForm(initial={'contact':profile})
+        form = TroupeForm(instance=troupe, initial={'contact':profile})
+        form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
+                                                       objects.filter(id=profile.id),
+                                                       empty_label=None,
+                                                       label=persona_labels['contact']) 
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
@@ -486,8 +503,14 @@ def view_act (request, act_id):
                                'track_duration':audio_info.track_duration,
                                'act_duration':stage_info.act_duration
                            })
-        performer = PersonaForm(instance = act.performer, 
+        try:
+            instance = Troupe.objects.get(pk=act.performer.id)
+            performer = TroupeForm(instance = instance, 
+                                   prefix = 'The Troupe')
+        except:
+            performer = PersonaForm(instance = act.performer, 
                                 prefix = 'The Performer(s)')
+ 
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     

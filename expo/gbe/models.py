@@ -127,14 +127,32 @@ class Profile(WorkerItem):
  
         return profile_alerts
     
-
     def get_performers(self):
+        performers = self.get_personae()
+        performers += self.get_troupes()
+        performers += self.get_combos()
+        return performers
+
+    def get_personae(self):
         solos = self.personae.all()
         performers = list(solos)
+ 
+        return performers
+    
+    def get_troupes(self):
+        solos = self.personae.all()
+        performers = list()
         for solo in solos:
-            performers += solo.combos.all()
             performers += solo.troupes.all()
         return performers
+    
+    def get_combos(self):
+        solos = self.personae.all()
+        performers = list()
+        for solo in solos:
+            performers += solo.combos.all()
+        return performers
+    
     def get_acts(self):
         acts = []
         performers = self.get_performers()
