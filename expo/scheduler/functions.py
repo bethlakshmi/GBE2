@@ -42,9 +42,9 @@ def TablePrep(Events, Duration):
         stoptime = timegm(Event['StopTime'].utctimetuple())
         time = int(starttime / Duration) * Duration
         location = Event['Location']
-        if location not in Table._col_list:
+        if location not in Table.collist:
             Table.addcol(location)
-        if starttime not in Table._row_list:
+        if starttime not in Table.rowlist:
             Table.addrow(starttime)
             times.append(starttime)
             times.sort()
@@ -59,7 +59,8 @@ def TablePrep(Events, Duration):
                 colors.remove(color_set)
                 (Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'],) = color_set
                 types[Event['Type']] = color_set
-        cells = int((starttime - stoptime) / Duration + 0.8)
+        cells = int((stoptime - starttime) / Duration / 60 + 0.8)
+        print cells
         if cells == 1:
             Cell['Borders'] = ['Top',
              'Left',
@@ -68,25 +69,24 @@ def TablePrep(Events, Duration):
             Table[starttime, location] = Cell
         elif cells >= 2:
             Cell['Borders'] = ['Top', 'Left', 'Right']
-            if starttime not in Table._row_list:
+            if starttime not in Table.rowlist:
                 Table.addrow(starttime)
             Table[starttime, location] = Cell
             cells = cells - 1
             while cells >= 2:
-                Time = Time + timedelta(0, Duration * 60)
+                starttime = starttime + (Duration * 60)
                 (Cell['Text'], Cell['Link'],) = ('', '')
                 Cell['Borders'] = ['Left', 'Right']
-                if starttime not in Table._row_list:
+                if starttime not in Table.rowlist:
                     Table.addrow(starttime)
                 Table[starttime, location] = Cell
-                print cells
                 cells = cells - 1
 
-            Time = Time + timedelta(0, Duration * 60)
+            starttime = starttime + (Duration * 60)
             (Cell['Text'], Cell['Link'],) = ('', '')
             Cell['Borders'] = ['Left', 'Right', 'Bottom']
-            if starttime not in Table._row_list:
+            if starttime not in Table.rowlist:
                 Table.addrow(starttime)
             Table[starttime, location] = Cell
 
-    return Table
+    return Table.listreturn()
