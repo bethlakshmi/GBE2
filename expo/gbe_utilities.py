@@ -6,12 +6,11 @@ def rebuild_privileges():
     Reads the privilege set from gbetext and creates the correct groups to make these work
     '''
     from django.contrib.auth.models import Group
-    from gbetext import special_privileges
-    gs = [Group() for priv in special_privileges.keys()]
-    for (g, p) in zip (gs, special_privileges.keys()):
+    from gbe.special_privileges import special_privileges
+    for p in special_privileges.keys():
+        g = Group()
         g.name=p
-        for g in gs:
-            g.save() 
+        g.save()
     
 
 def restore_base_users():
