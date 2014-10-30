@@ -106,6 +106,8 @@ class LocationItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+
+
     @property
     def describe(self):
         return LocationItem.objects.get_subclass(id=self.id).name

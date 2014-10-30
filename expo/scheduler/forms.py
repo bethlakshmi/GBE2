@@ -25,13 +25,34 @@ conference_times = [(time(mins/60, mins%60), str(mins/60) +":"+str(mins%60)  )
 
 
 
-class EventScheduleForm(forms.Form):
+class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
     location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
+    
+    class Meta:
+        model = Event
+        fields = ['day', 'time', 'location']
+
+    def save(self, commit=True):
+        data = self.cleaned_data
+        event = super(EventScheduleForm, self).save(commit=False)
+        day = data.get('day')
+        time = data.get('time')
+        day = ' '.join([day.split(' ')[0],time])
+        
+        event.starttime =datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+
+        if commit:
+            self.save()
+        return event
+
+class EventItemScheduleForm(forms.ModelForm):
+    '''
+    When we save an Event, we need to save changes to its duration
+    '''
     duration = DurationFormField()
 
-
-
-
-    
+        
+    class Meta:
+        model = EventItem
