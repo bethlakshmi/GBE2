@@ -173,35 +173,47 @@ def edit_event(request, eventitem_id):
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
 
     if request.method=='POST':
-        item =  EventItem.objects.get(event=eventitem_id)
+        item =  EventItem.objects.get_subclass(eventitem_id=eventitem_id)        
+
         if len(item.scheduler_events.all())==0:
                # Creating a new scheduler.Event and allocating a room
-            form = EventScheduleForm(request.POST)
-            
-            s_event = Event()
+            event_form = EventScheduleForm(request.POST, 
+                                     prefix='event')
+        else:
+            event_form = EventScheduleForm(request.POST, 
+                                           instance = item.scheduler_events.all()[0],
+                                           prefix='event')
+        if (event_form.is_valid()  and True):
+            s_event=event_form.save(commit=False)
             s_event.eventitem = item
-            day = datetime.strptime(request.POST['day'], '%Y-%m-%d %H:%M:%S')
-            time = dttime(request.POST['time'])
-            s_event.starttime = day.combine(time)
-            s_event.save()
-              ## set up a Resource
-            res = Location()
-            res._item = request.location
-            res.save()
+            data = event_form.cleaned_data
+            s_event.save()            
+            from gbe.models import Room
+            li  = Room.objects.get(name=data.get('location'))
             
-              ## set up a Resource Allocation
+            try:
+                res = Location.objects.get(_item=li)
+            except:
+                res = Location()
+                res._item = li.locationitem
+                res.save()        
+        
+
             loc_allocation = ResourceAllocation()
             loc_allocation.event = s_event
             loc_allocation.resource = res
             loc_allocation.save()
-            # next: set duration on child
+                # next: set duration on child
             
-            return render (reverse('home', urlconf='gbe'))
+
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        else:
+            return HttpResponseRedirect('/')
     eventitem_view = get_event_display_info(eventitem_id)
     template = 'scheduler/event_schedule.tmpl'
-    form = EventScheduleForm()
+    eventform = EventScheduleForm( prefix='event')
     return render(request, template, {'eventitem': eventitem_view,
-                                      'form': form,
+                                      'form': eventform,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
