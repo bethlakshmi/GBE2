@@ -177,9 +177,8 @@ class table:
 
     def listreturn(self, bias = 'row'):
         '''
-    Returns the table as a list of lists, with the outer list being the columns,
-    and the inner lists being the horizontal rows.  Useful for generating HTML
-    tables from a table data object.
+        Return table as a list of rows or columns, each row or column being a list of cells. 
+        bias parameter selects whether to return row or column. (options are ('row', 'column'))
         '''
 
         returnlist = []
