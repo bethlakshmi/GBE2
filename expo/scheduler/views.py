@@ -170,7 +170,7 @@ def edit_event(request, eventitem_id):
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
 
     if request.method=='POST':
-        item =  EventItem.objects.get(event=eventitem_id)        
+        item =  EventItem.objects.get_subclass(eventitem_id=eventitem_id)        
 
         if len(item.scheduler_events.all())==0:
                # Creating a new scheduler.Event and allocating a room
@@ -202,6 +202,7 @@ def edit_event(request, eventitem_id):
             loc_allocation.save()
                 # next: set duration on child
             
+
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return HttpResponseRedirect('/')
