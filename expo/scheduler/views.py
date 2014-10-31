@@ -12,6 +12,9 @@ import gbe_forms_text
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from datetime import time as dttime
+from table import table
+from gbe.duration import Duration
+from scheduler.functions import TablePrep
 
 # Create your views here.
 
@@ -137,15 +140,15 @@ def calendar(request, cal_format = 'Block'):
 
     pass
 
-def calendar_view(request, cal_type = 'Event', cal_format = 'Block'):
-    '''
-    Accepts a calendar type, and renders a calendar for that type.  Type can be
-    an event class, an event instance (shows what is scheduled within that
-    event), an event reference (shows a calendar of just every instance of
-    that event), or a schedulable items (which shows a calendar for that item).
-    '''
+#def calendar_view(request, cal_type = 'Event', cal_format = 'Block'):
+#    '''
+#    Accepts a calendar type, and renders a calendar for that type.  Type can be
+#    an event class, an event instance (shows what is scheduled within that
+#    event), an event reference (shows a calendar of just every instance of
+#    that event), or a schedulable items (which shows a calendar for that item).
+#    '''
 
-    pass
+#    pass
 
 def detail_view(request, eventitem_id):
     '''
@@ -203,3 +206,61 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
+def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
+    '''
+    A view to query the database for events of type cal_type over the period of time cal_times,
+    and turn the information into a calendar in black format for display.
+
+    Or it will be, eventually.  Right now it is using dummy event information for testing purposes.
+    Will add in database queries once basic funcationality is completed.
+    '''
+
+    Table = {}
+    duration = 60
+
+    events = []
+    events.append({'Text': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
+        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 13, 00), 'StopTime': datetime(2015, 02, 07, 14, 00), \
+        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 11, 00), \
+        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 11, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
+        'Location': 'Paul Revere', 'Type': 'Business Class'})
+
+    events.append({'Text': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
+        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
+        'Link': 'http://random.new.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 14, 00), 'StopTime': datetime(2015, 02, 07, 16, 00),\
+        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
+        'Link': 'http://some.bad.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
+        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+
+    events.append({'Text': 'From Legalese to English, Contracts in Burlesque', \
+        'Link': 'http://still.another.websi.te', \
+        'StartTime': datetime(2015, 02, 07, 12, 00), 'StopTime': datetime(2015, 02, 07, 13, 00), \
+        'Location': 'Thomas Atkins', 'Type': 'Business Class'})
+
+    Table['rows'] = TablePrep(events, duration)
+    Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+    Table['Link'] = 'http://burlesque-expo.com'
+    Table['X_Name'] = {}
+    Table['X_Name']['Text'] = 'Rooms'
+    Table['X_Name']['Link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+
+    template = 'scheduler/Sched_Display.tmpl'
+
+    return render(request, template, Table)
