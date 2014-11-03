@@ -3,15 +3,7 @@ from django.db.models.fields import IntegerField
 from expoformfields import DurationFormField
 from datetime import timedelta
 from django.core.exceptions import ValidationError
-
-
-class Duration(timedelta):
-    def __init__ (self, *args, **kwargs):
-        super(timedelta, self)
-    
-
-    def __str__(self):
-        return ':'.join(map(str, [self.seconds/60,self.seconds%60]))
+from duration import Duration
 
 
 class DurationField(IntegerField):

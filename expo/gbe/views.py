@@ -11,6 +11,7 @@ from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from ticketingfuncs import compute_submission
 from django.core.urlresolvers import reverse
+from duration import Duration
 
 def index(request):
     '''
@@ -728,7 +729,7 @@ def bid_class(request):
 
         if form.is_valid():
             new_class = form.save(commit=False)
-            new_class.duration = timedelta(0,new_class.length_minutes)
+            new_class.duration = Duration(minutes = new_class.length_minutes)
             new_class = form.save(commit=True)
             if 'submit' in request.POST.keys():
                 if new_class.complete:
