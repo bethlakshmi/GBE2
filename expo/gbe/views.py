@@ -812,7 +812,7 @@ def edit_class(request, class_id):
 
         if form.is_valid():
             the_class = form.save(commit=False)
-            the_class.duration = timedelta(0,the_class.length_minutes)
+            the_class.duration = Duration(minutes = the_class.length_minutes)
             the_class = form.save(commit=True)
 
            

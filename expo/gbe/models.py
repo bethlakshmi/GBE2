@@ -695,7 +695,7 @@ class Class (Biddable, Event):
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
-        payload['duration'] = self.duration
+        payload['duration'] = self.duration.set_format("{1:0>2}:{2:0>2}")
         return payload
 
     @property
