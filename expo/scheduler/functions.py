@@ -58,10 +58,8 @@ def normalize(event, schedule_start, schedule_stop, block_size):
     from gbe.duration import timedelta_to_duration
     relative_start = timedelta_to_duration(event['starttime'] - schedule_start)
     relative_stop = timedelta_to_duration(event['stoptime'] - schedule_stop)
-    event['startblock'] = relative_start // block_size
-    if relative_start % block_size > 0:
-        event['startblock'] +=1
-    event['rowspan'] = relative_stop // block_size 
+    event['startblock'] = math.ceil(relative_start / block_size)
+    event['rowspan'] = math.ceil(relative_stop // block_size)
     if relative_stop % block_size >0:
         event['rowspan']+=1
     
