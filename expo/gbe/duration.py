@@ -1,6 +1,10 @@
 
 from datetime import timedelta
 
+def timedelta_to_duration(td):
+    return Duration(seconds = td.total_seconds())
+
+
 class Duration(timedelta):
     '''Wraps a timedelta to produce a more useful representation of an
     extent of time.  Will probably get rid of the timedelta presently
@@ -35,7 +39,7 @@ class Duration(timedelta):
     def hours (self):
         return int(self.total_seconds()/3600)
 
-        
+
     def __div__(self, other):
         '''
         Behavior depends on the divisor. If dividing a duration by an int, return a 
