@@ -1,10 +1,129 @@
 # 2014.10.24 16:52:10 EDT
 from table import table
-from datetime import datetime
 from datetime import timedelta
+from datetime import time
+from datetime import datetime
 from calendar import timegm
 from duration import Duration
+from duration import timedelta_to_duration
 from random import choice
+import math
+
+
+def init_time_blocks(events, block_size, 
+                     cal_start= None, cal_stop = None,
+                     trim_to_block_size=True, offset=None ):
+    '''
+    Find earliest start time and latest stop time and generate a list of 
+    schedule blocks enclosing these. 
+    trim_to_block_size  ensures that the starting block starts on an integer 
+    multiple of block_size
+    offset: not implemented. Will allow setting an offset for schedule blocks
+    cal_start and cal_stop are preset values for start time and stop time, as datetime objects
+    (will allow for time objects, but not yet)
+    If provided, they are assumed to be correct. (ie, we don't adjust them, just use them)
+    
+    '''
+    if not cal_start:
+        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
+    elif instanceof(cal_start, time):
+        cal_start = datetime.combine(datetime.min,cal_start)
+    if not cal_stop:
+        cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
+    elif instanceof(cal_stop, datetime)
+        cal_stop = datetime.combine(datetime.min,cal_stop)
+    if cal_stop < cal_start:    # assume that we've gone past midnight
+        cal_stop += timedelta(days=1) 
+    if trim_to_block_size:
+        pass  # TO DO
+    
+    schedule_duration = timedelta_to_duration(cal_stop-cal_start)
+    blocks_count = math.ceil (schedule_duration/block_size)
+    block_labels = [start_time + block_size * b for b in range(blocks_count)]
+
+
+def init_column_heads(events):
+    '''
+    Scan events and return list of room names. 
+    '''
+    return list(set([e['room'] for e in events]))
+
+
+def normalize(event, schedule_start, schedule_stop, block_size):
+    '''
+    Set a startblock and rowspan for event such that startblock is the
+    earliest block containing the event's start time, and rowspan is the number of blocks it occupies
+    block_size should be a Duration
+    '''
+    from gbe.duration import timedelta_to_duration
+    relative_start = timedelta_to_duration(event['starttime'] - schedule_start)
+    relative_stop = timedelta_to_duration(event['stoptime'] - schedule_stop)
+    event['startblock'] = relative_start // block_size
+    if relative_start % block_size > 0:
+        event['startblock'] +=1
+    event['rowspan'] = relative_stop // block_size 
+    if relative_stop % block_size >0:
+        event['rowspan']+=1
+    
+
+def overlap_check(events):
+    '''
+    Return a list of event tuples such that all members of a tuple are in the same room
+    and stop time of one event overlaps with at least one other member of the tuple
+    '''
+    overlaps = []
+    for room in set([e['room'] for e in events]):
+        prev_stop = datetime.min
+        prev_event = None
+        conflict_set = set()
+        room_events = sorted([event for event in events if event['room'] == room], key = event['start_time'])
+        for event in room_events:
+            if event['starttime'] < prev_stop:
+                conflict_set = conflict_set +prev_event
+                conflict_set = conflict_set + event
+            else:
+                if len(conflict_set) >0:
+                    overlaps += tuple(conflict_set)
+                    conflict_set = set()
+            prev_stop = event['stoptime']
+            prev_event = event
+    return overlaps
+            
+
+
+# default handling of overlapping events:
+## public calendars: do not show any overlapping events
+## Second pass: display in calendar with fancy trickery. (handwave, handwave)
+## admin calendars: combine overlapping events into "OVERLAP" event
+## possibly also offer calendar showing only overlaps
+
+
+def add_to_table(event, table):
+    '''
+    Insert event into appropriate cell in table
+    If event occupies multiple blocks, insert "placeholder" object in 
+    subsequent table cells
+    '''
+    pass
+
+
+def tablePrep(events, block_size, cal_start=None, cal_stop=None):
+    '''
+    Generate a calendar table based on submitted events
+    
+    '''
+    blocks = init_time_blocks(events, block_size, cal_start, cal_stop)
+    col_heads = init_column_heads(events)
+    cal_table = table(rows=blocks, columns=col_heads)
+    for event in events:
+        normalize(event, blocks)
+    overlaps = overlap_check(events)
+    # don't worry about handling now, 
+    # but write overlap handlers and call the right one as needed
+    for event in events:
+        add_to_table(event, cal_table)
+    return cal_table.listreturn()
+    
 
 def TablePrep(Events, Duration):
     '''
