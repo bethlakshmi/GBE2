@@ -30,7 +30,7 @@ class table:
         else:
             '''Error condition'''
             
-        if rows == type(None):
+        if rows == None:
             self.rowlist=[]
         elif type(rows) == type(''):
             self.rowlist=[rows]
@@ -164,7 +164,7 @@ class table:
 
         returnlist = []
         for row in self.rowlist:
-            returnlist.append(self.table[column][row])
+            returnlist.append(self.table[col][row])
         return returnlist
 
     def delcol(self, column):
@@ -182,10 +182,10 @@ class table:
         '''
 
         returnlist = []
-        if bias == 'row':
+        if bias == 'column':
             innerlist = self.rowlist
             outerlist = self.collist
-        elif bias == 'column':
+        elif bias == 'row':
             innerlist = self.collist
             outerlist = self.rowlist
         for outer in outerlist:
