@@ -13,7 +13,7 @@ class table:
     itemtypes=(type([]), type(()), type(''))
     
 
-    def __init__(self, rows = None, columns = None):
+    def __init__(self, rows = None, columns = None, default=None):
         '''
     Initalizes a table, and creates the default list of columns in the table, 
     which must have at least something in it.
@@ -46,7 +46,7 @@ class table:
         for column in columns:
             self.table[column] = {}
             for row in rows:
-                self.table[column][row] = None
+                self.table[column][row] = default
 
     def __call__(self, row, column):
         '''
@@ -191,8 +191,8 @@ class table:
         for outer in outerlist:
             tmplist = []
             for inner in innerlist:
-                if bias == 'row': column, row = outer, inner
-                elif bias == 'column': column, row = inner, outer
+                if bias == 'column': column, row = outer, inner
+                elif bias == 'row': column, row = inner, outer
                 tmplist.append(self.table[column][row])
             returnlist.append(tmplist)
         return returnlist
