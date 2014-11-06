@@ -4,8 +4,8 @@ from datetime import timedelta
 from datetime import time
 from datetime import datetime
 from calendar import timegm
-from duration import Duration
-from duration import timedelta_to_duration
+from gbe.duration import Duration
+from gbe.duration import timedelta_to_duration
 from random import choice
 import math
 
@@ -30,7 +30,7 @@ def init_time_blocks(events, block_size, time_format,
         cal_start = datetime.combine(datetime.min,cal_start)
     if not cal_stop:
         cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
-    elif instanceof(cal_stop, datetime)
+    elif instanceof(cal_stop, datetime): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
     if cal_stop < cal_start:    # assume that we've gone past midnight
         cal_stop += timedelta(days=1) 

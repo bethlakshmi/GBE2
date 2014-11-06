@@ -105,8 +105,7 @@ class LocationItem(ResourceItem):
     "Payload" object for a Location
     '''
     objects = InheritanceManager()
-
-
+    
 
     @property
     def describe(self):
