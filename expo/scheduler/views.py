@@ -206,6 +206,9 @@ def edit_event(request, eventitem_id):
                 # next: set duration on child
             
 
+            item.duration = data['duration']
+            item.save(update_fields=['duration'])
+
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return HttpResponseRedirect('/')

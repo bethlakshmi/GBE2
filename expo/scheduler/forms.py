@@ -29,11 +29,12 @@ class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
     location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
-    
+    duration = DurationFormField(help_text='Enter duration as HH:MM')
+
     class Meta:
         model = Event
-        fields = ['day', 'time', 'location']
-
+        fields = ['day', 'time', 'location', 'duration']
+        help_texts= {'duration':'Enter duration as HH:MM'}
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)
