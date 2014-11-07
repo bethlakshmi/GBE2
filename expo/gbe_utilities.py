@@ -24,6 +24,22 @@ def restore_base_users():
         user.save()
 
 
+def restore_room_set():
+    '''
+    Restore serialized room set from disk to DB
+    '''
+    rooms = pickle.load(open('pickles/rooms.pkl'))
+    for room in rooms:
+	room.save()
+
+def store_room_set():
+    '''
+    Serialize the current room set for later restoration
+    '''	
+    from gbe.models import Room
+    rooms = list( Room.objects.all())
+    pickle.dump(rooms, open('pickles/rooms.pkl','w'))
+
 def store_base_users(base_users):
     '''
     Given a list of base users, store them for later use. Don't know if this will 
