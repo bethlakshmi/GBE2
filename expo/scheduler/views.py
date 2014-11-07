@@ -211,7 +211,7 @@ def edit_event(request, eventitem_id):
 
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     eventitem_view = get_event_display_info(eventitem_id)
     template = 'scheduler/event_schedule.tmpl'
     eventform = EventScheduleForm( prefix='event')
