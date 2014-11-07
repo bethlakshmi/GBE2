@@ -73,7 +73,9 @@ def get_events_display_info():
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
-                                      args = [entry['eventitem'].eventitem_id])
+                                      args = [entry['eventitem'].eventitem_id]),
+                    'edit': reverse('edit_event', urlconf='scheduler.urls', 
+                                    args =  [entry['eventitem'].eventitem_id]),
                     }
                    for entry in eventitems]
     return eventslist
@@ -115,7 +117,7 @@ def event_list(request):
     if not profile:
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
                                                              
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Detail']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Detail', 'Edit Schedule']
     events = get_events_display_info()
 
 
