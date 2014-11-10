@@ -41,15 +41,15 @@ def init_time_blocks(events, block_size, time_format,
         pass  # TO DO
     
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
-    blocks_count = math.ceil (schedule_duration/block_size)
-    block_labels = [(cal_start + block_size * b).strftime(time_format) for b in range(blocks_count)]
-    return block_labels
+    blocks_count = int(math.ceil (schedule_duration/block_size))
+    block_labels = [(cal_start + block_size * b).strftime("%H:%M") for b in range(blocks_count)]
+    return block_labels, cal_start, cal_stop
 
 def init_column_heads(events):
     '''
     Scan events and return list of room names. 
     '''
-    return list(set([e['room'] for e in events]))
+    return list(set([e['location'] for e in events]))
 
 
 
@@ -61,11 +61,29 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     block_size should be a Duration
     '''
     from gbe.duration import timedelta_to_duration
-    relative_start = max( timedelta_to_duration(event['starttime'] - schedule_start), schedule_start)
-    event_duration = min (timedelta_to_duration(event['stoptime']),  schedule_stop) - schedule_duration
-    event['startblock'] = relative_start // block_size
+
+
+#    schedule_start = Duration(hours = schedule_start.hour, 
+#                      minutes = schedule_start.minute, 
+#                      seconds = schedule_start.second)
+#    schedule_stop = Duration(hours = schedule_stop.hour, 
+#                      minutes = schedule_stop.minute, 
+#                      seconds = schedule_stop.second)
+
+
+    if event['starttime'] < schedule_start:
+        relative_start = Duration(seconds=0)
+    else:
+        relative_start = event['starttime'] - schedule_start
+    if event['stoptime'] > schedule_stop:
+        working_stoptime = schedule_stop
+    else:
+        working_stoptime = timedelta_to_duration(event['stoptime'] - schedule_start)
+
+    
+    event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
-    event['rowspan'] = math.ceil( ( event_duration ) / block_size)
+    event['rowspan'] = int(math.ceil(working_stoptime / block_size))-event['startblock']
 
     
 
@@ -76,12 +94,13 @@ def overlap_check(events):
     and stop time of one event overlaps with at least one other member of the tuple
     '''
     overlaps = []
-    for room in set([e['room'] for e in events]):
+    for location in set([e['location'] for e in events]):
         prev_stop = 0
         prev_event = None
         conflict_set = set()
-        room_events = sorted([event for event in events if event['room'] == room], key = event['startblock'])
-        for event in room_events:
+        location_events = sorted([event for event in events if event['location'] == location], 
+                                 key = lambda event:event['startblock'])
+        for event in location_events:
             if event['startblock'] < prev_stop:
                 conflict_set = conflict_set + prev_event
                 conflict_set = conflict_set + event
@@ -111,9 +130,9 @@ def add_to_table(event, table, block_labels):
     If event occupies multiple blocks, insert "placeholder" object in 
     subsequent table cells
     '''
-    table[event['room'], block_labels[event['startblock']]] = '<td rowspan=%d class=%s>%s</td>'%(event['rowspan'], event['html'], event['css_class'])
+    table[event['location'], block_labels[event['startblock']]] = '<td rowspan=%d class=%s>%s</td>'%(event['rowspan'], event['html'], event.get('css_class', ''))
     for i in range(1, event['rowspan']):
-        table[event['room'], block_labels[event[startblock+i]]] = '&nbsp;'
+        table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
 
 def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None, cal_stop=None, col_heads=None):
@@ -121,18 +140,19 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
     Generate a calendar table based on submitted events
     
     '''
-    block_labels = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
+    block_labels, cal_start, cal_stop = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)
-    cal_table = table(rows=list(range (block_labels)), columns=col_heads)
-    events = filter (lambda e:  (cal_start <= e['starttime'] < cal_stop) or (cal_start < e['stoptime'] <= cal_stop), events)
+    cal_table = table(rows=block_labels, columns=col_heads)
+    events = filter (lambda e:  ((cal_start <= e['starttime'] < cal_stop)) or 
+                     ((cal_start < e['stoptime'] <= cal_stop)), events)
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
     overlaps = overlap_check(events)
     # don't worry about handling now, 
     # but write overlap handlers and call the right one as needed
     for event in events:
-        add_to_table(event, cal_table)
+        add_to_table(event, cal_table, block_labels)
     return cal_table.listreturn()
     
 
