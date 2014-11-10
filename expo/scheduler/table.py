@@ -63,22 +63,21 @@ class table:
     Duplicate method that is called by a different batch of things then 
     __call__.
         '''
-
         row=location[0]
         column=location[1]
         return self.table[column][row]
 
     def __setitem__(self, location, item = None):
         '''
-    Sets table cell located at location to object or value passed in as item.
+        Set table cell located at location to object or value passed in as item.
         '''
 
-        row=location[0]
-        column=location[1]
+        row = location[1]
+        column = location[0]
         if column in self.collist and row in self.rowlist:
             self.table[column][row] = item
         else:
-            '''Error Condition'''
+            raise IndexError("Row  %s or Column %s  not present" %(row, column))
 
     def addcol(self, column, item = None):
         '''

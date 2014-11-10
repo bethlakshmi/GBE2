@@ -127,10 +127,10 @@ def overlap_check(events):
 def add_to_table(event, table, block_labels):
     '''
     Insert event into appropriate cell in table
-    If event occupies multiple blocks, insert "placeholder" object in 
-    subsequent table cells
+    If event occupies multiple blocks, insert "placeholder" in 
+    subsequent table cells (nonbreaking space)
     '''
-    table[event['location'], block_labels[event['startblock']]] = '<td rowspan=%d class=%s>%s</td>'%(event['rowspan'], event['html'], event.get('css_class', ''))
+    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], event.get('css_class'), event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
@@ -146,6 +146,7 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
     cal_table = table(rows=block_labels, columns=col_heads)
     events = filter (lambda e:  ((cal_start <= e['starttime'] < cal_stop)) or 
                      ((cal_start < e['stoptime'] <= cal_stop)), events)
+
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
     overlaps = overlap_check(events)
@@ -153,6 +154,7 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
     # but write overlap handlers and call the right one as needed
     for event in events:
         add_to_table(event, cal_table, block_labels)
+
     return cal_table.listreturn()
     
 
