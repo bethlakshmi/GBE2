@@ -42,7 +42,7 @@ def init_time_blocks(events, block_size, time_format,
     
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = math.ceil (schedule_duration/block_size)
-    block_labels = [cal_start + block_size * b for b in range(blocks_count).strftime(time_format)]
+    block_labels = [(cal_start + block_size * b).strftime(time_format) for b in range(blocks_count)]
     return block_labels
 
 def init_column_heads(events):
