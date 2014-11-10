@@ -1,4 +1,3 @@
-# 2014.10.24 16:52:10 EDT
 from table import table
 from datetime import timedelta
 from datetime import time
@@ -25,11 +24,15 @@ def init_time_blocks(events, block_size, time_format,
     
     '''
     if not cal_start:
-        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
+#        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
+        cal_start = sorted([event['starttime'] for event in events])[0]
     elif instanceof(cal_start, time):
         cal_start = datetime.combine(datetime.min,cal_start)
     if not cal_stop:
-        cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
+
+        
+        cal_stop = sorted([event['stoptime'] for event in events])[-1]
+ #       cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
     elif instanceof(cal_stop, datetime): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
     if cal_stop < cal_start:    # assume that we've gone past midnight
