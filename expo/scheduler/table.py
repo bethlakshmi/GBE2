@@ -183,17 +183,17 @@ class table:
         '''
 
         returnlist = []
-        if bias == 'column':
+        if bias == 'row':
             innerlist = self.rowlist
             outerlist = self.collist
-        elif bias == 'row':
+        elif bias == 'column':
             innerlist = self.collist
             outerlist = self.rowlist
         for outer in outerlist:
             tmplist = []
             for inner in innerlist:
-                if bias == 'row': column, row = outer, inner
-                elif bias == 'column': column, row = inner, outer
+                if bias == 'column': column, row = outer, inner
+                elif bias == 'row': column, row = inner, outer
                 tmplist.append(self.table[column][row])
             returnlist.append(tmplist)
         return returnlist
