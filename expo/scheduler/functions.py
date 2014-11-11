@@ -134,6 +134,17 @@ def add_to_table(event, table, block_labels):
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
+def htmlPrep(event):
+    '''
+    If an event object does not have a HTML table block set up, this will
+    generate one.
+    '''
+
+    html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['text'])
+    if 'shortDesc' in event.keys():
+        #  shortDesc is a short description, which is optional
+        html = html+event['shortDesc']
+    return html
 
 def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None, cal_stop=None, col_heads=None):
     '''
@@ -143,12 +154,15 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
     block_labels, cal_start, cal_stop = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)
-    cal_table = table(rows=block_labels, columns=col_heads)
+    cal_table = table(rows=block_labels, columns=col_heads, default = '<td></td>')
     events = filter (lambda e:  ((cal_start <= e['starttime'] < cal_stop)) or 
                      ((cal_start < e['stoptime'] <= cal_stop)), events)
 
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
+        if 'html' not in event.keys():
+            event['html'] = htmlPrep(event)
+
     overlaps = overlap_check(events)
     # don't worry about handling now, 
     # but write overlap handlers and call the right one as needed
@@ -156,93 +170,3 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
         add_to_table(event, cal_table, block_labels)
 
     return cal_table.listreturn()
-    
-
-def TablePrep(Events, Duration):
-    '''
-    Accepts an unordered list of events, and returns a table ready to be
-    sent to the Sched_Display template.  Events is a list, with each entry
-    having properties for the appropriate information for each event, 
-    including Text (event title or name), Link (URL for the event 
-    information), start and stop time, and event type.  Type is used to
-    determine what colors each event is displayed with.  Duration is the
-    length, in minutes, of each cell in the table.  StartTime and StopTime
-    are both DateTime objects.
-    '''
-
-    PrettyFormat = '%a %I:%M %p'
-    Table = table([], [])
-    times = []
-    colors = [
-        {'FG_Color': 'Teal', 'BG_Color': 'Red', 'Border_Color': 'DarkRed'},
-        {'FG_Color': 'SeaGreen', 'BG_Color': 'HotPink', 'Border_Color': 'MediumVioletRed'},
-        {'FG_Color': 'Naw', 'BG_Color': 'LightSalmon', 'Border_Color': 'DarkOrange'},
-        {'FG_Color': 'CadetBlue', 'BG_Color': 'Khaki', 'Border_Color': 'Gold'},
-        {'FG_Color': 'SeaGreen', 'BG_Color': 'Amethyst', 'Border_Color': 'DarkViolet'},
-        {'FG_Color': 'Indigo', 'BG_Color': 'SpringGreen', 'Border_Color': 'ForrestGreen'},
-        {'FG_Color': 'SaddleBrown', 'BG_Color': 'RoyalBlue', 'Border_Color': 'DarkBlue'},
-        {'FG_Color': 'DarkOliveGreen', 'BG_Color': 'Aquamarine', 'Border_Color': 'SteelBlue'},
-        {'FG_Color': 'DarkCyan', 'BG_Color': 'SandyBrown', 'Border_Color': 'DarkGoldenrod'},
-        {'FG_Color': 'Black', 'BG_Color': 'Silver', 'Border_Color': 'DarkSlateGray'}
-        ]
-    types = {}
-    for Event in Events:
-        min = str(int(Event['StartTime'].minute / Duration) * Duration)
-        if len(min) == 1:
-            min = '0' + min
-        Time = Event['StartTime']
-        starttime = timegm(Event['StartTime'].utctimetuple())
-        stoptime = timegm(Event['StopTime'].utctimetuple())
-        time = int(starttime / Duration) * Duration
-        location = Event['Location']
-        if location not in Table.collist:
-            Table.addcol(location)
-        if starttime not in Table.rowlist:
-            Table.addrow(starttime)
-            times.append(starttime)
-            times.sort()
-        Cell = {}
-        Cell['Text'] = Event['Text']
-        Cell['Link'] = Event['Link']
-        if ['Color'] not in dir(Event):
-            if Event['Type'] in types.keys():
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = types[Event['Type']]
-            else:
-                color_set = choice(colors)
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = \
-                    color_set['FG_Color'], color_set['BG_Color'], color_set['Border_Color']
-                color_set = choice(colors)
-                Cell['Alink_Color'], Cell['Vlink_Color'], Cell['Link_Color'] = \
-                    color_set['FG_Color'], color_set['BG_Color'], color_set['Border_Color']
-        cells = int((stoptime - starttime) / Duration / 60 + 0.8)
-        if cells == 1:
-            Cell['Borders'] = ['Top', 'Left', 'Right', 'Bottom']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            Table[starttime, location] = Cell
-        elif cells >= 2:
-            Cell['Borders'] = ['Top', 'Left', 'Right']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            print starttime, cells
-            Table[starttime, location] = Cell
-            cells = cells - 1
-            while cells >= 2:
-                starttime = starttime + (Duration * 60)
-                del Cell['Text'], Cell['Link']
-                Cell['Borders'] = ['Left', 'Right']
-                if starttime not in Table.rowlist:
-                    Table.addrow(starttime)
-                print starttime, cells
-                Table[starttime, location] = Cell
-                cells = cells - 1
-
-            starttime = starttime + (Duration * 60)
-            del Cell['Text'], Cell['Link']
-            Cell['Borders'] = ['Left', 'Right', 'Bottom']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            print starttime, cells
-            Table[starttime, location] = Cell
-         
-    return Table.listreturn('column')
