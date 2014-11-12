@@ -64,8 +64,8 @@ class table:
     __call__.
         '''
 
-        row=location[0]
-        column=location[1]
+        row=location[1]
+        column=location[0]
         return self.table[column][row]
 
     def __setitem__(self, location, item = None):
@@ -73,8 +73,8 @@ class table:
     Sets table cell located at location to object or value passed in as item.
         '''
 
-        row=location[0]
-        column=location[1]
+        row=location[1]
+        column=location[0]
         if column in self.collist and row in self.rowlist:
             self.table[column][row] = item
         else:
@@ -175,25 +175,27 @@ class table:
         self.collist.remove(column)
         del self.table[column]
 
-    def listreturn(self, bias = 'row'):
+    def listreturn(self, bias = 'row', headers = False):
         '''
     Returns the table as a list of lists, with the outer list being the columns,
     and the inner lists being the horizontal rows.  Useful for generating HTML
     tables from a table data object.
         '''
 
-        returnlist = []
-        if bias == 'row':
+        if bias == 'column':
             innerlist = self.rowlist
             outerlist = self.collist
-        elif bias == 'column':
+        elif bias == 'row':
             innerlist = self.collist
             outerlist = self.rowlist
+        if headers: returnlist = [[''] + innerlist]
+        else: returnlist = []
         for outer in outerlist:
-            tmplist = []
+            if headers: tmplist = [outer]
+            else: tmplist = []
             for inner in innerlist:
-                if bias == 'row': column, row = outer, inner
-                elif bias == 'column': column, row = inner, outer
+                if bias == 'column': column, row = outer, inner
+                elif bias == 'row': column, row = inner, outer
                 tmplist.append(self.table[column][row])
             returnlist.append(tmplist)
         return returnlist

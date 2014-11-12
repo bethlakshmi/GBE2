@@ -146,6 +146,27 @@ def htmlPrep(event):
         html = html+event['shortDesc']
     return html
 
+def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
+    '''
+    Checks the header positions for a table, rendered as a list of lists, for HTML tags,
+    and adds '<TH>' + cell + '</TH>' if they are absent.
+    '''
+
+    for cell in range(len(table[0])):
+        if not table[0][cell].startswith(headerStart):
+            table[0][cell] = headerStart + table[0][cell]
+        if not table[0][cell].endswith(headerEnd):
+            table[0][cell] = table[0][cell] + headerEnd
+        
+    for cell in range(1, len(table)):
+        if not table[cell][0].startswith(headerStart):
+            table[cell][0] = headerStart + table[cell][0]
+        if not table[cell][0].endswith(headerEnd):
+            table[cell][0] = table[cell][0] + headerEnd
+        
+
+    return table
+
 def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None, cal_stop=None, col_heads=None):
     '''
     Generate a calendar table based on submitted events
@@ -169,4 +190,4 @@ def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None,
     for event in events:
         add_to_table(event, cal_table, block_labels)
 
-    return cal_table.listreturn()
+    return htmlHeaders(cal_table.listreturn(headers = True))
