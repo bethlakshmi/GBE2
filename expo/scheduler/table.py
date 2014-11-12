@@ -192,8 +192,8 @@ class table:
         for outer in outerlist:
             tmplist = []
             for inner in innerlist:
-                if bias == 'column': column, row = outer, inner
-                elif bias == 'row': column, row = inner, outer
+                if bias == 'row': column, row = outer, inner
+                elif bias == 'column': column, row = inner, outer
                 tmplist.append(self.table[column][row])
             returnlist.append(tmplist)
         return returnlist
