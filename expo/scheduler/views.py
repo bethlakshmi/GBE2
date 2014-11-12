@@ -14,7 +14,7 @@ from datetime import datetime
 from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
-from scheduler.functions import TablePrep
+from scheduler.functions import tablePrep
 
 # Create your views here.
 
@@ -232,46 +232,61 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
     Will add in database queries once basic funcationality is completed.
     '''
 
-    Table = {}
-    duration = 60
+    duration = Duration(minutes = 60)
 
     events = []
-    events.append({'Text': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'text': 'Horizontal Pole Dancing 101', \
+        'link': 'http://some.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), \
+        'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 13, 00), 'StopTime': datetime(2015, 02, 07, 14, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'text': 'Shimmy Shimmy, Shake', \
+        'link': 'http://some.new.websi.te', \
+        'starttime': datetime(2015, 02, 07, 13, 00), \
+        'stoptime': datetime(2015, 02, 07, 14, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 11, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'text': 'Jumpsuit Removes', \
+        'link': 'http://some.other.websi.te', \
+        'starttime': datetime(2015, 02, 07, 10, 00), \
+        'stoptime': datetime(2015, 02, 07, 11, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 11, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
-        'Location': 'Paul Revere', 'Type': 'Business Class'})
+    events.append({'text': 'Tax Dodging for Performers', \
+        'link': 'http://yet.another.websi.te', \
+        'starttime': datetime(2015, 02, 07, 11, 00), \
+        'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Paul Revere', 'Type': 'Business Class'})
 
-    events.append({'Text': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+    events.append({'text': 'Butoh Burlesque', \
+        'link': 'http://japanese.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), \
+        'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
-        'Link': 'http://random.new.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 14, 00), 'StopTime': datetime(2015, 02, 07, 16, 00),\
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+    events.append({'text': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
+        'link': 'http://random.new.websi.te', \
+        'starttime': datetime(2015, 02, 07, 14, 00), \
+        'stoptime': datetime(2015, 02, 07, 16, 00),\
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
-        'Link': 'http://some.bad.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+    events.append({'text': 'Muumuus A-Go-Go',
+        'shortDesc': 'Dancing in Less-then-Sexy Clothing', \
+        'link': 'http://some.bad.websi.te', \
+        'starttime': datetime(2015, 02, 07, 10, 00), \
+        'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'From Legalese to English, Contracts in Burlesque', \
-        'Link': 'http://still.another.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 12, 00), 'StopTime': datetime(2015, 02, 07, 13, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Business Class'})
+    events.append({'text': 'From Legalese to English, Contracts in Burlesque', \
+        'link': 'http://still.another.websi.te', \
+        'starttime': datetime(2015, 02, 07, 12, 00), \
+        'stoptime': datetime(2015, 02, 07, 13, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Business Class'})
 
-    Table['rows'] = TablePrep(events, duration)
+
+    Table = {}
+    Table['rows'] = tablePrep(events, duration)
     Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
     Table['Link'] = 'http://burlesque-expo.com'
     Table['X_Name'] = {}
