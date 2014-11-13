@@ -230,13 +230,17 @@ class EventItem (models.Model):
     
     @property
     def describe(self):
-        child = EventItem.objects.get_subclass(event=self.eventitem_id)
-        ids = "event - " + str(child.event_id)
         try:
-            ids += ', bid - ' + str(child.id)
+            child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+            ids = "event - " + str(child.event_id)
+            try:
+                ids += ', bid - ' + str(child.id)
+            except:
+                ids += ""
+            return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
         except:
-            ids += ""
-        return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
+            return "no child"
+
     
     def __str__(self):
         return str(self.describe)
