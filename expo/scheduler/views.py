@@ -272,6 +272,8 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
         'starttime': datetime(2015, 02, 07, 12, 00), 'stoptime': datetime(2015, 02, 07, 13, 00), \
         'location': 'Thomas Atkins', 'Type': 'Business Class'})
 
+    Table = {}
+#    Table['rows'] = tablePrep(events, duration)
     Table['rows'] = tablePrep(events, Duration(minutes=30))
     Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
     Table['Link'] = 'http://burlesque-expo.com'
