@@ -14,7 +14,7 @@ from datetime import datetime
 from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
-from scheduler.functions import TablePrep
+from scheduler.functions import tablePrep
 
 # Create your views here.
 
@@ -174,9 +174,12 @@ def edit_event(request, eventitem_id):
     if not profile:
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
 
+    try:
+        item = EventItem.objects.get_subclass(eventitem_id = eventitem_id)
+    except:
+        raise Exception ("Error code XYZZY: Couldn't get an item for id")
+    
     if request.method=='POST':
-        item =  EventItem.objects.get_subclass(eventitem_id=eventitem_id)        
-
         if len(item.scheduler_events.all())==0:
                # Creating a new scheduler.Event and allocating a room
             event_form = EventScheduleForm(request.POST, 
@@ -190,35 +193,32 @@ def edit_event(request, eventitem_id):
             s_event.eventitem = item
             data = event_form.cleaned_data
             s_event.save()            
-            from gbe.models import Room
-            li  = Room.objects.get(name=data.get('location'))
-            
-            try:
-                res = Location.objects.get(_item=li)
-            except:
-                res = Location()
-                res._item = li.locationitem
-                res.save()        
-        
-
-            loc_allocation = ResourceAllocation()
-            loc_allocation.event = s_event
-            loc_allocation.resource = res
-            loc_allocation.save()
-                # next: set duration on child
-            
-
-            item.duration = data['duration']
-            item.save(update_fields=['duration'])
+                         
+            if data['duration']:
+                item.set_duration(data['duration'])
 
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-    eventitem_view = get_event_display_info(eventitem_id)
+    else:
+        old_events = item.scheduler_events.all()
+        duration = item.event.sched_payload['duration']
+        if len(old_events) > 0:
+            event = old_events[0]
+            day = event.starttime.strftime("%A")
+            time = event.starttime.strftime("%H:%M")
+            location = event.location
+            form = EventScheduleForm(prefix = "event", 
+                                           initial = {'day':day, 
+                                                      'time':time,
+                                                      'location': location, 
+                                                      'duration':duration})
+        else: 
+            form =  EventScheduleForm( prefix='event', initial={'duration':duration})
     template = 'scheduler/event_schedule.tmpl'
-    eventform = EventScheduleForm( prefix='event')
+    eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
-                                      'form': eventform,
+                                      'form': form,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
@@ -236,48 +236,86 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
     duration = 60
 
     events = []
-    events.append({'Text': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 13, 00), 'StopTime': datetime(2015, 02, 07, 14, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
+        'starttime': datetime(2015, 02, 07, 13, 00), 'stoptime': datetime(2015, 02, 07, 14, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 11, 00), \
-        'Location': 'Paul Revere', 'Type': 'Movement Class'})
+    events.append({'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
+        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 11, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 11, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
-        'Location': 'Paul Revere', 'Type': 'Business Class'})
+    events.append({'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
+        'starttime': datetime(2015, 02, 07, 11, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Paul Revere', 'Type': 'Business Class'})
 
-    events.append({'Text': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 9, 00), 'StopTime': datetime(2015, 02, 07, 10, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+    events.append({'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
+    events.append({'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
         'Link': 'http://random.new.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 14, 00), 'StopTime': datetime(2015, 02, 07, 16, 00),\
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+        'starttime': datetime(2015, 02, 07, 14, 00), 'stoptime': datetime(2015, 02, 07, 16, 00),\
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
+    events.append({'html': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
         'Link': 'http://some.bad.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 10, 00), 'StopTime': datetime(2015, 02, 07, 12, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Movement Class'})
+        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
 
-    events.append({'Text': 'From Legalese to English, Contracts in Burlesque', \
+    events.append({'html': 'From Legalese to English, Contracts in Burlesque', \
         'Link': 'http://still.another.websi.te', \
-        'StartTime': datetime(2015, 02, 07, 12, 00), 'StopTime': datetime(2015, 02, 07, 13, 00), \
-        'Location': 'Thomas Atkins', 'Type': 'Business Class'})
+        'starttime': datetime(2015, 02, 07, 12, 00), 'stoptime': datetime(2015, 02, 07, 13, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Business Class'})
 
-    Table['rows'] = TablePrep(events, duration)
+    Table['rows'] = tablePrep(events, Duration(minutes=30))
     Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
     Table['Link'] = 'http://burlesque-expo.com'
     Table['X_Name'] = {}
-    Table['X_Name']['Text'] = 'Rooms'
+    Table['X_Name']['html'] = 'Rooms'
     Table['X_Name']['Link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
 
     template = 'scheduler/Sched_Display.tmpl'
 
     return render(request, template, Table)
+    
+
+
+calendar_test_data =     [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'}, 
+
+    {'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
+        'starttime': datetime(2015, 02, 07, 13, 00), 'stoptime': datetime(2015, 02, 07, 14, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'},
+
+    {'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
+        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 11, 00), \
+        'location': 'Paul Revere', 'Type': 'Movement Class'},
+
+    {'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
+        'starttime': datetime(2015, 02, 07, 11, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Paul Revere', 'Type': 'Business Class'},
+
+    {'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
+        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
+
+    {'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
+        'Link': 'http://random.new.websi.te', \
+        'starttime': datetime(2015, 02, 07, 14, 00), 'stoptime': datetime(2015, 02, 07, 16, 00),\
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
+
+    {'html': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
+        'Link': 'http://some.bad.websi.te', \
+        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
+
+    {'html': 'From Legalese to English, Contracts in Burlesque', \
+        'Link': 'http://still.another.websi.te', \
+        'starttime': datetime(2015, 02, 07, 12, 00), 'stoptime': datetime(2015, 02, 07, 13, 00), \
+        'location': 'Thomas Atkins', 'Type': 'Business Class'}]
+

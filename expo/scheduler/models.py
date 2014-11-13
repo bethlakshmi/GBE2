@@ -56,6 +56,7 @@ class ResourceItem (models.Model):
     The payload for a resource
     '''
     objects = InheritanceManager()
+
     @property
     def payload(self):
         return self._payload
@@ -91,14 +92,16 @@ class Resource(models.Model):
         return self._item
 
     def __str__(self):
-        return Resource.objects.get_subclass(id=self.id)
-        
+        allocated_resource = Resource.objects.get_subclass(id=self.id)
+        if allocated_resource:
+            return "Resource Allocation: "+str(allocated_resource)
+        else:
+            return "Error in resource allocation, no resource"
+            
     def __unicode__(self):
-        return Resource.objects.get_subclass(id=self.id)
+        return self.__str__()
     
-    pass
-    
-    
+
     
 class LocationItem(ResourceItem):
     '''
@@ -106,6 +109,20 @@ class LocationItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        l = Location.objects.select_subclasses().get(_item=self)
+        if len(l) == 0:
+            loc =  Location(_item=self)
+            loc.save()
+            return loc
+        else:
+            return l[0]
+            # to do: log an error if len (l) >1
 
     @property
     def describe(self):
@@ -216,6 +233,11 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
 
+    def set_duration(self, duration):
+        child = EventItem.objects.get_subclass(event=self.eventitem_id)
+        child.duration = duration
+        child.save(update_fields=('duration',))
+
     @property
     def payload(self):
         return self.sched_payload
@@ -238,6 +260,8 @@ class EventItem (models.Model):
             ids += ""
         return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
     
+
+
     def __str__(self):
         return str(self.describe)
         
@@ -251,9 +275,36 @@ class Event (Schedulable):
     An Event is a schedulable item with a conference model item as its payload. 
     '''
     objects = InheritanceManager()
-    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
-                             
+    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")                             
     starttime = models.DateTimeField(blank=True)
+
+
+    def set_location(self, location):
+        '''
+        location is a LocationItem, not a Location resource
+        '''
+        if isinstance(location, Location):
+            location = location._item
+        if self.location == location:
+            pass   # already set
+        elif self.location == None:
+            loc_resource = location.get_resource()
+            ra = ResourceAllocation(location=location, event=self)
+            ra.save()
+        else:
+            allocations = ResourceAllocation.objects.select_subclasses().filter(event=self).filter(location=location)
+            if len (allocations) >0:
+                allocation = [a for a in allocations if type(a.resource)=='Location'][0]  
+                ## Probably should log an error if there is more than one location allocated for this event
+                allocation.resource=location.get_resource()
+                allocation.save()
+        
+    def set_duration(self, duration):
+        '''
+        duration should be a gbe.Duration or a timedelta
+        
+        '''
+        self.eventitem.set_duration(duration)
 
     @property
     def duration(self):
@@ -273,8 +324,13 @@ class Event (Schedulable):
         
     @property
     def location(self):
-        return Location.objects.filter(allocations__event=self)
+        l = Location.objects.filter(allocations__event=self)
+        if len(l) > 0:
+            return l[0]._item
+        else:
+            return None  # or what??
 
+        
 
 class ResourceAllocation(Schedulable):
     '''

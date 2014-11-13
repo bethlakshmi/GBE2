@@ -48,6 +48,8 @@ class EventScheduleForm(forms.ModelForm):
             self.save()
         return event
 
+
+
 class EventItemScheduleForm(forms.ModelForm):
     '''
     When we save an Event, we need to save changes to its duration
