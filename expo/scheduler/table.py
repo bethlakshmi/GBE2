@@ -13,7 +13,7 @@ class table:
     itemtypes=(type([]), type(()), type(''))
     
 
-    def __init__(self, rows = None, columns = None, default=None):
+    def __init__(self, rows = None, columns = None, default = None):
         '''
     Initalizes a table, and creates the default list of columns in the table, 
     which must have at least something in it.
@@ -30,7 +30,7 @@ class table:
         else:
             '''Error condition'''
             
-        if rows == None:
+        if rows == type(None):
             self.rowlist=[]
         elif type(rows) == type(''):
             self.rowlist=[rows]
@@ -57,27 +57,28 @@ class table:
 
         return self.table[column][row]
  
-    def __getitem__(self, location, item=type(None)):
+    def __getitem__(self, location, item = None):
         '''
     Returns object (or value) stored in the table cell located at (row, column).
     Duplicate method that is called by a different batch of things then 
     __call__.
         '''
-        row=location[0]
-        column=location[1]
+
+        row=location[1]
+        column=location[0]
         return self.table[column][row]
 
     def __setitem__(self, location, item = None):
         '''
-        Set table cell located at location to object or value passed in as item.
+    Sets table cell located at location to object or value passed in as item.
         '''
 
-        row = location[1]
-        column = location[0]
+        row=location[1]
+        column=location[0]
         if column in self.collist and row in self.rowlist:
             self.table[column][row] = item
         else:
-            raise IndexError("Row  %s or Column %s  not present" %(row, column))
+            '''Error Condition'''
 
     def addcol(self, column, item = None):
         '''
@@ -156,14 +157,14 @@ class table:
                 else:
                     self.table[column][row] = None
 
-    def getcol(self, col):
+    def getcol(self, column):
         '''
     Return the specified row as a list. 
         '''
 
         returnlist = []
         for row in self.rowlist:
-            returnlist.append(self.table[col][row])
+            returnlist.append(self.table[column][row])
         return returnlist
 
     def delcol(self, column):
@@ -174,21 +175,24 @@ class table:
         self.collist.remove(column)
         del self.table[column]
 
-    def listreturn(self, bias = 'row'):
+    def listreturn(self, bias = 'row', headers = False):
         '''
-        Return table as a list of rows or columns, each row or column being a list of cells. 
-        bias parameter selects whether to return row or column. (options are ('row', 'column'))
+    Returns the table as a list of lists, with the outer list being the columns,
+    and the inner lists being the horizontal rows.  Useful for generating HTML
+    tables from a table data object.
         '''
 
-        returnlist = []
         if bias == 'column':
             innerlist = self.rowlist
             outerlist = self.collist
         elif bias == 'row':
             innerlist = self.collist
             outerlist = self.rowlist
+        if headers: returnlist = [[''] + innerlist]
+        else: returnlist = []
         for outer in outerlist:
-            tmplist = []
+            if headers: tmplist = [outer]
+            else: tmplist = []
             for inner in innerlist:
                 if bias == 'column': column, row = outer, inner
                 elif bias == 'row': column, row = inner, outer

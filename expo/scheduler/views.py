@@ -85,10 +85,11 @@ def get_event_display_info(eventitem_id):
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
     only one eventitem.  
     '''
-    item = selfcast(EventItem.objects.get_subclass(event=eventitem_id))
+    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
     
     eventitem_view = {'event': item, 
-                      'scheduled_events':item.scheduler_events.all()}
+                      'scheduled_events':item.scheduler_events.all(),
+                      'details': {}}
 
     return eventitem_view
 
@@ -161,7 +162,8 @@ def detail_view(request, eventitem_id):
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
-                                      'user_id':request.user.id})
+                                      'user_id':request.user.id,
+                                      })
 
 
 def edit_event(request, eventitem_id):
@@ -232,8 +234,7 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
     Will add in database queries once basic funcationality is completed.
     '''
 
-    Table = {}
-    duration = 60
+    duration = Duration(minutes = 60)
 
     events = []
     events.append({'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
