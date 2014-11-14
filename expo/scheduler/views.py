@@ -219,6 +219,7 @@ def edit_event(request, eventitem_id):
             if data['duration']:
                 s_event.set_duration(data['duration'])
             l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
+            s_event.save()                        
             s_event.set_location(l)
             s_event.save()                        
             
