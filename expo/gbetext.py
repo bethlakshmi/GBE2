@@ -206,3 +206,7 @@ blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
 
+event_labels = {'type':  'Type',
+                'fee': 'Materials Fee'
+                }
+

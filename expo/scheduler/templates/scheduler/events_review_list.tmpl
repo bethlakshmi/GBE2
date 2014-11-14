@@ -26,7 +26,7 @@
 			   {{ event.location  }}
           		</td>	
 	                <td class="event-table">      
-            		{{ event.start_time }}
+            		{{ event.datetime }}
           		</td>	
 	                <td class="event-table">      
             		{{ event.duration }}
@@ -36,6 +36,9 @@
           		</td>	
 	                <td class="event-table">      
             		<a href='{{ event.detail }}'>Detail</a>
+          		</td>	
+	                <td class="event-table">      
+            		<a href='{{ event.edit }}'>Edit</a>
           		</td>	
 
       </tr>

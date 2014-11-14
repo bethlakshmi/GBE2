@@ -23,7 +23,6 @@ class Schedulable(models.Model):
     '''
     objects = InheritanceManager()
 
-
     @property 
     def duration(self):
         return self._duration
@@ -56,6 +55,7 @@ class ResourceItem (models.Model):
     The payload for a resource
     '''
     objects = InheritanceManager()
+
     @property
     def payload(self):
         return self._payload
@@ -91,14 +91,16 @@ class Resource(models.Model):
         return self._item
 
     def __str__(self):
-        return Resource.objects.get_subclass(id=self.id)
-        
+        allocated_resource = Resource.objects.get_subclass(id=self.id)
+        if allocated_resource:
+            return "Resource Allocation: "+str(allocated_resource)
+        else:
+            return "Error in resource allocation, no resource"
+            
     def __unicode__(self):
-        return Resource.objects.get_subclass(id=self.id)
+        return self.__str__()
     
-    pass
-    
-    
+
     
 class LocationItem(ResourceItem):
     '''
@@ -106,6 +108,20 @@ class LocationItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            loc = Location.objects.select_subclasses().get(_item=self)
+        except:
+            loc =  Location(_item=self)
+            loc.save()
+        return loc
+
+
 
     @property
     def describe(self):
@@ -216,6 +232,12 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
 
+    def set_duration(self, duration):
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        child.duration = duration
+        child.save(update_fields=('duration',))
+
+        
     @property
     def payload(self):
         return self.sched_payload
@@ -226,18 +248,25 @@ class EventItem (models.Model):
 
     @property 
     def duration(self):
-        return self.sched_duration
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        return child.sched_duration
     
     @property
     def describe(self):
-        child = EventItem.objects.get_subclass(event=self.eventitem_id)
-        ids = "event - " + str(child.event_id)
         try:
-            ids += ', bid - ' + str(child.id)
+            child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+            ids = "event - " + str(child.event_id)
+            try:
+                ids += ', bid - ' + str(child.id)
+            except:
+                ids += ""
+            return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
         except:
-            ids += ""
-        return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
+            return "no child"
+
     
+
+
     def __str__(self):
         return str(self.describe)
         
@@ -251,13 +280,40 @@ class Event (Schedulable):
     An Event is a schedulable item with a conference model item as its payload. 
     '''
     objects = InheritanceManager()
-    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")
-                             
+    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")                             
     starttime = models.DateTimeField(blank=True)
+
+
+    def set_location(self, location):
+        '''
+        location is a LocationItem or a Location resource
+        '''
+        if isinstance(location, LocationItem):
+            location = location.get_resource()
+        if self.location == location:
+            pass   # already set
+        elif self.location == None:
+            ra = ResourceAllocation(resource=location, event=self)
+            ra.save()
+        else:
+            allocations = ResourceAllocation.objects.filter(event=self)
+            for allocation in allocations:
+                if isinstance(allocation.resource.location, Location):
+                    allocation.resource=location
+                    allocation.save(update_fields=('resource',))
+
+
+                
+    def set_duration(self, duration):
+        '''
+        duration should be a gbe.Duration or a timedelta
+        
+        '''
+        self.eventitem.set_duration(duration)
 
     @property
     def duration(self):
-        return self.item._duration
+        return self.eventitem.duration
 
     def __str__(self):
         try:
@@ -273,8 +329,13 @@ class Event (Schedulable):
         
     @property
     def location(self):
-        return Location.objects.filter(allocations__event=self)
+        l = Location.objects.filter(allocations__event=self)
+        if len(l) > 0:
+            return l[0]._item
+        else:
+            return None  # or what??
 
+        
 
 class ResourceAllocation(Schedulable):
     '''

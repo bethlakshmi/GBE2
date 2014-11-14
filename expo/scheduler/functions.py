@@ -1,4 +1,3 @@
-# 2014.10.24 16:52:10 EDT
 from table import table
 from datetime import timedelta
 from datetime import time
@@ -25,11 +24,15 @@ def init_time_blocks(events, block_size, time_format,
     
     '''
     if not cal_start:
-        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
+#        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
+        cal_start = sorted([event['starttime'] for event in events])[0]
     elif instanceof(cal_start, time):
         cal_start = datetime.combine(datetime.min,cal_start)
     if not cal_stop:
-        cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
+
+        
+        cal_stop = sorted([event['stoptime'] for event in events])[-1]
+ #       cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
     elif instanceof(cal_stop, datetime): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
     if cal_stop < cal_start:    # assume that we've gone past midnight
@@ -38,15 +41,15 @@ def init_time_blocks(events, block_size, time_format,
         pass  # TO DO
     
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
-    blocks_count = math.ceil (schedule_duration/block_size)
-    block_labels = [cal_start + block_size * b for b in range(blocks_count).strftime(time_format)]
-    return block_labels
+    blocks_count = int(math.ceil (schedule_duration/block_size))
+    block_labels = [(cal_start + block_size * b).strftime("%H:%M") for b in range(blocks_count)]
+    return block_labels, cal_start, cal_stop
 
 def init_column_heads(events):
     '''
     Scan events and return list of room names. 
     '''
-    return list(set([e['room'] for e in events]))
+    return list(set([e['location'] for e in events]))
 
 
 
@@ -58,11 +61,29 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     block_size should be a Duration
     '''
     from gbe.duration import timedelta_to_duration
-    relative_start = max( timedelta_to_duration(event['starttime'] - schedule_start), schedule_start)
-    event_duration = min (timedelta_to_duration(event['stoptime']),  schedule_stop) - schedule_duration
-    event['startblock'] = relative_start // block_size
+
+
+#    schedule_start = Duration(hours = schedule_start.hour, 
+#                      minutes = schedule_start.minute, 
+#                      seconds = schedule_start.second)
+#    schedule_stop = Duration(hours = schedule_stop.hour, 
+#                      minutes = schedule_stop.minute, 
+#                      seconds = schedule_stop.second)
+
+
+    if event['starttime'] < schedule_start:
+        relative_start = Duration(seconds=0)
+    else:
+        relative_start = event['starttime'] - schedule_start
+    if event['stoptime'] > schedule_stop:
+        working_stoptime = schedule_stop
+    else:
+        working_stoptime = timedelta_to_duration(event['stoptime'] - schedule_start)
+
+    
+    event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
-    event['rowspan'] = math.ceil( ( event_duration ) / block_size)
+    event['rowspan'] = int(math.ceil(working_stoptime / block_size))-event['startblock']
 
     
 
@@ -73,12 +94,13 @@ def overlap_check(events):
     and stop time of one event overlaps with at least one other member of the tuple
     '''
     overlaps = []
-    for room in set([e['room'] for e in events]):
+    for location in set([e['location'] for e in events]):
         prev_stop = 0
         prev_event = None
         conflict_set = set()
-        room_events = sorted([event for event in events if event['room'] == room], key = event['startblock'])
-        for event in room_events:
+        location_events = sorted([event for event in events if event['location'] == location], 
+                                 key = lambda event:event['startblock'])
+        for event in location_events:
             if event['startblock'] < prev_stop:
                 conflict_set = conflict_set + prev_event
                 conflict_set = conflict_set + event
@@ -105,119 +127,67 @@ def overlap_check(events):
 def add_to_table(event, table, block_labels):
     '''
     Insert event into appropriate cell in table
-    If event occupies multiple blocks, insert "placeholder" object in 
-    subsequent table cells
+    If event occupies multiple blocks, insert "placeholder" in 
+    subsequent table cells (nonbreaking space)
     '''
-    table[event['room'], block_labels[event['startblock']]] = '<td rowspan=%d class=%s>%s</td>'%(event['rowspan'], event['html'], event['css_class'])
+    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], event.get('css_class'), event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
-        table[event['room'], block_labels[event[startblock+i]]] = '&nbsp;'
+        table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
+def htmlPrep(event):
+    '''
+    If an event object does not have a HTML table block set up, this will
+    generate one.
+    '''
+
+    html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['text'])
+    if 'shortDesc' in event.keys():
+        #  shortDesc is a short description, which is optional
+        html = html+event['shortDesc']
+    return html
+
+def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
+    '''
+    Checks the header positions for a table, rendered as a list of lists, for HTML tags,
+    and adds '<TH>' + cell + '</TH>' if they are absent.
+    '''
+
+    for cell in range(len(table[0])):
+        if not table[0][cell].startswith(headerStart):
+            table[0][cell] = headerStart + table[0][cell]
+        if not table[0][cell].endswith(headerEnd):
+            table[0][cell] = table[0][cell] + headerEnd
+        
+    for cell in range(1, len(table)):
+        if not table[cell][0].startswith(headerStart):
+            table[cell][0] = headerStart + table[cell][0]
+        if not table[cell][0].endswith(headerEnd):
+            table[cell][0] = table[cell][0] + headerEnd
+        
+
+    return table
 
 def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None, cal_stop=None, col_heads=None):
     '''
     Generate a calendar table based on submitted events
     
     '''
-    block_labels = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
+    block_labels, cal_start, cal_stop = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)
-    cal_table = table(rows=list(range (block_labels)), columns=col_heads)
-    events = filter (lambda e:  (cal_start <= e['starttime'] < cal_stop) or (cal_start < e['stoptime'] <= cal_stop), events)
+    cal_table = table(rows=block_labels, columns=col_heads, default = '<td></td>')
+    events = filter (lambda e:  ((cal_start <= e['starttime'] < cal_stop)) or 
+                     ((cal_start < e['stoptime'] <= cal_stop)), events)
+
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
+        if 'html' not in event.keys():
+            event['html'] = htmlPrep(event)
+
     overlaps = overlap_check(events)
     # don't worry about handling now, 
     # but write overlap handlers and call the right one as needed
     for event in events:
-        add_to_table(event, cal_table)
-    return cal_table.listreturn()
-    
+        add_to_table(event, cal_table, block_labels)
 
-def TablePrep(Events, Duration):
-    '''
-    Accepts an unordered list of events, and returns a table ready to be
-    sent to the Sched_Display template.  Events is a list, with each entry
-    having properties for the appropriate information for each event, 
-    including Text (event title or name), Link (URL for the event 
-    information), start and stop time, and event type.  Type is used to
-    determine what colors each event is displayed with.  Duration is the
-    length, in minutes, of each cell in the table.  StartTime and StopTime
-    are both DateTime objects.
-    '''
-
-    PrettyFormat = '%a %I:%M %p'
-    Table = table([], [])
-    times = []
-    colors = [
-        {'FG_Color': 'Teal', 'BG_Color': 'Red', 'Border_Color': 'DarkRed'},
-        {'FG_Color': 'SeaGreen', 'BG_Color': 'HotPink', 'Border_Color': 'MediumVioletRed'},
-        {'FG_Color': 'Naw', 'BG_Color': 'LightSalmon', 'Border_Color': 'DarkOrange'},
-        {'FG_Color': 'CadetBlue', 'BG_Color': 'Khaki', 'Border_Color': 'Gold'},
-        {'FG_Color': 'SeaGreen', 'BG_Color': 'Amethyst', 'Border_Color': 'DarkViolet'},
-        {'FG_Color': 'Indigo', 'BG_Color': 'SpringGreen', 'Border_Color': 'ForrestGreen'},
-        {'FG_Color': 'SaddleBrown', 'BG_Color': 'RoyalBlue', 'Border_Color': 'DarkBlue'},
-        {'FG_Color': 'DarkOliveGreen', 'BG_Color': 'Aquamarine', 'Border_Color': 'SteelBlue'},
-        {'FG_Color': 'DarkCyan', 'BG_Color': 'SandyBrown', 'Border_Color': 'DarkGoldenrod'},
-        {'FG_Color': 'Black', 'BG_Color': 'Silver', 'Border_Color': 'DarkSlateGray'}
-        ]
-    types = {}
-    for Event in Events:
-        min = str(int(Event['StartTime'].minute / Duration) * Duration)
-        if len(min) == 1:
-            min = '0' + min
-        Time = Event['StartTime']
-        starttime = timegm(Event['StartTime'].utctimetuple())
-        stoptime = timegm(Event['StopTime'].utctimetuple())
-        time = int(starttime / Duration) * Duration
-        location = Event['Location']
-        if location not in Table.collist:
-            Table.addcol(location)
-        if starttime not in Table.rowlist:
-            Table.addrow(starttime)
-            times.append(starttime)
-            times.sort()
-        Cell = {}
-        Cell['Text'] = Event['Text']
-        Cell['Link'] = Event['Link']
-        if ['Color'] not in dir(Event):
-            if Event['Type'] in types.keys():
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = types[Event['Type']]
-            else:
-                color_set = choice(colors)
-                Cell['FG_Color'], Cell['BG_Color'], Cell['Border_Color'] = \
-                    color_set['FG_Color'], color_set['BG_Color'], color_set['Border_Color']
-                color_set = choice(colors)
-                Cell['Alink_Color'], Cell['Vlink_Color'], Cell['Link_Color'] = \
-                    color_set['FG_Color'], color_set['BG_Color'], color_set['Border_Color']
-        cells = int((stoptime - starttime) / Duration / 60 + 0.8)
-        if cells == 1:
-            Cell['Borders'] = ['Top', 'Left', 'Right', 'Bottom']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            Table[starttime, location] = Cell
-        elif cells >= 2:
-            Cell['Borders'] = ['Top', 'Left', 'Right']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            print starttime, cells
-            Table[starttime, location] = Cell
-            cells = cells - 1
-            while cells >= 2:
-                starttime = starttime + (Duration * 60)
-                del Cell['Text'], Cell['Link']
-                Cell['Borders'] = ['Left', 'Right']
-                if starttime not in Table.rowlist:
-                    Table.addrow(starttime)
-                print starttime, cells
-                Table[starttime, location] = Cell
-                cells = cells - 1
-
-            starttime = starttime + (Duration * 60)
-            del Cell['Text'], Cell['Link']
-            Cell['Borders'] = ['Left', 'Right', 'Bottom']
-            if starttime not in Table.rowlist:
-                Table.addrow(starttime)
-            print starttime, cells
-            Table[starttime, location] = Cell
-         
-    return Table.listreturn('column')
+    return htmlHeaders(cal_table.listreturn(headers = True))

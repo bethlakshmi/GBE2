@@ -28,6 +28,7 @@ def restore_room_set():
     '''
     Restore serialized room set from disk to DB
     '''
+    import pickle
     rooms = pickle.load(open('pickles/rooms.pkl'))
     for room in rooms:
 	room.save()
@@ -36,6 +37,7 @@ def store_room_set():
     '''
     Serialize the current room set for later restoration
     '''	
+    import pickle
     from gbe.models import Room
     rooms = list( Room.objects.all())
     pickle.dump(rooms, open('pickles/rooms.pkl','w'))
