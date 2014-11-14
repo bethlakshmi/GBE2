@@ -22,10 +22,8 @@
 
       <div class="sched_times">
 	  {% for sched_event in eventitem.scheduled_events %}
-	  <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time}}<br>
-	    {% for location in sched_event.location %}
-	  <label class="sched_detail">Location:  </label>{{ location }}<br>
-	    {% endfor %}
+	  <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
+	  <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
 	  <br>
 	  {% endfor %}
       </div>

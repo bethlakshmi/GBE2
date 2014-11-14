@@ -234,7 +234,7 @@ class EventItem (models.Model):
     eventitem_id = models.AutoField(primary_key=True)
 
     def set_duration(self, duration):
-        child = EventItem.objects.get_subclass(event=self.eventitem_id)
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
         child.duration = duration
         child.save(update_fields=('duration',))
 
@@ -248,7 +248,8 @@ class EventItem (models.Model):
 
     @property 
     def duration(self):
-        return self.sched_duration
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        return child.sched_duration
     
     @property
     def describe(self):
@@ -312,7 +313,7 @@ class Event (Schedulable):
 
     @property
     def duration(self):
-        return self.item._duration
+        return self.eventitem.duration
 
     def __str__(self):
         try:
