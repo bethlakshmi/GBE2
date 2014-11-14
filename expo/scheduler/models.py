@@ -237,6 +237,7 @@ class EventItem (models.Model):
         child.duration = duration
         child.save(update_fields=('duration',))
 
+        
     @property
     def payload(self):
         return self.sched_payload

@@ -65,8 +65,26 @@ def get_events_display_info():
     eventitems = EventItem.objects.select_subclasses()
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
-                   'schedule_event':item.scheduler_events.all()[0]}
+                   'schedule_event':item.scheduler_events.all().first()}
                   for item in eventitems]
+    eventslist = []
+    for entry in eventitems:
+        eventinfo = {'title' : entry['confitem'].sched_payload['title'],
+                'duration': entry['confitem'].sched_payload['duration'],
+                    'type':entry['confitem'].sched_payload['details']['type'],
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [entry['eventitem'].eventitem_id]),
+                    'edit': reverse('edit_event', urlconf='scheduler.urls', 
+                                    args =  [entry['eventitem'].eventitem_id]),
+                    }
+        if entry['schedule_event']:
+            eventinfo ['location'] = entry['schedule_event'].location
+            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %H:%M')
+        else:
+            eventinfo ['location'] = "Not yet scheduled"
+            eventinfo ['datetime'] = "Not yet scheduled"
+        eventslist.append(eventinfo)
+    '''
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
                     'location': entry['schedule_event'].location,
                     'datetime': entry['schedule_event'].starttime.strftime('%A, %H:%M'),
@@ -78,6 +96,8 @@ def get_events_display_info():
                                     args =  [entry['eventitem'].eventitem_id]),
                     }
                    for entry in eventitems]
+
+    '''
     return eventslist
 
 def get_event_display_info(eventitem_id):
