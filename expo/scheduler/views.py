@@ -91,7 +91,6 @@ def get_event_display_info(eventitem_id):
                       'scheduled_events':item.scheduler_events.all(),
                       'labels': event_labels}
 
-
     return eventitem_view
 
 def class_schedule(request):
