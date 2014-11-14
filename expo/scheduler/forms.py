@@ -29,7 +29,7 @@ class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
     location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
-    duration = DurationFormField(help_text='Enter duration as HH:MM')
+    duration = DurationFormField(help_text='Enter duration as HH:MM:SS')
 
     class Meta:
         model = Event
