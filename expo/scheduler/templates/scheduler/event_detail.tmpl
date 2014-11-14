@@ -15,7 +15,15 @@
 	 {{eventitem.event.payload.description}}
       <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
-        <label class="sched_detail">{{name}}:</label> {{value}}<br>
+        <label class="sched_detail">
+	  {% for label_name, label_value in eventitem.labels.items%}
+	    {% if name == label_name %}
+	      {{label_value}}:
+	    {% endif %}
+	  {% empty %}
+	    {{value}}:
+	  {% endfor %}
+	</label> {{value}}<br>
         {% endfor %}
       </div>
       </div>

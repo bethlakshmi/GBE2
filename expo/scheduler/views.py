@@ -89,7 +89,7 @@ def get_event_display_info(eventitem_id):
     
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'details': {}}
+                      'labels': event_labels}
 
     return eventitem_view
 
