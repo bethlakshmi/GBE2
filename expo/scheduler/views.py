@@ -202,7 +202,7 @@ def edit_event(request, eventitem_id):
             s_event.set_location(l)
             s_event.save()                        
             
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls'))
         else:
             return HttpResponseRedirect(reverse('error', urlconf='gbe.urls'))
     else:
