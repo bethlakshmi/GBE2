@@ -23,7 +23,6 @@ class Schedulable(models.Model):
     '''
     objects = InheritanceManager()
 
-
     @property 
     def duration(self):
         return self._duration
@@ -115,14 +114,14 @@ class LocationItem(ResourceItem):
         Return the resource corresonding to this item
         To do: find a way to make this work at the Resource level
         '''
-        l = Location.objects.select_subclasses().get(_item=self)
-        if len(l) == 0:
+        try:
+            loc = Location.objects.select_subclasses().get(_item=self)
+        except:
             loc =  Location(_item=self)
             loc.save()
-            return loc
-        else:
-            return l[0]
-            # to do: log an error if len (l) >1
+        return loc
+
+
 
     @property
     def describe(self):
@@ -234,7 +233,7 @@ class EventItem (models.Model):
     eventitem_id = models.AutoField(primary_key=True)
 
     def set_duration(self, duration):
-        child = EventItem.objects.get_subclass(event=self.eventitem_id)
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
         child.duration = duration
         child.save(update_fields=('duration',))
 
@@ -248,7 +247,8 @@ class EventItem (models.Model):
 
     @property 
     def duration(self):
-        return self.sched_duration
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        return child.sched_duration
     
     @property
     def describe(self):
@@ -293,12 +293,13 @@ class Event (Schedulable):
             pass   # already set
         elif self.location == None:
             loc_resource = location.get_resource()
-            ra = ResourceAllocation(location=location, event=self)
+            ra = ResourceAllocation(resource=loc_resource, event=self)
             ra.save()
         else:
-            allocations = ResourceAllocation.objects.select_subclasses().filter(event=self).filter(location=location)
+            allocations = ResourceAllocation.objects.select_subclasses().filter(event=self).filter(resource=location.get_resource())
             if len (allocations) >0:
-                allocation = [a for a in allocations if type(a.resource)=='Location'][0]  
+#                allocation = [a for a in allocations if type(a.resource)=='Location'][0]  
+                allocation = allocations[0]
                 ## Probably should log an error if there is more than one location allocated for this event
                 allocation.resource=location.get_resource()
                 allocation.save()
@@ -312,7 +313,7 @@ class Event (Schedulable):
 
     @property
     def duration(self):
-        return self.item._duration
+        return self.eventitem.duration
 
     def __str__(self):
         try:

@@ -44,6 +44,7 @@ class EventScheduleForm(forms.ModelForm):
         
         event.starttime =datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
 
+        
         if commit:
             self.save()
         return event

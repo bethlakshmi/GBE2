@@ -65,11 +65,11 @@ def get_events_display_info():
     eventitems = EventItem.objects.select_subclasses()
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
-                   'scheduled_events':item.scheduler_events.all()}
+                   'schedule_event':item.scheduler_events.all()[0]}
                   for item in eventitems]
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
-                    'locations': [event.location for event in entry['scheduled_events']],
-                    'datetime': [event.start_time for event in entry['scheduled_events']],
+                    'location': entry['schedule_event'].location,
+                    'datetime': entry['schedule_event'].starttime.strftime('%H:%M'),
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
@@ -89,7 +89,8 @@ def get_event_display_info(eventitem_id):
     
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'details': {}}
+                      'labels': event_labels}
+
 
     return eventitem_view
 
@@ -194,14 +195,17 @@ def edit_event(request, eventitem_id):
             s_event=event_form.save(commit=False)
             s_event.eventitem = item
             data = event_form.cleaned_data
-            s_event.save()            
+
                          
             if data['duration']:
-                item.set_duration(data['duration'])
-
+                s_event.set_duration(data['duration'])
+            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
+            s_event.set_location(l)
+            s_event.save()                        
+            
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('error', urlconf='gbe.urls'))
     else:
         old_events = item.scheduler_events.all()
         duration = item.event.sched_payload['duration']
