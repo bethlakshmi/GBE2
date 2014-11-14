@@ -69,7 +69,7 @@ def get_events_display_info():
                   for item in eventitems]
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
                     'location': entry['schedule_event'].location,
-                    'datetime': entry['schedule_event'].starttime.strftime('%H:%M'),
+                    'datetime': entry['schedule_event'].starttime.strftime('%A, %H:%M'),
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
