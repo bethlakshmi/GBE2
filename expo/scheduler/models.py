@@ -286,25 +286,24 @@ class Event (Schedulable):
 
     def set_location(self, location):
         '''
-        location is a LocationItem, not a Location resource
+        location is a LocationItem or a Location resource
         '''
-        if isinstance(location, Location):
-            location = location._item
+        if isinstance(location, LocationItem):
+            location = location.get_resource()
         if self.location == location:
             pass   # already set
         elif self.location == None:
-            loc_resource = location.get_resource()
-            ra = ResourceAllocation(resource=loc_resource, event=self)
+            ra = ResourceAllocation(resource=location, event=self)
             ra.save()
         else:
-            allocations = ResourceAllocation.objects.select_subclasses().filter(event=self).filter(resource=location.get_resource())
-            if len (allocations) >0:
-#                allocation = [a for a in allocations if type(a.resource)=='Location'][0]  
-                allocation = allocations[0]
-                ## Probably should log an error if there is more than one location allocated for this event
-                allocation.resource=location.get_resource()
-                allocation.save()
-        
+            allocations = ResourceAllocation.objects.filter(event=self)
+            for allocation in allocations:
+                if isinstance(allocation.resource.location, Location):
+                    allocation.resource=location
+                    allocation.save(update_fields=('resource',))
+
+
+                
     def set_duration(self, duration):
         '''
         duration should be a gbe.Duration or a timedelta
