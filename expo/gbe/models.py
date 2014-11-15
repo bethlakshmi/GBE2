@@ -621,6 +621,15 @@ class Show (Event):
     def __str__(self):
         return self.title
     
+    @property
+    def sched_payload(self):
+        
+        return { 'title':self.title,
+                 'description':self.description,
+                 'duration':self.duration,
+                 'details': {'type': 'Show'}
+               }
+    
 
 class GenericEvent (Event):
     '''

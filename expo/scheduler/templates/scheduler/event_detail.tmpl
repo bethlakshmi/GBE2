@@ -9,8 +9,8 @@
 {% if tickets %}
   {% include "ticket_link.tmpl" %}
 {% endif %}  
-   <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
-   <div class="sched_block">
+    <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
+    <div class="sched_block">
       <div class="sched_desc">
 	 {{eventitem.event.payload.description}}
       <div class="sched_details">
@@ -26,8 +26,8 @@
 	</label> {{value}}<br>
         {% endfor %}
       </div>
-      </div>
-
+    </div>
+      {% if eventitem.scheduled_events %}
       <div class="sched_times">
 	  {% for sched_event in eventitem.scheduled_events %}
 	    <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
@@ -35,8 +35,10 @@
 	  <br>
 	  {% endfor %}
       </div>
-   </div>
+      {% endif %}
 
+   </div>
+   {% if eventitem.event.bios %}
    <div class="bio_block">
     {% for bio in eventitem.event.bios %}
     <div class="bio_words">
@@ -51,5 +53,6 @@
     {% endif %}
     {% endfor %}
    </div>
+   {% endif %}
 
 {% endblock %}
