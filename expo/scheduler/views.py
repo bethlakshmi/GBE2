@@ -179,7 +179,7 @@ def detail_view(request, eventitem_id):
     Takes the id of a single event and displays all its details in a template
     '''
     eventitem_view = get_event_display_info(eventitem_id)
-    template = 'scheduler/event_detail.tmpl'
+    template = 'scheduler/event_schedule.tmpl'
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,

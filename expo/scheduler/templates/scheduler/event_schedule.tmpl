@@ -9,28 +9,36 @@
 {% if tickets %}
   {% include "ticket_link.tmpl" %}
 {% endif %}  
-   <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
-   <div class="sched_block">
+    <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
+    <div class="sched_block">
       <div class="sched_desc">
 	 {{eventitem.event.payload.description}}
       <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
-        <label class="sched_detail">{{name}}:</label> {{value}}<br>
+        <label class="sched_detail">
+	  {% for label_name, label_value in eventitem.labels.items%}
+	       {% if name == label_name %}
+	          {{label_value}}:
+	       {% endif %}
+	  {% empty %}
+	      {{value}}:
+	  {% endfor %}
+	</label> {{value}}<br>
         {% endfor %}
       </div>
-      </div>
-
+    </div>
+      {% if eventitem.scheduled_events %}
       <div class="sched_times">
-	  {% for sched_event in eventitem.scheduler_events %}
-	  <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time}}<br>
-	    {% for location in sched_event.location %}
-	  <label class="sched_detail">Location:  </label>{{ location }}<br>
-	    {% endfor %}
+	  {% for sched_event in eventitem.scheduled_events %}
+	    <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
+	      <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
 	  <br>
 	  {% endfor %}
       </div>
-   </div>
+      {% endif %}
 
+   </div>
+   {% if eventitem.event.bios %}
    <div class="bio_block">
     {% for bio in eventitem.event.bios %}
     <div class="bio_words">
@@ -45,12 +53,15 @@
     {% endif %}
     {% endfor %}
    </div>
+   {% endif %}
 
+  {% if form %}
   <form method="POST" action="" enctype="multipart/form-data">
 
   {% include "form_table.html" %}
   <input type = "submit" name="submit" value="Submit">
   </form>
+  {% endif %}
    
 
 {% endblock %}
