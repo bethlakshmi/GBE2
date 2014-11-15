@@ -108,9 +108,11 @@ def get_event_display_info(eventitem_id):
     '''
     item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
     
+
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'labels': event_labels}
+                      'labels': event_labels
+                     }
 
     return eventitem_view
 
