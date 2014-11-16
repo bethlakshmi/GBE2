@@ -63,7 +63,7 @@ def get_events_display_info():
     could be Events
     '''
     eventitems = EventItem.objects.select_subclasses()
-    eventitems = [item for item in eventitems if item.accepted == 3] 
+    eventitems = [item for item in eventitems] 
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
                    'schedule_event':item.scheduler_events.all().first()}

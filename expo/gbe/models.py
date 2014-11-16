@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import EventItem, LocationItem, WorkerItem
+from scheduler.models import EventItem, LocationItem, WorkerItem, ActItem
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
@@ -425,7 +425,7 @@ class TechInfo (models.Model):
 # Act #
 #######
 
-class Act (Biddable):
+class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal. 

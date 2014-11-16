@@ -55,7 +55,7 @@ class ResourceItem (models.Model):
     The payload for a resource
     '''
     objects = InheritanceManager()
-
+    resourceitem_id = models.AutoField(primary_key=True)
     @property
     def payload(self):
         return self._payload
@@ -66,7 +66,7 @@ class ResourceItem (models.Model):
     
     @property
     def describe(self):
-        child = ResourceItem.objects.get_subclass(id=self.id)
+        child = ResourceItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
@@ -100,15 +100,63 @@ class Resource(models.Model):
     def __unicode__(self):
         return self.__str__()
     
+class ActItem(ResourceItem):
+    '''
+    Payload object for an Act
+    '''
+    objects = InheritanceManager()
 
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            loc = ActResource.objects.select_subclasses().get(_item=self)
+        except:
+            loc =  ActResource(_item=self)
+            loc.save()
+        return loc
+
+
+    @property
+    def describe (self):
+        return ActItem.objects.get_subclass(id=self.id).name
+
+    def __str__(self):
+        return srt(self.describe)
+
+    def __unicode__(self):
+        return unicode(self.describe)
+
+class ActResource(Resource):
+    '''
+    A schedulable object wrapping an Act
+    '''
+    objects = InheritanceManager()
+    _item = models.ForeignKey(ActItem)
     
+    def __str__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Act Item"
+
+    def __unicode__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Act Item"    
+
+
+
 class LocationItem(ResourceItem):
     '''
     "Payload" object for a Location
     '''
     objects = InheritanceManager()
     
-
     def get_resource(self):
         '''
         Return the resource corresonding to this item
@@ -120,8 +168,6 @@ class LocationItem(ResourceItem):
             loc =  Location(_item=self)
             loc.save()
         return loc
-
-
 
     @property
     def describe(self):
@@ -160,7 +206,7 @@ class WorkerItem(ResourceItem):
     
     @property
     def describe(self):
-        child = WorkerItem.objects.get_subclass(id=self.id)
+        child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         
         return child.__class__.__name__ + ":  " + child.describe
 
