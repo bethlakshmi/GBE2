@@ -16,10 +16,6 @@ div#banner {
     position=fixed; top: 0; bottom: 129px; left:auto;right:auto;
 }
 
-
-
-
-
 div#nav { 
     top:130px; bottom:0; left:0; 
 
@@ -435,4 +431,22 @@ td.describe
   width: 70%;
   display: inline-block;
   vertical-align: top;
+}
+
+
+table.events-table
+{
+    border:1px solid;
+    
+}
+
+table.events-table th
+{
+    border:1px solid;
+    text-align: left;
+}
+
+table.events-table td
+{
+    border:1px solid;
 }
