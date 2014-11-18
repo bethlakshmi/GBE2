@@ -80,7 +80,7 @@ def get_events_display_info():
                     }
         if entry['schedule_event']:
             eventinfo ['location'] = entry['schedule_event'].location
-            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %H:%M')
+            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %I:%M %p')
         else:
             eventinfo ['location'] = "Not yet scheduled"
             eventinfo ['datetime'] = "Not yet scheduled"
@@ -88,7 +88,7 @@ def get_events_display_info():
     '''
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
                     'location': entry['schedule_event'].location,
-                    'datetime': entry['schedule_event'].starttime.strftime('%A, %H:%M'),
+                    'datetime': entry['schedule_event'].starttime.strftime('%A, %I:%M %p'),
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
