@@ -122,7 +122,7 @@ class ActItem(ResourceItem):
 
     @property
     def describe (self):
-        return ActItem.objects.get_subclass(id=self.id).name
+        return ActItem.objects.get_subclass(act=self.id).title
 
     def __str__(self):
         return srt(self.describe)
