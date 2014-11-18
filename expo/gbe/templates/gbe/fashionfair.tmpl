@@ -34,22 +34,23 @@
    {% for row in vendor_rows %}
       <tr class=vrow>
       {% for vendor in row %}
-      	 <td class=vendor>
+      	 <td class=vendorff>
 	   <div class=vname>
-	     <p align=center>{{vendor.title}}</p>
+	     {{vendor.title}}
 	   </div>
 	   <div class=vimg>
 	   <a href={{vendor.website}}>
 	   	{% if vendor.logo %}
-	   	<img src="/{{vendor.logo}}" width=125 style='display:block;margin: 0 auto;'>
+	   	<img src="/{{vendor.logo}}" class='vimage'>
 		{% else %}
-		<img src="/static/img/defaultvendorlogo.png" width=125 style='display:block;margin: 0 auto;'>
+		<img src="/static/img/defaultvendorlogo.png" class='vimage'>
 		{% endif %}
 		  </a>
 	   </div>
 	   <div class=vdesc>
 	     {{vendor.description}}
 	   </div>
+	   <br>
 	 </td>
 	{% endfor %}
       </tr>
