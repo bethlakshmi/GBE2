@@ -557,11 +557,12 @@ def review_act (request, act_id):
     
     if  'Act Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = act)
-        # BB - wants order by start date, just don't know how...
-        # BB - wants initial to be currently cast show
-        actionform.fields['show'] = forms.ModelChoiceField(queryset=Show.objects.all(),
-                                                     empty_label=None,
-                                                     label='Pick a Show')
+        # This requires that the show be scheduled - seems reasonable in current workflow and lets me
+        # order by date.  Also - assumes that shows are only scheduled once
+        actionform.fields['show'] = forms.ModelChoiceField(
+        	                         queryset=Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime'),
+        	                         empty_label=None,
+        	                         label='Pick a Show')
 
         actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
     else:
@@ -651,24 +652,25 @@ def act_changestate (request, bid_id):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     if request.method == 'POST':
+        from scheduler.models import Event, ResourceAllocation, ActResource
         act = Act.objects.filter(id=bid_id)[0]
 
-        # Clear out previous castings
-        shows = act.appearing_in.all()
-        for show in shows:
-            show.remove(act)
-            show.save()
+        # Clear out previous castings, deletes ActResource and ResourceAllocation
+        ActResource.objects.filter(_item=act).delete()
  
         # if the act has been accepted, set the show.
-        if request.POST['show'] and (request.POST['accepted'] == '3' or
-                                     request.POST['accepted'] == '2'):
-            # Set this one
+        if request.POST['show'] and (request.POST['accepted'] == '3' or request.POST['accepted'] == '2'):
+            # Cast the act into the show by adding it to the schedule resource allocation
             try:
-                show = Show.objects.filter(id=request.POST['show'])[0]
+                show = Event.objects.filter(eventitem=request.POST['show'])[0]
+                casting = ResourceAllocation()
+                casting.event = show
+                actresource = ActResource(_item=act)
+                actresource.save()
+                casting.resource = actresource
+                casting.save()
             except:
                 return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-            show.acts.add(act)
-            show.save()
             
     return bid_changestate (request, bid_id, 'act_review_list')
 

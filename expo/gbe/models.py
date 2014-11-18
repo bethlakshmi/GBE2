@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import EventItem, LocationItem, WorkerItem, ActItem
+from scheduler.models import EventItem, LocationItem, WorkerItem, ActItem, ResourceAllocation
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
@@ -470,17 +470,10 @@ class Act (Biddable, ActItem):
     @property
     def bid_review_summary(self):
         try:
-            shows = self.appearing_in.all()
-            show_name = ''
-            first = True
-            for show in shows:
-                if first:
-                    show_name += show.title
-                    first = False
-                else:
-                    show_name += ', ' + show.title
+            casting = ResourceAllocation.objects.filter(resource__actresource___item=self.resourceitem_id)[0]
+            show_name = casting.event
         except:
-            show_name = 'Show Search Error'
+            show_name = ''
 
         return  (self.performer.name, 
                    self.title, 

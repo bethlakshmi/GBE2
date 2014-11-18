@@ -122,7 +122,7 @@ class ActItem(ResourceItem):
 
     @property
     def describe (self):
-        return ActItem.objects.get_subclass(act=self.id).title
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).title
 
     def __str__(self):
         return srt(self.describe)
@@ -171,7 +171,7 @@ class LocationItem(ResourceItem):
 
     @property
     def describe(self):
-        return LocationItem.objects.get_subclass(id=self.id).name
+        return LocationItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).name
 
     def __str__(self):
         return str(self.describe)
@@ -301,12 +301,14 @@ class EventItem (models.Model):
     def describe(self):
         try:
             child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+            '''
             ids = "event - " + str(child.event_id)
             try:
                 ids += ', bid - ' + str(child.id)
             except:
                 ids += ""
-            return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
+            '''
+            return str(child.sched_payload.get('title')) 
         except:
             return "no child"
 
