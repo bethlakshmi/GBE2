@@ -376,6 +376,8 @@ class Event (Schedulable):
         bio_list = []
         last_perf = False
         acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
+        # BB - this is a very cheesy way of doing select distinct on performer
+        # problem is - SQL lite doesn't support select distinct on
         for act in acts:
             if not last_perf:
                 bio_list += [act._item.bio]
