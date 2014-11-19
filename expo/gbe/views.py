@@ -211,7 +211,7 @@ def edit_persona(request, persona_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     try:
-        persona = Persona.objects.filter(id=persona_id)[0]
+        persona = Persona.objects.filter(resourceitem_id=persona_id)[0]
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # just fail for now
     if persona.performer_profile != profile:

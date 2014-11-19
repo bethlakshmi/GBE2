@@ -374,10 +374,14 @@ class Event (Schedulable):
     @property
     def bio_list(self):
         bio_list = []
-        acts = ActResource.objects.filter(allocations__event=self)
+        last_perf = False
+        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
         for act in acts:
-          if act._item.visible:
-              bio_list += [act._item.bio] 
+            if not last_perf:
+                bio_list += [act._item.bio]
+            elif last_perf != act._item.bio:
+                bio_list += [act._item.bio]
+            last_perf=act._item.bio
         return bio_list
         
         

@@ -231,6 +231,9 @@ class Performer (WorkerItem):
 
     def __unicode__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 class Persona (Performer):
     '''
