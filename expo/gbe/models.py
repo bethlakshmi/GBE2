@@ -460,6 +460,14 @@ class Act (Biddable, ActItem):
         return self.__class__
 
     @property
+    def bio(self):
+        return self.performer
+    
+    @property
+    def visible(self):
+        return self.accepted==3
+    
+    @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
  

@@ -108,10 +108,14 @@ def get_event_display_info(eventitem_id):
     '''
     item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
     
-
+    bio_grid_list = []
+    for sched_event in item.scheduler_events.all():
+        bio_grid_list += sched_event.bio_list
+    
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'labels': event_labels
+                      'labels': event_labels,
+                      'bio_grid_list': bio_grid_list
                      }
 
     return eventitem_view

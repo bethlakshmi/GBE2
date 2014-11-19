@@ -106,6 +106,13 @@ class ActItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+    @property
+    def bio(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).bio
+
+    @property
+    def visible(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).visible
 
     def get_resource(self):
         '''
@@ -363,6 +370,17 @@ class Event (Schedulable):
     def duration(self):
         return self.eventitem.duration
 
+
+    @property
+    def bio_list(self):
+        bio_list = []
+        acts = ActResource.objects.filter(allocations__event=self)
+        for act in acts:
+          if act._item.visible:
+              bio_list += [act._item.bio] 
+        return bio_list
+        
+        
     def __str__(self):
         try:
             return self.eventitem.describe

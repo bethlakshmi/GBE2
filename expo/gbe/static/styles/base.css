@@ -198,6 +198,11 @@ div.vimg
   text-transform: capitalize;
 }
 
+.vheader
+{
+  border:solid 2px black;
+}
+
 .vheadertext
 {
   font-size:24px;
