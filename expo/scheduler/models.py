@@ -223,8 +223,6 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
     
-    pass
-
 class Worker (Resource):
     '''
     objects = InheritanceManager()
@@ -285,6 +283,14 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
 
+    @property
+    def bios(self):
+        people = WorkerItem.objects.filter(worker__allocations__event__eventitem=self.eventitem_id,
+                                           worker__role__in=['Teacher','Panelist','Moderator']).distinct().select_subclasses('performer')
+        if people.count() == 0:
+            people = self.bio_payload
+        return people
+
     def set_duration(self, duration):
         child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
         child.duration = duration
@@ -295,9 +301,6 @@ class EventItem (models.Model):
     def payload(self):
         return self.sched_payload
 
-    @property
-    def bios(self):
-        return self.bio_payload
 
     @property 
     def duration(self):
@@ -370,7 +373,7 @@ class Event (Schedulable):
     def duration(self):
         return self.eventitem.duration
 
-
+    # for a long list of bios, right now, that is acts in shows.
     @property
     def bio_list(self):
         bio_list = []
@@ -385,7 +388,10 @@ class Event (Schedulable):
                 bio_list += [act._item.bio]
             last_perf=act._item.bio
         return bio_list
-        
+
+    # for a shorter list of bios - 1-2 or so, as with Workeritems
+
+         
         
     def __str__(self):
         try:
