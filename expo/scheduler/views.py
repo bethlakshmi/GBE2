@@ -256,6 +256,49 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
+def class_list(request):
+    '''
+    Gives an end user a list of the accepted class with descriptions.
+    If the class is scheduled, it should also show day/time for class.
+    '''
+    from gbe.models import Class
+    try:
+        classitems = Class.objects.filter(accepted='3')
+        classes = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in classitems]
+    except:
+        classes = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': class_list_title,
+                   'view_header_text': class_list_text,
+                   'labels': event_labels,
+                   'events': classes})
+
+def show_list(request):
+    '''
+    Gives an end user a list of the shows with descriptions.
+    If the show is scheduled, it should also show day/time.
+    It will not show performers - list is too long
+    '''
+    from gbe.models import Show
+    try:
+        items = Show.objects.all()
+        shows = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in items]
+    except:
+        shows = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': show_list_title,
+                   'view_header_text': show_list_text,
+                   'labels': event_labels,
+                   'events': shows})
+
 def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,

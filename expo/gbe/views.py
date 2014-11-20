@@ -772,19 +772,7 @@ def bid_class(request):
                         'draft_fields': draft_fields
                         })
 
-def class_list(request):
-    '''
-    Gives an end user a list of the accepted class with descriptions.
-    If the class is scheduled, it should also show day/time for class.
-    '''
-    try:
-        classes = Class.objects.filter(accepted='3')
-    except:
-        classes = None
-    return render(request, 'gbe/event_list.tmpl',
-                  {'title': class_list_title,
-                   'view_header_text': class_list_text,
-                   'events': classes})
+
     
 def edit_class(request, class_id):
     '''
