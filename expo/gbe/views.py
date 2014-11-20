@@ -127,7 +127,7 @@ def edit_troupe(request, troupe_id=None):
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     if troupe_id:
         try:
-            troupe = Troupe.objects.filter(id=troupe_id)[0]
+            troupe = Troupe.objects.filter(resourceitem_id=troupe_id)[0]
         except:
             return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     else:
@@ -140,7 +140,7 @@ def edit_troupe(request, troupe_id=None):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(id=profile.id),
+                                                       objects.filter(resourceitem_id=profile.id),
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
             return render (request, 'gbe/bid.tmpl',
@@ -152,7 +152,7 @@ def edit_troupe(request, troupe_id=None):
     else:
         form = TroupeForm(instance=troupe, initial={'contact':profile})
         form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(id=profile.id),
+                                                       objects.filter(resourceitem_id=profile.resourceitem_id),
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
         return render(request, 'gbe/bid.tmpl',
