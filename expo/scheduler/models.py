@@ -132,7 +132,7 @@ class ActItem(ResourceItem):
         return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).title
 
     def __str__(self):
-        return srt(self.describe)
+        return str(self.describe)
 
     def __unicode__(self):
         return unicode(self.describe)
