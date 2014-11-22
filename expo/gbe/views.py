@@ -568,11 +568,15 @@ def review_act (request, act_id):
         actionform = BidStateChangeForm(instance = act)
         # This requires that the show be scheduled - seems reasonable in current workflow and lets me
         # order by date.  Also - assumes that shows are only scheduled once
+        try:
+            start=Show.objects.all().filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+        except:
+            start=""
         actionform.fields['show'] = forms.ModelChoiceField(
         	                         queryset=Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime'),
         	                         empty_label=None,
-        	                         label='Pick a Show')
-
+        	                         label='Pick a Show',
+        	                         initial=start)
         actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
     else:
             actionform = False;
@@ -671,7 +675,7 @@ def act_changestate (request, bid_id):
         if request.POST['show'] and (request.POST['accepted'] == '3' or request.POST['accepted'] == '2'):
             # Cast the act into the show by adding it to the schedule resource allocation
             try:
-                show = Event.objects.filter(eventitem=request.POST['show'])[0]
+                show = Event.objects.filter(eventitem__event=request.POST['show'])[0]
                 casting = ResourceAllocation()
                 casting.event = show
                 actresource = ActResource(_item=act)
