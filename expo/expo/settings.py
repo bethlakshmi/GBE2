@@ -61,7 +61,9 @@ FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler
                         "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
 
 
-ROOT_URLCONF = 'expo.urls'
+#uncomment this to take the site down
+ROOT_URLCONF = 'expo.downconf'
+# ROOT_URLCONF = 'expo.urls'
 
 WSGI_APPLICATION = 'expo.wsgi.application'
 

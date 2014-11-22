@@ -13,6 +13,15 @@ from ticketingfuncs import compute_submission
 from django.core.urlresolvers import reverse
 from duration import Duration
 
+def down(request):
+    '''
+    Static "Site down" notice. Depends on a flatpage in the DB - probably 
+    we should use a generic template instead?
+    '''
+    template = loader.get_template('down.tmpl')
+    context = RequestContext(request, {})
+    return HttpResponse(template.render(context))
+
 def index(request):
     '''
     one of two cases: 
