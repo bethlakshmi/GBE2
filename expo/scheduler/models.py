@@ -55,7 +55,7 @@ class ResourceItem (models.Model):
     The payload for a resource
     '''
     objects = InheritanceManager()
-
+    resourceitem_id = models.AutoField(primary_key=True)
     @property
     def payload(self):
         return self._payload
@@ -66,7 +66,7 @@ class ResourceItem (models.Model):
     
     @property
     def describe(self):
-        child = ResourceItem.objects.get_subclass(id=self.id)
+        child = ResourceItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
@@ -100,15 +100,70 @@ class Resource(models.Model):
     def __unicode__(self):
         return self.__str__()
     
+class ActItem(ResourceItem):
+    '''
+    Payload object for an Act
+    '''
+    objects = InheritanceManager()
 
+    @property
+    def bio(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).bio
+
+    @property
+    def visible(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).visible
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            loc = ActResource.objects.select_subclasses().get(_item=self)
+        except:
+            loc =  ActResource(_item=self)
+            loc.save()
+        return loc
+
+
+    @property
+    def describe (self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).title
+
+    def __str__(self):
+        return str(self.describe)
+
+    def __unicode__(self):
+        return unicode(self.describe)
+
+class ActResource(Resource):
+    '''
+    A schedulable object wrapping an Act
+    '''
+    objects = InheritanceManager()
+    _item = models.ForeignKey(ActItem)
     
+    def __str__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Act Item"
+
+    def __unicode__(self):
+        try:
+            return self.item.describe
+        except:
+            return "No Act Item"    
+
+
+
 class LocationItem(ResourceItem):
     '''
     "Payload" object for a Location
     '''
     objects = InheritanceManager()
     
-
     def get_resource(self):
         '''
         Return the resource corresonding to this item
@@ -121,11 +176,9 @@ class LocationItem(ResourceItem):
             loc.save()
         return loc
 
-
-
     @property
     def describe(self):
-        return LocationItem.objects.get_subclass(id=self.id).name
+        return LocationItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).name
 
     def __str__(self):
         return str(self.describe)
@@ -160,7 +213,7 @@ class WorkerItem(ResourceItem):
     
     @property
     def describe(self):
-        child = WorkerItem.objects.get_subclass(id=self.id)
+        child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         
         return child.__class__.__name__ + ":  " + child.describe
 
@@ -170,8 +223,6 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
     
-    pass
-
 class Worker (Resource):
     '''
     objects = InheritanceManager()
@@ -232,6 +283,14 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
 
+    @property
+    def bios(self):
+        people = WorkerItem.objects.filter(worker__allocations__event__eventitem=self.eventitem_id,
+                                           worker__role__in=['Teacher','Panelist','Moderator']).distinct().select_subclasses('performer')
+        if people.count() == 0:
+            people = self.bio_payload
+        return people
+
     def set_duration(self, duration):
         child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
         child.duration = duration
@@ -242,9 +301,6 @@ class EventItem (models.Model):
     def payload(self):
         return self.sched_payload
 
-    @property
-    def bios(self):
-        return self.bio_payload
 
     @property 
     def duration(self):
@@ -255,12 +311,14 @@ class EventItem (models.Model):
     def describe(self):
         try:
             child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+            '''
             ids = "event - " + str(child.event_id)
             try:
                 ids += ', bid - ' + str(child.id)
             except:
                 ids += ""
-            return child.type + ":  " + str(child.sched_payload.get('title')) + "; ids: " + ids
+            '''
+            return str(child.sched_payload.get('title')) 
         except:
             return "no child"
 
@@ -315,6 +373,26 @@ class Event (Schedulable):
     def duration(self):
         return self.eventitem.duration
 
+    # for a long list of bios, right now, that is acts in shows.
+    @property
+    def bio_list(self):
+        bio_list = []
+        last_perf = False
+        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
+        # BB - this is a very cheesy way of doing select distinct on performer
+        # problem is - SQL lite doesn't support select distinct on
+        for act in acts:
+            if not last_perf:
+                bio_list += [act._item.bio]
+            elif last_perf != act._item.bio:
+                bio_list += [act._item.bio]
+            last_perf=act._item.bio
+        return bio_list
+
+    # for a shorter list of bios - 1-2 or so, as with Workeritems
+
+         
+        
     def __str__(self):
         try:
             return self.eventitem.describe

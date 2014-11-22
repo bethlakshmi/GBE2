@@ -23,6 +23,10 @@ urlpatterns = patterns('',
         views.detail_view, name = 'detail_view'),
     url(r'^scheduler/event/edit/(\d+)/?$', 
         views.edit_event, name = 'edit_event'),
+    url(r'^scheduler/class_list/?$',
+        views.class_list, name = 'class_list'),
+    url(r'^scheduler/show_list/?$',
+        views.show_list, name = 'show_list'),
             
                     
 )

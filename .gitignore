@@ -42,3 +42,5 @@ expo/gbe/views.py
 expo/performer.json
 
 expo/profilesinherit.json
+
+expo/db.sqlite3.preactitem

@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import EventItem, LocationItem, WorkerItem
+from scheduler.models import EventItem, LocationItem, WorkerItem, ActItem, ResourceAllocation
 from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
@@ -231,6 +231,9 @@ class Performer (WorkerItem):
 
     def __unicode__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 class Persona (Performer):
     '''
@@ -425,7 +428,7 @@ class TechInfo (models.Model):
 # Act #
 #######
 
-class Act (Biddable):
+class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal. 
@@ -460,6 +463,14 @@ class Act (Biddable):
         return self.__class__
 
     @property
+    def bio(self):
+        return self.performer
+    
+    @property
+    def visible(self):
+        return self.accepted==3
+    
+    @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
  
@@ -470,17 +481,10 @@ class Act (Biddable):
     @property
     def bid_review_summary(self):
         try:
-            shows = self.appearing_in.all()
-            show_name = ''
-            first = True
-            for show in shows:
-                if first:
-                    show_name += show.title
-                    first = False
-                else:
-                    show_name += ', ' + show.title
+            casting = ResourceAllocation.objects.filter(resource__actresource___item=self.resourceitem_id)[0]
+            show_name = casting.event
         except:
-            show_name = 'Show Search Error'
+            show_name = ''
 
         return  (self.performer.name, 
                    self.title, 
@@ -704,6 +708,10 @@ class Class (Biddable, Event):
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title
         payload['description'] = self.event_ptr.description
+        if not self.duration:
+            from duration import Duration
+            self.duration =  Duration (hours =1)
+            self.save(update_fields=('duration',))
         payload['duration'] = self.duration.set_format("{1:0>2}:{2:0>2}")
         return payload
 
