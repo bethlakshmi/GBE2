@@ -711,7 +711,7 @@ class Class (Biddable, Event):
         if not self.duration:
             from duration import Duration
             self.duration =  Duration (hours =1)
-            self.save()
+            self.save(update_fields=('duration'))
         payload['duration'] = self.duration.set_format("{1:0>2}:{2:0>2}")
         return payload
 
