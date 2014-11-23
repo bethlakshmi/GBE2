@@ -19,7 +19,9 @@
       </h2>
       <a href='{{event.detail}}'><span>more...</span></a>
       <div class="listdetails">
+	{% if event.eventitem.bios %}
         <label class="listlabel">Presented by:</label>
+	{% endif %}
 	{% for bio in event.eventitem.bios %}
 	  {{ bio.name }},
 	{% endfor %}
