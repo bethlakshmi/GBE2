@@ -108,7 +108,7 @@ class Profile(WorkerItem):
 
     @property
     def privilege_groups(self):
-        groups =  [ group.name for group in self.user_object.groups.all() ]
+        groups =  [ group.name for group in self.user_object.groups.all().order_by('name') ]
         return groups
 
     @property
