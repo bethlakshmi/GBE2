@@ -63,7 +63,7 @@ def get_events_display_info():
     could be Events
     '''
     eventitems = EventItem.objects.select_subclasses()
-    eventitems = [item for item in eventitems if item.accepted == 3] 
+    eventitems = [item for item in eventitems] 
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
                    'schedule_event':item.scheduler_events.all().first()}
@@ -80,7 +80,7 @@ def get_events_display_info():
                     }
         if entry['schedule_event']:
             eventinfo ['location'] = entry['schedule_event'].location
-            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %H:%M')
+            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %I:%M %p')
         else:
             eventinfo ['location'] = "Not yet scheduled"
             eventinfo ['datetime'] = "Not yet scheduled"
@@ -88,7 +88,7 @@ def get_events_display_info():
     '''
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
                     'location': entry['schedule_event'].location,
-                    'datetime': entry['schedule_event'].starttime.strftime('%A, %H:%M'),
+                    'datetime': entry['schedule_event'].starttime.strftime('%A, %I:%M %p'),
                     'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
@@ -108,9 +108,15 @@ def get_event_display_info(eventitem_id):
     '''
     item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
     
+    bio_grid_list = []
+    for sched_event in item.scheduler_events.all():
+        bio_grid_list += sched_event.bio_list
+    
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'labels': event_labels}
+                      'labels': event_labels,
+                      'bio_grid_list': bio_grid_list
+                     }
 
     return eventitem_view
 
@@ -179,7 +185,7 @@ def detail_view(request, eventitem_id):
     Takes the id of a single event and displays all its details in a template
     '''
     eventitem_view = get_event_display_info(eventitem_id)
-    template = 'scheduler/event_detail.tmpl'
+    template = 'scheduler/event_schedule.tmpl'
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
@@ -250,6 +256,49 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
+def class_list(request):
+    '''
+    Gives an end user a list of the accepted class with descriptions.
+    If the class is scheduled, it should also show day/time for class.
+    '''
+    from gbe.models import Class
+    try:
+        classitems = Class.objects.filter(accepted='3')
+        classes = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in classitems]
+    except:
+        classes = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': class_list_title,
+                   'view_header_text': class_list_text,
+                   'labels': event_labels,
+                   'events': classes})
+
+def show_list(request):
+    '''
+    Gives an end user a list of the shows with descriptions.
+    If the show is scheduled, it should also show day/time.
+    It will not show performers - list is too long
+    '''
+    from gbe.models import Show
+    try:
+        items = Show.objects.all()
+        shows = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in items]
+    except:
+        shows = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': show_list_title,
+                   'view_header_text': show_list_text,
+                   'labels': event_labels,
+                   'events': shows})
+
 def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,

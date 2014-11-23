@@ -16,10 +16,6 @@ div#banner {
     position=fixed; top: 0; bottom: 129px; left:auto;right:auto;
 }
 
-
-
-
-
 div#nav { 
     top:130px; bottom:0; left:0; 
 
@@ -150,6 +146,7 @@ hr.bid-table
     background-image: -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
 }
 
+/*used for help text*/
 span.dropt {border-bottom: background: white;}
 span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
 span.dropt span {position: absolute; left: -9999px;
@@ -174,10 +171,10 @@ td.form_label {width: 150px;}
 div.vimg
 {
   padding: 10px;
-  height: 150px;
   width: 150px;
   margin-left: auto;
   margin-right: auto;
+  
 }
 
 .vaddress
@@ -197,6 +194,20 @@ div.vimg
   text-transform: capitalize;
 }
 
+.vheader
+{
+  border:solid 2px black;
+}
+
+.vheadertext
+{
+  font-size:24px;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align:center;
+  text-transform: capitalize;
+}
+
 div.vname
   {
     height: 40px;
@@ -209,18 +220,75 @@ div.vname
 
 div.vdesc
 {
-  border: 0px
-  width: 250px;
+    border: 0px
+    width: 250px;
 }
 
-div.vendor
+
+
+.vendorff
 {
-   border:solid 2px black; 
-   table-layout: fixed;
+   border:solid 2px black;
    width: 250px;
    vertical-align: top;
    background-color: white;
+   padding: 0px;
+   margin: 0px;
 }
+
+.vimage
+{
+  width: 125px;
+  display:block;
+  margin: 0 auto;
+  
+}
+
+/* Used for the hover on the performer grid */
+span.perfhover
+{
+  border-bottom: background: white;
+  z-index: 1;
+  position: relative;
+}
+span.perfhover:hover
+{
+  text-decoration: none;
+  background: #ffffff;
+  z-index: 6;
+}
+span.perfhover span
+{
+  position: absolute;
+  left: -9999px;
+  margin: 20px 0 0 0px;
+  padding: 3px 3px 3px 3px;
+  border-style:solid;
+  border-color:black;
+  border-width:1px;
+  z-index: 6;
+}
+
+span.perfhover span
+{
+  position: absolute;
+  left: -9999px;
+  margin: 4px 0 0 0px;
+  padding: 3px 3px 3px 3px; 
+  border-style:solid;
+  border-color:black;
+  border-width:1px;
+}
+span.perfhover:hover span
+{
+  left: -200px;
+  top: 20px;
+  width: 500px;
+  margin: 20px 0 0 170px;
+  background: #ffffff;
+  z-index:6;
+} 
+
 
 td.title
 {
@@ -368,4 +436,22 @@ td.describe
   width: 70%;
   display: inline-block;
   vertical-align: top;
+}
+
+
+table.events-table
+{
+    border:1px solid;
+    
+}
+
+table.events-table th
+{
+    border:1px solid;
+    text-align: left;
+}
+
+table.events-table td
+{
+    border:1px solid;
 }

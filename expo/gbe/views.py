@@ -13,6 +13,15 @@ from ticketingfuncs import compute_submission
 from django.core.urlresolvers import reverse
 from duration import Duration
 
+def down(request):
+    '''
+    Static "Site down" notice. Depends on a flatpage in the DB - probably 
+    we should use a generic template instead?
+    '''
+    template = loader.get_template('down.tmpl')
+    context = RequestContext(request, {})
+    return HttpResponse(template.render(context))
+
 def index(request):
     '''
     one of two cases: 
@@ -127,7 +136,7 @@ def edit_troupe(request, troupe_id=None):
         return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     if troupe_id:
         try:
-            troupe = Troupe.objects.filter(id=troupe_id)[0]
+            troupe = Troupe.objects.filter(resourceitem_id=troupe_id)[0]
         except:
             return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
     else:
@@ -140,7 +149,7 @@ def edit_troupe(request, troupe_id=None):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(id=profile.id),
+                                                       objects.filter(resourceitem_id=profile.id),
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
             return render (request, 'gbe/bid.tmpl',
@@ -152,7 +161,7 @@ def edit_troupe(request, troupe_id=None):
     else:
         form = TroupeForm(instance=troupe, initial={'contact':profile})
         form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(id=profile.id),
+                                                       objects.filter(resourceitem_id=profile.resourceitem_id),
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
         return render(request, 'gbe/bid.tmpl',
@@ -211,7 +220,7 @@ def edit_persona(request, persona_id):
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     try:
-        persona = Persona.objects.filter(id=persona_id)[0]
+        persona = Persona.objects.filter(resourceitem_id=persona_id)[0]
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))  # just fail for now
     if persona.performer_profile != profile:
@@ -557,12 +566,17 @@ def review_act (request, act_id):
     
     if  'Act Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance = act)
-        # BB - wants order by start date, just don't know how...
-        # BB - wants initial to be currently cast show
-        actionform.fields['show'] = forms.ModelChoiceField(queryset=Show.objects.all(),
-                                                     empty_label=None,
-                                                     label='Pick a Show')
-
+        # This requires that the show be scheduled - seems reasonable in current workflow and lets me
+        # order by date.  Also - assumes that shows are only scheduled once
+        try:
+            start=Show.objects.all().filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+        except:
+            start=""
+        actionform.fields['show'] = forms.ModelChoiceField(
+        	                         queryset=Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime'),
+        	                         empty_label=None,
+        	                         label='Pick a Show',
+        	                         initial=start)
         actionURL = reverse('act_changestate', urlconf='gbe.urls', args=[act_id])
     else:
             actionform = False;
@@ -651,24 +665,25 @@ def act_changestate (request, bid_id):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     if request.method == 'POST':
+        from scheduler.models import Event, ResourceAllocation, ActResource
         act = Act.objects.filter(id=bid_id)[0]
 
-        # Clear out previous castings
-        shows = act.appearing_in.all()
-        for show in shows:
-            show.remove(act)
-            show.save()
+        # Clear out previous castings, deletes ActResource and ResourceAllocation
+        ActResource.objects.filter(_item=act).delete()
  
         # if the act has been accepted, set the show.
-        if request.POST['show'] and (request.POST['accepted'] == '3' or
-                                     request.POST['accepted'] == '2'):
-            # Set this one
+        if request.POST['show'] and (request.POST['accepted'] == '3' or request.POST['accepted'] == '2'):
+            # Cast the act into the show by adding it to the schedule resource allocation
             try:
-                show = Show.objects.filter(id=request.POST['show'])[0]
+                show = Event.objects.filter(eventitem__event=request.POST['show'])[0]
+                casting = ResourceAllocation()
+                casting.event = show
+                actresource = ActResource(_item=act)
+                actresource.save()
+                casting.resource = actresource
+                casting.save()
             except:
                 return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-            show.acts.add(act)
-            show.save()
             
     return bid_changestate (request, bid_id, 'act_review_list')
 
@@ -761,7 +776,7 @@ def bid_class(request):
         form = ClassBidForm (initial = {'owner':owner, 'teacher': teachers[0] })
         form.fields['teacher']= forms.ModelChoiceField(queryset=
                                                        Persona.objects.
-                                                       filter(performer_profile_id=owner.id))
+                                                       filter(performer_profile_id=owner.resourceitem_id))
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
@@ -770,19 +785,7 @@ def bid_class(request):
                         'draft_fields': draft_fields
                         })
 
-def class_list(request):
-    '''
-    Gives an end user a list of the accepted class with descriptions.
-    If the class is scheduled, it should also show day/time for class.
-    '''
-    try:
-        classes = Class.objects.filter(accepted='3')
-    except:
-        classes = None
-    return render(request, 'gbe/event_list.tmpl',
-                  {'title': class_list_title,
-                   'view_header_text': class_list_text,
-                   'events': classes})
+
     
 def edit_class(request, class_id):
     '''

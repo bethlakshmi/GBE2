@@ -19,8 +19,9 @@ conference_days = (
 
 
 time_start = 8 * 60
-time_stop = 23 * 60 + 30
-conference_times = [(time(mins/60, mins%60), str(mins/60) +":"+str(mins%60)  ) 
+time_stop = 24 * 60  
+
+conference_times = [(time(mins/60, mins%60), time(mins/60, mins%60).strftime("%I:%M %p")) 
                     for mins in range (time_start, time_stop, 30)]
 
 
@@ -34,7 +35,7 @@ class EventScheduleForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ['day', 'time', 'location', 'duration']
-        help_texts= {'duration':'Enter duration as HH:MM'}
+        help_texts= {'duration':'Enter duration as HH:MM:SS'}
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)
