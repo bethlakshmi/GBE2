@@ -59,7 +59,7 @@ def select_base_users():
     Find a set of users corresponding to these usernames and return the list of Users
     '''
     from django.contrib.auth.models import User
-    usernames = ['jon', 'betty', 'hunter', 'scratch', 'marcus']
+    usernames = ['jon', 'betty', 'hunter', 'scratch', 'gbeadmin']
     return [User.objects.get(username=uname) for uname in usernames]
 
 
