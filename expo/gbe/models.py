@@ -144,14 +144,18 @@ class Profile(WorkerItem):
         performers = list()
         for solo in solos:
             performers += solo.troupes.all()
-        return performers
+        performers += Troupe.objects.filter(contact=self)
+        perf_set = set(performers)
+        return perf_set
     
     def get_combos(self):
         solos = self.personae.all()
         performers = list()
         for solo in solos:
             performers += solo.combos.all()
-        return performers
+        performers += Combo.objects.filter(contact=self)
+        perf_set = set(performers)
+        return perf_set
     
     def get_acts(self):
         acts = []

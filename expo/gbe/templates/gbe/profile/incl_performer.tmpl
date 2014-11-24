@@ -11,8 +11,16 @@
 	    {% endfor %}
         {% endfor %}
         {% for performer in troupes %}
-	     <span class='performer'><a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>{{ performer }}
-	     	   	</a> </span>(Click to edit) <br>
+	     <span class='performer'>
+	       {% if performer.contact = profile %}
+	       <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
+		  {{ performer }}
+	       </a> </span>(Click to edit) <br>
+	       {% else %}
+	       <a href='{% url 'gbe:troupe_view' performer.resourceitem_id %}'>
+		  {{ performer }}
+	       </a> </span>(Click to view) <br>
+	       {% endif %}
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
 	    {% endfor %}

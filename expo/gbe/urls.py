@@ -119,7 +119,9 @@ urlpatterns = patterns ('',
                             views.edit_troupe, name = 'troupe_create'),
                         url(r'^troupe/edit/(\d+)/?$',
                             views.edit_troupe, name = 'troupe_edit'),
-                        url(r'^combo/create/?$',
+                        url(r'^troupe/view/(\d+)/?$',
+                            views.view_troupe, name = 'troupe_view'),
+                         url(r'^combo/create/?$',
                             views.create_combo, name = 'combo_create'),
 
 # events   - not implemented, might not be

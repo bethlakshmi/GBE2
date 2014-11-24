@@ -123,6 +123,7 @@ def register_persona(request, **kwargs):
                        'view_title':view_title})
              
 
+@login_required
 def edit_troupe(request, troupe_id=None):
     page_title = 'Manage Troupe'
     view_title = 'Tell Us About Your Troupe'
@@ -142,6 +143,9 @@ def edit_troupe(request, troupe_id=None):
     else:
         troupe = Troupe();
         
+    if troupe_id > 0 and troupe.contact != request.user.profile:
+          return HttpResponseRedirect(reverse('troupe_view', urlconf='gbe.urls', args=[str(troupe_id)]))  # just fail for now
+
     if request.method == 'POST':
         form = TroupeForm(request.POST, request.FILES, instance=troupe)
         if form.is_valid():
@@ -149,7 +153,7 @@ def edit_troupe(request, troupe_id=None):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(resourceitem_id=profile.id),
+                                                       objects.filter(resourceitem_id=profile.resourceitem_id),
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
             return render (request, 'gbe/bid.tmpl',
@@ -171,7 +175,28 @@ def edit_troupe(request, troupe_id=None):
                        'view_title': view_title,
                        'view_header_text':troupe_header_text})
                                    
-         
+@login_required
+def view_troupe(request, troupe_id=None):
+    '''
+    Show troupes to troupe members, only contact should edit. 
+    '''
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+
+    try:
+        troupe = Troupe.objects.filter(resourceitem_id=troupe_id)[0]
+        form = TroupeForm(instance = troupe, prefix = 'The Troupe')
+        owner = ParticipantForm(instance = profile, 
+                                prefix = 'Troupe Contact')
+    except IndexError:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
+
+    return render (request, 'gbe/bid_view.tmpl',
+                   {'readonlyform': [form, owner]})
+ 
+@login_required         
 def create_combo(request):
     page_title = 'Manage Combo'
     view_title = 'Who is in this Combo?'
