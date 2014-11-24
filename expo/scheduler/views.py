@@ -68,6 +68,9 @@ def get_events_display_info():
                    'confitem':selfcast(item), 
                    'schedule_event':item.scheduler_events.all().first()}
                   for item in eventitems]
+    import gbe.models as gbe
+    eventitems = [item for item in eventitems if isinstance(item['confitem'], gbe.Class) 
+                  and item['confitem'].accepted ==3]
     eventslist = []
     for entry in eventitems:
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
