@@ -477,7 +477,8 @@ class_list_text = '''    <p> \
      </p>'''
 
 show_list_text = '''    <p> \
-     The Burlesque Expo has a lot of great shows.  If we want to use this, we'll describe that. \
+     Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
+     We have four big shows on three big nights! \
      </p> '''
 
 event_list_text = '''    <p> \

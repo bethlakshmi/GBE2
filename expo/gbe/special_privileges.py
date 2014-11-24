@@ -6,8 +6,8 @@ from django.core.urlresolvers import reverse
 special_privileges= {'Act Reviewers':
                      {'url':reverse('act_review_list', urlconf='gbe.urls'),
                       'title':'Review Acts'},
-                     'Act Coordinator':
-                     {'url': '','title':''},
+                    'Act Coordinator':
+                        {'url': '','title':''},
                     'Class Reviewers':
                         {'url':reverse('class_review_list', urlconf='gbe.urls'),
                          'title':'Review Classes'},
@@ -24,11 +24,11 @@ special_privileges= {'Act Reviewers':
                         {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
                          'title':'Review Vendors'}, 
                      'Vendor Coordinator':
-                     {'url': '',
+                        {'url': '',
                          'title':''},
                      'Scheduling Mavens': 
-                     {'url': '',
-                      'title':''},
+                        {'url': reverse('event_schedule',urlconf='scheduler.urls'),
+                         'title':'Schedule Events'},
                     'Ticketing - Admin':
                         {'url':reverse('ticket_items',urlconf='ticketing.urls'),
                          'title':'Ticket Items'},

@@ -651,9 +651,8 @@ def review_act_list (request):
 @login_required
 def act_changestate (request, bid_id):
     '''
-    The generic function to change a bid to a new state (accepted,
-    rejected, etc.).  This can work for any Biddable class, but may
-    be an add-on to other work for a given class type.
+    Fairly specific to act - removes the act from all shows, and resets the act to the
+    selected show (if accepted/waitlisted), and then does the regular state change
     NOTE: only call on a post request
     '''
     try:
@@ -985,10 +984,8 @@ def review_class_list (request):
 @login_required
 def class_changestate (request, bid_id):
     '''
-    The generic function to change a bid to a new state (accepted,
-    rejected, etc.).  This can work for any Biddable class, but may
-    be an add-on to other work for a given class type.
-    NOTE: only call on a post request
+    Because classes are scheduleable, if a class is rejected, or moved back to nodecision, then
+    the scheduling information is removed from the class.
     '''
     try:
         reviewer = request.user.profile
@@ -998,6 +995,19 @@ def class_changestate (request, bid_id):
     if  'Class Coordinator' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
+    if request.method == 'POST':
+        thisclass = Class.objects.filter(id=bid_id)[0]
+
+        # if the class has been rejected/no decision, clear any schedule items.
+        if (request.POST['accepted'] == '0' or request.POST['accepted'] == '1'):
+            from scheduler.models import Event
+
+            try:
+                sched_classes = Event.objects.filter(eventitem__event=thisclass.event_id).delete()
+                
+            except:
+                return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+            
     return bid_changestate (request, bid_id, 'class_review_list')
 
 
