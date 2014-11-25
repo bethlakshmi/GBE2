@@ -156,18 +156,21 @@ class Profile(WorkerItem):
         performers += Combo.objects.filter(contact=self)
         perf_set = set(performers)
         return perf_set
-    
+
     def get_acts(self):
         acts = []
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
         return acts
+
     def get_shows(self):
         shows = []
-        for act in self.get_acts():
-            shows += act.appearing_in.all()
+        acts = self.get_acts()
+        for act in acts:
+            shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
+
     def is_teaching(self):
         '''
         return a list of classes this user is teaching
@@ -556,6 +559,11 @@ class Act (Biddable, ActItem):
                  'description': self.description,
                  'details': {'type': 'act'}
              }
+ 
+    @property
+    def cast_shows(self):
+        return list(EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=self))
+
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
