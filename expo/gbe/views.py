@@ -65,8 +65,9 @@ def landing_page(request):
                                    'shows': viewer_profile.get_shows(),
                                    'classes': viewer_profile.is_teaching(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
-                                   'review_items': viewer_profile.bids_to_review()
-                               })
+                                   'review_items': viewer_profile.bids_to_review(),
+                                   'acceptance_states': acceptance_states,
+                                   })
     else:
         context = RequestContext (request,
                                   {'standard_context' : standard_context })
