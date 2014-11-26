@@ -306,10 +306,10 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
-def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
+def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format=None):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
-    and turn the information into a calendar in black format for display.
+    and turn the information into a calendar in block format for display.
 
     Or it will be, eventually.  Right now it is using dummy event information for testing purposes.
     Will add in database queries once basic funcationality is completed.
@@ -318,7 +318,8 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
     events = []
     events = calendar_test_data
 
-    if time_format == None: time_format = set_time_format()
+    if time_format == None: 
+        time_format = set_time_format()
 
     Table = {}
 #    Table['rows'] = tablePrep(events, duration)
