@@ -44,3 +44,5 @@ expo/performer.json
 expo/profilesinherit.json
 
 expo/db.sqlite3.preactitem
+
+expo/localsettings.py

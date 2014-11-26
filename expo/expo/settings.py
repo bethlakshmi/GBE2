@@ -106,3 +106,17 @@ EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
 
 DATETIME_FORMAT = "%I:%M %p"
+
+# define deploy settings in a separate file
+# Useful local settings:
+#  - db config
+#  - LOGIN_REDIRECT
+#  - ALLOWED_HOSTS
+#  - debug mode
+#  - secret key if live site
+# DO NOT commit local settings files to the repo!
+
+try:
+    import localsettings.py
+except:
+    pass
