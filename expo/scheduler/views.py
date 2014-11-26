@@ -263,9 +263,7 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
-<<<<<<< HEAD
-def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format = None, duration = Duration(minutes = 30)):
-=======
+
 def class_list(request):
     '''
     Gives an end user a list of the accepted class with descriptions.
@@ -310,7 +308,6 @@ def show_list(request):
                    'events': shows})
 
 def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
->>>>>>> 3dae7998ed40e0040207dd91b9705be332a2656c
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in black format for display.
