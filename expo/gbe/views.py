@@ -15,8 +15,8 @@ from duration import Duration
 
 def down(request):
     '''
-    Static "Site down" notice. Depends on a flatpage in the DB - probably 
-    we should use a generic template instead?
+    Static "Site down" notice. Simply refers user to a static template with 
+    a message. 
     '''
     template = loader.get_template('down.tmpl')
     context = RequestContext(request, {})
@@ -100,8 +100,6 @@ def register_persona(request, **kwargs):
         if form.is_valid():
             performer = form.save(commit=True)
             pid = profile.pk
-#            if kwargs['redirect']:
-#                redirect_to = kwargs['redirect']
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
             else:
@@ -132,20 +130,28 @@ def edit_troupe(request, troupe_id=None):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+
+                                    '?next='+
+                                    reverse('troupe_create', urlconf='gbe.urls'))
     personae = profile.personae.all()
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+
+                                    '?next='+
+                                    reverse('troupe_create', urlconf='gbe.urls'))
     if troupe_id:
         try:
             troupe = Troupe.objects.filter(resourceitem_id=troupe_id)[0]
         except:
-            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+
+                                        '?next='+
+                                        reverse('troupe_create', urlconf='gbe.urls'))
     else:
         troupe = Troupe();
         
     if troupe_id > 0 and troupe.contact != request.user.profile:
-          return HttpResponseRedirect(reverse('troupe_view', urlconf='gbe.urls', args=[str(troupe_id)]))  # just fail for now
+          return HttpResponseRedirect(reverse('troupe_view', 
+                                              urlconf='gbe.urls', 
+                                              args=[str(troupe_id)])) 
 
     if request.method == 'POST':
         form = TroupeForm(request.POST, request.FILES, instance=troupe)
@@ -153,8 +159,8 @@ def edit_troupe(request, troupe_id=None):
             form.save(commit=True)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
-            form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(resourceitem_id=profile.resourceitem_id),
+            q = Profile.objects.filter(resourceitem_id=profile.resourceitem_id)
+            form.fields['contact']= forms.ModelChoiceField(queryset=q,
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
             return render (request, 'gbe/bid.tmpl',
@@ -165,8 +171,8 @@ def edit_troupe(request, troupe_id=None):
                        'view_header_text':troupe_header_text})
     else:
         form = TroupeForm(instance=troupe, initial={'contact':profile})
-        form.fields['contact']= forms.ModelChoiceField(queryset=Profile.
-                                                       objects.filter(resourceitem_id=profile.resourceitem_id),
+        q = Profile.objects.filter(resourceitem_id=profile.resourceitem_id)
+        form.fields['contact']= forms.ModelChoiceField(queryset=q,
                                                        empty_label=None,
                                                        label=persona_labels['contact']) 
         return render(request, 'gbe/bid.tmpl',
@@ -184,7 +190,9 @@ def view_troupe(request, troupe_id=None):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+
+                                    '?next='+
+                                    reverse('troupe_create', urlconf='gbe.urls'))
 
     try:
         troupe = Troupe.objects.filter(resourceitem_id=troupe_id)[0]
@@ -206,10 +214,14 @@ def create_combo(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('troupe_create', urlconf='gbe.urls'))
     personae = profile.personae.all()
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('troupe_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('troupe_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = ComboForm(request.POST, request.FILES)
         if form.is_valid():
@@ -295,7 +307,9 @@ def bid_act(request):
     draft_fields = Act().bid_draft_fields
     
     if len(personae) == 0:
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('act_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('act_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         '''
         If this is a formal submit request, then do all the checking.
@@ -325,7 +339,9 @@ def bid_act(request):
             act.accepted = False
             act.save()
             if not act.performer:
-                return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('act_edit', urlconf='gbe.urls', args=[str(act.id)]))
+                return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') +
+                                            '?next=' +
+                                            reverse('act_edit', urlconf='gbe.urls', args=[str(act.id)]))
 
         else:
             fields, requiredsub = Act().bid_fields
@@ -373,9 +389,9 @@ def bid_act(request):
         form = ActEditForm(initial = {'owner':profile,
                                      'performer': personae[0]}, 
                                      prefix='theact')
-                          
-        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
-                                                         objects.filter(contact=profile)) 
+        q = Performer.objects.filter(contact=profile)
+        form.fields['performer']= forms.ModelChoiceField(queryset=q)
+
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
@@ -504,8 +520,9 @@ def edit_act(request, act_id):
                                'track_duration':audio_info.track_duration,
                                'act_duration':stage_info.act_duration
                            })
-        form.fields['performer']= forms.ModelChoiceField(queryset=Performer.
-                                                         objects.filter(contact=profile))  
+        q = Performer.objects.filter(contact=profile)
+        form.fields['performer']= forms.ModelChoiceField(queryset=q)
+
  
         return render (request, 
                        'gbe/bid.tmpl',
@@ -598,8 +615,9 @@ def review_act (request, act_id):
             start=Show.objects.all().filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
         except:
             start=""
+        q = Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime')
         actionform.fields['show'] = forms.ModelChoiceField(
-        	                         queryset=Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime'),
+        	                         queryset=q,
         	                         empty_label=None,
         	                         label='Pick a Show',
         	                         initial=start)
@@ -609,7 +627,7 @@ def review_act (request, act_id):
             actionURL = False;
 
     '''
-    if user has previously reviewed the act, provide his review for update
+    if user has previously reviewed the act, provide their review for update
     '''
     try:
         bid_eval = BidEvaluation.objects.filter(bid_id=act_id, evaluator_id=reviewer.id)[0]
@@ -755,7 +773,9 @@ def bid_class(request):
     draft_fields = Class().get_draft_fields
 
     if len (teachers) == 0 :
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('class_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('class_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         '''
         If this is a formal submit request, then do all the checking.
@@ -799,9 +819,9 @@ def bid_class(request):
 
     else:
         form = ClassBidForm (initial = {'owner':owner, 'teacher': teachers[0] })
-        form.fields['teacher']= forms.ModelChoiceField(queryset=
-                                                       Persona.objects.
-                                                       filter(performer_profile_id=owner.resourceitem_id))
+        q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
+        form.fields['teacher']= forms.ModelChoiceField(queryset=q)
+
         return render (request, 
                        'gbe/bid.tmpl',
                        {'forms':[form], 
@@ -1046,7 +1066,9 @@ def create_volunteer(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls')+'?next='+reverse('volunteer_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('volunteer_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
@@ -1287,7 +1309,9 @@ def create_vendor(request):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
-        return HttpResponseRedirect(reverse('accounts_profile', urlconf='gbe.urls')+'?next='+reverse('vendor_create', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('accounts_profile', urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('vendor_create', urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
@@ -1792,7 +1816,9 @@ def conference_volunteer(request):
         return render (request, 'gbe/conf_volunteer_list.tmpl', 
                    {'view_title': view_title, 'page_title': page_title})
     if len (presenters) == 0 :
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls')+'?next='+reverse('conference_volunteer', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') + 
+                                    '?next=' +
+                                    reverse('conference_volunteer', urlconf='gbe.urls'))
 
     header = ClassProposal().presenter_bid_header
     header += ConferenceVolunteer().presenter_bid_header
