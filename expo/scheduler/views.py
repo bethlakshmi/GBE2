@@ -67,11 +67,14 @@ def get_events_display_info(time_format = None):
 
     if time_format == None: time_format = set_time_format(days = 2)
     eventitems = EventItem.objects.select_subclasses()
-    eventitems = [item for item in eventitems if item.accepted == 3] 
+    eventitems = [item for item in eventitems] 
     eventitems = [{'eventitem': item, 
                    'confitem':selfcast(item), 
                    'schedule_event':item.scheduler_events.all().first()}
                   for item in eventitems]
+    import gbe.models as gbe
+    eventitems = [item for item in eventitems if isinstance(item['confitem'], gbe.Class) 
+                  and item['confitem'].accepted ==3]
     eventslist = []
     for entry in eventitems:
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
@@ -112,10 +115,14 @@ def get_event_display_info(eventitem_id):
     '''
     item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
     
-
+    bio_grid_list = []
+    for sched_event in item.scheduler_events.all():
+        bio_grid_list += sched_event.bio_list
+    
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
-                      'labels': event_labels
+                      'labels': event_labels,
+                      'bio_grid_list': bio_grid_list
                      }
 
     return eventitem_view
@@ -256,7 +263,54 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
+<<<<<<< HEAD
 def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format = None, duration = Duration(minutes = 30)):
+=======
+def class_list(request):
+    '''
+    Gives an end user a list of the accepted class with descriptions.
+    If the class is scheduled, it should also show day/time for class.
+    '''
+    from gbe.models import Class
+    try:
+        classitems = Class.objects.filter(accepted='3')
+        classes = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in classitems]
+    except:
+        classes = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': class_list_title,
+                   'view_header_text': class_list_text,
+                   'labels': event_labels,
+                   'events': classes})
+
+def show_list(request):
+    '''
+    Gives an end user a list of the shows with descriptions.
+    If the show is scheduled, it should also show day/time.
+    It will not show performers - list is too long
+    '''
+    from gbe.models import Show
+    try:
+        items = Show.objects.all()
+        shows = [{'eventitem': item, 
+                    'scheduled_events':item.scheduler_events.all(),
+                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                                      args = [item.eventitem_id])}
+                    for item in items]
+    except:
+        shows = None
+    return render(request, 'scheduler/event_display_list.tmpl',
+                  {'title': show_list_title,
+                   'view_header_text': show_list_text,
+                   'labels': event_labels,
+                   'events': shows})
+
+def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
+>>>>>>> 3dae7998ed40e0040207dd91b9705be332a2656c
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in black format for display.

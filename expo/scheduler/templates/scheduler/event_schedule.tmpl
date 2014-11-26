@@ -41,7 +41,7 @@
    
     {% if eventitem.bio_grid_list %}
       <table class="vtable" align=center>
-      <tr><th colspan="3" class="vheader">
+      <tr  class="vrow"><th colspan="3" class="vheader">
         <div class="vheadertext"><p>Check out our fabulous Performers!</p></div>
       </th></tr>
       {% for bio in eventitem.bio_grid_list %}
@@ -105,6 +105,6 @@
   <input type = "submit" name="submit" value="Submit">
   </form>
   {% endif %}
-   
+  <div style="height: 300px">&nbsp;</div>
 
 {% endblock %}

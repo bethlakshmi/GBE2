@@ -4,7 +4,13 @@
 	   </span><br>
 	   {% for act in acts %}
 	      <span class='act'>
-	       {% if act.submitted %}<a href = '{% url 'gbe:act_view' act.id %}'> {{ act }} </a>(Click to view)<br>
+	       {% if act.submitted %}<a href = '{% url 'gbe:act_view' act.id %}'> {{ act }} </a>(Click to view)
+	       	  {% for value, state in acceptance_states %}
+		     {% if value = act.accepted %}
+			- {{state}}
+		     {%endif%}
+		  {% endfor %}
+	       <br>
 	       {% else %}<a href = '{% url 'gbe:act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
 	       {% endif %}
 

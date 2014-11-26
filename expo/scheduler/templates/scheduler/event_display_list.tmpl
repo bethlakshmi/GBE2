@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load ticketing_filters %}
+{% block title %}
+  Great Burlesque Exposition: {{title}}
+{% endblock %}
+
+{% block content %}
+   
+   <H1>{{title}}</H1>
+   <div class=body>
+     {{view_header_text | safe}}
+ 
+   </div>
+
+   {% for event in events %}
+   <div class="listblock" id={{class.id}}>
+      <h2 class="listheader">
+      {{event.eventitem.payload.title}}
+      </h2>
+      <a href='{{event.detail}}'><span>more...</span></a>
+      <div class="listdetails">
+	{% if event.eventitem.bios %}
+        <label class="listlabel">Presented by:</label>
+	{% endif %}
+	{% for bio in event.eventitem.bios %}
+	  {{ bio.name }},
+	{% endfor %}
+        <br>
+	{% if event.scheduled_events %}
+	<label class="listlabel">Time(s):</label>
+	  {% for sched_event in event.scheduled_events %}
+	  {{ sched_event.start_time}} - {{ sched_event.end_time|time}}, 
+	  {% endfor %}
+	{% endif %}
+	<br>
+	{% for name, value in event.eventitem.payload.details.items %}
+            <label class="sched_detail">
+	    {% for label_name, label_value in labels.items%}
+	       {% if name == label_name %}
+	          {{label_value}}:
+	       {% endif %}
+	    {% empty %}
+	      {{value}}:
+	    {% endfor %}
+	    </label> {{value}}<br>
+	{% endfor %}
+      </div>
+      <div class="listdesc">
+	 {{event.eventitem.payload.description}}
+      </div>
+      {% if show_tickets %}
+      <div>
+	<br>
+	<b>Buy any of these tickets to get into this great event!</b><br>
+	{% for ticket in event.eventitem.get_tickets %}
+	    <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ ticket.ticket_id|bpt_event }}/" target="_blank">
+            {{ ticket.title }}
+            </a>
+	{% endfor %}
+      </div>
+      {% endif %}
+   </div>
+   <hr class="listline">
+   {% empty %}
+     <div><b>Stay tuned!  Great classes coming soon!</b></div>
+   {% endfor %} 
+
+{% endblock %}
