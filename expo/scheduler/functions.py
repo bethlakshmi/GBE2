@@ -7,7 +7,43 @@ from gbe.duration import Duration
 from gbe.duration import timedelta_to_duration
 from random import choice
 import math
+try: from expo.settings import DATETIME_FORMAT
+except: DATETIME_FORMAT = None
 
+def set_time_format(events = None, days = 0):
+    '''
+    Returns a default time format which prepends a day if day, date,
+    etc is not included AND a test for included days is greater then
+    one.  Uses the default set in settings.py, and if that is absent,
+    set it to 12 hour and min with AM and PM (%I:%M %p).  Can accept a
+    dictionary of events with the datetime info in it, or a number of
+    days covered by the format.  Numbers greater then 2 cause the name
+    of the day to be prepended to the format.  Will add similar for
+    months later.
+    '''
+
+    try: from expo.settings import DATETIME_FORMAT
+    except: DATETIME_FORMAT = None
+
+    if type(events) == type({}) and days == 0:
+        for event in events:
+            day = event['starttime'].day
+            if day not in days:
+                days.append(day)
+        days = len(days)
+
+    if days <= 1:
+        if DATETIME_FORMAT == None:
+            DATETIME_FORMAT = "%I:%M %p"
+    else:
+        if DATETIME_FORMAT == None:
+            DATETIME_FORMAT = "%a, %I:%M %p"
+        else:
+            testValue = False
+            for dayValue in  ('%a', '%A', '%w', '%d', '%j'): # Test for formats that print the day
+                if dayValue in DATETIME_FORMAT: testValue = True
+            if not testValue: DATETIME_FORMAT = '%a, ' + DATETIME_FORMAT
+    return DATETIME_FORMAT
 
 def init_time_blocks(events, block_size, time_format,
                      cal_start= None, cal_stop = None,
@@ -28,13 +64,13 @@ def init_time_blocks(events, block_size, time_format,
         cal_start = sorted([event['starttime'] for event in events])[0]
     elif instanceof(cal_start, time):
         cal_start = datetime.combine(datetime.min,cal_start)
-    if not cal_stop:
 
-        
+    if not cal_stop:
         cal_stop = sorted([event['stoptime'] for event in events])[-1]
  #       cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
     elif instanceof(cal_stop, datetime): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
+
     if cal_stop < cal_start:    # assume that we've gone past midnight
         cal_stop += timedelta(days=1) 
     if trim_to_block_size:
@@ -42,7 +78,7 @@ def init_time_blocks(events, block_size, time_format,
     
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = int(math.ceil (schedule_duration/block_size))
-    block_labels = [(cal_start + block_size * b).strftime("%H:%M") for b in range(blocks_count)]
+    block_labels = [(cal_start + block_size * b).strftime(time_format) for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
 
 def init_column_heads(events):
@@ -141,9 +177,9 @@ def htmlPrep(event):
     '''
 
     html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['text'])
-    if 'shortDesc' in event.keys():
-        #  shortDesc is a short description, which is optional
-        html = html+event['shortDesc']
+    if 'short_desc' in event.keys():
+        #  short_desc is a short description, which is optional
+        html = html+event['short_desc']
     return html
 
 def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
@@ -159,19 +195,21 @@ def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
             table[0][cell] = table[0][cell] + headerEnd
         
     for cell in range(1, len(table)):
+        print type(table[cell][0]),  table[cell][0]
         if not table[cell][0].startswith(headerStart):
             table[cell][0] = headerStart + table[cell][0]
         if not table[cell][0].endswith(headerEnd):
             table[cell][0] = table[cell][0] + headerEnd
-        
 
     return table
 
-def tablePrep(events, block_size, time_format="{1:0>2}:{2:0>2}", cal_start=None, cal_stop=None, col_heads=None):
+def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=None, col_heads=None):
     '''
     Generate a calendar table based on submitted events
     
     '''
+
+    if time_format == None: time_format = set_time_format(events)
     block_labels, cal_start, cal_stop = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)

@@ -15,6 +15,8 @@ from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
 from scheduler.functions import tablePrep
+from scheduler.functions import set_time_format
+
 
 # Create your views here.
 
@@ -55,13 +57,15 @@ def selfcast(sobj):
         return sobj
 
 
-def get_events_display_info():
+def get_events_display_info(time_format = None):
     '''
     Helper for displaying lists of events. Gets a supply of conference event items and munges 
     them into displayable shape
     "Conference event items" = things in the conference model which extend EventItems and therefore 
     could be Events
     '''
+
+    if time_format == None: time_format = set_time_format(days = 2)
     eventitems = EventItem.objects.select_subclasses()
     eventitems = [item for item in eventitems if item.accepted == 3] 
     eventitems = [{'eventitem': item, 
@@ -80,7 +84,7 @@ def get_events_display_info():
                     }
         if entry['schedule_event']:
             eventinfo ['location'] = entry['schedule_event'].location
-            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime('%A, %I:%M %p')
+            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
         else:
             eventinfo ['location'] = "Not yet scheduled"
             eventinfo ['datetime'] = "Not yet scheduled"
@@ -252,7 +256,7 @@ def edit_event(request, eventitem_id):
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
     
-def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
+def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format = None, duration = Duration(minutes = 30)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in black format for display.
@@ -261,43 +265,10 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
     Will add in database queries once basic funcationality is completed.
     '''
 
-    duration = Duration(minutes = 60)
-
     events = []
-    events.append({'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'})
+    events = calendar_test_data
 
-    events.append({'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 13, 00), 'stoptime': datetime(2015, 02, 07, 14, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'})
-
-    events.append({'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 11, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'})
-
-    events.append({'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 11, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
-        'location': 'Paul Revere', 'Type': 'Business Class'})
-
-    events.append({'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
-
-    events.append({'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
-        'Link': 'http://random.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 14, 00), 'stoptime': datetime(2015, 02, 07, 16, 00),\
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
-
-    events.append({'html': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
-        'Link': 'http://some.bad.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'})
-
-    events.append({'html': 'From Legalese to English, Contracts in Burlesque', \
-        'Link': 'http://still.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 12, 00), 'stoptime': datetime(2015, 02, 07, 13, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Business Class'})
+    if time_format == None: time_format = set_time_format()
 
     Table = {}
 #    Table['rows'] = tablePrep(events, duration)
@@ -310,42 +281,51 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
 
     template = 'scheduler/Sched_Display.tmpl'
 
+    
+
     return render(request, template, Table)
     
 
-
 calendar_test_data =     [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'starttime': datetime(2015, 02, 07, 9, 00), 
+        'stoptime': datetime(2015, 02, 07, 10, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'}, 
 
     {'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 13, 00), 'stoptime': datetime(2015, 02, 07, 14, 00), \
+        'starttime': datetime(2015, 02, 07, 13, 00), 
+        'stoptime': datetime(2015, 02, 07, 14, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'},
 
     {'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 11, 00), \
+        'starttime': datetime(2015, 02, 07, 10, 00), 
+        'stoptime': datetime(2015, 02, 07, 11, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'},
 
     {'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 11, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'starttime': datetime(2015, 02, 07, 11, 00), 
+        'stoptime': datetime(2015, 02, 07, 12, 00), \
         'location': 'Paul Revere', 'Type': 'Business Class'},
 
     {'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'starttime': datetime(2015, 02, 07, 9, 00), 
+        'stoptime': datetime(2015, 02, 07, 10, 00), \
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
     {'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
         'Link': 'http://random.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 14, 00), 'stoptime': datetime(2015, 02, 07, 16, 00),\
+        'starttime': datetime(2015, 02, 07, 14, 00), 
+        'stoptime': datetime(2015, 02, 07, 16, 00),\
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
-    {'html': 'Muumuus A-Go-Go: Dancing in Less-then-Sexy Clothing', \
+    {'html': 'Muumuus A-Go-Go', 'short_desc': 'Dancing in Less-then-Sexy Clothing', \
         'Link': 'http://some.bad.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'starttime': datetime(2015, 02, 07, 10, 00), 
+        'stoptime': datetime(2015, 02, 07, 12, 00), \
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
     {'html': 'From Legalese to English, Contracts in Burlesque', \
         'Link': 'http://still.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 12, 00), 'stoptime': datetime(2015, 02, 07, 13, 00), \
+        'starttime': datetime(2015, 02, 07, 12, 00), 
+        'stoptime': datetime(2015, 02, 07, 13, 00), \
         'location': 'Thomas Atkins', 'Type': 'Business Class'}]
 
