@@ -4,7 +4,7 @@
       <div id='cssmenu'>
       <ul>
         <li class='active'><a href='{% url 'gbe:home' %}'><span>Home</span></a></li>
-        <li class='has-sub'><a href='{% url 'scheduler:show_list' %}'><span>Shows</span></a>
+        <li class='has-sub'><a href='{% url 'scheduler:event_list' 'Show'%}'><span>Shows</span></a>
           <ul>
              <li><a href='http://www.burlesque-expo.com/rhinestone-revue'><span>Rhinestone Review</span></a></li>
              <li><a href='http://www.burlesque-expo.com/late-friday'><span>Late Friday</span></a></li>
@@ -16,15 +16,15 @@
         <li class='has-sub'><a href=''><span>The Conference</span></a>
           <ul>
              <li><a href='http://www.burlesque-expo.com/panels'><span>Panels</span></a></li>
-             <li><a href='{% url 'scheduler:class_list' %}'><span>Classes</span></a></li>
-             <li><a href='http://www.burlesque-expo.com/master-classes-2015'><span>Master Class 2015</span></a></li>
+             <li><a href='{% url 'scheduler:event_list' 'Class'%}'><span>Classes</span></a></li>
+             <li><a href='{% url 'scheduler:event_list' 'Master'%}'><span>Master Class 2015</span></a></li>
              <li><a href='{% url 'gbe:class_create' %}'><span>Teach A Class</span></a></li>
           </ul>
         </li>
-        <li class='has-sub'><a href=''><span>Special Events</span></a>
+        <li class='has-sub'><a href='{% url 'scheduler:event_list' 'Special'%}'><span>Special Events</span></a>
           <ul>
              <li><a href='http://www.burlesque-expo.com/costumes'><span>Costumes</span></a></li>
-             <li><a href='http://www.burlesque-expo.com/free-classes'><span>Free Classes!</span></a></li>
+             <li><a href='{% url 'scheduler:event_list' 'Drop-In'%}'><span>Free Classes!</span></a></li>
              <li><a href='http://www.burlesque-expo.com/parties'><span>Parties</span></a></li>
              <li><a href='http://www.burlesque-expo.com/the-art-show'><span>The Art Show</span></a></li>
              <li class='last'><a href='http://www.burlesque-expo.com/shopping'><span>Shopping</span></a></li>

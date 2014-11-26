@@ -258,49 +258,48 @@ def edit_event(request, eventitem_id):
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
-    
-def class_list(request):
+def view_list(request, event_type='All'):
     '''
-    Gives an end user a list of the accepted class with descriptions.
-    If the class is scheduled, it should also show day/time for class.
+    One function to cut down on replicating code.  If adding a new view-only event list, do the following;
+      - figure out whether it's a GenericEvent with a type (1st case statement) or a subclass
+         NOTE: can't filter on a property.
+      - add the type of list you want to have to the list_titles dictionary in gbetext
+      - add the text for the list you want to have to the list_text dicionary
+      - double check if any new label text needs to be added to event_labels
+         LATER:  I'd like to find a way to get all this ugly large text blobs in *.py files and into the
+         DB where Scratch can change them - Betty
     '''
-    from gbe.models import Class
+    from gbe.models import Class, Show, GenericEvent
     try:
-        classitems = Class.objects.filter(accepted='3')
-        classes = [{'eventitem': item, 
-                    'scheduled_events':item.scheduler_events.all(),
-                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
-                                      args = [item.eventitem_id])}
-                    for item in classitems]
-    except:
-        classes = None
-    return render(request, 'scheduler/event_display_list.tmpl',
-                  {'title': class_list_title,
-                   'view_header_text': class_list_text,
-                   'labels': event_labels,
-                   'events': classes})
+        items = []
+        types = dict(event_options)
 
-def show_list(request):
-    '''
-    Gives an end user a list of the shows with descriptions.
-    If the show is scheduled, it should also show day/time.
-    It will not show performers - list is too long
-    '''
-    from gbe.models import Show
-    try:
-        items = Show.objects.all()
-        shows = [{'eventitem': item, 
+        ''' BB - darn it, this is less open ended than I wanted but after finding that there is
+        no elegant filter for child class type, and that select_subclasses isn't a *filter* - I gave up
+        '''
+        if types.has_key(event_type):
+            items = GenericEvent.objects.filter(type=event_type)
+        elif event_type=='Show':
+            items = Show.objects.all()
+        elif event_type=='Class':
+            items = Class.objects.filter(accepted='3')
+        else:
+            items = EventItem.objects.all().select_subclasses()
+            event_type="All"
+
+        events = [{'eventitem': item, 
                     'scheduled_events':item.scheduler_events.all(),
                     'detail': reverse('detail_view', urlconf='scheduler.urls', 
                                       args = [item.eventitem_id])}
                     for item in items]
     except:
-        shows = None
+        events = None
     return render(request, 'scheduler/event_display_list.tmpl',
-                  {'title': show_list_title,
-                   'view_header_text': show_list_text,
+                  {'title': list_titles[event_type],
+                   'view_header_text': list_text[event_type],
                    'labels': event_labels,
-                   'events': shows})
+                   'events': events})
+
 
 def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00))):
     '''

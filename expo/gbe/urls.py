@@ -86,8 +86,6 @@ urlpatterns = patterns ('',
 # panel
                         url(r'^panel/?$',
                             views.panel_view, name = 'panel_view'),
-                        url(r'^panel/list/?$',
-                            views.panel_list, name = 'panel_list'),
                         url(r'^panel/create/?$',
                             views.panel_create, name = 'panel_create'),
                         url(r'^panel/edit/(\d+)/?$',
@@ -124,15 +122,6 @@ urlpatterns = patterns ('',
                          url(r'^combo/create/?$',
                             views.create_combo, name = 'combo_create'),
 
-# events   - not implemented, might not be
-                        url(r'^events/?$',
-                            views.events_list, name = 'events_list'),
-                        url(r'^events/(P<event_id>\d+)/?$', 
-                            views.event, name = 'events_view'), 
-
-# shows   - test only right now
-                        url(r'^shows/?$',
-                            views.shows_list, name = 'shows_list'),
 
 #volunteers
                         url(r'^volunteer/bid/?$',

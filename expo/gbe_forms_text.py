@@ -460,27 +460,42 @@ class_participation_types = [('Teacher', 'Teacher')]
 calendar_types = { 0:'General',
                    1:'Conference'}
 
-class_list_title = '''Class Descriptions 2014'''
-show_list_title = '''Shows 2014'''
-event_list_title = '''All Generic Events'''
+list_titles = {
+    'Class': '''Class Descriptions at GBE''',
+    'Show': '''Shows at GBE''',
+    'All': '''All Events''',
+    'Master': '''Master Classes''',
+    'Drop-In': '''Dropin Classes''',
+    'Special': '''Special Events'''
+}
 
-class_list_text = '''    <p> \
-     The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
-     class time over threee days.  It is the original Professional Development Conference for \
-     burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
-     no one else will either". \
-     </p> \
-     <p> \
-     Whether you're looking to boost a skill set to the next level or develop some new skills, \
-     The Conference has something for you from costuming to publicity to philosophical \
-     discussions.   \
-     </p>'''
-
-show_list_text = '''    <p> \
-     Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
-     We have four big shows on three big nights! \
-     </p> '''
-
-event_list_text = '''    <p> \
-     The Burlesque Expo has a lot of other events. This is everything except shows and classes\
-     </p> '''
+list_text = {
+    'Class': '''    <p> \
+        The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
+        class time over threee days.  It is the original Professional Development Conference for \
+        burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
+        no one else will either". \
+        </p> \
+        <p> \
+        Whether you're looking to boost a skill set to the next level or develop some new skills, \
+        The Conference has something for you from costuming to publicity to philosophical \
+        discussions.   \
+        </p>''',
+    'Show': '''    <p> \
+        Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
+        We have four big shows on three big nights! \
+        </p> ''',
+    'All': '''    <p> \
+        Check out the full list of all shows, classes, master classes, dropin classes and special events!\
+        </p> ''',
+    'Master': '''    <p> Every year, The Great Burlesque Exposition welcomes world class teachers\
+        including Burlesque Legends and Stars of NeoBurlesque.  Please join us in this year's great\
+        Master Classes.  Master Classes require an additional fee to any ticket package.\
+        </p> ''',
+    'Drop-In': '''    <p> Brought to you by the <a href="http://www.studyburlesque.com">Boston Academy\
+        of Burlesque Education (B.A.B.E.)</a> these classes are a great "tease" into the art of Burlesque.\
+        </p> ''',
+    'Special': '''    <p> A collection of events so special that we had no choice but to call them\
+        "Special Events".
+        </p> '''
+}

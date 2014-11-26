@@ -661,12 +661,13 @@ class GenericEvent (Event):
 
     @property
     def sched_payload(self):
+        types = dict(event_options)
         return {
             'type': self.type,
             'title':  self.title,
             'description' : self.description,
             'duration':self.duration,
-            'details': {'type': self.type}
+            'details': {'type': types[self.type]}
             }
 
 
@@ -974,3 +975,4 @@ class ProfilePreferences(models.Model):
 
     class Meta:
         verbose_name_plural='profile preferences'
+

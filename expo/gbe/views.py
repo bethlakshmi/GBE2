@@ -1736,35 +1736,6 @@ def review_proposal_list (request):
                    'action1_link': reverse('proposal_publish', urlconf='gbe.urls')})
 
  
-def events_list(request):
-    '''
-    Returns a list of the various events, with short descriptions.
-    '''
-    try:
-        events = Event.objects.all()
-    except:
-        events = None
-    return render(request, 'gbe/event_list.tmpl',
-                  {'title': event_list_title,
-                   'view_header_text': event_list_text,
-                   'events': events,
-                   'show_tickets': True,
-                   'user_id':request.user.id })
-    pass
-
-
-def shows_list(request):
-    '''
-    Mostly to test event display
-    '''
-    try:
-        shows = Show.objects.all()
-    except:
-        shows = None
-    return render(request, 'gbe/event_list.tmpl',
-                  {'title': show_list_title,
-                   'view_header_text': show_list_text,
-                   'events': shows})
 
 
 def panel_create(request):
@@ -1774,13 +1745,7 @@ def panel_create(request):
 
     pass
 
-def panel_list(request):
-    '''
-    View for getting a list of all panels that meets regex in request.
-    Boilerplate.
-    '''
 
-    pass
 
 def panel_view(request, panel_id):
     '''
