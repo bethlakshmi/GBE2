@@ -9,6 +9,21 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
+# define deploy settings in a separate file
+# Local settings should set
+#  - db config
+#  - LOGIN_REDIRECT
+#  - ALLOWED_HOSTS
+#  - debug mode (False for live site, True or False for dev/test)
+#  - secret key if live site
+# DO NOT commit local settings files to the repo!
+
+
+
+
+from local_settings import *
+
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
@@ -18,18 +33,27 @@ SITE_ID=1
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0sdq74686*ayl^0!tqlt*!mgsycr)h4h#*4*_x=2_dw9cq8d!i'
+try:
+   SECRET_KEY
+except:
+   SECRET_KEY = '0sdq74686*ayl^0!tqlt*!mgsycr)h4h#*4*_x=2_dw9cq8d!i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+try: 
+   DEBUG
+except:
+   DEBUG = True
 
-TEMPLATE_DEBUG = True
+try:
+   TEMPLATE_DEBUG
+except:
+   TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 
 MEDIA_URL = '/'
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -67,16 +91,17 @@ ROOT_URLCONF = 'expo.urls'
 
 WSGI_APPLICATION = 'expo.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+try:
+   DATABASES
+except:
+   DATABASES = {
+      'default': {        'ENGINE': 'django.db.backends.sqlite3',
+                          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+                          }
+      }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -107,16 +132,7 @@ DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
 
 DATETIME_FORMAT = "%I:%M %p"
 
-# define deploy settings in a separate file
-# Useful local settings:
-#  - db config
-#  - LOGIN_REDIRECT
-#  - ALLOWED_HOSTS
-#  - debug mode
-#  - secret key if live site
-# DO NOT commit local settings files to the repo!
 
-try:
-    import localsettings.py
-except:
-    pass
+
+
+
