@@ -18,21 +18,24 @@ example_string = '''this is a multiline string. a newline
 # models
 
 
+
+landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
+
 phone_number_format_error = '''Phone numbers must be in a standard US format, \
                                such as ###-###-###.'''
 time_format_error =  '''Time must be in the format ##:##.'''
 
 
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
-<a href='update_profile'>Fix this!</a>''',
+<a href='{% url 'gbe:profile_update' %}'>Fix this!</a>''',
                   'empty_profile':  '''Your profile needs an update, please review it, and save it. \
-<a href='update_profile'>Update it now!</a>'''
+<a href='{% url 'gbe:profile_update' %}'>Update it now!</a>'''
                   }
 
 act_alerts = {
     'act_complete_not_submitted': 
-    'This act is complete and can be submitted whenever you like. \
-    <a href = "/act/edit/%d/"> Review and Submit Now </a>',
+    '''This act is complete and can be submitted whenever you like. \
+    <a href = '{% url 'gbe:act_edit' act_id %}'> Review and Submit Now </a>''',
     'act_complete_submitted': 
     'This act is complete and has been submitted for review.',
     'act_incomplete_not_submitted': 
@@ -49,6 +52,7 @@ act_shows_options  = [ (0, 'The Bordello (Fri. Late)'),
                        (3, 'The Newcomer\'s Showcase'),
                        ]
 
+all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 
  
 best_time_to_call_options = [('Any', 'Any'), 
@@ -96,12 +100,10 @@ acceptance_states = ((0,'No Decision'),
                      (2,'Wait List'), 
                      (3,'Accepted'))
 
-bid_states = (("Draft", "Draft"),
-              ("Submitted", "Submitted"),
-              ("Paid","Paid"),
-              ("Accepted","Accepted"),
-              ("Rejected","Rejected"),
-              ("On Hold","On Hold"))
+class_acceptance_states = (
+                     (1,'Reject'),
+                     (2,'Wait List'), 
+                     (3,'Accepted'))
 
 vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
                 (4, "No Comment"), (5, "Weak No"), (6, "No"), 
@@ -130,6 +132,11 @@ experience_options = (('0', "I'm not a burlesque performer"),
                       ('3',"3-4 years"),
                       ('4',"5-6 years"),
                       ('5',"more than 6 years"))
+
+event_options = (('Special', "Special Event"),
+                 ('Master',"Master Class"),
+                 ('Drop-In',"Drop-In Class"))
+
 
 class_options = (('Lecture', "Lecture"),
                  ('Movement', "Movement"),
@@ -164,14 +171,23 @@ day_options = (('Fri', "Friday"),
                ('Sat', "Saturday"),
                ('Sun', "Sunday"))
 
+role_options = (('Teacher', "Teacher"),
+               ('Performer', "Performer"),
+               ('Volunteer', "Volunteer"),
+               ('Panelist', "Panelist"),
+               ('Moderator', "Moderator"),
+               ('Staff Lead', "Staff Lead"),
+               ('Technical Director', "Technical Director"),
+               ('Producer',"Producer"))
+
 vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
 						 "Saturday & Sunday, noon to 8pm ONLY."))
 ad_type_options = (("Full Page, Premium","Full Page, Premium"),
-					("Full Page, Interior","Full Page, Interior"),
-					("Half Page, Premium","Half Page, Premium"),
-					("Half Page, Interior","Half Page, Interior"),
-					("Quanter Page, Premium","Quanter Page, Premium"),
-					("Quanter Page, Interior","Quanter Page, Interior"))
+                   ("Full Page, Interior","Full Page, Interior"),
+                   ("Half Page, Premium","Half Page, Premium"),
+                   ("Half Page, Interior","Half Page, Interior"),
+                   ("Quarter Page, Premium","Quarter Page, Premium"),
+                   ("Quarter Page, Interior","Quarter Page, Interior"))
 
 num_panel_options = (("One Panel","One Panel ($30 includes application fee)"),
 					("Two Panels","Two Panels ($75; if your work is not accepted, $45 will be refunded)"),
@@ -190,22 +206,7 @@ blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
 
+event_labels = {'type':  'Type',
+                'fee': 'Materials Fee'
+                }
 
-special_privileges= {'Scheduling Mavens': 
-                     {'url':'/schedule/stuff', 'title':'Scheduling'},
-                     'Act Reviewers':
-                     {'url':'/act/reviewlist', 'title':'Review Acts'},
-                     'Class Reviewers':
-                     {'url':'/class/reviewlist', 'title':'Review Classes'},
-                     'Volunteer Reviewers':
-                     {'url':'/volunteer/reviewlist', 'title':'Review Volunteers'},
-                     'Vendor Reviewers':
-                     {'url':'/vendor/reviewlist', 'title':'Review Vendors'}, 
-                     'Ticketing - Admin':
-                     {'url':'/ticketing/ticket_items', 'title':'Ticket Items'},
-                     'Ticketing - Edit Item':
-                     {'url':'/ticketing/ticket_item_edit/',
-                      'title':'Ticket Item Edit'},
-                     'Ticketing - Transactions':
-                     {'url':'/ticketing/transactions', 'title':'Ticketing Transactions'},
-                  }

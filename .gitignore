@@ -30,3 +30,21 @@ Text-1.txt
 expo/gbe/ticketing_idd_interface.py
 
 expo/gbe/views.py
+
+expo/templates/form_table_wrapper.tmpl
+
+expo/gbe/templates/gbe/bid_review_list.tmpl
+
+expo/gbe/views.py
+
+*.txt
+
+expo/performer.json
+
+expo/profilesinherit.json
+
+expo/db.sqlite3.preactitem
+
+expo/expo/localsettings.py
+
+expo/expo/settings.py

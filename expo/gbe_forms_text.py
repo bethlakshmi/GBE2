@@ -75,14 +75,14 @@ combo_form_help_texts = {
 combo_header_text = '''A combo is a one-off group of performers working together. If \
 you want to put together an act with someone you don't usually work with, a combo \
 is probably what you're doing. If you have a group that performs together regularly, \
-it's probably a <a href='/troupe/create'>troupe</a>. '''
+it's probably a <a href='{% url 'gbe:troupe_create' %}'>troupe</a>. '''
 
 
 troupe_header_text = '''A troupe is an established group of performers who work \
 together regularly under a collective name. If you are performing with a group of \
 performers that has a website, mailing list, or engagements as that group, then \
 you are probably a troupe. If you want to put something special together just for \
-the Expo, it's probably a <a href='/combo/create/'>combo</a>.'''
+the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
 
 
@@ -216,6 +216,16 @@ persona_help_texts = {
 
 bid_review_options = ( 'Accepted', 'Declined', 'Waitlist')
 
+acceptance_labels = {
+    'accepted' : ('Change Bid State')
+}
+
+acceptance_help_texts = {
+    'accepted' : ('Accept - will show the item on public pages as part of GBE, \
+                     Accept or Reject - will show up on the bidder\'s home page')
+}
+
+
 actbid_error_messages = {
     'title': {
         'required': ("The Title is required."),
@@ -241,6 +251,19 @@ advertising and in any schedule of events. The description should be 1-2 paragra
 classbid_labels = {
 	'min_size': ('Minimum Size'),
 	'maximum_enrollment': ('Maximum Students'),
+	'history': ('Have You Taught This Class Before?'),
+	'other_teachers': ('Fellow Teachers'),
+	'run_before': 'Has the Class been run Before?',
+	'fee': 'Materials Fee',
+	'space_needs': 'Room Preferences',
+	'schedule_constraints': 'Preferred Teaching Times',
+	'multiple_run': 'Are you willing to run the class more than once?',
+	'length_minutes': ('Length in Minutes'),
+}
+
+classdisplay_labels = {
+	'type': ('Class Type'),
+	'fee': ('Materials Fee (paid to teacher)'),
 	'history': ('Have You Taught This Class Before?'),
 	'other_teachers': ('Fellow Teachers'),
 	'run_before': 'Has the Class been run Before?',
@@ -387,6 +410,31 @@ class_proposal_labels = {
     'type': 'Type of Class'
 }
 
+proposal_edit_help_texts = {
+    'name' : 'Name or email of submitter',
+    'title': 'This will be published in the presenter opportunity page',
+    'proposal': 'Description for what the Expo would like to offer.',
+    'type': 'Class, panel or either one would be OK.  If "either" - volunteers will be able to choose to be a teacher, moderator, or presenter',
+    'display': 'When this is checked, the item will appear on the "Volunteer to Present" page.'
+
+}
+
+proposal_edit_labels = {
+    'title' : 'Name of Class',
+    'name' : 'Submitter Info',
+    'proposal': 'Description',
+    'type': 'Type of Class/Panel',
+    'display': 'Solicit Presenters?'
+}
+
+presenter_help_text = {
+    'volunteering' : 'Are you interested in volunteering for this opportunity?',
+    'presenter': 'Please provide a background we can use for you as a presenter.',
+    'bid' : '',
+    'how_volunteer' : 'What role would you prefer?',
+    'qualification' : 'Please describe any qualities that make you particualrly great for this opportunity.'
+}
+
 ticket_item_labels = {
     'ticket_id': 'Ticket Item Id:',
     'title':'Title:',
@@ -397,3 +445,62 @@ ticket_item_labels = {
 
 username_label = 'Login'
 username_help = 'Required. 30 characters or fewer. Letters, digits and @ . + - _ only.'
+
+conference_participation_types = [('Teacher', 'Teacher'), 
+                        ('Moderator', 'Moderator'), 
+                        ('Panelist', 'Panelist'), 
+                        ('Any of the Above', 'Any of the Above')] 
+
+panel_participation_types = [('Moderator', 'Moderator'), 
+                        ('Panelist', 'Panelist'), 
+                        ('Any of the Above', 'Any of the Above')]
+
+class_participation_types = [('Teacher', 'Teacher')]
+
+calendar_types = { 0:'General',
+                   1:'Conference'}
+
+list_titles = {
+    'Class': '''Class Descriptions at GBE''',
+    'Panel': '''Panel Descriptions at GBE''',
+    'Show': '''Shows at GBE''',
+    'All': '''All Events''',
+    'Master': '''Master Classes''',
+    'Drop-In': '''Dropin Classes''',
+    'Special': '''Special Events'''
+}
+
+list_text = {
+    'Class': '''    <p> \
+        The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
+        class time over threee days.  It is the original Professional Development Conference for \
+        burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
+        no one else will either". \
+        </p> \
+        <p> \
+        Whether you're looking to boost a skill set to the next level or develop some new skills, \
+        The Conference has something for you from costuming to publicity to philosophical \
+        discussions.   \
+        </p>''',
+    'Panel': '''    <p> \
+        The Conference at <b></b>The Great Burlesque Exposition</b> brings together attendees and \
+        presenters from around the world.  Come here what they have to say at our diverse collection of panels". \
+        </p>  ''',
+    'Show': '''    <p> \
+        Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
+        We have four big shows on three big nights! \
+        </p> ''',
+    'All': '''    <p> \
+        Check out the full list of all shows, classes, master classes, dropin classes and special events!\
+        </p> ''',
+    'Master': '''    <p> Every year, The Great Burlesque Exposition welcomes world class teachers\
+        including Burlesque Legends and Stars of NeoBurlesque.  Please join us in this year's great\
+        Master Classes.  Master Classes require an additional fee to any ticket package.\
+        </p> ''',
+    'Drop-In': '''    <p> Brought to you by the <a href="http://www.studyburlesque.com">Boston Academy\
+        of Burlesque Education (B.A.B.E.)</a> these classes are a great "tease" into the art of Burlesque.\
+        </p> ''',
+    'Special': '''    <p> A collection of events so special that we had no choice but to call them\
+        "Special Events".
+        </p> '''
+}

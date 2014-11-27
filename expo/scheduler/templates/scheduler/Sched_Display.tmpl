@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ Name }}
+{% endblock %}
+
+{% block content %}
+
+<table border=4, style="list-style: none;">
+<CAPTION ALIGN="top">
+<li><a href="{{ X_Name.Link }}">{{ X_Name.Text }}</a></li></CAPTION>
+
+{% comment %}
+    {% for row in rows %}
+        <tr>
+        {% for cell in row %}
+            {% if 'BG_Color' in cell %}
+                <td { BgColor = {{ cell.BG_Color }};
+            {% else %}
+                <td {
+            {% endif %}
+            {% for side in cell.Borders %}
+                    Border-{{ side }}: Solid 4px {{ cell.Border_Color }};
+            {% endfor %}
+                    }
+            {% if cell.Link %}
+                    <font color ="{{ cell.FG_Color }}">
+                    <body link="{{ cell.Link_Color }}" vlink="{{ cell.Vlink_Color }}" alink=" {{ cell.Alink_Color}}">
+                <li><a href="{{ cell.Link }}">{{ cell.Text }}</a><li></body></font>
+            {% endif %}
+                ></td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+
+{% endcomment %}
+
+  {% for row in rows %}
+     <tr>
+    {% for cell in row %}
+      {{cell |safe}}
+    {% endfor %}
+     </tr>
+  {% endfor %}
+
+</table>
+
+{% endblock %}

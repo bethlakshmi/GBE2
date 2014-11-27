@@ -5,6 +5,7 @@
 
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.urlresolvers import reverse
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
@@ -95,7 +96,7 @@ def ticket_item_edit(request, item_id=None):
             
             item = TicketItem.objects.filter(id=item_id)[0]
             if (item == None):
-                return HttpResponseRedirect('/ticketing/ticket_items')
+                return HttpResponseRedirect(reverse('ticket_items', urlconf='ticketing.urls'))
             
             # Check to see if ticket item is used in a transaction before deleting.
             
@@ -108,7 +109,7 @@ def ticket_item_edit(request, item_id=None):
             
             if (not trans_exists):
                 item.delete()
-                return HttpResponseRedirect('/ticketing/ticket_items')
+                return HttpResponseRedirect(reverse('ticket_items', urlconf='ticketing.urls'))
             else:
                 error = 'ERROR:  Cannot remove Ticket Item:  It is used in a Transaction.'
                 form = TicketItemForm(instance=item)
@@ -120,7 +121,7 @@ def ticket_item_edit(request, item_id=None):
             if form.is_valid():
                 form.save(str(request.user))
                 form.save_m2m()
-                return HttpResponseRedirect('/ticketing/ticket_items')
+                return HttpResponseRedirect(reverse('ticket_items', urlconf='ticketing.urls'))
     else:
         if (item_id != None):
             item = get_object_or_404(TicketItem, id=item_id)

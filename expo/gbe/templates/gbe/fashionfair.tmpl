@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}
+  Great Burlesque Exposition: Fashion Fair
+{% endblock %}
+
+{% block content %}
+   
+   <H1>Shop 'til You Drop!</H1>
+   <div class=body>
+   <B>The Great Burlesque Exposition</b> offers two different (but equally fabulous!) types of shopping experience! First, is our <I>Vintage Fashion Fair</I>, located on the first floor in the President's Ballroom, next door to the theater.  Open on Saturday and Sunday, from noon until 8:00 p.m., it's home to dozens of delightful vendors selling everything you need, whether you're a professional performer or just want to look spectacular!<P><I>The Vintage Fashion Fair</I> is also home to our <B>Costume Display</b>, our <B>Art Exhibit</b>, and our <B>Caf&eacute;</B>.<P>Feeling peckish between classes? Want to grab a quick snack or beverage? No need to run out into the cold or even up to the hotel restaurant! Attendees of <I>The Great Burlesque Exposition</I> can fortify themselves with soups, wraps, fresh fruit, and more... all at very reasonable prices!
+   </div>
+{% comment %}   
+   <div class=vtable>
+   {% for row in vendor_rows %}
+      <div class=vrow>
+      {% for vendor in row %}
+      	 <div class=vendor>
+	   <div class=vname>
+	     {{vendor.title}}
+	   </div>
+	   <div class=vimg>
+	   </div>
+	   <div class=vdesc>
+	     {{vendor.description}}
+	   </div>
+	 </div>
+	{% endfor %}
+      </div>
+   {% endfor %} 
+  </div>
+{% endcomment %}
+
+   <table class=vtable align=center>
+   {% for row in vendor_rows %}
+      <tr class=vrow>
+      {% for vendor in row %}
+      	 <td class=vendorff>
+	   <div class=vname>
+	     {{vendor.title}}
+	   </div>
+	   <div class=vimg>
+	   <a href={{vendor.website}}>
+	   	{% if vendor.logo %}
+	   	<img src="/{{vendor.logo}}" class='vimage'>
+		{% else %}
+		<img src="/static/img/defaultvendorlogo.png" class='vimage'>
+		{% endif %}
+		  </a>
+	   </div>
+	   <div class=vdesc>
+	     {{vendor.description}}
+	   </div>
+	   <br>
+	 </td>
+	{% endfor %}
+      </tr>
+   {% endfor %} 
+  </table>
+
+{% endblock %}

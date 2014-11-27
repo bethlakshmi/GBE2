@@ -16,10 +16,6 @@ div#banner {
     position=fixed; top: 0; bottom: 129px; left:auto;right:auto;
 }
 
-
-
-
-
 div#nav { 
     top:130px; bottom:0; left:0; 
 
@@ -122,7 +118,25 @@ h3.readonlyform
     border-collapse:collapse;
     padding: 2px;
  }
+ 
+.bid-form
+{
+    border: 1px solid black;
+    border-collapse:collapse;
+    padding: 2px;
+    text-align: center;
+ }
 
+.errorlist
+{
+    color: red;
+}
+
+.how_volunteer
+{
+    width: 125;
+ }
+ 
 hr.bid-table
 {
     border: 0; height: 1px;
@@ -132,6 +146,7 @@ hr.bid-table
     background-image: -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.25), rgba(0,0,0,0));
 }
 
+/*used for help text*/
 span.dropt {border-bottom: background: white;}
 span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
 span.dropt span {position: absolute; left: -9999px;
@@ -144,3 +159,299 @@ span.dropt span {position: absolute; left: -9999px;
 span.dropt:hover span {margin: 0px 0 0 0px; background: #ffffff; z-index:6;} 
 
 td.form_label {width: 150px;}
+
+/* Fashion Fair display of vendors.  Also not bad for performers... */
+
+.vtable
+{
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+div.vimg
+{
+  padding: 10px;
+  width: 150px;
+  margin-left: auto;
+  margin-right: auto;
+  
+}
+
+.vaddress
+{
+  font-size:12px;
+  font-family: sans-serif;
+  font-style: italic;
+  text-align:center;
+}
+
+.vname
+{
+  font-size:20px;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align:center;
+  text-transform: capitalize;
+}
+
+.vheader
+{
+  border:solid 2px black;
+}
+
+.vheadertext
+{
+  font-size:24px;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align:center;
+  text-transform: capitalize;
+}
+
+div.vname
+  {
+    height: 40px;
+    vertical-align: middle;
+    background: -webkit-linear-gradient(0deg, WhiteSmoke, lightgray); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(0deg, WhiteSmoke, lightgray); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(0deg, WhiteSmoke, lightgray); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(0deg, WhiteSmoke, gray); /* Standard syntax (must be last) */
+}
+
+div.vdesc
+{
+    border: 0px
+    width: 250px;
+}
+
+
+
+.vendorff
+{
+   border:solid 2px black;
+   width: 250px;
+   vertical-align: top;
+   background-color: white;
+   padding: 0px;
+   margin: 0px;
+}
+
+.vimage
+{
+  width: 125px;
+  display:block;
+  margin: 0 auto;
+  
+}
+
+/* Used for the hover on the performer grid */
+span.perfhover
+{
+  border-bottom: background: white;
+  z-index: 1;
+  position: relative;
+}
+span.perfhover:hover
+{
+  text-decoration: none;
+  background: #ffffff;
+  z-index: 6;
+}
+span.perfhover span
+{
+  position: absolute;
+  left: -9999px;
+  margin: 20px 0 0 0px;
+  padding: 3px 3px 3px 3px;
+  border-style:solid;
+  border-color:black;
+  border-width:1px;
+  z-index: 6;
+}
+
+span.perfhover span
+{
+  position: absolute;
+  left: -9999px;
+  margin: 4px 0 0 0px;
+  padding: 3px 3px 3px 3px; 
+  border-style:solid;
+  border-color:black;
+  border-width:1px;
+}
+span.perfhover:hover span
+{
+  left: -200px;
+  top: 20px;
+  width: 500px;
+  margin: 20px 0 0 170px;
+  background: #ffffff;
+  z-index:6;
+} 
+
+
+td.title
+{
+  border: solid 1px black; 
+  width: 20%;
+  padding: 2px;
+}
+
+td.describe
+{
+  border:solid 1px black; 
+  width: 40%;
+  padding: 2px;
+}
+
+.helptext
+{
+  font-style: italic;
+  color: grey;
+}
+
+.listblock
+{
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.listheader
+{
+  color: #333333;
+  font-family: Impact, Charcoal, sans-serif;
+  letter-spacing: 1px;
+}
+.listdetails
+{
+}
+.listlabel
+{
+ font-weight: bold;
+}
+.listdesc
+{
+  padding-top: 10px;
+}
+.listline
+{
+  padding: 0;
+  border: none;
+  border-top: medium double #333;
+  color: #333;
+  text-align: center;
+  width: 90%
+}
+  
+.listline:after
+{
+  display: inline-block;
+  position: relative;
+  top: -0.7em;
+  font-size: 1.5em;
+  padding: 0 0.25em;
+  background: white;
+}
+
+
+/*Schedule detail view*/
+.sched_block
+{
+    margin: 10px;
+    width: 100%;
+}
+.sched_desc
+{
+  padding-top: 10px;
+  align:left;
+  width:80%;
+  display: inline-block;
+  vertical-align: top;
+}
+.sched_times
+{
+  width:15%;
+  align: right;
+  display: inline-block;
+  border: 1px solid black;
+  padding: 5px;
+}
+.bio_block
+{
+    border: 1px solid black;
+    margin: 10px;
+    padding: 10px;
+}
+.sched_detail_title
+{
+  color: #333333;
+  font-family: Impact, Charcoal, sans-serif;
+  letter-spacing: 1px;
+}
+.sched_detail
+{
+ font-weight: bold;
+}
+.sched_length
+{
+  
+}
+.sched_details
+{
+}
+
+.tickets
+{
+  
+}
+.ticket_link
+{
+  
+}
+.ticket_list
+{
+  
+}
+.ticket_list_item
+{
+  
+}
+.ticket_name
+{
+ font-weight: bold;
+}
+.sched_bio_image
+{
+  width: 300px;
+  margin: 3px;
+  display: inline-block;
+}
+.bio_image_block
+{
+  width: 28%;
+  text-align:right;
+  display: inline-block;
+}
+.bio_words
+{
+  width: 70%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+
+table.events-table
+{
+    border:1px solid;
+    
+}
+
+table.events-table th
+{
+    border:1px solid;
+    text-align: left;
+}
+
+table.events-table td
+{
+    border:1px solid;
+}

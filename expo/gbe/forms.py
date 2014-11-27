@@ -164,6 +164,16 @@ class BidEvaluationForm(forms.ModelForm):
         widgets = {'evaluator': forms.HiddenInput(),
                    'bid': forms.HiddenInput()}
 
+class BidStateChangeForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = Biddable
+        fields = ['accepted']
+        required = ['accepted']
+        labels = acceptance_labels
+        help_texts = acceptance_help_texts
 
 
 class ClassBidForm(forms.ModelForm):
@@ -201,11 +211,14 @@ class ClassBidDraftForm(forms.ModelForm):
 
 
 class VolunteerBidForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()                            
     availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                              choices = volunteer_availability_options,
-                                             label = volunteer_labels['availability'])
+                                             label = volunteer_labels['availability'],
+                                             required = True)
     unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                              choices = volunteer_availability_options,
                                              label = volunteer_labels['unavailability'])
@@ -263,13 +276,42 @@ class StageInfoForm(forms.ModelForm):
         model=StageInfo
 
 class ClassProposalForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    proposal = forms.CharField(max_length = 500,
+                               widget = forms.Textarea,
+                               help_text = class_proposal_help_texts['proposal'],
+                               label = class_proposal_labels['proposal'])
     class Meta:
         model = ClassProposal
         fields = ['name', 'title', 'type', 'proposal']
         required = ['title']
         help_texts= class_proposal_help_texts
         labels = class_proposal_labels
+
+class ProposalPublishForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    proposal = forms.CharField(max_length = 500,
+                               widget = forms.Textarea,
+                               help_text = class_proposal_help_texts['proposal'],
+                               label = class_proposal_labels['proposal'])
+    class Meta:
+        model = ClassProposal
+        fields = ['title', 'type', 'proposal', 'name', 'display']
+        help_texts= proposal_edit_help_texts
+        labels = proposal_edit_labels	
         
+class ConferenceVolunteerForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = ConferenceVolunteer
+        fields, required = ConferenceVolunteer().bid_fields
+        widgets = {'bid': forms.HiddenInput()}
+
+
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about=forms.MultipleChoiceField(choices=inform_about_options,
                                            required=False,

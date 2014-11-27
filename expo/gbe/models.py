@@ -1,23 +1,15 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from gbetext import *    # all literal text including option sets lives in gbetext.py
+from scheduler.models import EventItem, LocationItem, WorkerItem, ActItem, ResourceAllocation
+from gbetext import *    
 from gbe_forms_text import *
 from datetime import datetime
+from datetime import timedelta
 from  expomodelfields import DurationField
 
 
 import pytz
-
-group_perms_map = {
-    'Act Reviewers': 'Act',
-    'Class Reviewers':'Class',
-    'Volunteer Reviewers':'Volunteer',
-    'Vendor Reviewers':'Vendor' 
-}
-
-
-
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -32,7 +24,7 @@ class Biddable (models.Model):
                               
     accepted = models.IntegerField(choices=acceptance_states, 
                                    default=0, 
-                                   blank=True)
+                                   blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -45,12 +37,15 @@ class Biddable (models.Model):
     def typeof(self):
         return self.__class__
 
+    def typeof(self):
+        return self.__class__
+
     @property
     def ready_for_review(self):
         return self.submitted and self.accepted==0
 
 
-class Profile(models.Model):
+class Profile(WorkerItem):
     '''
     The core data about any registered user of the GBE site, barring
     the information gathered up in the User object. (which we'll
@@ -87,8 +82,6 @@ class Profile(models.Model):
     how_heard = models.TextField(blank=True)
                 
     def bids_to_review(self):
-#        review_groups = [group_perms_map.get(g.name, None) for g in self.user_object.groups.all()]
-#        return [rg for rg in review_groups if eval(rg).bids_to_review]
         return []
 
     @property 
@@ -108,13 +101,14 @@ class Profile(models.Model):
         
     @property
     def special_privs(self):
+        from special_privileges import special_privileges
         privs = [ special_privileges.get(group, None) for group in 
                   self.privilege_groups]
         return privs
 
     @property
     def privilege_groups(self):
-        groups =  [ group.name for group in self.user_object.groups.all() ]
+        groups =  [ group.name for group in self.user_object.groups.all().order_by('name') ]
         return groups
 
     @property
@@ -133,25 +127,50 @@ class Profile(models.Model):
  
         return profile_alerts
     
-
     def get_performers(self):
+        performers = self.get_personae()
+        performers += self.get_troupes()
+        performers += self.get_combos()
+        return performers
+
+    def get_personae(self):
         solos = self.personae.all()
         performers = list(solos)
+ 
+        return performers
+    
+    def get_troupes(self):
+        solos = self.personae.all()
+        performers = list()
+        for solo in solos:
+            performers += solo.troupes.all()
+        performers += Troupe.objects.filter(contact=self)
+        perf_set = set(performers)
+        return perf_set
+    
+    def get_combos(self):
+        solos = self.personae.all()
+        performers = list()
         for solo in solos:
             performers += solo.combos.all()
-            performers += solo.troupes.all()
-        return performers
+        performers += Combo.objects.filter(contact=self)
+        perf_set = set(performers)
+        return perf_set
+
     def get_acts(self):
         acts = []
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
         return acts
+
     def get_shows(self):
         shows = []
-        for act in self.get_acts():
-            shows += act.appearing_in.all()
+        acts = self.get_acts()
+        for act in acts:
+            shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
+
     def is_teaching(self):
         '''
         return a list of classes this user is teaching
@@ -162,11 +181,19 @@ class Profile(models.Model):
             classes += teacher.is_teaching.all()
         return classes
 
-
+    def sched_payload(self):
+        return { 'name': self.display_name
+             }
+            
+        
+    @property
+    def describe(self):
+        return self.display_name
+    
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
         
-class Performer (models.Model):
+class Performer (WorkerItem):
     '''
     Abstract base class for any solo, group, or troupe - anything that can appear
     in a show lineup or teach a class
@@ -204,9 +231,16 @@ class Performer (models.Model):
     @property
     def complete(self):
         return True
+    
+    @property
+    def describe(self):
+        return self.name
 
     def __unicode__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 class Persona (Performer):
     '''
@@ -309,8 +343,13 @@ class AudioInfo(models.Model):
 
 
     def __unicode__(self):
-        return "AudioInfo: "+ self.techinfo.act.title
+        try:
+            return "AudioInfo: "+ self.techinfo.act.title
+        except:
+            return "AudioInfo: (deleted act)"
 
+    class Meta:
+        verbose_name_plural='audio info'
 
 class LightingInfo (models.Model):
     '''
@@ -335,7 +374,12 @@ class LightingInfo (models.Model):
 
 
     def __unicode__(self):
-        return "LightingInfo: "+self.techinfo.act.title
+        try:
+            return "LightingInfo: "+self.techinfo.act.title
+        except:
+            return "LightingInfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='lighting info'
 
 class StageInfo(models.Model):
     '''
@@ -357,7 +401,12 @@ class StageInfo(models.Model):
         return (self.set_props or self.clear_props or self.cue_props or self.confirm)
 
     def __unicode__(self):
-        return "StageInfo: " +self.techinfo.act.title
+        try:
+            return "StageInfo: " +self.techinfo.act.title
+        except:
+            return "StageInfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='stage info'
 
 class TechInfo (models.Model):
     '''
@@ -375,13 +424,18 @@ class TechInfo (models.Model):
                 self.stage.is_complete)
     
     def __unicode__(self):
-        return "Techinfo: "+ self.act.title
+        try:
+            return "Techinfo: "+ self.act.title
+        except:
+            return "Techinfo: (deleted act)"
+    class Meta:
+        verbose_name_plural='tech info'
 
 #######
 # Act #
 #######
 
-class Act (Biddable):
+class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal. 
@@ -416,18 +470,34 @@ class Act (Biddable):
         return self.__class__
 
     @property
+    def bio(self):
+        return self.performer
+    
+    @property
+    def visible(self):
+        return self.accepted==3
+    
+    @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
  
     @property
     def bid_review_header(self):
-        return  (['Performer', 'Act Title', 'Last Update', 'Reviews', 'Action'])
+        return  (['Performer', 'Act Title', 'Last Update', 'State', 'Show', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
-        return  ([(self.performer.name, 
+        try:
+            casting = ResourceAllocation.objects.filter(resource__actresource___item=self.resourceitem_id)[0]
+            show_name = casting.event
+        except:
+            show_name = ''
+
+        return  (self.performer.name, 
                    self.title, 
-                   self.updated_at.astimezone(pytz.timezone('America/New_York')))])
+                   self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                   acceptance_states[self.accepted][1], show_name)
+
 
     @property
     def complete(self):
@@ -482,11 +552,23 @@ class Act (Biddable):
     def bid_draft_fields(self):
         return (['title', 'performer'])
 
+    @property
+    def sched_payload(self):
+        return { 'duration' : self.tech.stage.act_duration,
+                 'title': self.title,
+                 'description': self.description,
+                 'details': {'type': 'act'}
+             }
+ 
+    @property
+    def cast_shows(self):
+        return list(EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=self))
+
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
 
-class Room(models.Model):
+class Room(LocationItem):
     '''
     A room at the expo center
     '''
@@ -496,7 +578,7 @@ class Room(models.Model):
     def __str__ (self):
         return self.name
     
-class Event (models.Model):
+class Event (EventItem):
     '''
     Event is the base class for any scheduled happening at the expo. 
     Events fall broadly into "shows" and "classes". Classes break down
@@ -505,27 +587,90 @@ class Event (models.Model):
     from participant bids.  
     '''
     title = models.CharField(max_length=128)
-    description = models.TextField()  # public-facing description 
-    blurb = models.TextField()        # short description
+    description = models.TextField()            # public-facing description 
+    blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
 
-
-    ## run-specific info, in case we decide to return to the run idea
-  #  room = models.ForeignKey(Room, blank=True)
-    notes = models.TextField()  #internal notes about this event
+    notes = models.TextField(blank=True)  #internal notes about this event
     owner = models.ManyToManyField(Profile)  # Responsible party
+    
+    event_id = models.AutoField(primary_key=True)
                                                 
     def __str__(self):
         return self.title
+    
+    @property
+    def sched_payload(self):
+        
+        return { 'title':self.title,
+                 'description':self.description,
+                 'duration':self.duration,
+                 'details': {'type': ''}
+               }
+
+    @property
+    def sched_duration(self):
+        return self.duration
+    
+    @property
+    def bio_payload(self):
+        return None
+
+    @property
+    def calendar_type(self):
+        return calendar_types[0]
+
+    @property
+    def get_tickets(self):
+        return self.ticketing_item.all()
+ 
 
 class Show (Event):
     '''
-    A Show is an Event consisting of a sequence of Acts. 
+    A Show is an Event consisting of a sequence of Acts.
+    BB - remove acts when Jon has resources ready, and redo the view logic for accept act.
     '''
-    acts = models.ManyToManyField(Act, related_name="appearing_in")
-    mc = models.ManyToManyField(Persona, related_name="mc_for")      
+    acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
+    mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)
+    type = "Show"
+
+    def __str__(self):
+        return self.title
     
-                                                
+    @property
+    def sched_payload(self):
+        
+        return { 'title':self.title,
+                 'description':self.description,
+                 'duration':self.duration,
+                 'details': {'type': 'Show'}
+               }
+    
+
+class GenericEvent (Event):
+    '''
+    Any event except for a show or a class
+    '''
+    type = models.CharField(max_length=128, 
+                            choices=event_options, 
+                            blank=False, 
+                            default="Special")
+
+    def __str__(self):
+        return self.title 
+
+    @property
+    def sched_payload(self):
+        types = dict(event_options)
+        return {
+            'type': self.type,
+            'title':  self.title,
+            'description' : self.description,
+            'duration':self.duration,
+            'details': {'type': types[self.type]}
+            }
+
+
 class Class (Biddable, Event):
     '''
     A Class is an Event where one or a few people
@@ -540,8 +685,7 @@ class Class (Biddable, Event):
     registration = models.ManyToManyField(Profile, 
                                           related_name='classes',
                                           blank=True)
-    type = models.IntegerField(choices=((0, "Lecture"), (1, "Movement"),
-                                        (2,"Workshop")))
+
     minimum_enrollment = models.IntegerField (blank=True, default=1)
     maximum_enrollment = models.IntegerField (blank=True, default=20)
     organization = models.CharField(max_length=128, blank=True)    
@@ -564,7 +708,32 @@ class Class (Biddable, Event):
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
 
+    @property
+    def sched_payload(self):
+        
+        payload = {}
+        details = {}
+        details= {'type' : self.type }
+        if not self.fee == 0:
+            details [classdisplay_labels['fee']] =  self.fee
 
+        payload ['details'] = details
+        payload['title'] =  self.event_ptr.title
+        payload['description'] = self.event_ptr.description
+        if not self.duration:
+            from duration import Duration
+            self.duration =  Duration (hours =1)
+            self.save(update_fields=('duration',))
+        payload['duration'] = self.duration.set_format("{1:0>2}:{2:0>2}")
+        return payload
+
+    @property
+    def bio_payload(self):
+        return [self.teacher]
+
+    @property
+    def calendar_type(self):
+        return calendar_types[1]
 
     @property
     def bids_to_review(self):
@@ -599,13 +768,13 @@ class Class (Biddable, Event):
                 )
     @property
     def bid_review_header(self):
-        return  (['Title', 'Teacher', 'Type', 'Last Update', 'Reviews', 'Action'])
+        return  (['Title', 'Teacher', 'Type', 'Last Update', 'State', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
-        return  ([(self.title, self.teacher, self.type, self.updated_at.astimezone(pytz.timezone('America/New_York')))])
-    
-    
+        return  (self.title, self.teacher, self.type,
+                self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                acceptance_states[self.accepted][1])
     def __str__(self):
         return self.title
         
@@ -623,16 +792,21 @@ class BidEvaluation(models.Model):
     vote = models.IntegerField(choices = vote_options)
     notes = models.TextField(blank='True')
     bid = models.ForeignKey(Biddable)
-    
+
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
 
+
+    
+    
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)
     experience = models.CharField(max_length=20,
                                   choices=festival_experience, default='No')
     act = models.ForeignKey(Act)
 
+    class Meta:
+        verbose_name_plural='performer festivals'
     
 
 class Volunteer(Biddable):
@@ -652,7 +826,7 @@ class Volunteer(Biddable):
         return 'Volunteer: '+ self.profile.display_name
     @property
     def bid_review_header(self):
-        return  (['Name', 'Interests'])
+        return  (['Name', 'Interests', 'Reviews', 'Action'])
 
     @property
     def bid_review_summary(self):
@@ -660,7 +834,7 @@ class Volunteer(Biddable):
         for option_id, option_value in volunteer_interests_options:
             if option_id in self.interests:
                 interest_string += option_value + ', '
-        return  ([(self.profile.display_name, interest_string)])
+        return  (self.profile.display_name, interest_string)
 
 
 class Vendor(Biddable):
@@ -681,6 +855,16 @@ class Vendor(Biddable):
         return self.title  # "title" here is company name
     def validation_problems_for_submit(self):
         return []
+
+    @property
+    def bid_review_header(self):
+        return  (['Bidder', 'Business Name', 'Website', 'Last Update', 'State', 'Reviews', 'Action'])
+
+    @property
+    def bid_review_summary(self):
+        return (self.profile.display_name, self.title, self.website,
+                self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                acceptance_states[self.accepted][1])
 
 
 class AdBid(Biddable):
@@ -711,10 +895,13 @@ class ArtBid(Biddable):
 
 
 class ClassProposal(models.Model):
+    '''
+    A proposal for a class that someone else ought to teach. NOT a class bid - don't get these confused!
+    '''
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
-    proposal = models.TextField()
+    proposal = models.TextField(max_length=100)
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,
                              default = 'Class')
@@ -722,6 +909,54 @@ class ClassProposal(models.Model):
     
     def __unicode__(self):
         return self.title
+    
+    @property
+    def bid_review_header(self):
+        return  (['Title', 'Proposal', 'Type', 'Submitter', 'Published','Action'])
+
+    @property
+    def bid_review_summary(self):
+        if self.display:
+            published = "Yes"
+        else:
+            published = ""
+        return  (self.title, self.proposal, self.type, self.name, published)
+
+    @property
+    def presenter_bid_header(self):
+        return  (['Title', 'Proposal'])
+
+    @property
+    def presenter_bid_info(self):
+        return  (self.title, self.proposal, self.type)
+
+class ConferenceVolunteer(models.Model):
+    '''
+    An individual wishing to participate in the conference as a volunteer
+    '''
+    presenter = models.ForeignKey(Persona,  
+                                related_name='conf_volunteer')
+    bid = models.ForeignKey(ClassProposal)
+    how_volunteer = models.CharField (max_length = 20, 
+                             choices = conference_participation_types,
+                             default = 'Any of the Above')
+    qualification = models.TextField(blank='True')
+    volunteering = models.BooleanField(blank='True')
+    def __unicode__(self):
+        return self.bid.title+": "+self.presenter.name
+    
+    @property
+    def bid_fields(self):
+        return (['volunteering',
+                 'presenter',
+                 'bid', 
+                 'how_volunteer', 
+                 'qualification'],
+                ['presenter', 'bid', 'how_volunteer'],
+              )
+    @property
+    def presenter_bid_header(self):
+        return  (['Interested', 'Presenter', 'Role', 'Qualification'])
 
 
 class ProfilePreferences(models.Model):
@@ -737,4 +972,6 @@ class ProfilePreferences(models.Model):
     inform_about = models.TextField(blank=True)
     show_hotel_infobox = models.BooleanField(default=True)
 
-    
+    class Meta:
+        verbose_name_plural='profile preferences'
+

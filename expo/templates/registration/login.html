@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  GBE: Login
+  Login to GBE
 {% endblock %}
 
 {% block content %}
-  {% if form.error %}
-    <p class="error">Sorry, error of some sort</p>
-  {% endif %}
+  
+
   <form action="" method=post>
     {% csrf_token %}
     <br><br>
@@ -26,7 +25,9 @@
     </table>
     <input type="hidden" name="next" value = "{{next |escape}}" />
   </form>
-  
-    <a href="/accounts/password/reset/">Help!</a> I forgot my password!
+   {% if form.errors %}
+    <p class="error" style="color: red">This site does not recognize your username or password.</p>
+  {% endif %} 
+    <a href='{% url 'gbe:password_reset' %}'>Help!</a> I forgot my password!
 
 {% endblock %}

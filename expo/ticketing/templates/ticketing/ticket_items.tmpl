@@ -10,7 +10,7 @@ Click on a type of ticket to edit or delete it, or click the button below to add
 </H3>
 Note:  The Show to Public flag below indicates of the ticket item is displayed to end users.  By default it is "false".
 <br>
-To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
+To add a new ticket item, <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
 <br><br>
 
 {% if ticket_items|length > 0 %}
@@ -26,7 +26,7 @@ To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
  </tr> 
 {% for item in ticket_items %}    
 <tr>    
-  <td><a href={% url 'ticket_item_edit' item.id %}> {{item.ticket_id}} </a></td>
+  <td><a href={% url 'ticketing:ticket_item_edit' item.id %}> {{item.ticket_id}} </a></td>
   <td>{{ item.title | safe }}</td>
   <td>{{ item.description | safe }}</td>
   <td>{{ item.active }}</td>
@@ -41,13 +41,10 @@ To add a new ticket item, <a href={% url 'ticket_item_edit' %}> click here</a>.
 
 <br>
 
-<form method="POST" action={% url 'ticket_items' %} enctype="multipart/form-data">
+<form method="POST" action={% url 'ticketing:ticket_items' %} enctype="multipart/form-data">
 {% csrf_token %}
     <input type="hidden" name="Import" value="1">
     <input type="submit" value="Synchronize with Brown Paper Tickets"> 
 </form>
 
 {% endblock %}
-
-
-

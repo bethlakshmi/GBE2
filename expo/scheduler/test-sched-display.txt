@@ -1,0 +1,20 @@
+import functions
+from table import table
+
+rooms = ['Paul Revere', 'Crispus Attackus', 'William Dawes', 'Thomas Paine', 'Haym Salzman', 'Molly Pritcher']
+times = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00']
+
+
+sched_table = table(times, rooms)
+
+sched_table('8:00', 'Paul Revere') = {'Text': 'Pole Dancing 101', 'Link': 'http://pole-dancing-101.com', 'BG_Color': 'Red', 'Borders': ['Top', 'Left', 'Right'], 'Border_Color': 'Burgundy'}
+
+sched_table('9:00', 'Paul Revere') = {'Text': '', 'BG_Color': 'Red','Borders': ['Left', 'Right', 'Bottom'], 'Border_Color': 'Burgundy'}
+
+Title = {'Text': 'Class Times - Great Burlesque Expo 2014', 'Link': 'http://burlesque-expo.com', 'BG_Color': 'Fuschia', 'FG_Color': 'Turquoise'}
+
+X_Name = {'Text': 'Rooms', 'BG_Color': 'Fuschia', 'FG_Color': 'Turquoise'}
+
+Y_Name = {}
+
+HtmlSchedDisply(Title, X_Name, Y_Name, sched_table)

@@ -6,12 +6,11 @@ def rebuild_privileges():
     Reads the privilege set from gbetext and creates the correct groups to make these work
     '''
     from django.contrib.auth.models import Group
-    from gbetext import special_privileges
-    gs = [Group() for priv in special_privileges.keys()]
-    for (g, p) in zip (gs, special_privileges.keys()):
+    from gbe.special_privileges import special_privileges
+    for p in special_privileges.keys():
+        g = Group()
         g.name=p
-        for g in gs:
-            g.save() 
+        g.save()
     
 
 def restore_base_users():
@@ -24,6 +23,24 @@ def restore_base_users():
     for user in base_users:
         user.save()
 
+
+def restore_room_set():
+    '''
+    Restore serialized room set from disk to DB
+    '''
+    import pickle
+    rooms = pickle.load(open('pickles/rooms.pkl'))
+    for room in rooms:
+	room.save()
+
+def store_room_set():
+    '''
+    Serialize the current room set for later restoration
+    '''	
+    import pickle
+    from gbe.models import Room
+    rooms = list( Room.objects.all())
+    pickle.dump(rooms, open('pickles/rooms.pkl','w'))
 
 def store_base_users(base_users):
     '''
@@ -42,7 +59,7 @@ def select_base_users():
     Find a set of users corresponding to these usernames and return the list of Users
     '''
     from django.contrib.auth.models import User
-    usernames = ['jon', 'betty', 'hunter', 'scratch', 'marcus']
+    usernames = ['jon', 'betty', 'hunter', 'scratch', 'gbeadmin']
     return [User.objects.get(username=uname) for uname in usernames]
 
 

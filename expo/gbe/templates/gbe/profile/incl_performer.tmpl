@@ -1,10 +1,32 @@
-{% if performers %}
+{% if personae or troupes or combos %}
 	  <span class='heading performers'> 
 	   <b>Performer Items</b>
 	   </span><br>
-    {% if performers %}
-        {% for performer in performers %}
-	     <span class='performer'><a href='/persona/edit/{{ performer.id }}'>{{ performer }}
+    {% if personae or troupes or combos %}
+        {% for performer in personae %}
+	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>{{ performer }}
+	     	   	</a> </span>(Click to edit) <br>
+	    {% for alert in performer.alerts %}
+	     	<span class='alert'>{{alert | safe}} </span><br>
+	    {% endfor %}
+        {% endfor %}
+        {% for performer in troupes %}
+	     <span class='performer'>
+	       {% if performer.contact = profile %}
+	       <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
+		  {{ performer }}
+	       </a> </span>(Click to edit) <br>
+	       {% else %}
+	       <a href='{% url 'gbe:troupe_view' performer.resourceitem_id %}'>
+		  {{ performer }}
+	       </a> </span>(Click to view) <br>
+	       {% endif %}
+	    {% for alert in performer.alerts %}
+	     	<span class='alert'>{{alert | safe}} </span><br>
+	    {% endfor %}
+        {% endfor %}
+        {% for performer in combos %}
+	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitemid %}'>{{ performer }}
 	     	   	</a> </span>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
@@ -15,8 +37,10 @@
 	   {{ profile.display_name }} has no stage personae listed.<br>
 {% endif %}
          <ul class="rightsidebar">
-	   <li><a href='/performer/create/'>Create a new stage persona</a><br></li>
-	   <li><a href='/troupe/create/'>Create a troupe</a><br></li>
-	   <li><a href='/combo/create/'>Create a combo</a><br></li>
+	   <li><a href='{% url 'gbe:persona_create' %}'>Create a new stage persona</a><br></li>
+	   <li><a href='{% url 'gbe:troupe_create' %}'>Create a troupe</a><br></li>
+	   {%comment%} take out combo - it's not working
+	   <li><a href='{% url 'gbe:combo_create' %}'>Create a combo</a><br></li>
+	   {% endcomment%}
 	 </ul>
 	 <br>
