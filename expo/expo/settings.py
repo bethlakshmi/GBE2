@@ -51,11 +51,18 @@ try:
 except:
    TEMPLATE_DEBUG = True
 
-#ALLOWED_HOSTS = []
+try:
+   ALLOWED_HOSTS
+except:
+   ALLOWED_HOSTS = []
 
 MEDIA_URL = '/'
 LOGIN_URL = '/login/'
-#LOGIN_REDIRECT_URL = '/'
+
+try:
+   LOGIN_REDIRECT_URL
+except:
+   LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
