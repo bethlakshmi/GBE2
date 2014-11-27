@@ -15,7 +15,7 @@
         </li>
         <li class='has-sub'><a href=''><span>The Conference</span></a>
           <ul>
-             <li><a href='http://www.burlesque-expo.com/panels'><span>Panels</span></a></li>
+             <li><a href='{% url 'scheduler:event_list' 'Panel'%}'><span>Panels</span></a></li>
              <li><a href='{% url 'scheduler:event_list' 'Class'%}'><span>Classes</span></a></li>
              <li><a href='{% url 'scheduler:event_list' 'Master'%}'><span>Master Class 2015</span></a></li>
              <li><a href='{% url 'gbe:class_create' %}'><span>Teach A Class</span></a></li>

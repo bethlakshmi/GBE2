@@ -685,8 +685,7 @@ class Class (Biddable, Event):
     registration = models.ManyToManyField(Profile, 
                                           related_name='classes',
                                           blank=True)
-    type = models.IntegerField(choices=((0, "Lecture"), (1, "Movement"),
-                                        (2,"Workshop")))
+
     minimum_enrollment = models.IntegerField (blank=True, default=1)
     maximum_enrollment = models.IntegerField (blank=True, default=20)
     organization = models.CharField(max_length=128, blank=True)    

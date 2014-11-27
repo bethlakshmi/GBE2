@@ -277,13 +277,16 @@ def view_list(request, event_type='All'):
 
     try:
         items = []
-        types = dict(event_options)
+        event_types = dict(event_options)
+        class_types = dict(class_options)
 
         ''' BB - darn it, this is less open ended than I wanted but after finding that there is
         no elegant filter for child class type, and that select_subclasses isn't a *filter* - I gave up
         '''
-        if types.has_key(event_type):
+        if event_types.has_key(event_type):
             items = GenericEvent.objects.filter(type=event_type)
+        elif class_types.has_key(event_type):
+            items = Class.objects.filter(accepted='3', type=event_type)
         elif event_type=='Show':
             items = Show.objects.all()
         elif event_type=='Class':

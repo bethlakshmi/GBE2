@@ -462,6 +462,7 @@ calendar_types = { 0:'General',
 
 list_titles = {
     'Class': '''Class Descriptions at GBE''',
+    'Panel': '''Panel Descriptions at GBE''',
     'Show': '''Shows at GBE''',
     'All': '''All Events''',
     'Master': '''Master Classes''',
@@ -481,6 +482,10 @@ list_text = {
         The Conference has something for you from costuming to publicity to philosophical \
         discussions.   \
         </p>''',
+    'Panel': '''    <p> \
+        The Conference at <b></b>The Great Burlesque Exposition</b> brings together attendees and \
+        presenters from around the world.  Come here what they have to say at our diverse collection of panels". \
+        </p>  ''',
     'Show': '''    <p> \
         Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
         We have four big shows on three big nights! \
