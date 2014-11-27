@@ -545,7 +545,7 @@ def view_act (request, act_id):
     try:
         act = Act.objects.filter(id=act_id)[0]
         if act.performer.contact != request.user.profile:
-          return HttpResponseRedirect(reverse('home'), urlconf='gbe.urls')  # just fail for now    
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
         audio_info = act.tech.audio
         stage_info = act.tech.stage
         actform = ActEditForm(instance = act, 

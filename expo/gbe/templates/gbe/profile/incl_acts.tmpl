@@ -11,7 +11,7 @@
 		     {%endif%}
 		  {% endfor %}
 	       <br>
-	       {% else %}<a href = '{% url 'gbe:act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
+	       {% elif act.performer.contact = profile %}<a href = '{% url 'gbe:act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
 	       {% endif %}
 
 	      </span> 
