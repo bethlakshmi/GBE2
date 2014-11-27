@@ -21,8 +21,10 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 
 
-
-from local_settings import *
+try:
+   from local_settings import *
+except:
+   pass
 
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
