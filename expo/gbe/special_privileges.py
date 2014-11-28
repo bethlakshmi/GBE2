@@ -23,10 +23,10 @@ special_privileges= {'Act Reviewers':
                     'Vendor Reviewers':
                         {'url':reverse('vendor_review_list',urlconf='gbe.urls'),
                          'title':'Review Vendors'}, 
-                     'Vendor Coordinator':
+                    'Vendor Coordinator':
                         {'url': '',
                          'title':''},
-                     'Scheduling Mavens': 
+                    'Scheduling Mavens': 
                         {'url': reverse('event_schedule',urlconf='scheduler.urls'),
                          'title':'Schedule Events'},
                     'Ticketing - Admin':
@@ -38,5 +38,8 @@ special_privileges= {'Act Reviewers':
                     'Ticketing - Transactions':
                         {'url':reverse('transactions', urlconf='ticketing.urls'),
                          'title':'Ticketing Transactions'},
+                    'Registrar':
+                        {'url':reverse('manage_users', urlconf='gbe.urls'),
+                         'title':'User Administration'},
                     }
 

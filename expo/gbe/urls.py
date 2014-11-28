@@ -24,8 +24,6 @@ urlpatterns = patterns ('',
                             views.profiles, name = 'profiles'),
                         url(r'^profile/(\d+)/?$',
                             views.profile, name = 'profile_view'),
-                        url(r'^profile/admin/(\d+)/?$',
-                            views.admin_profile, name = 'admin_profile'),
 
 # bios - bios are a consolidation of several elements from profile
                         url(r'^bios/staff/?$',
@@ -188,6 +186,12 @@ urlpatterns = patterns ('',
                             {'post_reset_redirect' : '/accounts/password/reset/complete/'},
                             name="password_reset_confirm"),
                         url(r'^accounts/password/reset/complete/?$', 
-                            password_reset_complete)
-                        
+                            password_reset_complete),
+ 
+ # registration 
+                        url(r'^profile/manage/?$',
+                            views.review_profiles, name = 'manage_users'),
+                        url(r'^profile/admin/(\d+)/?$',
+                            views.admin_profile, name = 'admin_profile')
+                      
                         ) 

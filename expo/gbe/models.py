@@ -80,6 +80,15 @@ class Profile(WorkerItem):
                                  default='Any', 
                                  blank=True)
     how_heard = models.TextField(blank=True)
+
+    @property
+    def review_header(self):
+        return  (['Name', 'Username', 'Last Login', 'Email', 'Purchase Email', 'Phone', 'Action'])
+
+    @property
+    def review_summary(self):
+        return  (self.display_name, self.user_object.username, self.user_object.last_login, 
+                self.user_object.email, self.purchase_email, self.phone)
                 
     def bids_to_review(self):
         return []
@@ -184,7 +193,9 @@ class Profile(WorkerItem):
     def sched_payload(self):
         return { 'name': self.display_name
              }
-            
+                
+    def __str__(self):
+        return self.title
         
     @property
     def describe(self):

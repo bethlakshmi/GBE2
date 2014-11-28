@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+  <p class="vanilla">{{title}} </p>
+  <h2 class="review-title">Bid Information</h2>
+
+  <table class="bid-table">
+    <tr class="bid-table">
+      {% for header_item in header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+    </tr>
+    {% for row in rows %}
+      <tr class="bid-table">
+              {% for value in row.profile %}
+	                <td class="bid-table">      
+            		{{ value }}
+          		</td>	
+		{% endfor %}
+          <td class="bid-table">
+              <a href="{{ row.review_url }}">{% if row.action1 %}{{ row.action1 }}{% else %}Review{% endif %}</a>
+          </td>
+
+        
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
