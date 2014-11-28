@@ -51,11 +51,18 @@ try:
 except:
    TEMPLATE_DEBUG = True
 
-#ALLOWED_HOSTS = []
+try:
+   ALLOWED_HOSTS
+except:
+   ALLOWED_HOSTS = []
 
 MEDIA_URL = '/'
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+
+try:
+   LOGIN_REDIRECT_URL
+except:
+   LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -125,12 +132,21 @@ STATIC_URL = '/static/'
 
 
 #Email settings for password reset
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_USE_TLS = False
-DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
+
+try:
+    EMAIL_HOST
+    EMAIL_PORT 
+    EMAIL_HOST_USER 
+    EMAIL_HOST_PASSWORD 
+    EMAIL_USE_TLS 
+    DEFAULT_FROM_EMAIL 
+except:
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = 1025
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_USE_TLS = False
+    DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
 
 DATETIME_FORMAT = "%I:%M %p"
 
