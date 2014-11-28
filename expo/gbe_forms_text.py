@@ -484,9 +484,14 @@ list_text = {
         discussions.   \
         </p>''',
     'Panel': '''    <p> \
-        The Conference at <b></b>The Great Burlesque Exposition</b> brings together attendees and \
-        presenters from around the world.  Come here what they have to say at our diverse collection of panels". \
-        </p>  ''',
+        Panels are an opportunity for members of the burlesque community to learn from one another and \
+        share with one another in a semi-structured setting.  Less goal-oriented than our classes and \
+        workshops, panels are guided discussions between knowledgable attendees.  Led by a moderator, \
+        panels actively encourage feedback and dialogue between the "panel of experts" and the attendees.\
+        </p><p>Sitting on a panel is a great way to gain experience as a public speaker or to see if you
+        might want to teach a class some day.  You don't need to be an expert to sit on a panel; you \
+        just need to be excited and enthusiastic about the topic!</p><p>
+        If you're interested in being a panelist, let ust know - sign up at I want to... Be a Presenter</p> ''',
     'Show': '''    <p> \
         Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
         We have four big shows on three big nights! \
@@ -494,10 +499,16 @@ list_text = {
     'All': '''    <p> \
         Check out the full list of all shows, classes, master classes, dropin classes and special events!\
         </p> ''',
-    'Master': '''    <p> Every year, The Great Burlesque Exposition welcomes world class teachers\
-        including Burlesque Legends and Stars of NeoBurlesque.  Please join us in this year's great\
-        Master Classes.  Master Classes require an additional fee to any ticket package.\
-        </p> ''',
+    'Master': '''    <p> For the student of burlesque who wants to get even more out of the conference, \
+        The Great Burlesque Exposition offers Master Classes.  These are intensive, double-length classes \
+        taught by world-renowned experts in burlesque.  If you want to take your performance to the next \
+        level, this is how to do it. </p> <font color="red">Please note:</font><br><br>\
+        <ul><li>It is strongly suggested you sign up for Master Classes in advance.  Space is limited and \
+        we expect them to sell out.</li>\
+        <li>You do not need to be registered for any other portion of The Great Burlesque Exposition to \
+        attend a Master Class.</li>\
+        <li>Master Classes are not included in the Whole Shebang package.  If you wish to attend a master \
+        class, an additional fee applies.</li>''',
     'Drop-In': '''    <p> Brought to you by the <a href="http://www.studyburlesque.com">Boston Academy\
         of Burlesque Education (B.A.B.E.)</a> these classes are a great "tease" into the art of Burlesque.\
         </p> ''',
