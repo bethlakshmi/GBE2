@@ -8,7 +8,8 @@ participant_labels = {
     'address2': ('Street Address (cont.)'),
     'best_time':('Best time to call'),
     'offsite_preferred':('Offsite phone'),
-    'how_heard': "How did you hear about The Expo?"
+    'how_heard': "How did you hear about The Expo?",
+    'purchase_email': ('BPT Purchase Email')
 
 }
 

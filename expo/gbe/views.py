@@ -630,7 +630,7 @@ def review_act (request, act_id):
     if user has previously reviewed the act, provide their review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, evaluator_id=reviewer.id)[0]
+        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator = reviewer, bid = act)
 
@@ -959,7 +959,7 @@ def review_class (request, class_id):
     if user has previously reviewed the class, provide his review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=class_id, evaluator_id=reviewer.id)[0]
+        bid_eval = BidEvaluation.objects.filter(bid_id=class_id, evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator = reviewer, bid = aclass)
 
@@ -1122,7 +1122,7 @@ def review_volunteer (request, volunteer_id):
     if user has previously reviewed the act, provide his review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=volunteer_id, evaluator_id=reviewer.id)[0]
+        bid_eval = BidEvaluation.objects.filter(bid_id=volunteer_id, evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator = reviewer, bid = volunteer)
 
@@ -1214,7 +1214,7 @@ def review_vendor(request, vendor_id):
     if user has previously reviewed the act, provide his review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id, evaluator_id=reviewer.id)[0]
+        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id, evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator = reviewer, bid = vendor)
 
@@ -1531,34 +1531,87 @@ def profiles(request):
     
 
 @login_required
+def review_profiles(request):
+    try:
+        admin_profile = request.user.profile
+    except Profile.DoesNotExist:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+    if 'Registrar' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+    try:
+
+        header = Profile().review_header
+        profiles=Profile.objects.all()
+        rows = []
+        for aprofile in profiles:
+            bid_row = {}
+            bid_row['profile']=  aprofile.review_summary
+            bid_row['id']=aprofile.resourceitem_id
+            bid_row['review_url'] = reverse('admin_profile', urlconf='gbe.urls', args=[aprofile.resourceitem_id])
+            bid_row['action1']="Update"
+            rows.append(bid_row)
+    except IndexError:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
+    
+    return render (request, 'gbe/profile_review.tmpl',
+                  {'header': header, 'rows': rows})
+    
+
+
+@login_required
 def admin_profile(request, profile_id):
     try:
         admin_profile = request.user.profile
     except Profile.DoesNotExist:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
-    if not admin_profile.user_object.is_staff:
+    if not admin_profile.user_object.is_staff or 'Registrar' not in request.user.profile.privilege_groups:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     try:
-        user_profile=Profile.objects.filter(id=profile_id)[0]
+        user_profile=Profile.objects.filter(resourceitem_id=profile_id)[0]
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
     if request.method == 'POST':
         form = ProfileAdminForm(request.POST, instance=user_profile)
+        prefs_form = ProfilePreferencesForm(request.POST, 
+                                            instance=user_profile.preferences,
+                                            prefix='prefs')
+        
         if form.is_valid():
             form.save(commit=True)
-            return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls', 
-                                                args=[str(profile_id)]))
-        else:
-            return render(request, 'gbe/update_profile.tmpl', 
-                          {'form':form})
+            if prefs_form.is_valid():
+                prefs_form.save(commit=True)
+                user_profile.preferences = prefs_form.save()
+            user_profile.save()
+            
+            form.save()
+            return HttpResponseRedirect(reverse('manage_users', urlconf='gbe.urls'))
     else:
-        form = ProfileAdminForm(instance=user_profile,
-                              initial={'email':request.user.email, 
-                                         'first_name':request.user.first_name, 
-                                         'last_name':request.user.last_name,
-                                     })
+        if user_profile.display_name.strip() == '':
+            display_name = user_profile.user_object.first_name + ' ' + user_profile.user_object.last_name
+        else:
+            display_name = user_profile.display_name
+        if len(user_profile.how_heard.strip()) > 0:
+            how_heard_initial = eval(user_profile.how_heard)
+        else:
+            how_heard_initial = []
+
+        form = ProfileAdminForm( instance = user_profile, 
+                                initial= { 'email' : user_profile.user_object.email, 
+                                           'first_name' : user_profile.user_object.first_name, 
+                                           'last_name' : user_profile.user_object.last_name,
+                                           'display_name' : display_name,
+                                           'how_heard': how_heard_initial })
+
+        if len(user_profile.preferences.inform_about.strip()) >0:
+            inform_initial = eval(user_profile.preferences.inform_about)
+        else:
+            inform_initial = []
+        prefs_form = ProfilePreferencesForm(prefix='prefs',
+                                            instance=user_profile.preferences, 
+                                            initial = {'inform_about': inform_initial })
+
         return render(request, 'gbe/update_profile.tmpl', 
-                      {'form':form})
+                      {'left_forms': [form], 'right_forms':[prefs_form]})
 
 
 @login_required
@@ -1694,7 +1747,7 @@ def publish_proposal (request, class_id):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # should go to 404?
 
     if  'Class Coordinator' not in request.user.profile.privilege_groups:
-        return HttpResponseRedirect(reverse('homer', urlconf='gbe.urls'))   # better redirect please
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
 
     try:
         the_class = ClassProposal.objects.filter(id=class_id)[0]
@@ -1756,8 +1809,7 @@ def review_proposal_list (request):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     return render (request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows,
-                   'action1_link': reverse('proposal_publish', urlconf='gbe.urls')})
+                  {'header': header, 'rows': rows})
 
  
 

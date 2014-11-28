@@ -51,12 +51,17 @@ class ProfileAdminForm(ParticipantForm):
     '''
     Form for administratively modifying a Profile
     '''
-    bid_reviews = forms.MultipleChoiceField(choices=bid_review_options, required=False)
-    def save(self, commit=True):
-        form = super(ProfileAdminForm, self).save(commit=False)
-        form.bid_reviewer=",".join(self.cleaned_data('bid_reviewer'))
-        if commit:
-            form.save()
+    purchase_email = forms.CharField(required=True, label=participant_labels['purchase_email'])
+    class Meta:
+        model = Profile
+        # purchase_email should be display only
+        fields = [ 'first_name', 'last_name', 'display_name', 'email', 'purchase_email',
+                   'address1', 'address2', 'city',
+                   'state', 'zip_code', 'country', 'phone', 
+                    'best_time', 'how_heard'
+                  ]
+ 
+
 
 class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
