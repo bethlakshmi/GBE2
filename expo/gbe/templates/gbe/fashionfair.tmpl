@@ -50,10 +50,13 @@
 	   <div class=vdesc>
 	     {{vendor.description | linebreaksbr}}
 	   </div>
-	   <br>
   	       {% if vendor.publish_physical_address  %}
+	   
 	   <div class=vaddr>
+	   <br>
+	   Mailing address:<br>
 	   {{ vendor.physical_address | linebreaksbr }}
+	   
 	   </div >
   	       {% endif %}
 	 </td>
