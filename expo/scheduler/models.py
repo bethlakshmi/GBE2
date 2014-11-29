@@ -378,15 +378,18 @@ class Event (Schedulable):
     def bio_list(self):
         bio_list = []
         last_perf = False
-        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
+#        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
+        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3)
         # BB - this is a very cheesy way of doing select distinct on performer
         # problem is - SQL lite doesn't support select distinct on
-        for act in acts:
-            if not last_perf:
-                bio_list += [act._item.bio]
-            elif last_perf != act._item.bio:
-                bio_list += [act._item.bio]
-            last_perf=act._item.bio
+        bio_list = list(set([act._item.bio for act in acts]))
+        bio_list = sorted(bio_list, key = lambda bio:bio.name)
+#        for act in acts:
+#            if not last_perf:
+#                bio_list += [act._item.bio]
+#            elif last_perf != act._item.bio:
+#                bio_list += [act._item.bio]
+#            last_perf=act._item.bio
         return bio_list
 
     # for a shorter list of bios - 1-2 or so, as with Workeritems
