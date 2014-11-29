@@ -71,7 +71,7 @@
 		  </br></br>
 	          {% endif %}
                   <div class="vdesc">
-	            {{bio.bio}}
+	            {{bio.bio | linebreaksbr}}
 	          </div>
 	      </span>
 	    </div>
@@ -86,7 +86,7 @@
       {% for bio in eventitem.event.bios %}
       <div class="bio_words">
         <h2>About {{bio.name}}</h2>
-        {{bio.bio}}
+        {{bio.bio |linebreaksbr}}
         <br><br>
       </div>
         {% if bio.promo_image %}
