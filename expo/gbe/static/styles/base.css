@@ -260,7 +260,7 @@ span.perfhover:hover
 span.perfhover span
 {
   position: absolute;
-  left: -9999px;
+  left: -99999px;
   margin: 20px 0 0 0px;
   padding: 3px 3px 3px 3px;
   border-style:solid;
@@ -268,7 +268,7 @@ span.perfhover span
   border-width:1px;
   z-index: 6;
 }
-
+/*
 span.perfhover span
 {
   position: absolute;
@@ -279,6 +279,7 @@ span.perfhover span
   border-color:black;
   border-width:1px;
 }
+*/
 span.perfhover:hover span
 {
   left: -200px;
