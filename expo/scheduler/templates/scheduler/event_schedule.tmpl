@@ -59,17 +59,20 @@
 		{% endif %}
 	      </a><br>
 	      <span>
-               <div class="vname"><b>{{bio.name}}</b></div><br>
+               <div class="vname" ><b>{{bio.name}}</b></div><br>
                <div align=left>
-	   	  {% if bio.promo_image %}
-                  <a href="/{{bio.promo_image}}">
-		    <img src="/{{bio.promo_image}}" alt="Photo" width=200 align=right>
-		  </a><BR>
-		  {%endif%}
                   {% if bio.homepage %}
-		  <b>Website:</b> <a href="{{bio.homepage}}">{{bio.homepage}}</a>
-		  </br></br>
+		  <div style="float:left">
+		  <b>Website:</b> <a href="{{bio.homepage}}">{{bio.homepage}}</a></div>
+
 	          {% endif %}
+
+	   	  {% if bio.promo_image %}
+		  <div style="float:right">
+                  <a href="/{{bio.promo_image}}">
+		    <img src="/{{bio.promo_image}}" alt="Photo" width=200 style="float:right">
+		  </a></div><BR>
+		  {%endif%}
                   <div class="vdesc">
 	            {{bio.bio | linebreaksbr}}
 	          </div>
