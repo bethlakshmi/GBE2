@@ -49,7 +49,7 @@
 	    <div class="vname">
 	      {{bio.name}}
 	    </div>
-            <span class="perfhover" title="{{bio.name}}">
+            <span class="perfhover">
 	    <div class="vimg">
 	      <a href="{{bio.homepage}}">
 	   	{% if bio.promo_image %}
@@ -61,11 +61,6 @@
 	      <span>
                <div class="vname" ><b>{{bio.name}}</b></div><br>
                <div align=left>
-                  {% if bio.homepage %}
-		  <div style="float:left">
-		  <b>Website:</b> <a href="{{bio.homepage}}">{{bio.homepage}}</a></div>
-
-	          {% endif %}
 
 	   	  {% if bio.promo_image %}
 		  <div style="float:right">
@@ -76,6 +71,13 @@
                   <div class="vdesc">
 	            {{bio.bio | linebreaksbr}}
 	          </div>
+                  {% if bio.homepage %}
+		  <br>
+		  <div style="float:left">
+		  <b><a href="{{bio.homepage}}">Website</a><b></div>
+
+	          {% endif %}
+
 	      </span>
 	    </div>
 	    </span>
