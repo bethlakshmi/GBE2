@@ -149,8 +149,6 @@ def event_list(request):
     List of events (all)
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
-    if not profile:
-        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
                                                              
     header  = [ 'Title','Location','Date/Time','Duration','Type','Detail', 'Edit Schedule']
     events = get_events_display_info()
@@ -207,8 +205,6 @@ def edit_event(request, eventitem_id):
     Takes a scheduler.EventItem id
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
-    if not profile:
-        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
 
     try:
         item = EventItem.objects.get_subclass(eventitem_id = eventitem_id)
