@@ -1155,7 +1155,7 @@ def edit_volunteer (request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
 
-    reviewer = validate_perms(request, ('Volunteer Reviewers',))
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
 
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
     volunteer = the_bid.profile
