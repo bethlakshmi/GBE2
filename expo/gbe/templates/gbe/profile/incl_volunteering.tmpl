@@ -4,7 +4,7 @@
 	   </span><br>
 	   {% for volunteer in volunteering %}
 	      <span class='vendor'>
-	      <a href = '{% url 'gbe:volunteer_view' volunteer.id%}'> {{ volunteer }} </a>(Click to view)
+	      <a href = '{% url 'gbe:volunteer_view' volunteer.id%}'>Submitted {{ volunteer.updated_at }} </a>(Click to view)<br>
 	      </span> 
 	         
 	      {% for alert in volunteer.alerts %}

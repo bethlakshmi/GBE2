@@ -1193,8 +1193,42 @@ def review_volunteer_list (request):
     
 @login_required
 def edit_volunteer (request, volunteer_id):
-    
-    pass
+    page_title = "Edit Volunteer Bid"
+    view_title = "Edit Submitted Volunteer Bid"
+    try:
+        owner = request.user.profile
+    except Profile.DoesNotExist:
+        raise Http404
+
+    if 'Volunteer Coordinator' not in request.user.profile.privilege_groups:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # better redirect please
+
+    the_bid = get_object_or_404(Volunteer, id=volunteer_id)
+    volunteer = the_bid.profile
+
+    if request.method == 'POST':
+        form = VolunteerBidForm(request.POST, instance=the_bid)
+
+        if form.is_valid():
+            the_bid = form.save(commit=True)
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        else:
+            return render (request, 
+                           'gbe/bid.tmpl', 
+                           {'forms':[form], 
+                            'page_title': page_title,
+                            'view_title': view_title,
+                            'nodraft':'Submit'})
+    else:
+        form = VolunteerBidForm(instance = the_bid)
+        return render (request, 
+                       'gbe/bid.tmpl', 
+                       {'forms':[form], 
+                        'page_title': page_title,
+                        'view_title': view_title,
+                        'nodraft':'Submit'})
+
+
 
 @login_required
 def delete_volunteer (request, volunteer_id):
