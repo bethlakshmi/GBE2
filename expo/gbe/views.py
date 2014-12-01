@@ -65,6 +65,7 @@ def landing_page(request):
                                    'shows': viewer_profile.get_shows(),
                                    'classes': viewer_profile.is_teaching(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
+                                   'volunteering': viewer_profile.get_volunteerbids(),
                                    'review_items': viewer_profile.bids_to_review(),
                                    'acceptance_states': acceptance_states,
                                    })
@@ -1077,6 +1078,28 @@ def create_volunteer(request):
                         'nodraft':'Submit'})
                             
 @login_required
+def view_volunteer (request, volunteer_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user. 
+    To show: display all information about the bid, and a standard 
+    review form.
+    If user is not a reviewer, politely decline to show anything. 
+    '''
+
+    volunteer = get_object_or_404(Volunteer,id=volunteer_id)
+    if volunteer.profile != request.user.profile:
+        raise Http404
+    volunteerform = VolunteerBidForm(instance = volunteer, prefix = 'Volunteer Info')
+    profile = ParticipantForm(instance = volunteer.profile,
+                              initial= { 'email' : volunteer.profile.user_object.email, 
+                                         'first_name' : volunteer.profile.user_object.first_name, 
+                                         'last_name' : volunteer.profile.user_object.last_name},
+                              prefix = 'Contact Info')    
+
+    return render (request, 'gbe/bid_view.tmpl',
+                   {'readonlyform': [volunteerform, profile]})
+
+@login_required
 def review_volunteer (request, volunteer_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
@@ -1094,19 +1117,25 @@ def review_volunteer (request, volunteer_id):
 
     try:
         volunteer = Volunteer.objects.filter(id=volunteer_id)[0]
+        volunteer_prof = volunteer.profile
         volform = VolunteerBidForm(instance = volunteer, prefix = 'The Volunteer')
+        profile = ParticipantForm(instance = volunteer_prof,
+                                  initial= { 'email' : volunteer_prof.user_object.email, 
+                                         'first_name' : volunteer_prof.user_object.first_name, 
+                                         'last_name' : volunteer_prof.user_object.last_name},
+                                   prefix = 'Contact Info')
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))   # 404 please, thanks.
     
     '''
-    if user has previously reviewed the act, provide his review for update
+    if user has previously reviewed the bid, provide his review for update
     '''
     try:
         bid_eval = BidEvaluation.objects.filter(bid_id=volunteer_id, evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator = reviewer, bid = volunteer)
 
-    # show act info and inputs for review
+    # show info and inputs for review
     if request.method == 'POST':
         form = BidEvaluationForm(request.POST, instance = bid_eval)
         if form.is_valid():
@@ -1123,7 +1152,7 @@ def review_volunteer (request, volunteer_id):
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
-                       {'readonlyform': [volform],
+                       {'readonlyform': [volform, profile],
                         'reviewer':reviewer,
                         'form':form})
 
@@ -1162,6 +1191,14 @@ def review_volunteer_list (request):
                    'action1_text': 'Review',
                    'action1_link': reverse('volunteer_review', urlconf='gbe.urls') })
     
+@login_required
+def edit_volunteer (request, volunteer_id):
+    
+    pass
+
+@login_required
+def delete_volunteer (request, volunteer_id):
+    pass
 
 def review_vendor(request, vendor_id):
     '''
