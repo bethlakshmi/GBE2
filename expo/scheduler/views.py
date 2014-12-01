@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
 from scheduler.models import *
@@ -40,10 +40,10 @@ def validate_perms(request, perms):
     '''
     profile = validate_profile(request)
     if not profile:
-        return False
+        raise Http404
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
-    return False
+    raise Http404
 
 def selfcast(sobj):
     '''
