@@ -1174,7 +1174,25 @@ def edit_volunteer (request, volunteer_id):
                             'view_title': view_title,
                             'nodraft':'Submit'})
     else:
-        form = VolunteerBidForm(instance = the_bid)
+        if len(the_bid.availability.strip()) > 0:
+            availability_initial = eval(the_bid.availability)
+        else:
+            availability_initial = []
+
+        if len(the_bid.unavailability.strip()) > 0:
+            unavailability_initial = eval(the_bid.unavailability)
+        else:
+            unavailability_initial = []
+
+        if len(the_bid.interests.strip()) > 0:
+            interests_initial = eval(the_bid.interests)
+        else:
+            interests_initial = []
+
+        form = VolunteerBidForm(instance = the_bid,
+                                initial={'availability': availability_initial,
+                                         'unavailability': unavailability_initial,
+                                         'interests': interests_initial})
         return render (request, 
                        'gbe/bid.tmpl', 
                        {'forms':[form], 
