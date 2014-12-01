@@ -1,0 +1,20 @@
+	{% if volunteering %}
+	   <span class='heading volunteers'>
+	       <b>Volunteering</b>
+	   </span><br>
+	   {% for volunteer in volunteering %}
+	      <span class='vendor'>
+	      <a href = '{% url 'gbe:volunteer_view' volunteer.id%}'> {{ volunteer }} </a>(Click to view)
+	      </span> 
+	         
+	      {% for alert in volunteer.alerts %}
+	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
+	      {% endfor %}
+
+	   {% endfor %}
+	   <ul class="rightsidebar">
+	     <li><a href='{% url 'gbe:volunteer_create' %}'>Volunteer at the Expo!</a></li>
+	   </ul>
+	   <br>
+	{% endif %}
+<br>

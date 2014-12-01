@@ -136,6 +136,9 @@ class Profile(WorkerItem):
  
         return profile_alerts
     
+    def get_volunteerbids(self):
+        return self.volunteering.all()
+
     def get_performers(self):
         performers = self.get_personae()
         performers += self.get_troupes()
@@ -824,7 +827,7 @@ class Volunteer(Biddable):
     '''
     Represents a conference attendee's participation as a volunteer. 
     '''
-    profile = models.ForeignKey(Profile)
+    profile = models.ForeignKey(Profile, related_name="volunteering")
     number_shifts = models.IntegerField(choices = volunteer_shift_options, default=1)
     availability = models.TextField()
     unavailability = models.TextField()
