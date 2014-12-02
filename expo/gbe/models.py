@@ -180,7 +180,8 @@ class Profile(WorkerItem):
         shows = []
         acts = self.get_acts()
         for act in acts:
-            shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
+            if act.accepted == 3:
+                shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
 
     def is_teaching(self):
