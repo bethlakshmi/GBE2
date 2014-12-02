@@ -34,6 +34,14 @@
           {% endif %}
           <td class="bid-table">
               <a href="{{ row.review_url }}">{% if row.action1 %}{{ row.action1 }}{% else %}Review{% endif %}</a>
+              {%if row.edit_url%}
+                <br>
+                <a href="{{ row.edit_url }}">{% if row.action2 %}{{ row.action2 }}{% else %}Edit{% endif %}</a>
+              {% endif %}
+              {%if row.delete_url%}
+                <br>
+                <a href="{{ row.delete_url }}">{% if row.action2 %}{{ row.action3 }}{% else %}Delete{% endif %}</a>
+              {% endif %}
           </td>
 
         

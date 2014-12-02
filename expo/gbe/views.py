@@ -1143,6 +1143,9 @@ def review_volunteer_list (request):
         bid_row['reviews']= review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')
         bid_row['id'] = volunteer.id
         bid_row['review_url'] = reverse('volunteer_review', urlconf='gbe.urls', args=[volunteer.id])
+        if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
+          bid_row['edit_url'] = reverse('volunteer_edit', urlconf='gbe.urls', args=[volunteer.id])
+          bid_row['delete_url'] = reverse('volunteer_delete', urlconf='gbe.urls', args=[volunteer.id])
         rows.append(bid_row)
     
     return render (request, 'gbe/bid_review_list.tmpl',

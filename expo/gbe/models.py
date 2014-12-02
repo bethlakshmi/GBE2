@@ -841,7 +841,9 @@ class Volunteer(Biddable):
         return 'Volunteer: '+ self.profile.display_name
     @property
     def bid_review_header(self):
-        return  (['Name', 'Interests', 'Reviews', 'Action'])
+        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts',
+                  'Interests',  'Pre-event', 'Background', 'Reviews', 'Action'])
+
 
     @property
     def bid_review_summary(self):
@@ -849,7 +851,17 @@ class Volunteer(Biddable):
         for option_id, option_value in volunteer_interests_options:
             if option_id in self.interests:
                 interest_string += option_value + ', '
-        return  (self.profile.display_name, interest_string)
+        availability_string = ''
+        unavailability_string = ''
+        for option_id, option_value in volunteer_availability_options:
+            if option_id in self.availability:
+                availability_string += option_value + ', '
+            if option_id in self.unavailability:
+                unavailability_string += option_value + ', '
+
+        return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
+                 self.number_shifts, availability_string,  unavailability_string, interest_string,
+                 self.pre_event, self.background)
 
 
 class Vendor(Biddable):
