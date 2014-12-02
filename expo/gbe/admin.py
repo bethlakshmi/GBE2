@@ -4,6 +4,11 @@ from gbe.models import *
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted']
+
+
+class ClassAdmin(BidAdmin):
+    list_display = (str, 'teacher', 'submitted', 'accepted', 'created_at', 'updated_at')
+    list_filter = ['submitted', 'accepted']
     
 class ActAdmin(admin.ModelAdmin):
     list_display = ('title', 'performer', 'submitted', 'accepted', 'created_at', 'updated_at')
@@ -42,7 +47,7 @@ class RoomAdmin(admin.ModelAdmin):
 admin.site.register( Profile, ProfileAdmin )
 admin.site.register( Biddable, BidAdmin )
 admin.site.register( Act, ActAdmin )
-admin.site.register( Class, BidAdmin )
+admin.site.register( Class, ClassAdmin )
 admin.site.register( Vendor, BidAdmin )
 admin.site.register( Volunteer, BidAdmin )
 admin.site.register( Show )
