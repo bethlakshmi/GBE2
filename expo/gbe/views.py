@@ -1158,14 +1158,13 @@ def edit_volunteer (request, volunteer_id):
     reviewer = validate_perms(request, ('Volunteer Coordinator',))
 
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
-    volunteer = the_bid.profile
 
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST, instance=the_bid)
 
         if form.is_valid():
             the_bid = form.save(commit=True)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('volunteer_review', urlconf='gbe.urls'))
         else:
             return render (request, 
                            'gbe/bid.tmpl', 
@@ -1204,7 +1203,11 @@ def edit_volunteer (request, volunteer_id):
 
 @login_required
 def delete_volunteer (request, volunteer_id):
-    pass
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+    the_bid = get_object_or_404(Volunteer, id=volunteer_id)
+    the_bid.delete()
+    return HttpResponseRedirect(reverse('volunteer_review', urlconf='gbe.urls'))
+
 
 def review_vendor(request, vendor_id):
     '''
