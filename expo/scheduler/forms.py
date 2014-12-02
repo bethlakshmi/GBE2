@@ -10,10 +10,10 @@ from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 
 conference_days = ( 
-    (datetime(2015, 02, 19).strftime('%a, %I:%M %p'), 'Thursday'),
-    (datetime(2015, 02, 20).strftime('%a, %I:%M %p'), 'Friday'),
-    (datetime(2015, 02, 21).strftime('%a, %I:%M %p'), 'Saturday'),
-    (datetime(2015, 02, 22).strftime('%a, %I:%M %p'), 'Sunday'),
+    (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
+    (datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
+    (datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
+    (datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
 )
 
 
@@ -34,7 +34,7 @@ class EventScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['day', 'time', 'location', 'duration']
+        fields = ['day', 'time', 'location', 'duration', 'max_volunteer']
         help_texts= {'duration':'Enter duration as HH:MM:SS'}
     def save(self, commit=True):
         data = self.cleaned_data

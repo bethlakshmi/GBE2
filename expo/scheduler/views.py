@@ -88,9 +88,11 @@ def get_events_display_info(time_format = None):
         if entry['schedule_event']:
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
+            eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
         else:
             eventinfo ['location'] = "Not yet scheduled"
             eventinfo ['datetime'] = "Not yet scheduled"
+            eventinfo ['max_volunteer'] =  "N/A"
         eventslist.append(eventinfo)
     '''
     eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
@@ -150,7 +152,7 @@ def event_list(request):
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
                                                              
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Detail', 'Edit Schedule']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule']
     events = get_events_display_info()
 
 

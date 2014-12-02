@@ -340,7 +340,7 @@ class Event (Schedulable):
     objects = InheritanceManager()
     eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")                             
     starttime = models.DateTimeField(blank=True)
-
+    max_volunteer = models.IntegerField(default=0)
 
     def set_location(self, location):
         '''
