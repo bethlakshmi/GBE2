@@ -76,6 +76,22 @@ def landing_page(request):
     viewer_profile = validate_profile(request, require = False)
 
     template = loader.get_template('gbe/landing_page.tmpl')
+    
+    bids_to_review = []
+    for bid in viewer_profile.bids_to_review():
+        if bid.__class__ == Act:
+            url = reverse('act_review', urlconf='gbe.urls', args=[str(bid.id)] )
+        elif bid.__class__ == Class:
+            url = reverse('class_review', urlconf='gbe.urls', args=[str(bid.id)] )
+        elif bid.__class__ == Vendor:
+            url = reverse('vendor_review', urlconf='gbe.urls', args=[str(bid.id)] )
+        elif bid.__class__ == Volunteer:
+            url = reverse('volunteer_review', urlconf='gbe.urls', args=[str(bid.id)] )
+        else:
+            url = ""
+        bids_to_review += [{'bid':bid,
+                            'url':url,
+                            'action':"Review"}]
     if viewer_profile:
         context = RequestContext (request, 
                                   {'profile':viewer_profile, 
@@ -88,7 +104,7 @@ def landing_page(request):
                                    'classes': viewer_profile.is_teaching(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'volunteering': viewer_profile.get_volunteerbids(),
-                                   'review_items': viewer_profile.bids_to_review(),
+                                   'review_items': bids_to_review,
                                    'acceptance_states': acceptance_states,
                                    })
     else:
@@ -1240,11 +1256,13 @@ def review_vendor(request, vendor_id):
    
     '''
     if user has previously reviewed the act, provide his review for update
+    BB - get_or_create caused a ValueError to be thrown when there was no bid, and the Vote was null
     '''
 
-    bid_eval, created =BidEvaluation.objects.get_or_create(bid_id=vendor_id, 
-                                                  evaluator_id=reviewer.resourceitem_id,
-                                                  defaults = {})
+    try:
+        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id, evaluator_id=reviewer.resourceitem_id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator = reviewer, bid = vendor)
 
 
     # show act info and inputs for review

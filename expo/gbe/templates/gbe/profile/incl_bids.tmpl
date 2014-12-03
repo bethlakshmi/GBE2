@@ -2,13 +2,16 @@
 	{% if review_items %}
 	   <b>Reviews</b><br>
 	   <span class='heading to_review'> 
-	    {{ profile.dispay_name }} has these bids to review
+	    {{ profile.display_name }} has these bids to review
 	   </span><br>
-
+          <ul>
 	  {% for review_item in review_items %}
-	     <span class='review_item'>{{ review_item }} </span> <br>
+	    <li>
+	     <span class='review_item'>
+	         {{ review_item.bid }} - <a href="{{review_item.url}}">{{ review_item.action }}</a></span>
+	    </li>
 	  {% endfor %}
-
+          </ul>
 	{% else %}
 	   {{ profile.display_name }} has no items to review
 	   {% endif %}

@@ -91,7 +91,18 @@ class Profile(WorkerItem):
                 self.user_object.email, self.purchase_email, self.phone)
                 
     def bids_to_review(self):
-        return []
+        reviews = []
+        missing_reviews = []
+        if  'Act Reviewers' in self.privilege_groups:
+            reviews += Act().bids_to_review.exclude(bidevaluation__evaluator=self)
+        if  'Class Reviewers' in self.privilege_groups:
+            reviews += Class().bids_to_review.exclude(bidevaluation__evaluator=self)
+        if  'Vendor Reviewers' in self.privilege_groups:
+            reviews += Vendor().bids_to_review.exclude(bidevaluation__evaluator=self)
+        if  'Volunteer Reviewers' in self.privilege_groups:
+            reviews += Volunteer().bids_to_review.exclude(bidevaluation__evaluator=self)
+
+        return reviews
 
     @property 
     def address(self):
@@ -838,7 +849,7 @@ class Volunteer(Biddable):
     background = models.TextField(blank=True)
 
     def __unicode__(self):
-        return 'Volunteer: '+ self.profile.display_name
+        return self.profile.display_name
     @property
     def bid_review_header(self):
         return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts',
@@ -862,6 +873,9 @@ class Volunteer(Biddable):
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
                  self.number_shifts, availability_string,  unavailability_string, interest_string,
                  self.pre_event, self.background)
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 
 class Vendor(Biddable):
@@ -892,6 +906,9 @@ class Vendor(Biddable):
         return (self.profile.display_name, self.title, self.website,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 
 class AdBid(Biddable):
