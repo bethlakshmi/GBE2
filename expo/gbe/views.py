@@ -214,7 +214,10 @@ def view_troupe(request, troupe_id=None):
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
     form = TroupeForm(instance = troupe, prefix = 'The Troupe')
     owner = ParticipantForm(instance = profile, 
-                            prefix = 'Troupe Contact')
+                            prefix = 'Troupe Contact',
+                            initial= { 'email' : profile.user_object.email, 
+                                         'first_name' : profile.user_object.first_name, 
+                                         'last_name' : profile.user_object.last_name})
 
     return render (request, 'gbe/bid_view.tmpl',
                    {'readonlyform': [form, owner]})
@@ -914,6 +917,11 @@ def review_class (request, class_id):
     classform = ClassBidForm(instance = aclass, prefix = 'The Class')
     teacher = PersonaForm(instance = aclass.teacher,
                                 prefix = 'The Teacher(s)')
+    contact = ParticipantForm(instance = aclass.teacher.performer_profile,
+                                prefix = 'Teacher Contact Info',
+                                initial= { 'email' : aclass.teacher.performer_profile.user_object.email, 
+                                         'first_name' : aclass.teacher.performer_profile.user_object.first_name, 
+                                         'last_name' : aclass.teacher.performer_profile.user_object.last_name})
 
  
     if  'Class Coordinator' in request.user.profile.privilege_groups:
@@ -953,7 +961,7 @@ def review_class (request, class_id):
 
         return render (request, 
                        'gbe/bid_review.tmpl',
-                       {'readonlyform': [classform, teacher],
+                       {'readonlyform': [classform, teacher, contact],
                         'reviewer':reviewer,
                         'form':form,
                         'actionform':actionform,
