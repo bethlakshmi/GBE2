@@ -134,6 +134,7 @@ experience_options = (('0', "I'm not a burlesque performer"),
                       ('5',"more than 6 years"))
 
 event_options = (('Special', "Special Event"),
+                 ('Volunteer',"Volunteer Opportunity"),
                  ('Master',"Master Class"),
                  ('Drop-In',"Drop-In Class"))
 

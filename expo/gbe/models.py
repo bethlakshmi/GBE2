@@ -104,6 +104,8 @@ class Profile(WorkerItem):
 
         return reviews
 
+
+
     @property 
     def address(self):
         address_string =str(self.address1.strip() + '\n' + self.address2.strip()).strip()
@@ -194,6 +196,19 @@ class Profile(WorkerItem):
             if act.accepted == 3:
                 shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
+
+    def get_schedule(self):
+        from scheduler.models import Event
+        events = []
+        acts = self.get_acts()
+        for act in acts:
+            if act.accepted == 3:
+                events += Event.objects.filter(resources_allocated__resource__actresource___item=act)
+        for performer in self.get_performers():
+            events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
+        events += Event.objects.filter(resources_allocated__resource__worker___item=self)
+        return events
+
 
     def is_teaching(self):
         '''

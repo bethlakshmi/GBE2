@@ -105,6 +105,7 @@ def landing_page(request):
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'volunteering': viewer_profile.get_volunteerbids(),
                                    'review_items': bids_to_review,
+                                   'bookings': viewer_profile.get_schedule(),
                                    'acceptance_states': acceptance_states,
                                    })
     else:
