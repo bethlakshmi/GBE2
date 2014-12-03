@@ -1,0 +1,16 @@
+   	 <h3>{% if profile.display_name %}
+               {{ profile.display_name }}'s
+             {% else %}
+               Your
+             {% endif %} Schedule
+	 </h3>	
+	 {% if bookings %}
+	    {% for event in bookings %}
+	      <span class='event'> <a href="{% url 'scheduler:detail_view' event.eventitem_id%}">{{ event }}</a> </span> <br>
+	    {% endfor %}
+	 {% else %}
+	    {{ profile.display_name }} is not scheduled for anything at this time.
+	    <br>
+	 {% endif %}
+
+<br>
