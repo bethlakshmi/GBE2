@@ -307,7 +307,7 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
-def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format=None):
+def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format=None, duration = Duration(minutes = 30)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.
@@ -323,8 +323,7 @@ def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 2
         time_format = set_time_format()
 
     Table = {}
-#    Table['rows'] = tablePrep(events, duration)
-    Table['rows'] = tablePrep(events, Duration(minutes=30))
+    Table['rows'] = tablePrep(events, duration)
     Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
     Table['Link'] = 'http://burlesque-expo.com'
     Table['X_Name'] = {}
