@@ -57,33 +57,37 @@ def selfcast(sobj):
         return sobj
 
 
-def get_events_display_info(time_format = None):
+def get_events_display_info(event_type = 'Class', time_format = None):
     '''
     Helper for displaying lists of events. Gets a supply of conference event items and munges 
     them into displayable shape
     "Conference event items" = things in the conference model which extend EventItems and therefore 
     could be Events
     '''
-
-    if time_format == None: time_format = set_time_format(days = 2)
-    eventitems = EventItem.objects.select_subclasses()
-    eventitems = [item for item in eventitems] 
-    eventitems = [{'eventitem': item, 
-                   'confitem':selfcast(item), 
-                   'schedule_event':item.scheduler_events.all().first()}
-                  for item in eventitems]
     import gbe.models as gbe
-    eventitems = [item for item in eventitems if isinstance(item['confitem'], gbe.Class) 
-                  and item['confitem'].accepted ==3]
+    if time_format == None: time_format = set_time_format(days = 2)
+    event_class = eval('gbe.' + event_type.title())
+
+    confitems = event_class.objects.all()
+    confitems = [item for item in confitems if item.schedule_ready]
+    eventitems = [{ 'eventitem': ci.eventitem_ptr , 
+                  'confitem':ci,
+                  'schedule_event':ci.eventitem_ptr.scheduler_events.all().first()}
+                  for ci in confitems]
+
+                    
+
     eventslist = []
     for entry in eventitems:
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
                 'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
-                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                    'detail': reverse('detail_view', 
+                                      urlconf='scheduler.urls', 
                                       args = [entry['eventitem'].eventitem_id]),
-                    'edit': reverse('edit_event', urlconf='scheduler.urls', 
-                                    args =  [entry['eventitem'].eventitem_id]),
+                    'edit': reverse('edit_event', 
+                                    urlconf='scheduler.urls', 
+                                    args =  [event_type,  entry['eventitem'].eventitem_id]),
                     }
         if entry['schedule_event']:
             eventinfo ['location'] = entry['schedule_event'].location
@@ -94,20 +98,7 @@ def get_events_display_info(time_format = None):
             eventinfo ['datetime'] = "Not yet scheduled"
             eventinfo ['max_volunteer'] =  "N/A"
         eventslist.append(eventinfo)
-    '''
-    eventslist = [ {'title' : entry['confitem'].sched_payload['title'],
-                    'location': entry['schedule_event'].location,
-                    'datetime': entry['schedule_event'].starttime.strftime('%A, %I:%M %p'),
-                    'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['details']['type'],
-                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
-                                      args = [entry['eventitem'].eventitem_id]),
-                    'edit': reverse('edit_event', urlconf='scheduler.urls', 
-                                    args =  [entry['eventitem'].eventitem_id]),
-                    }
-                   for entry in eventitems]
 
-    '''
     return eventslist
 
 def get_event_display_info(eventitem_id):
@@ -129,45 +120,31 @@ def get_event_display_info(eventitem_id):
 
     return eventitem_view
 
-def class_schedule(request):
-    '''
-    Schedule a class.
-    '''
-
-    pass
-
-
-
-def event_schedule(request, event_id):
-    '''
-    Schedule a event: create a scheduler.event object, set start time/day, and allocate a room
-    '''
     
 
 
 @login_required
-def event_list(request):
+def event_list(request, event_type=''):
     '''
     List of events (all)
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
-                                                             
+    if request.method == 'POST':
+        event_type = request.POST['event_type']
+
+    if event_type.strip() == '':
+        template = 'scheduler/select_event_type.tmpl'
+        event_type_options = list(set([ei.__class__.__name__ for ei in EventItem.objects.all().select_subclasses()]))
+        
+        return render(request, template, {'type_options':event_type_options})
+
     header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule']
-    events = get_events_display_info()
+    events = get_events_display_info(event_type)
 
 
     template = 'scheduler/events_review_list.tmpl'
     return render(request, template, { 'events':events, 'header':header})
 
-
-
-
-def panel_schedule(request):
-    '''
-    Schedule a panel.
-    '''
-
-    pass
 
 def calendar(request, cal_format = 'Block'):
     '''
@@ -200,7 +177,7 @@ def detail_view(request, eventitem_id):
                                       })
 
 
-def edit_event(request, eventitem_id):
+def edit_event(request, eventitem_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
@@ -235,9 +212,11 @@ def edit_event(request, eventitem_id):
             s_event.set_location(l)
             s_event.save()                        
             
-            return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls'))
+            return HttpResponseRedirect(reverse('event_schedule', 
+                                                urlconf='scheduler.urls', 
+                                                args=[event_type]))
         else:
-            return HttpResponseRedirect(reverse('error', urlconf='gbe.urls'))
+            raise Http404
     else:
         old_events = item.scheduler_events.all()
         duration = item.event.sched_payload['duration']
@@ -260,6 +239,8 @@ def edit_event(request, eventitem_id):
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
+
+
 def view_list(request, event_type='All'):
     '''
     One function to cut down on replicating code.  If adding a new view-only event list, do the following;
@@ -295,7 +276,8 @@ def view_list(request, event_type='All'):
 
         events = [{'eventitem': item, 
                     'scheduled_events':item.scheduler_events.all(),
-                    'detail': reverse('detail_view', urlconf='scheduler.urls', 
+                    'detail': reverse('detail_view', 
+                                      urlconf='scheduler.urls', 
                                       args = [item.eventitem_id])}
                     for item in items]
     except:
@@ -307,7 +289,13 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
-def calendar_view(request, cal_type = 'Event', cal_times = (datetime(2015, 02, 20, 18, 00), datetime(2015, 02, 23, 00,00)), time_format=None, duration = Duration(minutes = 30)):
+
+def calendar_view(request, 
+                  cal_type = 'Event', 
+                  cal_times = (datetime(2015, 02, 20, 18, 00), 
+                               datetime(2015, 02, 23, 00,00)), 
+                  time_format=None):
+
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.

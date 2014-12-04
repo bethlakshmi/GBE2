@@ -489,6 +489,10 @@ class Act (Biddable, ActItem):
         return self.performer
     
     @property
+    def schedule_ready(self):
+        return self.accepted == 3
+
+    @property
     def visible(self):
         return self.accepted==3
     
@@ -661,6 +665,9 @@ class Show (Event):
                  'details': {'type': 'Show'}
                }
     
+    @property
+    def schedule_ready(self):
+        return True      # shows are always ready for scheduling
 
 class GenericEvent (Event):
     '''
@@ -685,6 +692,9 @@ class GenericEvent (Event):
             'details': {'type': types[self.type]}
             }
 
+    @property
+    def schedule_ready(self):
+        return True
 
 class Class (Biddable, Event):
     '''
@@ -792,7 +802,10 @@ class Class (Biddable, Event):
                 acceptance_states[self.accepted][1])
     def __str__(self):
         return self.title
-        
+    
+    @property
+    def schedule_ready(self):
+        return self.accepted==3
 
     class Meta:
         verbose_name_plural='classes'
