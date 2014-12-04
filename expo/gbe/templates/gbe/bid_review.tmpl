@@ -25,7 +25,7 @@
       </form>
     </div>
     {% if actionURL %}
-    <div class=right_col>
+    <div class=right_col><div class=side_box>
       <h2>Bid Control for Coordinator</h2>
         {% if actionform.errors %}
         <p style= "color:red"> There is an error on the form.  </p>
@@ -45,7 +45,7 @@
         <br><br>
         <input type="submit" value="Submit Form"> 
         </form>
-    </div>
+    </div></div>
     {% endif %}
   </div>
 {% endblock %}

@@ -8,7 +8,7 @@
 	  {% for review_item in review_items %}
 	    <li>
 	     <span class='review_item'>
-	         {{ review_item.bid }} - <a href="{{review_item.url}}">{{ review_item.action }}</a></span>
+	         {{review_item.bid_type}}:  {{ review_item.bid }} - <a href="{{review_item.url}}">{{ review_item.action }}</a></span>
 	    </li>
 	  {% endfor %}
           </ul>

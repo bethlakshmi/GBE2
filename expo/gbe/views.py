@@ -77,22 +77,29 @@ def landing_page(request):
 
     template = loader.get_template('gbe/landing_page.tmpl')
     
-    bids_to_review = []
-    for bid in viewer_profile.bids_to_review():
-        if bid.__class__ == Act:
-            url = reverse('act_review', urlconf='gbe.urls', args=[str(bid.id)] )
-        elif bid.__class__ == Class:
-            url = reverse('class_review', urlconf='gbe.urls', args=[str(bid.id)] )
-        elif bid.__class__ == Vendor:
-            url = reverse('vendor_review', urlconf='gbe.urls', args=[str(bid.id)] )
-        elif bid.__class__ == Volunteer:
-            url = reverse('volunteer_review', urlconf='gbe.urls', args=[str(bid.id)] )
-        else:
-            url = ""
-        bids_to_review += [{'bid':bid,
-                            'url':url,
-                            'action':"Review"}]
     if viewer_profile:
+        bids_to_review = []
+        for bid in viewer_profile.bids_to_review():
+            bid_type = ""
+            if bid.__class__ == Act:
+                url = reverse('act_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Act"
+            elif bid.__class__ == Class:
+                url = reverse('class_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Class"
+            elif bid.__class__ == Vendor:
+                url = reverse('vendor_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Vendor"
+            elif bid.__class__ == Volunteer:
+                url = reverse('volunteer_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Volunteer"
+            else:
+                url = ""
+                bid_type="UNKNOWN"
+            bids_to_review += [{'bid':bid,
+                            'url':url,
+                            'action':"Review",
+                            'bid_type': bid_type}]
         context = RequestContext (request, 
                                   {'profile':viewer_profile, 
                                    'standard_context' : standard_context,
@@ -1117,6 +1124,12 @@ def review_volunteer (request, volunteer_id):
                                          'first_name' : volunteer_prof.user_object.first_name, 
                                          'last_name' : volunteer_prof.user_object.last_name},
                               prefix = 'Contact Info')
+    if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
+        actionform = BidStateChangeForm(instance = volunteer)
+        actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
+    else:
+            actionform = False;
+            actionURL = False;
 
     
     '''
@@ -1139,14 +1152,19 @@ def review_volunteer (request, volunteer_id):
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [volform],
-                           'form':form})
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [volform, profile],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL': actionURL})
+
 
  
 @login_required
@@ -1178,6 +1196,10 @@ def review_volunteer_list (request):
                    'action1_text': 'Review',
                    'action1_link': reverse('volunteer_review', urlconf='gbe.urls') })
     
+@login_required
+def volunteer_changestate (request, bid_id):
+    pass
+
 @login_required
 def edit_volunteer (request, volunteer_id):
     page_title = "Edit Volunteer Bid"

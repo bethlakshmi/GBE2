@@ -136,6 +136,8 @@ urlpatterns = patterns ('',
                             views.review_volunteer_list, name = 'volunteer_review'),
                         url(r'^volunteer/reviewlist/?$',
                             views.review_volunteer_list, name = 'volunteer_review_list'),
+                        url(r'^volunteer/changestate/(\d+)/?$',
+                            views.volunteer_changestate, name='volunteer_changestate'),
                         url(r'^volunteer/?$',
                             views.volunteer, name = 'volunteer'),
                             #  plain volunteer is for users to use to volunteer
