@@ -1200,7 +1200,6 @@ def review_volunteer_list (request):
         bid_row['review_url'] = reverse('volunteer_review', urlconf='gbe.urls', args=[volunteer.id])
         if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
           bid_row['edit_url'] = reverse('volunteer_edit', urlconf='gbe.urls', args=[volunteer.id])
-          bid_row['delete_url'] = reverse('volunteer_delete', urlconf='gbe.urls', args=[volunteer.id])
         rows.append(bid_row)
     
     return render (request, 'gbe/bid_review_list.tmpl',
@@ -1261,14 +1260,6 @@ def edit_volunteer (request, volunteer_id):
                         'view_title': view_title,
                         'nodraft':'Submit'})
 
-
-
-@login_required
-def delete_volunteer (request, volunteer_id):
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
-    the_bid = get_object_or_404(Volunteer, id=volunteer_id)
-    the_bid.delete()
-    return HttpResponseRedirect(reverse('volunteer_review', urlconf='gbe.urls'))
 
 
 def review_vendor(request, vendor_id):
