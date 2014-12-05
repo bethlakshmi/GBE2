@@ -1125,7 +1125,19 @@ def review_volunteer (request, volunteer_id):
                                          'last_name' : volunteer_prof.user_object.last_name},
                               prefix = 'Contact Info')
     if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
+        from scheduler.models import Event
         actionform = BidStateChangeForm(instance = volunteer)
+
+        # This requires that the event be scheduled - and that there be an open volunteer space 
+        try:
+            events=Event.objects.filter(max_volunteer__gt=0)
+        except:
+            raise Http404
+        actionform.fields['events'] = forms.ModelMultipleChoiceField(
+        	                         queryset=events,
+        	                         widget=forms.CheckboxSelectMultiple(),
+        	                         required=False,
+        	                         label='Choose Volunteer Schedule')
         actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
     else:
             actionform = False;
