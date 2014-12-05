@@ -26,10 +26,12 @@ phone_number_format_error = '''Phone numbers must be in a standard US format, \
 time_format_error =  '''Time must be in the format ##:##.'''
 
 
+
+
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
-<a href='{% url 'gbe:profile_update' %}'>Fix this!</a>''',
+<a href=' %s '>Fix this!</a>''' ,
                   'empty_profile':  '''Your profile needs an update, please review it, and save it. \
-<a href='{% url 'gbe:profile_update' %}'>Update it now!</a>'''
+<a href=' %s '>Update it now!</a>'''
                   }
 
 act_alerts = {

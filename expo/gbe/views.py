@@ -7,7 +7,6 @@ from gbe.forms import *
 from gbe.ticketing_idd_interface import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
-from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from ticketingfuncs import compute_submission
 from django.core.urlresolvers import reverse

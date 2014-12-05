@@ -6,8 +6,8 @@ from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
 from datetime import timedelta
-from  expomodelfields import DurationField
-
+from expomodelfields import DurationField
+from django.core.urlresolvers import reverse
 
 import pytz
 
@@ -123,16 +123,19 @@ class Profile(WorkerItem):
     @property
     def alerts(self):
         import gbetext
+        import gbe
         profile_alerts = []
         if ( len(self.display_name.strip()) == 0 or
              len(self.purchase_email.strip()) == 0  ):
-            profile_alerts.append(gbetext.profile_alerts['empty_profile'])
+            profile_alerts.append(gbetext.profile_alerts['empty_profile'] % reverse ('profile_update', 
+                                                                                     urlconf=gbe.urls))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
             len(self.phone.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
+            profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % reverse ('profile_update', 
+                                                                                     urlconf=gbe.urls))
  
         return profile_alerts
     
@@ -491,6 +494,11 @@ class Act (Biddable, ActItem):
     @property
     def schedule_ready(self):
         return self.accepted == 3
+
+    @property
+    def schedule_headers(self):
+        # This list can change
+        return ['Performer', 'Act Title', 'Photo Link', 'Video Link', 'Bio Link', 'Order']
 
     @property
     def visible(self):
