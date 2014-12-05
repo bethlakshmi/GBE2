@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}
+   Select Event Type
+{% endblock %}
+
+{% block content %}
+
+<h3> Select event type to schedule</h3>
+   <form action="" method="post" enctype="multipart/form-data">
+   {% csrf_token %}
+<select name = "event_type" id="event_type">
+{% for name in type_options   %}
+    <option value="{{ name }}">{{ name }}</option>
+{% endfor %}
+</select>
+<br>
+   <input type="submit" name="submit" value="Submit">
+
+</form>
+
+{% endblock %}
