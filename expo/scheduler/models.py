@@ -222,6 +222,26 @@ class WorkerItem(ResourceItem):
         
     def __unicode__(self):
         return unicode(self.describe)
+
+    '''
+    should remain focused on the upward connection of resource allocations, and avoid being sub
+    class specific
+    '''    
+    def get_bookings(self, role):
+        from scheduler.models import Event
+        events = Event.objects.filter(resources_allocated__resource__worker___item=self,
+                                      resources_allocated__resource__worker__role=role)
+        return events
+    
+    '''
+    way of getting the schedule nuances of GBE-specific logic by calling the subclasses
+    for their specific schedule
+    '''
+    def get_schedule(self):
+        child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
+        return child.get_schedule()
+
+
     
 class Worker (Resource):
     '''

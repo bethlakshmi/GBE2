@@ -210,13 +210,6 @@ class Profile(WorkerItem):
         events += Event.objects.filter(resources_allocated__resource__worker___item=self)
         return events
 
-    def get_volunteering(self):
-        from scheduler.models import Event
-        events = Event.objects.filter(resources_allocated__resource__worker___item=self,
-                                      resources_allocated__resource__worker__role='Volunteer')
-        return events
-
-
     def is_teaching(self):
         '''
         return a list of classes this user is teaching
