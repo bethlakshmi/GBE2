@@ -1,5 +1,6 @@
 from gbe.models import *
 from django import forms
+from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
@@ -8,6 +9,8 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from expoformfields import DurationFormField
+from scheduler.functions import set_time_format
+from django.shortcuts import get_object_or_404
 
 class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
@@ -179,6 +182,47 @@ class BidStateChangeForm(forms.ModelForm):
         required = ['accepted']
         labels = acceptance_labels
         help_texts = acceptance_help_texts
+
+class EventCheckBox(ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        time_format = set_time_format(days = 2)
+        return str(obj) + " - " + obj.starttime.strftime(time_format)
+
+class VolunteerBidStateChangeForm(BidStateChangeForm):
+    from scheduler.models import Event
+    events = EventCheckBox(
+        	                         queryset=Event.objects.filter(max_volunteer__gt=0),
+        	                         widget=forms.CheckboxSelectMultiple(),
+        	                         required=False,
+        	                         label='Choose Volunteer Schedule')
+    class Meta:
+        model = Biddable
+        fields = ['accepted', 'events']
+
+    def save(self, commit=True):
+        from scheduler.models import Worker, ResourceAllocation, Event
+
+        volform = super(VolunteerBidStateChangeForm, self).save(commit=False)
+
+        if commit:
+            # Clear out previous assignments, deletes Worker and ResourceAllocation
+            Worker.objects.filter(_item=volform.profile, role='Volunteer').delete()
+ 
+            # if the act has been accepted, set the show.
+            if self.cleaned_data['accepted'] == 3:
+                worker = Worker(_item=volform.profile, role='Volunteer')
+                worker.save()
+
+                # Cast the act into the show by adding it to the schedule resource allocation
+                for assigned_event in self.cleaned_data['events']:
+                    volunteer_assignment = ResourceAllocation()
+                    volunteer_assignment.event = get_object_or_404(Event, pk=assigned_event)
+                    volunteer_assignment.resource = worker
+                    volunteer_assignment.save()
+            volform.save()
+        return self
+
+
 
 
 class ClassBidForm(forms.ModelForm):

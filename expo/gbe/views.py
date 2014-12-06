@@ -1113,7 +1113,7 @@ def review_volunteer (request, volunteer_id):
     review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+    reviewer = validate_perms(request, ('Volunteer Reviewers',))
 
 
     volunteer = get_object_or_404(Volunteer,id=volunteer_id)
@@ -1125,19 +1125,8 @@ def review_volunteer (request, volunteer_id):
                                          'last_name' : volunteer_prof.user_object.last_name},
                               prefix = 'Contact Info')
     if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
-        from scheduler.models import Event
-        actionform = BidStateChangeForm(instance = volunteer)
+        actionform = VolunteerBidStateChangeForm(instance = volunteer)
 
-        # This requires that the event be scheduled - and that there be an open volunteer space 
-        try:
-            events=Event.objects.filter(max_volunteer__gt=0)
-        except:
-            raise Http404
-        actionform.fields['events'] = forms.ModelMultipleChoiceField(
-        	                         queryset=events,
-        	                         widget=forms.CheckboxSelectMultiple(),
-        	                         required=False,
-        	                         label='Choose Volunteer Schedule')
         actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
     else:
             actionform = False;
@@ -1209,7 +1198,30 @@ def review_volunteer_list (request):
     
 @login_required
 def volunteer_changestate (request, bid_id):
-    pass
+    '''
+    Fairly specific to volunteer - removes the profile from all volunteer commitments, and resets
+    the volunteer to the selected volunteer positions (if accepted), and then does the regular state
+    change
+    NOTE: only call on a post request
+    '''
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+
+
+    if request.method == 'POST':
+        volunteer = get_object_or_404(Volunteer,id=bid_id)
+        form = VolunteerBidStateChangeForm(request.POST, instance=volunteer)
+        if form.is_valid():
+            volunteer = form.save()
+            return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
+        else:
+            return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'actionform': False,
+                        'actionURL': False })
+
+    return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
+
+
 
 @login_required
 def edit_volunteer (request, volunteer_id):

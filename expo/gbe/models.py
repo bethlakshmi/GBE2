@@ -868,7 +868,7 @@ class Volunteer(Biddable):
     @property
     def bid_review_header(self):
         return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts',
-                  'Interests',  'Pre-event', 'Background', 'Reviews', 'Action'])
+                  'Interests',  'Pre-event', 'Background', 'State', 'Reviews', 'Action'])
 
 
     @property
@@ -887,7 +887,7 @@ class Volunteer(Biddable):
 
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
                  self.number_shifts, availability_string,  unavailability_string, interest_string,
-                 self.pre_event, self.background)
+                 self.pre_event, self.background, acceptance_states[self.accepted][1])
     @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
