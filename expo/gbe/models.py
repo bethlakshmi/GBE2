@@ -7,6 +7,7 @@ from gbe_forms_text import *
 from datetime import datetime
 from datetime import timedelta
 from  expomodelfields import DurationField
+from scheduler.functions import set_time_format
 
 
 import pytz
@@ -207,6 +208,12 @@ class Profile(WorkerItem):
         for performer in self.get_performers():
             events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
         events += Event.objects.filter(resources_allocated__resource__worker___item=self)
+        return events
+
+    def get_volunteering(self):
+        from scheduler.models import Event
+        events = Event.objects.filter(resources_allocated__resource__worker___item=self,
+                                      resources_allocated__resource__worker__role='Volunteer')
         return events
 
 
@@ -867,7 +874,7 @@ class Volunteer(Biddable):
         return self.profile.display_name
     @property
     def bid_review_header(self):
-        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts',
+        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts', 'Commitments',
                   'Interests',  'Pre-event', 'Background', 'State', 'Reviews', 'Action'])
 
 
@@ -884,9 +891,13 @@ class Volunteer(Biddable):
                 availability_string += option_value + ', '
             if option_id in self.unavailability:
                 unavailability_string += option_value + ', '
+        commitments = ''
+        time_format = set_time_format(days = 2)
+        for event in self.profile.get_schedule():
+            commitments += str(event) + " - " + event.starttime.strftime(time_format) + ', '
 
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
-                 self.number_shifts, availability_string,  unavailability_string, interest_string,
+                 self.number_shifts, availability_string,  unavailability_string, commitments, interest_string,
                  self.pre_event, self.background, acceptance_states[self.accepted][1])
     @property
     def bids_to_review(self):

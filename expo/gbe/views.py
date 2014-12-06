@@ -1125,8 +1125,9 @@ def review_volunteer (request, volunteer_id):
                                          'last_name' : volunteer_prof.user_object.last_name},
                               prefix = 'Contact Info')
     if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
-        actionform = VolunteerBidStateChangeForm(instance = volunteer)
 
+        actionform = VolunteerBidStateChangeForm(instance = volunteer,
+                                                 initial={'events':volunteer_prof.get_volunteering})
         actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
     else:
             actionform = False;
