@@ -6,8 +6,18 @@
 {% endblock %}
 
 {% block content %}
+
+
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Bid Information</h2>
+
+  
+  {% if messages %}
+      <script>
+    alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
+      </script>
+  {% endif %}
+
 
   <table class="bid-table">
     <tr class="bid-table">

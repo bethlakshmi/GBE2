@@ -7,6 +7,7 @@ from gbe.forms import *
 from gbe.ticketing_idd_interface import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
+#from django.contrib import messages
 from django.forms.models import inlineformset_factory
 import gbe_forms_text
 from ticketingfuncs import compute_submission
@@ -1177,7 +1178,6 @@ def review_volunteer_list (request):
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
 
-
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(submitted=True)
     review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
@@ -1191,7 +1191,7 @@ def review_volunteer_list (request):
         if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
           bid_row['edit_url'] = reverse('volunteer_edit', urlconf='gbe.urls', args=[volunteer.id])
         rows.append(bid_row)
-    
+  
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
@@ -1219,7 +1219,7 @@ def volunteer_changestate (request, bid_id):
                        'gbe/bid_review.tmpl',
                        {'actionform': False,
                         'actionURL': False })
-
+    
     return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
 
 
