@@ -1127,7 +1127,7 @@ def review_volunteer (request, volunteer_id):
                               prefix = 'Contact Info')
     if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
 
-        actionform = VolunteerBidStateChangeForm(instance = volunteer,
+        actionform = VolunteerBidStateChangeForm(instance = volunteer, request=request,
                                                  initial={'events':volunteer_prof.get_bookings('Volunteer')})
         actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
     else:
@@ -1179,7 +1179,7 @@ def review_volunteer_list (request):
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
 
     header = Volunteer().bid_review_header
-    volunteers = Volunteer.objects.filter(submitted=True)
+    volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
     review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
     rows = []
     for volunteer in volunteers:
@@ -1207,10 +1207,9 @@ def volunteer_changestate (request, bid_id):
     '''
     reviewer = validate_perms(request, ('Volunteer Coordinator',))
 
-
     if request.method == 'POST':
         volunteer = get_object_or_404(Volunteer,id=bid_id)
-        form = VolunteerBidStateChangeForm(request.POST, instance=volunteer)
+        form = VolunteerBidStateChangeForm(request.POST, request=request, instance=volunteer)
         if form.is_valid():
             volunteer = form.save()
             return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))

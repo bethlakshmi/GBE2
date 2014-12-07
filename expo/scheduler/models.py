@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
+from scheduler.functions import set_time_format
 
 import pytz
 
@@ -93,7 +94,7 @@ class Resource(models.Model):
     def __str__(self):
         allocated_resource = Resource.objects.get_subclass(id=self.id)
         if allocated_resource:
-            return "Resource Allocation: "+str(allocated_resource)
+            return str(allocated_resource)
         else:
             return "Error in resource allocation, no resource"
             
@@ -435,8 +436,9 @@ class Event (Schedulable):
             return l[0]._item
         else:
             return None  # or what??
-
         
+    def extra_volunteers(self):
+        return  Worker.objects.filter(allocations__event=self, role='Volunteer').count() - self.max_volunteer
 
 class ResourceAllocation(Schedulable):
     '''
@@ -468,3 +470,4 @@ class ResourceAllocation(Schedulable):
                    ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
         except:
             return "Missing an Item"
+

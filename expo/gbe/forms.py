@@ -4,6 +4,7 @@ from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
+from django.contrib import messages
 import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
@@ -190,23 +191,29 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    events = EventCheckBox(
-        	                         queryset=Event.objects.filter(max_volunteer__gt=0),
-        	                         widget=forms.CheckboxSelectMultiple(),
-        	                         required=False,
-        	                         label='Choose Volunteer Schedule')
+    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0),
+        	           widget=forms.CheckboxSelectMultiple(),
+        	           required=False,
+        	           label='Choose Volunteer Schedule')
     class Meta:
         model = Biddable
         fields = ['accepted', 'events']
+
+    # the request is now available, add it to the instance data
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super(VolunteerBidStateChangeForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         from scheduler.models import Worker, ResourceAllocation, Event
 
         volform = super(VolunteerBidStateChangeForm, self).save(commit=False)
+        time_format = set_time_format(days = 2)
 
         if commit:
             # Clear out previous assignments, deletes Worker and ResourceAllocation
-            Worker.objects.filter(_item=volform.profile, role='Volunteer').delete()
+            if not self.cleaned_data['accepted'] == 4:
+              Worker.objects.filter(_item=volform.profile, role='Volunteer').delete()
  
             # if the act has been accepted, set the show.
             if self.cleaned_data['accepted'] == 3:
@@ -215,10 +222,14 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
 
                 # Cast the act into the show by adding it to the schedule resource allocation
                 for assigned_event in self.cleaned_data['events']:
+                    event = get_object_or_404(Event, pk=assigned_event)
                     volunteer_assignment = ResourceAllocation()
-                    volunteer_assignment.event = get_object_or_404(Event, pk=assigned_event)
+                    volunteer_assignment.event = event
                     volunteer_assignment.resource = worker
                     volunteer_assignment.save()
+                    if event.extra_volunteers() > 0:
+                        messages.warning(self.request, str(event) + " - " + event.starttime.strftime(time_format)+
+                                         " is overfull.  Over by "+str(event.extra_volunteers())+" volunteer.")
             volform.save()
         return self
 
