@@ -191,7 +191,7 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0),
+    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0).order_by('eventitem'),
         	           widget=forms.CheckboxSelectMultiple(),
         	           required=False,
         	           label='Choose Volunteer Schedule')
@@ -223,6 +223,11 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                 # Cast the act into the show by adding it to the schedule resource allocation
                 for assigned_event in self.cleaned_data['events']:
                     event = get_object_or_404(Event, pk=assigned_event)
+                    conflicts = worker._item.get_conflicts(event)
+                    for problem in conflicts:
+                        messages.warning(self.request, "Found event conflict, new booking " +str(event)
+                                         + " - " + event.starttime.strftime(time_format) + " conflicts with "
+                                         + str(problem) + " - " + problem.starttime.strftime(time_format))
                     volunteer_assignment = ResourceAllocation()
                     volunteer_assignment.event = event
                     volunteer_assignment.resource = worker

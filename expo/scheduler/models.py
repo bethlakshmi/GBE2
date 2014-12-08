@@ -242,6 +242,18 @@ class WorkerItem(ResourceItem):
         child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         return child.get_schedule()
 
+    '''
+       Looks at all current bookings and returns all conflicts.
+       Best to do *before* allocating as a resource.
+       Returns = a list of conflicts.  And empty list means no conflicts.  Any conflict listed overlaps
+          with the new_event that was provided.
+    '''
+    def get_conflicts(self, new_event):
+        conflicts = []
+        for event in self.get_schedule():
+            if event.check_conflict(new_event):
+               	conflicts += [event]
+        return conflicts
 
     
 class Worker (Resource):
@@ -437,8 +449,37 @@ class Event (Schedulable):
         else:
             return None  # or what??
         
+        
+    '''
+    The difference between the max suggested # of volunteers and the actual number
+     > 0 if there are too many volunteers for the max - the number will be the # of people over booked
+        (if there are 3 spaces, and 4 volunteers, the value returned is 1)
+     = 0 if it is at capacity
+     < 0 if it is fewer than the max, the abosolute value is the amount of space remaining
+        (if there are 4 spaces, and 3 volunteers, the value will be -1)
+    '''
     def extra_volunteers(self):
         return  Worker.objects.filter(allocations__event=self, role='Volunteer').count() - self.max_volunteer
+
+
+
+    '''
+       Check this event vs. another event to see if the times conflict.
+       Useful whenever we want to check on shared resources.
+       - if they start at the same time, it doesn't matter how long they are
+       - if this event start time is after the other event, but the other event ends *after* this
+             event starts - it's a conflict
+       - if this event starts first, but bleeds into the other event by overlapping end_time - it's a conflict
+    '''
+    def check_conflict(self, other_event):
+        is_conflict = False
+        if self.start_time == other_event.starttime:
+            is_conflict = True
+        elif self.start_time > other_event.start_time and self.start_time < other_event.end_time:
+            is_conflict = True
+        elif self.start_time < other_event.start_time and self.end_time > other_event.start_time:
+            is_conflict = True
+        return is_conflict
 
 class ResourceAllocation(Schedulable):
     '''

@@ -198,6 +198,14 @@ class Profile(WorkerItem):
                 shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
 
+    '''
+        Gets all of a person's schedule.  Every way the actual human could be committed:
+          - via profile
+          - via performer(s)
+          - via performing in acts
+        Returns schedule as a list of Scheduler.Events
+        NOTE:  Things that haven't been booked with start times won't be here.
+    '''
     def get_schedule(self):
         from scheduler.models import Event
         events = []
@@ -209,6 +217,10 @@ class Profile(WorkerItem):
             events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
         events += Event.objects.filter(resources_allocated__resource__worker___item=self)
         return events
+
+
+
+
 
     def is_teaching(self):
         '''
@@ -268,6 +280,9 @@ class Performer (WorkerItem):
         presented as a parameter
         '''
         return alerts
+    
+    def get_schedule(self):
+        return None
     
     @property
     def complete(self):
