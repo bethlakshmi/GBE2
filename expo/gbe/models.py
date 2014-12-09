@@ -891,18 +891,18 @@ class Volunteer(Biddable):
         interest_string = ''
         for option_id, option_value in volunteer_interests_options:
             if option_id in self.interests:
-                interest_string += option_value + ', '
+                interest_string += option_value + ', \n'
         availability_string = ''
         unavailability_string = ''
         for option_id, option_value in volunteer_availability_options:
             if option_id in self.availability:
-                availability_string += option_value + ', '
+                availability_string += option_value + ', \n'
             if option_id in self.unavailability:
-                unavailability_string += option_value + ', '
+                unavailability_string += option_value + ', \n'
         commitments = ''
         time_format = set_time_format(days = 2)
         for event in self.profile.get_schedule():
-            commitments += str(event) + " - " + event.starttime.strftime(time_format) + ', '
+            commitments += str(event) + " - " + event.starttime.strftime(time_format) + ', \n'
 
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
                  self.number_shifts, availability_string,  unavailability_string, commitments, interest_string,

@@ -28,10 +28,10 @@
     {% for row in rows %}
       <tr class="bid-table">
               {% for value in row.bid %}
-	                <td class="bid-table">      
-            		{{ value }}
-          		</td>	
-		{% endfor %}
+	        <td class="bid-table">
+                  {{ value|linebreaks }}
+          	</td>	
+	      {% endfor %}
           {% if "Reviews" in header %}
           <td class="bid-table">
  	  {% for review in row.reviews %}
