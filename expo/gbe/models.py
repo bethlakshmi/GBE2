@@ -6,7 +6,7 @@ from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
 from datetime import timedelta
-from expomodelfields import DurationField
+from  expomodelfields import DurationField
 from django.core.urlresolvers import reverse
 from scheduler.functions import set_time_format
 
@@ -138,19 +138,16 @@ class Profile(WorkerItem):
     @property
     def alerts(self):
         import gbetext
-        import gbe
         profile_alerts = []
         if ( len(self.display_name.strip()) == 0 or
              len(self.purchase_email.strip()) == 0  ):
-            profile_alerts.append(gbetext.profile_alerts['empty_profile'] % reverse ('profile_update', 
-                                                                                     urlconf=gbe.urls))
+            profile_alerts.append(gbetext.profile_alerts['empty_profile'])
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
             len(self.phone.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % reverse ('profile_update', 
-                                                                                     urlconf=gbe.urls))
+            profile_alerts.append(gbetext.profile_alerts['onsite_phone'])
  
         return profile_alerts
     
@@ -534,15 +531,6 @@ class Act (Biddable, ActItem):
         return self.performer
     
     @property
-    def schedule_ready(self):
-        return self.accepted == 3
-
-    @property
-    def schedule_headers(self):
-        # This list can change
-        return ['Performer', 'Act Title', 'Photo Link', 'Video Link', 'Bio Link', 'Order']
-
-    @property
     def visible(self):
         return self.accepted==3
     
@@ -715,9 +703,6 @@ class Show (Event):
                  'details': {'type': 'Show'}
                }
     
-    @property
-    def schedule_ready(self):
-        return True      # shows are always ready for scheduling
 
 class GenericEvent (Event):
     '''
@@ -742,9 +727,6 @@ class GenericEvent (Event):
             'details': {'type': types[self.type]}
             }
 
-    @property
-    def schedule_ready(self):
-        return True
 
 class Class (Biddable, Event):
     '''
@@ -852,10 +834,7 @@ class Class (Biddable, Event):
                 acceptance_states[self.accepted][1])
     def __str__(self):
         return self.title
-    
-    @property
-    def schedule_ready(self):
-        return self.accepted==3
+        
 
     class Meta:
         verbose_name_plural='classes'
