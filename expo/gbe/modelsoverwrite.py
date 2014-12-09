@@ -8,8 +8,6 @@ from datetime import datetime
 from datetime import timedelta
 from expomodelfields import DurationField
 from django.core.urlresolvers import reverse
-from scheduler.functions import set_time_format
-
 
 import pytz
 
@@ -93,20 +91,7 @@ class Profile(WorkerItem):
                 self.user_object.email, self.purchase_email, self.phone)
                 
     def bids_to_review(self):
-        reviews = []
-        missing_reviews = []
-        if  'Act Reviewers' in self.privilege_groups:
-            reviews += Act().bids_to_review.exclude(bidevaluation__evaluator=self)
-        if  'Class Reviewers' in self.privilege_groups:
-            reviews += Class().bids_to_review.exclude(bidevaluation__evaluator=self)
-        if  'Vendor Reviewers' in self.privilege_groups:
-            reviews += Vendor().bids_to_review.exclude(bidevaluation__evaluator=self)
-        if  'Volunteer Reviewers' in self.privilege_groups:
-            reviews += Volunteer().bids_to_review.exclude(bidevaluation__evaluator=self)
-
-        return reviews
-
-
+        return []
 
     @property 
     def address(self):
@@ -142,16 +127,16 @@ class Profile(WorkerItem):
         profile_alerts = []
         if ( len(self.display_name.strip()) == 0 or
              len(self.purchase_email.strip()) == 0  ):
-             profile_alerts.append(gbetext.profile_alerts['empty_profile'] % reverse ('profile_update', 
-                                                                                      urlconf=gbe.urls))
+            profile_alerts.append(gbetext.profile_alerts['empty_profile'] % reverse ('profile_update', 
+                                                                                     urlconf=gbe.urls))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
             len(self.phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % reverse ('profile_update', 
-                                                                                      urlconf=gbe.urls))
-  
+                                                                                     urlconf=gbe.urls))
+ 
         return profile_alerts
     
     def get_volunteerbids(self):
@@ -201,30 +186,6 @@ class Profile(WorkerItem):
             if act.accepted == 3:
                 shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
         return shows
-
-    '''
-        Gets all of a person's schedule.  Every way the actual human could be committed:
-          - via profile
-          - via performer(s)
-          - via performing in acts
-        Returns schedule as a list of Scheduler.Events
-        NOTE:  Things that haven't been booked with start times won't be here.
-    '''
-    def get_schedule(self):
-        from scheduler.models import Event
-        events = []
-        acts = self.get_acts()
-        for act in acts:
-            if act.accepted == 3:
-                events += Event.objects.filter(resources_allocated__resource__actresource___item=act)
-        for performer in self.get_performers():
-            events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
-        events += Event.objects.filter(resources_allocated__resource__worker___item=self)
-        return events
-
-
-
-
 
     def is_teaching(self):
         '''
@@ -284,9 +245,6 @@ class Performer (WorkerItem):
         presented as a parameter
         '''
         return alerts
-    
-    def get_schedule(self):
-        return None
     
     @property
     def complete(self):
@@ -714,10 +672,10 @@ class Show (Event):
                  'duration':self.duration,
                  'details': {'type': 'Show'}
                }
+    
     @property
     def schedule_ready(self):
         return True      # shows are always ready for scheduling
-    
 
 class GenericEvent (Event):
     '''
@@ -741,7 +699,7 @@ class GenericEvent (Event):
             'duration':self.duration,
             'details': {'type': types[self.type]}
             }
-    
+
     @property
     def schedule_ready(self):
         return True
@@ -835,10 +793,6 @@ class Class (Biddable, Event):
         return  (['title', 'teacher'])
 
     @property
-    def schedule_ready(self):
-        return self.accepted==3
-
-    @property
     def complete(self):
         return (self.title is not '' and
                 self.teacher is not None and
@@ -856,7 +810,10 @@ class Class (Biddable, Event):
                 acceptance_states[self.accepted][1])
     def __str__(self):
         return self.title
-        
+    
+    @property
+    def schedule_ready(self):
+        return self.accepted==3
 
     class Meta:
         verbose_name_plural='classes'
@@ -902,12 +859,11 @@ class Volunteer(Biddable):
     background = models.TextField(blank=True)
 
     def __unicode__(self):
-        return self.profile.display_name
-    
+        return 'Volunteer: '+ self.profile.display_name
     @property
     def bid_review_header(self):
-        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts', 'Commitments',
-                  'Interests',  'Pre-event', 'Background', 'State', 'Reviews', 'Action'])
+        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts',
+                  'Interests',  'Pre-event', 'Background', 'Reviews', 'Action'])
 
 
     @property
@@ -915,25 +871,18 @@ class Volunteer(Biddable):
         interest_string = ''
         for option_id, option_value in volunteer_interests_options:
             if option_id in self.interests:
-                interest_string += option_value + ', \n'
+                interest_string += option_value + ', '
         availability_string = ''
         unavailability_string = ''
         for option_id, option_value in volunteer_availability_options:
             if option_id in self.availability:
-                availability_string += option_value + ', \n'
+                availability_string += option_value + ', '
             if option_id in self.unavailability:
-                unavailability_string += option_value + ', \n'
-        commitments = ''
-        time_format = set_time_format(days = 2)
-        for event in self.profile.get_schedule():
-            commitments += str(event) + " - " + event.starttime.strftime(time_format) + ', \n'
+                unavailability_string += option_value + ', '
 
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
-                 self.number_shifts, availability_string,  unavailability_string, commitments, interest_string,
-                 self.pre_event, self.background, acceptance_states[self.accepted][1])
-    @property
-    def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+                 self.number_shifts, availability_string,  unavailability_string, interest_string,
+                 self.pre_event, self.background)
 
 
 class Vendor(Biddable):
@@ -964,9 +913,6 @@ class Vendor(Biddable):
         return (self.profile.display_name, self.title, self.website,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
-    @property
-    def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 
 class AdBid(Biddable):
