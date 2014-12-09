@@ -466,6 +466,7 @@ list_titles = {
     'Panel': '''Panel Descriptions at GBE''',
     'Show': '''Shows at GBE''',
     'All': '''All Events''',
+    'Volunteer': '''Volunteer Opportunities''',
     'Master': '''Master Classes''',
     'Drop-In': '''Dropin Classes''',
     'Special': '''Special Events'''
@@ -498,6 +499,10 @@ list_text = {
         </p> ''',
     'All': '''    <p> \
         Check out the full list of all shows, classes, master classes, dropin classes and special events!\
+        </p> ''',
+    'Volunteer': '''    <p> \
+        Check out the many ways you can help to make the expo even more awesome!  We're always adding \
+        new ways to help, so check here often!
         </p> ''',
     'Master': '''    <p> For the student of burlesque who wants to get even more out of the conference, \
         The Great Burlesque Exposition offers Master Classes.  These are intensive, double-length classes \

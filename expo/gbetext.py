@@ -100,7 +100,8 @@ vendor_lighting_options = (('White', 'White'),
 acceptance_states = ((0,'No Decision'),
                      (1,'Reject'),
                      (2,'Wait List'), 
-                     (3,'Accepted'))
+                     (3,'Accepted'),
+                     (4,'Withdrawn'))
 
 class_acceptance_states = (
                      (1,'Reject'),
@@ -136,6 +137,7 @@ experience_options = (('0', "I'm not a burlesque performer"),
                       ('5',"more than 6 years"))
 
 event_options = (('Special', "Special Event"),
+                 ('Volunteer',"Volunteer Opportunity"),
                  ('Master',"Master Class"),
                  ('Drop-In',"Drop-In Class"))
 

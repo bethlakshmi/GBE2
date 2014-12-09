@@ -12,7 +12,11 @@
      <div class='side_box'>
    	{% include 'gbe/incl_lp_right.tmpl' %}
      </div>
-
+    {% if bookings %}
+     <div class='side_box'>
+   	{% include 'gbe/incl_schedule.tmpl' %}
+     </div>
+     {% endif %}
    </div>
 
    {% endif %}

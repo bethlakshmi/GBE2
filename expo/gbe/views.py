@@ -75,7 +75,30 @@ def landing_page(request):
     viewer_profile = validate_profile(request, require = False)
 
     template = loader.get_template('gbe/landing_page.tmpl')
+    
     if viewer_profile:
+        bids_to_review = []
+        for bid in viewer_profile.bids_to_review():
+            bid_type = ""
+            if bid.__class__ == Act:
+                url = reverse('act_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Act"
+            elif bid.__class__ == Class:
+                url = reverse('class_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Class"
+            elif bid.__class__ == Vendor:
+                url = reverse('vendor_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Vendor"
+            elif bid.__class__ == Volunteer:
+                url = reverse('volunteer_review', urlconf='gbe.urls', args=[str(bid.id)] )
+                bid_type="Volunteer"
+            else:
+                url = ""
+                bid_type="UNKNOWN"
+            bids_to_review += [{'bid':bid,
+                            'url':url,
+                            'action':"Review",
+                            'bid_type': bid_type}]
         context = RequestContext (request, 
                                   {'profile':viewer_profile, 
                                    'standard_context' : standard_context,
@@ -87,7 +110,8 @@ def landing_page(request):
                                    'classes': viewer_profile.is_teaching(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'volunteering': viewer_profile.get_volunteerbids(),
-                                   'review_items': viewer_profile.bids_to_review(),
+                                   'review_items': bids_to_review,
+                                   'bookings': viewer_profile.get_schedule(),
                                    'acceptance_states': acceptance_states,
                                    })
     else:
@@ -1088,7 +1112,7 @@ def review_volunteer (request, volunteer_id):
     review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+    reviewer = validate_perms(request, ('Volunteer Reviewers',))
 
 
     volunteer = get_object_or_404(Volunteer,id=volunteer_id)
@@ -1099,6 +1123,14 @@ def review_volunteer (request, volunteer_id):
                                          'first_name' : volunteer_prof.user_object.first_name, 
                                          'last_name' : volunteer_prof.user_object.last_name},
                               prefix = 'Contact Info')
+    if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
+
+        actionform = VolunteerBidStateChangeForm(instance = volunteer, request=request,
+                                                 initial={'events':volunteer_prof.get_bookings('Volunteer')})
+        actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
+    else:
+            actionform = False;
+            actionURL = False;
 
     
     '''
@@ -1121,14 +1153,19 @@ def review_volunteer (request, volunteer_id):
         else:
             return render (request, 'gbe/bid_review.tmpl',
                            {'readonlyform': [volform],
-                           'form':form})
+                           'form':form,
+                           'actionform':actionform,
+                           'actionURL': actionURL})
     else:
         form = BidEvaluationForm(instance = bid_eval)
         return render (request, 
                        'gbe/bid_review.tmpl',
                        {'readonlyform': [volform, profile],
                         'reviewer':reviewer,
-                        'form':form})
+                        'form':form,
+                        'actionform':actionform,
+                        'actionURL': actionURL})
+
 
  
 @login_required
@@ -1139,9 +1176,8 @@ def review_volunteer_list (request):
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
 
-
     header = Volunteer().bid_review_header
-    volunteers = Volunteer.objects.filter(submitted=True)
+    volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
     review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
     rows = []
     for volunteer in volunteers:
@@ -1152,14 +1188,39 @@ def review_volunteer_list (request):
         bid_row['review_url'] = reverse('volunteer_review', urlconf='gbe.urls', args=[volunteer.id])
         if  'Volunteer Coordinator' in request.user.profile.privilege_groups:
           bid_row['edit_url'] = reverse('volunteer_edit', urlconf='gbe.urls', args=[volunteer.id])
-          bid_row['delete_url'] = reverse('volunteer_delete', urlconf='gbe.urls', args=[volunteer.id])
         rows.append(bid_row)
-    
+  
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('volunteer_review', urlconf='gbe.urls') })
     
+@login_required
+def volunteer_changestate (request, bid_id):
+    '''
+    Fairly specific to volunteer - removes the profile from all volunteer commitments, and resets
+    the volunteer to the selected volunteer positions (if accepted), and then does the regular state
+    change
+    NOTE: only call on a post request
+    '''
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+
+    if request.method == 'POST':
+        volunteer = get_object_or_404(Volunteer,id=bid_id)
+        form = VolunteerBidStateChangeForm(request.POST, request=request, instance=volunteer)
+        if form.is_valid():
+            volunteer = form.save()
+            return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
+        else:
+            return render (request, 
+                       'gbe/bid_review.tmpl',
+                       {'actionform': False,
+                        'actionURL': False })
+    
+    return HttpResponseRedirect(reverse('volunteer_review_list', urlconf='gbe.urls'))
+
+
+
 @login_required
 def edit_volunteer (request, volunteer_id):
     page_title = "Edit Volunteer Bid"
@@ -1211,14 +1272,6 @@ def edit_volunteer (request, volunteer_id):
 
 
 
-@login_required
-def delete_volunteer (request, volunteer_id):
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
-    the_bid = get_object_or_404(Volunteer, id=volunteer_id)
-    the_bid.delete()
-    return HttpResponseRedirect(reverse('volunteer_review', urlconf='gbe.urls'))
-
-
 def review_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
@@ -1239,11 +1292,13 @@ def review_vendor(request, vendor_id):
    
     '''
     if user has previously reviewed the act, provide his review for update
+    BB - get_or_create caused a ValueError to be thrown when there was no bid, and the Vote was null
     '''
 
-    bid_eval, created =BidEvaluation.objects.get_or_create(bid_id=vendor_id, 
-                                                  evaluator_id=reviewer.resourceitem_id,
-                                                  defaults = {})
+    try:
+        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id, evaluator_id=reviewer.resourceitem_id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator = reviewer, bid = vendor)
 
 
     # show act info and inputs for review
