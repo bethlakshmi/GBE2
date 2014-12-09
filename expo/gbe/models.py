@@ -106,7 +106,9 @@ class Profile(WorkerItem):
 
         return reviews
 
-
+    @property
+    def contact_email(self):
+        return self.user_object.email
 
     @property 
     def address(self):
@@ -287,6 +289,10 @@ class Performer (WorkerItem):
     
     def get_schedule(self):
         return None
+
+    @property
+    def contact_email(self):
+        return self.contact.user_object.email
     
     @property
     def complete(self):
@@ -528,6 +534,10 @@ class Act (Biddable, ActItem):
  
     def typeof(self):
         return self.__class__
+
+    @property
+    def contact_email(self):
+        return self.performer.contact_email
 
     @property
     def bio(self):

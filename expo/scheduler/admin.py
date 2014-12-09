@@ -5,8 +5,22 @@ import datetime
 from gbe_forms_text import *
 
 class ResourceAllocationAdmin(admin.ModelAdmin):
-    list_display = ('event', 'resource')
+    list_display = ('event', 'resource', 'resource_email', 'resource_type')
     list_filter = ['event', 'resource']
+    
+    def resource_email(self, obj):
+        try:
+            resource = Resource.objects.filter(allocations=obj)[0]
+            return resource.item.contact_email
+        except:
+            return "no email"
+
+    def resource_type(self, obj):
+        try:
+            resource = Resource.objects.filter(allocations=obj)[0]
+            return resource.type
+        except:
+            return "no email"
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('eventitem','starttime','max_volunteer')

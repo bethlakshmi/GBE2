@@ -57,6 +57,12 @@ class ResourceItem (models.Model):
     '''
     objects = InheritanceManager()
     resourceitem_id = models.AutoField(primary_key=True)
+
+    @property
+    def contact_email(self):
+        return ResourceItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
+
+
     @property
     def payload(self):
         return self._payload
@@ -86,11 +92,16 @@ class Resource(models.Model):
     '''
     objects = InheritanceManager()
 
+    @property
+    def type(self):
+        child = Resource.objects.get_subclass(id=self.id)
+        return child.type
 
     @property
     def item (self):
-        return self._item
-
+        child = Resource.objects.get_subclass(id=self.id)
+        return child._item
+    
     def __str__(self):
         allocated_resource = Resource.objects.get_subclass(id=self.id)
         if allocated_resource:
@@ -106,6 +117,10 @@ class ActItem(ResourceItem):
     Payload object for an Act
     '''
     objects = InheritanceManager()
+
+    @property
+    def contact_email(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
 
     @property
     def bio(self):
@@ -145,6 +160,10 @@ class ActResource(Resource):
     objects = InheritanceManager()
     _item = models.ForeignKey(ActItem)
     
+    @property
+    def type(self):
+        return "act"
+
     def __str__(self):
         try:
             return self.item.describe
@@ -165,6 +184,10 @@ class LocationItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+    @property
+    def contact_email(self):
+        return "location - no email"
+
     def get_resource(self):
         '''
         Return the resource corresonding to this item
@@ -193,6 +216,10 @@ class Location(Resource):
     '''
     objects = InheritanceManager()
     _item = models.ForeignKey(LocationItem)
+
+    @property
+    def type(self):
+        return "location"
     
     def __str__(self):
         try:
@@ -211,6 +238,11 @@ class WorkerItem(ResourceItem):
     Payload object for a person as resource (staff/volunteer/teacher)
     '''
     objects = InheritanceManager()
+    
+    @property
+    def contact_email(self):
+        return WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
+
     
     @property
     def describe(self):
@@ -266,6 +298,10 @@ class Worker (Resource):
                                     choices=role_options, 
                                     blank=True)
     
+    @property
+    def type(self):
+        return self.role
+
     def __str__(self):
         try:
             return self.item.describe
@@ -285,6 +321,10 @@ class EquipmentItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+    @property
+    def contact_email(self):
+        return "equipment - no email"
+
     @property
     def describe(self):
         return "Equipment Item"
@@ -306,6 +346,11 @@ class Equipment(Resource):
     '''
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
+
+    @property
+    def type(self):
+        return "equipment"
+
 
 class EventItem (models.Model):
     '''
