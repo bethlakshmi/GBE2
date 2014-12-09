@@ -186,7 +186,7 @@ class LocationItem(ResourceItem):
     
     @property
     def contact_email(self):
-        return "location - no email"
+        return ""
 
     def get_resource(self):
         '''
@@ -323,7 +323,7 @@ class EquipmentItem(ResourceItem):
     
     @property
     def contact_email(self):
-        return "equipment - no email"
+        return ""
 
     @property
     def describe(self):
