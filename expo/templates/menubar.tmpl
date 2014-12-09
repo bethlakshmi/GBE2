@@ -6,10 +6,10 @@
         <li class='active'><a href='{% url 'gbe:home' %}'><span>Home</span></a></li>
         <li class='has-sub'><a href='{% url 'scheduler:event_list' 'Show'%}'><span>Shows</span></a>
           <ul>
-             <li><a href='http://www.burlesque-expo.com/rhinestone-revue'><span>Rhinestone Review</span></a></li>
-             <li><a href='http://www.burlesque-expo.com/late-friday'><span>Late Friday</span></a></li>
-             <li><a href='http://www.burlesque-expo.com/the-main-event'><span>The Main Event</span></a></li>
-             <li><a href='http://www.burlesque-expo.com/sunday-showcase'><span>Sunday Showcase</span></a></li>
+             <li><a href='{% url 'scheduler:detail_view' '138'%}'><span>Rhinestone Review</span></a></li>
+             <li><a href='{% url 'scheduler:detail_view' '139'%}'><span>Late Friday</span></a></li>
+             <li><a href='{% url 'scheduler:detail_view' '140'%}'><span>The Main Event</span></a></li>
+             <li><a href='{% url 'scheduler:detail_view' '141'%}'><span>Sunday Showcase</span></a></li>
              <li class='last'><a href='http://www.burlesque-expo.com/special-guests'><span>Special Guests</span></a></li>
           </ul>
         </li>
