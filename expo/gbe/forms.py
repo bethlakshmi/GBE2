@@ -191,7 +191,7 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0).order_by('eventitem'),
+    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0).order_by('eventitem', 'starttime'),
         	           widget=forms.CheckboxSelectMultiple(),
         	           required=False,
         	           label='Choose Volunteer Schedule')
