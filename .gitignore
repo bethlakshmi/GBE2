@@ -47,4 +47,5 @@ expo/db.sqlite3.preactitem
 
 expo/expo/localsettings.py
 
-expo/expo/settings.py
+
+expo/expo/local_settings.py
