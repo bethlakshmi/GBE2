@@ -743,8 +743,8 @@ def act_changestate (request, bid_id):
             for worker in act.get_performer_profiles():
                 conflicts = worker.get_conflicts(show)
                 for problem in conflicts:
-                        messages.warning(request, str(worker)+" is booked for - "+ str(problem) +
-                                         " - " + problem.starttime.strftime(time_format))
+                    messages.warning(request, str(worker)+" is booked for - "+ str(problem) +
+                                     " - " + problem.starttime.strftime(time_format))
             casting.resource = actresource
             casting.save()
             

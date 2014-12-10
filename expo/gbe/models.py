@@ -223,7 +223,7 @@ class Profile(WorkerItem):
         for performer in self.get_performers():
             events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
         events += Event.objects.filter(resources_allocated__resource__worker___item=self)
-        return events
+        return sorted(set(events), key=lambda event:event.starttime)
 
 
 
@@ -380,7 +380,7 @@ class Troupe(Performer):
     '''
     def get_profiles(self):
         profiles = []
-        for member in self.membership:
+        for member in Persona.objects.filter(troupes=self):
             profiles += member.get_profiles()
         return profiles
 
@@ -411,7 +411,7 @@ class Combo (Performer):
     '''
     def get_profiles(self):
         profiles = []
-        for member in self.membership:
+        for member in Persona.objects.filter(combos=self):
             profiles += member.get_profiles()
         return profiles
 
