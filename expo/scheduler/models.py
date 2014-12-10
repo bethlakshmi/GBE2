@@ -118,6 +118,11 @@ class ActItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+
+    @property
+    def get_performer_profiles(self):
+        return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_performer_profiles()
+
     @property
     def contact_email(self):
         return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email

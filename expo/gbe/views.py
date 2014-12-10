@@ -11,6 +11,7 @@ import gbe_forms_text
 from ticketingfuncs import compute_submission
 from django.core.urlresolvers import reverse
 from duration import Duration
+from scheduler.functions import set_time_format
 
 
 
@@ -718,6 +719,7 @@ def act_changestate (request, bid_id):
     Fairly specific to act - removes the act from all shows, and resets the act to the
     selected show (if accepted/waitlisted), and then does the regular state change
     NOTE: only call on a post request
+    BB - I'd like to refactor this to be the same as volunteer form, but not right now - 2015?
     '''
     reviewer = validate_perms(request, ('Act Coordinator',))
 
@@ -732,11 +734,17 @@ def act_changestate (request, bid_id):
         # if the act has been accepted, set the show.
         if request.POST['show'] and (request.POST['accepted'] == '3' or request.POST['accepted'] == '2'):
             # Cast the act into the show by adding it to the schedule resource allocation
+            time_format = set_time_format(days = 2)
             show = get_object_or_404(Event,eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
             casting.event = show
             actresource = ActResource(_item=act)
             actresource.save()
+            for worker in act.get_performer_profiles():
+                conflicts = worker.get_conflicts(show)
+                for problem in conflicts:
+                        messages.warning(request, str(worker)+" is booked for - "+ str(problem) +
+                                         " - " + problem.starttime.strftime(time_format))
             casting.resource = actresource
             casting.save()
             
