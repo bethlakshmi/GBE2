@@ -206,9 +206,10 @@ def schedule_acts(request):
             else:
                 continue  # error, should log
             alloc = get_object_or_404(ResourceAllocation, id = prefix.split('_')[1])
+
             alloc.event =  data['show']
 #            alloc.resource = get_object_or_404 (ActResource, id = data['actresource'])
-            alloc.resource.save(update_fields = ['event'])
+            alloc.save()
             ordering = alloc.ordering
             ordering.order = data['order']
             ordering.save()
