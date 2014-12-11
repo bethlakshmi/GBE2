@@ -177,6 +177,66 @@ def detail_view(request, eventitem_id):
                                       })
 
 
+def schedule_acts(request, show_id=''):
+    '''
+    Display a list of acts available for scheduling, allows setting show/order
+    '''
+    if request.method=="POST":
+        show_id = request.POST.get('event_type', 'POST')
+    if show_id.strip() == '':
+        import gbe.models as conf
+        template = 'scheduler/select_event_type.tmpl'
+        show_options = EventItem.objects.all().select_subclasses()
+        show_options = filter( lambda event: type(event)==conf.Show, show_options)
+        return render(request, template, {'type_options':show_options})        
+
+    if show_id == 'POST':
+        #foo()  # trigger error so I can see the post....
+        alloc_prefixes = set([key.split('-')[0] for key in request.POST.keys()
+                      if key.startswith('allocation_')])
+        for prefix in alloc_prefixes:
+            form = ActScheduleForm(request.POST, prefix=prefix)
+            if form.is_valid():
+                data = form.cleaned_data
+            else:
+                continue  # error, should log
+            alloc = get_object_or_404(ResourceAllocation, id = prefix.split('_')[1])
+            alloc.event =  data['show']
+            alloc.resource = get_object_or_404 (ActResource, id = data['actresource'])
+            alloc.resource.save()
+            ordering = alloc.ordering
+            ordering.order = data['order']
+            ordering.save()
+        return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
+            
+    import gbe.models as conf
+    # get allocations involving the show we want
+    show = get_object_or_404(Event, id=1) #show_id)
+    allocations = ResourceAllocation.objects.filter(event=show)
+
+
+    forms = []
+    for alloc in allocations:
+        actitem = alloc.resource.item
+        if type (actitem) != ActItem:
+            continue
+        act = actitem.act
+        details = {}
+        details ['title'] = act.title
+        details ['performer'] = act.performer
+        details ['show'] = show
+        details ['order'] = alloc.ordering.order
+        details ['actresource'] = alloc.resource.id
+        form = ActScheduleForm(initial=details, prefix = 'allocation_'+str(alloc.id))
+        
+        forms.append(form)
+    template = 'scheduler/act_schedule.tmpl'
+    return render (request, 
+                   template, 
+                   {'forms':forms})
+    
+
+
 def edit_event(request, eventitem_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start

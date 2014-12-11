@@ -26,6 +26,8 @@ urlpatterns = patterns('',
     url(r'^scheduler/view_list/([-\w]+)/?$',
         views.view_list, name = 'event_list'),
  
-            
+    url(r'^scheduler/acts/?$',
+        views.schedule_acts, name = 'schedule_acts')
+
                     
 )

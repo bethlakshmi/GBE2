@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+  Great Burlesque Expo: Title here
+{% endblock %}
+
+{% block content %}
+
+   <table>
+   
+    <form method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+	{% for form in forms %}
+	   <tr>
+	      {% for field in form %}
+	         <td>{{ field }} </td> 
+		
+ 	      {% endfor  %}
+	   </tr>
+	{% endfor %}
+
+   </table> 
+
+  <input type = "submit" name="submit" value="Submit">
+  
+  </form>
+
+
+{% endblock %}

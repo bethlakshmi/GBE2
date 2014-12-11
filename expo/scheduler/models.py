@@ -99,6 +99,7 @@ class Resource(models.Model):
 
     @property
     def item (self):
+
         child = Resource.objects.get_subclass(id=self.id)
         return child._item
     
@@ -561,4 +562,16 @@ class ResourceAllocation(Schedulable):
                    ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
         except:
             return "Missing an Item"
+            
 
+class Ordering(models.Model):
+    '''
+    A decorator for Allocations to allow representation of orderings
+    Attaches to an Allocation. No effort is made to ensure uniqueness or 
+    completeness of an ordering, this is handled later in the business 
+    logic. 
+    Orderings are assumed to sort from low to high. Negative ordering
+    indices are allowed. 
+    '''
+    order = models.IntegerField(default=0)
+    allocation = models.OneToOneField(ResourceAllocation)

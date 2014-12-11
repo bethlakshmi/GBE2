@@ -777,6 +777,8 @@ class Show (Event):
         return True      # shows are always ready for scheduling
     
 
+
+
 class GenericEvent (Event):
     '''
     Any event except for a show or a class

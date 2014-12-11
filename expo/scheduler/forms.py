@@ -24,6 +24,18 @@ time_stop = 24 * 60
 conference_times = [(time(mins/60, mins%60), time(mins/60, mins%60).strftime("%I:%M %p")) 
                     for mins in range (time_start, time_stop, 30)]
 
+class ActScheduleForm(forms.Form):
+    '''
+    Presents an act for scheduling as one line on a multi-line form. 
+    '''
+    performer = forms.CharField(widget = forms.TextInput(attrs={'readonly':'readonly'}))
+    title = forms.CharField(widget = forms.TextInput(attrs={'readonly':'readonly'}))
+
+
+    show = forms.ModelChoiceField(queryset=Event.objects.all())
+    order = forms.IntegerField()
+    actresource = forms.CharField(required=False, max_length=10, widget=forms.HiddenInput())
+    
 
 
 class EventScheduleForm(forms.ModelForm):
