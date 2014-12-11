@@ -17,10 +17,6 @@ from gbe.duration import Duration
 from scheduler.functions import tablePrep
 from scheduler.functions import set_time_format
 
-
-# Create your views here.
-
-
 def validate_profile(request):
     '''
     Return the user profile if any
@@ -177,21 +173,30 @@ def detail_view(request, eventitem_id):
                                       })
 
 
-def schedule_acts(request, show_id=''):
+def schedule_acts(request):
     '''
     Display a list of acts available for scheduling, allows setting show/order
     '''
+    validate_perms(request, ('Scheduling Mavens',))
+    show_title = ''
+
     if request.method=="POST":
-        show_id = request.POST.get('event_type', 'POST')
-    if show_id.strip() == '':
+        import gbe.models as conf
+        show_title = request.POST.get('event_type', 'POST')   # figure out where we're coming from
+
+#        foo()
+
+    if show_title.strip() == '' :
+        
         import gbe.models as conf
         template = 'scheduler/select_event_type.tmpl'
         show_options = EventItem.objects.all().select_subclasses()
         show_options = filter( lambda event: type(event)==conf.Show, show_options)
         return render(request, template, {'type_options':show_options})        
 
-    if show_id == 'POST':
-        #foo()  # trigger error so I can see the post....
+
+    if show_title == 'POST':      # we're coming from an ActSchedulerForm
+#        foo()  # trigger error so I can see the post....
         alloc_prefixes = set([key.split('-')[0] for key in request.POST.keys()
                       if key.startswith('allocation_')])
         for prefix in alloc_prefixes:
@@ -202,17 +207,25 @@ def schedule_acts(request, show_id=''):
                 continue  # error, should log
             alloc = get_object_or_404(ResourceAllocation, id = prefix.split('_')[1])
             alloc.event =  data['show']
-            alloc.resource = get_object_or_404 (ActResource, id = data['actresource'])
-            alloc.resource.save()
+#            alloc.resource = get_object_or_404 (ActResource, id = data['actresource'])
+            alloc.resource.save(update_fields = ['event'])
             ordering = alloc.ordering
             ordering.order = data['order']
             ordering.save()
         return HttpResponseRedirect(reverse('home', urlconf = 'gbe.urls'))
+
+    # we should have a show title at this point. 
+
+    show = conf.Show.objects.get(title = show_title)
             
     import gbe.models as conf
     # get allocations involving the show we want
-    show = get_object_or_404(Event, id=1) #show_id)
-    allocations = ResourceAllocation.objects.filter(event=show)
+    event = show.scheduler_events.first()
+#    show = get_object_or_404(Event, id=show_id)
+#    show = Event.objects.get(schedulable_ptr_id = show_id)
+
+    allocations = ResourceAllocation.objects.filter(event=event)
+    allocations = [a for a in allocations if type(a.resource.item) == ActItem]
 
 
     forms = []
@@ -224,7 +237,7 @@ def schedule_acts(request, show_id=''):
         details = {}
         details ['title'] = act.title
         details ['performer'] = act.performer
-        details ['show'] = show
+        details ['show'] = event
         details ['order'] = alloc.ordering.order
         details ['actresource'] = alloc.resource.id
         form = ActScheduleForm(initial=details, prefix = 'allocation_'+str(alloc.id))
