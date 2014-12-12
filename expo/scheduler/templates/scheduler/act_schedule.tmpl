@@ -7,7 +7,12 @@
 {% block content %}
 
    <table>
-   
+   <tr>
+	<th>Performer</th>
+	<th>Act Title</th>
+	<th>Show</th>
+	<th>Order</th>
+   </tr>   
     <form method="POST" action="" enctype="multipart/form-data">
     {% csrf_token %}
 	{% for form in forms %}
