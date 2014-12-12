@@ -208,7 +208,6 @@ def schedule_acts(request):
             alloc = get_object_or_404(ResourceAllocation, id = prefix.split('_')[1])
 
             alloc.event =  data['show']
-#            alloc.resource = get_object_or_404 (ActResource, id = data['actresource'])
             alloc.save()
             ordering = alloc.ordering
             ordering.order = data['order']
@@ -222,8 +221,7 @@ def schedule_acts(request):
     import gbe.models as conf
     # get allocations involving the show we want
     event = show.scheduler_events.first()
-#    show = get_object_or_404(Event, id=show_id)
-#    show = Event.objects.get(schedulable_ptr_id = show_id)
+
 
     allocations = ResourceAllocation.objects.filter(event=event)
     allocations = [a for a in allocations if type(a.resource.item) == ActItem]
@@ -241,9 +239,14 @@ def schedule_acts(request):
         details ['show'] = event
         details ['order'] = alloc.ordering.order
         details ['actresource'] = alloc.resource.id
-        form = ActScheduleForm(initial=details, prefix = 'allocation_'+str(alloc.id))
+
         
-        forms.append(form)
+        forms.append( [details, alloc] )
+    forms = sorted(forms, key = lambda f: f[0]['order'])
+    
+    forms = [ActScheduleForm(initial=details, prefix = 'allocation_'+str(alloc.id))
+             for (details, alloc) in forms]
+
     template = 'scheduler/act_schedule.tmpl'
     return render (request, 
                    template, 
