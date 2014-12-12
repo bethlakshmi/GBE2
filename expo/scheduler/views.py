@@ -62,7 +62,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
     '''
     import gbe.models as gbe
     if time_format == None: time_format = set_time_format(days = 2)
-    event_class = eval('gbe.' + event_type))
+    event_class = eval('gbe.' + event_type)
 
     confitems = event_class.objects.all()
     confitems = [item for item in confitems if item.schedule_ready]
