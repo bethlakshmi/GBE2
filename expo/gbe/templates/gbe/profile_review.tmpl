@@ -2,12 +2,12 @@
 {% load staticfiles %}
 
 {% block title %}
-   Review Bids
+   Manage Users
 {% endblock %}
 
 {% block content %}
   <p class="vanilla">{{title}} </p>
-  <h2 class="review-title">Bid Information</h2>
+  <h2 class="review-title">Manage Users</h2>
 
   <table class="bid-table">
     <tr class="bid-table">
@@ -23,7 +23,9 @@
           		</td>	
 		{% endfor %}
           <td class="bid-table">
-              <a href="{{ row.review_url }}">{% if row.action1 %}{{ row.action1 }}{% else %}Review{% endif %}</a>
+              {%for action in row.actions %}
+              <a href="{{ action.url }}">{% if action.text %}{{ action.text }}{% else %}Action{% endif %}</a><br>
+              {%endfor%}
           </td>
 
         

@@ -194,10 +194,14 @@ urlpatterns = patterns ('',
                         url(r'^accounts/password/reset/complete/?$', 
                             password_reset_complete),
  
- # registration 
+ # registration & user management
                         url(r'^profile/manage/?$',
                             views.review_profiles, name = 'manage_users'),
                         url(r'^profile/admin/(\d+)/?$',
-                            views.admin_profile, name = 'admin_profile')
+                            views.admin_profile, name = 'admin_profile'),
+                        url(r'^profile/review_commitments/(\d+)/?$',
+                            views.review_user_commitments, name = 'review_user_commitments'),
+                        url(r'^profile/manage_user_tickets/(\d+)/?$',
+                            views.manage_user_tickets, name = 'manage_user_tickets')
                       
                         ) 

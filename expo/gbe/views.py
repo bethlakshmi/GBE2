@@ -1600,7 +1600,8 @@ def profiles(request):
 @login_required
 def review_profiles(request):
 
-    admin_profile = validate_perms(request, ('Registrar',))
+    admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
+                                             'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
 
     header = Profile().review_header
     profiles=Profile.objects.all()
@@ -1609,15 +1610,43 @@ def review_profiles(request):
         bid_row = {}
         bid_row['profile']=  aprofile.review_summary
         bid_row['id']=aprofile.resourceitem_id
-        bid_row['review_url'] = reverse('admin_profile', urlconf='gbe.urls', args=[aprofile.resourceitem_id])
-        bid_row['action1']="Update"
+        bid_row['actions']=[]
+        if  'Registrar' in request.user.profile.privilege_groups:
+            bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls',
+                                                 args=[aprofile.resourceitem_id]),'text':"Update"}]
+        bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls', args=[aprofile.resourceitem_id]),
+                            'text':"Bids & Schedule"}]
+        if  'Ticketing - Admin' in request.user.profile.privilege_groups or 'Registrar' in request.user.profile.privilege_groups :
+            bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls',
+                                                 args=[aprofile.resourceitem_id]), 'text':"Ticketing & Registration"}]
         rows.append(bid_row)
 
     
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
     
+@login_required
+def review_user_commitments(request, profile_id):
 
+    admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
+                                             'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
+
+    user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
+
+ 
+    return render (request, 'gbe/profile_review.tmpl',
+                  {'header': header, 'rows': rows})
+
+@login_required
+def manage_user_tickets(request, profile_id):
+
+    admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
+
+    user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
+
+  
+    return render (request, 'gbe/profile_review.tmpl',
+                  {'header': header, 'rows': rows})
 
 @login_required
 def admin_profile(request, profile_id):
@@ -1667,7 +1696,7 @@ def admin_profile(request, profile_id):
                                             initial = {'inform_about': inform_initial })
 
         return render(request, 'gbe/update_profile.tmpl', 
-                      {'left_forms': [form], 'right_forms':[prefs_form]})
+                      {'left_forms': [form], 'right_forms':[prefs_form], 'display_name': user_profile.display_name})
 
 
 @login_required
