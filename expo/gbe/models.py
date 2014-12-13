@@ -252,6 +252,10 @@ class Profile(WorkerItem):
     
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.display_name
+    
+    class Meta:
+        ordering = ['display_name']
+
         
 class Performer (WorkerItem):
     '''
@@ -821,9 +825,9 @@ class Class (Biddable, Event):
     teacher = models.ForeignKey(Persona,  
                                 related_name='is_teaching')
     
-    registration = models.ManyToManyField(Profile, 
-                                          related_name='classes',
-                                          blank=True)
+    #registration = models.ManyToManyField(Profile, 
+    #                                      related_name='classes',
+    #                                      blank=True)
 
     minimum_enrollment = models.IntegerField (blank=True, default=1)
     maximum_enrollment = models.IntegerField (blank=True, default=20)
