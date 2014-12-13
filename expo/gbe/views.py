@@ -2099,3 +2099,75 @@ def bid_changestate (request, bid_id, redirectURL):
 
     return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))
 
+@login_required
+def edit_act_techinfo(request, act_id):
+    '''
+    Modify an existing Act object. 
+    '''
+    page_title = 'Edit Act Technical Information'
+    view_title = 'Edit Act Technical Information'
+    submit_button = 'Submit'
+
+    profile = validate_profile(request, require=False)
+    if not profile:
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))   
+
+    act = get_object_or_404(Act,id=act_id)
+    if act.performer.contact != profile:
+        raise Http404
+
+    audio_info = act.tech.audio
+    stage_info = act.tech.stage
+    audio_info = act.tech.audio
+    lighting_info = act.tech.lighting
+
+    if request.method == 'POST':
+        form = ActTechInfoForm(request.POST,  
+                           instance=act, 
+                           prefix = 'Act Summary')
+
+        audioform = AudioInfoForm(request.POST, prefix='Audio Information', instance=audio_info)
+        stageform = StageInfoForm(request.POST, prefix='Stage Information', instance=stage_info)
+        lightingform = LightingInfoForm(request.POST, prefix='Lighting Information', instance=lighting_info)
+        if all( [audioform.is_valid(),
+                 stageform.is_valid(),
+                 lightingform.is_valid()] ):
+
+            tech = act.tech
+            tech.audio = audioform.save()
+            tech.stage = stageform.save()
+            tech.lighting = lightingform.save()
+            
+            tech.save()
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        else:
+            return render (request,
+                           'gbe/bid.tmpl',
+                           {'forms':[form, audioform, stageform, lightingform],
+                            'page_title': page_title,                            
+                            'view_title': view_title,
+                            'nodraft': submit_button,
+                            'showheader': True,
+                            'nodraft': submit_button
+                           })
+
+    else:
+        form = ActTechInfoForm(instance = act, 
+                           prefix='Act Summary')
+        audioform = AudioInfoForm(prefix='Audio Information', instance=audio_info)
+        stageform = StageInfoForm(prefix='Stage Information', instance=stage_info)
+        lightingform = LightingInfoForm(prefix='Lighting Information', instance=lighting_info)
+
+        q = Performer.objects.filter(contact=profile)
+        form.fields['performer']= forms.ModelChoiceField(queryset=q)
+
+        return render (request, 
+                       'gbe/act_techinfo.tmpl',
+                        {'readonlyform':[form],
+                        'forms':[audioform, stageform, lightingform],
+                        'page_title': page_title,                            
+                        'view_title': view_title,
+                        'showheader': True,
+                        'nodraft': submit_button
+                        })
+                    

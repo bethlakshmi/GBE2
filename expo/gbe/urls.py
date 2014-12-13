@@ -53,6 +53,10 @@ urlpatterns = patterns ('',
                         url(r'^act/changestate/(\d+)/?$',
                             views.act_changestate, name='act_changestate'),
 
+# act tech info
+                        url(r'^acttechinfo/edit/(\d+)/?$',
+                            views.edit_act_techinfo, name = 'act_techinfo_edit'),
+
 
 # classes
                         url(r'^class/create/?$',

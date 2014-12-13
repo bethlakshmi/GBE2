@@ -162,7 +162,16 @@ class ActEditDraftForm(forms.ModelForm):
         labels = act_bid_labels
         help_texts=act_help_texts
 
+class ActTechInfoForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
 
+    class Meta:
+        model = Act
+        fields = '__all__'
+
+
+ 
 class BidEvaluationForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -323,6 +332,13 @@ class VendorBidForm(forms.ModelForm):
                    'submitted' : forms.HiddenInput(),
                    'profile' : forms.HiddenInput()}
 
+class ActTechInfoForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = Act
+        fields = [ 'title','description','performer','video_link','video_choice']
 
 class AudioInfoForm(forms.ModelForm):
     formtitle="Audio Info"
