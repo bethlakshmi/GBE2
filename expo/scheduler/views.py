@@ -299,8 +299,8 @@ def edit_event(request, eventitem_id, event_type='class'):
         duration = item.event.sched_payload['duration']
         if len(old_events) > 0:
             event = old_events[0]
-            day = event.starttime.strftime("%A")
-            time = event.starttime.strftime("%H:%M")
+            day = event.starttime.strftime("%Y-%m-%d")
+            time = event.starttime.strftime("%H:%M:%S")
             location = event.location
             form = EventScheduleForm(prefix = "event", instance=event,
                                            initial = {'day':day, 

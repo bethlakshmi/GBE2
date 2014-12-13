@@ -440,7 +440,7 @@ class Event (Schedulable):
         else:
             allocations = ResourceAllocation.objects.filter(event=self)
             for allocation in allocations:
-                if isinstance(allocation.resource.location, Location):
+                if isinstance(allocation.resource, Location):
                     allocation.resource=location
                     allocation.save(update_fields=('resource',))
 
