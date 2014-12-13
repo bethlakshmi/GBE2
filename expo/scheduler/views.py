@@ -302,7 +302,7 @@ def edit_event(request, eventitem_id, event_type='class'):
             day = event.starttime.strftime("%A")
             time = event.starttime.strftime("%H:%M")
             location = event.location
-            form = EventScheduleForm(prefix = "event", 
+            form = EventScheduleForm(prefix = "event", instance=event,
                                            initial = {'day':day, 
                                                       'time':time,
                                                       'location': location, 
