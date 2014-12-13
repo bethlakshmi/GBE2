@@ -101,7 +101,8 @@ acceptance_states = ((0,'No Decision'),
                      (1,'Reject'),
                      (2,'Wait List'), 
                      (3,'Accepted'),
-                     (4,'Withdrawn'))
+                     (4,'Withdrawn'),
+                     (5,'Duplicate'))
 
 class_acceptance_states = (
                      (1,'Reject'),

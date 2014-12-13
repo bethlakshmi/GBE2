@@ -200,7 +200,7 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0).order_by('eventitem', 'starttime'),
+    events = EventCheckBox(queryset=Event.objects.filter(max_volunteer__gt=0).order_by('starttime'),
         	           widget=forms.CheckboxSelectMultiple(),
         	           required=False,
         	           label='Choose Volunteer Schedule')
@@ -221,7 +221,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
 
         if commit:
             # Clear out previous assignments, deletes Worker and ResourceAllocation
-            if not self.cleaned_data['accepted'] == 4:
+            if not self.cleaned_data['accepted'] == 5:
               Worker.objects.filter(_item=volform.profile, role='Volunteer').delete()
  
             # if the act has been accepted, set the show.

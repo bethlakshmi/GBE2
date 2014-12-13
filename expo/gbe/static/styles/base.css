@@ -89,6 +89,11 @@ div.right_col {
     float:right;
 }
 
+div.bid_col {
+    width:60%;
+    float:right;
+}
+
 div.center_col{
   display: inline-block;
   width: 32%; }
@@ -124,6 +129,7 @@ h3.readonlyform
     border: 1px solid black;
     border-collapse:collapse;
     padding: 2px;
+    vertical-align: top;
  }
  
 .bid-form

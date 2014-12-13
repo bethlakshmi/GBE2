@@ -966,7 +966,7 @@ class Volunteer(Biddable):
     
     @property
     def bid_review_header(self):
-        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Availability', 'Conflicts', 'Commitments',
+        return  (['Name', 'Email', 'Hotel', '# Shifts', 'Scheduling Info',
                   'Interests',  'Pre-event', 'Background', 'State', 'Reviews', 'Action'])
 
 
@@ -987,9 +987,9 @@ class Volunteer(Biddable):
         time_format = set_time_format(days = 2)
         for event in self.profile.get_schedule():
             commitments += str(event) + " - " + event.starttime.strftime(time_format) + ', \n'
-
+        scheduling = "Availability: " + availability_string + "\n Conflicts: " + unavailability_string + "\n Commitments: " + commitments
         return  (self.profile.display_name, self.profile.user_object.email, self.profile.preferences.in_hotel,
-                 self.number_shifts, availability_string,  unavailability_string, commitments, interest_string,
+                 self.number_shifts, scheduling, interest_string,
                  self.pre_event, self.background, acceptance_states[self.accepted][1])
     @property
     def bids_to_review(self):
