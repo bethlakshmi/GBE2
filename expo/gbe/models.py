@@ -719,7 +719,9 @@ class Event (EventItem):
     duration = DurationField()
 
     notes = models.TextField(blank=True)  #internal notes about this event
-    owner = models.ManyToManyField(Profile)  # Responsible party
+    # removed because it is the single largest field Scratch and I trip over for no reason
+    # this is deprecated with Resource Allocation which describes responsibilty more clearly with roles
+    #owner = models.ManyToManyField(Profile)  # Responsible party
     
     event_id = models.AutoField(primary_key=True)
                                                 
@@ -751,6 +753,8 @@ class Event (EventItem):
     def get_tickets(self):
         return self.ticketing_item.all()
  
+    class Meta:
+        ordering = ['title']
 
 class Show (Event):
     '''
@@ -850,7 +854,7 @@ class Class (Biddable, Event):
         details = {}
         details= {'type' : self.type }
         if not self.fee == 0:
-            details [classdisplay_labels['fee']] =  self.fee
+            details ['fee'] =  self.fee
 
         payload ['details'] = details
         payload['title'] =  self.event_ptr.title

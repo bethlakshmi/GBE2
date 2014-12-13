@@ -340,15 +340,15 @@ def view_list(request, event_type='All'):
         no elegant filter for child class type, and that select_subclasses isn't a *filter* - I gave up
         '''
         if event_types.has_key(event_type):
-            items = GenericEvent.objects.filter(type=event_type)
+            items = GenericEvent.objects.filter(type=event_type).order_by('title')
         elif class_types.has_key(event_type):
-            items = Class.objects.filter(accepted='3', type=event_type)
+            items = Class.objects.filter(accepted='3', type=event_type).order_by('title')
         elif event_type=='Show':
             items = Show.objects.all()
         elif event_type=='Class':
-            items = Class.objects.filter(accepted='3')
+            items = Class.objects.filter(accepted='3').exclude(type='Panel').order_by('title')
         else:
-            items = EventItem.objects.all().select_subclasses()
+            items = EventItem.objects.all().select_subclasses().order_by('title')
             event_type="All"
 
         events = [{'eventitem': item, 
