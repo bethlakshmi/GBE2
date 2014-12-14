@@ -68,7 +68,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
     confitems = [item for item in confitems if item.schedule_ready]
     eventitems = [{ 'eventitem': ci.eventitem_ptr , 
                   'confitem':ci,
-                  'schedule_event':ci.eventitem_ptr.scheduler_events.all().first()}
+                  'schedule_event':ci.eventitem_ptr.scheduler_events.first()}
                   for ci in confitems]
 
                     
@@ -102,7 +102,7 @@ def get_event_display_info(eventitem_id):
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
     only one eventitem.  
     '''
-    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
+    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses().first()
     
     bio_grid_list = []
     for sched_event in item.scheduler_events.all():
@@ -274,9 +274,9 @@ def edit_event(request, eventitem_id, event_type='class'):
                                      prefix='event')
         else:
             event_form = EventScheduleForm(request.POST, 
-                                           instance = item.scheduler_events.all()[0],
+                                           instance = item.scheduler_events.first(),
                                            prefix='event')
-        if (event_form.is_valid()  and True):
+        if event_form.is_valid() :
             s_event=event_form.save(commit=False)
             s_event.eventitem = item
             data = event_form.cleaned_data
@@ -295,10 +295,9 @@ def edit_event(request, eventitem_id, event_type='class'):
         else:
             raise Http404
     else:
-        old_events = item.scheduler_events.all()
         duration = item.event.sched_payload['duration']
-        if len(old_events) > 0:
-            event = old_events[0]
+        if item.scheduler_events.count() > 0:
+            event = item.scheduler_events.first()
             day = event.starttime.strftime("%Y-%m-%d")
             time = event.starttime.strftime("%H:%M:%S")
             location = event.location
@@ -366,6 +365,8 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
+    
+
 
 def calendar_view(request, 
                   cal_type = 'Event', 
@@ -401,6 +402,9 @@ def calendar_view(request,
 
     return render(request, template, Table)
     
+
+
+
 
 calendar_test_data =     [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
         'starttime': datetime(2015, 02, 07, 9, 00), 
