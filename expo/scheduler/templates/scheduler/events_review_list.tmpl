@@ -22,11 +22,19 @@
             		{{ event.title }}
           		</td>	
 
-	                <td class="events-table">      
-			   {{ event.location  }}
+	                <td class="events-table">
+			  {%if event.location %}
+			    {{ event.location  }}
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
           		</td>	
 	                <td class="events-table">      
-            		{{ event.datetime }}
+			  {%if event.datetime %}
+			    {{ event.datetime  }}
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
           		</td>	
 	                <td class="events-table">      
             		{{ event.duration }}
@@ -35,16 +43,31 @@
             		{{ event.type }}
           		</td>	
 	                <td class="events-table">      
-            		{{ event.max_volunteer }}
+			  {%if event.max_volunteer %}
+			    {{ event.max_volunteer  }}
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
           		</td>	
 	                <td class="events-table">      
             		<a href='{{ event.detail }}'>Detail</a>
           		</td>	
-	                <td class="events-table">      
-            		<a href='{{ event.edit }}'>Edit</a>
+	                <td class="events-table">
+			  {%if event.edit %}
+            		    <a href='{{ event.edit }}'>Edit</a>
+			  {%elif event.create%}
+            		    <a href='{{ event.create }}'>Add Session</a>
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
           		</td>	
 
       </tr>
+      {% if event.create %}
+      <tr class=blank_row>
+	<td colspan=8>&nbsp</td>
+      </tr>
+      {% endif %}
     {% endfor %}
   </table>
 {% endblock %}

@@ -66,33 +66,39 @@ def get_events_display_info(event_type = 'Class', time_format = None):
 
     confitems = event_class.objects.all()
     confitems = [item for item in confitems if item.schedule_ready]
-    eventitems = [{ 'eventitem': ci.eventitem_ptr , 
-                  'confitem':ci,
-                  'schedule_event':ci.eventitem_ptr.scheduler_events.all().first()}
-                  for ci in confitems]
-
+    eventitems = []
+    for ci in confitems:
+        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(), key = lambda sched_event: sched_event.starttime):
+            eventitems += [{ 'eventitem': ci.eventitem_ptr , 
+                             'confitem':ci,
+                             'schedule_event':sched_event}]
+        else:
+            eventitems += [{ 'eventitem': ci.eventitem_ptr , 
+                             'confitem':ci,
+                             'schedule_event':None}]
                     
 
     eventslist = []
     for entry in eventitems:
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
-                'duration': entry['confitem'].sched_payload['duration'],
+                    'duration': entry['confitem'].sched_payload['duration'],
                     'type':entry['confitem'].sched_payload['details']['type'],
                     'detail': reverse('detail_view', 
                                       urlconf='scheduler.urls', 
                                       args = [entry['eventitem'].eventitem_id]),
-                    'edit': reverse('edit_event', 
-                                    urlconf='scheduler.urls', 
-                                    args =  [event_type,  entry['eventitem'].eventitem_id]),
                     }
         if entry['schedule_event']:
+            eventinfo ['edit'] = reverse('edit_event', urlconf='scheduler.urls', 
+                                         args =  [event_type,  entry['schedule_event'].id])
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
         else:
-            eventinfo ['location'] = "Not yet scheduled"
-            eventinfo ['datetime'] = "Not yet scheduled"
-            eventinfo ['max_volunteer'] =  "N/A"
+            eventinfo ['create'] = reverse('create_event', urlconf='scheduler.urls', 
+                                         args =  [event_type,  entry['eventitem'].eventitem_id])
+            eventinfo ['location'] = None
+            eventinfo ['datetime'] = None
+            eventinfo ['max_volunteer'] =  None
         eventslist.append(eventinfo)
 
     return eventslist
@@ -254,36 +260,31 @@ def schedule_acts(request):
     
 
 
-def edit_event(request, eventitem_id, event_type='class'):
+def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
-    Takes a scheduler.EventItem id
+    Takes a scheduler.Event id -- BB changed to scheduler event, we need to be able to edit
+    any scheduled case of this event, not just the first
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
     try:
-        item = EventItem.objects.get_subclass(eventitem_id = eventitem_id)
+        item = Event.objects.get_subclass(id = scheduler_event_id)
     except:
         raise Exception ("Error code XYZZY: Couldn't get an item for id")
     
     if request.method=='POST':
-        if len(item.scheduler_events.all())==0:
-               # Creating a new scheduler.Event and allocating a room
-            event_form = EventScheduleForm(request.POST, 
-                                     prefix='event')
-        else:
-            event_form = EventScheduleForm(request.POST, 
-                                           instance = item.scheduler_events.all()[0],
-                                           prefix='event')
+        event_form = EventScheduleForm(request.POST, 
+                                       instance = item,
+                                       prefix='event')
         if (event_form.is_valid()  and True):
             s_event=event_form.save(commit=False)
-            s_event.eventitem = item
             data = event_form.cleaned_data
-
                          
             if data['duration']:
                 s_event.set_duration(data['duration'])
+                
             l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
@@ -295,20 +296,62 @@ def edit_event(request, eventitem_id, event_type='class'):
         else:
             raise Http404
     else:
-        old_events = item.scheduler_events.all()
-        duration = item.event.sched_payload['duration']
-        if len(old_events) > 0:
-            event = old_events[0]
-            day = event.starttime.strftime("%Y-%m-%d")
-            time = event.starttime.strftime("%H:%M:%S")
-            location = event.location
-            form = EventScheduleForm(prefix = "event", instance=event,
+        duration = item.duration
+        day = item.starttime.strftime("%Y-%m-%d")
+        time = item.starttime.strftime("%H:%M:%S")
+        location = item.location
+        form = EventScheduleForm(prefix = "event", instance=item,
                                            initial = {'day':day, 
                                                       'time':time,
                                                       'location': location, 
                                                       'duration':duration})
-        else: 
-            form =  EventScheduleForm( prefix='event', initial={'duration':duration})
+    template = 'scheduler/event_schedule.tmpl'
+    eventitem_view = get_event_display_info(item.eventitem.eventitem_id)
+    return render(request, template, {'eventitem': eventitem_view,
+                                      'form': form,
+                                      'show_tickets': True,
+                                      'tickets': eventitem_view['event'].get_tickets,
+                                      'user_id':request.user.id})
+
+def create_event(request, eventitem_id, event_type='class'):
+    '''
+    Add an item to the conference schedule and/or set its schedule details (start
+    time, location, duration, or allocations)
+    Takes a scheduler.EventItem id - BB - separating new event from editing existing, so that
+    edit can identify particular schedule items, while this identifies the event item.
+    '''
+    profile = validate_perms(request, ('Scheduling Mavens',))
+
+    try:
+        item = EventItem.objects.get_subclass(eventitem_id = eventitem_id)
+    except:
+        raise Exception ("Error code XYZZY: Couldn't get an item for id")
+    
+    if request.method=='POST':
+        event_form = EventScheduleForm(request.POST, 
+                                     prefix='event')
+        if (event_form.is_valid()  and True):
+            s_event=event_form.save(commit=False)
+            s_event.eventitem = item
+            data = event_form.cleaned_data
+                         
+            if data['duration']:
+                s_event.set_duration(data['duration'])
+                
+            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
+            s_event.save()                        
+            s_event.set_location(l)
+            s_event.save()                        
+            
+            return HttpResponseRedirect(reverse('event_schedule', 
+                                                urlconf='scheduler.urls', 
+                                                args=[event_type]))
+        else:
+            raise Http404
+    else:
+        duration = item.duration
+        form =  EventScheduleForm( prefix='event', initial={'duration':duration})
+        
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
@@ -316,7 +359,6 @@ def edit_event(request, eventitem_id, event_type='class'):
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
-
 
 def view_list(request, event_type='All'):
     '''

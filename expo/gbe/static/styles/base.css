@@ -469,3 +469,8 @@ table.events-table td
 {
     border:1px solid;
 }
+
+tr.blank_row
+{
+  background-color: #D0D0D0 ;
+}

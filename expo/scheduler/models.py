@@ -30,7 +30,11 @@ class Schedulable(models.Model):
 
     @property
     def start_time(self):
-        return self.starttime
+        child = Schedulable.objects.get_subclass(id=self.id)
+        try:
+            return child.starttime
+        except:
+            return None
     
     @property
     def end_time(self):
@@ -38,7 +42,7 @@ class Schedulable(models.Model):
     
     def __unicode__(self):
         if self.start_time:
-            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
         else:
             return "No Start Time"
 
