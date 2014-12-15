@@ -198,50 +198,39 @@ class Profile(WorkerItem):
         return acts
 
     def get_shows(self):
-        shows = []
         acts = self.get_acts()
-        for act in acts:
-            if act.accepted == 3:
-                shows += EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
-        return shows
+        return [EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act) 
+                for act in acts if act.accepted==3]
+
 
     '''
-        Gets all of a person's schedule.  Every way the actual human could be committed:
-          - via profile
-          - via performer(s)
-          - via performing in acts
-        Returns schedule as a list of Scheduler.Events
-        NOTE:  Things that haven't been booked with start times won't be here.
+    Gets all of a person's schedule.  Every way the actual human could be committed:
+    - via profile
+    - via performer(s)
+    - via performing in acts
+    Returns schedule as a list of Scheduler.Events
+    NOTE:  Things that haven't been booked with start times won't be here.
     '''
     def get_schedule(self):
         from scheduler.models import Event
-        events = []
         acts = self.get_acts()
-        for act in acts:
-            if act.accepted == 3:
-                events += Event.objects.filter(resources_allocated__resource__actresource___item=act)
+        events = [Event.objects.filter(resources_allocated__resource__actresource___item=act) 
+                  for act in acts if act.accepted==3]
         for performer in self.get_performers():
             events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
         events += Event.objects.filter(resources_allocated__resource__worker___item=self)
         return sorted(set(events), key=lambda event:event.starttime)
-
-
-
-
 
     def is_teaching(self):
         '''
         return a list of classes this user is teaching
         (not a list of classes they are taking, that's another list)
         '''
-        classes = []
-        for teacher in self.personae.all():
-            classes += teacher.is_teaching.all()
-        return classes
+        return  [teacher.is_teaching.all() for teacher in self.personae.all()]
+
 
     def sched_payload(self):
-        return { 'name': self.display_name
-             }
+        return { 'name': self.display_name }
                 
     def __str__(self):
         return self.display_name
@@ -250,7 +239,7 @@ class Profile(WorkerItem):
     def describe(self):
         return self.display_name
     
-    def __unicode__(self):  # Python 3: def __str__(self):
+    def __unicode__(self):  
         return self.display_name
     
     class Meta:
@@ -340,7 +329,7 @@ class Persona (Performer):
     performer_profile = models.ForeignKey(Profile, related_name="personae")   
 
     '''
-        Gets all of the people performing in the act.
+    Returns the single profile associated with this persona
     '''
     def get_profiles(self):
         return [self.performer_profile]

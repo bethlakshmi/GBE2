@@ -76,6 +76,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventitems += [{ 'eventitem': ci.eventitem_ptr , 
                              'confitem':ci,
                              'schedule_event':None}]
+
                     
 
     eventslist = []
@@ -108,7 +109,7 @@ def get_event_display_info(eventitem_id):
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
     only one eventitem.  
     '''
-    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses()[0]
+    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses().first()
     
     bio_grid_list = []
     for sched_event in item.scheduler_events.all():
@@ -279,6 +280,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                                        instance = item,
                                        prefix='event')
         if (event_form.is_valid()  and True):
+
             s_event=event_form.save(commit=False)
             data = event_form.cleaned_data
                          
@@ -408,6 +410,8 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
+    
+
 
 def calendar_view(request, 
                   cal_type = 'Event', 
@@ -443,6 +447,9 @@ def calendar_view(request,
 
     return render(request, template, Table)
     
+
+
+
 
 calendar_test_data =     [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
         'starttime': datetime(2015, 02, 07, 9, 00), 

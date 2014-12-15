@@ -123,6 +123,18 @@ class ActItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            act = Act.objects.select_subclasses().get(_item=self)
+        except:
+            act = Act(_item=self)
+            act.save()
+        return act
+
 
     @property
     def get_performer_profiles(self):
@@ -206,7 +218,7 @@ class LocationItem(ResourceItem):
         try:
             loc = Location.objects.select_subclasses().get(_item=self)
         except:
-            loc =  Location(_item=self)
+            loc = Location(_item=self)
             loc.save()
         return loc
 
@@ -249,6 +261,20 @@ class WorkerItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            worker = Worker.objects.select_subclasses().get(_item=self)
+        except:
+            worker = Worker(_item=self)
+            worker.save()
+        return worker
+
+
     @property
     def contact_email(self):
         return WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
@@ -331,6 +357,19 @@ class EquipmentItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+
+    def get_resource(self):
+        '''
+        Return the resource corresonding to this item
+        To do: find a way to make this work at the Resource level
+        '''
+        try:
+            equip = Equipment.objects.select_subclasses().get(_item=self)
+        except:
+            equip = Equipment(_item=self)
+            equip.save()
+        return equip
+
     @property
     def contact_email(self):
         return ""
@@ -448,8 +487,28 @@ class Event (Schedulable):
                     allocation.resource=location
                     allocation.save(update_fields=('resource',))
 
+    def allocate_worker(self, worker, role, label = None):
+        '''
+        worker can be an instance of WorkerItem or of Worker
+        role is a string, must be one of the role types. 
+        Since a particular Worker can be allocated in multiple roles, or 
+        multiple times in the same role, this will not attempt to reject 
+        duplicate allocations, it will always just create the requested allocation
+        '''
+        if isinstance(worker, WorkerItem):
+            worker = worker.get_resource()
 
-                
+        allocation = ResourceAllocation(event = self, resource = worker)
+        allocation.role = role   # should validate this input
+        allocation.save()
+        if label:
+            l = Label(allocation = allocation, text = label)
+            l.save()
+
+        
+        
+            
+
     def set_duration(self, duration):
         '''
         duration should be a gbe.Duration or a timedelta
@@ -578,4 +637,12 @@ class Ordering(models.Model):
     indices are allowed. 
     '''
     order = models.IntegerField(default=0)
+    allocation = models.OneToOneField(ResourceAllocation)
+
+
+class Label (models.Model):
+    '''
+    A decorator allowing free-entry "tags" on allocations
+    '''
+    text = models.TextField (default = '')
     allocation = models.OneToOneField(ResourceAllocation)
