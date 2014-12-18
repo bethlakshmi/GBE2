@@ -240,6 +240,8 @@ def schedule_acts(request):
         if type (actitem) != ActItem:
             continue
         act = actitem.act
+        if act.accepted == 3:
+            continue
         details = {}
         details ['title'] = act.title
         details ['performer'] = act.performer
@@ -290,6 +292,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
+            if data['teacher']:
+                s_event.allocate_worker(data['teacher'], 'Teacher')
             s_event.save()                        
             
             return HttpResponseRedirect(reverse('event_schedule', 
@@ -298,15 +302,21 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         else:
             raise Http404
     else:
-        duration = item.duration
-        day = item.starttime.strftime("%Y-%m-%d")
-        time = item.starttime.strftime("%H:%M:%S")
-        location = item.location
-        form = EventScheduleForm(prefix = "event", instance=item,
-                                           initial = {'day':day, 
-                                                      'time':time,
-                                                      'location': location, 
-                                                      'duration':duration})
+
+        initial = {}
+        initial['duration'] = item.duration
+        initial['day'] = item.starttime.strftime("%Y-%m-%d")
+        initial['time'] = item.starttime.strftime("%H:%M:%S")
+        initial['location'] = item.location
+        allocs = ResourceAllocation.objects.filter(event = item)
+        workers = [a.resource for a in allocs if type(a.resource) == Worker]
+        teachers = [worker for worker in workers if worker.role == 'Teacher']
+        if len(teachers) > 0:
+            initial['teacher'] = teachers[0] ## to do: handle multiple teachers
+
+        form = EventScheduleForm(prefix = "event", 
+                                 instance=item,
+                                 initial = initial)
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(item.eventitem.eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,

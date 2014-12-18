@@ -706,6 +706,8 @@ class Event (EventItem):
     biddable (though the Acts comprising them are) , but classes arise
     from participant bids.  
     '''
+    objects = InheritanceManager()
+
     title = models.CharField(max_length=128)
     description = models.TextField()            # public-facing description 
     blurb = models.TextField(blank=True)        # short description

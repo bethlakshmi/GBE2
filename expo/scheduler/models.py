@@ -469,6 +469,19 @@ class Event (Schedulable):
     starttime = models.DateTimeField(blank=True)
     max_volunteer = models.PositiveIntegerField(default=0)
 
+
+
+    @property
+    def confitem(self):
+        '''
+        Returns the conference item corresponding to this event
+        '''
+        import gbe.models as conf
+        try:
+            return conf.Event.objects.get_subclass(event_id = self.eventitem.event.event_id)
+        except:
+            return None   # need to do some defensive programming here
+
     def set_location(self, location):
         '''
         location is a LocationItem or a Location resource
@@ -481,9 +494,10 @@ class Event (Schedulable):
             ra = ResourceAllocation(resource=location, event=self)
             ra.save()
         else:
+            locations = LocationItem.objects.all()
             allocations = ResourceAllocation.objects.filter(event=self)
             for allocation in allocations:
-                if isinstance(allocation.resource, Location):
+                if allocation.resource.item in locations:
                     allocation.resource=location
                     allocation.save(update_fields=('resource',))
 
@@ -505,7 +519,7 @@ class Event (Schedulable):
             l = Label(allocation = allocation, text = label)
             l.save()
 
-        
+
         
             
 
@@ -525,24 +539,15 @@ class Event (Schedulable):
     def bio_list(self):
         bio_list = []
         last_perf = False
-#        acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3).order_by('_item__act__performer')
         acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3)
-        # BB - this is a very cheesy way of doing select distinct on performer
-        # problem is - SQL lite doesn't support select distinct on
         bio_list = list(set([act._item.bio for act in acts]))
         bio_list = sorted(bio_list, key = lambda bio:bio.name)
-#        for act in acts:
-#            if not last_perf:
-#                bio_list += [act._item.bio]
-#            elif last_perf != act._item.bio:
-#                bio_list += [act._item.bio]
-#            last_perf=act._item.bio
+
         return bio_list
 
     # for a shorter list of bios - 1-2 or so, as with Workeritems
 
          
-        
     def __str__(self):
         try:
             return self.eventitem.describe
