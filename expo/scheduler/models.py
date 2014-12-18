@@ -532,17 +532,17 @@ class Event (Schedulable):
     # for a long list of bios, right now, that is acts in shows.
     @property
     def bio_list(self):
-        bio_list = []
-        last_perf = False
         acts = ActResource.objects.filter(allocations__event=self, _item__act__accepted=3)
         bio_list = list(set([act._item.bio for act in acts]))
         bio_list = sorted(bio_list, key = lambda bio:bio.name)
 
         return bio_list
 
-    # for a shorter list of bios - 1-2 or so, as with Workeritems
+    def worker_list(self, role):
+        workers = Worker.objects.filter(allocation__event=self, role=role)
+        
 
-         
+
     def __str__(self):
         try:
             return self.eventitem.describe
