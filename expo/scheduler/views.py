@@ -229,10 +229,8 @@ def schedule_acts(request):
     # get allocations involving the show we want
     event = show.scheduler_events.first()
 
-
     allocations = ResourceAllocation.objects.filter(event=event)
     allocations = [a for a in allocations if type(a.resource.item) == ActItem]
-
 
     forms = []
     for alloc in allocations:
@@ -240,7 +238,7 @@ def schedule_acts(request):
         if type (actitem) != ActItem:
             continue
         act = actitem.act
-        if act.accepted == 3:
+        if act.accepted != 3:
             continue
         details = {}
         details ['title'] = act.title
