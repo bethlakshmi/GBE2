@@ -291,6 +291,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             s_event.save()                        
             s_event.set_location(l)
             if data['teacher']:
+                s_event.unallocate_role('Teacher')
                 s_event.allocate_worker(data['teacher'], 'Teacher')
             s_event.save()                        
             
@@ -307,10 +308,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         initial['time'] = item.starttime.strftime("%H:%M:%S")
         initial['location'] = item.location
         allocs = ResourceAllocation.objects.filter(event = item)
-        workers = [a.resource for a in allocs if type(a.resource) == Worker]
+        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
         teachers = [worker for worker in workers if worker.role == 'Teacher']
         if len(teachers) > 0:
-            initial['teacher'] = teachers[0] ## to do: handle multiple teachers
+            initial['teacher'] = teachers[0].item ## to do: handle multiple teachers
 
         form = EventScheduleForm(prefix = "event", 
                                  instance=item,

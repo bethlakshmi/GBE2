@@ -5,7 +5,7 @@ from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
 from scheduler.functions import set_time_format
-
+from django.core.exceptions import MultipleObjectsReturned
 import pytz
 
 
@@ -262,19 +262,6 @@ class WorkerItem(ResourceItem):
     objects = InheritanceManager()
     
 
-    def get_resource(self):
-        '''
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
-        try:
-            worker = Worker.objects.select_subclasses().get(_item=self)
-        except:
-            worker = Worker(_item=self)
-            worker.save()
-        return worker
-
-
     @property
     def contact_email(self):
         return WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
@@ -510,18 +497,26 @@ class Event (Schedulable):
         duplicate allocations, it will always just create the requested allocation
         '''
         if isinstance(worker, WorkerItem):
-            worker = worker.get_resource()
-
+            worker = Worker(_item=worker, role = role)
+            
+        else:
+            worker.role = role
+        worker.save()
         allocation = ResourceAllocation(event = self, resource = worker)
-        allocation.role = role   # should validate this input
         allocation.save()
         if label:
             l = Label(allocation = allocation, text = label)
             l.save()
 
-
-        
-            
+    def unallocate_role(self, role):
+        '''
+        Remove all Worker allocation with this role
+        '''
+        allocations = ResourceAllocation.objects.filter(event = self)
+        for allocation in allocations:
+            if type(allocation.resource.item)==WorkerItem:
+                if Worker.objects.get(id = allocation.resource.id).role == role:
+                    allocation.delete()
 
     def set_duration(self, duration):
         '''
