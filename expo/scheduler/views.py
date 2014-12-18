@@ -115,6 +115,8 @@ def get_event_display_info(eventitem_id):
     for sched_event in item.scheduler_events.all():
         bio_grid_list += sched_event.bio_list
     
+    
+    
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
                       'labels': event_labels,
@@ -265,8 +267,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
-    Takes a scheduler.Event id -- BB changed to scheduler event, we need to be able to edit
-    any scheduled case of this event, not just the first
+    Takes a scheduler.Event id 
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
