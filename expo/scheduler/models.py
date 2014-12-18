@@ -499,7 +499,7 @@ class Event (Schedulable):
             for allocation in allocations:
                 if allocation.resource.item in locations:
                     allocation.resource=location
-                    allocation.save(update_fields=('resource',))
+                    allocation.save()
 
     def allocate_worker(self, worker, role, label = None):
         '''
