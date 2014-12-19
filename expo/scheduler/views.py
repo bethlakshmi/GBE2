@@ -157,16 +157,6 @@ def calendar(request, cal_format = 'Block'):
 
     pass
 
-#def calendar_view(request, cal_type = 'Event', cal_format = 'Block'):
-#    '''
-#    Accepts a calendar type, and renders a calendar for that type.  Type can be
-#    an event class, an event instance (shows what is scheduled within that
-#    event), an event reference (shows a calendar of just every instance of
-#    that event), or a schedulable items (which shows a calendar for that item).
-#    '''
-
-#    pass
-
 def detail_view(request, eventitem_id):
     '''
     Takes the id of a single event and displays all its details in a template
@@ -419,15 +409,55 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
+def event_info(confitem_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
+        datetime(2015, 02, 23, 00, 00))):
+    '''
+    Queries the database for scheduled events of type confitem_type, during time cal_times,
+    and returns their important information in a dictionary format.
+    '''
+
+    import gbe.models as conf
+    from scheduler.models import Location
     
+    if confitem_type=='All':
+        confitems_list = conf.Event.objects.all()
+    else:
+        confitem_class = eval ('conf.'+confitem_type)
+        confitems_list = confitem_class.objects.all()
+        
+    confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
 
+    loc_allocs = []
+    for l in Location.objects.all():
+        loc_allocs += l.allocations.all()
 
-def calendar_view(request, 
-                  cal_type = 'Event', 
-                  cal_times = (datetime(2015, 02, 20, 18, 00), 
-                               datetime(2015, 02, 23, 00,00)), 
-                  time_format=None):
+    scheduled_events = [alloc.event for alloc in loc_allocs]
+    # for event in scheduled_events: filter on start_time and stop_time vs cal_times
+    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]    
 
+    events_dict = {}
+    for index in range(len(scheduled_event_ids)):
+        for confitem in confitems_list:
+            if scheduled_event_ids[index] == confitem.eventitem_id:
+                events_dict[scheduled_events[index]] = confitem
+
+    events = [{'title': confitem.title,
+               'link' : reverse('detail_view', urlconf='scheduler.urls', 
+                   args = [str(confitem.eventitem_id)]), # could also be event_id, doublecheck
+               'description': confitem.description,
+               'start_time':  event.start_time,
+               'stop_time':  event.start_time + confitem.duration,
+               'location' : event.location.room.name,
+            }
+        for (event, confitem) in events_dict.items()]
+
+    return events
+
+#def calendar_view(request, 
+def calendar_view(request = None,
+        event_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
+        datetime(2015, 02, 23, 00, 00)), time_format=None,
+        duration = Duration(minutes = 30)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.
@@ -436,70 +466,70 @@ def calendar_view(request,
     Will add in database queries once basic funcationality is completed.
     '''
 
-    events = []
-    events = calendar_test_data
+    events = event_info(event_type, cal_times)
 
-    if time_format == None: 
+    if time_format == None:
         time_format = set_time_format()
 
+    ###  Changing function to get table labels from the request
     Table = {}
     Table['rows'] = tablePrep(events, duration)
-    Table['Name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
-    Table['Link'] = 'http://burlesque-expo.com'
-    Table['X_Name'] = {}
-    Table['X_Name']['html'] = 'Rooms'
-    Table['X_Name']['Link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+    Table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+    Table['link'] = 'http://burlesque-expo.com'
+    Table['x_name'] = {}
+    Table['x_name']['html'] = 'Rooms'
+    Table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
 
     template = 'scheduler/Sched_Display.tmpl'
 
-    
-
     return render(request, template, Table)
     
+def faux_event_info(event_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
+        datetime(2015, 02, 23, 00, 00))):
+    '''
+    Return event info as if a db query had been issued.
+    '''
 
-
-
-
-calendar_test_data =     [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 
-        'stoptime': datetime(2015, 02, 07, 10, 00), \
+    return [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
+        'start_time': datetime(2015, 02, 07, 9, 00), 
+        'stop_time': datetime(2015, 02, 07, 10, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'}, 
 
     {'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 13, 00), 
-        'stoptime': datetime(2015, 02, 07, 14, 00), \
+        'start_time': datetime(2015, 02, 07, 13, 00), 
+        'stop_time': datetime(2015, 02, 07, 14, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'},
 
     {'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 
-        'stoptime': datetime(2015, 02, 07, 11, 00), \
+        'start_time': datetime(2015, 02, 07, 10, 00), 
+        'stop_time': datetime(2015, 02, 07, 11, 00), \
         'location': 'Paul Revere', 'Type': 'Movement Class'},
 
     {'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 11, 00), 
-        'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'start_time': datetime(2015, 02, 07, 11, 00), 
+        'stop_time': datetime(2015, 02, 07, 12, 00), \
         'location': 'Paul Revere', 'Type': 'Business Class'},
 
     {'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'starttime': datetime(2015, 02, 07, 9, 00), 
-        'stoptime': datetime(2015, 02, 07, 10, 00), \
+        'start_time': datetime(2015, 02, 07, 9, 00), 
+        'stop_time': datetime(2015, 02, 07, 10, 00), \
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
     {'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
         'Link': 'http://random.new.websi.te', \
-        'starttime': datetime(2015, 02, 07, 14, 00), 
-        'stoptime': datetime(2015, 02, 07, 16, 00),\
+        'start_time': datetime(2015, 02, 07, 14, 00), 
+        'stop_time': datetime(2015, 02, 07, 16, 00),\
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
     {'html': 'Muumuus A-Go-Go', 'short_desc': 'Dancing in Less-then-Sexy Clothing', \
         'Link': 'http://some.bad.websi.te', \
-        'starttime': datetime(2015, 02, 07, 10, 00), 
-        'stoptime': datetime(2015, 02, 07, 12, 00), \
+        'start_time': datetime(2015, 02, 07, 10, 00), 
+        'stop_time': datetime(2015, 02, 07, 12, 00), \
         'location': 'Thomas Atkins', 'Type': 'Movement Class'},
 
     {'html': 'From Legalese to English, Contracts in Burlesque', \
         'Link': 'http://still.another.websi.te', \
-        'starttime': datetime(2015, 02, 07, 12, 00), 
-        'stoptime': datetime(2015, 02, 07, 13, 00), \
+        'start_time': datetime(2015, 02, 07, 12, 00), 
+        'stop_time': datetime(2015, 02, 07, 13, 00), \
         'location': 'Thomas Atkins', 'Type': 'Business Class'}]
 
