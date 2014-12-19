@@ -214,12 +214,12 @@ class Profile(WorkerItem):
     def get_schedule(self):
         from scheduler.models import Event
         acts = self.get_acts()
-        events = [Event.objects.filter(resources_allocated__resource__actresource___item=act) 
-                  for act in acts if act.accepted==3]
+        events = sum([  list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+                  for act in acts if act.accepted==3], [])
         for performer in self.get_performers():
-            events += Event.objects.filter(resources_allocated__resource__worker___item=performer)
-        events += Event.objects.filter(resources_allocated__resource__worker___item=self)
-        return sorted(set(events), key=lambda event:event.starttime)
+            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
+        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+        return sorted(set(events), key=lambda event:event.start_time)
 
     def is_teaching(self):
         '''
