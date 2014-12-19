@@ -27,7 +27,7 @@ def set_time_format(events = None, days = 0):
 
     if type(events) == type({}) and days == 0:
         for event in events:
-            day = event['starttime'].day
+            day = event['start_time'].day
             if day not in days:
                 days.append(day)
         days = len(days)
@@ -60,14 +60,14 @@ def init_time_blocks(events, block_size, time_format,
     
     '''
     if not cal_start:
-#        cal_start = sorted(events, key = lambda event:event['starttime'])[0]
-        cal_start = sorted([event['starttime'] for event in events])[0]
+#        cal_start = sorted(events, key = lambda event:event['start_time'])[0]
+        cal_start = sorted([event['start_time'] for event in events])[0]
     elif instanceof(cal_start, time):
         cal_start = datetime.combine(datetime.min,cal_start)
 
     if not cal_stop:
-        cal_stop = sorted([event['stoptime'] for event in events])[-1]
- #       cal_stop = sorted(events, key = lambda event:event['stoptime'])[-1]
+        cal_stop = sorted([event['stop_time'] for event in events])[-1]
+ #       cal_stop = sorted(events, key = lambda event:event['stop_time'])[-1]
     elif instanceof(cal_stop, datetime): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
 
@@ -107,19 +107,19 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
 #                      seconds = schedule_stop.second)
 
 
-    if event['starttime'] < schedule_start:
+    if event['start_time'] < schedule_start:
         relative_start = Duration(seconds=0)
     else:
-        relative_start = event['starttime'] - schedule_start
-    if event['stoptime'] > schedule_stop:
-        working_stoptime = schedule_stop
+        relative_start = event['start_time'] - schedule_start
+    if event['stop_time'] > schedule_stop:
+        working_stop_time = schedule_stop
     else:
-        working_stoptime = timedelta_to_duration(event['stoptime'] - schedule_start)
+        working_stop_time = timedelta_to_duration(event['stop_time'] - schedule_start)
 
     
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
-    event['rowspan'] = int(math.ceil(working_stoptime / block_size))-event['startblock']
+    event['rowspan'] = int(math.ceil(working_stop_time / block_size))-event['startblock']
 
     
 
@@ -133,22 +133,21 @@ def overlap_check(events):
     for location in set([e['location'] for e in events]):
         prev_stop = 0
         prev_event = None
-        conflict_set = set()
+        conflict_set = {}
         location_events = sorted([event for event in events if event['location'] == location], 
                                  key = lambda event:event['startblock'])
         for event in location_events:
             if event['startblock'] < prev_stop:
-                conflict_set = conflict_set + prev_event
-                conflict_set = conflict_set + event
+                conflict_set[prev_event] = event
             else:
                 if len(conflict_set) >0:
-                    overlaps += tuple(conflict_set)
-                    conflict_set = set()
+                    overlaps += conflict_set.items()
+                    conflict_set = {}
             prev_stop = event['startblock'] + event['rowspan'] 
             prev_event = event
         if len(conflict_set) >0:
-            overlaps += tuple (conflict_set)
-            conflict_set = set()
+            overlaps += conflict_set.items()
+            conflict_set = {}
     return overlaps
             
 
@@ -176,7 +175,7 @@ def htmlPrep(event):
     generate one.
     '''
 
-    html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['text'])
+    html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['title'])
     if 'short_desc' in event.keys():
         #  short_desc is a short description, which is optional
         html = html+event['short_desc']
@@ -195,7 +194,6 @@ def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
             table[0][cell] = table[0][cell] + headerEnd
         
     for cell in range(1, len(table)):
-        print type(table[cell][0]),  table[cell][0]
         if not table[cell][0].startswith(headerStart):
             table[cell][0] = headerStart + table[cell][0]
         if not table[cell][0].endswith(headerEnd):
@@ -214,15 +212,15 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
     if not col_heads:
         col_heads = init_column_heads(events)
     cal_table = table(rows=block_labels, columns=col_heads, default = '<td></td>')
-    events = filter (lambda e:  ((cal_start <= e['starttime'] < cal_stop)) or 
-                     ((cal_start < e['stoptime'] <= cal_stop)), events)
+    events = filter (lambda e:  ((cal_start <= e['start_time'] < cal_stop)) or 
+                     ((cal_start < e['stop_time'] <= cal_stop)), events)
 
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
         if 'html' not in event.keys():
             event['html'] = htmlPrep(event)
 
-    overlaps = overlap_check(events)
+    #overlaps = overlap_check(events)
     # don't worry about handling now, 
     # but write overlap handlers and call the right one as needed
     for event in events:
