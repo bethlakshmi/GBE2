@@ -283,7 +283,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             s_event.set_location(l)
             if data['teacher']:
                 s_event.unallocate_role('Teacher')
-                s_event.allocate_worker(data['teacher'], 'Teacher')
+                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
             s_event.save()                        
             
             return HttpResponseRedirect(reverse('event_schedule', 

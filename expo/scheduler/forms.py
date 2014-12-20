@@ -43,7 +43,8 @@ class EventScheduleForm(forms.ModelForm):
     time = forms.ChoiceField(choices = conference_times)
     location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
     duration = DurationFormField(help_text='Enter duration as HH:MM:SS')
-    teacher = forms.ModelChoiceField(queryset = WorkerItem.objects.all(), required = False)
+    import gbe.models as conf
+    teacher = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
 
     class Meta:
         model = Event
