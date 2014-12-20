@@ -38,7 +38,7 @@ class Biddable (models.Model):
         return self.title
 
     def typeof(self):
-        return self.__class__
+        return self.__class_
 
     def typeof(self):
         return self.__class__
@@ -226,7 +226,8 @@ class Profile(WorkerItem):
         return a list of classes this user is teaching
         (not a list of classes they are taking, that's another list)
         '''
-        return  [teacher.is_teaching.all() for teacher in self.personae.all()]
+        return self.workeritem.get_bookings('Teacher')
+#        return  [teacher.is_teaching.all() for teacher in self.personae.all()]
 
 
     def sched_payload(self):
