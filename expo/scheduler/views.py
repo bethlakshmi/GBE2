@@ -277,8 +277,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                          
             if data['duration']:
                 s_event.set_duration(data['duration'])
-                
-            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
+            l = LocationItem.objects.get_subclass(room__name = data['location'])
+#            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
             if data['teacher']:
