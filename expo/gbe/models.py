@@ -199,9 +199,9 @@ class Profile(WorkerItem):
 
     def get_shows(self):
         acts = self.get_acts()
-        return [EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act) 
+        shows = [EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act) 
                 for act in acts if act.accepted==3]
-
+        return sum([list(s) for s in shows], [])
 
     '''
     Gets all of a person's schedule.  Every way the actual human could be committed:
