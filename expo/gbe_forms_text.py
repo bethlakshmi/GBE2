@@ -9,17 +9,17 @@ participant_labels = {
     'best_time':('Best time to call'),
     'offsite_preferred':('Offsite phone'),
     'how_heard': "How did you hear about The Expo?",
-    'purchase_email': ('BPT Purchase Email')
-
+    'purchase_email': ('BPT Purchase Email'),
 }
 
 profile_preferences_help_texts= {
-    'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.'
+    'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.',
 }
 
 profile_preferences_labels = {
     'inform_about': 'Please let me know about...',
-    'in_hotel': 'I am staying at the hotel'
+    'in_hotel': 'I am staying at the hotel',
+    'show_hotel_infobox': ('Show the hotel booking info on your landing page?'),
     
 }
 

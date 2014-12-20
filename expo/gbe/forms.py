@@ -20,6 +20,7 @@ class ParticipantForm(forms.ModelForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
     phone = forms.CharField(required=True)
+
     how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
                                           required=False,
                                           widget=forms.CheckboxSelectMultiple(),
@@ -30,7 +31,7 @@ class ParticipantForm(forms.ModelForm):
         fields = [ 'first_name', 'last_name', 'display_name', 'email', 
                    'address1', 'address2', 'city',
                    'state', 'zip_code', 'country', 'phone', 
-                    'best_time', 'how_heard'
+                    'best_time', 'how_heard',
                   ]
         labels = participant_labels
         help_texts = participant_form_help_texts
@@ -400,6 +401,6 @@ class ProfilePreferencesForm(forms.ModelForm):
                                            label=profile_preferences_labels['inform_about'])
     class Meta:
         model = ProfilePreferences
-        fields = ['inform_about', 'in_hotel']
+        fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
         labels = profile_preferences_labels
