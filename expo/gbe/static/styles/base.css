@@ -345,6 +345,7 @@ td.describe
 .listdesc
 {
   padding-top: 10px;
+  white-space: pre;
 }
 .listline
 {
