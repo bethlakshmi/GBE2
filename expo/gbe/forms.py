@@ -333,7 +333,7 @@ class VolunteerBidForm(forms.ModelForm):
 class VolunteerOpportunityForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
-    opp_event_id = forms.IntegerField(widget=forms.HiddenInput())
+    opp_event_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     num_volunteers = forms.IntegerField()
 
     class Meta:
