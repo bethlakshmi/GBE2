@@ -27,9 +27,11 @@ urlpatterns = patterns('',
         views.view_list, name = 'event_list'),
     url(r'^scheduler/view_list/([-\w]+)/?$',
         views.view_list, name = 'event_list'),
- 
-    url(r'^scheduler/acts/?$',
-        views.schedule_acts, name = 'schedule_acts')
 
+    url(r'^scheduler/acts/?$',
+        views.schedule_acts, name = 'schedule_acts'),
+    url(r'^scheduler/manage-opps/(\d+)/?$',
+        views.manage_volunteer_opportunities, name = 'manage_opps'),
+                    
                     
 )

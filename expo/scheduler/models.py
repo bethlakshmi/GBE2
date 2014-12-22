@@ -518,6 +518,17 @@ class Event (Schedulable):
                 if Worker.objects.get(id = allocation.resource.id).role == role:
                     allocation.delete()
 
+    def get_volunteer_opps(self, role=None):
+        '''
+        return volunteer opportunities associated with this event
+        
+        '''
+        opps = EventContainer.objects.filter(parent_event=self)
+        opps = [EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id) for opp in opps] 
+        
+        opps =  filter (lambda o:o.type=='Volunteer Opportunity', opps)
+        return [opp.genericevent for opp in opps]
+
     def set_duration(self, duration):
         '''
         duration should be a gbe.Duration or a timedelta
@@ -646,3 +657,12 @@ class Label (models.Model):
     '''
     text = models.TextField (default = '')
     allocation = models.OneToOneField(ResourceAllocation)
+
+class EventContainer (models.Model):
+    '''
+    Another decorator. Links one Event to another. Used to link
+    a volunteer shift (Generic Event) to a Show (or other conf event)
+    '''
+    parent_event = models.ForeignKey(Event, related_name='contained_events')
+    child_event = models.OneToOneField(Event, related_name = 'container_event')
+                             

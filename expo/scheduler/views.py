@@ -29,7 +29,7 @@ def validate_profile(request):
             return False
 
 
-def validate_perms(request, perms):
+def validate_perms(request, perms, require = True):
     '''
     Validate that the requesting user has the stated permissions
     Returns profile object if perms exist, False if not
@@ -39,7 +39,9 @@ def validate_perms(request, perms):
         raise Http404
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
-    raise Http404
+    if require:                # error out if permission is required
+        raise Http404
+    return False               # or just return false if we're just checking
 
 def selfcast(sobj):
     '''
@@ -261,10 +263,12 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
+
     try:
         item = Event.objects.get_subclass(id = scheduler_event_id)
     except:
         raise Exception ("Error code XYZZY: Couldn't get an item for id")
+
     
     if request.method=='POST':
         event_form = EventScheduleForm(request.POST, 
@@ -304,6 +308,18 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item ## to do: handle multiple teachers
 
+        if validate_perms(request, ('Volunteer Coordinator',)):
+            from gbe.forms import VolunteerOpportunityForm
+            actionform = []
+            for opp in item.get_volunteer_opps():
+                num_volunteers = opp.scheduler_events.first().max_volunteer
+                actionform.append(VolunteerOpportunityForm(instance=opp, 
+                                                           initial = {'opp_event_id' : opp.event_id,
+                                                                      'num_volunteers' : num_volunteers}))
+
+            createform =  VolunteerOpportunityForm (prefix='new_opp')
+            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', ]
+
         form = EventScheduleForm(prefix = "event", 
                                  instance=item,
                                  initial = initial)
@@ -311,9 +327,77 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     eventitem_view = get_event_display_info(item.eventitem.eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
+                                      'actionform':actionform,
+                                      'createform':createform,
+                                      'actionheaders':actionheaders,
                                       'show_tickets': True,
                                       'tickets': eventitem_view['event'].get_tickets,
-                                      'user_id':request.user.id})
+                                      'user_id':request.user.id,
+                                      'event_id':scheduler_event_id})
+
+def manage_volunteer_opportunities(request, event_id):
+    '''
+    Create or edit volunteer opportunities for an event. 
+    Volunteer opportunities are GenericEvents linked to Events by
+    EventContainers, with a label of "Volunteer Shift". A volunteer 
+    opportunity may schedule one person ("Follow spot operator") or 
+    many ("Stage kittens"), but for clarity it should comprise a single
+    role, which should be the "title" of the GenericEvent
+    '''
+    coordinator = validate_perms(request, ('Volunteer Coordinator',))
+    from gbe.forms import VolunteerOpportunityForm
+    from gbe.models import GenericEvent
+    set_time_format()
+    if request.method != 'POST':
+        foo ()   # trigger error, for testing
+        #return HttpResponseRedirect(reverse('edit_schedule', urlconf='scheduler.urls'))
+
+    if 'create' in request.POST.keys():  # creating a new opportunity
+        form = VolunteerOpportunityForm(request.POST, prefix = 'new_opp')
+        
+        if form.is_valid():
+            event = get_object_or_404(Event, id=event_id)  # pass the PARENT id in the postback
+                                                           # and not the opportunity!
+            opp = form.save(commit = False)
+            opp.type = "Volunteer Opportunity"
+            opp.save()
+            data = form.cleaned_data
+            day = data.get('day')
+            time = data.get('time')
+            day = ' '.join([day.split(' ') [0], time])
+            start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+            
+                           
+            opp_event = Event(eventitem = opp.eventitem_ptr,
+                           max_volunteer = data.get('num_volunteers', 1), 
+                           starttime = start_time,
+                           duration = data.get('duration'))
+            opp_event.save()
+            container = EventContainer(parent_event = event, child_event=opp_event)
+            container.save()
+        else:
+            errors = form.errors
+            bar()
+    elif 'delete' in request.POST.keys():  #delete this opportunity
+        opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
+        opp.delete()
+
+    elif 'edit' in request.POST.keys():   # edit this opportunity
+        opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
+        form = VolunteerOpportunityForm(request.POST, instance = opp)
+        form.save()
+        data = form.cleaned_data
+        event = opp.scheduler_events.first()
+        event.max_volunteer = data['num_volunteers']
+        event.save()
+        
+    else:
+        foo()  # trigger error so I can see the locals
+    return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls'))
+        
+        
+        
+                                 
 
 def create_event(request, eventitem_id, event_type='class'):
     '''
@@ -454,7 +538,7 @@ def event_info(confitem_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00
 
     return events
 
-#def calendar_view(request, 
+
 def calendar_view(request = None,
         event_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
         datetime(2015, 02, 23, 00, 00)), time_format=None,
