@@ -15,7 +15,7 @@ from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
 from scheduler.functions import tablePrep
-from scheduler.functions import set_time_format
+from scheduler.functions import set_time_format, conference_dates
 
 def validate_profile(request):
     '''
@@ -312,10 +312,16 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             from gbe.forms import VolunteerOpportunityForm
             actionform = []
             for opp in item.get_volunteer_opps():
-                num_volunteers = opp.scheduler_events.first().max_volunteer
+                sevent = opp.scheduler_events.first()
+                num_volunteers = sevent.max_volunteer
+                day = sevent.start_time.strftime("%A")
+                conf_date = conference_dates[day]
+                time = sevent.start_time.time
                 actionform.append(VolunteerOpportunityForm(instance=opp, 
                                                            initial = {'opp_event_id' : opp.event_id,
-                                                                      'num_volunteers' : num_volunteers}))
+                                                                      'num_volunteers' : num_volunteers, 
+                                                                      'day': conf_date,
+                                                                      'time': time} ))
 
             createform =  VolunteerOpportunityForm (prefix='new_opp')
             actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', ]
@@ -381,6 +387,7 @@ def manage_volunteer_opportunities(request, event_id):
     elif 'delete' in request.POST.keys():  #delete this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
         opp.delete()
+
 
     elif 'edit' in request.POST.keys():   # edit this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])

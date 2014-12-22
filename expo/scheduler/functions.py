@@ -10,6 +10,30 @@ import math
 try: from expo.settings import DATETIME_FORMAT
 except: DATETIME_FORMAT = None
 
+
+
+conference_days = ( 
+    (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
+    (datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
+    (datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
+    (datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
+)
+
+
+
+time_start = 8 * 60
+time_stop = 24 * 60  
+
+conference_times = [(time(mins/60, mins%60), time(mins/60, mins%60).strftime("%I:%M %p")) 
+                    for mins in range (time_start, time_stop, 30)]
+
+conference_dates = {"Thursday":"2015-02-19" ,
+              "Friday":"2015-02-20",
+              "Saturday": "2015-02-21" ,
+              "Sunday": "2015-02-22"}
+
+
+
 def set_time_format(events = None, days = 0):
     '''
     Returns a default time format which prepends a day if day, date,

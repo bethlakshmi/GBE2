@@ -10,24 +10,8 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from expoformfields import DurationFormField
-from scheduler.functions import set_time_format
+from scheduler.functions import set_time_format, conference_days, conference_times
 from django.shortcuts import get_object_or_404
-
-
-conference_days = ( 
-    (datetime.datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime.datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime.datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime.datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
-)
-
-
-
-time_start = 8 * 60
-time_stop = 24 * 60  
-
-conference_times = [(datetime.time(mins/60, mins%60), datetime.time(mins/60, mins%60).strftime("%I:%M %p")) 
-                    for mins in range (time_start, time_stop, 30)]
 
 
 

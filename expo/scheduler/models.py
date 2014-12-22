@@ -424,7 +424,7 @@ class EventItem (models.Model):
     @property
     def describe(self):
         try:
-            child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+            child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
             '''
             ids = "event - " + str(child.event_id)
             try:
