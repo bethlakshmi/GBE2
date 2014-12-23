@@ -537,6 +537,20 @@ class Event (Schedulable):
         self.eventitem.set_duration(duration)
 
     @property
+    def event_type_name(self):
+        '''
+        Get event type name. Uses a database call
+        '''
+        return self.event_type.__name__
+
+    @property
+    def event_type(self):
+        '''
+        Get event's underlying type (ie, conference model)
+        '''
+        return type(EventItem.objects.get_subclass(eventitem_id=self.eventitem_id))
+
+    @property
     def duration(self):
         return self.eventitem.duration
 
