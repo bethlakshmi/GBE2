@@ -365,7 +365,7 @@ def manage_volunteer_opportunities(request, event_id):
             event = get_object_or_404(Event, id=event_id)  # pass the PARENT id in the postback
                                                            # and not the opportunity!
             opp = form.save(commit = False)
-            opp.type = "Volunteer Opportunity"
+            opp.type = "Volunteer"
             opp.save()
             data = form.cleaned_data
             day = data.get('day')
