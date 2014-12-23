@@ -549,6 +549,14 @@ class Event (Schedulable):
         Get event's underlying type (ie, conference model)
         '''
         return type(EventItem.objects.get_subclass(eventitem_id=self.eventitem_id))
+    
+    @property
+    def as_subtype(self):
+        '''
+        Get the representation of this Event as its underlying conference type
+        '''
+        return self.event_type.objects.get(eventitem_id = self.eventitem_id)
+
 
     @property
     def duration(self):
