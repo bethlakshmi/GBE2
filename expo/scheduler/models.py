@@ -526,7 +526,7 @@ class Event (Schedulable):
         opps = EventContainer.objects.filter(parent_event=self)
         opps = [EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id) for opp in opps] 
         
-        opps =  filter (lambda o:o.type=='Volunteer Opportunity', opps)
+        opps =  filter (lambda o:o.type=='Volunteer', opps)
         return [opp.genericevent for opp in opps]
 
     def set_duration(self, duration):

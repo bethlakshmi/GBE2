@@ -294,9 +294,9 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
             s_event.save()                        
             
-            return HttpResponseRedirect(reverse('event_schedule', 
+            return HttpResponseRedirect(reverse('edit_event', 
                                                 urlconf='scheduler.urls', 
-                                                args=[event_type]))
+                                                args=[event_type, scheduler_event_id]))
         else:
             raise Http404
     else:
@@ -324,32 +324,44 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 day = sevent.start_time.strftime("%A")
                 conf_date = conference_dates[day]
                 time = sevent.start_time.time
-                location = sevent.location.room
+                location = sevent.location
+                if sevent.location:
+                    room = location.room
+                else:
+                    room = item.location.room
                 actionform.append(VolunteerOpportunityForm(instance=opp, 
                                                            initial = {'opp_event_id' : opp.event_id,
                                                                       'num_volunteers' : num_volunteers, 
                                                                       'day': conf_date,
                                                                       'time': time, 
-                                                                      'location':location} ))
+                                                                      'location': room,
+                                                                      } ))
 
-
+                    
             createform =  VolunteerOpportunityForm (prefix='new_opp', 
                                                     initial = initial)
             actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
             context.update ({'actionform':actionform,
                              'createform':createform,
                              'actionheaders':actionheaders,})
-            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-
+#            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
+#                context.update( get_worker_allocation_forms( parameters here ) )
         context['form'] = EventScheduleForm(prefix = "event", 
                                  instance=item,
                                  initial = initial)
     template = 'scheduler/event_schedule.tmpl'
     context['eventitem_view'] = get_event_display_info(item.eventitem.eventitem_id)
     context['tickets'] = context['eventitem_view']['event'].get_tickets  
+
     return render(request, template, context)
 
 
+
+#def get_worker_allocation_forms(   ):
+#    '''
+#    Returns a list of allocation forms for a volunteer opportunity
+#    Each form can be used to schedule one worker. Initially, must allocate one at a time. 
+#    '''
 
 def manage_volunteer_opportunities(request, event_id):
     '''
@@ -367,13 +379,12 @@ def manage_volunteer_opportunities(request, event_id):
     if request.method != 'POST':
         foo ()   # trigger error, for testing
         #return HttpResponseRedirect(reverse('edit_schedule', urlconf='scheduler.urls'))
-
+    event = get_object_or_404(Event, id=event_id) 
+    
     if 'create' in request.POST.keys():  # creating a new opportunity
         form = VolunteerOpportunityForm(request.POST, prefix = 'new_opp')
         
-        if form.is_valid():
-            event = get_object_or_404(Event, id=event_id)  # pass the PARENT id in the postback
-                                                           # and not the opportunity!
+        if form.is_valid():                                                          
             opp = form.save(commit = False)
             opp.type = "Volunteer"
             opp.save()
@@ -407,12 +418,21 @@ def manage_volunteer_opportunities(request, event_id):
         data = form.cleaned_data
         event = opp.scheduler_events.first()
         event.max_volunteer = data['num_volunteers']
-        event.location = data.get('location').locationitem
+        day = data.get('day')
+        time = data.get('time')
+        day = ' '.join([day.split(' ') [0], time])
+        start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+
+        event.starttime = start_time
         event.save()
-        
+        event.set_location (data.get('location').locationitem)
+        event.save()
+#        foo()
     else:
         foo()  # trigger error so I can see the locals
-    return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls'))
+    return HttpResponseRedirect(reverse('edit_event', 
+                                        urlconf='scheduler.urls', 
+                                        args = [event.event_type_name, event_id]))
         
         
         
