@@ -510,7 +510,7 @@ class Event (Schedulable):
 
     def unallocate_role(self, role):
         '''
-        Remove all Worker allocation with this role
+        Remove all Worker allocations with this role
         '''
         allocations = ResourceAllocation.objects.filter(event = self)
         for allocation in allocations:
@@ -641,6 +641,21 @@ class ResourceAllocation(Schedulable):
     def start_time(self):
         return self.event.starttime
 
+    def get_label(self):
+
+        try:
+            return self.label
+        except Label.DoesNotExist:
+            l = Label(allocation = self, text = "")
+            l.save()
+            return l
+
+    def set_label(self, text):
+        l = self.get_label()
+        l.text = text
+        l.save()
+            
+
     def __str__(self):
         try:
             return str(self.start_time.astimezone(pytz.timezone('America/New_York'))) + \
@@ -679,6 +694,9 @@ class Label (models.Model):
     '''
     text = models.TextField (default = '')
     allocation = models.OneToOneField(ResourceAllocation)
+
+    def __str__(self):
+        return self.text
 
 class EventContainer (models.Model):
     '''
