@@ -1939,8 +1939,8 @@ def conference_volunteer(request):
     if request.method == 'POST':
         for aclass in classes:
             if str(aclass.id)+'-volunteering' in request.POST.keys():
-                volunteer = ConferenceVolunteer.objects.filter(bid=aclass).filter(
-                    presenter=request.POST.get(str(aclass.id)+'-presenter'))[0]
+                volunteer = ConferenceVolunteer.objects.filter(bid=aclass).get(
+                    presenter=request.POST.get(str(aclass.id)+'-presenter'))
 
                 form = ConferenceVolunteerForm(request.POST, instance=volunteer,
                                                prefix=str(aclass.id))
