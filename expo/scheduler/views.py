@@ -260,6 +260,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
     Takes a scheduler.Event id 
+
+    NOTE, 12/20/2014: this is becoming too big, and is a good candidate for 
+    refactoring. Generating volunteer management and volunteer allocation forms
+    could be farmed out to functions
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
@@ -296,7 +300,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         else:
             raise Http404
     else:
-
+        context =  {'show_tickets': True,
+                    
+                    'user_id':request.user.id,
+                    'event_id':scheduler_event_id}
         initial = {}
         initial['duration'] = item.duration
         initial['day'] = item.starttime.strftime("%Y-%m-%d")
@@ -328,22 +335,21 @@ def edit_event(request, scheduler_event_id, event_type='class'):
 
             createform =  VolunteerOpportunityForm (prefix='new_opp', 
                                                     initial = initial)
-            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location' ]
+            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
+            context.update ({'actionform':actionform,
+                             'createform':createform,
+                             'actionheaders':actionheaders,})
+            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
 
-        form = EventScheduleForm(prefix = "event", 
+        context['form'] = EventScheduleForm(prefix = "event", 
                                  instance=item,
                                  initial = initial)
     template = 'scheduler/event_schedule.tmpl'
-    eventitem_view = get_event_display_info(item.eventitem.eventitem_id)
-    return render(request, template, {'eventitem': eventitem_view,
-                                      'form': form,
-                                      'actionform':actionform,
-                                      'createform':createform,
-                                      'actionheaders':actionheaders,
-                                      'show_tickets': True,
-                                      'tickets': eventitem_view['event'].get_tickets,
-                                      'user_id':request.user.id,
-                                      'event_id':scheduler_event_id})
+    context['eventitem_view'] = get_event_display_info(item.eventitem.eventitem_id)
+    context['tickets'] = context['eventitem_view']['event'].get_tickets  
+    return render(request, template, context)
+
+
 
 def manage_volunteer_opportunities(request, event_id):
     '''
