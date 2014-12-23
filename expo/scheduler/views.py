@@ -317,14 +317,18 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 day = sevent.start_time.strftime("%A")
                 conf_date = conference_dates[day]
                 time = sevent.start_time.time
+                location = sevent.location.room
                 actionform.append(VolunteerOpportunityForm(instance=opp, 
                                                            initial = {'opp_event_id' : opp.event_id,
                                                                       'num_volunteers' : num_volunteers, 
                                                                       'day': conf_date,
-                                                                      'time': time} ))
+                                                                      'time': time, 
+                                                                      'location':location} ))
 
-            createform =  VolunteerOpportunityForm (prefix='new_opp')
-            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', ]
+
+            createform =  VolunteerOpportunityForm (prefix='new_opp', 
+                                                    initial = initial)
+            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location' ]
 
         form = EventScheduleForm(prefix = "event", 
                                  instance=item,
@@ -375,9 +379,10 @@ def manage_volunteer_opportunities(request, event_id):
             
                            
             opp_event = Event(eventitem = opp.eventitem_ptr,
-                           max_volunteer = data.get('num_volunteers', 1), 
-                           starttime = start_time,
-                           duration = data.get('duration'))
+                              max_volunteer = data.get('num_volunteers', 1), 
+                              starttime = start_time,
+                              location = data.get('location').locationitem,
+                              duration = data.get('duration'))
             opp_event.save()
             container = EventContainer(parent_event = event, child_event=opp_event)
             container.save()
@@ -396,6 +401,7 @@ def manage_volunteer_opportunities(request, event_id):
         data = form.cleaned_data
         event = opp.scheduler_events.first()
         event.max_volunteer = data['num_volunteers']
+        event.location = data.get('location').locationitem
         event.save()
         
     else:

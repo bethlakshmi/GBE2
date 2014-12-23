@@ -319,10 +319,10 @@ class VolunteerOpportunityForm(forms.ModelForm):
     time = forms.ChoiceField(choices = conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     num_volunteers = forms.IntegerField()
-
+    location = forms.ModelChoiceField(queryset = Room.objects.all())
     class Meta:
         model = GenericEvent
-        fields = ['title', 'num_volunteers', 'duration', 'day', 'time', ]
+        fields = ['title', 'num_volunteers', 'duration', 'day', 'time', 'location' ]
         hidden_fields = ['opp_event_id']
 
 
