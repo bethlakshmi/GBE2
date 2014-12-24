@@ -103,7 +103,6 @@ class Resource(models.Model):
 
     @property
     def item (self):
-
         child = Resource.objects.get_subclass(id=self.id)
         return child._item
     
@@ -123,18 +122,25 @@ class ActItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+
+    @property
+    def as_subtype(self):
+        return self.act
+
     def get_resource(self):
         '''
+        Deprecate this. 
         Return the resource corresonding to this item
         To do: find a way to make this work at the Resource level
         '''
+        return self.as_subtype   
+
         try:
             act = Act.objects.select_subclasses().get(_item=self)
         except:
             act = Act(_item=self)
             act.save()
         return act
-
 
     @property
     def get_performer_profiles(self):
@@ -151,19 +157,6 @@ class ActItem(ResourceItem):
     @property
     def visible(self):
         return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).visible
-
-    def get_resource(self):
-        '''
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
-        try:
-            loc = ActResource.objects.select_subclasses().get(_item=self)
-        except:
-            loc =  ActResource(_item=self)
-            loc.save()
-        return loc
-
 
     @property
     def describe (self):
@@ -209,6 +202,10 @@ class LocationItem(ResourceItem):
     @property
     def contact_email(self):
         return ""
+
+    @property
+    def as_subtype(self):
+        return self.room
 
     def get_resource(self):
         '''
@@ -261,6 +258,18 @@ class WorkerItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
+    @property
+    def as_subtype(self):
+        '''
+        Returns this item as its underlying conference type. (either Performer or Profile)
+        '''
+        from django.core.exceptions import ObjectDoesNotExist
+        try:
+            p = self.performer
+        except ObjectDoesNotExist:
+            p = self.profile
+        return p
+
 
     @property
     def contact_email(self):
@@ -344,7 +353,6 @@ class EquipmentItem(ResourceItem):
     '''
     objects = InheritanceManager()
     
-
     def get_resource(self):
         '''
         Return the resource corresonding to this item
