@@ -35,7 +35,17 @@ class ActScheduleForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Event.objects.all())
     order = forms.IntegerField()
     actresource = forms.CharField(required=False, max_length=10, widget=forms.HiddenInput())
-    
+
+
+class WorkerAllocationForm (forms.Form):
+    '''
+    Form for selecting a worker to fill a slot in a Volunteer Opportunity
+    '''
+    import gbe.models as conf
+    worker = forms.ModelChoiceField(queryset = conf.Profile.objects.all())
+    role = forms.ChoiceField(choices = role_options, initial='Volunteer')
+    label = forms.CharField(max_length = 100, required=False)
+    alloc_id = forms.IntegerField(required=False, widget = forms.HiddenInput())
 
 
 class EventScheduleForm(forms.ModelForm):
@@ -58,13 +68,14 @@ class EventScheduleForm(forms.ModelForm):
         day = ' '.join([day.split(' ')[0],time])
         
         event.starttime =datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
-
         
         if commit:
             self.save()
         return event
 
 
+
+    
 
 class EventItemScheduleForm(forms.ModelForm):
     '''

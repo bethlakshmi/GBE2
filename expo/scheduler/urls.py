@@ -32,6 +32,8 @@ urlpatterns = patterns('',
         views.schedule_acts, name = 'schedule_acts'),
     url(r'^scheduler/manage-opps/(\d+)/?$',
         views.manage_volunteer_opportunities, name = 'manage_opps'),
+    url(r'^scheduler/allocate/(\d+)/?$',
+        views.allocate_workers, name = 'allocate_workers'),
                     
                     
 )

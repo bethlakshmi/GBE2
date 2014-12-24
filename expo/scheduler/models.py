@@ -529,13 +529,16 @@ class Event (Schedulable):
     def get_volunteer_opps(self, role=None):
         '''
         return volunteer opportunities associated with this event
-        
+        Returns a list of dicts, {'sched':scheduler.Event, 'conf':conference_event}
         '''
         opps = EventContainer.objects.filter(parent_event=self)
-        opps = [EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id) for opp in opps] 
         
-        opps =  filter (lambda o:o.type=='Volunteer', opps)
-        return [opp.genericevent for opp in opps]
+        opps = [{'sched':opp.child_event, 
+                 'conf':EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id) }
+                 for opp in opps] 
+        
+        return filter (lambda o:o['conf'].type=='Volunteer', opps)
+
 
     def set_duration(self, duration):
         '''

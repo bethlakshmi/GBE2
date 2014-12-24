@@ -111,9 +111,13 @@
   </form>
   {% endif %}
 
+  {% if worker_alloc_forms %}
+  {% include "scheduler/allocate_volunteers.tmpl" %}
 
-  {% if event_id %}
+  {% elif event_id %}
   {% include "scheduler/manage_opps.tmpl" %}
-  {% endif %} 
+
+
+  {% endif %}
   <div style="height: 300px">&nbsp;</div>
 {% endblock %}

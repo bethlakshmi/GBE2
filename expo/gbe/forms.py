@@ -318,6 +318,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     num_volunteers = forms.IntegerField()
     location = forms.ModelChoiceField(queryset = Room.objects.all())
     class Meta:

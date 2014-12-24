@@ -319,7 +319,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             from gbe.forms import VolunteerOpportunityForm
             actionform = []
             for opp in item.get_volunteer_opps():
-                sevent = opp.scheduler_events.first()
+                sevent = opp['sched']
                 num_volunteers = sevent.max_volunteer
                 day = sevent.start_time.strftime("%A")
                 conf_date = conference_dates[day]
@@ -329,8 +329,9 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                     room = location.room
                 else:
                     room = item.location.room
-                actionform.append(VolunteerOpportunityForm(instance=opp, 
-                                                           initial = {'opp_event_id' : opp.event_id,
+                actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
+                                                           initial = {'opp_event_id' : opp['conf'].event_id,
+                                                                      'opp_sched_id' : opp['sched'].id,
                                                                       'num_volunteers' : num_volunteers, 
                                                                       'day': conf_date,
                                                                       'time': time, 
@@ -344,24 +345,71 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             context.update ({'actionform':actionform,
                              'createform':createform,
                              'actionheaders':actionheaders,})
-#            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-#                context.update( get_worker_allocation_forms( parameters here ) )
+            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
+                context.update( get_worker_allocation_forms( item ) )
         context['form'] = EventScheduleForm(prefix = "event", 
                                  instance=item,
                                  initial = initial)
     template = 'scheduler/event_schedule.tmpl'
-    context['eventitem_view'] = get_event_display_info(item.eventitem.eventitem_id)
-    context['tickets'] = context['eventitem_view']['event'].get_tickets  
-
+    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
+    context['tickets'] = context['eventitem']['event'].get_tickets  
+#    foo()
     return render(request, template, context)
 
 
 
-#def get_worker_allocation_forms(   ):
-#    '''
-#    Returns a list of allocation forms for a volunteer opportunity
-#    Each form can be used to schedule one worker. Initially, must allocate one at a time. 
-#    '''
+def get_worker_allocation_forms( opp ):
+    '''
+    Returns a list of allocation forms for a volunteer opportunity
+    Each form can be used to schedule one worker. Initially, must allocate one at a time. 
+    '''
+    allocations = ResourceAllocation.objects.filter(event=opp)
+    allocs = ( alloc for alloc in allocations if 
+               type(alloc.resource.item).__name__ == 'WorkerItem' and 
+               type(alloc.resource.item.as_subtype).__name__  == 'Profile' ) 
+    forms = [WorkerAllocationForm(initial = {'worker':alloc.resource.item.as_subtype, 
+                                             'role':Worker.objects.get(id =alloc.resource.id).role,
+                                             'label':alloc.get_label,
+                                             'alloc_id':alloc.id})  
+             for alloc in allocs]
+    forms.append (WorkerAllocationForm(initial = {'role':'Volunteer', 'alloc_id' : -1}))
+    return {'worker_alloc_forms':forms, 
+            'worker_alloc_headers': ['Worker', 'Role', 'Notes'], 
+            'opp_id': opp.id}
+
+def allocate_workers(request, opp_id):
+    '''
+    Process a worker allocation form
+    Needs a scheduler_event id
+    '''
+    if request.method != "POST":
+        raise Http404
+
+    opp = Event.objects.get(id = opp_id)
+    form = WorkerAllocationForm(request.POST)
+
+    if not form.is_valid():
+        foo()
+        raise Http404 
+    
+    data = form.cleaned_data
+    worker = Worker(_item = data['worker'].workeritem, 
+                    role = data['role'])
+    worker.save()
+    if data['alloc_id'] < 0:
+        allocation = ResourceAllocation(event=opp, resource = worker)
+
+    else:
+        allocation = ResourceAllocation.objects.get(id = data['alloc_id'])
+        allocation.resource = worker
+
+    allocation.save()
+    allocation.set_label(data['label'])
+
+    return HttpResponseRedirect(reverse('edit_event', 
+                                        urlconf='scheduler.urls', 
+                                        args = [opp.event_type_name, opp_id]))
+
 
 def manage_volunteer_opportunities(request, event_id):
     '''
@@ -427,7 +475,11 @@ def manage_volunteer_opportunities(request, event_id):
         event.save()
         event.set_location (data.get('location').locationitem)
         event.save()
-#        foo()
+    elif 'allocate' in request.POST.keys():   # forward this to allocate view
+        return HttpResponseRedirect(reverse('edit_event', urlconf='scheduler.urls', 
+                                    args = ['GenericEvent',  request.POST['opp_sched_id']]))
+
+
     else:
         foo()  # trigger error so I can see the locals
     return HttpResponseRedirect(reverse('edit_event', 
