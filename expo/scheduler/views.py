@@ -111,7 +111,7 @@ def get_event_display_info(eventitem_id):
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
     only one eventitem.  
     '''
-    item = EventItem.objects.filter(eventitem_id=eventitem_id).select_subclasses().first()
+    item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
     
     bio_grid_list = []
     for sched_event in item.scheduler_events.all():
@@ -260,13 +260,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
     Takes a scheduler.Event id 
-
-    NOTE, 12/20/2014: this is becoming too big, and is a good candidate for 
-    refactoring. Generating volunteer management and volunteer allocation forms
-    could be farmed out to functions
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
-
 
     try:
         item = Event.objects.get_subclass(id = scheduler_event_id)
@@ -324,12 +319,15 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 context.update( get_worker_allocation_forms( item ) )
             else:
                 context.update (get_manage_opportunity_forms (item) )
+    context['form'] = EventScheduleForm(prefix = "event", 
+                                        instance=item,
+                                        initial = initial)
     template = 'scheduler/event_schedule.tmpl'
 #    foo()
     return render(request, template, context)
 
 
-def get_manaage_opportunity_forms( item ):
+def get_manage_opportunity_forms( item ):
     '''
     Generate the forms to allocate, edit, or delete volunteer opportunities associated with 
     a scheduler event. 

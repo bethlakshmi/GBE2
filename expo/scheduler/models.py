@@ -414,7 +414,7 @@ class EventItem (models.Model):
         return people
 
     def set_duration(self, duration):
-        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
         child.duration = duration
         child.save(update_fields=('duration',))
 
