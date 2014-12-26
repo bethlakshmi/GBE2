@@ -1940,16 +1940,24 @@ def conference_volunteer(request):
     if request.method == 'POST':
         for aclass in classes:
             if str(aclass.id)+'-volunteering' in request.POST.keys():
-                volunteer = ConferenceVolunteer.objects.filter(bid=aclass).get(
-                    presenter=request.POST.get(str(aclass.id)+'-presenter'))
-
-                form = ConferenceVolunteerForm(request.POST, instance=volunteer,
-                                               prefix=str(aclass.id))
-                if form.is_valid():
-                    form.save()
-                else:
+                form = ConferenceVolunteerForm(request.POST, prefix = str(aclass.id))
+                if not form.is_valid():
                     return render (request, 'gbe/error.tmpl', 
-                                   {'error': 'There was an error saving your presentation request, please try again.'})
+                                   {'error': conf_volunteer_save_error})
+                volunteer, created = ConferenceVolunteer.objects.get_or_create(
+                    presenter = form.cleaned_data['presenter'],
+                    bid = aclass, 
+                    defaults = form.cleaned_data)
+
+                if not created:    #didn't create, so need to update
+                    form = ConferenceVolunteerForm(request.POST, 
+                                               instance=volunteer,
+                                               prefix=str(aclass.id))
+                    if form.is_valid():
+                        form.save()
+                    else:
+                        return render (request, 'gbe/error.tmpl', 
+                                       {'error': conf_volunteer_save_error})
 
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else: 

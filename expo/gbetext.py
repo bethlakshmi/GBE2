@@ -25,7 +25,7 @@ phone_number_format_error = '''Phone numbers must be in a standard US format, \
                                such as ###-###-###.'''
 time_format_error =  '''Time must be in the format ##:##.'''
 
-
+conf_volunteer_save_error = '''There was an error saving your presentation request, please try again.'''
 
 
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
