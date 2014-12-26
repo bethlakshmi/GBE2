@@ -301,9 +301,11 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             raise Http404
     else:
         context =  {'show_tickets': True,
-                    
                     'user_id':request.user.id,
                     'event_id':scheduler_event_id}
+        context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
+        context['tickets'] = context['eventitem']['event'].get_tickets  
+
         initial = {}
         initial['duration'] = item.duration
         initial['day'] = item.starttime.strftime("%Y-%m-%d")
@@ -318,44 +320,49 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         if validate_perms(request, ('Volunteer Coordinator',)):
             from gbe.forms import VolunteerOpportunityForm
             actionform = []
-            for opp in item.get_volunteer_opps():
-                sevent = opp['sched']
-                num_volunteers = sevent.max_volunteer
-                day = sevent.start_time.strftime("%A")
-                conf_date = conference_dates[day]
-                time = sevent.start_time.time
-                location = sevent.location
-                if sevent.location:
-                    room = location.room
-                else:
-                    room = item.location.room
-                actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
-                                                           initial = {'opp_event_id' : opp['conf'].event_id,
-                                                                      'opp_sched_id' : opp['sched'].id,
-                                                                      'num_volunteers' : num_volunteers, 
-                                                                      'day': conf_date,
-                                                                      'time': time, 
-                                                                      'location': room,
-                                                                      } ))
+            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
+                context.update( get_worker_allocation_forms( item ) )
+            else:
+                context.update (get_manage_opportunity_forms (item) )
+    template = 'scheduler/event_schedule.tmpl'
+#    foo()
+    return render(request, template, context)
+
+
+def get_manaage_opportunity_forms( item ):
+    '''
+    Generate the forms to allocate, edit, or delete volunteer opportunities associated with 
+    a scheduler event. 
+    '''
+    context = {}
+    for opp in item.get_volunteer_opps(item):
+        sevent = opp['sched']
+        num_volunteers = sevent.max_volunteer
+        day = sevent.start_time.strftime("%A")
+        conf_date = conference_dates[day]
+        time = sevent.start_time.time
+        location = sevent.location
+        if sevent.location:
+            room = location.room
+        else:
+            room = item.location.room
+            actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
+                                                       initial = {'opp_event_id' : opp['conf'].event_id,
+                                                                  'opp_sched_id' : opp['sched'].id,
+                                                                  'num_volunteers' : num_volunteers, 
+                                                                  'day': conf_date,
+                                                                  'time': time, 
+                                                                  'location': room,
+                                                                  } ))
 
                     
-            createform =  VolunteerOpportunityForm (prefix='new_opp', 
-                                                    initial = initial)
+            createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
             actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
             context.update ({'actionform':actionform,
                              'createform':createform,
                              'actionheaders':actionheaders,})
-            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-                context.update( get_worker_allocation_forms( item ) )
-        context['form'] = EventScheduleForm(prefix = "event", 
-                                 instance=item,
-                                 initial = initial)
-    template = 'scheduler/event_schedule.tmpl'
-    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
-    context['tickets'] = context['eventitem']['event'].get_tickets  
-#    foo()
-    return render(request, template, context)
-
+            context['form'] = EventScheduleForm(prefix = "event", instance=item, initial = initial)
+    return context
 
 
 def get_worker_allocation_forms( opp ):
