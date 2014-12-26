@@ -108,6 +108,7 @@ def landing_page(request):
                                    'combos':viewer_profile.get_combos(),
                                    'acts': viewer_profile.get_acts(),
                                    'shows': viewer_profile.get_shows(),
+                                   'proposed_classes': viewer_profile.proposed_classes(),
                                    'classes': viewer_profile.is_teaching(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'volunteering': viewer_profile.get_volunteerbids(),

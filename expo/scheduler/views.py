@@ -306,12 +306,17 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         initial['day'] = item.starttime.strftime("%Y-%m-%d")
         initial['time'] = item.starttime.strftime("%H:%M:%S")
         initial['location'] = item.location
-        allocs = ResourceAllocation.objects.filter(event = item)
-        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
-        teachers = [worker for worker in workers if worker.role == 'Teacher']
-        if len(teachers) > 0:
-            initial['teacher'] = teachers[0].item ## to do: handle multiple teachers
+        if item.event_type_name == 'Class':
+            allocs = ResourceAllocation.objects.filter(event = item)
+            workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
+            teachers = [worker for worker in workers if worker.role == 'Teacher']
 
+            if len(teachers) > 0:
+                initial['teacher'] = teachers[0].item
+            else:
+                
+                initial['teacher'] = item.as_subtype.teacher
+                
         if validate_perms(request, ('Volunteer Coordinator',)):
             from gbe.forms import VolunteerOpportunityForm
             actionform = []

@@ -1,9 +1,9 @@
-	{% if classes %}
+	{% if proposed_classes %}
 	   <span class='heading classes'> 
 	    <b>Class Bids</b>
 	   </span><br>
-	   {% if classes %} 
-	   {% for class in classes %}
+	   {% if proposed_classes %} 
+	   {% for class in proposed_classes %}
               <span class='class'>
               {% if class.submitted %}
 		  <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>

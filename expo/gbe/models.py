@@ -227,8 +227,12 @@ class Profile(WorkerItem):
         (not a list of classes they are taking, that's another list)
         '''
         return self.workeritem.get_bookings('Teacher')
-#        return  [teacher.is_teaching.all() for teacher in self.personae.all()]
 
+    def proposed_classes(self):
+        
+        classes = sum([list(teacher.is_teaching.all()) for teacher in self.personae.all()], [])
+#        return list(set (classes))
+        return classes
 
     def sched_payload(self):
         return { 'name': self.display_name }
