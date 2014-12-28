@@ -108,8 +108,8 @@ def landing_page(request):
                                    'combos':viewer_profile.get_combos(),
                                    'acts': viewer_profile.get_acts(),
                                    'shows': viewer_profile.get_shows(),
-                                   'proposed_classes': viewer_profile.proposed_classes(),
                                    'classes': viewer_profile.is_teaching(),
+                                   'proposed_classes': viewer_profile.proposed_classes(),
                                    'vendors': Vendor.objects.filter(profile = viewer_profile),
                                    'volunteering': viewer_profile.get_volunteerbids(),
                                    'review_items': bids_to_review,
@@ -1944,6 +1944,7 @@ def conference_volunteer(request):
                 if not form.is_valid():
                     return render (request, 'gbe/error.tmpl', 
                                    {'error': conf_volunteer_save_error})
+
                 volunteer, created = ConferenceVolunteer.objects.get_or_create(
                     presenter = form.cleaned_data['presenter'],
                     bid = aclass, 
@@ -1958,7 +1959,6 @@ def conference_volunteer(request):
                     else:
                         return render (request, 'gbe/error.tmpl', 
                                        {'error': conf_volunteer_save_error})
-
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else: 
         rows = []
@@ -2180,3 +2180,30 @@ def edit_act_techinfo(request, act_id):
                         'nodraft': submit_button
                         })
                     
+def create_event(request, event_type):
+    scheduler = validate_perms(request, ('Scheduling Mavens',))
+    page_title = "Create " + event_type
+    view_title = page_title
+    submit_button = "Create " + event_type
+
+    
+    if request.method == 'POST':
+        form = GenericEventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=True)
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        else:
+            return render (request, 'gbe/bid.tmpl',
+                           {'forms': [form],
+                            'nodraft': submit_button,
+                            'page_title': page_title,
+                            'view_title':view_title,
+                            'view_header_text':event_create_text[event_type]})
+    else:
+        form = GenericEventForm()
+        return render(request, 'gbe/bid.tmpl',
+                      {'forms': [form],
+                       'nodraft': submit_button,
+                       'page_title': page_title,
+                       'view_title': view_title,
+                       'view_header_text':event_create_text[event_type] })

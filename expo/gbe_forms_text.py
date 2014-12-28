@@ -10,6 +10,7 @@ participant_labels = {
     'offsite_preferred':('Offsite phone'),
     'how_heard': "How did you hear about The Expo?",
     'purchase_email': ('BPT Purchase Email'),
+
 }
 
 profile_preferences_help_texts= {
@@ -20,7 +21,6 @@ profile_preferences_labels = {
     'inform_about': 'Please let me know about...',
     'in_hotel': 'I am staying at the hotel',
     'show_hotel_infobox': ('Show the hotel booking info on your landing page?'),
-    
 }
 
 
@@ -85,6 +85,17 @@ performers that has a website, mailing list, or engagements as that group, then 
 you are probably a troupe. If you want to put something special together just for \
 the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
+event_create_text = {'GenericEvent': '''Enter the details for a new event.  A generic event \
+		      can be event that is not a show or a conference class.  Be sure to set the \
+		      type of event properly as each type is displayed differently in the public \
+		      website.''',
+		     'Show': '''Enter the details for a new show.  Shows are displayed on show \
+		     listings, but if you are adding a show and want specialized menu items, please \
+		     contact the web web team.  REMINDER:  For linking to show tickets, you must also \
+		     use the ticketing section to link tickets.''',
+		     'Class': '''Enter the details for a new class.  This is specifically for \
+		     conference classes.  For Master Classes and Drop-In classes, please use \
+		     Generic Events.'''}
 
 
 volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 

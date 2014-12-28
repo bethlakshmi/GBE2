@@ -419,3 +419,12 @@ class ProfilePreferencesForm(forms.ModelForm):
         fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
         labels = profile_preferences_labels
+
+
+class GenericEventForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = GenericEvent
+        fields = '__all__'

@@ -162,10 +162,14 @@ urlpatterns = patterns ('',
                             views.vendor_changestate, name='vendor_changestate'),
 
 # miscellaneous URLs
-                        url(r'^cosume_display/?$',
+                        url(r'^costume_display/?$',
                             views.costume_display, name = 'costume_display'),
                         url(r'^fashion_faire/$',
                             views.fashion_faire, name = 'fashion_faire'),
+# create and schedule events
+                        url(r'^create_event/(?P<event_type>[-\w]+)/?$',
+                            views.create_event, name = 'create_event'),
+
 
 # site utility stuff
                         url(r'^login/?$', 

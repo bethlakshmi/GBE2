@@ -150,7 +150,10 @@ def event_list(request, event_type=''):
 
 
     template = 'scheduler/events_review_list.tmpl'
-    return render(request, template, { 'events':events, 'header':header})
+    return render(request, template, { 'events':events, 'header':header,
+                                       'create_url': reverse('create_event', 
+                                                urlconf='gbe.urls', 
+                                                args=[event_type])})
 
 
 def calendar(request, cal_format = 'Block'):
@@ -500,7 +503,7 @@ def manage_volunteer_opportunities(request, event_id):
         
                                  
 
-def create_event(request, eventitem_id, event_type='class'):
+def add_event(request, eventitem_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
     time, location, duration, or allocations)
