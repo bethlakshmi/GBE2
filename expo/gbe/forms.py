@@ -424,7 +424,10 @@ class ProfilePreferencesForm(forms.ModelForm):
 class GenericEventForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    type = forms.ChoiceField(choices=new_event_options,
+                             help_text = event_help_texts['type'])
 
     class Meta:
         model = GenericEvent
-        fields = '__all__'
+        fields = ['title', 'description', 'duration','type']
+        help_texts = event_help_texts

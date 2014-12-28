@@ -2191,7 +2191,9 @@ def create_event(request, event_type):
         form = GenericEventForm(request.POST)
         if form.is_valid():
             event = form.save(commit=True)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('event_schedule',
+                                                urlconf='scheduler.urls',
+                                                args=[event_type]))
         else:
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
