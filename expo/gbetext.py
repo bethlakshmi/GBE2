@@ -140,7 +140,8 @@ experience_options = (('0', "I'm not a burlesque performer"),
 event_options = (('Special', "Special Event"),
                  ('Volunteer',"Volunteer Opportunity"),
                  ('Master',"Master Class"),
-                 ('Drop-In',"Drop-In Class"))
+                 ('Drop-In',"Drop-In Class"),
+                 ('Staff Area', 'Staff Area'))
 
 
 class_options = (('Lecture', "Lecture"),
