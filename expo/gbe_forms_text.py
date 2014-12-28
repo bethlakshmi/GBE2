@@ -97,6 +97,8 @@ event_create_text = {'GenericEvent': '''Enter the details for a new event.  A ge
 		     conference classes.  For Master Classes and Drop-In classes, please use \
 		     Generic Events.'''}
 
+event_help_texts = {'type': '''Special Events, Master Classes, and Drop In classes are shown in \
+		     event lists, Staff Areas do not..'''}
 
 volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
                                   ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
@@ -532,3 +534,5 @@ list_text = {
         "Special Events".
         </p> '''
 }
+
+acceptance_note ='''Only accepted classes will show up in scheduling and on the website.'''

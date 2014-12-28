@@ -2188,10 +2188,12 @@ def create_event(request, event_type):
 
     
     if request.method == 'POST':
-        form = GenericEventForm(request.POST)
+        form = eval(event_type+"ScheduleForm")(request.POST)
         if form.is_valid():
             event = form.save(commit=True)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('event_schedule',
+                                                urlconf='scheduler.urls',
+                                                args=[event_type]))
         else:
             return render (request, 'gbe/bid.tmpl',
                            {'forms': [form],
@@ -2200,7 +2202,8 @@ def create_event(request, event_type):
                             'view_title':view_title,
                             'view_header_text':event_create_text[event_type]})
     else:
-        form = GenericEventForm()
+        form = eval(event_type+"ScheduleForm")
+
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
