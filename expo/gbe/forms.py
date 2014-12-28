@@ -432,6 +432,15 @@ class GenericEventScheduleForm(forms.ModelForm):
         fields = ['title', 'description', 'duration','type']
         help_texts = event_help_texts
 
+class ShowScheduleForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    class Meta:
+        model = Show
+        fields = ['title', 'description', 'duration']
+        help_texts = event_help_texts
+
 class ClassScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
