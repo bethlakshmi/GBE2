@@ -421,7 +421,7 @@ class ProfilePreferencesForm(forms.ModelForm):
         labels = profile_preferences_labels
 
 
-class GenericEventForm(forms.ModelForm):
+class GenericEventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     type = forms.ChoiceField(choices=new_event_options,
@@ -431,3 +431,18 @@ class GenericEventForm(forms.ModelForm):
         model = GenericEvent
         fields = ['title', 'description', 'duration','type']
         help_texts = event_help_texts
+
+class ClassScheduleForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    accepted = forms.ChoiceField(choices=acceptance_states,
+                             initial=3,
+                             help_text = acceptance_note)
+
+    class Meta:
+        model = Class
+        fields = ['title', 'description', 'maximum_enrollment', 'type', 'fee', 'length_minutes',
+                  'space_needs', 'teacher', 'accepted',
+                  ]
+        help_texts = classbid_help_texts
+        labels = classbid_labels

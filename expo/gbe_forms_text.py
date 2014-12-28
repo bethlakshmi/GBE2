@@ -534,3 +534,5 @@ list_text = {
         "Special Events".
         </p> '''
 }
+
+acceptance_note ='''Only accepted classes will show up in scheduling and on the website.'''
