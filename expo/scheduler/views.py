@@ -321,12 +321,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 initial['teacher'] = item.as_subtype.teacher
                 
         if validate_perms(request, ('Volunteer Coordinator',)):
-            from gbe.forms import VolunteerOpportunityForm
-            actionform = []
             if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
                 context.update( get_worker_allocation_forms( item ) )
             else:
-                context.update (get_manage_opportunity_forms (item) )
+                context.update (get_manage_opportunity_forms (item, initial ) )
     context['form'] = EventScheduleForm(prefix = "event", 
                                         instance=item,
                                         initial = initial)
@@ -335,11 +333,13 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     return render(request, template, context)
 
 
-def get_manage_opportunity_forms( item ):
+def get_manage_opportunity_forms( item, initial ):
     '''
     Generate the forms to allocate, edit, or delete volunteer opportunities associated with 
     a scheduler event. 
     '''
+    from gbe.forms import VolunteerOpportunityForm
+    actionform = []
     context = {}
     for opp in item.get_volunteer_opps(item):
         sevent = opp['sched']

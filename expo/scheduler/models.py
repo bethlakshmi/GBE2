@@ -9,10 +9,6 @@ from django.core.exceptions import MultipleObjectsReturned
 import pytz
 
 
-##  Object classes for the scheduler and calendar portions of the
-##  GBE web app
-
-
 class Schedulable(models.Model):
     '''
     Interface for an item that can appear on a conference schedule - either an 
