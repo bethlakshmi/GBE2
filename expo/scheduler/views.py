@@ -14,7 +14,7 @@ from datetime import datetime
 from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
-from scheduler.functions import tablePrep
+from scheduler.functions import tablePrep, event_info, day_to_cal_time
 from scheduler.functions import set_time_format, conference_dates
 
 def validate_profile(request):
@@ -155,14 +155,6 @@ def event_list(request, event_type=''):
                                                 urlconf='gbe.urls', 
                                                 args=[event_type])})
 
-
-def calendar(request, cal_format = 'Block'):
-    '''
-    Top level calendar object.  Overall calendar for a site, sets some options,
-    then calls calendar_view.
-    '''
-
-    pass
 
 def detail_view(request, eventitem_id):
     '''
@@ -597,64 +589,24 @@ def view_list(request, event_type='All'):
                    'labels': event_labels,
                    'events': events})
 
-
-def event_info(confitem_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
-        datetime(2015, 02, 23, 00, 00))):
-    '''
-    Queries the database for scheduled events of type confitem_type, during time cal_times,
-    and returns their important information in a dictionary format.
-    '''
-
-    import gbe.models as conf
-    from scheduler.models import Location
-    
-    if confitem_type=='All':
-        confitems_list = conf.Event.objects.all()
-    else:
-        confitem_class = eval ('conf.'+confitem_type)
-        confitems_list = confitem_class.objects.all()
-        
-    confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
-
-    loc_allocs = []
-    for l in Location.objects.all():
-        loc_allocs += l.allocations.all()
-
-    scheduled_events = [alloc.event for alloc in loc_allocs]
-    # for event in scheduled_events: filter on start_time and stop_time vs cal_times
-    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]    
-
-    events_dict = {}
-    for index in range(len(scheduled_event_ids)):
-        for confitem in confitems_list:
-            if scheduled_event_ids[index] == confitem.eventitem_id:
-                events_dict[scheduled_events[index]] = confitem
-
-    events = [{'title': confitem.title,
-               'link' : reverse('detail_view', urlconf='scheduler.urls', 
-                   args = [str(confitem.eventitem_id)]), # could also be event_id, doublecheck
-               'description': confitem.description,
-               'start_time':  event.start_time,
-               'stop_time':  event.start_time + confitem.duration,
-               'location' : event.location.room.name,
-            }
-        for (event, confitem) in events_dict.items()]
-
-    return events
-
-
 def calendar_view(request = None,
-        event_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
-        datetime(2015, 02, 23, 00, 00)), time_format=None,
+        event_type = 'Show',
+        day = None,
+        cal_times = (datetime(2015, 02, 21, 8, 00, 
+             tzinfo=pytz.timezone('America/New_York')),
+        datetime(2015, 02, 22, 4, 00, 
+             tzinfo=pytz.timezone('America/New_York'))),
+        time_format=None,
         duration = Duration(minutes = 30)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.
-
     Or it will be, eventually.  Right now it is using dummy event information for testing purposes.
     Will add in database queries once basic funcationality is completed.
     '''
 
+    if day != None:
+        cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('America/New_York')))
     events = event_info(event_type, cal_times)
 
     if time_format == None:
@@ -672,53 +624,3 @@ def calendar_view(request = None,
     template = 'scheduler/Sched_Display.tmpl'
 
     return render(request, template, Table)
-    
-def faux_event_info(event_type = 'Show', cal_times= (datetime(2015, 02, 20, 18, 00),
-        datetime(2015, 02, 23, 00, 00))):
-    '''
-    Return event info as if a db query had been issued.
-    '''
-
-    return [{'html': 'Horizontal Pole Dancing 101', 'Link': 'http://some.websi.te', \
-        'start_time': datetime(2015, 02, 07, 9, 00), 
-        'stop_time': datetime(2015, 02, 07, 10, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'}, 
-
-    {'html': 'Shimmy Shimmy, Shake', 'Link': 'http://some.new.websi.te', \
-        'start_time': datetime(2015, 02, 07, 13, 00), 
-        'stop_time': datetime(2015, 02, 07, 14, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'},
-
-    {'html': 'Jumpsuit Removes', 'Link': 'http://some.other.websi.te', \
-        'start_time': datetime(2015, 02, 07, 10, 00), 
-        'stop_time': datetime(2015, 02, 07, 11, 00), \
-        'location': 'Paul Revere', 'Type': 'Movement Class'},
-
-    {'html': 'Tax Dodging for Performers', 'Link': 'http://yet.another.websi.te', \
-        'start_time': datetime(2015, 02, 07, 11, 00), 
-        'stop_time': datetime(2015, 02, 07, 12, 00), \
-        'location': 'Paul Revere', 'Type': 'Business Class'},
-
-    {'html': 'Butoh Burlesque', 'Link': 'http://japanese.websi.te', \
-        'start_time': datetime(2015, 02, 07, 9, 00), 
-        'stop_time': datetime(2015, 02, 07, 10, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
-
-    {'html': 'Kick Left, Kick Face, Kick Ass: Burly-Fu', \
-        'Link': 'http://random.new.websi.te', \
-        'start_time': datetime(2015, 02, 07, 14, 00), 
-        'stop_time': datetime(2015, 02, 07, 16, 00),\
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
-
-    {'html': 'Muumuus A-Go-Go', 'short_desc': 'Dancing in Less-then-Sexy Clothing', \
-        'Link': 'http://some.bad.websi.te', \
-        'start_time': datetime(2015, 02, 07, 10, 00), 
-        'stop_time': datetime(2015, 02, 07, 12, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Movement Class'},
-
-    {'html': 'From Legalese to English, Contracts in Burlesque', \
-        'Link': 'http://still.another.websi.te', \
-        'start_time': datetime(2015, 02, 07, 12, 00), 
-        'stop_time': datetime(2015, 02, 07, 13, 00), \
-        'location': 'Thomas Atkins', 'Type': 'Business Class'}]
-

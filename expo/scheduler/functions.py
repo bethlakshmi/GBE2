@@ -9,8 +9,8 @@ from random import choice
 import math
 try: from expo.settings import DATETIME_FORMAT
 except: DATETIME_FORMAT = None
-
-
+from django.core.urlresolvers import reverse
+import pytz
 
 conference_days = ( 
     (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
@@ -251,3 +251,76 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
         add_to_table(event, cal_table, block_labels)
 
     return htmlHeaders(cal_table.listreturn(headers = True))
+
+def event_info(confitem_type = 'Show', 
+        cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('America/New_York')),
+        datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('America/New_York')))):
+    '''
+    Queries the database for scheduled events of type confitem_type, during time cal_times,
+    and returns their important information in a dictionary format.
+    '''
+
+    import gbe.models as conf
+    from scheduler.models import Location
+    
+    if confitem_type=='All':
+        confitems_list = conf.Event.objects.all()
+    else:
+        confitem_class = eval ('conf.'+confitem_type)
+        confitems_list = confitem_class.objects.all()
+        
+    confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
+
+    loc_allocs = []
+    for l in Location.objects.all():
+        loc_allocs += l.allocations.all()
+
+    scheduled_events = [alloc.event for alloc in loc_allocs]
+
+    for event in scheduled_events:
+         start_t = event.start_time
+         stop_t = event.start_time + event.duration
+         if start_t > cal_times[1] or stop_t < cal_times[0]:
+             scheduled_events.remove(event)
+    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]    
+
+    events_dict = {}
+    for index in range(len(scheduled_event_ids)):
+        for confitem in confitems_list:
+            if scheduled_event_ids[index] == confitem.eventitem_id:
+                events_dict[scheduled_events[index]] = confitem
+
+    events = [{'title': confitem.title,
+               'link' : reverse('detail_view', urlconf='scheduler.urls', 
+                   args = [str(confitem.eventitem_id)]),
+               'description': confitem.description,
+               'start_time':  event.start_time,
+               'stop_time':  event.start_time + confitem.duration,
+               'location' : event.location.room.name,
+            }
+        for (event, confitem) in events_dict.items()]
+
+    return events
+
+def day_to_cal_time(day = 'Saturday', week = datetime(2015, 02, 19,tzinfo=pytz.timezone('America/New_York'))):
+    '''
+    Accepts a day of the week, and returns the hours for that day as a datetime tuple.  Can also accept a datetime
+    for a particular week.
+    '''
+
+    conference_days = ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday']  
+        # Eventually change this to a call to the master conference event to determine its first day
+         
+    #  we are dealing w/ ISO 8601 week, which start on Monday at 0, so Thursday is 3
+    if week.weekday() < 3:
+        shift = 3 - week.weekday()
+        week = week + duration(shift * 60 * 60 * 24)
+    elif week.weekday() > 3:
+        shift = week.weekday() - 3
+        week = week - duration(shift * 60 * 60 * 24)
+
+    return_day = week + Duration(days = [i for i, x in enumerate(conference_days) if x == day][0])
+
+    cal_times = (return_day + Duration(hours = 8), return_day + Duration(hours = 28))
+    return cal_times
+    
