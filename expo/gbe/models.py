@@ -104,7 +104,6 @@ class Profile(WorkerItem):
             reviews += Vendor().bids_to_review.exclude(bidevaluation__evaluator=self)
         if  'Volunteer Reviewers' in self.privilege_groups:
             reviews += Volunteer().bids_to_review.exclude(bidevaluation__evaluator=self)
-
         return reviews
 
     @property
@@ -145,16 +144,17 @@ class Profile(WorkerItem):
         profile_alerts = []
         if ( len(self.display_name.strip()) == 0 or
              len(self.purchase_email.strip()) == 0  ):
-             profile_alerts.append(gbetext.profile_alerts['empty_profile'] % reverse ('profile_update', 
-                                                                                      urlconf=gbe.urls))
+             profile_alerts.append(gbetext.profile_alerts['empty_profile'] % 
+                                   reverse ('profile_update', 
+                                            urlconf=gbe.urls))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and 
             len(self.phone.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % reverse ('profile_update', 
-                                                                                      urlconf=gbe.urls))
-  
+            profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % 
+                                  reverse ('profile_update', 
+                                           urlconf=gbe.urls))
         return profile_alerts
     
     def get_volunteerbids(self):
@@ -203,15 +203,16 @@ class Profile(WorkerItem):
                 for act in acts if act.accepted==3]
         return sum([list(s) for s in shows], [])
 
-    '''
-    Gets all of a person's schedule.  Every way the actual human could be committed:
-    - via profile
-    - via performer(s)
-    - via performing in acts
-    Returns schedule as a list of Scheduler.Events
-    NOTE:  Things that haven't been booked with start times won't be here.
-    '''
+
     def get_schedule(self):
+        '''
+        Gets all of a person's schedule.  Every way the actual human could be committed:
+        - via profile
+        - via performer(s)
+        - via performing in acts
+        Returns schedule as a list of Scheduler.Events
+        NOTE:  Things that haven't been booked with start times won't be here.
+        '''
         from scheduler.models import Event
         acts = self.get_acts()
         events = sum([  list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
@@ -220,7 +221,7 @@ class Profile(WorkerItem):
             events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
         events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event:event.start_time)
-
+ 
     def is_teaching(self):
         '''
         return a list of classes this user is teaching
@@ -549,14 +550,16 @@ class Act (Biddable, ActItem):
     linked to Acts. 
     '''
     performer = models.ForeignKey(Performer,
-                                  related_name='acts', blank=True, null=True )
+                                  related_name='acts', 
+                                  blank=True, 
+                                  null=True )
          
 
     tech = models.OneToOneField(TechInfo, blank = True)
     video_link = models.URLField (blank = True)
     video_choice = models.CharField(max_length=2, 
-                             choices = video_options,
-                             blank=True) 
+                                    choices = video_options,
+                                    blank=True) 
     shows_preferences = models.TextField(blank=True)
     why_you = models.TextField(blank=True)
 
@@ -566,17 +569,17 @@ class Act (Biddable, ActItem):
                         (('description', 'Description'), is_not_blank),
                         ]
     
-    '''
+    def get_performer_profiles(self):
+        '''
         Gets all of the performer's involved in the act.
         Useful for checking the schedules of the actual humans
-    '''
-    def get_performer_profiles(self):
+        '''
         return self.performer.get_profiles()
 
     
     def validation_problems_for_submit(self):
-        return [fn[1] %field[1] for (field, fn) in self.validation_list if 
-                not eval(fn[0] % ('self.' + field[0]))]
+        return [fn[1] %field[1] for (field, fn) in self.validation_list 
+                if not eval(fn[0] % ('self.' + field[0]))]
  
     def typeof(self):
         return self.__class__
@@ -644,7 +647,7 @@ class Act (Biddable, ActItem):
         Return a list of alerts pertaining to this object
         '''
         this_act_alerts=[]
-        if self.complete:     ### TODO: jpk: refactor this, please, it's awful. -jpk
+        if self.complete:    
             if self.submitted:
                 this_act_alerts.append(act_alerts['act_complete_submitted'] % self.id)
             else:
@@ -759,7 +762,8 @@ class Event (EventItem):
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
-    BB - remove acts when Jon has resources ready, and redo the view logic for accept act.
+    Future to do: remove acts as field of this class, do acceptance 
+    and scheduling through scheduler  (post 2015)
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
     mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)
@@ -781,8 +785,6 @@ class Show (Event):
         return True      # shows are always ready for scheduling
     
 
-
-
 class GenericEvent (Event):
     '''
     Any event except for a show or a class
@@ -791,6 +793,10 @@ class GenericEvent (Event):
                             choices=event_options, 
                             blank=False, 
                             default="Special")
+    volunteer_category = models.CharField(max_length=128,
+                                          choices= volunteer_interests_options,
+                                          blank = True, 
+                                          default = "")
 
     def __str__(self):
         return self.title 
@@ -880,6 +886,9 @@ class Class (Biddable, Event):
 
     @property
     def get_bid_fields(self):
+        '''
+        Returns fields, required_fields as tuple of lists
+        '''
         return  (['title',
                   'teacher',
                   'description', 
@@ -1035,8 +1044,8 @@ class Vendor(Biddable):
 
 class AdBid(Biddable):
     '''
-    A request for a space in the marketplace.
-    Vendors have to bid, too
+    A bid for an ad. What sort of ad? Don't know yet. To do: 
+    use this
     '''
     company = models.CharField(max_length=128, blank=True)
     type = models.CharField(max_length=128, choices=ad_type_options)
@@ -1046,8 +1055,7 @@ class AdBid(Biddable):
 
 class ArtBid(Biddable):
     '''
-    A request for a space in the marketplace.
-    Vendors have to bid, too
+    Not used in 2015. Possibly in 2015
     '''
     bio = models.TextField(max_length=500, blank=True)
     works = models.TextField(max_length=500, blank=True)
@@ -1062,7 +1070,9 @@ class ArtBid(Biddable):
 
 class ClassProposal(models.Model):
     '''
-    A proposal for a class that someone else ought to teach. NOT a class bid - don't get these confused!
+    A proposal for a class that someone else ought to teach. 
+    This is NOT a class bid, this is just a request that someone 
+    implement this idea. 
     '''
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
@@ -1099,6 +1109,7 @@ class ClassProposal(models.Model):
 class ConferenceVolunteer(models.Model):
     '''
     An individual wishing to participate in the conference as a volunteer
+    (fits with the class proposal above)
     '''
     presenter = models.ForeignKey(Persona,  
                                 related_name='conf_volunteer')
