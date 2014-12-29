@@ -320,10 +320,11 @@ class VolunteerOpportunityForm(forms.ModelForm):
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     num_volunteers = forms.IntegerField()
+    volunteer_category = forms.ChoiceField(choices = volunteer_interests_options, required=False)
     location = forms.ModelChoiceField(queryset = Room.objects.all())
     class Meta:
         model = GenericEvent
-        fields = ['title', 'num_volunteers', 'duration', 'day', 'time', 'location' ]
+        fields = ['title', 'volunteer_category','num_volunteers', 'duration', 'day', 'time', 'location', ]
         hidden_fields = ['opp_event_id']
 
 

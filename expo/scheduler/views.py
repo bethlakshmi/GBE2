@@ -70,7 +70,8 @@ def get_events_display_info(event_type = 'Class', time_format = None):
     confitems = [item for item in confitems if item.schedule_ready]
     eventitems = []
     for ci in confitems:
-        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(), key = lambda sched_event: sched_event.starttime):
+        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(), 
+                                  key = lambda sched_event: sched_event.starttime):
             eventitems += [{ 'eventitem': ci.eventitem_ptr , 
                              'confitem':ci,
                              'schedule_event':sched_event}]
@@ -141,7 +142,8 @@ def event_list(request, event_type=''):
 
     if event_type.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
-        event_type_options = list(set([ei.__class__.__name__ for ei in EventItem.objects.all().select_subclasses()]))
+        event_type_options = list(set([ei.__class__.__name__ 
+                                       for ei in EventItem.objects.all().select_subclasses()]))
         
         return render(request, template, {'type_options':event_type_options})
 
@@ -355,7 +357,7 @@ def get_manage_opportunity_forms( item, initial ):
 
                     
             createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
-            actionheaders = ['Title', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
+            actionheaders = ['Title', 'Type', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
             context.update ({'actionform':actionform,
                              'createform':createform,
                              'actionheaders':actionheaders,})
