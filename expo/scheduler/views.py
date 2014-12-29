@@ -354,14 +354,20 @@ def get_manage_opportunity_forms( item, initial ):
                                                                   'time': time, 
                                                                   'location': room,
                                                                   } ))
-
+            context['actionform'] = actionform
                     
-            createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
-            actionheaders = ['Title', 'Type', 'Volunteers Needed', 'Duration', 'Day', 'Time', 'Location', 'Action' ]
-            context.update ({'actionform':actionform,
-                             'createform':createform,
-                             'actionheaders':actionheaders,})
-            context['form'] = EventScheduleForm(prefix = "event", instance=item, initial = initial)
+    createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
+#    foo()
+    actionheaders = ['Title', 
+                     'Volunteer Type', 
+                     'Volunteers Needed', 
+                     'Duration', 
+                     'Day', 
+                     'Time', 
+                     'Location', 
+                     'Action' ]
+    context.update ({  'createform':createform,
+                     'actionheaders':actionheaders,})
     return context
 
 

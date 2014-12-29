@@ -322,6 +322,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
     num_volunteers = forms.IntegerField()
     volunteer_category = forms.ChoiceField(choices = volunteer_interests_options, required=False)
     location = forms.ModelChoiceField(queryset = Room.objects.all())
+    duration = DurationFormField()
     class Meta:
         model = GenericEvent
         fields = ['title', 'volunteer_category','num_volunteers', 'duration', 'day', 'time', 'location', ]
