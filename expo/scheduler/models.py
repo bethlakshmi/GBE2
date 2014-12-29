@@ -38,13 +38,13 @@ class Schedulable(models.Model):
     
     def __unicode__(self):
         if self.start_time:
-            return "Start: " + str(self.start_time.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.start_time.astimezone(pytz.timezone('UTC')))
         else:
             return "No Start Time"
 
     def __str__(self):
         if self.start_time:
-            return "Start: " + str(self.starttime.astimezone(pytz.timezone('America/New_York')))
+            return "Start: " + str(self.starttime.astimezone(pytz.timezone('UTC')))
         else:
             return "No Start Time"
 
@@ -665,7 +665,7 @@ class ResourceAllocation(Schedulable):
 
     def __str__(self):
         try:
-            return str(self.start_time.astimezone(pytz.timezone('America/New_York'))) + \
+            return str(self.start_time.astimezone(pytz.timezone('UTC'))) + \
                    " :: Event: " + str(self.event) + " == " + \
                    str(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
                    ": " + str(Resource.objects.get_subclass(id=self.resource.id))
@@ -674,7 +674,7 @@ class ResourceAllocation(Schedulable):
 
     def __unicode__(self):
         try:
-            return unicode(self.start_time.astimezone(pytz.timezone('America/New_York'))) + \
+            return unicode(self.start_time.astimezone(pytz.timezone('UTC'))) + \
                    " :: Event: " + unicode(self.event) + " == " + \
                    unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
                    ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))

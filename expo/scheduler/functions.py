@@ -86,13 +86,13 @@ def init_time_blocks(events, block_size, time_format,
     if not cal_start:
 #        cal_start = sorted(events, key = lambda event:event['start_time'])[0]
         cal_start = sorted([event['start_time'] for event in events])[0]
-    elif instanceof(cal_start, time):
+    elif isinstance(cal_start, time):
         cal_start = datetime.combine(datetime.min,cal_start)
 
     if not cal_stop:
         cal_stop = sorted([event['stop_time'] for event in events])[-1]
  #       cal_stop = sorted(events, key = lambda event:event['stop_time'])[-1]
-    elif instanceof(cal_stop, datetime): 
+    elif isinstance(cal_stop, time): 
         cal_stop = datetime.combine(datetime.min,cal_stop)
 
     if cal_stop < cal_start:    # assume that we've gone past midnight
@@ -253,8 +253,8 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
     return htmlHeaders(cal_table.listreturn(headers = True))
 
 def event_info(confitem_type = 'Show', 
-        cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('America/New_York')),
-        datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('America/New_York')))):
+        cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('UTC')),
+        datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
     '''
     Queries the database for scheduled events of type confitem_type, during time cal_times,
     and returns their important information in a dictionary format.
@@ -302,7 +302,7 @@ def event_info(confitem_type = 'Show',
 
     return events
 
-def day_to_cal_time(day = 'Saturday', week = datetime(2015, 02, 19,tzinfo=pytz.timezone('America/New_York'))):
+def day_to_cal_time(day = 'Saturday', week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC'))):
     '''
     Accepts a day of the week, and returns the hours for that day as a datetime tuple.  Can also accept a datetime
     for a particular week.

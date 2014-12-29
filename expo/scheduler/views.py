@@ -593,9 +593,9 @@ def calendar_view(request = None,
         event_type = 'Show',
         day = None,
         cal_times = (datetime(2015, 02, 21, 8, 00, 
-             tzinfo=pytz.timezone('America/New_York')),
+             tzinfo=pytz.timezone('UTC')),
         datetime(2015, 02, 22, 4, 00, 
-             tzinfo=pytz.timezone('America/New_York'))),
+             tzinfo=pytz.timezone('UTC'))),
         time_format=None,
         duration = Duration(minutes = 30)):
     '''
@@ -606,7 +606,7 @@ def calendar_view(request = None,
     '''
 
     if day != None:
-        cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('America/New_York')))
+        cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
     events = event_info(event_type, cal_times)
 
     if time_format == None:
@@ -614,7 +614,7 @@ def calendar_view(request = None,
 
     ###  Changing function to get table labels from the request
     Table = {}
-    Table['rows'] = tablePrep(events, duration)
+    Table['rows'] = tablePrep(events, duration, cal_start = cal_times[0], cal_stop = cal_times[1])
     Table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
     Table['link'] = 'http://burlesque-expo.com'
     Table['x_name'] = {}
