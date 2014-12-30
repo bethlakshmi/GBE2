@@ -818,8 +818,6 @@ class GenericEvent (Event):
             payload['details']['parent_event'] = self.parent_event.detail_link
             payload['details']['volunteer_category'] = dict(volunteer_interests_options).get( self.volunteer_category, None)
 
-        else:
-            bar()
         return payload
 
     @property
@@ -829,7 +827,10 @@ class GenericEvent (Event):
             return None
         sevent = self.eventitem_ptr.scheduler_events.first()
         from  scheduler.models import EventContainer
-        parent =  EventContainer.objects.filter(child_event = sevent).first().parent_event
+        query = EventContainer.objects.filter(child_event = sevent)
+        if query.count() == 0:
+            return None
+        parent =  query.first().parent_event
         return parent
 
 
