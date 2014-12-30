@@ -4,25 +4,30 @@
 {% endblock %}
 
 {% block content %}
-   <div class='left_col'>
-   	{% include 'gbe/incl_lp_left.tmpl' %}
-   </div>
-   {% if profile %}
-   {% if bookings %}
-   <div class='center_col'>
-     <div class='side_box'>
-   	{% include 'gbe/incl_schedule.tmpl' %}
+     
+<div class="colmask threecol">
+     <div class="colmid">
+	  <div class="colleft">
+	       <div class="col1">
+                    {% if profile and bookings %}
+                    <div class='landing_box'>
+			 {% include 'gbe/incl_schedule.tmpl' %}
+		    </div>
+		    {% endif %}
+	       </div>
+	       <div class="col2">
+		    {% include 'gbe/incl_lp_left.tmpl' %}
+	       </div>
+	       <div class="col3">
+                    {% if profile %}
+                    <div class='landing_box'>
+                        {% include 'gbe/incl_lp_right.tmpl' %}
+                    </div>
+                    {% endif %}
+	       </div>
+	  </div>
      </div>
-   </div>
-   {% endif %}
-   <div class='right_col'>
-     <div class='side_box'>
-   	{% include 'gbe/incl_lp_right.tmpl' %}
-     </div>
-   </div>
+</div>
 
-
-   {% endif %}
-   
 
 {% endblock %}
