@@ -217,6 +217,9 @@ time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
              ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
 
 event_labels = {'type':  'Type',
-                'fee': 'Materials Fee'
+                'fee': 'Materials Fee',
+                'parent_event': 'Parent Event', 
+                'volunteer_category': 'Opportunity Category'
+                
                 }
 

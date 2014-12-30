@@ -16,15 +16,18 @@
       <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
         <label class="sched_detail">
+	{% autoescape off %}
 	  {% for label_name, label_value in eventitem.labels.items%}
 	       {% if name == label_name %}
-	          {{label_value}}:
+	          {{label_value | safe}}:
 	       {% endif %}
 	  {% empty %}
-	      {{value}}:
+	      {{value |safe}}:
 	  {% endfor %}
 	</label> {{value}}<br>
+	{% endautoescape %}
         {% endfor %}
+
       </div>
     </div>
       {% if eventitem.scheduled_events %}

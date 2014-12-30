@@ -804,14 +804,35 @@ class GenericEvent (Event):
     @property
     def sched_payload(self):
         types = dict(event_options)
-        return {
+        payload =  {
             'type': self.type,
             'title':  self.title,
             'description' : self.description,
             'duration':self.duration,
-            'details': {'type': types[self.type]}
+            'details': {'type': types[self.type]},
+#            'category': self.volunteer_category,
+#            'parent_event': self.parent_event
             }
-    
+
+        if self.parent_event:
+            payload['details']['parent_event'] = self.parent_event.detail_link
+            payload['details']['volunteer_category'] = dict(volunteer_interests_options).get( self.volunteer_category, None)
+
+        else:
+            bar()
+        return payload
+
+    @property
+    def parent_event(self):
+        
+        if self.type != 'Volunteer':
+            return None
+        sevent = self.eventitem_ptr.scheduler_events.first()
+        from  scheduler.models import EventContainer
+        parent =  EventContainer.objects.filter(child_event = sevent).first().parent_event
+        return parent
+
+
     @property
     def schedule_ready(self):
         return True

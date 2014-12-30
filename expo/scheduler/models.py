@@ -422,7 +422,7 @@ class EventItem (models.Model):
 
     @property 
     def duration(self):
-        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses()[0]
+        child = EventItem.objects.filter(eventitem_id=self.eventitem_id).select_subclasses().first()
         return child.sched_duration
     
     @property
@@ -461,6 +461,15 @@ class Event (Schedulable):
     max_volunteer = models.PositiveIntegerField(default=0)
 
 
+    @property
+    def detail_link(self):
+        '''
+        Return a detail link to self, with title as link text
+        '''
+        from django.core.urlresolvers import reverse
+        return '<a href="%s">%s</a>' %( reverse('detail_view', urlconf='scheduler.urls', 
+                                                args = [self.eventitem_id]),
+                                        self.eventitem.describe)
 
     @property
     def confitem(self):

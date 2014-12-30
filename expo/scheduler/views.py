@@ -117,24 +117,20 @@ def get_event_display_info(eventitem_id):
     bio_grid_list = []
     for sched_event in item.scheduler_events.all():
         bio_grid_list += sched_event.bio_list
-    
-    
-    
+        
+        
     eventitem_view = {'event': item, 
                       'scheduled_events':item.scheduler_events.all(),
                       'labels': event_labels,
                       'bio_grid_list': bio_grid_list
                      }
-
     return eventitem_view
 
     
-
-
 @login_required
 def event_list(request, event_type=''):
     '''
-    List of events (all)
+    List of events (all, or by type)
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
     if request.method == 'POST':
@@ -160,9 +156,10 @@ def event_list(request, event_type=''):
 
 def detail_view(request, eventitem_id):
     '''
-    Takes the id of a single event and displays all its details in a template
+    Takes the id of a single event_item and displays all its details in a template
     '''
     eventitem_view = get_event_display_info(eventitem_id)
+    
     template = 'scheduler/event_schedule.tmpl'
     return render(request, template, {'eventitem': eventitem_view,
                                       'show_tickets': True,
