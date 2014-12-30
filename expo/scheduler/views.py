@@ -335,7 +335,7 @@ def get_manage_opportunity_forms( item, initial ):
     from gbe.forms import VolunteerOpportunityForm
     actionform = []
     context = {}
-    for opp in item.get_volunteer_opps(item):
+    for opp in item.get_volunteer_opps():
         sevent = opp['sched']
         num_volunteers = sevent.max_volunteer
         day = sevent.start_time.strftime("%A")
@@ -346,15 +346,15 @@ def get_manage_opportunity_forms( item, initial ):
             room = location.room
         else:
             room = item.location.room
-            actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
-                                                       initial = {'opp_event_id' : opp['conf'].event_id,
-                                                                  'opp_sched_id' : opp['sched'].id,
-                                                                  'num_volunteers' : num_volunteers, 
-                                                                  'day': conf_date,
-                                                                  'time': time, 
-                                                                  'location': room,
-                                                                  } ))
-            context['actionform'] = actionform
+        actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
+                                                   initial = {'opp_event_id' : opp['conf'].event_id,
+                                                              'opp_sched_id' : opp['sched'].id,
+                                                              'num_volunteers' : num_volunteers, 
+                                                              'day': conf_date,
+                                                              'time': time, 
+                                                              'location': room,
+                                                              } ))
+        context['actionform'] = actionform
                     
     createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
 #    foo()
@@ -474,20 +474,25 @@ def manage_volunteer_opportunities(request, event_id):
 
     elif 'edit' in request.POST.keys():   # edit this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
-        form = VolunteerOpportunityForm(request.POST, instance = opp)
+        opp_event_container = EventContainer.objects.get(child_event=request.POST['opp_sched_id'])
+        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
+        form = VolunteerOpportunityForm(request.POST, instance=opp)
+        if not form.is_valid():
+            raise Http404
         form.save()
         data = form.cleaned_data
-        event = opp.scheduler_events.first()
-        event.max_volunteer = data['num_volunteers']
+        opp_event.max_volunteer = data['num_volunteers']
+        
         day = data.get('day')
         time = data.get('time')
         day = ' '.join([day.split(' ') [0], time])
         start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
 
-        event.starttime = start_time
-        event.save()
-        event.set_location (data.get('location').locationitem)
-        event.save()
+        opp_event.starttime = start_time
+        opp_event.save()
+        opp_event.set_location (data.get('location').locationitem)
+        opp_event.save()
+#        foo()
     elif 'allocate' in request.POST.keys():   # forward this to allocate view
         return HttpResponseRedirect(reverse('edit_event', urlconf='scheduler.urls', 
                                     args = ['GenericEvent',  request.POST['opp_sched_id']]))
