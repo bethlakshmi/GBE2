@@ -544,6 +544,45 @@ class Event (Schedulable):
         
         return filter (lambda o:o['conf'].type=='Volunteer', opps)
 
+    def resource_info(self, resource_type='All', worker_type=None, status=None):
+        '''
+        Returns a list of contact addresses for the requested resource type.
+        Currently, return as csv: display_name, email_address
+        Future: nice interface
+        '''
+        if resource_type=='Worker':
+            resources = self.get_workers(worker_type=worker_type)
+        elif resource_type=='Act':
+            resources = self.get_acts(status=status)
+        else:
+            resources = self.get_workers(worker_type=worker_type)
+            resources += self.get_acts(status=status)
+        
+            
+
+    def get_workers(self, worker_type=None):
+        '''
+        Return a list of workers allocated to this event,
+        filtered by type if volunteer_type is specified
+        '''
+        opps = self.get_volunteer_opps()
+        allocs = sum([list(opp['sched'].resources_allocated.all()) for opp in opps], [])
+        return [alloc.resource.item.profile for alloc in allocs if alloc.resource.type == 'Volunteer']
+
+
+    def get_acts(self, status = None):
+        '''
+        Returns a list of acts allocated to this event,
+        filtered by acceptance status if specified
+        '''
+        allocations = ResourceAllocation.objects.filter(event=self)
+        act_resources = [ar.resource_ptr for ar in ActResource.objects.all()]
+        acts = [allocation.resource.item.act for allocation in allocations if allocation.resource in act_resources]
+        if status:
+            acts = [act for act in acts if act.accepted == status]
+        return acts
+
+    
 
     def set_duration(self, duration):
         '''
