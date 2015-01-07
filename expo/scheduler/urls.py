@@ -36,6 +36,10 @@ urlpatterns = patterns('',
         views.manage_volunteer_opportunities, name = 'manage_opps'),
     url(r'^scheduler/allocate/(\d+)/?$',
         views.allocate_workers, name = 'allocate_workers'),
+    url(r'^scheduler/contactinfo/?$',
+        views.contact_info, name = 'contact_info'),
+    url(r'^scheduler/contactinfo/(\d+)/([-\w]+)/?$',
+        views.contact_info, name = 'contact_info'),
                     
                     
 )

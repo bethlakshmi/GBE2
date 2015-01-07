@@ -544,20 +544,18 @@ class Event (Schedulable):
         
         return filter (lambda o:o['conf'].type=='Volunteer', opps)
 
-    def resource_info(self, resource_type='All', worker_type=None, status=None):
+    def contact_info(self, resource_type='All', worker_type=None, status=None):
         '''
-        Returns a list of contact addresses for the requested resource type.
+        Returns a list of email addresses for the requested resource type.
         Currently, return as csv: display_name, email_address
         Future: nice interface
         '''
         if resource_type=='Worker':
-            resources = self.get_workers(worker_type=worker_type)
+            return self.worker_contact_info(worker_type=worker_type)
         elif resource_type=='Act':
-            resources = self.get_acts(status=status)
+            return self.act_contact_info(status=status)
         else:
-            resources = self.get_workers(worker_type=worker_type)
-            resources += self.get_acts(status=status)
-        
+            return self.worker_contact_info(worker_type=worker_type) + self.act_contact_info(status=status)
             
 
     def get_workers(self, worker_type=None):
@@ -582,7 +580,11 @@ class Event (Schedulable):
             acts = [act for act in acts if act.accepted == status]
         return acts
 
+    def act_contact_info(self, status = None):
+        return [(act.title, act.contact_email) for act in self.get_acts(status)]
     
+    def worker_contact_info(self, worker_type=None):
+        return [(worker.display_name, worker.contact_email) for worker in self.get_workers(worker_type)]
 
     def set_duration(self, duration):
         '''

@@ -320,9 +320,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 context.update( get_worker_allocation_forms( item ) )
             else:
                 context.update (get_manage_opportunity_forms (item, initial ) )
-    context['form'] = EventScheduleForm(prefix = "event", 
+    context['form'] = EventScheduleForm(prefix = 'event', 
                                         instance=item,
                                         initial = initial)
+
     template = 'scheduler/event_schedule.tmpl'
 #    foo()
     return render(request, template, context)
@@ -358,7 +359,6 @@ def get_manage_opportunity_forms( item, initial ):
         context['actionform'] = actionform
                     
     createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
-#    foo()
     actionheaders = ['Title', 
                      'Volunteer Type', 
                      'Volunteers Needed', 
@@ -507,7 +507,23 @@ def manage_volunteer_opportunities(request, event_id):
         
         
         
-                                 
+
+def contact_info(request, event_id=None, resource_type = 'All', status=None, worker_type=None):
+    '''
+    Return contact info (email addresses) for a scheduler.Event. Currently configured for shows only
+    '''
+    import csv
+    event = Event.objects.get(schedulable_ptr_id = event_id)
+    data = event.contact_info(resource_type, status, worker_type)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % str(event)
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'email'])
+    for row in data:
+        writer.writerow(row)
+    return response
+    
 
 def add_event(request, eventitem_id, event_type='class'):
     '''
