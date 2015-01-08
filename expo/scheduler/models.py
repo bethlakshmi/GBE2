@@ -138,6 +138,14 @@ class ActItem(ResourceItem):
             act.save()
         return act
 
+
+    def get_scheduled_shows(self):
+        '''
+        Returns a list of all shows this act is scheduled to appear in. 
+        '''
+        resources = ActResource.objects.filter(_item=self)
+        return [res.show for res in resources]
+
     @property
     def get_performer_profiles(self):
         return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_performer_profiles()
@@ -172,8 +180,13 @@ class ActResource(Resource):
     _item = models.ForeignKey(ActItem)
     
     @property
+    def show(self):
+        return ResourceAllocation.objects.get(resource=self).event
+
+    @property
     def type(self):
         return "act"
+        
 
     def __str__(self):
         try:
