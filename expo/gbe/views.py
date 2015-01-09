@@ -2111,7 +2111,7 @@ def bid_changestate (request, bid_id, redirectURL):
 @login_required
 def edit_act_techinfo(request, act_id):
     '''
-    Modify an existing Act object. 
+    Modify tech info for an existing act
     '''
     page_title = 'Edit Act Technical Information'
     view_title = 'Edit Act Technical Information'
@@ -2161,6 +2161,16 @@ def edit_act_techinfo(request, act_id):
                            })
 
     else:
+        shows = act.get_scheduled_shows()
+        rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
+        rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
+                          if rehearsals}
+        if len(rehearsal_sets) > 0:
+            rehearsal_forms = [RehearsalSelectionForm(initial={'show':show,  
+                                                               'rehearsal_choices':[r for r in r_set]})
+                               for (show, r_set) in rehearsal_sets.items()]
+                                                  
+
         form = ActTechInfoForm(instance = act, 
                            prefix='Act Summary')
         audioform = AudioInfoForm(prefix='Audio Information', instance=audio_info)

@@ -329,6 +329,18 @@ class VolunteerOpportunityForm(forms.ModelForm):
         hidden_fields = ['opp_event_id']
 
 
+class RehearsalSelectionForm(forms.Form):
+    show = forms.CharField(widget = forms.TextInput(attrs={'readonly':'readonly'}))
+    
+
+    def __init__(self, *args, **kwargs):
+        super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
+        self.fields['rehearsal'] = forms.ChoiceField(choices = kwargs['initial']['rehearsal_choices'])
+
+    class Meta:
+        fields = ['show', 'rehearsal']
+
+
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'

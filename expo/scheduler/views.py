@@ -619,6 +619,16 @@ def view_list(request, event_type='All'):
                    'labels': event_labels,
                    'events': events})
 
+
+def manage_rehearsals(request, event_id):
+    '''
+    handler for rehearsal slot manage calls
+    TODO
+    '''
+    pass
+        
+
+
 def calendar_view(request = None,
         event_type = 'Show',
         day = None,

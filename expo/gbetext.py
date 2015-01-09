@@ -141,7 +141,8 @@ event_options = (('Special', "Special Event"),
                  ('Volunteer',"Volunteer Opportunity"),
                  ('Master',"Master Class"),
                  ('Drop-In',"Drop-In Class"),
-                 ('Staff Area', 'Staff Area'))
+                 ('Staff Area', 'Staff Area'), 
+                 ('Rehearsal Slot', 'Rehearsal Slot'))
 
 new_event_options = (('Special', "Special Event"),
                  ('Master',"Master Class"),

@@ -62,6 +62,9 @@ class ResourceItem (models.Model):
     def contact_email(self):
         return ResourceItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
 
+    @property
+    def as_subtype(self):
+        return ResourceItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
 
     @property
     def payload(self):
@@ -227,6 +230,8 @@ class LocationItem(ResourceItem):
             loc = Location(_item=self)
             loc.save()
         return loc
+
+
 
     @property
     def describe(self):
@@ -474,6 +479,19 @@ class Event (Schedulable):
     max_volunteer = models.PositiveIntegerField(default=0)
 
 
+    def get_open_rehearsals(self):
+        return [ec.child_event for ec in EventContainer.objects.filter(parent_event=self) 
+         if ec.child_event.confitem.type=='Rehearsal Slot' and ec.child_event.has_act_opening]
+
+    def has_act_opening(self):
+        '''
+        returns True if the count of acts allocated to this event is less than 
+        max_volunteer
+        '''
+        allocs = ResourceAllocation.objects.filter(event=self)
+        from gbe.models import Act
+        return self.max_volunteer - len([a for a in allocs if isinstance(a.resource.item.as_subtype, Act)]) >0
+
     @property
     def detail_link(self):
         '''
@@ -650,7 +668,7 @@ class Event (Schedulable):
         try:
             return self.eventitem.describe
         except:
-            return "No Event Item"
+            return "No vent Item"
 
     def __unicode__(self):
         try:

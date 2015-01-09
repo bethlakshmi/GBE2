@@ -40,6 +40,8 @@ urlpatterns = patterns('',
         views.contact_info, name = 'contact_info'),
     url(r'^scheduler/contactinfo/(\d+)/([-\w]+)/?$',
         views.contact_info, name = 'contact_info'),
-                    
+    url(r'^scheduler/manage_rehearsals/(\d+)/?$',
+        views.manage_rehearsals, name = 'manage_rehearsals'),
+                       
                     
 )
