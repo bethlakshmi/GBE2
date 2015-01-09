@@ -121,6 +121,26 @@ class ActItem(ResourceItem):
     '''
     objects = InheritanceManager()
 
+    
+    def set_rehearsal(self, show, rehearsal):
+        '''
+        Assign this act to a rehearsal slot for this show 
+        '''
+        if ResourceAllocation.objects.filter(event=rehearsal).filter(resource__actresource___item=self).count() > 0:
+            return   # already scheduled for this one
+        
+        allocs = ResourceAllocation.objects.filter(resource__actresource___item = self)
+        
+        for a in allocs:
+            if a.event.as_subtype.type=='Rehearsal Slot' and a.event.container_event == show:
+                a.resource.delete()
+                a.delete()
+
+        resource= ActResource(_item=self)
+        resource.save()
+        ra =ResourceAllocation(event=rehearsal, resource=resource)
+        ra.save()
+
 
     @property
     def as_subtype(self):
@@ -482,6 +502,7 @@ class Event (Schedulable):
     def get_open_rehearsals(self):
         return [ec.child_event for ec in EventContainer.objects.filter(parent_event=self) 
          if ec.child_event.confitem.type=='Rehearsal Slot' and ec.child_event.has_act_opening]
+
 
     def has_act_opening(self):
         '''

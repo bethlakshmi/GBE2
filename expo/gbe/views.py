@@ -2131,6 +2131,11 @@ def edit_act_techinfo(request, act_id):
     lighting_info = act.tech.lighting
 
     if request.method == 'POST':
+#        foo()
+        from scheduler.models import Event as sEvent
+        rehearsal = get_object_or_404(sEvent, id = request.POST['rehearsal'])
+        show = get_object_or_404(Show, title=request.POST['show'])
+        act.set_rehearsal(show, rehearsal)
         form = ActTechInfoForm(request.POST,  
                            instance=act, 
                            prefix = 'Act Summary')
@@ -2167,7 +2172,9 @@ def edit_act_techinfo(request, act_id):
                           if rehearsals}
         if len(rehearsal_sets) > 0:
             rehearsal_forms = [RehearsalSelectionForm(initial={'show':show,  
-                                                               'rehearsal_choices':[r for r in r_set]})
+                                                               'rehearsal_choices':
+                                                                   [(r.id,"%s: %s"%(r.as_subtype.title, 
+                                                                                   r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
                                for (show, r_set) in rehearsal_sets.items()]
                                                   
 
@@ -2183,6 +2190,7 @@ def edit_act_techinfo(request, act_id):
         return render (request, 
                        'gbe/act_techinfo.tmpl',
                         {'readonlyform':[form],
+                         'rehearsal_forms':rehearsal_forms,
                         'forms':[audioform, stageform, lightingform],
                         'page_title': page_title,                            
                         'view_title': view_title,
