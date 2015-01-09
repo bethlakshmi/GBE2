@@ -9,6 +9,7 @@ from random import choice
 import math
 try: from expo.settings import DATETIME_FORMAT
 except: DATETIME_FORMAT = None
+
 from django.core.urlresolvers import reverse
 import pytz
 
@@ -253,12 +254,16 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
     return htmlHeaders(cal_table.listreturn(headers = True))
 
 def event_info(confitem_type = 'Show', 
+        filter_type = None,
         cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('UTC')),
         datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
     '''
     Queries the database for scheduled events of type confitem_type, during time cal_times,
     and returns their important information in a dictionary format.
     '''
+
+    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
+        filter_type, confitem_type = confitem_type, 'Class'
 
     import gbe.models as conf
     from scheduler.models import Location
@@ -271,6 +276,10 @@ def event_info(confitem_type = 'Show',
         
     confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
 
+    if filter_type != None:
+        confitems_list = [confitem for confitem in confitems_list if confitem.sched_payload['details']['type'] \
+            == filter_type]
+
     loc_allocs = []
     for l in Location.objects.all():
         loc_allocs += l.allocations.all()
@@ -282,8 +291,8 @@ def event_info(confitem_type = 'Show',
          stop_t = event.start_time + event.duration
          if start_t > cal_times[1] or stop_t < cal_times[0]:
              scheduled_events.remove(event)
-    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]    
 
+    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]    
     events_dict = {}
     for index in range(len(scheduled_event_ids)):
         for confitem in confitems_list:
