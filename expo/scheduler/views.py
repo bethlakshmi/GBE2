@@ -402,8 +402,7 @@ def allocate_workers(request, opp_id):
     opp = Event.objects.get(id = opp_id)
     form = WorkerAllocationForm(request.POST)
 
-    if not form.is_valid():
-        foo()
+    if not form.is_valid():   # handle form errors
         raise Http404 
     
     data = form.cleaned_data
@@ -517,7 +516,7 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
     data = event.contact_info(resource_type, status, worker_type)
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % str(event)
+    response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ','_')
     writer = csv.writer(response)
     writer.writerow(['Name', 'email'])
     for row in data:
