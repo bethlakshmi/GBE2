@@ -364,8 +364,7 @@ def get_manage_opportunity_forms( item, initial ):
                      'Duration', 
                      'Day', 
                      'Time', 
-                     'Location', 
-                     'Action' ]
+                     'Location' ]
     context.update ({  'createform':createform,
                      'actionheaders':actionheaders,})
     return context
