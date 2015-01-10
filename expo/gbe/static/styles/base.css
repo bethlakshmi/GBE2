@@ -364,13 +364,13 @@ td.describe
 {
   padding-top: 10px;
   align:left;
-  width:80%;
+  width:75%;
   display: inline-block;
   vertical-align: top;
 }
 .sched_times
 {
-  width:15%;
+  width:20%;
   align: right;
   display: inline-block;
   border: 1px solid black;

@@ -293,8 +293,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         else:
             raise Http404
     else:
-        context =  {'show_tickets': True,
-                    'user_id':request.user.id,
+        context =  {'user_id':request.user.id,
                     'event_id':scheduler_event_id}
         context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
         context['tickets'] = context['eventitem']['event'].get_tickets  
@@ -567,8 +566,6 @@ def add_event(request, eventitem_id, event_type='class'):
     eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
-                                      'show_tickets': True,
-                                      'tickets': eventitem_view['event'].get_tickets,
                                       'user_id':request.user.id})
 
 def view_list(request, event_type='All'):

@@ -6,14 +6,12 @@
 
 {% block content %}
  
-{% if tickets %}
-  {% include "ticket_link.tmpl" %}
-{% endif %}  
+
     <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
     <div class="sched_block">
       <div class="sched_desc">
 	 {{eventitem.event.payload.description}}
-      <div class="sched_details">
+       <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
         <label class="sched_detail">
 	{% autoescape off %}
@@ -28,11 +26,11 @@
 	{% endautoescape %}
         {% endfor %}
 
+       </div>
       </div>
-    </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
-	  <h2>All Scheduled Times...</h2>
+	  <h3>All Scheduled Times...</h3>
 	  {% for sched_event in eventitem.scheduled_events %}
 	    <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
 	      <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
