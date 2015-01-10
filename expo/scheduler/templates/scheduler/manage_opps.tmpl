@@ -21,8 +21,16 @@ included in event edit flow. If there is an actionform, show it
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
- 	  <td> {{field}} </td>
- 	{% endfor %}	    	
+	  <td>
+          {% if field.errors %}
+            <font color="red">!</font>&nbsp;&nbsp;
+          {% endif %}
+            {{ field }}
+          {% if field.errors %}
+            </br>
+            <font color="red">{{ field.errors }}</font>
+          {% endif %}
+	  </td> 	{% endfor %}	    	
 	{% for field in form.hidden_fields %}
 	  {{field}}
 	{% endfor %}

@@ -295,7 +295,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
     
-def edit_event_display(request, item, createform=None):
+def edit_event_display(request, item, errorcontext=None):
     template = 'scheduler/event_schedule.tmpl'
     context =  {'user_id':request.user.id,
                 'event_id':item.id,
@@ -323,10 +323,8 @@ def edit_event_display(request, item, createform=None):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item ) )
         else:
-            context.update (get_manage_opportunity_forms (item, initial ) )
-            # used for error handling - a form with errors can be passed through to inform the user of previous mistakes
-            if createform:
-                context['createform'] = createform
+            context.update (get_manage_opportunity_forms (item, initial, errorcontext ) )
+
     context['form'] = EventScheduleForm(prefix = 'event', 
                                         instance=item,
                                         initial = initial)
@@ -334,7 +332,7 @@ def edit_event_display(request, item, createform=None):
     return render(request, template, context)
 
 
-def get_manage_opportunity_forms( item, initial ):
+def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     '''
     Generate the forms to allocate, edit, or delete volunteer opportunities associated with 
     a scheduler event. 
@@ -343,27 +341,35 @@ def get_manage_opportunity_forms( item, initial ):
     actionform = []
     context = {}
     for opp in item.get_volunteer_opps():
-        sevent = opp['sched']
-        num_volunteers = sevent.max_volunteer
-        day = sevent.start_time.strftime("%A")
-        conf_date = conference_dates[day]
-        time = sevent.start_time.time
-        location = sevent.location
-        if sevent.location:
-            room = location.room
+        if errorcontext and errorcontext.has_key('error_opp_form') \
+                        and errorcontext['error_opp_form'].instance == opp['conf']:
+            actionform.append(errorcontext['error_opp_form'])
         else:
-            room = item.location.room
-        actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
-                                                   initial = {'opp_event_id' : opp['conf'].event_id,
-                                                              'opp_sched_id' : opp['sched'].id,
-                                                              'num_volunteers' : num_volunteers, 
-                                                              'day': conf_date,
-                                                              'time': time, 
-                                                              'location': room,
-                                                              } ))
-        context['actionform'] = actionform
+            sevent = opp['sched']
+            num_volunteers = sevent.max_volunteer
+            day = sevent.start_time.strftime("%A")
+            conf_date = conference_dates[day]
+            time = sevent.start_time.time
+            location = sevent.location
+            if sevent.location:
+                room = location.room
+            else:
+                room = item.location.room
+            actionform.append(VolunteerOpportunityForm(instance=opp['conf'], 
+                                                       initial = {'opp_event_id' : opp['conf'].event_id,
+                                                                  'opp_sched_id' : opp['sched'].id,
+                                                                  'num_volunteers' : num_volunteers, 
+                                                                  'day': conf_date,
+                                                                  'time': time, 
+                                                                  'location': room,
+                                                                  } ))
+    context['actionform'] = actionform
                     
-    createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
+    if errorcontext and errorcontext.has_key('createform'):
+        createform = errorcontext['createform']
+    else:
+        createform =  VolunteerOpportunityForm (prefix='new_opp', initial = initial)
+
     actionheaders = ['Title', 
                      'Volunteer Type', 
                      'Volunteers Needed', 
@@ -371,7 +377,7 @@ def get_manage_opportunity_forms( item, initial ):
                      'Day', 
                      'Time', 
                      'Location' ]
-    context.update ({  'createform':createform,
+    context.update ({'createform':createform,
                      'actionheaders':actionheaders,})
     return context
 
@@ -472,7 +478,7 @@ def manage_volunteer_opportunities(request, event_id):
             container.save()
         else:
             errors = form.errors
-            return edit_event_display(request, event, form)
+            return edit_event_display(request, event, {'createform':form})
     elif 'delete' in request.POST.keys():  #delete this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
         opp.delete()
@@ -484,7 +490,8 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
         form = VolunteerOpportunityForm(request.POST, instance=opp)
         if not form.is_valid():
-            raise Http404
+            return edit_event_display(request, event, {'error_opp_form':form} )
+
         form.save()
         data = form.cleaned_data
         opp_event.max_volunteer = data['num_volunteers']
