@@ -293,38 +293,41 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         else:
             raise Http404
     else:
-        context =  {'user_id':request.user.id,
-                    'event_id':scheduler_event_id}
-        context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
-        context['tickets'] = context['eventitem']['event'].get_tickets  
+        return edit_event_display(request, item)
+    
+def edit_event_display(request, item):
+    template = 'scheduler/event_schedule.tmpl'
+    context =  {'user_id':request.user.id,
+                'event_id':item.id,
+                'event_edit_url': reverse('edit_event', 
+                                        urlconf='scheduler.urls', 
+                                        args = [item.__class__.__name__, item.id])}
+    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
+    
+    initial = {}
+    initial['duration'] = item.duration
+    initial['day'] = item.starttime.strftime("%Y-%m-%d")
+    initial['time'] = item.starttime.strftime("%H:%M:%S")
+    initial['location'] = item.location
+    if item.event_type_name == 'Class':
+        allocs = ResourceAllocation.objects.filter(event = item)
+        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
+        teachers = [worker for worker in workers if worker.role == 'Teacher']
 
-        initial = {}
-        initial['duration'] = item.duration
-        initial['day'] = item.starttime.strftime("%Y-%m-%d")
-        initial['time'] = item.starttime.strftime("%H:%M:%S")
-        initial['location'] = item.location
-        if item.event_type_name == 'Class':
-            allocs = ResourceAllocation.objects.filter(event = item)
-            workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
-            teachers = [worker for worker in workers if worker.role == 'Teacher']
-
-            if len(teachers) > 0:
-                initial['teacher'] = teachers[0].item
-            else:
+        if len(teachers) > 0:
+            initial['teacher'] = teachers[0].item
+        else:
+            initial['teacher'] = item.as_subtype.teacher
                 
-                initial['teacher'] = item.as_subtype.teacher
-                
-        if validate_perms(request, ('Volunteer Coordinator',)):
-            if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-                context.update( get_worker_allocation_forms( item ) )
-            else:
-                context.update (get_manage_opportunity_forms (item, initial ) )
+    if validate_perms(request, ('Volunteer Coordinator',)):
+        if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
+            context.update( get_worker_allocation_forms( item ) )
+        else:
+            context.update (get_manage_opportunity_forms (item, initial ) )
     context['form'] = EventScheduleForm(prefix = 'event', 
                                         instance=item,
                                         initial = initial)
 
-    template = 'scheduler/event_schedule.tmpl'
-#    foo()
     return render(request, template, context)
 
 
@@ -435,6 +438,8 @@ def manage_volunteer_opportunities(request, event_id):
     from gbe.forms import VolunteerOpportunityForm
     from gbe.models import GenericEvent
     set_time_format()
+    template = 'scheduler/event_schedule.tmpl'
+
     if request.method != 'POST':
         foo ()   # trigger error, for testing
         #return HttpResponseRedirect(reverse('edit_schedule', urlconf='scheduler.urls'))
@@ -464,7 +469,7 @@ def manage_volunteer_opportunities(request, event_id):
             container.save()
         else:
             errors = form.errors
-            bar()
+            return edit_event_display(request, event)
     elif 'delete' in request.POST.keys():  #delete this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
         opp.delete()
