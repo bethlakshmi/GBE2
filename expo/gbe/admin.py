@@ -1,5 +1,6 @@
 from django.contrib import admin
 from gbe.models import *
+from model_utils.managers import InheritanceManager
 
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
@@ -44,6 +45,16 @@ class ProfilePreferencesAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'capacity', 'overbook_size')
     
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'subclass')
+    
+    def subclass(self, obj):
+        try:
+            event = Event.objects.get_subclass(event_id=obj.event_id)
+            return str(event.__class__.__name__)
+        except:
+            return "Event"       
+    
 admin.site.register( Profile, ProfileAdmin )
 admin.site.register( Biddable, BidAdmin )
 admin.site.register( Act, ActAdmin )
@@ -66,4 +77,4 @@ admin.site.register( Combo, PerformerAdmin )
 admin.site.register( Troupe, PerformerAdmin )
 admin.site.register( ConferenceVolunteer, ConferenceVolunteerAdmin )
 admin.site.register( GenericEvent )
-admin.site.register( Event )
+admin.site.register( Event, EventAdmin )
