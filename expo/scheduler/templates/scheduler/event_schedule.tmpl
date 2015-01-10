@@ -32,6 +32,7 @@
     </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
+	  <h2>All Scheduled Times...</h2>
 	  {% for sched_event in eventitem.scheduled_events %}
 	    <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
 	      <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
@@ -42,69 +43,7 @@
 
     </div>
    
-    {% if eventitem.bio_grid_list %}
-      <table class="vtable" align=center>
-      <tr  class="vrow"><th colspan="3" class="vheader">
-        <div class="vheadertext"><p>Check out our fabulous Performers!</p></div>
-      </th></tr>
-      {% for bio in eventitem.bio_grid_list %}
-	{% cycle '<tr class="vrow"><td class="vendorff">' '<td class="vendorff">' '<td class="vendorff">' %}
-	    <div class="vname">
-	      {{bio.name}}
-	    </div>
-            <span class="perfhover">
-	    <div class="vimg">
-	      <a href="{{bio.homepage}}">
-	   	{% if bio.promo_image %}
-	   	<img src="/{{bio.promo_image}}" class="vimage">
-		{% else %}
-		<img src="/static/img/defaultperfpromo.png" class="vimage">
-		{% endif %}
-	      </a><br>
-	      <span>
-               <div class="vname" ><b>{{bio.name}}</b></div><br>
-               <div align=left>
 
-	   	  {% if bio.promo_image %}
-		  <div style="float:right">
-                  <a href="/{{bio.promo_image}}">
-		    <img src="/{{bio.promo_image}}" alt="Photo" width=200 style="float:right">
-		  </a></div><BR>
-		  {%endif%}
-                  <div class="vdesc">
-	            {{bio.bio | linebreaksbr}}
-	          </div>
-                  {% if bio.homepage %}
-		  <br>
-		  <div style="float:left">
-		  <b><a href="{{bio.homepage}}">Website</a><b></div>
-
-	          {% endif %}
-
-	      </span>
-	    </div>
-	    </span>
-
-	{% cycle '</td>' '</td>' '</td></tr>' %}
-	
-      {% endfor %} 
-      </table>
-    {% elif eventitem.event.bios %}
-    <div class="bio_block">
-      {% for bio in eventitem.event.bios %}
-      <div class="bio_words">
-        <h2>About {{bio.name}}</h2>
-        {{bio.bio |linebreaksbr}}
-        <br><br>
-      </div>
-        {% if bio.promo_image %}
-        <div class="bio_image_block">
-        <img src="/{{bio.promo_image}}" class="sched_bio_image">
-        </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
 
   {% if form %}
   <form method="POST" action="" enctype="multipart/form-data">
