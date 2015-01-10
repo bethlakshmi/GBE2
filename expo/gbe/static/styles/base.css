@@ -457,6 +457,10 @@ table.events-table td
     border:1px solid;
 }
 
+tr.event_edit_row
+{
+  vertical-align: top;
+}
 tr.blank_row
 {
   background-color: #D0D0D0 ;

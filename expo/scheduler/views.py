@@ -295,7 +295,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
     
-def edit_event_display(request, item):
+def edit_event_display(request, item, createform=None):
     template = 'scheduler/event_schedule.tmpl'
     context =  {'user_id':request.user.id,
                 'event_id':item.id,
@@ -324,6 +324,9 @@ def edit_event_display(request, item):
             context.update( get_worker_allocation_forms( item ) )
         else:
             context.update (get_manage_opportunity_forms (item, initial ) )
+            # used for error handling - a form with errors can be passed through to inform the user of previous mistakes
+            if createform:
+                context['createform'] = createform
     context['form'] = EventScheduleForm(prefix = 'event', 
                                         instance=item,
                                         initial = initial)
@@ -469,7 +472,7 @@ def manage_volunteer_opportunities(request, event_id):
             container.save()
         else:
             errors = form.errors
-            return edit_event_display(request, event)
+            return edit_event_display(request, event, form)
     elif 'delete' in request.POST.keys():  #delete this opportunity
         opp = get_object_or_404(GenericEvent, event_id = request.POST['opp_event_id'])
         opp.delete()

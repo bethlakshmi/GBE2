@@ -16,7 +16,7 @@ included in event edit flow. If there is an actionform, show it
       <th>Action</th>
     </tr>
     {% for form in actionform %}
-    <tr>
+    <tr class="event_edit_row">
       <form method="POST" action="{% url 'scheduler:manage_opps'  event_id %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
@@ -33,7 +33,7 @@ included in event edit flow. If there is an actionform, show it
       </form>	      
     </tr>
     {% endfor %}
-    <tr>
+    <tr class="event_edit_row">
       <form method="POST" action="{% url 'scheduler:manage_opps' event_id  %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
