@@ -6,6 +6,7 @@ included in event edit flow. Show WorkerAllocationForms
 
 <div class=side_box>
   <h2>Volunteer Allocation </h2>
+  <p>Note that removing the worker name will remove the original worker from the volunteer assignments.</p>
   <table>
     <tr> 
     {% for header in worker_alloc_headers %}
@@ -19,8 +20,17 @@ included in event edit flow. Show WorkerAllocationForms
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
- 	  <td> {{field}} </td>
- 	{% endfor %}	    	
+	  <td>
+          {% if field.errors %}
+            <font color="red">!</font>&nbsp;&nbsp;
+          {% endif %}
+            {{ field }}
+          {% if field.errors %}
+            </br>
+            <font color="red">{{ field.errors }}</font>
+          {% endif %}
+	  </td>
+	{% endfor %}	    	
 	{% for field in form.hidden_fields %}
 	  {{field}}
 	{% endfor %}

@@ -42,7 +42,7 @@ class WorkerAllocationForm (forms.Form):
     Form for selecting a worker to fill a slot in a Volunteer Opportunity
     '''
     import gbe.models as conf
-    worker = forms.ModelChoiceField(queryset = conf.Profile.objects.all())
+    worker = forms.ModelChoiceField(queryset = conf.Profile.objects.all(), required=False)
     role = forms.ChoiceField(choices = role_options, initial='Volunteer')
     label = forms.CharField(max_length = 100, required=False)
     alloc_id = forms.IntegerField(required=False, widget = forms.HiddenInput())

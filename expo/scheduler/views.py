@@ -321,7 +321,7 @@ def edit_event_display(request, item, errorcontext=None):
                 
     if validate_perms(request, ('Volunteer Coordinator',)):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-            context.update( get_worker_allocation_forms( item ) )
+            context.update( get_worker_allocation_forms( item, errorcontext ) )
         else:
             context.update (get_manage_opportunity_forms (item, initial, errorcontext ) )
 
@@ -382,7 +382,7 @@ def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     return context
 
 
-def get_worker_allocation_forms( opp ):
+def get_worker_allocation_forms( opp, errorcontext=None ):
     '''
     Returns a list of allocation forms for a volunteer opportunity
     Each form can be used to schedule one worker. Initially, must allocate one at a time. 
@@ -390,12 +390,19 @@ def get_worker_allocation_forms( opp ):
     allocations = ResourceAllocation.objects.filter(event=opp)
     allocs = ( alloc for alloc in allocations if 
                type(alloc.resource.item).__name__ == 'WorkerItem' and 
-               type(alloc.resource.item.as_subtype).__name__  == 'Profile' ) 
-    forms = [WorkerAllocationForm(initial = {'worker':alloc.resource.item.as_subtype, 
+               type(alloc.resource.item.as_subtype).__name__  == 'Profile' )
+    
+    forms =[]
+    for alloc in allocs:
+        if errorcontext and errorcontext.has_key('worker_alloc_forms') \
+                        and errorcontext['worker_alloc_forms'].cleaned_data['worker'] == alloc.resource.item.as_subtype:
+            forms.append( errorcontext['worker_alloc_forms'] )
+        else:
+            forms.append(WorkerAllocationForm(initial = {'worker':alloc.resource.item.as_subtype, 
                                              'role':Worker.objects.get(id =alloc.resource.id).role,
                                              'label':alloc.get_label,
-                                             'alloc_id':alloc.id})  
-             for alloc in allocs]
+                                             'alloc_id':alloc.id})
+                        )
     forms.append (WorkerAllocationForm(initial = {'role':'Volunteer', 'alloc_id' : -1}))
     return {'worker_alloc_forms':forms, 
             'worker_alloc_headers': ['Worker', 'Role', 'Notes'], 
@@ -413,21 +420,24 @@ def allocate_workers(request, opp_id):
     form = WorkerAllocationForm(request.POST)
 
     if not form.is_valid():   # handle form errors
-        raise Http404 
+        return edit_event_display(request, opp, {'worker_alloc_forms':form})
     
     data = form.cleaned_data
-    worker = Worker(_item = data['worker'].workeritem, 
+    
+    # if no worker, the volunteer that was there originally is deallocated.
+    if data.has_key('worker') and data['worker']:
+        worker = Worker(_item = data['worker'].workeritem, 
                     role = data['role'])
-    worker.save()
-    if data['alloc_id'] < 0:
-        allocation = ResourceAllocation(event=opp, resource = worker)
+        worker.save()
+        if data['alloc_id'] < 0:
+            allocation = ResourceAllocation(event=opp, resource = worker)
 
-    else:
-        allocation = ResourceAllocation.objects.get(id = data['alloc_id'])
-        allocation.resource = worker
+        else:
+            allocation = ResourceAllocation.objects.get(id = data['alloc_id'])
+            allocation.resource = worker
 
-    allocation.save()
-    allocation.set_label(data['label'])
+        allocation.save()
+        allocation.set_label(data['label'])
 
     return HttpResponseRedirect(reverse('edit_event', 
                                         urlconf='scheduler.urls', 
