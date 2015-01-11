@@ -395,7 +395,7 @@ def get_worker_allocation_forms( opp, errorcontext=None ):
     forms =[]
     for alloc in allocs:
         if errorcontext and errorcontext.has_key('worker_alloc_forms') \
-                        and errorcontext['worker_alloc_forms'].cleaned_data['worker'] == alloc.resource.item.as_subtype:
+                        and errorcontext['worker_alloc_forms'].cleaned_data['alloc_id'] == alloc.id:
             forms.append( errorcontext['worker_alloc_forms'] )
         else:
             forms.append(WorkerAllocationForm(initial = {'worker':alloc.resource.item.as_subtype, 
