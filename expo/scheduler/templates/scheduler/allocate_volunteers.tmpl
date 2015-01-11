@@ -9,15 +9,16 @@ included in event edit flow. Show WorkerAllocationForms
   <table>
     <tr> 
     {% for header in worker_alloc_headers %}
-      <th> {{ header }} 
+      <th> {{ header }} </th>
     {% endfor %}
+      <th>Action</th>
     </tr>
     {% for form in worker_alloc_forms %}
-    <tr>
+    <tr class="event_edit_row">
       <form method="POST" action="{% url 'scheduler:allocate_workers'  opp_id %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
-	{% for field in form %}
+	{% for field in form.visible_fields %}
  	  <td> {{field}} </td>
  	{% endfor %}	    	
 	{% for field in form.hidden_fields %}
