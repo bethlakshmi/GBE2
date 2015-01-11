@@ -592,8 +592,12 @@ def add_event(request, eventitem_id, event_type='class'):
             raise Http404
     else:
         duration = item.duration
-        form =  EventScheduleForm( prefix='event', initial={'duration':duration})
-        
+        if item.__class__.__name__ == 'Class':
+            form =  EventScheduleForm( prefix='event', initial={'duration':duration,
+                                                            'teacher': item.teacher})
+        else:
+            form =  EventScheduleForm( prefix='event', initial={'duration':duration})
+
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
