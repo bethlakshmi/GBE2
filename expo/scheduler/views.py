@@ -403,6 +403,8 @@ def get_worker_allocation_forms( opp, errorcontext=None ):
                                              'label':alloc.get_label,
                                              'alloc_id':alloc.id})
                         )
+    if errorcontext and errorcontext.has_key('new_worker_alloc_form'):
+        forms.append(errorcontext['new_worker_alloc_form'])
     forms.append (WorkerAllocationForm(initial = {'role':'Volunteer', 'alloc_id' : -1}))
     return {'worker_alloc_forms':forms, 
             'worker_alloc_headers': ['Worker', 'Role', 'Notes'], 
@@ -420,7 +422,12 @@ def allocate_workers(request, opp_id):
     form = WorkerAllocationForm(request.POST)
 
     if not form.is_valid():   # handle form errors
-        return edit_event_display(request, opp, {'worker_alloc_forms':form})
+        try:
+            ResourceAllocation.objects.get(id = data['alloc_id'])
+            return edit_event_display(request, opp, {'worker_alloc_forms':form})
+        except:
+            form.alloc_id = -1
+            return edit_event_display(request, opp, {'new_worker_alloc_form':form})
     
     data = form.cleaned_data
     
@@ -438,6 +445,7 @@ def allocate_workers(request, opp_id):
 
         allocation.save()
         allocation.set_label(data['label'])
+
 
     return HttpResponseRedirect(reverse('edit_event', 
                                         urlconf='scheduler.urls', 
