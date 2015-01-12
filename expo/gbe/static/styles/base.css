@@ -460,7 +460,23 @@ table.events-table td
 tr.event_edit_row
 {
   vertical-align: top;
-}
+} 
+
+tr.event_opp_row
+{
+  vertical-align: top;
+} 
+
+table.event_opps  tr:nth-child(even)
+{
+  background-color: #CCC;
+} 
+
+table.event_opps  tr:nth-child(odd)
+{
+  background-color: #EEE;
+} 
+
 tr.blank_row
 {
   background-color: #D0D0D0 ;

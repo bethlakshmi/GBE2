@@ -8,7 +8,7 @@ included in event edit flow. If there is an actionform, show it
 
 <div class=side_box>
   <h2>Volunteer Management </h2>
-  <table>
+  <table class="event_opps">
     <tr> 
     {% for header in actionheaders %}
       <th> {{ header }} </th>
@@ -16,7 +16,7 @@ included in event edit flow. If there is an actionform, show it
       <th>Action</th>
     </tr>
     {% for form in actionform %}
-    <tr class="event_edit_row">
+    <tr class="event_opp_row">
       <form method="POST" action="{% url 'scheduler:manage_opps'  event_id %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
@@ -41,7 +41,7 @@ included in event edit flow. If there is an actionform, show it
       </form>	      
     </tr>
     {% endfor %}
-    <tr class="event_edit_row">
+    <tr class="event_opp_row">
       <form method="POST" action="{% url 'scheduler:manage_opps' event_id  %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
