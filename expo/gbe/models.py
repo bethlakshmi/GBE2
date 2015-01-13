@@ -291,6 +291,12 @@ class Performer (WorkerItem):
         return alerts
     
     @property
+    def promo_small(self):
+        pieces = self.promo_image.name.split('/')
+        pieces.insert(-1, 'mini')
+        return '/'.join(pieces)
+
+    @property
     def get_schedule(self):
         return Performer.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_schedule()
 

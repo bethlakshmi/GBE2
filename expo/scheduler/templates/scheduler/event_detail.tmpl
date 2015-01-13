@@ -56,7 +56,7 @@
 	    <div class="vimg">
 	      <a href="{{bio.homepage}}">
 	   	{% if bio.promo_image %}
-	   	<img src="/{{bio.promo_image}}" class="vimage">
+	   	<img src="/{{bio.promo_small}}" class="vimage">
 		{% else %}
 		<img src="/static/img/defaultperfpromo.png" class="vimage">
 		{% endif %}
@@ -68,7 +68,7 @@
 	   	  {% if bio.promo_image %}
 		  <div style="float:right">
                   <a href="/{{bio.promo_image}}">
-		    <img src="/{{bio.promo_image}}" alt="Photo" width=200 style="float:right">
+		    <img src="/{{bio.promo_small}}" alt="Photo" width=200 style="float:right">
 		  </a></div><BR>
 		  {%endif%}
                   <div class="vdesc">
