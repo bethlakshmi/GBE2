@@ -256,7 +256,7 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
 def event_info(confitem_type = 'Show', 
         filter_type = None,
         cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('UTC')),
-        datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
+            datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
     '''
     Queries the database for scheduled events of type confitem_type, during time cal_times,
     and returns their important information in a dictionary format.
@@ -277,8 +277,8 @@ def event_info(confitem_type = 'Show',
     confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
 
     if filter_type != None:
-        confitems_list = [confitem for confitem in confitems_list if confitem.sched_payload['details']['type'] \
-            == filter_type]
+        confitems_list = [confitem for confitem in confitems_list if \
+            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():

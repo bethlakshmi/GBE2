@@ -3,6 +3,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import *
 from scheduler import views
 
+event_types = ['Show', 'Class', 'Panel', 'Movement', 'Lecture', 'Workshop']
+days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 urlpatterns = patterns('',
     # Examples:
@@ -17,7 +19,7 @@ urlpatterns = patterns('',
         views.calendar_view, name = 'calendar_view'),
     url(r'^scheduler/(?P<event_type>Show|Class|Panel)/?$',
         views.calendar_view, name = 'calendar_view_event'),
-    url(r'^scheduler/(?P<event_type>Show|Class|Panel)/(?P<day>Thursday|Friday|Saturday|Sunday|Monday)/?$',
+    url(r'^scheduler/(?P<event_type>'+'|'.join(event_types)+')/(?P<day>'+'|'.join(days_of_week)+')/?$',
         views.calendar_view, name = 'calendar_view_day'),
     url(r'^scheduler/details/(\d+)/?$',
         views.detail_view, name = 'detail_view'),
@@ -40,8 +42,6 @@ urlpatterns = patterns('',
         views.contact_info, name = 'contact_info'),
     url(r'^scheduler/contactinfo/(\d+)/([-\w]+)/?$',
         views.contact_info, name = 'contact_info'),
-    url(r'^scheduler/manage_rehearsals/(\d+)/?$',
-        views.manage_rehearsals, name = 'manage_rehearsals'),
-                       
+                    
                     
 )

@@ -677,6 +677,8 @@ def calendar_view(request = None,
     Will add in database queries once basic funcationality is completed.
     '''
 
+    # I want to rewrite this to get the first day of the event from the DB or conf, and then 
+    # calculate the date based on the next day after the start of the event.  -  HH
     if day != None:
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
     events = event_info(confitem_type = event_type, cal_times = cal_times)
