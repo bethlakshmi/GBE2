@@ -12,19 +12,19 @@
     <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
     <div class="sched_block">
       <div class="sched_desc">
-	 {{eventitem.event.payload.description}}
+	 {{eventitem.event.payload.description |safe}}
       <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
         <label class="sched_detail">
 	{% autoescape off %}
 	  {% for label_name, label_value in eventitem.labels.items%}
 	       {% if name == label_name %}
-	          {{label_value | safe}}:
+	          {{label_value}}:
 	       {% endif %}
 	  {% empty %}
 	      {{value |safe}}:
 	  {% endfor %}
-	</label> {{value}}<br>
+	</label> {{value |safe }}<br>
 	{% endautoescape %}
         {% endfor %}
 
