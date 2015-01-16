@@ -129,10 +129,6 @@ class ActItem(ResourceItem):
         resources = ActResource.objects.filter(_item=self)        
         allocs = sum([list(res.allocations.all()) for res in resources], [])
 
-#        if ResourceAllocation.objects.filter(event=rehearsal).filter(resource__actresource___item=self).count() > 0:
-#            return   # already scheduled for this one
-        
-#        allocs = ResourceAllocation.objects.filter(resource__actresource___item = self)
         
         for a in allocs:
             if a.event.as_subtype.type=='Rehearsal Slot' and a.event.container_event.parent_event == show:

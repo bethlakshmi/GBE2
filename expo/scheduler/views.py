@@ -432,7 +432,15 @@ def allocate_workers(request, opp_id):
     data = form.cleaned_data
     
     # if no worker, the volunteer that was there originally is deallocated.
-    if data.has_key('worker') and data['worker']:
+
+    if 'delete' in request.POST.keys():
+        alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
+        res = alloc.resource
+        alloc.delete()
+        res.delete()
+
+    
+    elif data.has_key('worker') and data['worker']:
         worker = Worker(_item = data['worker'].workeritem, 
                     role = data['role'])
         worker.save()
