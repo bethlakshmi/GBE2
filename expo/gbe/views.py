@@ -2134,7 +2134,7 @@ def edit_act_techinfo(request, act_id):
 #        foo()
         from scheduler.models import Event as sEvent
         rehearsal = get_object_or_404(sEvent, id = request.POST['rehearsal'])
-        show = get_object_or_404(Show, title=request.POST['show'])
+        show = get_object_or_404(Show, title=request.POST['show']).scheduler_events.first()
         act.set_rehearsal(show, rehearsal)
         form = ActTechInfoForm(request.POST,  
                            instance=act, 

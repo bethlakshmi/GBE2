@@ -126,15 +126,19 @@ class ActItem(ResourceItem):
         '''
         Assign this act to a rehearsal slot for this show 
         '''
-        if ResourceAllocation.objects.filter(event=rehearsal).filter(resource__actresource___item=self).count() > 0:
-            return   # already scheduled for this one
+        resources = ActResource.objects.filter(_item=self)        
+        allocs = sum([list(res.allocations.all()) for res in resources], [])
+
+#        if ResourceAllocation.objects.filter(event=rehearsal).filter(resource__actresource___item=self).count() > 0:
+#            return   # already scheduled for this one
         
-        allocs = ResourceAllocation.objects.filter(resource__actresource___item = self)
+#        allocs = ResourceAllocation.objects.filter(resource__actresource___item = self)
         
         for a in allocs:
-            if a.event.as_subtype.type=='Rehearsal Slot' and a.event.container_event == show:
-                a.resource.delete()
+            if a.event.as_subtype.type=='Rehearsal Slot' and a.event.container_event.parent_event == show:
                 a.delete()
+                a.resource.delete()
+ 
 
         resource= ActResource(_item=self)
         resource.save()
@@ -167,7 +171,8 @@ class ActItem(ResourceItem):
         Returns a list of all shows this act is scheduled to appear in. 
         '''
         resources = ActResource.objects.filter(_item=self)
-        return [res.show for res in resources]
+
+        return filter (lambda i:i is not None, [res.show for res in resources])
 
     @property
     def get_performer_profiles(self):
@@ -204,7 +209,11 @@ class ActResource(Resource):
     
     @property
     def show(self):
-        return ResourceAllocation.objects.get(resource=self).event
+        ra =  ResourceAllocation.objects.filter(resource=self).first()
+        if ra:
+            return ra.event
+        else:
+            return None
 
     @property
     def type(self):
