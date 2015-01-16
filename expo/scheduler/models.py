@@ -327,31 +327,31 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
+    def get_bookings(self, role):
     '''
     should remain focused on the upward connection of resource allocations, and avoid being sub
     class specific
     '''    
-    def get_bookings(self, role):
         from scheduler.models import Event
         events = Event.objects.filter(resources_allocated__resource__worker___item=self,
                                       resources_allocated__resource__worker__role=role)
         return events
-    
+
+    def get_schedule(self):    
     '''
     way of getting the schedule nuances of GBE-specific logic by calling the subclasses
     for their specific schedule
     '''
-    def get_schedule(self):
         child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         return child.get_schedule()
 
+    def get_conflicts(self, new_event):
     '''
        Looks at all current bookings and returns all conflicts.
        Best to do *before* allocating as a resource.
        Returns = a list of conflicts.  And empty list means no conflicts.  Any conflict listed overlaps
           with the new_event that was provided.
     '''
-    def get_conflicts(self, new_event):
         conflicts = []
         for event in self.get_schedule():
             if event.check_conflict(new_event):
@@ -710,7 +710,7 @@ class Event (Schedulable):
         else:
             return None  # or what??
         
-        
+    def extra_volunteers(self):        
     '''
     The difference between the max suggested # of volunteers and the actual number
      > 0 if there are too many volunteers for the max - the number will be the # of people over booked
@@ -719,11 +719,10 @@ class Event (Schedulable):
      < 0 if it is fewer than the max, the abosolute value is the amount of space remaining
         (if there are 4 spaces, and 3 volunteers, the value will be -1)
     '''
-    def extra_volunteers(self):
         return  Worker.objects.filter(allocations__event=self, role='Volunteer').count() - self.max_volunteer
 
 
-
+    def check_conflict(self, other_event):
     '''
        Check this event vs. another event to see if the times conflict.
        Useful whenever we want to check on shared resources.
@@ -732,7 +731,6 @@ class Event (Schedulable):
              event starts - it's a conflict
        - if this event starts first, but bleeds into the other event by overlapping end_time - it's a conflict
     '''
-    def check_conflict(self, other_event):
         is_conflict = False
         if self.start_time == other_event.starttime:
             is_conflict = True

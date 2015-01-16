@@ -328,8 +328,30 @@ def day_to_cal_time(day = 'Saturday', week = datetime(2015, 02, 19,tzinfo=pytz.t
         shift = week.weekday() - 3
         week = week - duration(shift * 60 * 60 * 24)
 
-    return_day = week + Duration(days = [i for i, x in enumerate(conference_days) if x == day][0])
+    return_day = week + Duration(days = [i for i, x in \
+            enumerate(conference_days) if x == day][0])
 
-    cal_times = (return_day + Duration(hours = 8), return_day + Duration(hours = 28))
+    cal_times = (return_day + Duration(hours = 8), return_day + \
+            Duration(hours = 28))
     return cal_times
     
+def volunteer_info(profile_id,
+        filter_type = None,
+        cal_times = (datetime(2015, 02, 20, 18, 00, \
+                tzinfo=pytz.timezone('UTC')),
+            datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
+    '''
+    Accepts a username or profile id number, a filter type, and a set of
+    times.  Prepares a schedule of commitments that user has, filtered
+    on filter_type.  Filter_type None hows everything they are scheduled 
+    for.
+    '''
+
+    from scheduler.models import Location
+    from scheduler.models import WorkerItem
+
+
+    shifts = []
+
+
+    return shifts

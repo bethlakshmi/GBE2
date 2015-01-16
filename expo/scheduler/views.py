@@ -16,6 +16,7 @@ from table import table
 from gbe.duration import Duration
 from scheduler.functions import tablePrep, event_info, day_to_cal_time
 from scheduler.functions import set_time_format, conference_dates
+from scheduler.functions import volunteer_info
 
 def validate_profile(request):
     '''
@@ -702,6 +703,45 @@ def calendar_view(request = None,
     Table['x_name'] = {}
     Table['x_name']['html'] = 'Rooms'
     Table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+
+    template = 'scheduler/Sched_Display.tmpl'
+
+    return render(request, template, Table)
+
+@login_required
+def volunteer_shifts(request = 'None', day = Saturday,
+        filter_type = 'None',
+        cal_times = (datetime(2015, 02, 21, 8, 00,
+                tzinfo=pytz.timezone('UTC')),
+            datetime(2015, 02, 22, 4, 00,
+                tzinfo=pytz.timezone('UTC'))),
+        time_format=None,
+        duration = Duration(minutes = 30)  ):
+    '''
+    Grid calendar view of volunteer shifts, using currently logged in user.
+    '''
+
+    user_profile = validate_profile(request)
+    user_name = user_profile.display_name
+    user_id = user_profile.workeritem_ptr_id
+
+    if day != None:
+        cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19, \
+            tzinfo=pytz.timezone('UTC')))
+    shifts = volunteer_info(user_id , cal_times = cal_times, \
+        filter_type = filter_type)
+
+    if time_format == None:
+        time_format = set_time_format()
+
+    Table = {}
+    Table['rows'] = tablePrep(shifts, duration, cal_start = cal_times[0], 
+        cal_stop = cal_times[1])
+    Table['name'] = 'Volunteer Shifts for '+user_name
+    Table['link'] = reverse('profile', urlconf='gbe.urls')
+    Table['x_name'] = {}
+    Table['x_name']['html'] = 'Conference Rooms'
+    Table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
 
     template = 'scheduler/Sched_Display.tmpl'
 
