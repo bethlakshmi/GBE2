@@ -551,6 +551,7 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
     '''
     Return contact info (email addresses) for a scheduler.Event. Currently configured for shows only
     '''
+    validate_perms(request, ('Act Coordinator', 'Class Coordinator', 'Volunteer Coordinator', 'Scheduling Mavens', 'Vendor Coordinator'), require = True)
     import csv
     event = Event.objects.get(schedulable_ptr_id = event_id)
     data = event.contact_info(resource_type, status, worker_type)
@@ -563,6 +564,8 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
         writer.writerow(row)
     return response
     
+
+
 
 def add_event(request, eventitem_id, event_type='class'):
     '''

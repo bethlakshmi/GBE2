@@ -618,10 +618,23 @@ class Event (Schedulable):
         '''
         Return a list of workers allocated to this event,
         filtered by type if volunteer_type is specified
-        '''
+        returns the Worker Resource assigned. Calling function has to drill down to get to profile
+        '''        
         opps = self.get_volunteer_opps()
-        allocs = sum([list(opp['sched'].resources_allocated.all()) for opp in opps], [])
-        return [alloc.resource.item.profile for alloc in allocs if alloc.resource.type == 'Volunteer']
+        
+        alloc_list = [(opp['conf'].volunteer_category, list(opp['sched'].resources_allocated.all())) for opp in opps]
+        from gbe_forms_text import volunteer_interests_options
+        category = dict(volunteer_interests_options)
+        workers = []
+        for a in alloc_list:
+            for w in a[1]:
+                if w.resource.type == 'Volunteer':
+                    workers.append ((category.get(a[0], 'Blank'), Worker.objects.get(resource_ptr_id = w.resource_id)))
+        return workers
+
+#        return [Worker.objects.get(resource_ptr_id =alloc.resource.id) \
+#                    for alloc in allocs if alloc.resource.type == 'Volunteer']
+
 
 
     def get_acts(self, status = None):
@@ -637,11 +650,23 @@ class Event (Schedulable):
         return acts
 
     def act_contact_info(self, status = None):
-        return [(act.title, act.contact_email) for act in self.get_acts(status)]
-    
-    def worker_contact_info(self, worker_type=None):
-        return [(worker.display_name, worker.contact_email) for worker in self.get_workers(worker_type)]
+        return [(act.contact_info for act in self.get_acts(status))]
 
+    def worker_contact_info(self, worker_type=None):
+        '''
+        Returns contact information and information for filtering
+        Suitable for passing into csv 
+        '''
+        info = []
+        for (category, worker) in self.get_workers(worker_type):
+            profile = worker.item.profile
+            info.append ( (profile.display_name, 
+                           profile.contact_email, 
+                           profile.phone, 
+                           worker.role, 
+                           category) )
+        return info
+    
     def set_duration(self, duration):
         '''
         duration should be a gbe.Duration or a timedelta

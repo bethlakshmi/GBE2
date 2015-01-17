@@ -432,7 +432,7 @@ class Combo (Performer):
 ###################
 # Techinical info #
 ###################
-class AudioInfo(models.Model):
+class  AudioInfo(models.Model):
     '''
     Information about the audio required for a particular Act
     '''
@@ -589,6 +589,16 @@ class Act (Biddable, ActItem):
  
     def typeof(self):
         return self.__class__
+
+    @property 
+    def contact_info(self):
+                return (self.title, 
+                 self.contact_email, 
+                 self.accepted, 
+                 self.performer.contact.phone, 
+                 self.performer.contact.display_name,
+                 )
+
 
     @property
     def contact_email(self):
