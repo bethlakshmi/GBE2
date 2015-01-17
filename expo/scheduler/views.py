@@ -709,7 +709,7 @@ def calendar_view(request = None,
     return render(request, template, Table)
 
 @login_required
-def volunteer_shifts(request = 'None', day = Saturday,
+def volunteer_shifts(request = 'None', day = 'Saturday',
         filter_type = 'None',
         cal_times = (datetime(2015, 02, 21, 8, 00,
                 tzinfo=pytz.timezone('UTC')),
