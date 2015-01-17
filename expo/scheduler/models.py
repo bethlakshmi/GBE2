@@ -318,7 +318,6 @@ class WorkerItem(ResourceItem):
     @property
     def describe(self):
         child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
-        
         return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
@@ -328,30 +327,30 @@ class WorkerItem(ResourceItem):
         return unicode(self.describe)
 
     def get_bookings(self, role):
-    '''
-    should remain focused on the upward connection of resource allocations, and avoid being sub
-    class specific
-    '''    
+        '''
+        should remain focused on the upward connection of resource allocations, and avoid being sub
+        class specific
+        '''    
         from scheduler.models import Event
         events = Event.objects.filter(resources_allocated__resource__worker___item=self,
                                       resources_allocated__resource__worker__role=role)
         return events
 
     def get_schedule(self):    
-    '''
-    way of getting the schedule nuances of GBE-specific logic by calling the subclasses
-    for their specific schedule
-    '''
+        '''
+        way of getting the schedule nuances of GBE-specific logic by calling the subclasses
+        for their specific schedule
+        '''
         child = WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id)
         return child.get_schedule()
 
     def get_conflicts(self, new_event):
-    '''
-       Looks at all current bookings and returns all conflicts.
-       Best to do *before* allocating as a resource.
-       Returns = a list of conflicts.  And empty list means no conflicts.  Any conflict listed overlaps
-          with the new_event that was provided.
-    '''
+        '''
+        Looks at all current bookings and returns all conflicts.
+        Best to do *before* allocating as a resource.
+        Returns = a list of conflicts.  And empty list means no conflicts.  Any conflict listed overlaps
+        with the new_event that was provided.
+        '''
         conflicts = []
         for event in self.get_schedule():
             if event.check_conflict(new_event):
@@ -711,26 +710,26 @@ class Event (Schedulable):
             return None  # or what??
         
     def extra_volunteers(self):        
-    '''
-    The difference between the max suggested # of volunteers and the actual number
-     > 0 if there are too many volunteers for the max - the number will be the # of people over booked
+        '''
+        The difference between the max suggested # of volunteers and the actual number
+        > 0 if there are too many volunteers for the max - the number will be the # of people over booked
         (if there are 3 spaces, and 4 volunteers, the value returned is 1)
-     = 0 if it is at capacity
-     < 0 if it is fewer than the max, the abosolute value is the amount of space remaining
+        = 0 if it is at capacity
+        < 0 if it is fewer than the max, the abosolute value is the amount of space remaining
         (if there are 4 spaces, and 3 volunteers, the value will be -1)
-    '''
+        '''
         return  Worker.objects.filter(allocations__event=self, role='Volunteer').count() - self.max_volunteer
 
 
     def check_conflict(self, other_event):
-    '''
-       Check this event vs. another event to see if the times conflict.
-       Useful whenever we want to check on shared resources.
-       - if they start at the same time, it doesn't matter how long they are
-       - if this event start time is after the other event, but the other event ends *after* this
-             event starts - it's a conflict
-       - if this event starts first, but bleeds into the other event by overlapping end_time - it's a conflict
-    '''
+        '''
+        Check this event vs. another event to see if the times conflict.
+        Useful whenever we want to check on shared resources.
+        - if they start at the same time, it doesn't matter how long they are
+        - if this event start time is after the other event, but the other event ends *after* this
+        event starts - it's a conflict
+        - if this event starts first, but bleeds into the other event by overlapping end_time - it's a conflict
+        '''
         is_conflict = False
         if self.start_time == other_event.starttime:
             is_conflict = True
