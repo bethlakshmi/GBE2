@@ -320,7 +320,7 @@ def edit_event_display(request, item, errorcontext=None):
         else:
             initial['teacher'] = item.as_subtype.teacher
                 
-    if validate_perms(request, ('Volunteer Coordinator',)):
+    if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item, errorcontext ) )
         else:
