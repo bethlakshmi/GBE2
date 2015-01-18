@@ -287,6 +287,13 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 s_event.unallocate_role('Teacher')
                 s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
             s_event.save()                        
+            if data['moderator']:
+                s_event.unallocate_role('Moderator')
+                s_event.allocate_worker(data['moderator'].workeritem, 'Moderator')
+            if len(data['panelists']) > 0 :
+                s_event.unallocate_role('Panelist')
+                for panelist in data['panelists']:
+                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
             
             return HttpResponseRedirect(reverse('edit_event', 
                                                 urlconf='scheduler.urls', 
@@ -314,12 +321,18 @@ def edit_event_display(request, item, errorcontext=None):
         allocs = ResourceAllocation.objects.filter(event = item)
         workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
         teachers = [worker for worker in workers if worker.role == 'Teacher']
+        moderators = [worker for worker in workers if worker.role == 'Moderator']
+        panelists = [worker for worker in workers if worker.role == 'Panelist']
 
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item
         else:
             initial['teacher'] = item.as_subtype.teacher
-                
+        if len(moderators) >0:
+            initial['moderator'] = moderators[0].item
+        if len(panelists) >0:
+            initial['panelists'] = panelists
+
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item, errorcontext ) )
