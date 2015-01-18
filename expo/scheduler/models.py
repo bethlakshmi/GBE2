@@ -632,9 +632,6 @@ class Event (Schedulable):
                     workers.append ((category.get(a[0], 'Blank'), Worker.objects.get(resource_ptr_id = w.resource_id)))
         return workers
 
-#        return [Worker.objects.get(resource_ptr_id =alloc.resource.id) \
-#                    for alloc in allocs if alloc.resource.type == 'Volunteer']
-
 
 
     def get_acts(self, status = None):
@@ -648,6 +645,25 @@ class Event (Schedulable):
         if status:
             acts = [act for act in acts if act.accepted == status]
         return acts
+
+    def get_direct_workers(self, worker_role = None):
+        '''
+        Returns workers allocated directly to an Event - Teachers, panelists, moderators, etc
+        Assumes these workers are tied to Performers, not Profiles - this is true for 
+        Teachers, Moderators, Panelists. 
+        '''
+        allocations = ResourceAllocation.objects.filter(event=self)
+        if worker_role:
+            filter_f = lambda w: w.role == worker_role
+        else:
+            filter_f = lambda w: True
+        workers = [wr.resource_ptr for wr in Worker.objects.all() if filter_f(wr)]
+
+        workers = [allocation.resource.item.performer for allocation in allocations \
+                       if allocation.resource in workers]
+
+        return workers
+
 
     def act_contact_info(self, status = None):
         return [(act.contact_info for act in self.get_acts(status))]
