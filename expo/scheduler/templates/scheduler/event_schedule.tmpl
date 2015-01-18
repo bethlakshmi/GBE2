@@ -52,8 +52,12 @@
     {% if event_id %}
     <table> 
     <tr>
+    {% if event_type == 'Show' %}
     <td><a href="{%url 'scheduler:contact_info' event_id 'Act' %}">Contact acts</a>
     </td
+    {% elif event_type == 'Class' %}
+    <td><a href="{%url 'scheduler:contact_info' event_id 'Teachers' %}">Contact teachers/panelists/moderators</a>
+    {% endif %}
     </tr>
     </table>
     {% endif %}

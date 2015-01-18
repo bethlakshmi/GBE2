@@ -606,7 +606,9 @@ class Event (Schedulable):
         Currently, return as csv: display_name, email_address
         Future: nice interface
         '''
-        if resource_type=='Worker':
+        if resource_type == 'Teachers':
+            return self.class_contacts()
+        elif resource_type=='Worker':
             return self.worker_contact_info(worker_type=worker_type)
         elif resource_type=='Act':
             return self.act_contact_info(status=status)
@@ -659,11 +661,22 @@ class Event (Schedulable):
             filter_f = lambda w: True
         workers = [wr.resource_ptr for wr in Worker.objects.all() if filter_f(wr)]
 
-        workers = [allocation.resource.item.performer for allocation in allocations \
+        allocations = [allocation for allocation in allocations \
                        if allocation.resource in workers]
+
+        workers = [allocation.resource.item.performer for allocation in allocations]
 
         return workers
 
+    def class_contacts(self):
+        '''
+        Returns contact info for teachers, panelists, and moderators associated with this event (if any)
+        '''
+        info = []
+        for worker in self.get_direct_workers():
+            profile = worker.contact
+            info.append ( (worker.contact_email, str (self), worker.name, profile.display_name) )
+        return info
 
     def act_contact_info(self, status = None):
         return [(act.contact_info for act in self.get_acts(status))]

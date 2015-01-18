@@ -332,6 +332,7 @@ def edit_event_display(request, item, errorcontext=None):
             initial['moderator'] = moderators[0].item
         if len(panelists) >0:
             initial['panelists'] = panelists
+    context ['event_type']= item.event_type_name
 
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
