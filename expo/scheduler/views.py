@@ -632,6 +632,18 @@ def contact_by_role(request, participant_type):
                                    str(event),
                                    str(event.container_event.parent_event)])
 
+    elif participant_type == 'Vendors':
+        from gbe.models import Vendor
+        from gbetext import acceptance_states
+        acceptance_dict = dict(acceptance_states)
+        contacts = Vendor.objects.all()
+        header = ['Business Name', 'Personal Name', 'Email', 'Status']
+        contact_info = [[v.title, 
+                        v.profile.display_name, 
+                        v.profile.contact_email, 
+                        acceptance_dict[v.accepted]] for v in contacts]
+ 
+
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % participant_type
