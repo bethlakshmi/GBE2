@@ -155,6 +155,11 @@ class Profile(WorkerItem):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone']  % 
                                   reverse ('profile_update', 
                                            urlconf=gbe.urls))
+        for act in self.get_acts():
+            if act.accepted==3 and (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
+                profile_alerts.append(gbetext.profile_alerts['schedule_rehearsal'] %
+                                      (act.title, reverse('act_techinfo_edit', 
+                                                          urlconf=gbe.urls, args = [act.id])))
         return profile_alerts
     
     def get_volunteerbids(self):
@@ -447,9 +452,9 @@ class  AudioInfo(models.Model):
 
     @property
     def is_complete(self):
-        return (self.confirm_no_music or
-                (  (self.title and
-                   self.artist)  or
+        return bool (self.confirm_no_music or
+                (  (self.track_title and
+                   self.track_artist)  or
                    self.track
                    ))
 
@@ -482,7 +487,7 @@ class LightingInfo (models.Model):
 
     @property
     def is_complete (self):
-        return ( self.stage_color and self.cyc_color)
+        return bool ( self.stage_color and self.cyc_color)
 
 
     def __unicode__(self):
@@ -510,7 +515,9 @@ class StageInfo(models.Model):
     
     @property
     def is_complete(self):
-        return (self.set_props or self.clear_props or self.cue_props or self.confirm)
+        return bool (self.set_props or 
+                     self.clear_props or 
+                     self.cue_props or self.confirm)
 
     def __unicode__(self):
         try:
@@ -531,7 +538,7 @@ class TechInfo (models.Model):
     
     @property
     def is_complete(self):
-        return (self.audio.is_complete and
+        return bool (self.audio.is_complete and
                 self.lighting.is_complete and
                 self.stage.is_complete)
     

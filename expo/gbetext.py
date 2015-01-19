@@ -31,7 +31,8 @@ conf_volunteer_save_error = '''There was an error saving your presentation reque
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
 <a href=' %s '>Fix this!</a>''' ,
                   'empty_profile':  '''Your profile needs an update, please review it, and save it. \
-<a href=' %s '>Update it now!</a>'''
+<a href=' %s '>Update it now!</a>''',
+                  'schedule_rehearsal': '''You need to schedule a rehearsal slot and/or update act tech info for "%s". <a href = ' %s '>Fix this now!</a>'''
                   }
 
 act_alerts = {
