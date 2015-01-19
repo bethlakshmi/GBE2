@@ -587,7 +587,7 @@ def contact_by_role(request, participant_type):
         
         contacts = Worker.objects.filter(Q(role='Teacher')|Q(role='Moderator')|Q(role='Panelist'))
         contacts = [w for w in contacts if w.allocations.count() >0]
-        header = ['email', 'Class', 'Role', 'Performer', 'Profile', 'Phone']
+        header = ['email', 'Class', 'Role', 'Performer Name', 'Display Name', 'Phone']
         contact_info = []
         for c in contacts:
             performer = c.item.performer
@@ -598,6 +598,17 @@ def contact_by_role(request, participant_type):
                                     str(performer),
                                     str(performer.contact),
                                     performer.contact.phone] )
+        from gbe.models import Class
+        classes = Class.objects.all()
+        for c in classes:
+            contact_info.append( [ c.teacher.contact_email, 
+                                   c.title,
+                                   'Bidder', 
+                                   c.teacher.name,
+                                   c.teacher.contact.display_name, 
+                                   c.teacher.contact.phone
+                                   
+                                   ])
 
     elif participant_type == 'Performers':
         contacts = ActItem.objects.all()
@@ -631,6 +642,18 @@ def contact_by_role(request, participant_type):
                                    volunteer_categories.get(event.as_subtype.volunteer_category, ''),
                                    str(event),
                                    str(event.container_event.parent_event)])
+        from gbe.models import Volunteer
+        volunteers = Volunteer.objects.all()
+        for v in volunteers:
+            interests = eval(v.interests)
+            contact_info.append(  [ v.profile.display_name, 
+                                    v.profile.phone, 
+                                    v.profile.contact_email, 
+                                    ','.join([ volunteer_categories[i] for i in interests]), 
+                                    'Application',
+                                    'Application', ]
+                
+                )
 
     elif participant_type == 'Vendors':
         from gbe.models import Vendor
