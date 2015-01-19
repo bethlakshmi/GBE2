@@ -23,7 +23,7 @@
         </li>
         <li class='has-sub'><a href='{% url 'scheduler:event_list' 'Special'%}'><span>Special Events</span></a>
           <ul>
-             <li><a href='http://www.burlesque-expo.com/costumes'><span>Costumes</span></a></li>
+             <li><a href='{% url 'scheduler:detail_view' '180'%}'><span>Costumes</span></a></li>
              <li><a href='{% url 'scheduler:event_list' 'Drop-In'%}'><span>Free Classes!</span></a></li>
              <li><a href='http://www.burlesque-expo.com/parties'><span>Parties</span></a></li>
              <li><a href='http://www.burlesque-expo.com/the-art-show'><span>The Art Show</span></a></li>
