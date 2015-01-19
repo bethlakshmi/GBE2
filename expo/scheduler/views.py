@@ -701,12 +701,24 @@ def add_event(request, eventitem_id, event_type='class'):
                          
             if data['duration']:
                 s_event.set_duration(data['duration'])
-                
-            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
+                            
+                         
+            l = LocationItem.objects.get_subclass(room__name = data['location'])
+#            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
+            if data['teacher']:
+                s_event.unallocate_role('Teacher')
+                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
             s_event.save()                        
-            
+            if data['moderator']:
+                s_event.unallocate_role('Moderator')
+                s_event.allocate_worker(data['moderator'].workeritem, 'Moderator')
+            if len(data['panelists']) > 0 :
+                s_event.unallocate_role('Panelist')
+                for panelist in data['panelists']:
+                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
+
             return HttpResponseRedirect(reverse('event_schedule', 
                                                 urlconf='scheduler.urls', 
                                                 args=[event_type]))
