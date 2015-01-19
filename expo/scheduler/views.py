@@ -615,6 +615,22 @@ def contact_by_role(request, participant_type):
                                    ",".join(map(str, act.get_scheduled_shows())),
                                    ",".join(map(str, act.get_scheduled_rehearsals())),
                                    ])
+    elif participant_type == 'Volunteers':
+        contacts = Worker.objects.filter(role='Volunteer')
+        contacts = [w for w in contacts if w.allocations.count() >0]
+        header = ['Name','Phone', 'Email', 'Volunteer Category', 'Volunteer Role', 'Event']
+        from gbe_forms_text import volunteer_interests_options
+        volunteer_categories = dict(volunteer_interests_options)
+        contact_info = []
+        for c in contacts:
+            profile = c.item.profile
+            event = c.allocations.first().event
+            contact_info.append( [ profile.display_name,
+                                   profile.phone, 
+                                   profile.contact_email,
+                                   volunteer_categories.get(event.as_subtype.volunteer_category, ''),
+                                   str(event),
+                                   str(event.container_event.parent_event)])
 
 
     response = HttpResponse(content_type='text/csv')
