@@ -42,6 +42,8 @@ urlpatterns = patterns('',
         views.contact_info, name = 'contact_info'),
     url(r'^scheduler/contactinfo/(\d+)/([-\w]+)/?$',
         views.contact_info, name = 'contact_info'),
+    url(r'^scheduler/contact_by_role/([-\w]+)/?$',
+        views.contact_by_role, name = 'contact_by_role'),
                     
                     
 )

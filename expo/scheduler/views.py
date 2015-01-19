@@ -567,6 +567,7 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
     '''
     validate_perms(request, ('Act Coordinator', 'Class Coordinator', 'Volunteer Coordinator', 'Scheduling Mavens', 'Vendor Coordinator'), require = True)
     import csv
+    
     event = Event.objects.get(schedulable_ptr_id = event_id)
     data = event.contact_info(resource_type, status, worker_type)
 
@@ -579,6 +580,50 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
     return response
     
 
+def contact_by_role(request, participant_type):
+    from django.db.models import Q
+    import csv
+    if participant_type =='Teachers':
+        
+        contacts = Worker.objects.filter(Q(role='Teacher')|Q(role='Moderator')|Q(role='Panelist'))
+        contacts = [w for w in contacts if w.allocations.count() >0]
+        header = ['email', 'Class', 'Role', 'Performer', 'Profile', 'Phone']
+        contact_info = []
+        for c in contacts:
+            performer = c.item.performer
+            
+            contact_info .append ([ performer.contact_email, 
+                                    str(c.allocations.first().event),
+                                    c.role,
+                                    str(performer),
+                                    str(performer.contact),
+                                    performer.contact.phone] )
+
+    elif participant_type == 'Performers':
+        contacts = ActItem.objects.all()
+        header = ['Act', 'Performer', 'Profile', 'email', 'Phone', 'status', 'Show(s)', 'Rehearsal(s)']
+        contact_info = []
+        for c in contacts:
+            act = c.as_subtype
+            performer = act.performer
+            contact_info.append( [ act.title, 
+                                   str(performer),
+                                   str(performer.contact),
+                                   act.contact_email,
+                                   act.performer.contact.phone,
+                                   act.accepted, 
+                                   ",".join(map(str, act.get_scheduled_shows())),
+                                   ",".join(map(str, act.get_scheduled_rehearsals())),
+                                   ])
+
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % participant_type
+    writer = csv.writer(response)
+    writer.writerow(header)
+    for row in contact_info:
+        writer.writerow(row)
+    return response
 
 
 def add_event(request, eventitem_id, event_type='class'):

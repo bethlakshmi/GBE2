@@ -170,6 +170,14 @@ class ActItem(ResourceItem):
 
         return filter (lambda i:i is not None, [res.show for res in resources])
 
+    def get_scheduled_rehearsals(self):
+        '''
+        Returns a list of all shows this act is scheduled to appear in. 
+        '''
+        resources = ActResource.objects.filter(_item=self)
+
+        return filter (lambda i:i is not None, [res.rehearsal for res in resources])
+
     @property
     def get_performer_profiles(self):
         return ActItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_performer_profiles()
@@ -206,11 +214,18 @@ class ActResource(Resource):
     @property
     def show(self):
         ra =  ResourceAllocation.objects.filter(resource=self).first()
-        if ra:
+        if ra and ra.event.event_type_name == 'Show':
             return ra.event
         else:
             return None
-
+        
+    @property
+    def rehearsal(self):
+        ra =  ResourceAllocation.objects.filter(resource=self).first()
+        if ra and ra.event.event_type_name == 'GenericEvent':
+            return ra.event
+        else:
+            return None
     @property
     def type(self):
         return "act"
