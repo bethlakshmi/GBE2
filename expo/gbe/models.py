@@ -221,6 +221,7 @@ class Profile(WorkerItem):
             events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
         events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event:event.start_time)
+
  
     def is_teaching(self):
         '''

@@ -49,3 +49,7 @@ expo/expo/localsettings.py
 
 
 expo/expo/local_settings.py
+
+*.zip
+
+*.bettytest

@@ -13,6 +13,12 @@
                     <div class='landing_box'>
 			 {% include 'gbe/incl_schedule.tmpl' %}
 		    </div>
+		    &nbsp;
+		    {% endif %}
+                    {% if profile  %}
+                    <div class='landing_box'>
+			 {% include 'gbe/incl_tickets.tmpl' %}
+		    </div>
 		    {% endif %}
 	       </div>
 	       <div class="col2">

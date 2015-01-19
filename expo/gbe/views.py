@@ -114,6 +114,7 @@ def landing_page(request):
                                    'volunteering': viewer_profile.get_volunteerbids(),
                                    'review_items': bids_to_review,
                                    'bookings': viewer_profile.get_schedule(),
+                                   'tickets': get_purchased_tickets(request.user),
                                    'acceptance_states': acceptance_states,
                                    })
     else:

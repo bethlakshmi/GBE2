@@ -1,4 +1,4 @@
-﻿# 
+﻿#
 # ticketing_idd.py - Interface Design Description (IDD) between GBE and TICKETING modules
 #
 # edited by mdb 8/14/2014
@@ -12,7 +12,8 @@
 from ticketing.models import *
 from gbe.models import *
 from ticketing.brown_paper import *
-from gbetext import *   
+from gbetext import *
+from django.db.models import Count
 
 def performer_act_submittal_link(user_id):
     '''
@@ -148,6 +149,14 @@ def verify_event_paid(user_name, event_id):
             return True
             
     return False
- 
-    
-    
+
+def get_purchased_tickets(user):
+    '''
+    get the tickets purchased by the given profile
+    '''
+    tickets = TicketItem.objects.filter(transaction__purchaser__matched_to_user=user).\
+                annotate(number_of_tickets=Count('transaction'))
+    return tickets
+            
+
+

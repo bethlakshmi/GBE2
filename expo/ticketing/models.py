@@ -82,7 +82,10 @@ class Purchaser(models.Model):
     matched_to_user = models.ForeignKey(User, default=None)
     
     def __unicode__(self):
-        return '%s %s (%s) matched to user: %s' % (self.first_name, self.last_name, self.email, self.matched_to_user)
+        try:
+            return str(self.matched_to_user)
+        except:
+            return "USER ERROR: "+self.email+' - id: '+str(self.id)
         
     def __eq__(self, other):
         if not isinstance(other, Purchaser):
