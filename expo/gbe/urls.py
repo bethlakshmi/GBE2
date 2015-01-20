@@ -210,6 +210,7 @@ urlpatterns = patterns ('',
                         url(r'^profile/review_commitments/(\d+)/?$',
                             views.review_user_commitments, name = 'review_user_commitments'),
                         url(r'^profile/manage_user_tickets/(\d+)/?$',
-                            views.manage_user_tickets, name = 'manage_user_tickets')
-                      
+                            views.manage_user_tickets, name = 'manage_user_tickets'),
+                        url(r'^profile/landing_page/(\d+)/?$',
+                            views.landing_page, name = 'admin_landing_page')
                         ) 

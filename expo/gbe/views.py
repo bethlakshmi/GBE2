@@ -69,11 +69,17 @@ def index(request):
     context = RequestContext (request, context_dict)
     return HttpResponse(template.render(context))
 
-
-def landing_page(request):
+def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list']  = Event.objects.all()[:5]
-    viewer_profile = validate_profile(request, require = False)
+    if (profile_id):
+        admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
+                                                 'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
+        viewer_profile = get_object_or_404(Profile, pk=profile_id)
+        admin_message = "You are viewing a user's profile, not your own."
+    else:
+        viewer_profile = validate_profile(request, require = False)
+        admin_message = None
 
     template = loader.get_template('gbe/landing_page.tmpl')
     
@@ -116,6 +122,7 @@ def landing_page(request):
                                    'bookings': viewer_profile.get_schedule(),
                                    'tickets': get_purchased_tickets(request.user),
                                    'acceptance_states': acceptance_states,
+                                   'admin_message': admin_message
                                    })
     else:
         context = RequestContext (request,
@@ -1616,11 +1623,11 @@ def review_profiles(request):
         if  'Registrar' in request.user.profile.privilege_groups:
             bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls',
                                                  args=[aprofile.resourceitem_id]),'text':"Update"}]
-        bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls', args=[aprofile.resourceitem_id]),
-                            'text':"Bids & Schedule"}]
-        if  'Ticketing - Admin' in request.user.profile.privilege_groups or 'Registrar' in request.user.profile.privilege_groups :
-            bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls',
-                                                 args=[aprofile.resourceitem_id]), 'text':"Ticketing & Registration"}]
+        bid_row['actions']+=[{'url':reverse ('admin_landing_page', urlconf='gbe.urls', args=[aprofile.resourceitem_id]),
+                            'text':"View Landing Page"}]
+   #     if  'Ticketing - Admin' in request.user.profile.privilege_groups or 'Registrar' in request.user.profile.privilege_groups :
+   #         bid_row['actions']+=[{'url':reverse ('admin_profile', urlconf='gbe.urls',
+   #                                              args=[aprofile.resourceitem_id]), 'text':"Ticketing & Registration"}]
         rows.append(bid_row)
 
     
