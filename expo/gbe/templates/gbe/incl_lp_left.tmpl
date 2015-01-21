@@ -1,6 +1,7 @@
 <p>
-
-{% if user.is_authenticated %} 
+{% if admin_message %}
+    <font color=red>{{admin_message}}</font></br></br>
+{% elif user.is_authenticated %} 
   {% if  user.profile.preferences.show_hotel_infobox %}
 Have you reserved your room at The Hyatt Regency Hotel yet? A single or double room is just $149 per night until January 19, 2015. Three or four people in a room are slighly more expensive. The hotel sold out last year! Don't get left out in the cold!. Make or manage your reservation <a href = "https://aws.passkey.com/event/11159123/owner/371/home">on-line</a> or by calling the hotel at (617) 492-1234 and asking for "The Great Burlesque Exposition" rate.
   {% endif %}
