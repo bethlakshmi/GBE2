@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import *
 from scheduler import views
 
-event_types = ['Show', 'Class', 'Panel', 'Movement', 'Lecture', 'Workshop']
+event_types = ['All', 'Show', 'Class', 'Panel', 'Movement', 'Lecture', 'Workshop']
 days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 urlpatterns = patterns('',

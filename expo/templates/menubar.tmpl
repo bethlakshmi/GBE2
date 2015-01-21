@@ -58,6 +58,7 @@
           
          <li><a href='{% url 'gbe:fashion_faire' %}'><span>Vintage Fashion Faire</span></a></li>
 
+       {% include "scheduler/calendar_menu.tmpl" %}
 
        {% if user.profile.special_privs %}
 
