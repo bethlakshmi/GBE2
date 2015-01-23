@@ -120,7 +120,7 @@ def landing_page(request, profile_id=None):
                                    'volunteering': viewer_profile.get_volunteerbids(),
                                    'review_items': bids_to_review,
                                    'bookings': viewer_profile.get_schedule(),
-                                   'tickets': get_purchased_tickets(request.user),
+                                   'tickets': get_purchased_tickets(viewer_profile.user_object),
                                    'acceptance_states': acceptance_states,
                                    'admin_message': admin_message
                                    })
