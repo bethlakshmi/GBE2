@@ -2184,7 +2184,8 @@ def edit_act_techinfo(request, act_id):
                                                                    [(r.id,"%s: %s"%(r.as_subtype.title, 
                                                                                    r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
                                for (show, r_set) in rehearsal_sets.items()]
-                                                  
+        else:
+            rehearsal_forms = []
 
         form = ActTechInfoForm(instance = act, 
                            prefix='Act Summary')
