@@ -269,7 +269,7 @@ def event_info(confitem_type = 'Show',
     from scheduler.models import Location
     
     if confitem_type=='All':
-        confitems_list = conf.Event.objects.all()
+        confitems_list = conf.Event.objects.select_subclasses()
     else:
         confitem_class = eval ('conf.'+confitem_type)
         confitems_list = confitem_class.objects.all()
