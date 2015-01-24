@@ -519,8 +519,9 @@ class Event (Schedulable):
 
 
     def get_open_rehearsals(self):
-        return [ec.child_event for ec in EventContainer.objects.filter(parent_event=self) 
+        rehearsals = [ec.child_event for ec in EventContainer.objects.filter(parent_event=self) 
          if ec.child_event.confitem.type=='Rehearsal Slot' and ec.child_event.has_act_opening]
+        return sorted(rehearsals, key = lambda sched_event: sched_event.starttime)
 
 
     def has_act_opening(self):
