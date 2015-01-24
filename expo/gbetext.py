@@ -153,7 +153,8 @@ event_options = (('Special', "Special Event"),
 new_event_options = (('Special', "Special Event"),
                  ('Master',"Master Class"),
                  ('Drop-In',"Drop-In Class"),
-                 ('Staff Area', 'Staff Area'))
+                 ('Staff Area', 'Staff Area'),
+                 ('Rehearsal Slot', 'Rehearsal Slot'))
 
 class_options = (('Lecture', "Lecture"),
                  ('Movement', "Movement"),
