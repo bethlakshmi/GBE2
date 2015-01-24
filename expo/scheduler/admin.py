@@ -26,6 +26,9 @@ class EventAdmin(admin.ModelAdmin):
     list_display = ('eventitem','starttime','max_volunteer')
     list_filter = ['eventitem','starttime','max_volunteer']
 
+class EventContainerAdmin(admin.ModelAdmin):
+    list_display = ('parent_event','child_event')
+
 admin.site.register(EventItem)
 admin.site.register(LocationItem)
 admin.site.register(WorkerItem)
@@ -37,4 +40,5 @@ admin.site.register(Resource)
 admin.site.register(ResourceAllocation, ResourceAllocationAdmin)
 admin.site.register(ActItem)
 admin.site.register(ActResource)
+admin.site.register(EventContainer,EventContainerAdmin)
 

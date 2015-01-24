@@ -137,6 +137,35 @@ audioinfo_labels = {
     'title' : ('Track Title'),
     'artist' : ('Track Artist')}
 
+prop_labels = {
+    'confirm' : ('I have no props or set pieces'),
+    'set_props' : ('I have props I will need set before my number'),
+    'cue_props' : ('I have props I will need a stage kitten to hand me during my number'),
+    'clear_props' : ('I will leave props on-stage that will need to be cleared')
+}
+
+lighting_labels = {
+    'costume' : ('Color(s) of your costume '),
+    'notes' : ('Describe the feel of your number ')}
+
+lighting_help_texts = {
+    'notes' : ('Is your number happy and bouncy, humorous, dark, mysterious, etc.?  Please keep it simple, \
+                just a short description.')}
+
+main_cue_header = {'cue_sequence':'Cue #',
+		   'cue_off_of':'Cue Off of...',
+		   'follow_spot':'Follow spot',
+		   'backlight':'Backlight',
+		   'center_spot':'Center Spot',
+		   'cyc_color':'Cyc Light',
+		   'wash':'Wash',
+		   'sound_note':'Sound'}
+
+starting_cues = [('MC exit', 'MC exit'), 
+                 ('Start of music', 'Start of music'), 
+                 ('Performer set on stage', 'Performer set on stage')] 
+
+
 bidder_info_phone_error = ''''A phone number we can use to reach you when you are at \
 the Expo, such as cell phone.'''
 
@@ -161,7 +190,8 @@ act_help_texts = {
     'video_link' : ('Link to some video of your performance, or a similar act. This \
     will be used for evaluating your bid, and will not appear on your performer page.'),
     'shows_preferences':('Check as many as apply to you'),
-    'video_link':('Make sure to include \'http://\' ')
+    'video_link':('Make sure to include \'http://\' '),
+    'intro_text':('This text will be used by the MC to introduce your act.')
 }
 
 act_bid_labels = {
@@ -305,7 +335,7 @@ classbid_help_texts = {
         so a 60 minute class is really 50 minutes.'''),
 }
 classbid_error_messages = {
-    'length_minutes': {
+        'length_minutes': {
         'required': ("Class Length (in minutes) is required."),
         'max_length': ("The Class Length is too long."),
     }}

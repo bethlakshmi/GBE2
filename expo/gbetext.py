@@ -84,13 +84,18 @@ states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'),
                   ('WA', 'Washington'), ('WV', 'West Virginia'), ('WI', 'Wisconsin'), 
                   ('WY', 'Wyoming'), ('OTHER', 'Other/Non-US')]
 
+offon_options = (("Off", "OFF"), ("ON", "ON"))
 
-stage_lighting_options = (('White', 'White'), ('Amber', 'Amber'),
-                          ('Blue', 'Blue'), ('Cyan', 'Cyan'),
-                          ('Green', 'Green'), ('Orange', 'Orange'),
-                          ('Pink', 'Pink'), ('Purple', 'Purple'),
-                          ('Red', 'Red'), ('Yellow', 'Yellow'), 
-                          ('No lights (not recommended)', 'No lights'))
+stage_lighting_options = (('White', 'White'), ('Blue', 'Blue'), ('Green', 'Green'), ('OFF', 'OFF'),
+                          ('Pink', 'Pink'), ('Purple', 'Purple'), ('Red', 'Red'), ('Yellow', 'Yellow'))
+
+follow_spot_options = (('White', 'White'), ('Blue', 'Blue'), ('OFF', 'OFF'),
+                       ('Pink', 'Pink'), ('Purple', 'Purple'), ('Red', 'Red'))
+
+cyc_color_options = (('Blue', 'Blue'), ('Green', 'Green'), ('OFF', 'OFF'),
+                     ('Pink', 'Pink'), ('Purple', 'Purple'), ('Red', 'Red'),
+                     ('White', 'White'), ('Yellow', 'Yellow'))
+
 
 vendor_lighting_options = (('White', 'White'), 
                           ('Blue', 'Blue'), 

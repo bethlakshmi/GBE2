@@ -470,24 +470,15 @@ class  AudioInfo(models.Model):
 
 class LightingInfo (models.Model):
     '''
-    Information about the lighting needs of a particular Act
+    Information about the basic (not related to cues) lighting needs of a particular Act
+      
     '''
-    stage_color = models.CharField (max_length=25,
-                                    choices=stage_lighting_options, 
-                                    blank=True)
-    stage_second_color = models.CharField (max_length=25,
-                                           choices=stage_lighting_options, 
-                                           blank=True)
-    cyc_color = models.CharField (max_length='25', 
-                                  choices=stage_lighting_options, 
-                                  blank=True)
-    follow_spot = models.BooleanField (default=True)
-    backlight = models.BooleanField (default=True)
-    notes = models.TextField (blank=True)
+    notes = models.TextField(blank=True, max_length=256)
+    costume = models.TextField(blank=True, max_length=16)
 
     @property
     def is_complete (self):
-        return bool ( self.stage_color and self.cyc_color)
+        return bool ( self.notes and self.costume)
 
 
     def __unicode__(self):
@@ -495,8 +486,11 @@ class LightingInfo (models.Model):
             return "LightingInfo: "+self.techinfo.act.title
         except:
             return "LightingInfo: (deleted act)"
+
     class Meta:
         verbose_name_plural='lighting info'
+
+	
 
 class StageInfo(models.Model):
     '''
@@ -506,11 +500,11 @@ class StageInfo(models.Model):
     '''
     act_duration = DurationField(blank=True)
     intro_text = models.TextField(blank=True)
-    set_props = models.BooleanField (default=False)
-    clear_props = models.BooleanField (default=False)
-    cue_props = models.BooleanField (default=False)
-    notes = models.TextField (blank=True)
     confirm = models.BooleanField (default = False)
+    set_props = models.BooleanField (default=False)
+    cue_props = models.BooleanField (default=False)
+    clear_props = models.BooleanField (default=False)
+    notes = models.TextField (blank=True)
 
     
     @property
@@ -529,7 +523,9 @@ class StageInfo(models.Model):
 
 class TechInfo (models.Model):
     '''
-    Gathers up technical info about an act in a show. 
+    Gathers up technical info about an act in a show.
+    BB - doing 2 additional cues for now for an easy add to existing DB
+      2015  - may want to consider a many to many field for 1+ cues 
     '''
     
     audio = models.OneToOneField (AudioInfo, blank=True)
@@ -549,6 +545,49 @@ class TechInfo (models.Model):
             return "Techinfo: (deleted act)"
     class Meta:
         verbose_name_plural='tech info'
+
+class CueInfo(models.Model):
+    '''
+    Information about the lighting needs of a particular Act as they relate to one or more cues within the
+    Act.  Each item is the change that occurs after a cue
+      
+    '''
+    cue_sequence=models.PositiveIntegerField(default=0)
+    cue_off_of = models.TextField(max_length=100)
+
+    follow_spot = models.CharField (max_length=25,
+                                    choices=follow_spot_options, 
+                                    default=follow_spot_options[0])
+    
+    center_spot = models.CharField(max_length=20,
+                                   choices=offon_options, default="OFF") 
+
+    backlight = models.CharField(max_length=20,
+                                 choices=offon_options, default="OFF") 
+
+    cyc_color = models.CharField (max_length=25, 
+                                  choices=cyc_color_options, 
+                                  default=cyc_color_options[0])
+    
+    wash = models.CharField (max_length=25,
+                             choices=stage_lighting_options, 
+                             default=stage_lighting_options[0])
+    sound_note = models.TextField(max_length=100, blank=True)
+    
+    techinfo = models.ForeignKey(TechInfo)
+
+    @property
+    def is_complete (self):
+        return bool ( self.cue_off_of and self.cue_sequence and self.tech_info)
+
+    def __unicode__(self):
+        try:
+            return self.techinfo.act.title+' - cue '+str(self.cue_sequence)
+        except:
+            return "Cue: (deleted act) - "+self.cue_sequence
+
+    class Meta:
+        verbose_name_plural='cue info'
 
 #######
 # Act #
@@ -714,7 +753,7 @@ class Act (Biddable, ActItem):
  
     @property
     def cast_shows(self):
-        return list(EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=self))
+        return ( ('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
     def __str__ (self):
         return str(self.performer) + ": "+self.title
