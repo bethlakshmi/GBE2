@@ -484,7 +484,7 @@ tr.blank_row
 }
 
 
-span.alert 
+div.alert 
 {
     background-color: rgba(241, 221, 91, 01);
 }
