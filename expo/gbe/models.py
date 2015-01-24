@@ -478,7 +478,7 @@ class LightingInfo (models.Model):
 
     @property
     def is_complete (self):
-        return bool ( self.notes and self.costume)
+        return True
 
 
     def __unicode__(self):
@@ -534,9 +534,16 @@ class TechInfo (models.Model):
     
     @property
     def is_complete(self):
+        try:
+            CueInfo.objects.get(techinfo=self, cue_sequence=0)
+            cueinfopresent=True
+        except CueInfo.DoesNotExist:
+            cueinfopresent=False
+
+
         return bool (self.audio.is_complete and
                 self.lighting.is_complete and
-                self.stage.is_complete)
+                self.stage.is_complete and cueinfopresent)
     
     def __unicode__(self):
         try:
