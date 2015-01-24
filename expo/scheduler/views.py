@@ -495,8 +495,11 @@ def manage_volunteer_opportunities(request, event_id):
         #return HttpResponseRedirect(reverse('edit_schedule', urlconf='scheduler.urls'))
     event = get_object_or_404(Event, id=event_id) 
     
-    if 'create' in request.POST.keys():  # creating a new opportunity
-        form = VolunteerOpportunityForm(request.POST, prefix = 'new_opp')
+    if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():  # creating a new opportunity
+        if 'create' in request.POST.keys():        
+            form = VolunteerOpportunityForm(request.POST, prefix = 'new_opp')
+        else:
+            form = VolunteerOpportunityForm(request.POST)
         
         if form.is_valid():                                                          
             opp = form.save(commit = False)
