@@ -280,7 +280,6 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             if data['duration']:
                 s_event.set_duration(data['duration'])
             l = LocationItem.objects.get_subclass(room__name = data['location'])
-#            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
             if data['teacher']:
@@ -515,8 +514,9 @@ def manage_volunteer_opportunities(request, event_id):
             opp_event = Event(eventitem = opp.eventitem_ptr,
                               max_volunteer = data.get('num_volunteers', 1), 
                               starttime = start_time,
-                              location = data.get('location').locationitem,
                               duration = data.get('duration'))
+            opp_event.save()
+            opp_event.set_location(data.get('location').locationitem)
             opp_event.save()
             container = EventContainer(parent_event = event, child_event=opp_event)
             container.save()
@@ -707,7 +707,6 @@ def add_event(request, eventitem_id, event_type='class'):
                             
                          
             l = LocationItem.objects.get_subclass(room__name = data['location'])
-#            l = [l for l in LocationItem.objects.select_subclasses() if str(l) == data['location']][0]
             s_event.save()                        
             s_event.set_location(l)
             if data['teacher']:
