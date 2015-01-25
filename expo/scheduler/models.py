@@ -457,7 +457,8 @@ class EventItem (models.Model):
     '''
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
-
+    visible = models.BooleanField(default=True)
+    
     @property
     def bios(self): 
         people = WorkerItem.objects.filter(worker__allocations__event__eventitem=self.eventitem_id,
@@ -471,6 +472,10 @@ class EventItem (models.Model):
         child.duration = duration
         child.save(update_fields=('duration',))
 
+    def remove(self):
+        Event.objects.filter(eventitem=self).delete()
+        self.visible=False
+        self.save()
         
     @property
     def payload(self):
@@ -497,7 +502,6 @@ class EventItem (models.Model):
         except:
             return "no child"
 
-    
 
 
     def __str__(self):

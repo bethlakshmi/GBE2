@@ -22,6 +22,10 @@ class ResourceAllocationAdmin(admin.ModelAdmin):
         except:
             return "no email"
 
+class EventItemAdmin(admin.ModelAdmin):
+    list_display = (str,'visible')
+    list_filter = ['visible']
+
 class EventAdmin(admin.ModelAdmin):
     list_display = ('eventitem','starttime','max_volunteer')
     list_filter = ['eventitem','starttime','max_volunteer']
@@ -29,7 +33,7 @@ class EventAdmin(admin.ModelAdmin):
 class EventContainerAdmin(admin.ModelAdmin):
     list_display = ('parent_event','child_event')
 
-admin.site.register(EventItem)
+admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)
 admin.site.register(WorkerItem)
 admin.site.register(ResourceItem)

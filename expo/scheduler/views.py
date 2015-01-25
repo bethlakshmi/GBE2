@@ -67,7 +67,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
     if time_format == None: time_format = set_time_format(days = 2)
     event_class = eval('gbe.' + event_type)
 
-    confitems = event_class.objects
+    confitems = event_class.objects.filter(visible=True)
     if event_type=='Event':
         confitems = confitems.select_subclasses()
     else: 
@@ -109,7 +109,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['create'] = reverse('create_event', urlconf='scheduler.urls', 
                                          args =  [event_type, entry['eventitem'].eventitem_id])
             eventinfo ['delete'] = reverse('delete_event', urlconf='scheduler.urls', 
-                                         args =  [entry['eventitem'].eventitem_id])
+                                         args =  [event_type, entry['eventitem'].eventitem_id ])
             eventinfo ['location'] = None
             eventinfo ['datetime'] = None
             eventinfo ['max_volunteer'] =  None
@@ -149,7 +149,7 @@ def event_list(request, event_type=''):
     if event_type.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
         event_type_options = list(set([ei.__class__.__name__ 
-                                       for ei in EventItem.objects.all().select_subclasses()]))
+                                       for ei in EventItem.objects.filter(visible=True).select_subclasses()]))
         
         return render(request, template, {'type_options':event_type_options})
 
@@ -369,8 +369,14 @@ def delete_schedule(request, scheduler_event_id):
                                                 args=[type]))
 
 
-def delete_event(request, eventitem_id):
-    pass
+def delete_event(request, eventitem_id, event_type):
+    '''
+    Remove any scheduled items, make basic event item invisible
+    '''
+    event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
+    event.remove()
+    return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls', 
+                                                args=[event_type]))
 
 def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     '''
@@ -799,6 +805,8 @@ def view_list(request, event_type='All'):
         else:
             items = EventItem.objects.all().select_subclasses().order_by('title')
             event_type="All"
+
+        items = items.filter(visible=True)
 
         events = [{'eventitem': item, 
                     'scheduled_events':item.scheduler_events.all(),

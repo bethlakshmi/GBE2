@@ -274,7 +274,8 @@ def event_info(confitem_type = 'Show',
         confitem_class = eval ('conf.'+confitem_type)
         confitems_list = confitem_class.objects.all()
         
-    confitems_list = [confitem for confitem in confitems_list if confitem.schedule_ready]
+    confitems_list = [confitem for confitem in confitems_list if \
+                      confitem.schedule_ready and confitem.visible]
 
     if filter_type != None:
         confitems_list = [confitem for confitem in confitems_list if \

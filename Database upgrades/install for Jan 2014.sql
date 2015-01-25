@@ -1,3 +1,4 @@
+ALTER TABLE `scheduler_eventitem` ADD `visible` TINYINT(1) NOT NULL DEFAULT '1' ; 
 ALTER TABLE `gbe_lightinginfo2` ADD `costume` LONGTEXT NOT NULL ; 
 CREATE TABLE IF NOT EXISTS `gbe_cueinfo` (\
   `id` int(11) NOT NULL AUTO_INCREMENT,\
