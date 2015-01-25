@@ -366,9 +366,7 @@ class ActTechInfoForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    shows = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-        	                      required=False,
-        	                      label='Show')
+
 
     class Meta:
         model = Act
