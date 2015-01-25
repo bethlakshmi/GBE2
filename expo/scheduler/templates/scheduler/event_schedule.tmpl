@@ -6,7 +6,8 @@
 
 {% block content %}
  
-
+<a href="{% url 'gbe:home' %}">Home</a> >> <a href="{% url 'scheduler:event_schedule' %}">Scheduler</a>
+>> <a href="{% url 'scheduler:event_schedule' event_type %}">Schedule {{event_type}}</a>
     <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
     <div class="sched_block">
       <div class="sched_desc">
