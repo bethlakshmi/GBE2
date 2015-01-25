@@ -102,9 +102,14 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
+            eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
+                                         args =  [entry['schedule_event'].id])
+           
         else:
             eventinfo ['create'] = reverse('create_event', urlconf='scheduler.urls', 
-                                         args =  [event_type,  entry['eventitem'].eventitem_id])
+                                         args =  [event_type, entry['eventitem'].eventitem_id])
+            eventinfo ['delete'] = reverse('delete_event', urlconf='scheduler.urls', 
+                                         args =  [entry['eventitem'].eventitem_id])
             eventinfo ['location'] = None
             eventinfo ['datetime'] = None
             eventinfo ['max_volunteer'] =  None
@@ -148,7 +153,7 @@ def event_list(request, event_type=''):
         
         return render(request, template, {'type_options':event_type_options})
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule','Delete']
     events = get_events_display_info(event_type)
 
 
@@ -308,7 +313,7 @@ def edit_event_display(request, item, errorcontext=None):
                 'event_id':item.id,
                 'event_edit_url': reverse('edit_event', 
                                         urlconf='scheduler.urls', 
-                                        args = [item.__class__.__name__, item.id])}
+                                        args = [item.event_type_name, item.id])}
     context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
     
     initial = {}
@@ -333,6 +338,15 @@ def edit_event_display(request, item, errorcontext=None):
             initial['panelists'] = panelists
     context ['event_type']= item.event_type_name
 
+    if item.event_type_name == 'GenericEvent':
+        allocs = ResourceAllocation.objects.filter(event = item)
+        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
+        teachers = [worker for worker in workers if worker.role == 'Teacher']
+        if len(teachers) > 0:
+            initial['teacher'] = teachers[0].item
+        else:
+            initial['teacher'] = item.as_subtype.teacher
+
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item, errorcontext ) )
@@ -342,9 +356,21 @@ def edit_event_display(request, item, errorcontext=None):
     context['form'] = EventScheduleForm(prefix = 'event', 
                                         instance=item,
                                         initial = initial)
-
     return render(request, template, context)
 
+def delete_schedule(request, scheduler_event_id):
+    '''
+    Remove the scheduled item
+    '''
+    event = get_object_or_404(Event, id=scheduler_event_id)
+    type = event.event_type_name
+    event.delete()
+    return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls', 
+                                                args=[type]))
+
+
+def delete_event(request, eventitem_id):
+    pass
 
 def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     '''
@@ -738,7 +764,8 @@ def add_event(request, eventitem_id, event_type='class'):
     eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
-                                      'user_id':request.user.id})
+                                      'user_id': request.user.id,
+                                      'event_type': event_type})
 
 def view_list(request, event_type='All'):
     '''

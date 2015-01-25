@@ -61,7 +61,15 @@
 			    &nbsp;
 			  {%endif%}
           		</td>	
-
+	                <td class="events-table">
+			  {%if event.edit %}
+            		    <a href='{{ event.delete }}'>Unschedule</a>
+			  {%elif event.create%}
+            		    <a href='{{ event.delete }}'>Delete</a>
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
+          		</td>	
       </tr>
       {% if event.create %}
       <tr class=blank_row>
