@@ -2141,6 +2141,18 @@ def edit_act_techinfo(request, act_id):
     cue1, created = CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=1)
     cue2, created = CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=2)
 
+    shows = act.get_scheduled_shows()
+    rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
+    rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
+                          if rehearsals}
+    if len(rehearsal_sets) > 0:
+        rehearsal_forms = [RehearsalSelectionForm(initial={'show':show, 'rehearsal_choices':
+                                                            [(r.id,"%s: %s"%(r.as_subtype.title, 
+                                                            r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
+                               for (show, r_set) in rehearsal_sets.items()]
+    else:
+        rehearsal_forms = []
+
     if request.method == 'POST':
 #        foo()
         from scheduler.models import Event as sEvent
@@ -2211,18 +2223,6 @@ def edit_act_techinfo(request, act_id):
                             })
 
     else:
-        shows = act.get_scheduled_shows()
-        rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
-        rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
-                          if rehearsals}
-        if len(rehearsal_sets) > 0:
-            rehearsal_forms = [RehearsalSelectionForm(initial={'show':show,  
-                                                               'rehearsal_choices':
-                                                                   [(r.id,"%s: %s"%(r.as_subtype.title, 
-                                                                                   r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
-                               for (show, r_set) in rehearsal_sets.items()]
-        else:
-            rehearsal_forms = []
 
         form = ActTechInfoForm(instance = act, 
                            prefix='Act Summary')

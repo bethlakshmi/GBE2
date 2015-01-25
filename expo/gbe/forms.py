@@ -12,7 +12,7 @@ from gbe_forms_text import *
 from expoformfields import DurationFormField
 from scheduler.functions import set_time_format, conference_days, conference_times
 from django.shortcuts import get_object_or_404
-
+from django.core.exceptions import ValidationError
 
 
 class ParticipantForm(forms.ModelForm):
@@ -384,6 +384,22 @@ class AudioInfoForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
 
+    def clean(self):
+        # run the parent validation first
+        cleaned_data = super(AudioInfoForm, self).clean()
+        
+        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
+        if not ((self.cleaned_data['track_title'] and self.cleaned_data['track_artist']
+                and self.cleaned_data['track_duration']) or self.cleaned_data['confirm_no_music']):
+            raise ValidationError(
+                '''Incomplete Audio Info - please either provide Track Title, Artist and Duration, or \
+                confirm that there is no music.''',
+                code='invalid')
+
+        return cleaned_data
+
+
+
 class LightingInfoForm(forms.ModelForm):
     formtitle="Lighting Info"
     class Meta:
@@ -405,6 +421,7 @@ class CueInfoForm(forms.ModelForm):
                   }
         required = ['wash','cyc_color']
         labels = main_cue_header
+        error_messages = {'cue_off_of': {'required':'Add text if you wish to save information for this cue.'}}
 
 class StageInfoForm(forms.ModelForm):
     formtitle="Stage Info"
@@ -416,6 +433,20 @@ class StageInfoForm(forms.ModelForm):
         model=StageInfo
         labels=prop_labels
         help_texts = act_help_texts
+
+    def clean(self):
+        # run the parent validation first
+        cleaned_data = super(StageInfoForm, self).clean()
+        
+        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
+        if not (self.cleaned_data['set_props'] or self.cleaned_data['clear_props']
+                or self.cleaned_data['cue_props'] or self.cleaned_data['confirm']):
+            raise ValidationError(
+                '''Incomplete Prop Info - please either check of whether props must set, cleaned up or \
+                provided on cue, or confirm that no props or set peices are needed.''',
+                code='invalid')
+
+        return cleaned_data
 
 class ClassProposalForm(forms.ModelForm):
     required_css_class = 'required'

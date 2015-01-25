@@ -191,7 +191,8 @@ act_help_texts = {
     will be used for evaluating your bid, and will not appear on your performer page.'),
     'shows_preferences':('Check as many as apply to you'),
     'video_link':('Make sure to include \'http://\' '),
-    'intro_text':('This text will be used by the MC to introduce your act.')
+    'intro_text':('This text will be used by the MC to introduce your act.'),
+    'notes': ('Please clarify any instructions with respect to prop setting, clearing, or cueing' )
 }
 
 act_bid_labels = {

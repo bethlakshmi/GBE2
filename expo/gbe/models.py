@@ -436,7 +436,7 @@ class Combo (Performer):
 
 
 ###################
-# Techinical info #
+# Technical info #
 ###################
 class  AudioInfo(models.Model):
     '''
@@ -453,9 +453,9 @@ class  AudioInfo(models.Model):
     @property
     def is_complete(self):
         return bool (self.confirm_no_music or
-                (  (self.track_title and
-                   self.track_artist)  or
-                   self.track
+                (  self.track_title and
+                   self.track_artist and
+                   self.track_duration
                    ))
 
 
