@@ -242,7 +242,12 @@ def schedule_acts(request):
         details ['title'] = act.title
         details ['performer'] = act.performer
         details ['show'] = event
-        details ['order'] = alloc.ordering.order
+        try:
+            details ['order'] = alloc.ordering.order
+        except:
+            o = Ordering (allocation= alloc, order = 0)
+            o.save()
+            details['order'] = 0
         details ['actresource'] = alloc.resource.id
 
         
