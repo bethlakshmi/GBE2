@@ -2145,6 +2145,8 @@ def edit_act_techinfo(request, act_id):
     rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
     rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
                           if rehearsals}
+    location = shows[0].location
+    
     if len(rehearsal_sets) > 0:
         rehearsal_forms = [RehearsalSelectionForm(initial={'show':show, 'rehearsal_choices':
                                                             [(r.id,"%s: %s"%(r.as_subtype.title, 
@@ -2156,9 +2158,11 @@ def edit_act_techinfo(request, act_id):
     if request.method == 'POST':
 #        foo()
         from scheduler.models import Event as sEvent
-        rehearsal = get_object_or_404(sEvent, id = request.POST['rehearsal'])
-        show = get_object_or_404(Show, title=request.POST['show']).scheduler_events.first()
-        act.set_rehearsal(show, rehearsal)
+        if 'rehearsal' in request.POST:
+          rehearsal = get_object_or_404(sEvent, id = request.POST['rehearsal'])
+          show = get_object_or_404(Show, title=request.POST['show']).scheduler_events.first()
+          act.set_rehearsal(show, rehearsal)
+
         form = ActTechInfoForm(request.POST,  
                            instance=act, 
                            prefix = 'Act Summary')
@@ -2166,11 +2170,19 @@ def edit_act_techinfo(request, act_id):
         audioform = AudioInfoForm(request.POST, prefix='Audio Information', instance=audio_info)
         stageform = StageInfoForm(request.POST, prefix='Stage Information', instance=stage_info)
         lightingform = LightingInfoForm(request.POST, prefix='Lighting Information', instance=lighting_info)
-        cueform0 = CueInfoForm(request.POST, prefix='cue0', instance=cue0,)
+
+        if location.describe == 'Theater':
+            cueform0 = CueInfoForm(request.POST, prefix='cue0', instance=cue0,)
+            cueform1 = CueInfoForm(request.POST, prefix='cue1', instance=cue1)
+            cueform2 = CueInfoForm(request.POST, prefix='cue2', instance=cue2)
+        else:
+            cueform0 = VendorCueInfoForm(request.POST, prefix='cue0', instance=cue0)
+            cueform1 = VendorCueInfoForm(request.POST, prefix='cue1', instance=cue1)
+            cueform2 = VendorCueInfoForm(request.POST, prefix='cue2', instance=cue2)
+
         cueform0.fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
                                                         initial=starting_cues[0])
-        cueform1 = CueInfoForm(request.POST, prefix='cue1', instance=cue1)
-        cueform2 = CueInfoForm(request.POST, prefix='cue2', instance=cue2)
+
 
         formchecks = [audioform.is_valid(),
                  stageform.is_valid(),
@@ -2180,6 +2192,7 @@ def edit_act_techinfo(request, act_id):
         cueform1.is_valid()
     
         cueform2.is_valid()
+
         if 'cue_off_of' in cueform1.cleaned_data:
             formchecks += [cueform1.is_valid()]
         else:
@@ -2219,7 +2232,7 @@ def edit_act_techinfo(request, act_id):
                             'nodraft': submit_button,
                             'showheader': True,
                             'nodraft': submit_button,
-                            'location': "Main Stage"
+                            'location': location
                             })
 
     else:
@@ -2229,11 +2242,17 @@ def edit_act_techinfo(request, act_id):
         audioform = AudioInfoForm(prefix='Audio Information', instance=audio_info)
         stageform = StageInfoForm(prefix='Stage Information', instance=stage_info)
         lightingform = LightingInfoForm(prefix='Lighting Information', instance=lighting_info)
-        cueform0 = CueInfoForm(prefix='cue0', instance=cue0)
+        if location.describe == 'Theater':
+            cueform0 = CueInfoForm(prefix='cue0', instance=cue0)
+            cueform1 = CueInfoForm(prefix='cue1', instance=cue1)
+            cueform2 = CueInfoForm(prefix='cue2', instance=cue2)
+        else:
+            cueform0 = VendorCueInfoForm(prefix='cue0', instance=cue0)
+            cueform1 = VendorCueInfoForm(prefix='cue1', instance=cue1)
+            cueform2 = VendorCueInfoForm(prefix='cue2', instance=cue2)
+
         cueform0.fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
                                                         initial=starting_cues[0])
-        cueform1 = CueInfoForm(prefix='cue1', instance=cue1)
-        cueform2 = CueInfoForm(prefix='cue2', instance=cue2)
 
         q = Performer.objects.filter(contact=profile)
         form.fields['performer']= forms.ModelChoiceField(queryset=q)
@@ -2248,7 +2267,7 @@ def edit_act_techinfo(request, act_id):
                         'view_title': view_title,
                         'showheader': True,
                         'nodraft': submit_button,
-                        'location': "Main Stage"
+                        'location': location
                         })
                     
 def create_event(request, event_type):

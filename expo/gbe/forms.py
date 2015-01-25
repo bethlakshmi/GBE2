@@ -423,6 +423,25 @@ class CueInfoForm(forms.ModelForm):
         labels = main_cue_header
         error_messages = {'cue_off_of': {'required':'Add text if you wish to save information for this cue.'}}
 
+class VendorCueInfoForm(forms.ModelForm):
+    formtitle="Cue List"
+    required_css_class = 'required'
+    error_css_class = 'error'
+    
+    class Meta:
+        model=CueInfo
+        fields = ['cue_sequence','cue_off_of','follow_spot','wash','sound_note','techinfo']
+        widgets = {'techinfo': forms.HiddenInput(),
+                   'cue_sequence':forms.TextInput(attrs={'readonly':'readonly', 'size': '1'}),
+                   'cue_off_of':forms.Textarea(attrs={'cols': '20', 'rows':'8'}),
+                   'sound_note':forms.Textarea(attrs={'rows': '8'}),
+                  }
+        required = ['wash']
+        labels = main_cue_header
+        error_messages = {'cue_off_of': {'required':'Add text if you wish to save information for this cue.'}}
+
+
+
 class StageInfoForm(forms.ModelForm):
     formtitle="Stage Info"
     required_css_class = 'required'

@@ -30,7 +30,11 @@
    <form action="" method="post" enctype="multipart/form-data">
     
 <h3>Rehearsal Scheduling</h3>
-   {% include "gbe/rehearsal_select.tmpl" %}
+    {% include "gbe/rehearsal_select.tmpl" %}
+    {% if not rehearsal_forms%}
+       <font color='red'>We have no rehearsal slots currently available.  Please contact us if you have not yet signed up
+       for a rehearsal slot and wish to.</font>
+    {% endif %}
 
 <h3>Great Burlesque Exposition of 2015 {{location}} Tech Form </h3>    
 <b>Instructions to performers:</b>
@@ -64,7 +68,7 @@ Some useful definitions:<br>
 </ul>
 
 So a completed form might look something like:<br><br>
-{%ifequal location "Main Stage"%}
+{%ifequal location.describe 'Theater'%}
 <table class="bid-table">
   <tr class="bid-table">
     <th class="bid-table">Cue #</th>
@@ -106,7 +110,22 @@ So a completed form might look something like:<br><br>
   </tr>
 </table>
 {%else%}
-table TBD
+<table class="bid-table">
+  <tr class="bid-table">
+    <th class="bid-table">Cue #</th>
+    <th class="bid-table">Cue Off of...</th>
+    <th class="bid-table">Follow spot</th>
+    <th class="bid-table">Wash</th>
+    <th class="bid-table">Sound</th>
+  </tr>
+  <tr class="bid-table">
+    <td class="bid-form">0</td>
+    <td class="bid-form">MC exit</td>
+    <td class="bid-form">purple</td>
+    <td class="bid-form">pink</td>
+    <td class="bid-form">Play music</td>
+  </tr>
+</table>
 {%endifequal%}
 <h4>Cue Sheet</h4>
 
@@ -138,6 +157,9 @@ table TBD
         {# Include the hidden fields #}
         {% for hidden in cue.hidden_fields %}
         {{ hidden }}
+                      {% if hidden.errors %}
+              <font color="red">{{ hidden.errors }}</font>
+              {% endif %}
         {% endfor %}
       </tr>
     {%endfor%}
