@@ -14,6 +14,7 @@ db.sqlite3
 
 *.css~
 
+expo/gbe/static/img/GBE_PageBanner.png
 
 expo/expo/settings.pyc
 
