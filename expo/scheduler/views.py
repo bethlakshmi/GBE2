@@ -859,7 +859,12 @@ def calendar_view(request = None,
     # calculate the date based on the next day after the start of the event.  -  HH
     if day != None:
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
-    events = event_info(confitem_type = event_type, cal_times = cal_times)
+
+    if event_type == 'Show':
+        events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
+                 event_info(confitem_type = 'Special Event', cal_times = cal_times)
+    else:
+        events = event_info(confitem_type = event_type, cal_times = cal_times)
 
     if time_format == None:
         time_format = set_time_format()

@@ -265,6 +265,9 @@ def event_info(confitem_type = 'Show',
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
 
+    elif confitem_type in ['Special Event', 'Volunteer Opportunity']:
+        filter_type, confitem_type = confitem_type, 'GenericEvent'
+
     import gbe.models as conf
     from scheduler.models import Location
     
