@@ -13,18 +13,12 @@
     {% for row in rows %}
         <tr>
         {% for cell in row %}
-            {% if 'BG_Color' in cell %}
-                <td { BgColor = {{ cell.BG_Color }};
-            {% else %}
-                <td {
-            {% endif %}
+            <td {
             {% for side in cell.Borders %}
-                    Border-{{ side }}: Solid 4px {{ cell.Border_Color }};
+                    Border-{{ side }}: Solid 4px;
             {% endfor %}
                     }
             {% if cell.link %}
-                    <font color ="{{ cell.FG_Color }}">
-                    <body link="{{ cell.Link_Color }}" vlink="{{ cell.Vlink_Color }}" alink=" {{ cell.Alink_Color}}">
                 <li><a href="{{ cell.link }}">{{ cell.title }}</a><li></body></font>
             {% endif %}
                 ></td>
