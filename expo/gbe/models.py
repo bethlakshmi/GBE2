@@ -447,8 +447,10 @@ class  AudioInfo(models.Model):
     track = models.FileField (upload_to='uploads/audio', blank=True)
     track_duration = DurationField(blank=True)
     need_mic = models.BooleanField (default=False, blank=True)
+    own_mic = models.BooleanField(default=False, blank=True)
     notes = models.TextField (blank=True)    
     confirm_no_music = models.BooleanField (default=False)
+
 
     @property
     def is_complete(self):
@@ -457,6 +459,14 @@ class  AudioInfo(models.Model):
                    self.track_artist and
                    self.track_duration
                    ))
+
+
+    @property
+    def incomplete_warnings(self):
+        if self.is_complete:
+            return {}
+        else:
+            return {'audio':"Please confirm that you will have no audio playback for your performance"}
 
 
     def __unicode__(self):
@@ -480,6 +490,12 @@ class LightingInfo (models.Model):
     def is_complete (self):
         return True
 
+    @property
+    def incomplete_warnings(self):
+        if self.is_complete:
+            return {}
+        else:
+            return {"lighting":"Please check your lighting info."}
 
     def __unicode__(self):
         try:
@@ -513,6 +529,13 @@ class StageInfo(models.Model):
                      self.clear_props or 
                      self.cue_props or self.confirm)
 
+    @property
+    def incomplete_warnings(self):
+        if self.is_complete:
+            return {}
+        else:
+            return {'stage':"Please confirm that you have no props requirements"}
+
     def __unicode__(self):
         try:
             return "StageInfo: " +self.techinfo.act.title
@@ -542,9 +565,18 @@ class TechInfo (models.Model):
 
 
         return bool (self.audio.is_complete and
-                self.lighting.is_complete and
-                self.stage.is_complete and cueinfopresent)
+                     self.lighting.is_complete and
+                     self.stage.is_complete and 
+                     cueinfopresent)
     
+    def get_incomplete_warnings(self):
+        warnings = {}
+        
+        warnings.update(self.lighting.incomplete_warnings)
+        warnings.update(self.audio.incomplete_warnings)
+        warnings.update(self.stage.incomplete_warnings)
+        return warnings
+
     def __unicode__(self):
         try:
             return "Techinfo: "+ self.act.title
@@ -557,7 +589,7 @@ class CueInfo(models.Model):
     '''
     Information about the lighting needs of a particular Act as they relate to one or more cues within the
     Act.  Each item is the change that occurs after a cue
-      
+
     '''
     cue_sequence=models.PositiveIntegerField(default=0)
     cue_off_of = models.TextField(max_length=100)

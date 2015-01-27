@@ -2137,9 +2137,7 @@ def edit_act_techinfo(request, act_id):
     stage_info = act.tech.stage
     audio_info = act.tech.audio
     lighting_info = act.tech.lighting
-    cue0, created = CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=0)
-    cue1, created = CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=1)
-    cue2, created = CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=2)
+    cue_objects = [CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=i)[0] for i in range(3)]
 
     shows = act.get_scheduled_shows()
     rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
@@ -2156,81 +2154,56 @@ def edit_act_techinfo(request, act_id):
         rehearsal_forms = []
 
     if request.method == 'POST':
-#        foo()
         from scheduler.models import Event as sEvent
         if 'rehearsal' in request.POST:
           rehearsal = get_object_or_404(sEvent, id = request.POST['rehearsal'])
           show = get_object_or_404(Show, title=request.POST['show']).scheduler_events.first()
           act.set_rehearsal(show, rehearsal)
-
+    
         form = ActTechInfoForm(request.POST,  
                            instance=act, 
                            prefix = 'act_tech_info')
 
-        audioform = AudioInfoForm(request.POST, prefix='audio_info', instance=audio_info)
-        stageform = StageInfoForm(request.POST, prefix='stage_info', instance=stage_info)
+        audioform = AudioInfoSubmitForm(request.POST, prefix='audio_info', instance=audio_info)
+        stageform = StageInfoSubmitForm(request.POST, prefix='stage_info', instance=stage_info)
         lightingform = LightingInfoForm(request.POST, prefix='lighting_info', instance=lighting_info)
 
         if location.describe == 'Theater':
-            cueform0 = CueInfoForm(request.POST, prefix='cue0', instance=cue0,)
-            cueform1 = CueInfoForm(request.POST, prefix='cue1', instance=cue1)
-            cueform2 = CueInfoForm(request.POST, prefix='cue2', instance=cue2)
+            formtype = CueInfoForm
         else:
-            cueform0 = VendorCueInfoForm(request.POST, prefix='cue0', instance=cue0)
-            cueform1 = VendorCueInfoForm(request.POST, prefix='cue1', instance=cue1)
-            cueform2 = VendorCueInfoForm(request.POST, prefix='cue2', instance=cue2)
+            formtype = VendorCueInfoForm
 
-        cueform0.fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
+        cue_forms = [formtype(request.POST, prefix = 'cue%d' %i, instance=cue_objects[i]) for i in range(3)]
+        
+        cue_forms[0].fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
                                                         initial=starting_cues[0])
+                     
+        for f in cue_forms:
+            if f.is_valid():
+                f.save()
 
-
-        formchecks = [audioform.is_valid(),
-                 stageform.is_valid(),
-                 lightingform.is_valid(), cueform0.is_valid()]
-
-        # Additional cues are switched on by having cue_off_of set
-        cueform1.is_valid()
-    
-        cueform2.is_valid()
-
-        if 'cue_off_of' in cueform1.cleaned_data:
-            formchecks += [cueform1.is_valid()]
-        else:
-            cue1.delete()
-
-        if 'cue_off_of' in cueform2.cleaned_data:
-            formchecks += [cueform2.is_valid()]
-        else:
-            cue2.delete()
-
-        if all( formchecks ):
-
-            tech = act.tech
-            tech.audio = audioform.save()
-            tech.stage = stageform.save()
-            tech.lighting = lightingform.save()
-            
-            tech.save()
-
-            if cueform0.is_valid():
-                cue0 = cueform0.save()
-            if cueform1.is_valid():
-                cue1 = cueform1.save()
-            if cueform2.is_valid():
-                cue2 = cueform2.save()
-
+        techforms = [lightingform,  audioform, stageform, ]
+ 
+        for f in techforms:
+            if f.is_valid():
+                f.save()           
+                
+        tech  = act.tech
+        if tech.is_complete:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
+            
+
             return render (request,
                            'gbe/act_techinfo.tmpl',
                            {'readonlyform':[form],
                             'rehearsal_forms':rehearsal_forms,
-                            'forms':[lightingform, audioform, stageform],
-                            'cues': [cueform0, cueform1, cueform2],
+                            'forms':techforms,
+                            'cues': cue_forms, 
                             'page_title': page_title,
                             'view_title': view_title,
                             'nodraft': submit_button,
-                            'showheader': True,
+                            'showheader': False,
                             'nodraft': submit_button,
                             'location': location
                             })
@@ -2239,19 +2212,19 @@ def edit_act_techinfo(request, act_id):
 
         form = ActTechInfoForm(instance = act, 
                            prefix='act_tech_info')
-        audioform = AudioInfoForm(prefix='audio_info', instance=audio_info)
-        stageform = StageInfoForm(prefix='stage_info', instance=stage_info)
+        audioform = AudioInfoSubmitForm(prefix='audio_info', instance=audio_info)
+        stageform = StageInfoSubmitForm(prefix='stage_info', instance=stage_info)
         lightingform = LightingInfoForm(prefix='lighting_info', instance=lighting_info)
-        if location.describe == 'Theater':
-            cueform0 = CueInfoForm(prefix='cue0', instance=cue0)
-            cueform1 = CueInfoForm(prefix='cue1', instance=cue1)
-            cueform2 = CueInfoForm(prefix='cue2', instance=cue2)
-        else:
-            cueform0 = VendorCueInfoForm(prefix='cue0', instance=cue0)
-            cueform1 = VendorCueInfoForm(prefix='cue1', instance=cue1)
-            cueform2 = VendorCueInfoForm(prefix='cue2', instance=cue2)
+        techforms = [lightingform,  audioform, stageform, ]
 
-        cueform0.fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
+        if location.describe == 'Theater':
+            formtype = CueInfoForm
+        else:
+            formtype = VendorCueInfoForm
+
+        cue_forms = [formtype(prefix = 'cue%d' %i, instance=cue_objects[i]) for i in range(3)]
+        
+        cue_forms[0].fields['cue_off_of']=forms.ChoiceField(choices=starting_cues,
                                                         initial=starting_cues[0])
 
         q = Performer.objects.filter(contact=profile)
@@ -2261,11 +2234,11 @@ def edit_act_techinfo(request, act_id):
                        'gbe/act_techinfo.tmpl',
                         {'readonlyform':[form],
                         'rehearsal_forms':rehearsal_forms,
-                        'forms':[lightingform, audioform, stageform],
-                        'cues': [cueform0, cueform1, cueform2],
+                        'forms':techforms, 
+                        'cues': cue_forms, 
                         'page_title': page_title,                            
                         'view_title': view_title,
-                        'showheader': True,
+                        'showheader': False,
                         'nodraft': submit_button,
                         'location': location
                         })
