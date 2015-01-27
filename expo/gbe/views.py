@@ -2269,6 +2269,23 @@ def edit_act_techinfo(request, act_id):
                         'nodraft': submit_button,
                         'location': location
                         })
+    
+def review_act_techinfo(request, show_id):
+    '''
+    Show the list of act tech info for all acts in a given show 
+    '''
+    reviewer = validate_perms(request, ('Tech Crew',))
+
+    show = get_object_or_404(Show, eventitem_id=show_id)
+    acts = show.scheduler_events.first().get_acts()
+    location = show.scheduler_events.first().location
+    if location.describe == 'Theater':
+        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Center Spot','Backlight', 'Cyc Light', 'Wash', 'Sound']
+    else:
+        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Wash', 'Sound']
+
+    return render (request, 'gbe/act_tech_review.tmpl',
+                  {'sub_header': sub_header, 'acts': acts})
                     
 def create_event(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))

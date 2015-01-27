@@ -242,12 +242,7 @@ def schedule_acts(request):
         details ['title'] = act.title
         details ['performer'] = act.performer
         details ['show'] = event
-        try:
-            details ['order'] = alloc.ordering.order
-        except:
-            o = Ordering (allocation= alloc, order = 0)
-            o.save()
-            details['order'] = 0
+        details ['order'] = alloc.ordering.order
         details ['actresource'] = alloc.resource.id
 
         
@@ -350,10 +345,8 @@ def edit_event_display(request, item, errorcontext=None):
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item
         else:
-            try:
-                initial['teacher'] = item.as_subtype.teacher
-            except:
-                pass
+            initial['teacher'] = item.as_subtype.teacher
+
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item, errorcontext ) )
@@ -859,12 +852,7 @@ def calendar_view(request = None,
     # calculate the date based on the next day after the start of the event.  -  HH
     if day != None:
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
-
-    if event_type == 'Show':
-        events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
-                 event_info(confitem_type = 'Special Event', cal_times = cal_times)
-    else:
-        events = event_info(confitem_type = event_type, cal_times = cal_times)
+    events = event_info(confitem_type = event_type, cal_times = cal_times)
 
     if time_format == None:
         time_format = set_time_format()

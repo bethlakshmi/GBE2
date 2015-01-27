@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+
+
+  <p class="vanilla">{{title}} </p>
+  <h2 class="review-title">Act Tech Info</h2>
+
+  
+  {% if messages %}
+      <script>
+    alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
+      </script>
+  {% endif %}
+
+
+  <table class="bid-table">
+    <tr class="bid-table">
+      <th class="bid-table" rowspan=2>Act</th>
+      <th class="bid-table" rowspan=2>Performer</th>
+      <th class="bid-table" rowspan=2>Rehearsal Time</th>
+      <th class="bid-table" colspan=2>Lighting Info</th>
+      <th class="bid-table" colspan={{sub_header|length}}>Cue Info</th>
+      <th class="bid-table" colspan=7>Audio Info</th>
+      <th class="bid-table" colspan=7>Stage Info</th>
+    </tr>
+    <tr>
+      <th class="bid-table">Describe Number</th>
+      <th class="bid-table">Describe Costume</th>
+      {% for header_item in sub_header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+      <th class="bid-table">Track Title</th>
+      <th class="bid-table">Track Artist</th>
+      <th class="bid-table">Track</th>
+      <th class="bid-table">Song Length</th>
+      <th class="bid-table">Need Mic</th>
+      <th class="bid-table">Sound Notes</th>
+      <th class="bid-table">Confirm No Music</th>
+      <th class="bid-table">Act Duration</th>
+      <th class="bid-table">Intro Text</th>
+      <th class="bid-table">No Props</th>
+      <th class="bid-table">Preset Props</th>
+      <th class="bid-table">Hand Me Props</th>
+      <th class="bid-table">Clear Props</th>
+      <th class="bid-table">Stage Notes</th>
+    </tr>
+    {% for act in acts %}
+      <tr class="bid-table">
+	  <td class="bid-table">{{ act.title }}</td>	
+	  <td class="bid-table">{{ act.performer }}</td>	
+	  <td class="bid-table">&nbsp;</td>	
+	  <td class="bid-table" colspan=24>{{ act.title }}</td>	
+        
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
