@@ -852,7 +852,7 @@ def calendar_view(request = None,
             datetime(2015, 02, 22, 4, 00, 
                 tzinfo=pytz.timezone('UTC'))),
         time_format=None,
-        duration = Duration(minutes = 30)):
+        duration = Duration(minutes = 60)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.
@@ -865,7 +865,11 @@ def calendar_view(request = None,
     if day != None:
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
 
-    if event_type == 'Show':
+    if event_type == 'All':
+        events = event_info(confitem_type = 'Show', cal_times = cal_times) +\
+            event_info(confitem_type = 'Class', cal_times = cal_times) +\
+            event_info(confitem_type = 'Special Event', cal_times = cal_times)
+    elif event_type == 'Show':
         events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
             event_info(confitem_type = 'Special Event', cal_times = cal_times)
     else:
