@@ -270,11 +270,8 @@ def event_info(confitem_type = 'Show',
     import gbe.models as conf
     from scheduler.models import Location
     
-    if confitem_type=='All':
-        confitems_list = conf.Event.objects.select_subclasses()
-    else:
-        confitem_class = eval ('conf.'+confitem_type)
-        confitems_list = confitem_class.objects.all()
+    confitem_class = eval ('conf.'+confitem_type)
+    confitems_list = confitem_class.objects.all()
         
     confitems_list = [confitem for confitem in confitems_list if \
                       confitem.schedule_ready and confitem.visible]
