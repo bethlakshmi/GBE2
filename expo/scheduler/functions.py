@@ -264,7 +264,6 @@ def event_info(confitem_type = 'Show',
 
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
-
     elif confitem_type in ['Special Event', 'Volunteer Opportunity']:
         filter_type, confitem_type = confitem_type, 'GenericEvent'
 
@@ -310,6 +309,8 @@ def event_info(confitem_type = 'Show',
                'start_time':  event.start_time,
                'stop_time':  event.start_time + confitem.duration,
                'location' : event.location.room.name,
+               'type'  :  event.event_type_name,
+               'subtype'  :  event.confitem.sched_payload['details']['type'],
             }
         for (event, confitem) in events_dict.items()]
 
