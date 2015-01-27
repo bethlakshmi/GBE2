@@ -383,19 +383,19 @@ class AudioInfoForm(forms.ModelForm):
     class Meta:
         model=AudioInfo
 
-    def clean(self):
-        # run the parent validation first
-        cleaned_data = super(AudioInfoForm, self).clean()
-        
-        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
-        if not ((self.cleaned_data['track_title'] and self.cleaned_data['track_artist']
-                and self.cleaned_data['track_duration']) or self.cleaned_data['confirm_no_music']):
-            raise ValidationError(
-                '''Incomplete Audio Info - please either provide Track Title, Artist and Duration, or \
-                confirm that there is no music.''',
-                code='invalid')
-
-        return cleaned_data
+#    def clean(self):
+#        # run the parent validation first
+#        cleaned_data = super(AudioInfoForm, self).clean()
+#        
+#        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
+#       if not ((self.cleaned_data['track_title'] and self.cleaned_data['track_artist']
+#                and self.cleaned_data['track_duration']) or self.cleaned_data['confirm_no_music']):
+#            raise ValidationError(
+#                '''Incomplete Audio Info - please either provide Track Title, Artist and Duration, or \
+#                confirm that there is no music.''',
+#                code='invalid')
+#
+#        return cleaned_data
 
 
 
@@ -452,19 +452,19 @@ class StageInfoForm(forms.ModelForm):
         labels=prop_labels
         help_texts = act_help_texts
 
-    def clean(self):
-        # run the parent validation first
-        cleaned_data = super(StageInfoForm, self).clean()
-        
-        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
-        if not (self.cleaned_data['set_props'] or self.cleaned_data['clear_props']
-                or self.cleaned_data['cue_props'] or self.cleaned_data['confirm']):
-            raise ValidationError(
-                '''Incomplete Prop Info - please either check of whether props must set, cleaned up or \
-                provided on cue, or confirm that no props or set peices are needed.''',
-                code='invalid')
-
-        return cleaned_data
+#    def clean(self):
+#        # run the parent validation first
+#        cleaned_data = super(StageInfoForm, self).clean()
+#        
+#        # doing is_complete doesn't work, that executes the pre-existing instance, not the current data
+#        if not (self.cleaned_data['set_props'] or self.cleaned_data['clear_props']
+#                or self.cleaned_data['cue_props'] or self.cleaned_data['confirm']):
+#            raise ValidationError(
+#                '''Incomplete Prop Info - please either check of whether props must set, cleaned up or \
+#                provided on cue, or confirm that no props or set peices are needed.''',
+#                code='invalid')
+#
+#        return cleaned_data
 
 class ClassProposalForm(forms.ModelForm):
     required_css_class = 'required'

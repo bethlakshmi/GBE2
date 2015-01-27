@@ -2165,11 +2165,11 @@ def edit_act_techinfo(request, act_id):
 
         form = ActTechInfoForm(request.POST,  
                            instance=act, 
-                           prefix = 'Act Summary')
+                           prefix = 'act_tech_info')
 
-        audioform = AudioInfoForm(request.POST, prefix='Audio Information', instance=audio_info)
-        stageform = StageInfoForm(request.POST, prefix='Stage Information', instance=stage_info)
-        lightingform = LightingInfoForm(request.POST, prefix='Lighting Information', instance=lighting_info)
+        audioform = AudioInfoForm(request.POST, prefix='audio_info', instance=audio_info)
+        stageform = StageInfoForm(request.POST, prefix='stage_info', instance=stage_info)
+        lightingform = LightingInfoForm(request.POST, prefix='lighting_info', instance=lighting_info)
 
         if location.describe == 'Theater':
             cueform0 = CueInfoForm(request.POST, prefix='cue0', instance=cue0,)
@@ -2238,10 +2238,10 @@ def edit_act_techinfo(request, act_id):
     else:
 
         form = ActTechInfoForm(instance = act, 
-                           prefix='Act Summary')
-        audioform = AudioInfoForm(prefix='Audio Information', instance=audio_info)
-        stageform = StageInfoForm(prefix='Stage Information', instance=stage_info)
-        lightingform = LightingInfoForm(prefix='Lighting Information', instance=lighting_info)
+                           prefix='act_tech_info')
+        audioform = AudioInfoForm(prefix='audio_info', instance=audio_info)
+        stageform = StageInfoForm(prefix='stage_info', instance=stage_info)
+        lightingform = LightingInfoForm(prefix='lighting_info', instance=lighting_info)
         if location.describe == 'Theater':
             cueform0 = CueInfoForm(prefix='cue0', instance=cue0)
             cueform1 = CueInfoForm(prefix='cue1', instance=cue1)
