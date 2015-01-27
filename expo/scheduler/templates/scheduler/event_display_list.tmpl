@@ -40,13 +40,13 @@
 	          {{label_value}}:
 	       {% endif %}
 	    {% empty %}
-	      {{value}}:
+	      {{value |safe }}:
 	    {% endfor %}
-	    </label> {{value}}<br>
+	    </label> {{value | safe}}<br>
 	{% endfor %}
       </div>
       <div class="listdesc">
-	 {{event.eventitem.payload.description}}
+	 {{event.eventitem.payload.description | safe}}
       </div>
       {% if show_tickets %}
       <div>
