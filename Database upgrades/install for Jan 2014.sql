@@ -1,3 +1,4 @@
+alter table gbe_audioinfo add column own_mic tinyint(1) not null default 0;
 ALTER TABLE `scheduler_eventitem` ADD `visible` TINYINT(1) NOT NULL DEFAULT '1' ; 
 ALTER TABLE `gbe_lightinginfo2` ADD `costume` LONGTEXT NOT NULL ; 
 CREATE TABLE IF NOT EXISTS `gbe_cueinfo` (\
