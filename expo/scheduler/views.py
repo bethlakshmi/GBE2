@@ -242,7 +242,12 @@ def schedule_acts(request):
         details ['title'] = act.title
         details ['performer'] = act.performer
         details ['show'] = event
-        details ['order'] = alloc.ordering.order
+        try:
+            details ['order'] = alloc.ordering.order
+        except:
+            o = Ordering(allocation = alloc, order=0)
+            o.save()
+            details['order'] = 0
         details ['actresource'] = alloc.resource.id
 
         
@@ -331,7 +336,11 @@ def edit_event_display(request, item, errorcontext=None):
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item
         else:
-            initial['teacher'] = item.as_subtype.teacher
+            try:
+                initial['teacher'] = item.as_subtype.teacher
+            except:
+                pass
+
         if len(moderators) >0:
             initial['moderator'] = moderators[0].item
         if len(panelists) >0:
@@ -345,7 +354,10 @@ def edit_event_display(request, item, errorcontext=None):
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item
         else:
-            initial['teacher'] = item.as_subtype.teacher
+            try:
+                initial['teacher'] = item.as_subtype.teacher
+            except:
+                pass
 
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
