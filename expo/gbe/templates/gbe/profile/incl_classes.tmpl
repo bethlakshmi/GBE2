@@ -1,4 +1,4 @@
-	{% if proposed_classes %}
+
 	   <span class='heading classes'> 
 	    <b>Class Bids</b>
 	   </span><br>
@@ -28,7 +28,7 @@
 	 <ul class="rightsidebar">
 	   <li><a href='{% url 'gbe:class_create' %}'>Propose another class</a></li>
 	 </ul>
-	 {%endif %}
+
 	{% else %}
 	   {{ profile.display_name }} has not proposed any classes
 	 <ul class="rightsidebar">

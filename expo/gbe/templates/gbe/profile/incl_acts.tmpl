@@ -3,25 +3,32 @@
 	       <b>Act Bids</b>
 	   </span><br>
 	   {% for act in acts %}
-	      <span class='act'>
-	       {% if act.submitted %}<a href = '{% url 'gbe:act_view' act.id %}'> {{ act }} </a>(Click to view)
-	       	  {% for value, state in acceptance_states %}
-		     {% if value = act.accepted %}
-			- {{state}}
-		     {%endif%}
-		  {% endfor %}
-	       <br>
-	       {% elif act.performer.contact = profile %}<a href = '{% url 'gbe:act_edit' act.id%}'> {{ act }} </a>(Click to edit)<br>
+	      <div class='act'>
+	       {% if act.submitted %}
+	       {{ act }} - {{act.get_accepted_display}} 
+	       <br><ul>
+	       <li> <a href = '{% url 'gbe:act_view' act.id %}'>View</a> act
+		   <br>
+		    {% if act.get_accepted_display == 'Accepted' %} 
+		     <li> <a href = '{%url "gbe:act_techinfo_edit" act.id %}'>View/edit</a> 
+		      Act Tech Info and rehearsal schedule
+		      </ul>
+		    {% endif %}
+	       {% elif act.performer.contact = profile %}
+	       {{ act }} - Not submitted
+	       <ul>
+	       <a href = '{% url 'gbe:act_edit' act.id%}'> View/edit </a> this act bid
+	       </ul>
 	       {% endif %}
-
-	      </span> 
+	       
+	      </div> 
 	         
 	      {% for alert in act.alerts %}
 	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
 	      {% endfor %}
 
 	   {% endfor %}
-	   <ul class="rightsidebar">
+	   <ul>
 	     <li><a href='{% url 'gbe:act_create' %}'>Propose another act</a></li>
 	   </ul>
 	{% else %}
