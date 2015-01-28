@@ -33,13 +33,20 @@
         <li class='has-sub'><a href={% url 'ticketing:index' %}><span>I Want To...</span></a>
           <ul>
              <li><a href='{% url 'ticketing:index' %}'><span>...Buy Tickets</span></a></li>
+{% comment %}
              <li><a href='{% url 'gbe:act_create' %}'><span>...Perform at the Expo</span></a></li>
+{% endcomment %}
              <li><a href='{% url 'gbe:vendor_create' %}'><span>...Sell My Stuff</span></a></li>
+{% comment %}
              <li><a href='{% url 'gbe:class_create' %}'><span>...Submit A Class</span></a></li>
+{% endcomment %}
              <li><a href='{% url 'gbe:volunteer_create' %}'><span>...Volunteer</span></a></li>
              <li><a href='http://www.burlesque-expo.com/be-an-artist'><span>...Be An Artist</span></a></li>
              <li><a href='{% url 'gbe:class_propose' %}'><span>...Suggest A Class or Panel</span></a></li>
+
+{% comment %}
              <li><a href='{% url 'gbe:conference_volunteer' %}'><span>...Be a Presenter</span></a></li>
+{% endcomment %}
               {% comment %}
              These are not ready for prime time.
              {% endcomment %}
