@@ -14,7 +14,7 @@ from datetime import datetime
 from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
-from scheduler.functions import tablePrep, event_info, day_to_cal_time
+from scheduler.functions import table_prep, event_info, day_to_cal_time
 from scheduler.functions import set_time_format, conference_dates
 #from scheduler.functions import volunteer_info
 
@@ -845,25 +845,25 @@ def manage_rehearsals(request, event_id):
 
 
 def calendar_view(request = None,
-        event_type = 'Show',
-        day = None,
-        cal_times = (datetime(2015, 02, 21, 8, 00, 
-                tzinfo=pytz.timezone('UTC')),
-            datetime(2015, 02, 22, 4, 00, 
-                tzinfo=pytz.timezone('UTC'))),
-        time_format=None,
-        duration = Duration(minutes = 60)):
+                  event_type = 'Show',
+                  day = None,
+                  cal_times = (datetime(2015, 02, 21, 8, 00, 
+                                        tzinfo=pytz.timezone('UTC')),
+                               datetime(2015, 02, 22, 4, 00, 
+                                        tzinfo=pytz.timezone('UTC'))),
+                  time_format=None,
+                  duration = Duration(minutes = 60)):
     '''
     A view to query the database for events of type cal_type over the period of time cal_times,
     and turn the information into a calendar in block format for display.
     Or it will be, eventually.  Right now it is using dummy event information for testing purposes.
     Will add in database queries once basic funcationality is completed.
     '''
-
     # I want to rewrite this to get the first day of the event from the DB or conf, and then 
     # calculate the date based on the next day after the start of the event.  -  HH
     if day != None:
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
+
 
     if event_type == 'All':
         event_types = ['Show', 'Class', 'Special Event', 'Master Class', 'Drop-In Class']
@@ -881,17 +881,17 @@ def calendar_view(request = None,
         time_format = set_time_format()
 
     ###  Changing function to get table labels from the request
-    Table = {}
-    Table['rows'] = tablePrep(events, duration, cal_start = cal_times[0], cal_stop = cal_times[1])
-    Table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
-    Table['link'] = 'http://burlesque-expo.com'
-    Table['x_name'] = {}
-    Table['x_name']['html'] = 'Rooms'
-    Table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+    table = {}
+    table['rows'] = table_prep(events, duration, cal_start=cal_times[0], cal_stop = cal_times[1])
+    table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+    table['link'] = 'http://burlesque-expo.com'
+    table['x_name'] = {}
+    table['x_name']['html'] = 'Rooms'
+    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
 
     template = 'scheduler/Sched_Display.tmpl'
 
-    return render(request, template, Table)
+    return render(request, template, table)
 
 @login_required
 def volunteer_shifts(request = 'None', day = 'Saturday',
@@ -920,7 +920,7 @@ def volunteer_shifts(request = 'None', day = 'Saturday',
         time_format = set_time_format()
 
     Table = {}
-    Table['rows'] = tablePrep(shifts, duration, cal_start = cal_times[0], 
+    Table['rows'] = table_prep(shifts, duration, cal_start = cal_times[0], 
         cal_stop = cal_times[1])
     Table['name'] = 'Volunteer Shifts for '+user_name
     Table['link'] = reverse('profile', urlconf='gbe.urls')

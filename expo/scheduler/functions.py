@@ -194,19 +194,20 @@ def add_to_table(event, table, block_labels):
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
-def htmlPrep(event):
+def html_prep(event):
     '''
     If an event object does not have a HTML table block set up, this will
     generate one.
     '''
-
+    if 'html' in event.keys():
+        return 
     html = '<li><a href=\'%s\'>%s</a></li>' %(event['link'], event['title'])
     if 'short_desc' in event.keys():
         #  short_desc is a short description, which is optional
         html = html+event['short_desc']
-    return html
+    event['html'] =  html
 
-def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
+def html_headers(table, headerStart = '<TH>', headerEnd = '</TH>'):
     '''
     Checks the header positions for a table, rendered as a list of lists, for HTML tags,
     and adds '<TH>' + cell + '</TH>' if they are absent.
@@ -226,13 +227,13 @@ def htmlHeaders(table, headerStart = '<TH>', headerEnd = '</TH>'):
 
     return table
 
-def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=None, col_heads=None):
+def table_prep(events, block_size, time_format=None, cal_start=None, cal_stop=None, col_heads=None):
     '''
     Generate a calendar table based on submitted events
-    
     '''
 
-    if time_format == None: time_format = set_time_format(events)
+    if time_format == None: 
+        time_format = set_time_format(events)
     block_labels, cal_start, cal_stop = init_time_blocks(events, block_size, time_format, cal_start, cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)
@@ -242,8 +243,7 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
 
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
-        if 'html' not in event.keys():
-            event['html'] = htmlPrep(event)
+        html_prep(event)
 
     #overlaps = overlap_check(events)
     # don't worry about handling now, 
@@ -251,7 +251,7 @@ def tablePrep(events, block_size, time_format=None, cal_start=None, cal_stop=Non
     for event in events:
         add_to_table(event, cal_table, block_labels)
 
-    return htmlHeaders(cal_table.listreturn(headers = True))
+    return html_headers(cal_table.listreturn(headers = True))
 
 def event_info(confitem_type = 'Show', 
         filter_type = None,
