@@ -10,5 +10,5 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^', include('ticketing.urls', namespace = 'ticketing')),
                        url(r'^', include('scheduler.urls', namespace = 'scheduler')),
-                       url(r'^report/', include('gbe.reports', namespace = 'reporting')),
+                       url(r'^report/', include('gbe.report_urls', namespace = 'reporting')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
