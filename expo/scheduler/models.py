@@ -343,6 +343,7 @@ class WorkerItem(ResourceItem):
 
     def get_bookings(self, role):
         '''
+        Returns the events for which this Worker is booked as "role". 
         should remain focused on the upward connection of resource allocations, and avoid being sub
         class specific
         '''    
