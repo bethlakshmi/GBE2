@@ -72,7 +72,8 @@ def set_time_format(events = None, days = 0):
 
 def init_time_blocks(events, block_size, time_format,
                      cal_start= None, cal_stop = None,
-                     trim_to_block_size=True, offset=None ):
+                     trim_to_block_size=True, offset=None,
+                     strip_empty_blocks = 'both'):
     '''
     Find earliest start time and latest stop time and generate a list of 
     schedule blocks enclosing these. 
@@ -82,7 +83,9 @@ def init_time_blocks(events, block_size, time_format,
     cal_start and cal_stop are preset values for start time and stop time, as datetime objects
     (will allow for time objects, but not yet)
     If provided, they are assumed to be correct. (ie, we don't adjust them, just use them)
-    
+    strip_empty_blocks allows us to specify whether empty blocks will be removed from 
+    the start or end of the calendar, or both. Values in ("start", "stop", "both") do the
+    right things. 
     '''
     if not cal_start:
 #        cal_start = sorted(events, key = lambda event:event['start_time'])[0]
@@ -101,6 +104,16 @@ def init_time_blocks(events, block_size, time_format,
     if trim_to_block_size:
         pass  # TO DO
     
+    events = [event for event in events 
+              if event['stop_time'] > cal_start and event['start_time'] < cal_stop]
+    events = sorted (events, key = lambda event: event['start_time'])
+    if strip_empty_blocks in ('both', 'start'):
+        cal_start = max (cal_start, events[0]['start_time'])
+    events = sorted (events, key = lambda event: event['stop_time'])
+    if strip_empty_blocks in ('both', 'stop'):
+        cal_stop = min (cal_stop, events[-1]['stop_time'])
+
+        
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = int(math.ceil (schedule_duration/block_size))
     block_labels = [(cal_start + block_size * b).strftime(time_format) for b in range(blocks_count)]
