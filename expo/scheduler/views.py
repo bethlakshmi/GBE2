@@ -16,7 +16,7 @@ from table import table
 from gbe.duration import Duration
 from scheduler.functions import tablePrep, event_info, day_to_cal_time
 from scheduler.functions import set_time_format, conference_dates
-from scheduler.functions import volunteer_info
+#from scheduler.functions import volunteer_info
 
 def validate_profile(request):
     '''
@@ -866,9 +866,11 @@ def calendar_view(request = None,
         cal_times = day_to_cal_time(day, week = datetime(2015, 02, 19,tzinfo=pytz.timezone('UTC')))
 
     if event_type == 'All':
-        events = event_info(confitem_type = 'Show', cal_times = cal_times) +\
-            event_info(confitem_type = 'Class', cal_times = cal_times) +\
-            event_info(confitem_type = 'Special Event', cal_times = cal_times)
+        event_types = ['Show', 'Class', 'Special Event', 'Master Class', 'Drop-In Class']
+        events = []
+        for e_type in event_types:
+            events = events + event_info(confitem_type = e_type, cal_times = cal_times)
+    
     elif event_type == 'Show':
         events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
             event_info(confitem_type = 'Special Event', cal_times = cal_times)

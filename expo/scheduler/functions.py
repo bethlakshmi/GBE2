@@ -264,7 +264,7 @@ def event_info(confitem_type = 'Show',
 
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event', 'Volunteer Opportunity']:
+    elif confitem_type in ['Special Event', 'Volunteer Opportunity', 'Master Class', 'Drop-In Class']:
         filter_type, confitem_type = confitem_type, 'GenericEvent'
 
     import gbe.models as conf
@@ -306,8 +306,7 @@ def event_info(confitem_type = 'Show',
                'start_time':  event.start_time,
                'stop_time':  event.start_time + confitem.duration,
                'location' : event.location.room.name,
-               'type'  :  event.event_type_name,
-               'subtype'  :  event.confitem.sched_payload['details']['type'],
+               'type'  :  event.event_type_name+'.'+event.confitem.sched_payload['details']['type'],
             }
         for (event, confitem) in events_dict.items()]
 
@@ -337,7 +336,7 @@ def day_to_cal_time(day = 'Saturday', week = datetime(2015, 02, 19,tzinfo=pytz.t
             Duration(hours = 28))
     return cal_times
     
-def volunteer_info(profile_id,
+def volunteer_shift_info(profile_id,
         filter_type = None,
         cal_times = (datetime(2015, 02, 20, 18, 00, \
                 tzinfo=pytz.timezone('UTC')),
@@ -350,10 +349,20 @@ def volunteer_info(profile_id,
     '''
 
     from scheduler.models import Location
-    from scheduler.models import WorkerItem
+    from scheduler.models import WorkerItem, Worker
 
+    loc_allocs = []
+    for l in Location.objects.all():
+        loc_allocs += l.allocations.all()
 
-    shifts = []
+    scheduled_shifts = [alloc.event for alloc in loc_allocs]
+
+    for shift in scheduled_shifts:
+         start_t = shift.start_time
+         stop_t = shift.start_time + shift.duration
+         if start_t > cal_times[1] or stop_t < cal_times[0]:
+             scheduled_shift.remove(shift)
+
 
 
     return shifts
