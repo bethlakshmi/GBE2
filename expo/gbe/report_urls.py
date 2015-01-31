@@ -18,7 +18,12 @@ urlpatterns = patterns('',
 #                       url(r'^schedule/personal/(?<username>[\d\w]+)/?$',
 #                           reporting.personal_schedule, name = 'personal_schedule'),
 #                       url(r'^schedule/room/public/(?<roomid>[\d+])/?$', 
-#                           reporting.room_schedule, name = 'room_schedule'), 
+#                           reporting.room_schedule, name = 'room_schedule'),
+
+                        url(r'^acttechinfo/view/(\d+)/?$',
+                            reporting.review_act_techinfo, name = 'act_techinfo_review'),
+                        url(r'^acttechinfo/view/?$',
+                            reporting.review_act_techinfo, name = 'act_techinfo_review'),
 
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

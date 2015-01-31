@@ -13,7 +13,7 @@
   
   Also view:
   {% for show in all_shows %}
-    <a href="{% url 'gbe:act_techinfo_review' show.eventitem_id%}">{{show}}</a> 
+    <a href="{% url 'reporting:act_techinfo_review' show.eventitem_id%}">{{show}}</a> 
     {% if not forloop.last %} | {% endif %}
   {% endfor %}
 <br><br>

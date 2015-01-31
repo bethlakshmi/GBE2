@@ -30,7 +30,7 @@ special_privileges= {'Act Reviewers':
                         {'url': reverse('event_schedule',urlconf='scheduler.urls'),
                          'title':'Schedule Events'},
                     'Tech Crew': 
-                        {'url': reverse('act_techinfo_review',urlconf='gbe.urls'),
+                        {'url': reverse('act_techinfo_review',urlconf='gbe.report_urls'),
                          'title':'Review Act Tech Info'},
                     'Ticketing - Admin':
                         {'url':reverse('ticket_items',urlconf='ticketing.urls'),

@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext
 from gbe.models import Event, Act, Performer
 from gbe.forms import *
+from gbe.functions import *
 from gbe.ticketing_idd_interface import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
@@ -15,29 +16,6 @@ from scheduler.functions import set_time_format
 
 
 
-def validate_profile(request, require=False):
-    '''
-    Return the user profile if any
-    '''
-    if request.user.is_authenticated():
-        try:
-            return request.user.profile
-        except Profile.DoesNotExist:
-            if require:
-                raise Http404
-    else:
-        return None
-
-
-def validate_perms(request, perms):
-    '''
-    Validate that the requesting user has the stated permissions
-    Returns valid profile if access allowed, raises 404 if not
-    '''
-    profile = validate_profile(request, require=True)
-    if any([perm in profile.privilege_groups for perm in perms]):
-        return profile
-    raise Http404
 
 
 
@@ -2243,33 +2221,7 @@ def edit_act_techinfo(request, act_id):
                         'location': location
                         })
     
-def review_act_techinfo(request, show_id=1):
-    '''
-    Show the list of act tech info for all acts in a given show 
-    '''
-    reviewer = validate_perms(request, ('Tech Crew',))
-    
-    # using try not get_or_404 to cover the case where the show is there
-    # but does not have any scheduled events.  I can still show a list of shows this way.
-    try:
-        show = Show.objects.get(eventitem_id=show_id)
-        acts = show.scheduler_events.first().get_acts()
 
-    except:
-        show = None
-        acts = []
-    
-    '''
-    location = show.scheduler_events.first().location
-    if location.describe == 'Theater':
-        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Center Spot','Backlight', 'Cyc Light', 'Wash', 'Sound']
-    else:
-        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Wash', 'Sound']
-    '''
-
-    return render (request, 'gbe/act_tech_review.tmpl',
-                  {'this_show': show, 'acts': acts, 'all_shows': Show.objects.all()})
-                    
 def create_event(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))
     page_title = "Create " + event_type

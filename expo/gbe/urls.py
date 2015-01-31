@@ -56,10 +56,6 @@ urlpatterns = patterns ('',
 # act tech info
                         url(r'^acttechinfo/edit/(\d+)/?$',
                             views.edit_act_techinfo, name = 'act_techinfo_edit'),
-                        url(r'^acttechinfo/view/(\d+)/?$',
-                            views.review_act_techinfo, name = 'act_techinfo_review'),
-                        url(r'^acttechinfo/view/?$',
-                            views.review_act_techinfo, name = 'act_techinfo_review'),
 
 
 # classes
