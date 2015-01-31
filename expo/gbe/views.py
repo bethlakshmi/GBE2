@@ -2243,22 +2243,32 @@ def edit_act_techinfo(request, act_id):
                         'location': location
                         })
     
-def review_act_techinfo(request, show_id):
+def review_act_techinfo(request, show_id=1):
     '''
     Show the list of act tech info for all acts in a given show 
     '''
     reviewer = validate_perms(request, ('Tech Crew',))
+    
+    # using try not get_or_404 to cover the case where the show is there
+    # but does not have any scheduled events.  I can still show a list of shows this way.
+    try:
+        show = Show.objects.get(eventitem_id=show_id)
+        acts = show.scheduler_events.first().get_acts()
 
-    show = get_object_or_404(Show, eventitem_id=show_id)
-    acts = show.scheduler_events.first().get_acts()
+    except:
+        show = None
+        acts = []
+    
+    '''
     location = show.scheduler_events.first().location
     if location.describe == 'Theater':
         sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Center Spot','Backlight', 'Cyc Light', 'Wash', 'Sound']
     else:
         sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Wash', 'Sound']
+    '''
 
     return render (request, 'gbe/act_tech_review.tmpl',
-                  {'sub_header': sub_header, 'acts': acts})
+                  {'this_show': show, 'acts': acts, 'all_shows': Show.objects.all()})
                     
 def create_event(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))

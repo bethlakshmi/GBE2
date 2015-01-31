@@ -797,6 +797,7 @@ class Act (Biddable, ActItem):
     def __str__ (self):
         return str(self.performer) + ": "+self.title
 
+				
 
 class Room(LocationItem):
     '''
