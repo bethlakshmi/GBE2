@@ -125,7 +125,10 @@ h3.readonlyform
     padding: 2px;
     text-align: center;
  }
-
+.error_row
+{
+    color: red;
+}
 .errorlist
 {
     color: red;

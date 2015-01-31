@@ -2164,7 +2164,7 @@ def edit_act_techinfo(request, act_id):
                            instance=act, 
                            prefix = 'act_tech_info')
 
-        audioform = AudioInfoSubmitForm(request.POST, prefix='audio_info', instance=audio_info)
+        audioform = AudioInfoSubmitForm(request.POST, request.FILES, prefix='audio_info', instance=audio_info)
         stageform = StageInfoSubmitForm(request.POST, prefix='stage_info', instance=stage_info)
         lightingform = LightingInfoForm(request.POST, prefix='lighting_info', instance=lighting_info)
 

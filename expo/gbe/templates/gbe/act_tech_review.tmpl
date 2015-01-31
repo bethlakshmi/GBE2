@@ -11,6 +11,8 @@
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Act Tech Info</h2>
 
+<span class="error_row">Highlighted text</span> reflects incomplete acts.<br>
+WORK in progress - not all fields are complete!!!  Cues, Stage info, and Rehearsal info are TBD.
   
   {% if messages %}
       <script>
@@ -23,10 +25,11 @@
     <tr class="bid-table">
       <th class="bid-table" rowspan=2>Act</th>
       <th class="bid-table" rowspan=2>Performer</th>
+      <th class="bid-table" rowspan=2>Contact Email</th>
       <th class="bid-table" rowspan=2>Rehearsal Time</th>
       <th class="bid-table" colspan=2>Lighting Info</th>
       <th class="bid-table" colspan={{sub_header|length}}>Cue Info</th>
-      <th class="bid-table" colspan=7>Audio Info</th>
+      <th class="bid-table" colspan=8>Audio Info</th>
       <th class="bid-table" colspan=7>Stage Info</th>
     </tr>
     <tr>
@@ -40,6 +43,7 @@
       <th class="bid-table">Track</th>
       <th class="bid-table">Song Length</th>
       <th class="bid-table">Need Mic</th>
+      <th class="bid-table">Own Mic</th>
       <th class="bid-table">Sound Notes</th>
       <th class="bid-table">Confirm No Music</th>
       <th class="bid-table">Act Duration</th>
@@ -51,13 +55,40 @@
       <th class="bid-table">Stage Notes</th>
     </tr>
     {% for act in acts %}
-      <tr class="bid-table">
+
+      
+      <tr  {% if not act.tech.is_complete  %}class="error_row"{%else%} class="bid-table"{% endif %} >
 	  <td class="bid-table">{{ act.title }}</td>	
 	  <td class="bid-table">{{ act.performer }}</td>	
-	  <td class="bid-table">&nbsp;</td>	
-	  <td class="bid-table" colspan=24>{{ act.title }}</td>	
+	  <td class="bid-table"><a href='mailto:{{act.performer.contact.user_object.email}}'>
+            {{act.performer.contact.user_object.email}}</a></td>	
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">{{act.tech.lighting.notes}}</td>
+	  <td class="bid-table">{{act.tech.lighting.costume}}</td>
+          
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+	  <td class="bid-table">&nbsp;</td>
+
+          <td class="bid-table">{{act.tech.audio.track_title}}</td>
+	  <td class="bid-table">{{act.tech.audio.track_artist}}</td>
+	  <td class="bid-table">{{act.tech.audio.track}}</td>
+	  <td class="bid-table">{{act.tech.audio.track_duration}}</td>
+	  <td class="bid-table">{{act.tech.audio.need_mic}}</td>
+	  <td class="bid-table">{{act.tech.audio.own_mic}}</td>
+	  <td class="bid-table">{{act.tech.audio.notes}}</td>
+	  <td class="bid-table">{{act.tech.audio.confirm_no_music}}</td>
+
+	  <td class="bid-table" colspan=7>{{ act.title }}</td>
+          
         
       </tr>
+
     {% endfor %}
   </table>
 {% endblock %}
