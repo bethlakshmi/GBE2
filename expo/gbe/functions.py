@@ -1,3 +1,6 @@
+import gbe.models as conf
+from django.http import Http404
+
 def validate_profile(request, require=False):
     '''
     Return the user profile if any
@@ -5,7 +8,7 @@ def validate_profile(request, require=False):
     if request.user.is_authenticated():
         try:
             return request.user.profile
-        except Profile.DoesNotExist:
+        except conf.Profile.DoesNotExist:
             if require:
                 raise Http404
     else:
