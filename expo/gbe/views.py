@@ -2118,10 +2118,28 @@ def edit_act_techinfo(request, act_id):
     cue_objects = [CueInfo.objects.get_or_create(techinfo=act.tech,cue_sequence=i)[0] for i in range(3)]
 
     shows = act.get_scheduled_shows()
-    rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
-    rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
-                          if rehearsals}
+    rehearsal_sets = {}
+    for show in shows:
+        re_set = show.get_open_rehearsals()
+        try:
+            existing_rehearsal = [r for r in act.get_scheduled_rehearsals() if
+                                  r.container_event.parent_event == show] [0]
+        except:
+            pass
+        if existing_rehearsal:
+            try:
+                re_set.remove(existing_rehearsal)
+            except:
+                pass
+            re_set.insert(0, existing_rehearsal)
+            
+        if len (re_set) >0:
+            rehearsal_sets[show] = re_set
+#    rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
+#    rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items() 
+#                          if rehearsals}
     location = shows[0].location
+    
     
     if len(rehearsal_sets) > 0:
         rehearsal_forms = [RehearsalSelectionForm(initial={'show':show, 'rehearsal_choices':
