@@ -20,10 +20,12 @@ urlpatterns = patterns('',
 #                       url(r'^schedule/room/public/(?<roomid>[\d+])/?$', 
 #                           reporting.room_schedule, name = 'room_schedule'),
 
-                        url(r'^acttechinfo/view/(\d+)/?$',
+                        url(r'^reports/acttechinfo/view_summary/(\d+)/?$',
                             reporting.review_act_techinfo, name = 'act_techinfo_review'),
-                        url(r'^acttechinfo/view/?$',
+                        url(r'^reports/acttechinfo/view_summary/?$',
                             reporting.review_act_techinfo, name = 'act_techinfo_review'),
-
+                         url(r'^reports/acttechinfo/view_details/(\d+)/?$',
+                            reporting.export_act_techinfo, name = 'act_techinfo_download'),
+                        
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,6 @@
 # View functions for reporting
 from django.shortcuts import render, get_object_or_404, render_to_response
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 import gbe.models as conf
 import scheduler.models as sched
@@ -41,14 +42,39 @@ def review_act_techinfo(request, show_id=1):
         show = None
         acts = []
     
-    '''
-    location = show.scheduler_events.first().location
-    if location.describe == 'Theater':
-        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Center Spot','Backlight', 'Cyc Light', 'Wash', 'Sound']
-    else:
-        sub_header = ['Cue #', 'Cue off of', 'Follow spot', 'Wash', 'Sound']
-    '''
-
     return render (request, 'gbe/act_tech_review.tmpl',
                   {'this_show': show, 'acts': acts, 'all_shows': conf.Show.objects.all()})
                     
+
+def export_act_techinfo(request, show_id):
+    show = get_object_or_404(conf.Show, eventitem_id=show_id)
+    location = show.scheduler_events.first().location
+    acts = show.scheduler_events.first().get_acts()
+
+    #build header, segmented in same structure as subclasses
+    header =  ['Act', 'Performer', 'Contact Email', 'Rehearsal Time']
+    header += ['Act Length', 'Intro Text', 'No Props', 'Preset Props',
+               'Cued Props','Clear Props', 'Stage Notes']
+    header += ['Track Title', 'Track Artist','Track', 'Track Length',
+               'No Music', 'Need Mic', 'Own a Mic','Audio Notes']
+    header +=['Act Description','Costume Description']
+
+    if location.describe == 'Theater':
+        header += ['Cue #', 'Cue off of', 'Follow spot', 'Center Spot','Backlight', 'Cyc Light', 'Wash', 'Sound']
+    else:
+        header += ['Cue #', 'Cue off of', 'Follow spot', 'Wash', 'Sound']
+
+    # now build content
+    cues = conf.CueInfo.objects.filter(techinfo__act__in=acts)
+    techinfo =[]
+    for cue in cues:
+        techinfo.append([cue.techinfo.act.title])
+ 
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
+    writer = csv.writer(response)
+    writer.writerow(header)
+    for row in techinfo:
+        writer.writerow(row)
+    return response
