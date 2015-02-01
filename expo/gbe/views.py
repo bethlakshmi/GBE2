@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.forms import UserCreationForm
-from django.template import loader, RequestContext
+from django.template import loader, RequestContext, Context
 from gbe.models import Event, Act, Performer
 from gbe.forms import *
 from gbe.functions import *
@@ -1057,10 +1057,12 @@ def create_volunteer(request):
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
-                message = profile.display_name+"has offered to volunteer at the expo.  \
-                    please go to <a href='"+reverse('volunteer_review', urlconf='gbe.urls')+ \
-                    "'>the volunteer review page</a> to review this and other volunteers."
-                mail_to_group("Volunteer Offer Submitted", message, 'Volunteer Reviewers')
+                
+                message = loader.get_template('gbe/email/bid_submitted.tmpl')
+                c = Context({ 'bidder': profile.display_name, 'bid_type': 'volunteer',
+                          'review_url': reverse('volunteer_review', urlconf='gbe.urls') })
+                mail_to_group("Volunteer Offer Submitted", message.render(c),
+                              'Volunteer Reviewers')
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 
