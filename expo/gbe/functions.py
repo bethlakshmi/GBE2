@@ -1,8 +1,8 @@
 import gbe.models as conf
 from django.http import Http404
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django.contrib.auth.models import User, Group
-
+from django.conf import settings
 
 def validate_profile(request, require=False):
     '''
@@ -34,6 +34,5 @@ def validate_perms(request, perms):
 '''
 def mail_to_group(subject, message, group_name):
     to_list = [user.email for user in User.objects.filter(groups__name=group_name)]
-    msg = EmailMessage(subject, message, to_list)
-    msg.send()
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
     return None
