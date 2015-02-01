@@ -61,6 +61,9 @@
 
     {% endfor %}
   </table>
+  <br><br>
+  Download <a href='{% url 'reporting:act_techinfo_download' this_show.eventitem_id %}'>All Details</a>
+  as a .csv file.
   {% else %}
     <br>
     There are no available acts.  That may mean that:
@@ -70,6 +73,7 @@
     <li>The show identified does not exist - please pick from the list above...</li>
     </ul>
 {% endif %}
+
 
 {% endblock %}
 

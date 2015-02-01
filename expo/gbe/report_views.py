@@ -47,13 +47,23 @@ def review_act_techinfo(request, show_id=1):
                     
 
 def export_act_techinfo(request, show_id):
+    '''
+    Export a csv of all act tech info details
+    - includes only accepted acts
+    - includes incomplete details
+    - music sold separately
+    '''
+
+    reviewer = validate_perms(request, ('Tech Crew',))
+
+ 
     show = get_object_or_404(conf.Show, eventitem_id=show_id)
     show_booking = show.scheduler_events.first()
     location = show_booking.location
     acts = show_booking.get_acts(3)
 
     #build header, segmented in same structure as subclasses
-    header =  ['Order','Act', 'Performer', 'Contact Email', 'Rehearsal Time']
+    header =  ['Order','Act', 'Performer', 'Contact Email', 'Complete?', 'Rehearsal Time']
     header += ['Act Length', 'Intro Text', 'No Props', 'Preset Props',
                'Cued Props','Clear Props', 'Stage Notes']
     header += ['Track Title', 'Track Artist','Track', 'Track Length',
@@ -81,7 +91,8 @@ def export_act_techinfo(request, show_id):
         for rehearsal in act.get_scheduled_rehearsals():
             rehearsals += str(rehearsal.start_time)+", "
             
-        start = [order, act.title, act.performer,act.performer.contact.user_object.email, rehearsals]
+        start = [order, act.title, act.performer,act.performer.contact.user_object.email,
+                 act.tech.is_complete, rehearsals]
         start +=  act.tech.stage.dump_data
         start +=  act.tech.audio.dump_data
         start +=  act.tech.lighting.dump_data
