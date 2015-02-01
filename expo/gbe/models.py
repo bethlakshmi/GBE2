@@ -451,6 +451,10 @@ class  AudioInfo(models.Model):
     notes = models.TextField (blank=True)    
     confirm_no_music = models.BooleanField (default=False)
 
+    @property
+    def dump_data(self):
+       return [self.track_title, self.track_artist, self.track, self.track_duration,
+               self.need_mic, self.own_mic, self.notes, self.confirm_no_music]
 
     @property
     def is_complete(self):
@@ -485,6 +489,10 @@ class LightingInfo (models.Model):
     '''
     notes = models.TextField(blank=True, max_length=256)
     costume = models.TextField(blank=True, max_length=16)
+
+    @property
+    def dump_data(self):
+       return [self.notes, self.costume]
 
     @property
     def is_complete (self):
@@ -522,6 +530,10 @@ class StageInfo(models.Model):
     clear_props = models.BooleanField (default=False)
     notes = models.TextField (blank=True)
 
+    @property
+    def dump_data(self):
+       return [self.act_duration,self.intro_text,self.confirm, self.set_props,
+               self.cue_props, self.clear_props, self.notes]
     
     @property
     def is_complete(self):
@@ -614,6 +626,7 @@ class CueInfo(models.Model):
     sound_note = models.TextField(max_length=100, blank=True)
     
     techinfo = models.ForeignKey(TechInfo)
+
 
     @property
     def is_complete (self):

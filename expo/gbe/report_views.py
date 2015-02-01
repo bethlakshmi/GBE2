@@ -48,11 +48,12 @@ def review_act_techinfo(request, show_id=1):
 
 def export_act_techinfo(request, show_id):
     show = get_object_or_404(conf.Show, eventitem_id=show_id)
-    location = show.scheduler_events.first().location
-    acts = show.scheduler_events.first().get_acts()
+    show_booking = show.scheduler_events.first()
+    location = show_booking.location
+    acts = show_booking.get_acts(3)
 
     #build header, segmented in same structure as subclasses
-    header =  ['Act', 'Performer', 'Contact Email', 'Rehearsal Time']
+    header =  ['Order','Act', 'Performer', 'Contact Email', 'Rehearsal Time']
     header += ['Act Length', 'Intro Text', 'No Props', 'Preset Props',
                'Cued Props','Clear Props', 'Stage Notes']
     header += ['Track Title', 'Track Artist','Track', 'Track Length',
@@ -67,10 +68,41 @@ def export_act_techinfo(request, show_id):
     # now build content
     cues = conf.CueInfo.objects.filter(techinfo__act__in=acts)
     techinfo =[]
-    for cue in cues:
-        techinfo.append([cue.techinfo.act.title])
- 
+    for act in acts:
+        # in case no ordering is set up.
+        try:
+            allocation = sched.ResourceAllocation.objects.get(event=show_booking,
+                                                              resource__actresource___item=act)
+            order = allocation.ordering.order
+        except:
+            order = 0
+        
+        rehearsals = ""
+        for rehearsal in act.get_scheduled_rehearsals():
+            rehearsals += str(rehearsal.start_time)+", "
+            
+        start = [order, act.title, act.performer,act.performer.contact.user_object.email, rehearsals]
+        start +=  act.tech.stage.dump_data
+        start +=  act.tech.audio.dump_data
+        start +=  act.tech.lighting.dump_data
 
+        # one row per cue... for sortability
+        for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
+            if location.describe == 'Theater':
+                cue = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.center_spot,
+                          cue.backlight, cue.cyc_color, cue.wash, cue.sound_note]
+            else:
+                cue = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.wash, cue.sound_note]
+
+            techinfo.append(start+cue)
+
+
+        # in case performers haven't done paperwork            
+        if len(cues.filter(techinfo__act=act)) == 0:
+            techinfo.append(start)
+
+    # end for loop through acts
+    
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
     writer = csv.writer(response)
