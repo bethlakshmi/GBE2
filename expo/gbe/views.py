@@ -1057,10 +1057,10 @@ def create_volunteer(request):
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
-            message = profile.display_name+"has offered to volunteer at the expo.  \
+                message = profile.display_name+"has offered to volunteer at the expo.  \
                     please go to <a href='"+reverse('volunteer_review', urlconf='gbe.urls')+ \
                     "'>the volunteer review page</a> to review this and other volunteers."
-            mail_to_group("Volunter Offer Submitted", message, 'Volunteer Reviewers')
+                mail_to_group("Volunteer Offer Submitted", message, 'Volunteer Reviewers')
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 
