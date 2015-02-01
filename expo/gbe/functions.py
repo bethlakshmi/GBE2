@@ -1,5 +1,8 @@
 import gbe.models as conf
 from django.http import Http404
+from django.core.mail import EmailMessage
+from django.contrib.auth.models import User, Group
+
 
 def validate_profile(request, require=False):
     '''
@@ -24,3 +27,13 @@ def validate_perms(request, perms):
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
     raise Http404
+
+'''
+    Sends mail to a privilege group, designed for use by bid functions
+    Will always send using default_from_email 
+'''
+def mail_to_group(subject, message, group_name):
+    to_list = [user.email for user in User.objects.filter(groups__name=group_name)]
+    email = EmailMessage(subject, message, to_list)
+    email.send()
+    return None

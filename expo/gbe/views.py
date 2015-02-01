@@ -1057,6 +1057,10 @@ def create_volunteer(request):
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
+            message = profile.display_name+"has offered to volunteer at the expo.  \
+                    please go to <a href='"+reverse('volunteer_review', urlconf='gbe.urls')+ \
+                    "'>the volunteer review page</a> to review this and other volunteers."
+            mail_to_group("Volunter Offer Submitted", message, 'Volunteer Reviewers')
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render (request, 
@@ -1108,7 +1112,6 @@ def review_volunteer (request, volunteer_id):
     If user is not a reviewer, politely decline to show anything. 
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
-
 
     volunteer = get_object_or_404(Volunteer,id=volunteer_id)
     volunteer_prof = volunteer.profile
