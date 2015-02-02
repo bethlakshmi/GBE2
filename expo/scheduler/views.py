@@ -362,6 +362,7 @@ def edit_event_display(request, item, errorcontext=None):
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
             context.update( get_worker_allocation_forms( item, errorcontext ) )
+            context.update( show_potential_workers( item ) )
         else:
             context.update (get_manage_opportunity_forms (item, initial, errorcontext ) )
 
@@ -464,9 +465,26 @@ def get_worker_allocation_forms( opp, errorcontext=None ):
     if errorcontext and errorcontext.has_key('new_worker_alloc_form'):
         forms.append(errorcontext['new_worker_alloc_form'])
     forms.append (WorkerAllocationForm(initial = {'role':'Volunteer', 'alloc_id' : -1}))
+    
     return {'worker_alloc_forms':forms, 
             'worker_alloc_headers': ['Worker', 'Role', 'Notes'], 
             'opp_id': opp.id}
+
+                
+def show_potential_workers( opp ):
+    '''
+    Get lists of potential workers for this opportunity. These will be inserted into the
+    edit_event template directly. 
+    Returns a dictionary, we'll update the context dictionary on return
+    Opp is a sched.Event
+    '''
+    
+    import gbe.models as conf
+    interested = list(conf.Volunteer.objects.filter (interests__contains=opp.as_subtype.volunteer_category))
+    all_volunteers = list(conf.Volunteer.objects.all() )
+    return  {'interested_volunteers':interested, 'all_volunteers':all_volunteers}
+
+
 
 def allocate_workers(request, opp_id):
     '''

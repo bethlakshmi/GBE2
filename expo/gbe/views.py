@@ -1113,8 +1113,10 @@ def review_volunteer (request, volunteer_id):
     review form.
     If user is not a reviewer, politely decline to show anything. 
     '''
+#    foo()
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
-
+    if int(volunteer_id) == 0 and request.method=='POST':
+        volunteer_id = int( request.POST['volunteer'] )
     volunteer = get_object_or_404(Volunteer,id=volunteer_id)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance = volunteer, prefix = 'The Volunteer')

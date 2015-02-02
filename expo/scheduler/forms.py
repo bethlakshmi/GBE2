@@ -48,6 +48,7 @@ class WorkerAllocationForm (forms.Form):
     alloc_id = forms.IntegerField(required=False, widget = forms.HiddenInput())
 
 
+
 class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
