@@ -130,7 +130,7 @@ def get_event_display_info(eventitem_id):
         
         
     eventitem_view = {'event': item, 
-                      'scheduled_events':item.scheduler_events.all(),
+                      'scheduled_events':item.scheduler_events.all().order_by('starttime'),
                       'labels': event_labels,
                       'bio_grid_list': bio_grid_list
                      }
@@ -791,8 +791,9 @@ def add_event(request, eventitem_id, event_type='class'):
     else:
         duration = item.duration
         if item.__class__.__name__ == 'Class':
-            form =  EventScheduleForm( prefix='event', initial={'duration':duration,
-                                                            'teacher': item.teacher})
+            form =  EventScheduleForm( prefix='event', 
+                                       initial={'duration':duration,
+                                                'teacher': item.teacher})
         else:
             form =  EventScheduleForm( prefix='event', initial={'duration':duration})
 
