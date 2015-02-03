@@ -833,13 +833,13 @@ def view_list(request, event_type='All'):
         elif event_type=='Class':
             items = Class.objects.filter(accepted='3').exclude(type='Panel').order_by('title')
         else:
-            items = EventItem.objects.all().select_subclasses().order_by('title')
+            items = EventItem.objects.all().select_subclasses().order_by('start_time').order_by('title')
             event_type="All"
 
         items = items.filter(visible=True)
 
         events = [{'eventitem': item, 
-                    'scheduled_events':item.scheduler_events.all(),
+                    'scheduled_events':item.scheduler_events.all().order_by('starttime'),
                     'detail': reverse('detail_view', 
                                       urlconf='scheduler.urls', 
                                       args = [item.eventitem_id])}
