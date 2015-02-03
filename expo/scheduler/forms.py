@@ -52,7 +52,7 @@ class WorkerAllocationForm (forms.Form):
 class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
-    location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all()])
+    location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all().order_by('room__name')])
     duration = DurationFormField(help_text='Enter duration as HH:MM:SS')
     import gbe.models as conf
     teacher = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
