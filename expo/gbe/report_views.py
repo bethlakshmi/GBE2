@@ -67,7 +67,7 @@ def export_act_techinfo(request, show_id):
     header += ['Act Length', 'Intro Text', 'No Props', 'Preset Props',
                'Cued Props','Clear Props', 'Stage Notes']
     header += ['Track Title', 'Track Artist','Track', 'Track Length',
-               'No Music', 'Need Mic', 'Own a Mic','Audio Notes']
+               'No Music', 'Need Mic', 'Use Own Mic','Audio Notes']
     header +=['Act Description','Costume Description']
 
     if location.describe == 'Theater':
