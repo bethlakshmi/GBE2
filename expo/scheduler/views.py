@@ -892,7 +892,9 @@ def calendar_view(request = None,
     
     elif event_type == 'Show':
         events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
-            event_info(confitem_type = 'Special Event', cal_times = cal_times)
+            event_info(confitem_type = 'Special Event', cal_times = cal_times) + \
+            event_info(confitem_type = 'Master Class', cal_times = cal_times) + \
+            event_info(confitem_type = 'Drop-In Class', cal_times = cal_times)
     else:
         events = event_info(confitem_type = event_type, cal_times = cal_times)
 
