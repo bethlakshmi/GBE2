@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
@@ -473,11 +474,16 @@ class EventItem (models.Model):
 
     @property
     def roles(self): 
-        people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
-                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct() 
-        
-        if people.count() == 0:
-            people = self.bio_payload
+        try:
+            container = EventContainer.objects.filter(child_event__eventitem=self.eventitem_id)[0]
+            people = Worker.objects.filter((Q(allocations__event__eventitem=self.eventitem_id) &
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff'])) |
+                                       (Q(allocations__event=container.parent_event) &
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff']))).distinct() 
+        except:
+            people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
+                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct()
+            
         return people
 
     def set_duration(self, duration):
