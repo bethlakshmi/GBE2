@@ -33,13 +33,17 @@ class EventAdmin(admin.ModelAdmin):
 class EventContainerAdmin(admin.ModelAdmin):
     list_display = ('parent_event','child_event')
 
+class WorkerAdmin(admin.ModelAdmin):
+    list_display = ('_item','role')
+    list_filter = ['_item','role']
+
 admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)
 admin.site.register(WorkerItem)
 admin.site.register(ResourceItem)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Location)
-admin.site.register(Worker)
+admin.site.register(Worker, WorkerAdmin)
 admin.site.register(Resource)
 admin.site.register(ResourceAllocation, ResourceAllocationAdmin)
 admin.site.register(ActItem)

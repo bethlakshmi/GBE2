@@ -1664,6 +1664,10 @@ def admin_profile(request, profile_id):
             
             form.save()
             return HttpResponseRedirect(reverse('manage_users', urlconf='gbe.urls'))
+        else:
+            return render(request, 'gbe/update_profile.tmpl',
+                      {'left_forms': [form], 'right_forms':[prefs_form]})
+
     else:
         if user_profile.display_name.strip() == '':
             display_name = user_profile.user_object.first_name + ' ' + user_profile.user_object.last_name

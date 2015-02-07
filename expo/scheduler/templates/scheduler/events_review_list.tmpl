@@ -50,6 +50,12 @@
 			  {%endif%}
           		</td>	
 	                <td class="events-table">      
+			  {%if event.volunteer_count %}
+			    {{ event.volunteer_count  }}
+			  {%else%}
+			    &nbsp;
+			  {%endif%}
+          		</td>		                <td class="events-table">      
             		<a href='{{ event.detail }}'>Detail</a>
           		</td>	
 	                <td class="events-table">

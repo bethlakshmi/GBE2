@@ -102,6 +102,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
+            eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
                                          args =  [entry['schedule_event'].id])
            
@@ -153,7 +154,7 @@ def event_list(request, event_type=''):
         
         return render(request, template, {'type_options':event_type_options})
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule','Delete']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Current Volunteers','Detail', 'Edit Schedule','Delete']
     events = get_events_display_info(event_type)
 
 
@@ -178,18 +179,17 @@ def detail_view(request, eventitem_id):
                                       })
 
 
-def schedule_acts(request):
+def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
     '''
     validate_perms(request, ('Scheduling Mavens',))
-    show_title = ''
-
+    import gbe.models as conf
+    
     if request.method=="POST":
-        import gbe.models as conf
+
         show_title = request.POST.get('event_type', 'POST')   # figure out where we're coming from
 
-#        foo()
 
     if show_title.strip() == '' :
         
@@ -826,15 +826,15 @@ def view_list(request, event_type='All'):
         no elegant filter for child class type, and that select_subclasses isn't a *filter* - I gave up
         '''
         if event_types.has_key(event_type):
-            items = GenericEvent.objects.filter(type=event_type).order_by('title')
+            items = GenericEvent.objects.filter(type=event_type, visible=True).order_by('title')
         elif class_types.has_key(event_type):
-            items = Class.objects.filter(accepted='3', type=event_type).order_by('title')
+            items = Class.objects.filter(accepted='3', type=event_type, visible=True).order_by('title')
         elif event_type=='Show':
-            items = Show.objects.all()
+            items = Show.objects.filter(visible=True)
         elif event_type=='Class':
-            items = Class.objects.filter(accepted='3').exclude(type='Panel').order_by('title')
+            items = Class.objects.filter(accepted='3', visible=True).exclude(type='Panel').order_by('title')
         else:
-            items = EventItem.objects.all().select_subclasses().order_by('start_time').order_by('title')
+            items = EventItem.objects.filter(visible=True).select_subclasses()
             event_type="All"
 
         items = items.filter(visible=True)
@@ -892,7 +892,9 @@ def calendar_view(request = None,
     
     elif event_type == 'Show':
         events = event_info(confitem_type = 'Show', cal_times = cal_times) + \
-            event_info(confitem_type = 'Special Event', cal_times = cal_times)
+            event_info(confitem_type = 'Special Event', cal_times = cal_times) + \
+            event_info(confitem_type = 'Master Class', cal_times = cal_times) + \
+            event_info(confitem_type = 'Drop-In Class', cal_times = cal_times)
     else:
         events = event_info(confitem_type = event_type, cal_times = cal_times)
 

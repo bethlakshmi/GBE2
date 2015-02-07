@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
@@ -383,6 +384,9 @@ class Worker (Resource):
     role = models.CharField(max_length=50,
                                     choices=role_options, 
                                     blank=True)
+    @property
+    def workeritem(self):
+        return WorkerItem.objects.get_subclass(resourceitem_id=self._item.resourceitem_id)
     
     @property
     def type(self):
@@ -468,9 +472,23 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
+    @property
+    def roles(self): 
+        try:
+            container = EventContainer.objects.filter(child_event__eventitem=self.eventitem_id)[0]
+            people = Worker.objects.filter((Q(allocations__event__eventitem=self.eventitem_id) &
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff'])) |
+                                       (Q(allocations__event=container.parent_event) &
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff']))).distinct() 
+        except:
+            people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
+                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct()
+            
+        return people
+
     def set_duration(self, duration):
         child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
-        child.duration = duration
+        child.durationvent = duration
         child.save(update_fields=('duration',))
 
     def remove(self):
@@ -637,6 +655,17 @@ class Event (Schedulable):
             return self.worker_contact_info(worker_type=worker_type) + self.act_contact_info(status=status)
             
 
+    @property
+    def volunteer_count(self):
+        acts = len(self.get_acts())
+        volunteers = Worker.objects.filter(allocations__event=self, role='Volunteer').count()
+        if acts:
+            return str(len(self.get_acts())) + ' acts'
+        elif volunteers:
+            return str(volunteers)+' volunteers'
+            
+        return ''
+    
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
@@ -760,7 +789,7 @@ class Event (Schedulable):
         return bio_list
 
     def worker_list(self, role):
-        workers = Worker.objects.filter(allocation__event=self, role=role)
+        workers = Worker.objects.filter(allocations__event=self, role=role)
         
 
 

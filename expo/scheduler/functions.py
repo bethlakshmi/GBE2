@@ -169,23 +169,23 @@ def overlap_check(events):
     '''
     overlaps = []
     for location in set([e['location'] for e in events]):
-        prev_stop = 0
-        prev_event = None
-        conflict_set = {}
+        conflict_set = []
         location_events = sorted([event for event in events if event['location'] == location], 
-                                 key = lambda event:event['startblock'])
-        for event in location_events:
-            if event['startblock'] < prev_stop:
-                conflict_set[prev_event] = event
+                                 key = lambda event:event['start_time'])
+        prev_stop = location_events[0]['stop_time']
+        prev_event = location_events[0]
+        for event in location_events[1:]:
+            if event['start_time'] < prev_stop:
+                conflict_set.append((prev_event, event))
             else:
                 if len(conflict_set) >0:
-                    overlaps += conflict_set.items()
-                    conflict_set = {}
-            prev_stop = event['startblock'] + event['rowspan'] 
+                    overlaps += conflict_set
+                    conflict_set = []
+            prev_stop = event['stop_time'] 
             prev_event = event
         if len(conflict_set) >0:
-            overlaps += conflict_set.items()
-            conflict_set = {}
+            overlaps += conflict_set
+            conflict_set = []
     return overlaps
             
 
@@ -203,7 +203,7 @@ def add_to_table(event, table, block_labels):
     If event occupies multiple blocks, insert "placeholder" in 
     subsequent table cells (nonbreaking space)
     '''
-    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], event.get('css_class'), event.get('html', 'FOO'))
+    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], " ".join([event.get('css_class', ''), event['location'], event['type']]), event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
