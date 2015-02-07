@@ -203,7 +203,7 @@ def add_to_table(event, table, block_labels):
     If event occupies multiple blocks, insert "placeholder" in 
     subsequent table cells (nonbreaking space)
     '''
-    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], event.get('css_class'), event.get('html', 'FOO'))
+    table[event['location'], block_labels[event['startblock']] ] = '<td rowspan=%d class=\'%s\'>%s</td>' %(event['rowspan'], " ".join([event.get('css_class', ''), event['location'], event['type']]), event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
 
