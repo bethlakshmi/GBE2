@@ -178,18 +178,17 @@ def detail_view(request, eventitem_id):
                                       })
 
 
-def schedule_acts(request):
+def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
     '''
     validate_perms(request, ('Scheduling Mavens',))
-    show_title = ''
-
+    import gbe.models as conf
+    
     if request.method=="POST":
-        import gbe.models as conf
+
         show_title = request.POST.get('event_type', 'POST')   # figure out where we're coming from
 
-#        foo()
 
     if show_title.strip() == '' :
         
