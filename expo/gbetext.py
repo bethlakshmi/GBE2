@@ -196,7 +196,8 @@ role_options = (('Teacher', "Teacher"),
                ('Moderator', "Moderator"),
                ('Staff Lead', "Staff Lead"),
                ('Technical Director', "Technical Director"),
-               ('Producer',"Producer"))
+               ('Producer',"Producer"),
+               ('Head of Staff',"Head of Staff"))
 
 vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
 						 "Saturday & Sunday, noon to 8pm ONLY."))
@@ -226,7 +227,7 @@ time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
 
 event_labels = {'type':  'Type',
                 'fee': 'Materials Fee',
-                'parent_event': 'Parent Event', 
+                'parent_event': 'Part of', 
                 'volunteer_category': 'Opportunity Category'
                 
                 }

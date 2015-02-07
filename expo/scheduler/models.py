@@ -383,6 +383,9 @@ class Worker (Resource):
     role = models.CharField(max_length=50,
                                     choices=role_options, 
                                     blank=True)
+    @property
+    def workeritem(self):
+        return WorkerItem.objects.get_subclass(resourceitem_id=self._item.resourceitem_id)
     
     @property
     def type(self):
@@ -468,9 +471,18 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
+    @property
+    def roles(self): 
+        people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
+                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct() 
+        
+        if people.count() == 0:
+            people = self.bio_payload
+        return people
+
     def set_duration(self, duration):
         child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
-        child.duration = duration
+        child.durationvent = duration
         child.save(update_fields=('duration',))
 
     def remove(self):
