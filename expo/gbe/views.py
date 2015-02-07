@@ -2128,6 +2128,7 @@ def edit_act_techinfo(request, act_id):
     rehearsal_sets = {}
     for show in shows:
         re_set = show.get_open_rehearsals()
+        existing_rehearsal = None
         try:
             existing_rehearsal = [r for r in act.get_scheduled_rehearsals() if
                                   r.container_event.parent_event == show] [0]
