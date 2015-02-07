@@ -655,6 +655,17 @@ class Event (Schedulable):
             return self.worker_contact_info(worker_type=worker_type) + self.act_contact_info(status=status)
             
 
+    @property
+    def volunteer_count(self):
+        acts = len(self.get_acts())
+        volunteers = Worker.objects.filter(allocations__event=self, role='Volunteer').count()
+        if acts:
+            return str(len(self.get_acts())) + ' acts'
+        elif volunteers:
+            return str(volunteers)+' volunteers'
+            
+        return ''
+    
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
@@ -778,7 +789,7 @@ class Event (Schedulable):
         return bio_list
 
     def worker_list(self, role):
-        workers = Worker.objects.filter(allocation__event=self, role=role)
+        workers = Worker.objects.filter(allocations__event=self, role=role)
         
 
 

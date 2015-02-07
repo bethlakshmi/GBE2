@@ -102,6 +102,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
+            eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
                                          args =  [entry['schedule_event'].id])
            
@@ -153,7 +154,7 @@ def event_list(request, event_type=''):
         
         return render(request, template, {'type_options':event_type_options})
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule','Delete']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Current Volunteers','Detail', 'Edit Schedule','Delete']
     events = get_events_display_info(event_type)
 
 
