@@ -58,11 +58,12 @@ class EventScheduleForm(forms.ModelForm):
     teacher = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
     moderator = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
     panelists =  forms.ModelMultipleChoiceField(queryset = conf.Performer.objects.all(), required = False)
+    description = forms.CharField(required=False, widget=forms.Textarea)
 
     class Meta:
         model = Event
         fields = ['day', 'time', 'location', 'duration', 'max_volunteer', 'teacher', 
-                  'moderator', 'panelists']
+                  'moderator', 'panelists', 'description']
         help_texts= {'duration':'Enter duration as HH:MM:SS'}
     def save(self, commit=True):
         data = self.cleaned_data

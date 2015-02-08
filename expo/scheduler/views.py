@@ -303,7 +303,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 s_event.unallocate_role('Panelist')
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
-            
+            if data['description']:
+                c_event = s_event.as_subtype
+                c_event.description = data['description']
+                c_event.save()
             return HttpResponseRedirect(reverse('edit_event', 
                                                 urlconf='scheduler.urls', 
                                                 args=[event_type, scheduler_event_id]))
@@ -325,6 +328,7 @@ def edit_event_display(request, item, errorcontext=None):
     initial['duration'] = item.duration
     initial['day'] = item.starttime.strftime("%Y-%m-%d")
     initial['time'] = item.starttime.strftime("%H:%M:%S")
+    initial['description'] = item.as_subtype.description
     initial['location'] = item.location
     if item.event_type_name == 'Class':
         allocs = ResourceAllocation.objects.filter(event = item)
