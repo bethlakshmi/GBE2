@@ -142,3 +142,14 @@ def export_act_techinfo(request, show_id):
     for row in techinfo:
         writer.writerow(row)
     return response
+
+
+def room_schedule(request, room_id=None):
+    if room_id:
+        rooms=[get_or_404(LocationItem, room_id)]
+    else:
+        try:
+            rooms=LocationItem.objects.all()
+        except:
+            rooms=[]
+    pass
