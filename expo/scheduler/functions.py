@@ -123,10 +123,8 @@ def init_column_heads(events):
     '''
     Scan events and return list of room names. 
     '''
-    return list(set([e['location'] for e in events]))
-
-
-
+    return sorted(list(set([e['location'] for e in events])))
+    
 
 def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     '''
@@ -159,9 +157,6 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     event['startlabel'] = block_labels[event['startblock']]
     event['rowspan'] = int(math.ceil(working_stop_time / block_size))-event['startblock']
 
-    
-
-
 def overlap_check(events):
     '''
     Return a list of event tuples such that all members of a tuple are in the same room
@@ -188,7 +183,24 @@ def overlap_check(events):
             conflict_set = []
     return overlaps
             
+def overlap_clear(events):
+    '''
+    Return a list of event tuples such that all members of a tuple are in the same room
+    and stop time of one event overlaps with at least one other member of the tuple
+    '''
 
+    for location in set([e['location'] for e in events]):
+        location_events = sorted([event for event in events if event['location'] == location],
+                                 key = lambda event:event['start_time'])
+        prev_stop = location_events[0]['stop_time']
+        prev_event = location_events[0]
+        for event in location_events[1:]:
+            if event['start_time'] < prev_stop:
+                if event['location'] == prev_event['location']:
+                    event['location'] = event['location']+' (alt)'
+            prev_stop = event['stop_time']
+            prev_event = event
+    return events
 
 # default handling of overlapping events:
 ## public calendars: do not show any overlapping events
