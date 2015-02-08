@@ -492,7 +492,7 @@ class EventItem (models.Model):
 
     def set_duration(self, duration):
         child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
-        child.durationvent = duration
+        child.duration = duration
         child.save(update_fields=('duration',))
 
     def remove(self):
