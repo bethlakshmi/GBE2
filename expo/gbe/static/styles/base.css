@@ -377,8 +377,10 @@ td.describe
   width:20%;
   align: right;
   display: inline-block;
-  border: 1px solid black;
-  padding: 5px;
+  border-style: double;
+  background: #aaffff;
+  border-radius: 8px;
+  padding: 8px;
 }
 .bio_block
 {
