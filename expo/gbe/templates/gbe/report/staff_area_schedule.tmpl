@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Staffing for {{title}}
+{% endblock %}
+
+{% block content %}
+
+
+  <h2 class="review-title">Staff Schedules for {{area.title}}</h2>
+
+{% for opp in opps%}
+  <h3>{{ opp.sched.starttime}} - {{ opp.conf.title}}</h3>
+  <b>Location:</b>  {{opp.sched.location}}<br>
+  {{opp.sched.volunteer_count}}<br><br>
+  <table class="bid-table">
+    <tr class="bid-table">
+      <th class="bid-table">Name</th>
+      <th class="bid-table">Mail</th>
+      <th class="bid-table">Number</th>
+    </tr>
+    {% for contact in opp.contacts%}
+    <tr class="bid-table">
+      <td class="bid-table">{{contact.workeritem}}</td>
+      <td class="bid-table">{{contact.workeritem.contact_email}}</td>
+      <td class="bid-table">{{contact.workeritem.contact_phone}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endfor %}
+{% endblock %}
+

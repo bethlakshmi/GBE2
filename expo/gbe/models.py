@@ -110,6 +110,10 @@ class Profile(WorkerItem):
     def contact_email(self):
         return self.user_object.email
 
+    @property
+    def contact_phone(self):
+        return self.phone
+
     @property 
     def address(self):
         address_string =str(self.address1.strip() + '\n' + self.address2.strip()).strip()
@@ -318,6 +322,10 @@ class Performer (WorkerItem):
     @property
     def contact_email(self):
         return self.contact.user_object.email
+
+    @property
+    def contact_phone(self):
+        return self.contact.user_object.phone
     
     @property
     def complete(self):
@@ -703,6 +711,10 @@ class Act (Biddable, ActItem):
     def contact_email(self):
         return self.performer.contact_email
 
+    @property
+    def contact_phone(self):
+        return self.performer.contact_phone
+ 
     @property
     def bio(self):
         return self.performer

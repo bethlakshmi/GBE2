@@ -330,6 +330,10 @@ class WorkerItem(ResourceItem):
     def contact_email(self):
         return WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_email
 
+    @property
+    def contact_phone(self):
+        return WorkerItem.objects.get_subclass(resourceitem_id=self.resourceitem_id).contact_phone
+
     
     @property
     def describe(self):
@@ -626,16 +630,16 @@ class Event (Schedulable):
                 if Worker.objects.get(id = allocation.resource.id).role == role:
                     allocation.delete()
 
-    def get_volunteer_opps(self, role=None):
+    def get_volunteer_opps(self, role='Volunteer'):
         '''
         return volunteer opportunities associated with this event
         Returns a list of dicts, {'sched':scheduler.Event, 'conf':conference_event}
         '''
         opps = EventContainer.objects.filter(parent_event=self)
-        
         opps = [{'sched':opp.child_event, 
-                 'conf':EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id) }
-                 for opp in opps] 
+                     'conf':EventItem.objects.get_subclass(eventitem_id = opp.child_event.eventitem_id),
+                     'contacts':Worker.objects.filter(allocations__event=opp.child_event, role=role)}
+                     for opp in opps] 
         
         return filter (lambda o:o['conf'].type=='Volunteer', opps)
 

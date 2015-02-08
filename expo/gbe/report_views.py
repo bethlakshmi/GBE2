@@ -10,13 +10,34 @@ import csv
 from reportlab.pdfgen import canvas
 from gbe.functions import *
 
-def staff_area(request, area):
+def review_staff_area(request):
+    '''
+      Shows listing of staff area stuff for drill down
+    '''
+    header = ['Area','Leaders','Check Staffing']
+    try:
+        areas = conf.GenericEvent.objects.filter(type='Staff Area', visible=True)
+    except:
+        areas = []
+        
+    return render (request, 'gbe/report/staff_areas.tmpl',
+                  {'header': header, 'areas': areas})
+
+
+def staff_area(request, area_id):
     '''
     Generates a staff area report: volunteer opportunities scheduled, volunteers scheduled, 
     sorted by time/day
     See ticket #250
     '''
-    pass
+    area = get_object_or_404(conf.GenericEvent, eventitem_id=area_id)
+    sched_event = sched.Event.objects.filter(eventitem=area)
+    opps = []
+    for event in sched_event:
+        opps += event.get_volunteer_opps('Volunteer')    
+    
+    return render (request, 'gbe/report/staff_area_schedule.tmpl',
+                  {'opps': opps, 'area': area})
 
 def env_stuff(request):
     '''
@@ -42,7 +63,7 @@ def review_act_techinfo(request, show_id=1):
         show = None
         acts = []
     
-    return render (request, 'gbe/act_tech_review.tmpl',
+    return render (request, 'gbe/report/act_tech_review.tmpl',
                   {'this_show': show, 'acts': acts, 'all_shows': conf.Show.objects.all()})
                     
 

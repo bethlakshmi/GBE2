@@ -7,7 +7,9 @@ admin.autodiscover()
 from gbe import report_views as reporting
 
 urlpatterns = patterns('',
-                       url(r'^staff_area/[-\w]+/?$',
+                       url(r'^reports/staff_area/?$',
+                           reporting.review_staff_area, name = 'staff_area'),
+                       url(r'^reports/staff_area/(\d+)/?$',
                            reporting.staff_area, name = 'staff_area'),
                        url(r'^stuffing/?$', 
                            reporting.env_stuff, name = 'env_stuff'),

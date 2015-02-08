@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Staffing
+{% endblock %}
+
+{% block content %}
+
+
+  <h2 class="review-title">Staff Areas</h2>
+
+
+
+
+  <table class="bid-table">
+    <tr class="bid-table">
+      {% for header_item in header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+    </tr>
+    {% for area in areas %}
+      <tr class="bid-table">
+        <td class="bid-table">{{area.title}}</td>
+        <td>
+ 	  {% for worker in area.roles %}
+            {{worker.role}} - {{worker.workeritem.name}}
+ 	  {% endfor %}	
+        </td>
+        <td class="bid-table">
+          <a href="{%url 'reporting:staff_area' area.eventitem_id %}">Get Staff Schedule</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
