@@ -15,7 +15,7 @@ from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
 from scheduler.functions import table_prep, event_info, day_to_cal_time
-from scheduler.functions import set_time_format, conference_dates
+from scheduler.functions import set_time_format, conference_dates, overlap_clear
 #from scheduler.functions import volunteer_info
 
 def validate_profile(request):
@@ -897,6 +897,8 @@ def calendar_view(request = None,
             event_info(confitem_type = 'Drop-In Class', cal_times = cal_times)
     else:
         events = event_info(confitem_type = event_type, cal_times = cal_times)
+
+    events = overlap_clear(events)
 
     if time_format == None:
         time_format = set_time_format()
