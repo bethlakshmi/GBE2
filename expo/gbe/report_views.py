@@ -57,7 +57,7 @@ def review_act_techinfo(request, show_id=1):
     # but does not have any scheduled events.  I can still show a list of shows this way.
     try:
         show = conf.Show.objects.get(eventitem_id=show_id)
-        acts = show.scheduler_events.first().get_acts()
+        acts = show.scheduler_events.first().get_acts(3)
 
     except:
         show = None
