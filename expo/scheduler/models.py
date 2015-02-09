@@ -272,6 +272,16 @@ class LocationItem(ResourceItem):
             loc.save()
         return loc
 
+    @property
+    def get_bookings(self):
+        '''
+        Returns the events for which this LocationItem is booked. 
+        should remain focused on the upward connection of resource allocations, and avoid being sub
+        class specific
+        '''    
+        from scheduler.models import Event
+        events = Event.objects.filter(resources_allocated__resource__location___item=self).order_by('starttime')
+        return events
 
 
     @property

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+   Room Bookings
+{% endblock %}
+
+{% block content %}
+
+
+  <h2 class="review-title">Room Schedules</h2>
+
+{% for room in rooms%}
+  <h3>Schedule for {{ room }}</h3>
+ 
+  
+  <table class="bid-table">
+    <tr class="bid-table">
+      <th class="bid-table">Name</th>
+      <th class="bid-table">Start</th>
+      <th class="bid-table">End</th>
+    </tr>
+    {% for booking in room.get_bookings%}
+    <tr class="bid-table">
+      <td class="bid-table">{{booking}}</td>
+      <td class="bid-table">{{booking.start_time}}</td>
+      <td class="bid-table">{{booking.end_time}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endfor %}
+{% endblock %}
+

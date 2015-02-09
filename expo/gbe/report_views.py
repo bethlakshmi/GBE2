@@ -149,7 +149,10 @@ def room_schedule(request, room_id=None):
         rooms=[get_or_404(LocationItem, room_id)]
     else:
         try:
-            rooms=LocationItem.objects.all()
+            rooms=sched.LocationItem.objects.all()
         except:
             rooms=[]
-    pass
+            
+    
+    return render (request, 'gbe/report/room_schedule.tmpl',
+                  {'rooms': rooms})
