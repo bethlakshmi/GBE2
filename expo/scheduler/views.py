@@ -15,7 +15,7 @@ from datetime import time as dttime
 from table import table
 from gbe.duration import Duration
 from scheduler.functions import table_prep, event_info, day_to_cal_time
-from scheduler.functions import set_time_format, conference_dates, overlap_clear
+from scheduler.functions import set_time_format, conference_dates
 #from scheduler.functions import volunteer_info
 
 def validate_profile(request):
@@ -102,7 +102,6 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
-            eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
                                          args =  [entry['schedule_event'].id])
            
@@ -154,7 +153,7 @@ def event_list(request, event_type=''):
         
         return render(request, template, {'type_options':event_type_options})
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Current Volunteers','Detail', 'Edit Schedule','Delete']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule','Delete']
     events = get_events_display_info(event_type)
 
 
@@ -303,6 +302,9 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 s_event.unallocate_role('Panelist')
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
+            if data['staff_lead']:
+                s_event.unallocate_role('Staff Lead')
+                s_event.allocate_worker(data['staff_lead'].workeritem, 'Staff Lead')
             if data['description']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
@@ -336,7 +338,7 @@ def edit_event_display(request, item, errorcontext=None):
         teachers = [worker for worker in workers if worker.role == 'Teacher']
         moderators = [worker for worker in workers if worker.role == 'Moderator']
         panelists = [worker for worker in workers if worker.role == 'Panelist']
-
+                
         if len(teachers) > 0:
             initial['teacher'] = teachers[0].item
         else:
@@ -349,6 +351,13 @@ def edit_event_display(request, item, errorcontext=None):
             initial['moderator'] = moderators[0].item
         if len(panelists) >0:
             initial['panelists'] = panelists
+    if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
+        allocs = ResourceAllocation.objects.filter(event = item)
+        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type (a.resource.item) == WorkerItem]
+        staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
+        if len(staff_leads) >0:
+            initial['staff_lead'] = staff_leads[0].item.as_subtype
+
     context ['event_type']= item.event_type_name
 
     if item.event_type_name == 'GenericEvent':
@@ -901,8 +910,6 @@ def calendar_view(request = None,
             event_info(confitem_type = 'Drop-In Class', cal_times = cal_times)
     else:
         events = event_info(confitem_type = event_type, cal_times = cal_times)
-
-    events = overlap_clear(events)
 
     if time_format == None:
         time_format = set_time_format()
