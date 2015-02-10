@@ -10,19 +10,22 @@
 
   <h2 class="review-title">Room Schedules</h2>
 
-{% for room in rooms%}
-  <h3>Schedule for {{ room }}</h3>
+{% for entry in room_date%}
+  <h3>Schedule for {{ entry.room }} - {{entry.date}}</h3>
  
-  
   <table class="bid-table">
     <tr class="bid-table">
       <th class="bid-table">Name</th>
       <th class="bid-table">Start</th>
       <th class="bid-table">End</th>
     </tr>
-    {% for booking in room.get_bookings%}
+    {% for booking in entry.bookings%}
     <tr class="bid-table">
       <td class="bid-table">{{booking}}</td>
+      <td class="bid-table">{% for role in booking.eventitem.roles%}
+        {{role.role}}:  {{role.workeritem.name}}, 
+      {%endfor%}
+      </td>
       <td class="bid-table">{{booking.start_time}}</td>
       <td class="bid-table">{{booking.end_time}}</td>
     </tr>

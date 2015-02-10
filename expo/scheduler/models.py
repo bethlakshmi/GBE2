@@ -493,10 +493,10 @@ class EventItem (models.Model):
             people = Worker.objects.filter((Q(allocations__event__eventitem=self.eventitem_id) &
                                         Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff'])) |
                                        (Q(allocations__event=container.parent_event) &
-                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff']))).distinct() 
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff']))).distinct().order_by('role')
         except:
             people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
-                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct()
+                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct().order_by('role')
             
         return people
 
@@ -711,6 +711,7 @@ class Event (Schedulable):
         if status:
             acts = [act for act in acts if act.accepted == status]
         return acts
+
 
     def get_direct_workers(self, worker_role = None):
         '''

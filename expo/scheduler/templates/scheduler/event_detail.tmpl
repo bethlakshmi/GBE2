@@ -92,7 +92,7 @@
     <div class="bio_block">
       {% for worker in eventitem.event.roles %}
       <div class="bio_words">
-	{%if worker.role == "Head of Staff"%}
+	{%if worker.role == "Head of Staff" or worker.role == "Staff Lead"%}
 	  <h2>{{worker.role}} - {{worker.workeritem.name}}</h2>
         {%else%}
           <h2>About the {{worker.role}} - {{worker.workeritem.name}}</h2>

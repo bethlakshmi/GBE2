@@ -146,13 +146,33 @@ def export_act_techinfo(request, show_id):
 
 def room_schedule(request, room_id=None):
     if room_id:
-        rooms=[get_or_404(LocationItem, room_id)]
+        rooms=[get_object_or_404(sched.LocationItem, resourceitem_id=room_id)]
     else:
         try:
             rooms=sched.LocationItem.objects.all()
         except:
             rooms=[]
-            
+    
+    # rearrange the data into the format of:
+    #  - room & date of booking
+    #       - list of bookings
+    # this lets us have 1 table per day per room
+    room_set = []
+    for room in rooms:
+        day_events = []
+        current_day = None
+        for booking in room.get_bookings:
+            if not current_day:
+                current_day = booking.start_time.date()
+            if current_day != booking.start_time.date():
+                room_set += [{'room': room,
+                             'date': current_day,
+                             'bookings': day_events}]
+                current_day = booking.start_time.date()
+                day_events = []
+            day_events += [booking]
+                
+        
     
     return render (request, 'gbe/report/room_schedule.tmpl',
-                  {'rooms': rooms})
+                  {'room_date': room_set})
