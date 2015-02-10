@@ -23,6 +23,8 @@ urlpatterns = patterns('',
                            reporting.room_schedule, name = 'room_schedule'),
                        url(r'^reports/schedule/room/(\d+)/?$', 
                            reporting.room_schedule, name = 'room_schedule'),
+                       url(r'^reports/setup/room/?$', 
+                           reporting.room_setup, name = 'room_schedule'),
 
                         url(r'^reports/acttechinfo/view_summary/(\d+)/?$',
                             reporting.review_act_techinfo, name = 'act_techinfo_review'),

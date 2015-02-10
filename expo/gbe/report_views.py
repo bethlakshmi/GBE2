@@ -176,3 +176,39 @@ def room_schedule(request, room_id=None):
     
     return render (request, 'gbe/report/room_schedule.tmpl',
                   {'room_date': room_set})
+
+
+def room_setup(request):
+    try:
+        rooms=sched.LocationItem.objects.all()
+    except:
+        rooms=[]
+    
+    # rearrange the data into the format of:
+    #  - room & date of booking
+    #       - list of bookings
+    # this lets us have 1 table per day per room
+    room_set = []
+    for room in rooms:
+        day_events = []
+        current_day = None
+        for booking in room.get_bookings:
+            booking_class = sched.EventItem.objects.get_subclass(eventitem_id=booking.eventitem.eventitem_id)
+
+            if not current_day:
+                current_day = booking.start_time.date()
+            if current_day != booking.start_time.date():
+                if len(day_events) > 0:
+                    room_set += [{'room': room,
+                             'date': current_day,
+                             'bookings': day_events}]
+                current_day = booking.start_time.date()
+                day_events = []
+            if booking_class.__class__.__name__ == 'Class':
+                day_events += [{'event':booking,
+                                'class':booking_class}]
+                
+        
+    
+    return render (request, 'gbe/report/room_setup.tmpl',
+                  {'room_date': room_set})

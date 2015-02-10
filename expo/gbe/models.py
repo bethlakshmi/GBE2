@@ -1004,6 +1004,16 @@ class Class (Biddable, Event):
                                 choices=yesno_options, default="No") 
 
     @property
+    def get_space_needs(self):
+        needs = ""
+        for top, top_opts in space_options:
+            for key, sub_level in top_opts:
+                if key == self.space_needs:
+                    needs = top + " - " + sub_level
+
+        return needs
+    
+    @property
     def sched_payload(self):
         
         payload = {}
