@@ -189,6 +189,7 @@ def overlap_clear(events):
     and stop time of one event overlaps with at least one other member of the tuple
     '''
 
+    from gbetext import overlap_location_text
     for location in set([e['location'] for e in events]):
         location_events = sorted([event for event in events if event['location'] == location],
                                  key = lambda event:event['start_time'])
@@ -197,7 +198,7 @@ def overlap_clear(events):
         for event in location_events[1:]:
             if event['start_time'] < prev_stop:
                 if event['location'] == prev_event['location']:
-                    event['location'] = event['location']+' (alt)'
+                    event['location'] = event['location']+overlap_location_text
             prev_stop = event['stop_time']
             prev_event = event
     return events

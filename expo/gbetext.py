@@ -232,3 +232,4 @@ event_labels = {'type':  'Type',
                 
                 }
 
+overlap_location_text = ' (alt)'
