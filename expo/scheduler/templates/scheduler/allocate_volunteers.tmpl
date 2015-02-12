@@ -76,6 +76,21 @@ included in event edit flow. Show WorkerAllocationForms
 			</form>
 
 		</td>
+		<td>
+			Available Volunteers<br>
+			<form action = "{% url 'gbe:volunteer_review' 0 %}" method = 'POST'>
+			      	{% csrf_token %}	      	     
+				<select id = 'volunteer' name = 'volunteer'>
+				{% for vol in available_volunteers %}
+				   <option value = {{vol.id}}> {{ vol }} </option>
+				{% endfor %}
+				</select><br>
+				<input type = "submit" name = "review_interested" value = "Review Volunteer">
+				
+							
+			</form>
+
+		</td>
 			
 				
   </table>

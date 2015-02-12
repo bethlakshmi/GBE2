@@ -495,7 +495,15 @@ def show_potential_workers( opp ):
     import gbe.models as conf
     interested = list(conf.Volunteer.objects.filter (interests__contains=opp.as_subtype.volunteer_category))
     all_volunteers = list(conf.Volunteer.objects.all() )
-    return  {'interested_volunteers':interested, 'all_volunteers':all_volunteers}
+    
+    from functions import volunteer_shifts
+    from gbe.duration import DateTimeRange
+    r = DateTimeRange(starttime=opp.start_time, duration = opp.duration)
+    available_volunteers = [v for v in all_volunteers if any([r in volunteer_shifts[available] for 
+                                                              available in eval(v.availability)])]
+    return  {'interested_volunteers':interested, 
+             'all_volunteers':all_volunteers, 
+             'available_volunteers':available_volunteers}
 
 
 
