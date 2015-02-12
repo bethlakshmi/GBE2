@@ -30,10 +30,7 @@ def staff_area(request, area_id):
     sorted by time/day
     See ticket #250
     '''
-    try:
-        area = conf.GenericEvent.get(eventitem_id=area_id)
-    except:
-        area = get_object_or_404(conf.Show, eventitem_id=area_id)
+    area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(eventitem=area)
     opps = []
     for event in sched_event:

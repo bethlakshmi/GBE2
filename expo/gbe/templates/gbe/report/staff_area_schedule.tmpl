@@ -8,7 +8,7 @@
 {% block content %}
 
 
-  <h2 class="review-title">Staff Schedules for {{area.title}}</h2>
+  <h2 class="review-title">Staff Schedules for {{area}}</h2>
 
 {% for opp in opps%}
   <h3>{{ opp.sched.starttime}} - {{ opp.conf.title}}</h3>

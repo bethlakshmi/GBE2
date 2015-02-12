@@ -153,7 +153,7 @@ def event_list(request, event_type=''):
         
         return render(request, template, {'type_options':event_type_options})
 
-    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Detail', 'Edit Schedule','Delete']
+    header  = [ 'Title','Location','Date/Time','Duration','Type','Max Volunteer','Current Volunteer', 'Detail', 'Edit Schedule','Delete']
     events = get_events_display_info(event_type)
 
 
