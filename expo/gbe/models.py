@@ -1152,9 +1152,10 @@ class Volunteer(Biddable):
         availability_string = ''
         unavailability_string = ''
         for option_id, option_value in volunteer_availability_options:
-            if option_id in self.availability:
+            test = "u'"+option_id+"'"
+            if test in self.availability:
                 availability_string += option_value + ', \n'
-            if option_id in self.unavailability:
+            if test in self.unavailability:
                 unavailability_string += option_value + ', \n'
         commitments = ''
         time_format = set_time_format(days = 2)

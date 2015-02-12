@@ -29,7 +29,9 @@
               <ul>
               {% for choice_id, choice_label in field.field.choices %}
                 {% if choice_id and choice_id in field.value %}
+                  {% if choice_id != 'SH1' or "u'SH1'" in field.value %}
                   <li>{{ choice_label }}</li>
+                  {%endif%}
                 {% elif choice_id and choice_id = field.value %}
                   </ul>{{ choice_label }}<ul>
                 {% elif choice_id >= 0 and choice_id <= 100 %}
