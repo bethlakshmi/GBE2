@@ -10,6 +10,15 @@ import csv
 from reportlab.pdfgen import canvas
 from gbe.functions import *
 
+def list_reports(request):
+    '''
+      Shows listing of all reports in this area
+    '''
+    
+        
+    return render (request, 'gbe/report/report_list.tmpl')
+
+
 def review_staff_area(request):
     '''
       Shows listing of staff area stuff for drill down

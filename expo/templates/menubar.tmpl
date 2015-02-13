@@ -71,6 +71,12 @@
 
          <li class='has-sub'><a href=''><span>Special</span></a>
            <ul>
+              <li>
+                <a href='{% url 'reporting:report_list' %}'>
+                   <span>Reports
+                   </span>
+		</a>
+	      </li>
              {% for priv in user.profile.special_privs %}
                {% if priv.url and priv.url|length > 0 %}
                <li>
