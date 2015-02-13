@@ -190,7 +190,7 @@ class BidStateChangeForm(forms.ModelForm):
 class EventCheckBox(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         time_format = set_time_format(days = 2)
-        return str(obj) + " - " + obj.starttime.strftime(time_format)
+        return str(obj) + " - " + obj.starttime.strftime(time_format) + ' ('+obj.volunteer_count+'/'+str(obj.max_volunteer)+')'
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
