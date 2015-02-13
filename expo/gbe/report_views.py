@@ -221,3 +221,34 @@ def room_setup(request):
     
     return render (request, 'gbe/report/room_setup.tmpl',
                   {'room_date': room_set})
+
+def export_badge_report(request):
+    '''
+    Export a csv of all act tech info details
+    - includes only accepted acts
+    - includes incomplete details
+    - music sold separately
+    '''
+
+    reviewer = validate_perms(request, ('Registrar',))
+
+    people = conf.Profile.objects.all()
+
+    #build header, segmented in same structure as subclasses
+    header =  ['First','Last', 'username', 'Badge Name', 'Ticket Type']
+
+    badge_info = []
+    # now build content
+    for person in people:
+        badge_info.append([person.user_object.first_name, person.user_object.last_name,
+                           person.user_object.username, person.get_badge_name()])
+
+    # end for loop through acts
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=print_badges.csv' 
+    writer = csv.writer(response)
+    writer.writerow(header)
+    for row in badge_info:
+        writer.writerow(row)
+    return response

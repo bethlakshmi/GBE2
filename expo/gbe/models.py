@@ -231,6 +231,11 @@ class Profile(WorkerItem):
         events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event:event.start_time)
 
+    def get_badge_name(self):
+        badge_name = self.display_name
+        if len(badge_name) == 0:
+            badge_name = self.user_object.first_name
+        return badge_name
  
     def is_teaching(self):
         '''
