@@ -975,3 +975,4 @@ def volunteer_shifts(request = 'None', day = 'Saturday',
     template = 'scheduler/Sched_Display.tmpl'
 
     return render(request, template, Table)
+

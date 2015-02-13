@@ -418,18 +418,16 @@ def volunteer_shift_info(profile_id,
     '''
     Accepts a username or profile id number, a filter type, and a set of
     times.  Prepares a schedule of commitments that user has, filtered
-    on filter_type.  Filter_type None hows everything they are scheduled 
-    for.
+    on filter_type, filter_type = None shows everything they are scheduled 
+    for (does not work yet).
     '''
 
     from scheduler.models import Location
     from scheduler.models import WorkerItem, Worker
 
-    loc_allocs = []
-    for l in Location.objects.all():
-        loc_allocs += l.allocations.all()
+    volunteer = Worker.objects.filter(id = profile_id)[0]
 
-    scheduled_shifts = [alloc.event for alloc in loc_allocs]
+    scheduled_shifts = volunteer.item.get_bookings(role = filter_type)
 
     for shift in scheduled_shifts:
          start_t = shift.start_time
@@ -437,6 +435,4 @@ def volunteer_shift_info(profile_id,
          if start_t > cal_times[1] or stop_t < cal_times[0]:
              scheduled_shift.remove(shift)
 
-
-
-    return shifts
+    return scheduled_shifts

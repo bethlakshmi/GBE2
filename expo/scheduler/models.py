@@ -356,15 +356,20 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
-    def get_bookings(self, role):
+    def get_bookings(self, role = 'All'):
         '''
-        Returns the events for which this Worker is booked as "role". 
-        should remain focused on the upward connection of resource allocations, and avoid being sub
-        class specific
-        '''    
+        Returns the events for which this Worker is booked as "role".
+        should remain focused on the upward connection of resource
+        allocations, and avoid being sub class specific
+        '''
+
         from scheduler.models import Event
-        events = Event.objects.filter(resources_allocated__resource__worker___item=self,
-                                      resources_allocated__resource__worker__role=role)
+
+        if role in ['All', None]:
+            events = Event.objects.filter(resources_allocated__resource__worker___item=self)
+        else:
+            events = Event.objects.filter(resources_allocated__resource__worker___item=self,
+                      resources_allocated__resource__worker__role=role)
         return events
 
     def get_schedule(self):    
