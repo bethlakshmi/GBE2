@@ -49,7 +49,7 @@
  
 	  <td class="bid-table">
             {% if act.tech.audio.track %}
-            <a href="/{{act.tech.audio.track.url}}">{{act.tech.audio.track.name}}</a>
+            <a href="{{act.tech.audio.track.name}}">{{act.tech.audio.track.name}}</a>
             {% elif act.tech.audio.confirm_no_music %}
             No audio track needed
             {% else %}
