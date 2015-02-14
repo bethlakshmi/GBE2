@@ -18,15 +18,23 @@ def validate_profile(request, require=False):
         return None
 
 
-def validate_perms(request, perms):
+def validate_perms(request, perms, require = True):
     '''
     Validate that the requesting user has the stated permissions
-    Returns valid profile if access allowed, raises 404 if not
+    Returns profile object if perms exist, False if not
     '''
-    profile = validate_profile(request, require=True)
+    profile = validate_profile(request, require = False)
+    if not profile:
+        if require:
+            raise Http404
+        else:
+            return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
-    raise Http404
+    if require:                # error out if permission is required
+        raise Http404
+    return False               # or just return false if we're just checking
+
 
 '''
     Sends mail to a privilege group, designed for use by bid functions
