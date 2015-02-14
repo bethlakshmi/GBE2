@@ -1,6 +1,7 @@
 # View functions for reporting
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.urlresolvers import reverse
 
 import gbe.models as conf
 import scheduler.models as sched
@@ -14,15 +15,22 @@ def list_reports(request):
     '''
       Shows listing of all reports in this area
     '''
-    
-        
-    return render (request, 'gbe/report/report_list.tmpl')
+    viewer_profile = validate_profile(request, require=True)
+    if viewer_profile.user_object.is_staff:
+        return render (request, 'gbe/report/report_list.tmpl')
+    else:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
 
 
 def review_staff_area(request):
     '''
       Shows listing of staff area stuff for drill down
     '''
+    viewer_profile = validate_profile(request, require=True)
+    if not viewer_profile.user_object.is_staff:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
     header = ['Area','Leaders','Check Staffing']
     try:
         areas = conf.GenericEvent.objects.filter(type='Staff Area', visible=True)
@@ -39,6 +47,10 @@ def staff_area(request, area_id):
     sorted by time/day
     See ticket #250
     '''
+    viewer_profile = validate_profile(request, require=True)
+    if not viewer_profile.user_object.is_staff:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(eventitem=area)
     opps = []
@@ -154,6 +166,10 @@ def export_act_techinfo(request, show_id):
 
 
 def room_schedule(request, room_id=None):
+    viewer_profile = validate_profile(request, require=True)
+    if not viewer_profile.user_object.is_staff:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
     if room_id:
         rooms=[get_object_or_404(sched.LocationItem, resourceitem_id=room_id)]
     else:
@@ -188,6 +204,10 @@ def room_schedule(request, room_id=None):
 
 
 def room_setup(request):
+    viewer_profile = validate_profile(request, require=True)
+    if not viewer_profile.user_object.is_staff:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
     try:
         rooms=sched.LocationItem.objects.all()
     except:
