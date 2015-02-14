@@ -1,2 +1,1 @@
-alter table ticketing_ticketitem add column badgeable tinyint(1) not null default 0;
-alter table ticketing_ticketitem add column ticket_style varchar(50) NOT NULL;
+ALTER TABLE `ticketing_ticketitem2` ADD `badgeable` TINYINT NOT NULL DEFAULT '0' , ADD `ticket_style` VARCHAR(50) NOT NULL ; 

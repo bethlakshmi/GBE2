@@ -196,8 +196,7 @@ role_options = (('Teacher', "Teacher"),
                ('Moderator', "Moderator"),
                ('Staff Lead', "Staff Lead"),
                ('Technical Director', "Technical Director"),
-               ('Producer',"Producer"),
-               ('Head of Staff',"Head of Staff"))
+               ('Producer',"Producer"))
 
 vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
 						 "Saturday & Sunday, noon to 8pm ONLY."))

@@ -10,6 +10,13 @@
 
   <h2 class="review-title">Staff Schedules for {{area}}</h2>
 
+<ul>
+  {% for worker in area.roles %}
+    <li>{{worker.role}} - {{worker.workeritem}}</li>
+  {% endfor %}	
+</ul>
+
+
 {% for opp in opps%}
   <h3>{{ opp.sched.starttime}} - {{ opp.conf.title}}</h3>
   <b>Location:</b>  {{opp.sched.location}}<br>

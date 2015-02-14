@@ -496,12 +496,12 @@ class EventItem (models.Model):
         try:
             container = EventContainer.objects.filter(child_event__eventitem=self.eventitem_id)[0]
             people = Worker.objects.filter((Q(allocations__event__eventitem=self.eventitem_id) &
-                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff'])) |
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Staff Lead'])) |
                                        (Q(allocations__event=container.parent_event) &
-                                        Q(role__in=['Teacher','Panelist','Moderator', 'Head of Staff']))).distinct().order_by('role')
+                                        Q(role__in=['Teacher','Panelist','Moderator', 'Staff Lead']))).distinct().order_by('role')
         except:
             people = Worker.objects.filter(allocations__event__eventitem=self.eventitem_id,
-                                        role__in=['Teacher','Panelist','Moderator', 'Head of Staff']).distinct().order_by('role')
+                                        role__in=['Teacher','Panelist','Moderator', 'Staff Lead']).distinct().order_by('role')
             
         return people
 
