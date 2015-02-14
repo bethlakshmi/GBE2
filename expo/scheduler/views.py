@@ -318,6 +318,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
         return edit_event_display(request, item)
     
 def edit_event_display(request, item, errorcontext=None):
+    from gbe.models import Performer
+
     template = 'scheduler/event_schedule.tmpl'
     context =  {'user_id':request.user.id,
                 'event_id':item.id,
@@ -332,45 +334,33 @@ def edit_event_display(request, item, errorcontext=None):
     initial['time'] = item.starttime.strftime("%H:%M:%S")
     initial['description'] = item.as_subtype.description
     initial['location'] = item.location
-    if item.event_type_name == 'Class':
-        allocs = ResourceAllocation.objects.filter(event = item)
-        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
-        teachers = [worker for worker in workers if worker.role == 'Teacher']
-        moderators = [worker for worker in workers if worker.role == 'Moderator']
-        panelists = [worker for worker in workers if worker.role == 'Panelist']
-                
-        if len(teachers) > 0:
-            initial['teacher'] = teachers[0].item
-        else:
-            try:
-                initial['teacher'] = item.as_subtype.teacher
-            except:
-                pass
 
-        if len(moderators) >0:
-            initial['moderator'] = moderators[0].item
-        if len(panelists) >0:
-            initial['panelists'] = panelists
-    if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
-        allocs = ResourceAllocation.objects.filter(event = item)
-        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type (a.resource.item) == WorkerItem]
-        staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
-        if len(staff_leads) >0:
-            initial['staff_lead'] = staff_leads[0].item.as_subtype
+    allocs = ResourceAllocation.objects.filter(event = item)
+    workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
+    teachers = [worker for worker in workers if worker.role == 'Teacher']
+    moderators = [worker for worker in workers if worker.role == 'Moderator']
+    panelists = Performer.objects.filter(worker__role = 'Panelist', worker__allocations__event=item)
+    staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
+                
+    # Set initial values for specialized event roles
+    if len(teachers) > 0:
+        initial['teacher'] = teachers[0].item
+    elif item.event_type_name == 'Class':
+        try:
+            initial['teacher'] = item.as_subtype.teacher
+        except:
+            pass
+
+    if len(moderators) >0:
+        initial['moderator'] = moderators[0].item
+    if len(panelists) >0:
+        initial['panelists'] = panelists
+        
+    if len(staff_leads) >0:
+        initial['staff_lead'] = staff_leads[0].item
 
     context ['event_type']= item.event_type_name
 
-    if item.event_type_name == 'GenericEvent':
-        allocs = ResourceAllocation.objects.filter(event = item)
-        workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
-        teachers = [worker for worker in workers if worker.role == 'Teacher']
-        if len(teachers) > 0:
-            initial['teacher'] = teachers[0].item
-        else:
-            try:
-                initial['teacher'] = item.as_subtype.teacher
-            except:
-                pass
 
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if item.event_type_name == 'GenericEvent' and item.as_subtype.type == 'Volunteer':
