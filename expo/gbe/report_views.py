@@ -233,7 +233,7 @@ def export_badge_report(request):
     reviewer = validate_perms(request, ('Registrar',))
 
     people = conf.Profile.objects.all()
-    badges = tix.Transaction.objects.filter(ticket_item__badgeable=True)
+    badges = tix.Transaction.objects.filter(ticket_item__badgeable=True).order_by('ticket_item')
 
     #build header, segmented in same structure as subclasses
     header =  ['First','Last', 'username', 'Badge Name', 'Badge Type', 'State']
