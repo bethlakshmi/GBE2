@@ -18,8 +18,8 @@ class PurchaserAdmin(admin.ModelAdmin):
     search_fields = ['matched_to_user__username','first_name','last_name','email']
     
 class TicketItemAdmin(admin.ModelAdmin):
-    list_display = ('title','ticket_id','active','cost','datestamp','modified_by')
-    list_filter = ['active','datestamp','modified_by']
+    list_display = ('title','ticket_id','active','cost','datestamp','modified_by', 'badgeable','ticket_style')
+    list_filter = ['active','datestamp','modified_by', 'badgeable','ticket_style']
     search_fields = ['title']
 
 class BPTEventsAdmin(admin.ModelAdmin):

@@ -19,7 +19,7 @@ class TicketItemForm(forms.ModelForm):
    
     class Meta:
         model=TicketItem
-        fields = ['ticket_id', 'title', 'description', 'active', 'cost', 'linked_events']
+        fields = ['ticket_id', 'title', 'description', 'active', 'cost', 'linked_events', 'badgeable','ticket_style']
         labels = ticket_item_labels   
         
     def save(self, user, commit=True):

@@ -233,15 +233,31 @@ def export_badge_report(request):
     reviewer = validate_perms(request, ('Registrar',))
 
     people = conf.Profile.objects.all()
+    badges = tix.Transaction.objects.filter(ticket_item__badgeable=True)
 
     #build header, segmented in same structure as subclasses
-    header =  ['First','Last', 'username', 'Badge Name', 'Ticket Type']
+    header =  ['First','Last', 'username', 'Badge Name', 'Badge Type', 'State']
 
     badge_info = []
-    # now build content
-    for person in people:
-        badge_info.append([person.user_object.first_name, person.user_object.last_name,
-                           person.user_object.username, person.get_badge_name()])
+    # now build content - the order of loops is specific here, we need ALL transactions,
+    #  if they are limbo, then the purchaser should have a BPT first/last name
+    for badge in badges:
+        
+        try:
+            for person in people.filter(user_object=badge.purchaser.matched_to_user):
+                badge_info.append([person.user_object.first_name, person.user_object.last_name,
+                           person.user_object.username, person.get_badge_name(), badge.ticket_item.title, 'In GBE'])
+            if len(people.filter(user_object=badge.purchaser.matched_to_user)) == 0:
+                badge_info.append([badge.purchaser.first_name, badge.purchaser.last_name,
+                                    badge.purchaser.matched_to_user, badge.purchaser.first_name,
+                                    badge.ticket_item.title, 'No Profile'])
+        except:
+        
+            # if no profile, use purchase info from BPT
+            badge_info.append([badge.purchaser.first_name, badge.purchaser.last_name,
+                                    badge.purchaser.email, badge.purchaser.first_name,
+                                    badge.ticket_item.title, 'No User'])
+            
 
     # end for loop through acts
     

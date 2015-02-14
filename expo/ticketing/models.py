@@ -52,7 +52,9 @@ class TicketItem(models.Model):
     linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item')
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
-
+    badgeable = models.BooleanField(default=False)
+    ticket_style = models.CharField(max_length=50, blank=True)
+    
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
         
