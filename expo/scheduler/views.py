@@ -102,6 +102,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
+            eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
                                          args =  [entry['schedule_event'].id])
            
