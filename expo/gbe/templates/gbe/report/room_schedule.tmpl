@@ -16,6 +16,7 @@
   <table class="bid-table">
     <tr class="bid-table">
       <th class="bid-table">Name</th>
+      <th class="bid-table">Presenter</th>
       <th class="bid-table">Start</th>
       <th class="bid-table">End</th>
     </tr>
@@ -23,7 +24,7 @@
     <tr class="bid-table">
       <td class="bid-table">{{booking}}</td>
       <td class="bid-table">{% for role in booking.eventitem.roles%}
-        {{role.role}}:  {{role.workeritem.name}}, 
+        {{role.role}}:  {{role.workeritem}}<br>
       {%endfor%}
       </td>
       <td class="bid-table">{{booking.start_time}}</td>
