@@ -28,6 +28,7 @@
   {% if acts %}
   <table class="bid-table">
     <tr class="bid-table">
+      <th class="bid-table" >Order</th>
       <th class="bid-table" >Act</th>
       <th class="bid-table" >Performer</th>
       <th class="bid-table" >Contact Email</th>
@@ -38,6 +39,7 @@
 
       
       <tr  {% if not act.tech.is_complete  %}class="error_row"{%else%} class="bid-table"{% endif %} >
+          <td class="bid-table">{{ act.order }}
 	  <td class="bid-table">{{ act.title }}</td>	
 	  <td class="bid-table">{{ act.performer }}</td>	
 	  <td class="bid-table"><a href='mailto:{{act.performer.contact.user_object.email}}'>

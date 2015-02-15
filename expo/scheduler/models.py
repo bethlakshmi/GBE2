@@ -155,14 +155,17 @@ class ActItem(ResourceItem):
         '''
         return self.as_subtype   
 
+    @property 
+    def order(self):
+        '''
+        This is a little bit broken: assumes that an act is only scheduled for one show. 
+        This assumption pervades the current code, and will need to be removed for post 2015 use
+        '''
         try:
-            act = Act.objects.select_subclasses().get(_item=self)
+            resource = ActResource.objects.filter (_item=self).first()
+            return resource.order
         except:
-            act = Act(_item=self)
-            act.save()
-        return act
-
-
+            return None
     def get_scheduled_shows(self):
         '''
         Returns a list of all shows this act is scheduled to appear in. 
@@ -220,6 +223,16 @@ class ActResource(Resource):
         else:
             return None
         
+    @property 
+    def order(self):
+        try:
+            ra = ResourceAllocation.objects.filter(resource=self).first()
+        except:
+            return None
+        if ra and ra.ordering:
+            return ra.ordering.order
+        return None
+
     @property
     def rehearsal(self):
         ra =  ResourceAllocation.objects.filter(resource=self).first()
