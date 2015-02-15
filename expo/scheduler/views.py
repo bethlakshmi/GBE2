@@ -292,20 +292,25 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             l = LocationItem.objects.get_subclass(room__name = data['location'])
             s_event.save()                        
             s_event.set_location(l)
+
+            s_event.unallocate_role('Teacher')
             if data['teacher']:
-                s_event.unallocate_role('Teacher')
                 s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
             s_event.save()                        
+
+            s_event.unallocate_role('Moderator')
             if data['moderator']:
-                s_event.unallocate_role('Moderator')
                 s_event.allocate_worker(data['moderator'].workeritem, 'Moderator')
+
+            s_event.unallocate_role('Panelist')
             if len(data['panelists']) > 0 :
-                s_event.unallocate_role('Panelist')
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
+                    
+            s_event.unallocate_role('Staff Lead')
             if data['staff_lead']:
-                s_event.unallocate_role('Staff Lead')
                 s_event.allocate_worker(data['staff_lead'].workeritem, 'Staff Lead')
+                
             if data['description']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
