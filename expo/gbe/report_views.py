@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 import gbe.models as conf
 import scheduler.models as sched
@@ -65,8 +66,62 @@ def env_stuff(request):
     Generates an envelope-stuffing report. 
     See ticket #251 for details. 
     '''
-    pass
+    reviewer = validate_perms(request, ('Registrar',))
 
+    people = conf.Profile.objects.all()
+    acts = conf.Act.objects.filter(accepted=3)
+    tickets = tix.Transaction.objects.exclude(ticket_item__ticket_style=u'')
+    roles = sched.Worker.objects.all()
+    commits = sched.ResourceAllocation.objects.all()
+
+    header=['Badge Name', 'First', 'Last', 'Tickets', 'Personae', 'Staff Lead',
+            'Volunteering', 'Presenter', 'Show']
+
+    person_details = []
+    for person in people:
+        ticket_list = ""
+        staff_lead_list = ""
+        volunteer_list = ""
+        class_list = ""
+        personae_list = ""
+        show_list = ""
+
+        for ticket in tickets.filter(purchaser__matched_to_user=person.user_object):
+            ticket_list += ticket.ticket_item.ticket_style+", "
+            
+        for lead in roles.filter(role="Staff Lead", _item=person):
+            for commit in commits.filter(resource=lead):
+                staff_lead_list += str(commit.event.eventitem)+', '
+            
+        for volunteer in roles.filter(role="Volunteer", _item=person):
+            for commit in commits.filter(resource=volunteer):
+                volunteer_list += str(commit.event.eventitem)+', '
+                
+        for performer in person.get_performers():
+            personae_list += str(performer) + ', '
+            for teacher in roles.filter((Q(role="Teacher") |
+                                         Q(role="Moderator") |
+                                         Q(role="Panelist"))
+                                        & Q(_item=performer)):
+                for commit in commits.filter(resource=teacher):
+                    class_list += teacher.role +': '+str(commit.event.eventitem)+', '
+            for act in acts.filter(performer=performer):
+                for commit in commits.filter(resource__actresource___item=act):
+                    show_list += str(commit.event.eventitem)+', '
+
+        
+        person_details.append([person.get_badge_name(), person.user_object.first_name,
+                               person.user_object.last_name, ticket_list, personae_list,
+                               staff_lead_list, volunteer_list, class_list, show_list])
+    
+ 
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=print_badges.csv' 
+    writer = csv.writer(response)
+    writer.writerow(header)
+    for row in person_details:
+        writer.writerow(row)
+    return response
     
 def review_act_techinfo(request, show_id=1):
     '''
@@ -256,7 +311,7 @@ def export_badge_report(request):
     badges = tix.Transaction.objects.filter(ticket_item__badgeable=True).order_by('ticket_item')
 
     #build header, segmented in same structure as subclasses
-    header =  ['First','Last', 'username', 'Badge Name', 'Badge Type', 'State']
+    header =  ['First','Last', 'username', 'Badge Name', 'Badge Type', 'Date', 'State' ]
 
     badge_info = []
     # now build content - the order of loops is specific here, we need ALL transactions,
@@ -265,18 +320,18 @@ def export_badge_report(request):
         
         try:
             for person in people.filter(user_object=badge.purchaser.matched_to_user):
-                badge_info.append([person.user_object.first_name, person.user_object.last_name,
-                           person.user_object.username, person.get_badge_name(), badge.ticket_item.title, 'In GBE'])
+                badge_info.append([badge.purchaser.first_name, badge.purchaser.last_name,
+                           person.user_object.username, person.get_badge_name(), badge.ticket_item.title, badge.import_date, 'In GBE'])
             if len(people.filter(user_object=badge.purchaser.matched_to_user)) == 0:
                 badge_info.append([badge.purchaser.first_name, badge.purchaser.last_name,
                                     badge.purchaser.matched_to_user, badge.purchaser.first_name,
-                                    badge.ticket_item.title, 'No Profile'])
+                                    badge.ticket_item.title, badge.import_date, 'No Profile'])
         except:
         
             # if no profile, use purchase info from BPT
             badge_info.append([badge.purchaser.first_name, badge.purchaser.last_name,
                                     badge.purchaser.email, badge.purchaser.first_name,
-                                    badge.ticket_item.title, 'No User'])
+                                    badge.ticket_item.title, badge.import_date, 'No User'])
             
 
     # end for loop through acts
