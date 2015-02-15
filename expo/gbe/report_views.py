@@ -149,7 +149,7 @@ def review_act_techinfo(request, show_id=1):
     try:
         show = conf.Show.objects.get(eventitem_id=show_id)
         acts = show.scheduler_events.first().get_acts(status=3)
-        acts = sorted(acts, key =lambda act: act.order)
+        acts = sorted(acts, key=lambda act: act.order)
     except:
         show = None
         acts = []
@@ -191,19 +191,11 @@ def export_act_techinfo(request, show_id):
     cues = conf.CueInfo.objects.filter(techinfo__act__in=acts)
     techinfo =[]
     for act in acts:
-        # in case no ordering is set up.
-        try:
-            allocation = sched.ResourceAllocation.objects.get(event=show_booking,
-                                                              resource__actresource___item=act)
-            order = allocation.ordering.order
-        except:
-            order = 0
-        
         rehearsals = ""
         for rehearsal in act.get_scheduled_rehearsals():
             rehearsals += str(rehearsal.start_time)+", "
             
-        start = [order, act.title, act.performer,act.performer.contact.user_object.email,
+        start = [act.order, act.title, act.performer,act.performer.contact.user_object.email,
                  act.tech.is_complete, rehearsals]
         start +=  act.tech.stage.dump_data
         start +=  act.tech.audio.dump_data
@@ -225,7 +217,7 @@ def export_act_techinfo(request, show_id):
             techinfo.append(start)
 
     # end for loop through acts
-    
+    techinfo = sorted(techinfo, key=lambda row:row[0]) 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
     writer = csv.writer(response)
