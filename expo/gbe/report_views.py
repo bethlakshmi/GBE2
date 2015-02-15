@@ -175,7 +175,7 @@ def export_act_techinfo(request, show_id):
     acts = show_booking.get_acts(3)
 
     #build header, segmented in same structure as subclasses
-    header =  ['Order','Act', 'Performer', 'Contact Email', 'Complete?', 'Rehearsal Time']
+    header =  ['Sort Order', 'Order','Act', 'Performer', 'Contact Email', 'Complete?', 'Rehearsal Time']
     header += ['Act Length', 'Intro Text', 'No Props', 'Preset Props',
                'Cued Props','Clear Props', 'Stage Notes']
     header += ['Track Title', 'Track Artist','Track', 'Track Length',
@@ -202,23 +202,26 @@ def export_act_techinfo(request, show_id):
         start +=  act.tech.lighting.dump_data
 
         # one row per cue... for sortability
+        start.insert(0, '')
         for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
+            
             if location.describe == 'Theater':
-                cue = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.center_spot,
+                cue_items = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.center_spot,
                           cue.backlight, cue.cyc_color, cue.wash, cue.sound_note]
             else:
-                cue = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.wash, cue.sound_note]
-
-            techinfo.append(start+cue)
+                cue_items = [cue.cue_sequence, cue.cue_off_of, cue.follow_spot, cue.wash, cue.sound_note]
+            start[0] =  float("%d.%d" % (act.order, cue.cue_sequence))
+            techinfo.append(start+cue_items)
 
 
         # in case performers haven't done paperwork            
         if len(cues.filter(techinfo__act=act)) == 0:
+            start[0]= act.order
             techinfo.append(start)
 
     # end for loop through acts
-    cuesequenceindex = 23 # magic number, obtained by counting headers
-    techinfo = sorted(techinfo, key=lambda row:row[cuesequenceindex]) 
+    cuesequenceindex = 24 # magic number, obtained by counting headers
+    
     techinfo = sorted(techinfo, key=lambda row:row[0]) 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
