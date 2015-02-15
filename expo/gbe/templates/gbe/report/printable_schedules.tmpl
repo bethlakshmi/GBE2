@@ -25,7 +25,7 @@
     <th class='sched-header'>Location</th>
     <th class='sched-header'>Day</th>
     <th class='sched-header'>Time</th>
-  {% for booking in person.get_schedule %}
+  {% for booking in person.schedule %}
   <tr class='sched-table'>
     <td class='sched-table'>{{ booking }}</td>
     <td class='sched-table'>{{booking.location}} </td>    

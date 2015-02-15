@@ -212,7 +212,6 @@ class Profile(WorkerItem):
                 for act in acts if act.accepted==3]
         return sum([list(s) for s in shows], [])
 
-    @property
     def get_schedule(self):
         '''
         Gets all of a person's schedule.  Every way the actual human could be committed:
@@ -230,6 +229,28 @@ class Profile(WorkerItem):
             events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
         events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event:event.start_time)
+
+    @property
+    def schedule(self):
+        '''
+        Gets all of a person's schedule.  Every way the actual human could be committed:
+        - via profile
+        - via performer(s)
+        - via performing in acts
+        Returns schedule as a list of Scheduler.Events
+        NOTE:  Things that haven't been booked with start times won't be here.
+        *BB - needs review after expo.  Code duplication is bad, but changing to a property above was too
+        risky
+        '''
+        from scheduler.models import Event
+        acts = self.get_acts()
+        events = sum([  list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+                  for act in acts if act.accepted==3], [])
+        for performer in self.get_performers():
+            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
+        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+        return sorted(set(events), key=lambda event:event.start_time)
+    
 
     def get_badge_name(self):
         badge_name = self.display_name
