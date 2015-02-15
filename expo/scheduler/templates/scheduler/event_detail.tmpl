@@ -100,9 +100,9 @@
 	{%endif%}
       <br><br>
       </div>
-        {% if worker.workeritem.promo_image %}
+        {% if worker.workeritem.promo_small %}
           <div class="bio_image_block">
-          <img src="/{{worker.workeritem.promo_image}}" class="sched_bio_image">
+          <img src="/{{worker.workeritem.promo_small}}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
@@ -118,7 +118,7 @@
       </div>
         {% if bio.promo_image %}
         <div class="bio_image_block">
-        <img src="/{{bio.promo_image}}" class="sched_bio_image">
+        <img src="/{{bio.promo_small}}" class="sched_bio_image">
         </div>
         {% endif %}
       {% endfor %}
