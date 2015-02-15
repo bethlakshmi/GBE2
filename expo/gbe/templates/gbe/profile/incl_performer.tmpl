@@ -4,30 +4,30 @@
 	   </span><br>
     {% if personae or troupes or combos %}
         {% for performer in personae %}
-	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>{{ performer }}
-	     	   	</a> </span>(Click to edit) <br>
+	     <div class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>{{ performer }}
+	     	   	</a> </div>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
 	    {% endfor %}
         {% endfor %}
         {% for performer in troupes %}
-	     <span class='performer'>
+	     <div class='performer'>
 	       {% if performer.contact = profile %}
 	       <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
 		  {{ performer }}
-	       </a> </span>(Click to edit) <br>
+	       </a> </div>(Click to edit) <br>
 	       {% else %}
 	       <a href='{% url 'gbe:troupe_view' performer.resourceitem_id %}'>
 		  {{ performer }}
-	       </a> </span>(Click to view) <br>
+	       </a> </div>(Click to view) <br>
 	       {% endif %}
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
 	    {% endfor %}
         {% endfor %}
         {% for performer in combos %}
-	     <span class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitemid %}'>{{ performer }}
-	     	   	</a> </span>(Click to edit) <br>
+	     <div class='performer'><a href='{% url 'gbe:persona_edit' performer.resourceitemid %}'>{{ performer }}
+	     	   	</a> </div>(Click to edit) <br>
 	    {% for alert in performer.alerts %}
 	     	<span class='alert'>{{alert | safe}} </span><br>
 	    {% endfor %}

@@ -3,8 +3,9 @@
 	       <b>Vendor Bids</b>
 	   </span><br>
 	   {% for vendor in vendors %}
-	      <span class='vendor'>
-	       {% if vendor.submitted %}<a href = '{% url 'gbe:vendor_view' vendor.id%}'> {{ vendor }} </a>(Click to view)
+	      <div class='vendor'>
+	       {% if vendor.submitted %}<a href = '{% url 'gbe:vendor_view' vendor.id%}'> 
+	       	  {{ vendor }} </a>(Click to view)
 	       	  {% for value, state in acceptance_states %}
 		     {% if value = vendor.accepted %}
 			- {{state}}
@@ -14,7 +15,7 @@
 	       {% else %}<a href = '{% url 'gbe:vendor_edit' vendor.id %}'> {{ vendor }} </a>(Click to edit)<br>
 	       {% endif %}
 
-	      </span> 
+	      </div> 
 	         
 	      {% for alert in vendor.alerts %}
 	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 

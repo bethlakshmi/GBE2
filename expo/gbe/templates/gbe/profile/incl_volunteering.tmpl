@@ -4,9 +4,9 @@
 	   </span><br>
 	{% if volunteering %}
 	   {% for volunteer in volunteering %}
-	      <span class='vendor'>
+	      <div class='volunteer'>
 	      <a href = '{% url 'gbe:volunteer_view' volunteer.id%}'>Submitted {{ volunteer.updated_at }} </a>(Click to view)<br>
-	      </span> 
+	      </div> 
 	         
 	      {% for alert in volunteer.alerts %}
 	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 

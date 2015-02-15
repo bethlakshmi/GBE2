@@ -4,7 +4,7 @@
 	   </span><br>
 	   {% if proposed_classes %} 
 	   {% for class in proposed_classes %}
-              <span class='class'>
+              <div class='class'>
               {% if class.submitted %}
 		  <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>
 		  (Click to view) 
@@ -18,7 +18,7 @@
 	       	  <a href='{% url 'gbe:class_edit' class.id %}'>{{ class }} </a>
 	          (Click to edit)<br>
 	       {% endif %}
-	      </span> 
+	      </div> 
 	         
 	       {% for alert in class.alerts %}
 	       <span class='alert'>{{alert | safe }}</a>
