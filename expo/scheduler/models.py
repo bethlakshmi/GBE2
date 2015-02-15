@@ -165,7 +165,7 @@ class ActItem(ResourceItem):
             resource = ActResource.objects.filter (_item=self).first()
             return resource.order
         except:
-            return None
+            return -1
     def get_scheduled_shows(self):
         '''
         Returns a list of all shows this act is scheduled to appear in. 
@@ -231,7 +231,7 @@ class ActResource(Resource):
             return None
         if ra and ra.ordering:
             return ra.ordering.order
-        return None
+        return -1
 
     @property
     def rehearsal(self):

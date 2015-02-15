@@ -149,7 +149,7 @@ def review_act_techinfo(request, show_id=1):
     try:
         show = conf.Show.objects.get(eventitem_id=show_id)
         acts = show.scheduler_events.first().get_acts(status=3)
-
+        acts = sorted(acts, key =lambda act: act.order)
     except:
         show = None
         acts = []
