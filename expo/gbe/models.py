@@ -208,7 +208,7 @@ class Profile(WorkerItem):
 
     def get_shows(self):
         acts = self.get_acts()
-        shows = [EventItem.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act) 
+        shows = [Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act) 
                 for act in acts if act.accepted==3]
         return sum([list(s) for s in shows], [])
 
