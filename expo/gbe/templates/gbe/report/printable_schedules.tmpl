@@ -1,0 +1,44 @@
+{% extends 'base_print.tmpl' %}
+{% load staticfiles %}
+
+{% block title %}
+   Printable Schedules
+{% endblock %}
+
+{% block content %}
+
+{% for person in people %}
+{% if person.get_schedule %}
+  <div id="banner">  <img src= {% static "img/GBE_PrintBanner.png" %} 
+							         alt="GBE Banner"/>
+  </div>
+
+  <h3>{{ person.get_badge_name }}'s Schedule</h3>
+  
+  <i>Welcome!  Here's a schedule for your participation in the expo!
+  Keep in mind that some times (like rehearsals) are generalities and that late
+  shifts in class schedules could not be printed.</i><br><br>
+  
+  <table class='sched-table'>
+  <tr class='sched-header'>
+    <th class='sched-header'>Schedule Item</th>
+    <th class='sched-header'>Location</th>
+    <th class='sched-header'>Day</th>
+    <th class='sched-header'>Time</th>
+  {% for booking in person.get_schedule %}
+  <tr class='sched-table'>
+    <td class='sched-table'>{{ booking }}</td>
+    <td class='sched-table'>{{booking.location}} </td>    
+    <td class='sched-table'>{{booking.starttime.date}} </td>
+    <td class='sched-table'>{{booking.starttime.time}} </td>
+  </tr>
+  {% endfor %}
+
+  </table>
+<br>
+
+-----BREAK-----
+{%endif%}
+{% endfor %}
+{% endblock %}
+

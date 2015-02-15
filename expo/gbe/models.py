@@ -212,7 +212,7 @@ class Profile(WorkerItem):
                 for act in acts if act.accepted==3]
         return sum([list(s) for s in shows], [])
 
-
+    @property
     def get_schedule(self):
         '''
         Gets all of a person's schedule.  Every way the actual human could be committed:

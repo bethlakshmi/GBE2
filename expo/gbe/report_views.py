@@ -122,7 +122,22 @@ def env_stuff(request):
     for row in person_details:
         writer.writerow(row)
     return response
-    
+
+def personal_schedule(request, profile_id='All'):
+    viewer_profile = validate_profile(request, require=True)
+    if not viewer_profile.user_object.is_staff:
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
+    if profile_id == 'All':
+        people = conf.Profile.objects.all().select_related()
+    else:
+        people =[]
+        
+    return render (request, 'gbe/report/printable_schedules.tmpl',
+                  {'people': people})
+ 
+
+ 
 def review_act_techinfo(request, show_id=1):
     '''
     Show the list of act tech info for all acts in a given show 

@@ -110,6 +110,24 @@ h3.readonlyform
     padding: 0px;
 }
 
+.sched-table
+{
+    border: 1px solid black;
+    border-collapse:collapse;
+    padding: 2px;
+    vertical-align: top;
+ }
+ 
+ .sched-header
+{
+    border: 1px solid black;
+    border-collapse:collapse;
+    color: white;
+    background-color: maroon;
+    padding: 2px;
+    vertical-align: top;
+ }
+ 
 .bid-table
 {
     border: 1px solid black;
