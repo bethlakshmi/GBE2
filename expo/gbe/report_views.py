@@ -217,6 +217,8 @@ def export_act_techinfo(request, show_id):
             techinfo.append(start)
 
     # end for loop through acts
+    cuesequenceindex = 23 # magic number, obtained by counting headers
+    techinfo = sorted(techinfo, key=lambda row:row[cuesequenceindex]) 
     techinfo = sorted(techinfo, key=lambda row:row[0]) 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
