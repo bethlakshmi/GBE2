@@ -2042,8 +2042,9 @@ def bios_teachers(request):
     try:
         performers = Performer.objects.all()
         commits = ResourceAllocation.objects.all()
-        workers = Worker.objects.filter(Q(role="Teacher") | Q(role="Moderator")
-                                      | Q(role="Panelist"))
+        workers = Worker.objects.filter(Q(role="Teacher") | 
+                                        Q(role="Moderator") |
+                                        Q(role="Panelist"))
     except:
         performers = []
 
