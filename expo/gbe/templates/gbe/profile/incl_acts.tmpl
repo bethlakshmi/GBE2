@@ -1,5 +1,5 @@
+<div class='act_section'>
 {% if acts %}
-  <div class='act_section'>
     <span class='heading acts'>
       <b>Act Bids</b>
     </span><br>
@@ -33,11 +33,10 @@
     <ul>
       <li><a href='{% url 'gbe:act_create' %}'>Propose another act</a></li>
     </ul>
-    </div>
 {% else %}
   {{ profile.display_name }} has no acts listed.	   
   <ul class="rightsidebar">	 
     <li><a href='{% url 'gbe:act_create' %}'>Propose an act</a></li>
   </ul>
-  </div>
 {% endif %}
+</div>
