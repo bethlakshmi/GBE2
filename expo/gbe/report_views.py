@@ -53,7 +53,7 @@ def staff_area(request, area_id):
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
-    sched_event = sched.Event.objects.filter(eventitem=area)
+    sched_event = sched.Event.objects.filter(eventitem=area).order_by('starttime')
     opps = []
     for event in sched_event:
         opps += event.get_volunteer_opps('Volunteer')    
