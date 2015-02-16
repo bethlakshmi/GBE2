@@ -47,6 +47,7 @@ admin.site.register(Worker, WorkerAdmin)
 admin.site.register(Resource)
 admin.site.register(ResourceAllocation, ResourceAllocationAdmin)
 admin.site.register(ActItem)
+admin.site.register(Ordering)
 admin.site.register(ActResource)
 admin.site.register(EventContainer,EventContainerAdmin)
 

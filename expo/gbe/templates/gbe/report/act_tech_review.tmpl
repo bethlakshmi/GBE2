@@ -34,6 +34,7 @@
       <th class="bid-table" >Contact Email</th>
       <th class="bid-table" >Rehearsal Time</th>
       <th class="bid-table" >Music</th>
+      <th class="bid-table" >Action</th>
     </tr>
     {% for act in acts %}
 
@@ -58,7 +59,9 @@
             <span class="error_row">No track provided</span>
             {% endif %}
           </td>
-
+          <td class="bid-table">
+	    <a href="{% url 'gbe:act_techinfo_edit' act.id%}">Edit</a>
+	  </td>
       </tr>
 
     {% endfor %}
