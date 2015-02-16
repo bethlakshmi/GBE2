@@ -1,40 +1,43 @@
-	{% if acts %}
-	   <span class='heading acts'>
-	       <b>Act Bids</b>
-	   </span><br>
-	   {% for act in acts %}
-	      <div class='act'>
-	       {% if act.submitted %}
-	       {{ act }} - {{act.get_accepted_display}} 
-	       <br><ul>
-	       <li> <a href = '{% url 'gbe:act_view' act.id %}'>View</a> act
-		   <br>
-		    {% if act.get_accepted_display == 'Accepted' %} 
-		     <li> <a href = '{%url "gbe:act_techinfo_edit" act.id %}'>View/edit</a> 
+{% if acts %}
+  <div class='act_section'>
+    <span class='heading acts'>
+      <b>Act Bids</b>
+    </span><br>
+    {% for act in acts %}
+      <div class='act'>
+        {% if act.submitted %}
+	  {{ act }} - {{act.get_accepted_display}} 
+          <br>
+          <ul>
+	    <li> 
+              <a href = '{% url 'gbe:act_view' act.id %}'>View</a> act
+            </li>
+            <br>
+            {% if act.get_accepted_display == 'Accepted' %} 
+	      <li> <a href = '{%url "gbe:act_techinfo_edit" act.id %}'>View/edit</a> 
 		      Act Tech Info and rehearsal schedule
-		      </ul>
-		    {% endif %}
-	       {% elif act.performer.contact = profile %}
-	       {{ act }} - Not submitted
-	       <ul>
-	       <a href = '{% url 'gbe:act_edit' act.id%}'> View/edit </a> this act bid
-	       </ul>
-	       {% endif %}
-	       
-	      </div> 
-	         
-	      {% for alert in act.alerts %}
-	      	<span class='alert'> {{ alert|safe}}</span> <br>	      	 
-	      {% endfor %}
-
-	   {% endfor %}
-	   <ul>
-	     <li><a href='{% url 'gbe:act_create' %}'>Propose another act</a></li>
-	   </ul>
-	{% else %}
-	   {{ profile.display_name }} has no acts listed.
-	   
-	   <ul class="rightsidebar">
-	     <li><a href='{% url 'gbe:act_create' %}'>Propose an act</a></li>
-	   </ul>
-	{% endif %}
+              </li>
+          </ul>
+             {% endif %}
+        {% elif act.performer.contact = profile %}
+	  {{ act }} - Not submitted
+	  <ul>
+	    <a href = '{% url 'gbe:act_edit' act.id%}'> View/edit </a> this act bid
+	  </ul>
+	 {% endif %}	       
+       </div> 	         
+        {% for alert in act.alerts %}
+          <span class='alert'> {{ alert|safe}}</span> <br>	      	 
+        {% endfor %}
+    {% endfor %}
+    <ul>
+      <li><a href='{% url 'gbe:act_create' %}'>Propose another act</a></li>
+    </ul>
+    </div>
+{% else %}
+  {{ profile.display_name }} has no acts listed.	   
+  <ul class="rightsidebar">	 
+    <li><a href='{% url 'gbe:act_create' %}'>Propose an act</a></li>
+  </ul>
+  </div>
+{% endif %}

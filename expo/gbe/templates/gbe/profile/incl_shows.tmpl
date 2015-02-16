@@ -1,15 +1,18 @@
-	
-	{% if shows %}
-	   <span class='heading shows'>
-	   	<b>Shows {{ profile.display_name }} is appearing in:</b>
-	   </span><br>
-	   {% for show in shows %}
-	      <div class='show'> <a href="{% url 'scheduler:detail_view' show.eventitem_id%}">{{ show }}</a> 
-	      </div> <br>
-	   {% endfor %}
-	{% else %}
-	   {{ profile.display_name }} is not scheduled for any shows at this time.
-	   <br>
-	{% endif %}
+<div class = 'show_section'>	
+  {% if shows %}
+    <span class='heading shows'>
+      <b>Shows {{ profile.display_name }} is appearing in:</b>
+    </span><br>
+    {% for show in shows %}
+      <div class='show'> 
+        <a href="{% url 'scheduler:detail_view' show.eventitem_id%}">
+          {{ show }}
+        </a> 
+      </div> <br>
+    {% endfor %}
+  {% else %}
+    {{ profile.display_name }} is not scheduled for any shows at this time.
+    <br>
+  {% endif %}
+</div>
 
-<br>

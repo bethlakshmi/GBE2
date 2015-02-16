@@ -566,3 +566,43 @@ div.alert
 	border: 1px solid black;
         padding: 10px;
 }
+
+
+/* Landing page, right-column blocks */
+
+div.landing_box>div.act_section {
+    background-color:#FF9999;
+
+}
+
+div.bid_review_section{
+    background-color:#99FF99;
+
+}
+
+div.landing_box>div.class_section {
+    background-color:#9999FF;
+
+}
+
+div.landing_box>div.performer_section {
+    background-color:#FF99FF;
+
+}
+
+
+div.landing_box>div.show_section {
+    background-color:#99FFFF;
+
+}
+
+
+div.landing_box>div.volunteer_section {
+    background-color:#FFFF99;
+
+}
+
+div.landing_box>div.vendor_section {
+    background-color:#FFFFFF;
+
+}
