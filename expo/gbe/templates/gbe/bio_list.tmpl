@@ -13,7 +13,6 @@
    </div>
 
    {% for teacher in bios %}
-    <div class="bio_block">
       <div class="bio_words">
         <h2>About {{teacher.bio.name}}</h2>
 	{% for class in teacher.classes %}
@@ -30,7 +29,6 @@
         <img src="/{{teacher.bio.promo_small}}" class="sched_bio_image">
         </div>
         {% endif %}
-    </div>
     {% endfor %}
 
 {% endblock %}
