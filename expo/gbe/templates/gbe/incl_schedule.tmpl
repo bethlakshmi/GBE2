@@ -1,17 +1,24 @@
-   	 <h3>{% if profile.display_name %}
-               {{ profile.display_name }}'s
-             {% else %}
-               Your
-             {% endif %} Schedule
-	 </h3>	
-	 {% if bookings %}
-	    {% for booking in bookings %}
-	      <span class='event'>{{booking.starttime}} <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
-	        {{ booking }}</a> </span> <br>
-	    {% endfor %}
-	 {% else %}
-	    {{ profile.display_name }} is not scheduled for anything at this time.
-	    <br>
-	 {% endif %}
+<div class = "schedule_section">
+  <h3>
+    {% if profile.display_name %}
+      {{ profile.display_name }}'s
+    {% else %}
+       Your
+     {% endif %} 
+       Schedule
+  </h3>	
+  {% if bookings %}
+    {% for booking in bookings %}
+      <div class='event'>
+        {{booking.starttime}} 
+        <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
+          {{ booking }}
+	</a> 
+      </div> <br>
+    {% endfor %}
+  {% else %}
+    {{ profile.display_name }} is not scheduled for anything at this time.
+      <br>
+  {% endif %}
+</div>
 
-<br>

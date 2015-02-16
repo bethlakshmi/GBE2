@@ -567,6 +567,15 @@ div.alert
         padding: 10px;
 }
 
+/* Landing page, center blocks */
+
+div.landing_box>div.schedule_section> div.event {
+  /* set line-height here */
+}
+
+div.landing_box>div.ticket_section > div.ticket {
+  /* set line-height here */
+}
 
 /* Landing page, right-column blocks */
 
