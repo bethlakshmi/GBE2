@@ -830,7 +830,7 @@ class Event (Schedulable):
         try:
             return self.eventitem.describe
         except:
-            return "No vent Item"
+            return "No Event Item"
 
     def __unicode__(self):
         try:

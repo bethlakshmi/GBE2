@@ -832,7 +832,7 @@ def view_list(request, event_type='All'):
          LATER:  I'd like to find a way to get all this ugly large text blobs in *.py files and into the
          DB where Scratch can change them - Betty
     '''
-    from gbe.models import Class, Show, GenericEvent
+    from gbe.models import Class, Show, GenericEvent, Event
 
     try:
         items = []
@@ -847,11 +847,13 @@ def view_list(request, event_type='All'):
         elif class_types.has_key(event_type):
             items = Class.objects.filter(accepted='3', type=event_type, visible=True).order_by('title')
         elif event_type=='Show':
-            items = Show.objects.filter(visible=True)
+            items = Show.objects.filter(visible=True).order_by('title')
         elif event_type=='Class':
             items = Class.objects.filter(accepted='3', visible=True).exclude(type='Panel').order_by('title')
+
         else:
-            items = EventItem.objects.filter(visible=True).select_subclasses()
+            items = Event.objects.filter(visible=True).select_subclasses().order_by('title')
+            
             event_type="All"
 
         items = items.filter(visible=True)
