@@ -2033,10 +2033,36 @@ def bios_staff(request):
 
 def bios_teachers(request):
     '''
-    Display the teachers bios, pulled from their profiles.
+    Display the teachers bios.  Teachers are anyone teaching,
+    moderating or being a panelist.
     '''
+    from scheduler.models import Worker, ResourceAllocation, Event
+    from django.db.models import Q
 
-    pass
+    try:
+        performers = Performer.objects.all()
+        commits = ResourceAllocation.objects.all()
+        workers = Worker.objects.filter(Q(role="Teacher") | Q(role="Moderator")
+                                      | Q(role="Panelist"))
+    except:
+        performers = []
+
+
+    bios = []
+    
+    for performer in performers:
+        classes = []
+        for worker in workers.filter(_item=performer):
+            for commit in commits.filter(resource=worker):
+                classes += [{'role': worker.role, 'event': commit.event}]
+        if len(classes) > 0:
+            bios += [{'bio': performer, 'classes': classes }]
+    
+
+    template = 'gbe/bio_list.tmpl'
+    context = {'bios':bios, 'title': 'Conference Bios'}
+    
+    return render(request, template, context)
 
 def bios_volunteer(request):
     '''

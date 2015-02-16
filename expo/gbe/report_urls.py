@@ -32,6 +32,7 @@ urlpatterns = patterns('',
                             reporting.review_act_techinfo, name = 'act_techinfo_review'),
                         url(r'^reports/acttechinfo/view_details/(\d+)/?$',
                             reporting.export_act_techinfo, name = 'act_techinfo_download'),
+
                         
                         url(r'^reports/badges/print_run/?$',
                             reporting.export_badge_report, name = 'badge_report'),

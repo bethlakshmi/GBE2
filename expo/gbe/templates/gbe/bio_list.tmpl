@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load ticketing_filters %}
+{% block title %}
+  Great Burlesque Exposition: {{title}}
+{% endblock %}
+
+{% block content %}
+   
+   <H1 class="listheader">{{title}}</H1>
+   <div class=body>
+     {{view_header_text | safe}}
+ 
+   </div>
+
+   {% for teacher in bios %}
+    <div class="bio_block">
+      <div class="bio_words">
+        <h2>About {{teacher.bio.name}}</h2>
+	{% for class in teacher.classes %}
+	  <b>{{ class.role }}</b> -
+	  <a href='{% url 'scheduler:detail_view' class.event.eventitem.eventitem_id  %}'>
+	  {{ class.event }}</a></br>
+	{% endfor %}
+	</br>
+        {{teacher.bio.bio |linebreaksbr}}
+        <br><br>
+      </div>
+        {% if teacher.bio.promo_image %}
+        <div class="bio_image_block">
+        <img src="/{{teacher.bio.promo_small}}" class="sched_bio_image">
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+{% endblock %}
