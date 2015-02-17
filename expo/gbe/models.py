@@ -932,7 +932,7 @@ class Show (Event):
         return { 'title':self.title,
                  'description':self.description,
                  'duration':self.duration,
-                 'details': {'type': 'Show'}
+                 'details': {}
                }
     @property
     def schedule_ready(self):
