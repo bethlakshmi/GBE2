@@ -89,13 +89,17 @@ def get_events_display_info(event_type = 'Class', time_format = None):
 
     eventslist = []
     for entry in eventitems:
+        if ('type' not in entry['confitem'].sched_payload['details'].keys() or
+            entry['confitem'].sched_payload['details']['type']==''):
+            entry['confitem'].sched_payload['details']['type'] = entry['confitem'].type
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
-                    'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['details']['type'],
+                     'duration': entry['confitem'].sched_payload['duration'],
+                    'type':entry['confitem'].sched_payload['details'].get('type', ''),
                     'detail': reverse('detail_view', 
                                       urlconf='scheduler.urls', 
                                       args = [entry['eventitem'].eventitem_id]),
                     }
+        
         if entry['schedule_event']:
             eventinfo ['edit'] = reverse('edit_event', urlconf='scheduler.urls', 
                                          args =  [event_type,  entry['schedule_event'].id])
