@@ -33,7 +33,10 @@ def validate_perms(request, perms, require = True):
         if len (profile.privilege_groups) >0:
             return profile
         else: 
-            return False
+            if require:
+                raise Http404
+            else:
+                return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
     if require:                # error out if permission is required
