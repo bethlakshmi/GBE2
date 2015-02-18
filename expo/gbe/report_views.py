@@ -12,15 +12,19 @@ import csv
 from reportlab.pdfgen import canvas
 from gbe.functions import *
 
+
+
+
+
+
 def list_reports(request):
     '''
       Shows listing of all reports in this area
     '''
-    viewer_profile = validate_profile(request, require=True)
-    if viewer_profile.user_object.is_staff:
-        return render (request, 'gbe/report/report_list.tmpl')
-    else:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
+    
+    return render (request, 'gbe/report/report_list.tmpl')
+    
 
 
 
@@ -28,9 +32,7 @@ def review_staff_area(request):
     '''
       Shows listing of staff area stuff for drill down
     '''
-    viewer_profile = validate_profile(request, require=True)
-    if not viewer_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
 
     header = ['Area','Leaders','Check Staffing']
     try:
@@ -48,9 +50,7 @@ def staff_area(request, area_id):
     sorted by time/day
     See ticket #250
     '''
-    viewer_profile = validate_profile(request, require=True)
-    if not viewer_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
 
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(eventitem=area).order_by('starttime')
@@ -124,9 +124,7 @@ def env_stuff(request):
     return response
 
 def personal_schedule(request, profile_id='All'):
-    viewer_profile = validate_profile(request, require=True)
-    if not viewer_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
 
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
@@ -233,9 +231,7 @@ def export_act_techinfo(request, show_id):
 
 
 def room_schedule(request, room_id=None):
-    viewer_profile = validate_profile(request, require=True)
-    if not viewer_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
 
     if room_id:
         rooms=[get_object_or_404(sched.LocationItem, resourceitem_id=room_id)]
@@ -271,9 +267,7 @@ def room_schedule(request, room_id=None):
 
 
 def room_setup(request):
-    viewer_profile = validate_profile(request, require=True)
-    if not viewer_profile.user_object.is_staff:
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+    viewer_profile = validate_perms(request, 'any', require = True)
 
     try:
         rooms=sched.LocationItem.objects.all()
