@@ -54,7 +54,7 @@
             <span class="perfhover">
 	    <div class="vimg">
 	      <a href="{{bio.homepage}}">
-	   	{% if bio.promo_image %}
+	   	{% if bio.promo_small %}
 	   	<img src="/{{bio.promo_small}}" class="vimage">
 		{% else %}
 		<img src="/static/img/defaultperfpromo.png" class="vimage">
@@ -100,7 +100,7 @@
 	{%endif%}
       <br><br>
       </div>
-        {% if worker.workeritem.promo_small %}
+        {% if worker.workeritem.promo_image %}
           <div class="bio_image_block">
           <img src="/{{worker.workeritem.promo_small}}" class="sched_bio_image">
           </div>
