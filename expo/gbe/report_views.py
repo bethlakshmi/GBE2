@@ -70,11 +70,11 @@ def env_stuff(request):
 
     people = conf.Profile.objects.all()
     acts = conf.Act.objects.filter(accepted=3)
-    tickets = tix.Transaction.objects.exclude(ticket_item__ticket_style=u'')
+    tickets = tix.Transaction.objects
     roles = sched.Worker.objects.all()
     commits = sched.ResourceAllocation.objects.all()
 
-    header=['Badge Name', 'First', 'Last', 'Tickets', 'Personae', 'Staff Lead',
+    header=['Badge Name', 'First', 'Last', 'Tickets', 'Ticket format', 'Personae', 'Staff Lead',
             'Volunteering', 'Presenter', 'Show']
 
     person_details = []
@@ -85,9 +85,11 @@ def env_stuff(request):
         class_list = ""
         personae_list = ""
         show_list = ""
+        ticket_names = ""
 
         for ticket in tickets.filter(purchaser__matched_to_user=person.user_object):
-            ticket_list += ticket.ticket_item.ticket_style+", "
+            ticket_list += str(ticket.ticket_item.ticket_style)+", "
+            ticket_names += ticket.ticket_item.title+", "
             
         for lead in roles.filter(role="Staff Lead", _item=person):
             for commit in commits.filter(resource=lead):
@@ -111,7 +113,7 @@ def env_stuff(request):
 
         
         person_details.append([person.get_badge_name(), person.user_object.first_name,
-                               person.user_object.last_name, ticket_list, personae_list,
+                               person.user_object.last_name, ticket_names, ticket_list, personae_list,
                                staff_lead_list, volunteer_list, class_list, show_list])
     
  
