@@ -261,7 +261,11 @@ def room_schedule(request, room_id=None):
                 current_day = booking.start_time.date()
                 day_events = []
             day_events += [booking]
-                
+            
+        room_set += [{'room': room,
+                             'date': current_day,
+                             'bookings': day_events}]
+       
         
     
     return render (request, 'gbe/report/room_schedule.tmpl',
