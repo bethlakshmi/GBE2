@@ -9,9 +9,6 @@
 
 {% for person in people %}
 {% if person.get_schedule %}
-  <div id="banner">  <img src= {% static "img/GBE_PrintBanner.png" %} 
-							         alt="GBE Banner"/>
-  </div>
 
   <h3>{{ person.get_badge_name }}'s Schedule</h3>
   
