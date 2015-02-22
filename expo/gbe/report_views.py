@@ -37,11 +37,13 @@ def review_staff_area(request):
     header = ['Area','Leaders','Check Staffing']
     try:
         areas = conf.GenericEvent.objects.filter(type='Staff Area', visible=True)
+        shows = conf.Show.objects.all()
     except:
         areas = []
-        
+        shows = []
+
     return render (request, 'gbe/report/staff_areas.tmpl',
-                  {'header': header, 'areas': areas})
+                  {'header': header, 'areas': areas, 'shows': shows})
 
 
 def staff_area(request, area_id):

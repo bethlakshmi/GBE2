@@ -33,5 +33,28 @@
       </tr>
     {% endfor %}
   </table>
+  
+  <h2 class="review-title">Shows</h2>
+
+    <table class="bid-table">
+    <tr class="bid-table">
+      {% for header_item in header %}
+      <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+    </tr>
+    {% for show in shows %}
+      <tr class="bid-table">
+        <td class="bid-table">{{show.title}}</td>
+        <td>
+ 	  {% for worker in show.roles %}
+            {{worker.role}} - {{worker.workeritem}}
+ 	  {% endfor %}	
+        </td>
+        <td class="bid-table">
+          <a href="{%url 'reporting:staff_area' show.eventitem_id %}">Get Staff Schedule</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
 
