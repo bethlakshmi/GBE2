@@ -21,8 +21,6 @@ class Biddable (models.Model):
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
-    title = models.CharField(max_length=128)  
-    description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
                               
     accepted = models.IntegerField(choices=acceptance_states, 
@@ -1305,7 +1303,7 @@ class ConferenceVolunteer(models.Model):
                              choices = conference_participation_types,
                              default = 'Any of the Above')
     qualification = models.TextField(blank='True')
-    volunteering = models.BooleanField(blank='True')
+    volunteering = models.BooleanField(default=True, blank='True')
     def __unicode__(self):
         return self.bid.title+": "+self.presenter.name
     

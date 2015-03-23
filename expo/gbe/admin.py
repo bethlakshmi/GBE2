@@ -12,7 +12,7 @@ class ClassAdmin(BidAdmin):
     list_filter = ['submitted', 'accepted']
     
 class ActAdmin(admin.ModelAdmin):
-    list_display = ('title', 'performer', 'submitted', 'accepted', 'created_at', 'updated_at')
+    list_display = ('performer', 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted']
 
 class PerformerAdmin(admin.ModelAdmin):
