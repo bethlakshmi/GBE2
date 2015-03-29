@@ -21,6 +21,8 @@ class Biddable (models.Model):
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
+    title = models.CharField(max_length=128) 
+    description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
                               
     accepted = models.IntegerField(choices=acceptance_states, 
