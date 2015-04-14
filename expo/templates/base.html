@@ -1,8 +1,8 @@
 {% load staticfiles %}
-
+{% load cms_tags sekizai_tags %}
 <html>
   <head>
-    <title>{% block title %} {% endblock %}</title>
+    <title>{% block title %} {% endblock %} AND {% page_attribute "page_title" %}</title>
     <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon"/>
     <link rel="stylesheet" 
 	    type="text/css" 
@@ -10,7 +10,7 @@
     <link rel="stylesheet" 
 	    type="text/css" 
 	    href= {% static "styles/menus.css" %} media="all"/>
-
+    {% render_block "css" %}
   </head>
   <body>
 
@@ -30,5 +30,14 @@
 	  </div>    
       
     </div>
+    
+    
+      {% cms_toolbar %}
+      {% placeholder base_content %}
+      {% block base_content %}{% endblock %}
+      {% render_block "js" %}
+      
+      
+    {% render_block "js" %}
   </body>
 </html>

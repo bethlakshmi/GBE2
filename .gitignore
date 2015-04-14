@@ -28,7 +28,6 @@ Text-1.txt
 
 *.sqlplite3
 
-*.txt
 
 expo/performer.json
 
@@ -36,11 +35,12 @@ expo/profilesinherit.json
 
 expo/db.sqlite3.preactitem
 
-expo/expo/localsettings.py
 
-
+expo/env/*
 expo/expo/local_settings.py
 
 *.zip
 
 *.bettytest
+
+expo/db.sqlite3.cmsnew

@@ -11,4 +11,5 @@ urlpatterns = patterns('',
                        url(r'^', include('ticketing.urls', namespace = 'ticketing')),
                        url(r'^', include('scheduler.urls', namespace = 'scheduler')),
                        url(r'^', include('gbe.report_urls', namespace = 'reporting')),
+                       url(r'^', include('cms.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
