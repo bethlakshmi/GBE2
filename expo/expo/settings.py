@@ -38,8 +38,8 @@ CMS_TEMPLATES = (
 )
 
 LANGUAGES = [
-    ('en', 'English'),
-    ('en-us', 'English'),
+    ('en-us', gettext('en-us')),
+    ('en', gettext('en')),
 
 ]
 
@@ -82,24 +82,35 @@ except:
 
 INSTALLED_APPS = (
     'djangocms_admin_style',  # for the admin skin. You **must** add 'djangocms_admin_style' in the list **before** 'django.contrib.admin'.
-    'django.contrib.admin',
+    'djangocms_text_ckeditor', # tutorial ... hmm...
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.admin',
     'django.contrib.sites',
+    'django.contrib.sitemaps', # tutorial
+    'django.contrib.staticfiles',
+    'django.contrib.messages',
     'django.contrib.flatpages',
+    'cms',  # django CMS itself
+    'menus',
+    'sekizai',  # for javascript and css management
+    'mptt',  # utilities for implementing a tree
+    'djangocms_style',
+    'djangocms_column',
+    'djangocms_file',
+    'djangocms_flash',
+    'djangocms_googlemap',
+    'djangocms_inherit',
+    'djangocms_link',
+    'djangocms_picture',
+    'djangocms_teaser',
+    'djangocms_video',
+    'south',  # Only needed for Django < 1.7
+    'reversion', # for versioning in cms
     'gbe',
     'ticketing',
     'scheduler',
-    'cms',  # django CMS itself
-    'mptt',  # utilities for implementing a tree
-    'menus',  # helper for model independent hierarchical website navigation
-    'south',  # Only needed for Django < 1.7
-    'sekizai',  # for javascript and css management
-    'django.contrib.messages',  # to enable messages framework (see :ref:`Enable messages <enable-messages>`)
-    'reversion', # for versioning in cms
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,15 +119,15 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.middleware.locale.LocaleMiddleware', # added for django-cms
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware', #end of add for django-cms
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 #all django-cms
@@ -124,10 +135,13 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.i18n',
+    'django.core.context_processors.debug', # used in tutorial
     'django.core.context_processors.request',
     'django.core.context_processors.media',
-    'django.core.context_processors.static',
+    'django.core.context_processors.csrf', # tutorial
+    'django.core.context_processors.tz', # tutorial
     'sekizai.context_processors.sekizai',
+    'django.core.context_processors.static',
     'cms.context_processors.cms_settings',
 )
 
@@ -210,7 +224,43 @@ except:
 
 DATETIME_FORMAT = "%I:%M %p"
 
+# new for django-cms.  Don't know why yet.
+DATA_DIR = os.path.dirname(os.path.dirname(__file__))
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'mysite', 'static'),
+)
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.eggs.Loader'
+)
+
+CMS_LANGUAGES = {
+    ## Customize this
+    'default': {
+        'public': True,
+        'hide_untranslated': False,
+        'redirect_on_fallback': True,
+    },
+    1: [
+        {
+            'public': True,
+            'code': 'en-us',
+            'hide_untranslated': False,
+            'name': gettext('en-us'),
+            'redirect_on_fallback': True,
+        },
+        {
+            'public': True,
+            'code': 'en',
+            'hide_untranslated': False,
+            'name': gettext('en'),
+            'redirect_on_fallback': True,
+        },
+    ],
+}
+
+CMS_PERMISSION = True
 
 
-
-
+CMS_PLACEHOLDER_CONF = {}
