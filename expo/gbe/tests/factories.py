@@ -1,25 +1,36 @@
 import factory
+from factory import DjangoModelFactory
+from factory import SubFactory
 import gbe.models as conf
+import scheduler.models as sched
 
-class UserFactory(factory.Factory):
+class WorkerItemFactory(DjangoModelFactory):
+    class Meta:
+        model= sched.WorkerItem
+    
+
+
+class UserFactory(DjangoModelFactory):
     class Meta:
         model = conf.User
-
-    first_name = 'John'
+    first_name = factory.Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
-    email = 'john.smith@smith.com'
+    username = factory.LazyAttribute(lambda obj:'%s@smith.com' % obj.first_name) 
+    email = '%s@smith.com' %username
 
-
-class ProfileFactory(factory.Factory):
+    
+class ProfileFactory(DjangoModelFactory):
     class Meta:
         model = conf.Profile
-    
-    user_object = UserFactory.create()
-    user_object.save()
+    user_object = SubFactory(UserFactory)
     address1 = '123 Main St.'
-    address2 = 'Apt. 3'
+    address2 = factory.Sequence(lambda n: 'Apt. %d' %n)
     city = 'Smithville'
     state = 'MD'
     zip_code = '12345'
     country = 'USA'
     phone = '617-282-9268'
+    display_name='Foo Bar'
+    
+
+
