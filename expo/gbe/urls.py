@@ -12,7 +12,7 @@ from gbe import views
 urlpatterns = patterns ('', 
 
 # landing page
-                        url(r'^/?$', 
+                        url(r'^landing/?$', 
                             views.landing_page, name = 'home'),
                         url(r'index.html/?', 
                             views.landing_page),

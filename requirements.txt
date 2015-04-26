@@ -20,3 +20,14 @@ cmsplugin-filer
 django-reversion==1.8.5
 #mysql-python
 
+djangocms_text_ckeditor
+djangocms_style
+djangocms_column
+djangocms_file
+djangocms_flash
+djangocms_googlemap
+djangocms_inherit
+djangocms_link
+djangocms_picture
+djangocms_teaser
+djangocms_video

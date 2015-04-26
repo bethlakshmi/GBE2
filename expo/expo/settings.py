@@ -33,8 +33,9 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SITE_ID=1
 
 CMS_TEMPLATES = (
-    ('template_1.html', 'Template One'),
-    ('template_2.html', 'Template Two'),
+    ('big_block.tmpl', 'Big Block of Content'),
+    ('template_1.tmpl', 'Template One'),
+    ('template_2.tmpl', 'Template Two'),
 )
 
 LANGUAGES = [
@@ -69,7 +70,7 @@ try:
 except:
    ALLOWED_HOSTS = []
 
-MEDIA_URL = '/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 LOGIN_URL = '/login/'
 
