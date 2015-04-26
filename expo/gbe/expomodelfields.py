@@ -17,7 +17,7 @@ class DurationField(IntegerField):
 
     def db_type(self, connection=None):
         return 'bigint'
-    
+
     def to_python(self, value):
         if not value:
             return None
@@ -28,17 +28,19 @@ class DurationField(IntegerField):
                 minutes, seconds = map(int, value.split(':'))
                 return Duration(seconds=(seconds + minutes*60))
             except:
-                raise ValidationError ('That didn\'t look like a duration to me')
+                raise ValidationError('That didn\'t look like a'+
+                                       'duration to me')
         elif not isinstance(value, timedelta):
-            raise ValidationError('Unable to convert %s to Duration.' % value)
+            raise ValidationError('Unable to convert %s to Duration.'
+                                  % value)
         return value
 
     def get_prep_value(self, value):
             minutes, seconds = divmod(value.seconds, 60)
             return "%02d:%02d" % (minutes, seconds)
-              
+
     def get_db_prep_value(self, value, connection, prepared=False):
-        if value == None:
+        if value is None:
             return 0
         if isinstance(value, timedelta):
             return value.seconds + (86400 * value.days)
@@ -47,7 +49,8 @@ class DurationField(IntegerField):
             return value
         except:
             return 0
-#            raise ValueError('%s is not a reasonable value for a duration' % value)
+#            raise ValueError('%s is not a reasonable value for a duration'
+%                              % value)
 
     def value_to_string(self, instance):
         timedelta = getattr(instance, self.name)
@@ -61,6 +64,3 @@ class DurationField(IntegerField):
         defaults = {"help_text": "Enter duration in the format: HH:MM:SS"}
         defaults.update(kwargs)
         return form_class(**defaults)
-
-
-        
