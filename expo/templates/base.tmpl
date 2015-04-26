@@ -10,12 +10,17 @@
 ootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/b
 ootstrap-theme.min.css">
+    <link rel="stylesheet" 
+	    type="text/css" 
+	    href= {% static "styles/base.css" %} media="all"/>
+  
   </head>
   <body style="padding-top:60px">
     {% cms_toolbar %}
-    <div class='banner'>{% placeholder banner %}</div>
-        <div class="container">
-          <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+      <div class='banner'>{% static_placeholder 'banner' %}</div>
+      
+      <div class="navbar navbar-default" role="navigation">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle" data-toggle="collapse"
  data-target=".navbar-collapse">
@@ -31,10 +36,11 @@ ootstrap-theme.min.css">
                 {% show_menu 0 1 100 100 "menu.tmpl" %}
               </ul>
             </div>
-          </div>
+      </div>
+      
         {% block content %}
         {% endblock content %}
-        </div>
+    </div>
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js">
 </script>
