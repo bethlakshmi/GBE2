@@ -13,10 +13,20 @@ class TestRegisterPersona(TestCase):
         self.user_factory = factories.UserFactory
 
     def test_register_persona(self):
-        '''Basic test of register_persona view
+        '''register_persona view should load and return:
+        302 if user but no profile
+        200 if profile but no form 
+        302 if profile and valid form - need to write this
         '''
         request = self.factory.get('/')
-        request.user = self.user_factory.create()
+        user = factories.UserFactory.create()
+        request.user = user
+        response = register_persona(request)
+        self.assertEqual(response.status_code, 302)
+        profile = factories.ProfileFactory.create()
+        request.user = profile.user_object
         request.method = 'POST'
         response = register_persona(request)
-        self.assertEqual(response.status_code, 302)  # why 302?
+        self.assertEqual(response.status_code, 200)
+        
+        
