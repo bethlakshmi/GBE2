@@ -3,6 +3,7 @@ from factory import DjangoModelFactory
 from factory import SubFactory
 import gbe.models as conf
 import scheduler.models as sched
+from gbe.duration import Duration
 
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
@@ -31,6 +32,13 @@ class ProfileFactory(DjangoModelFactory):
     country = 'USA'
     phone = '617-282-9268'
     display_name='Foo Bar'
+
+class ShowFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.Show
+    title = factory.Sequence(lambda n: 'Test Show%d' % n)
+    description = 'Test Description'
+    duration = Duration(hours=1)
     
 
 
