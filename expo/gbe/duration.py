@@ -61,7 +61,7 @@ class Duration(timedelta):
             return self.total_seconds()/other.total_seconds()
         else:
             raise TypeError("Unsupported operation: can only divide Duration" +
-                            by int or duration/timedelta")
+                            "by int or duration/timedelta")
 
     def __floordiv__(self, other):
         '''
