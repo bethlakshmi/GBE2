@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% block title %}This is my new project home page{% endblock title %}
-</title>
+    <title>{% block title %}This is my new project home page{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% render_block "css" %}
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/b
@@ -13,6 +12,7 @@ ootstrap-theme.min.css">
     <link rel="stylesheet" 
 	    type="text/css" 
 	    href= {% static "styles/base.css" %} media="all"/>
+    <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon"/>
   
   </head>
   <body style="padding-top:60px">

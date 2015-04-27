@@ -82,7 +82,14 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
+    'cms',  # django CMS itself
+    'mptt',  # utilities for implementing a tree
+    'menus',
+    'south',  # Only needed for Django < 1.7
+    'sekizai',  # for javascript and css management
     'djangocms_admin_style',  # for the admin skin. You **must** add 'djangocms_admin_style' in the list **before** 'django.contrib.admin'.
+    'django.contrib.messages',    
+    
     'djangocms_text_ckeditor', # tutorial ... hmm...
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -91,12 +98,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.sitemaps', # tutorial
     'django.contrib.staticfiles',
-    'django.contrib.messages',
     'django.contrib.flatpages',
-    'cms',  # django CMS itself
-    'menus',
-    'sekizai',  # for javascript and css management
-    'mptt',  # utilities for implementing a tree
+
     'djangocms_style',
     'djangocms_column',
     'djangocms_file',
@@ -107,7 +110,6 @@ INSTALLED_APPS = (
     'djangocms_picture',
     'djangocms_teaser',
     'djangocms_video',
-    'south',  # Only needed for Django < 1.7
     'reversion', # for versioning in cms
     'gbe',
     'ticketing',
@@ -228,7 +230,7 @@ DATETIME_FORMAT = "%I:%M %p"
 # new for django-cms.  Don't know why yet.
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'mysite', 'static'),
+    os.path.join(BASE_DIR, 'expo', 'static'),
 )
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',

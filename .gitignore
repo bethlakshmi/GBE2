@@ -15,6 +15,14 @@ db.sqlite3
 *.css~
 
 expo/gbe/static/img/GBE_PageBanner.png
+expo/gbe/static/admin
+expo/gbe/static/admin/*
+expo/gbe/static/cms
+expo/gbe/static/cms/*
+expo/gbe/static/djangocms_text_ckeditor
+expo/gbe/static/djangocms_text_ckeditor/*
+expo/gbe/static/djangocms_admin_style
+expo/gbe/static/djangocms_admin_style/*
 
 expo/expo/settings.pyc
 
