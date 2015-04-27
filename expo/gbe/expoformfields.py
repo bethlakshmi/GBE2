@@ -22,7 +22,7 @@ class DurationFormField(CharField):
         'mm:ss' || 'hh:mm:ss' => timedelta of this value
         else: ValueError
         '''
-        if value == None:
+        if value is None:
             return Duration(0)
         if len(value) == 0:
             return Duration(0)
@@ -32,7 +32,7 @@ class DurationFormField(CharField):
         time = vs[-1] + 60 * vs[-2]
         if len(vs) == 3:
             time += 60 * 60 * vs[0]
-        return Duration(seconds = time)
+        return Duration(seconds=time)
 
     def to_python(self, value):
         try:

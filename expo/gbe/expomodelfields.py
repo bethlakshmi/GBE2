@@ -28,8 +28,8 @@ class DurationField(IntegerField):
                 minutes, seconds = map(int, value.split(':'))
                 return Duration(seconds=(seconds + minutes*60))
             except:
-                raise ValidationError('That didn\'t look like a'+
-                                       'duration to me')
+                raise ValidationError("That didn't look like a" +
+                                       "duration to me")
         elif not isinstance(value, timedelta):
             raise ValidationError('Unable to convert %s to Duration.'
                                   % value)
@@ -50,7 +50,7 @@ class DurationField(IntegerField):
         except:
             return 0
 #            raise ValueError('%s is not a reasonable value for a duration'
-%                              % value)
+#                              % value)
 
     def value_to_string(self, instance):
         timedelta = getattr(instance, self.name)

@@ -18,10 +18,14 @@ class Duration(timedelta):
     representation of this duration. By default, it's hh:mm:ss, but
     this format string can also access the days and total seconds
     as positional arguments 0 and 4 of the output tuple to format.
-    Durations are precise to seconds, not to finer-grained units. Sorry. 
-    ''' 
-    def __init__ (self, days=0, hours=0, minutes=0, seconds=0):
-        self.total_secs = days *24*3600 +hours*3600 + minutes*60+seconds
+    Durations are precise to seconds, not to finer-grained units. Sorry.
+    '''
+    def __init__(self, days=0, hours=0, minutes=0, seconds=0):
+        self.total_secs = (days *
+                           24 * 3600 +
+                           hours * 3600 +
+                           minutes * 60 +
+                           seconds)
         if hours * 3600 + minutes * 60 + seconds > 0:
             total_seconds = hours*3600 + minutes * 60 * seconds
             timedelta.__init__(total_seconds)
@@ -34,74 +38,74 @@ class Duration(timedelta):
         return self
 
     def minutes(self):
-        return int((self.total_seconds()/60)%60)
+        return int((self.total_seconds()/60) % 60)
 
-    def total_minutes (self):
+    def total_minutes(self):
         return int(self.total_seconds()/60)
 
-    def hours (self):
+    def hours(self):
         return int(self.total_seconds()/3600)
 
     def __div__(self, other):
         '''
         Behavior depends on the divisor. If dividing a duration by an int,
-        return a duration, if dividing by a duration, return an int (the 
+        return a duration, if dividing by a duration, return an int (the
         ratio of the two durations)
         Note that all division operations on Durations are calculated in
         terms of seconds. This can lead to unexpected results, for example
-        Duration (70) % 60 => 0 (not 10!). 
+        Duration (70) % 60 => 0 (not 10!).
         '''
         if isinstance(other, int) or isinstance(other, long):
             return Duration(seconds=int(self.total_seconds()/other))
         elif isinstance(other, timedelta):
             return self.total_seconds()/other.total_seconds()
         else:
-            raise TypeError("Unsupported operation: can only divide Duration"+
+            raise TypeError("Unsupported operation: can only divide Duration" +
                             by int or duration/timedelta")
 
     def __floordiv__(self, other):
         '''
-        Behavior depends on the divisor. If dividing a duration by an int, 
+        Behavior depends on the divisor. If dividing a duration by an int,
         return a duration, if dividing by a duration (including a timedelta),
-        return an int (the ratio of the two durations)        
+        return an int (the ratio of the two durations)
         Note that all division operations on Durations are calculated in terms
         of seconds. This can lead to unexpected results, for example Duration
-        (70) % 60 => 0 (not 10!). 
+        (70) % 60 => 0 (not 10!).
         '''
         if isinstance(other, int) or isinstance(other, long):
             return Duration(seconds=long(self.total_seconds()//other))
         elif isinstance(other, timedelta):
             return int(self.total_seconds()//other.total_seconds())
         else:
-            raise TypeError("Unsupported operation: can only divide Duration"+
+            raise TypeError("Unsupported operation: can only divide Duration" +
                             "by int or duration/timedelta")
 
-    def __mod__ (self, other):
+    def __mod__(self, other):
         '''
-        Mod IS NOT LIKE DIV here. Mod should always return a duration. 
-        (if we take 130 minutes mod 60 minutes, we have a proportion of 2 
-        and a remainder of ten minutes: 60 minutes * 2 + 10 minutes = 130 
-        minutes. On the other hand if we take 130 minutes mod 2, we get 60 
+        Mod IS NOT LIKE DIV here. Mod should always return a duration.
+        (if we take 130 minutes mod 60 minutes, we have a proportion of 2
+        and a remainder of ten minutes: 60 minutes * 2 + 10 minutes = 130
+        minutes. On the other hand if we take 130 minutes mod 2, we get 60
         minutes + 10 minutes, since 60 minutes * 2 + 10 minutes = 130 minutes)
         Note that all division operations on Durations are calculated in terms
-        of seconds. This can lead to unexpected results, for example Duration 
-        (70) % 60 => 0 (not 10!). 
+        of seconds. This can lead to unexpected results, for example Duration
+        (70) % 60 => 0 (not 10!).
         '''
         if isinstance(other, int) or isinstance(other, long):
-            return Duration(seconds = (long(self.total_seconds()%other)))
+            return Duration(seconds=(long(self.total_seconds() % other)))
         elif isinstance(other, timedelta):
-            return Duration(seconds = long(self.total_seconds()
-                                           % other.total_seconds()))
-        else : 
-            raise TypeError ("Unsupported operation: can only take mod of "+
-                             "Duration by int and Duration or timedelta")
+            return Duration(seconds=long(self.total_seconds() %
+                            other.total_seconds()))
+        else:
+            raise TypeError("Unsupported operation: can only take mod of " +
+                            "Duration by int and Duration or timedelta")
 
     def __divmod__(self, other):
         '''
         Just returns the tuple (self div other, self mod other)
-        Note that all division operations on Durations are calculated in 
-        terms of seconds. This can lead to unexpected results, for example 
-        Duration (70) % 60 => 0 (not 10!). 
+        Note that all division operations on Durations are calculated in
+        terms of seconds. This can lead to unexpected results, for example
+        Duration (70) % 60 => 0 (not 10!).
         '''
         try:
             return (self//other, self % other)
@@ -111,14 +115,15 @@ class Duration(timedelta):
 
     def __str__(self):
         '''
-        Default representation is hh:mm:ss 
+        Default representation is hh:mm:ss
         Use set_format to change representation
         '''
-        return self.format_str.format (self.days,
-                                       self.hours(),
-                                       self.minutes(),
-                                       self.seconds%60,
-                                       self.total_seconds())
+        return self.format_str.format(self.days,
+                             self.hours(),
+                             self.minutes(),
+                             self.seconds % 60,
+                             self.total_seconds())
+
 
 class DateTimeRange:
     '''
@@ -129,7 +134,7 @@ class DateTimeRange:
     timedelta under the hood)
     '''
     def __init__(self, starttime=None, endtime=None, duration=None):
-        if len(filter(lambda i:i, [starttime, endtime, duration])) < 2:
+        if len(filter(lambda i: i, [starttime, endtime, duration])) < 2:
             raise Exception('Not enough arguments to create DateTimeRange')
         self.starttime = starttime
         self.endtime = endtime
@@ -153,6 +158,6 @@ class DateTimeRange:
         elif isinstance(t, datetime.date):
 
             return (self.starttime < datetime.datetime.combine(t, time.min)
-                    and datetime.datetime.combine (t, time.max) < self.endtime)
+                    and datetime.datetime.combine(t, time.max) < self.endtime)
         elif isinstance(t, DateTimeRange):
             return self.starttime < t.starttime and t.endtime < self.endtime

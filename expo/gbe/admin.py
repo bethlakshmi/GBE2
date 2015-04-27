@@ -2,6 +2,7 @@ from django.contrib import admin
 from gbe.models import *
 from model_utils.managers import InheritanceManager
 
+
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted']

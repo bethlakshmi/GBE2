@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 
+
 def validate_profile(request, require=False):
     '''
     Return the user profile if any
@@ -18,21 +19,21 @@ def validate_profile(request, require=False):
         return None
 
 
-def validate_perms(request, perms, require = True):
+def validate_perms(request, perms, require=True):
     '''
     Validate that the requesting user has the stated permissions
     Returns profile object if perms exist, False if not
     '''
-    profile = validate_profile(request, require = False)
+    profile = validate_profile(request, require=False)
     if not profile:
         if require:
             raise Http404
         else:
             return False
     if perms == 'any':
-        if len (profile.privilege_groups) >0:
+        if len(profile.privilege_groups) > 0:
             return profile
-        else: 
+        else:
             if require:
                 raise Http404
             else:
@@ -43,12 +44,12 @@ def validate_perms(request, perms, require = True):
         raise Http404
     return False               # or just return false if we're just checking
 
-
 '''
     Sends mail to a privilege group, designed for use by bid functions
-    Will always send using default_from_email 
+    Will always send using default_from_email
 '''
 def mail_to_group(subject, message, group_name):
-    to_list = [user.email for user in User.objects.filter(groups__name=group_name)]
+    to_list = [user.email for user in 
+               User.objects.filter(groups__name=group_name)]
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
     return None
