@@ -28,5 +28,29 @@ class BidsMenu(CMSAttachMenu):
         nodes.append(node1)
         nodes.append(node2)
         return nodes
+    
+class LoginMenu(Menu):
+    name = _("I Want To")  # give the menu a name this is required.
+
+    def get_nodes(self, request):
+        """
+        This method is used to build the menu tree.
+        """
+        nodes = []
+ 
+        node1 = NavigationNode(
+            "Logout",
+            reverse('gbe:logout'),
+            1
+            )
+        node2 = NavigationNode(
+            "Update Profile",
+            reverse('gbe:profile_update'),
+            2
+            )
+        nodes.append(node1)
+        nodes.append(node2)
+        return nodes
 
 menu_pool.register_menu(BidsMenu) # register the menu.
+menu_pool.register_menu(LoginMenu) # register the menu.
