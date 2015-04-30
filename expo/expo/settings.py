@@ -34,8 +34,8 @@ SITE_ID=1
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
-    ('template_1.tmpl', 'Template One'),
-    ('template_2.tmpl', 'Template Two'),
+    #('template_1.tmpl', 'Template One'),
+    #('template_2.tmpl', 'Template Two'),
 )
 
 LANGUAGES = [
