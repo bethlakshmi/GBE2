@@ -78,7 +78,10 @@ INSTALLED_APPS = (
     'gbe',
     'ticketing',
     'scheduler',
+    'django_nose',
 )
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
