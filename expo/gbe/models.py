@@ -311,7 +311,7 @@ class Performer (WorkerItem):
     name = models.CharField(max_length=100,     # How this Performer is listed
                             unique=True)        # in a playbill. 
     homepage = models.URLField (blank = True)
-    bio = models.TextField ()
+    bio = models.TextField()
     experience = models.PositiveIntegerField ()       # in years
     awards = models.TextField (blank = True)    
     promo_image = models.FileField(upload_to="uploads/images", 
@@ -521,8 +521,8 @@ class LightingInfo (models.Model):
     Information about the basic (not related to cues) lighting needs of a particular Act
       
     '''
-    notes = models.TextField(blank=True, max_length=256)
-    costume = models.TextField(blank=True, max_length=16)
+    notes = models.TextField(blank=True)
+    costume = models.TextField(blank=True)
 
     @property
     def dump_data(self):
@@ -638,7 +638,7 @@ class CueInfo(models.Model):
 
     '''
     cue_sequence=models.PositiveIntegerField(default=0)
-    cue_off_of = models.TextField(max_length=100)
+    cue_off_of = models.TextField()
 
     follow_spot = models.CharField (max_length=25,
                                     choices=follow_spot_options, 
@@ -657,7 +657,7 @@ class CueInfo(models.Model):
     wash = models.CharField (max_length=25,
                              choices=stage_lighting_options, 
                              default=stage_lighting_options[0])
-    sound_note = models.TextField(max_length=100, blank=True)
+    sound_note = models.TextField(blank=True)
     
     techinfo = models.ForeignKey(TechInfo)
 
@@ -1018,14 +1018,14 @@ class Class (Biddable, Event):
     other_teachers = models.CharField(max_length=128, blank=True)
     length_minutes = models.IntegerField(choices=class_length_options, 
                                          default=60, blank=True)
-    history =  models.TextField(max_length = 500, blank=True)
-    run_before = models.TextField(max_length=500, blank=True)
+    history =  models.TextField(blank=True)
+    run_before = models.TextField(blank=True)
     schedule_constraints = models.TextField(blank=True)
     space_needs = models.CharField(max_length=128, 
                                    choices=space_options, 
                                    blank=True, 
                                    default='Please Choose an Option')
-    physical_restrictions =  models.TextField(max_length = 500, blank=True)
+    physical_restrictions =  models.TextField(blank=True)
     multiple_run =  models.CharField(max_length=20,
                                 choices=yesno_options, default="No") 
 
@@ -1244,8 +1244,8 @@ class ArtBid(Biddable):
     '''
     Not used in 2015. Possibly in 2015
     '''
-    bio = models.TextField(max_length=500, blank=True)
-    works = models.TextField(max_length=500, blank=True)
+    bio = models.TextField(blank=True)
+    works = models.TextField(blank=True)
     art1 = models.FileField(upload_to="uploads/images", blank=True)
     art2 = models.FileField(upload_to="uploads/images", blank=True)
     art3 = models.FileField(upload_to="uploads/images", blank=True)
@@ -1264,7 +1264,7 @@ class ClassProposal(models.Model):
     title = models.CharField(max_length = 128)
     name = models.CharField(max_length = 128, blank = True)
     email = models.EmailField(blank=True)
-    proposal = models.TextField(max_length=100)
+    proposal = models.TextField()
     type = models.CharField (max_length = 20, 
                              choices = class_proposal_choices,
                              default = 'Class')
