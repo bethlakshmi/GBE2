@@ -22,7 +22,7 @@ def performer_act_submittal_link(user_id):
         return ('http://www.brownpapertickets.com/event/ID-' +
                 unicode(user_id) +
                 '/' +
-                act_sub_events[0].bpt_event_id
+                act_sub_events[0].bpt_event_id)
     return None
 
 def vendor_submittal_link(user_id):
@@ -35,10 +35,10 @@ def vendor_submittal_link(user_id):
     '''    
     vendor_events = BrownPaperEvents.objects.filter(vendor_submission_event=True)
     if (vendor_events.count() > 0):
-        return 'http://www.brownpapertickets.com/event/ID-' +
+        return ('http://www.brownpapertickets.com/event/ID-' +
                 unicode(user_id) +
                 '/' +
-                vendor_events[0].bpt_event_id
+                vendor_events[0].bpt_event_id)
     return None
 
 def verify_performer_app_paid(user_name):

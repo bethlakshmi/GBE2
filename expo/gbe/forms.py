@@ -10,9 +10,9 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from expoformfields import DurationFormField
-from scheduler.functions import set_time_format, 
-from scheduler.functions import conference_days
-from scheduler.functions import conference_times
+from scheduler.functions import (set_time_format,
+                                 conference_days,
+                                 conference_times,)
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
@@ -233,13 +233,13 @@ class BidStateChangeForm(forms.ModelForm):
 class EventCheckBox(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         time_format = set_time_format(days = 2)
-        return str(obj) +
-        " - "+
-        obj.starttime.strftime(time_format)+
-        ' ('+
-        obj.volunteer_count+
-        '/'+
-        str(obj.max_volunteer)+')'
+        return (str(obj) +
+                " - "+
+                obj.starttime.strftime(time_format)+
+                ' ('+
+                obj.volunteer_count+
+                '/'+
+                str(obj.max_volunteer)+')')
 
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
