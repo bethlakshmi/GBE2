@@ -1,5 +1,5 @@
 {% comment %}
-   Central nav bar for GBE. Included via base.html
+   Central nav bar for GBE. Included via base.tmpl
 {% endcomment %}    
       <div id='cssmenu'>
       <ul>
