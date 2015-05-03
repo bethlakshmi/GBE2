@@ -8,29 +8,10 @@ from menus.menu_pool import menu_pool
 from gbe.functions import *
 from gbe.models import *
 
-class BidsMenu(CMSAttachMenu):
-    name = _("I Want To")  # give the menu a name this is required.
-
-    def get_nodes(self, request):
-        """
-        This method is used to build the menu tree.
-        """
-        nodes = []
- 
-        node1 = NavigationNode(
-            "Perform at the Expo",
-            reverse('gbe:act_create'),
-            1
-            )
-        node2 = NavigationNode(
-            "Teach a Class",
-            reverse('gbe:class_create'),
-            2
-            )
-        nodes.append(node1)
-        nodes.append(node2)
-        return nodes
-    
+'''
+  This is the best simulation of our old login menu I could come up with - the Django Menu
+  doesn't offer Clickable top level menu items if there are children items.
+'''
 class LoginMenu(Menu):
     name = _("Your Account")  # give the menu a name this is required.
 
@@ -55,6 +36,10 @@ class LoginMenu(Menu):
 
         return nodes
 
+'''
+  The special menu, I chose to separate them largely for modularity.  Login and Special can all be
+  in one function, but I thought the separation of areas was useful for readability.
+'''
 class SpecialMenu(Menu):
     name = _("Special")
     
@@ -79,6 +64,5 @@ class SpecialMenu(Menu):
         
         
         
-menu_pool.register_menu(BidsMenu) # register the menu.
 menu_pool.register_menu(SpecialMenu) # register the menu.
 menu_pool.register_menu(LoginMenu) # register the menu.
