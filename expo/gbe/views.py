@@ -15,10 +15,6 @@ from duration import Duration
 from scheduler.functions import set_time_format
 
 
-
-
-
-
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template with 
@@ -109,6 +105,8 @@ def landing_page(request, profile_id=None):
 
 
 def event(request, event_id):
+    '''Not listed in urlconf - can delete?
+    '''
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
@@ -176,7 +174,7 @@ def edit_troupe(request, troupe_id=None):
     else:
         troupe = Troupe();
         
-    if troupe_id > 0 and troupe.contact != request.user.profile:
+    if troupe_id > 0 and request.user and troupe.contact != request.user.profile:
           return HttpResponseRedirect(reverse('troupe_view', 
                                               urlconf='gbe.urls', 
                                               args=[str(troupe_id)])) 

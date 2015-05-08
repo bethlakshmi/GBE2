@@ -627,7 +627,7 @@ class ProfilePreferencesForm(forms.ModelForm):
                                              widget=forms.CheckboxSelectMultiple(),
                                              label=profile_preferences_labels['inform_about'])
 
-class Meta:
+    class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
