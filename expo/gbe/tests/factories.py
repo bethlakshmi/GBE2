@@ -7,8 +7,7 @@ from gbe.duration import Duration
 
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
-        model= sched.WorkerItem
-    
+        model= sched.WorkerItem    
 
 
 class UserFactory(DjangoModelFactory):
