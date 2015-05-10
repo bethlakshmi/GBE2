@@ -38,18 +38,6 @@ div#nav ul li a{
 
 }
 
-div#nav ul li a:link, a:visited{
-    color:#F00;
-}
-
-div#nav ul li a:hover{
-    color:#0FF;
-    background:#000;
-}
-
-div#nav ul li a:active {
-    color:#0FF;
-}
 
 
 div#main-content{
