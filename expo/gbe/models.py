@@ -134,7 +134,7 @@ class Profile(WorkerItem):
         from special_privileges import special_privileges
         privs = [ special_privileges.get(group, None) for group in 
                   self.privilege_groups]
-        return privs
+        return filter (lambda x: x is not None, privs)
 
     @property
     def privilege_groups(self):
