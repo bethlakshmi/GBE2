@@ -57,7 +57,7 @@ urlpatterns = patterns ('',
 # classes
                         url(r'^class/create/?$',
                             views.bid_class, name='class_create'),
-                        url(r'class/edit/(\d+)/?$', 
+                        url(r'class/edit/(\d+)/?$',
                             views.edit_class, name='class_edit'),
                         url(r'^class/view/(\d+)/?$',
                             views.view_class, name='class_view'),
@@ -183,6 +183,7 @@ urlpatterns = patterns ('',
                             views.register, name='register'),
                         url(r'update_profile/?$',
                             views.update_profile, name='profile_update'),
+
                         url(r'^special/?$',
                             views.special, name='special'),
 # password reset 

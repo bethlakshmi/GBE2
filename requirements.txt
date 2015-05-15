@@ -1,0 +1,33 @@
+# Bare minimum
+django-cms>=3.0
+
+# These dependencies are brought in by django CMS, but if you want to
+# lock-in their version, specify them
+Django==1.6.5
+
+South
+django-mptt==0.6.1
+django-sekizai
+django-classy-tags
+djangocms-admin-style
+html5lib
+six
+
+# Optional, recommended packages
+Pillow>=2
+django-filer
+cmsplugin-filer
+django-reversion==1.8.5
+#mysql-python
+
+djangocms_text_ckeditor
+djangocms_style
+djangocms_column
+djangocms_file
+djangocms_flash
+djangocms_googlemap
+djangocms_inherit
+djangocms_link
+djangocms_picture
+djangocms_teaser
+djangocms_video
