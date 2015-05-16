@@ -29,6 +29,10 @@ except:
 import os
 gettext = lambda s: s
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+try:
+    STATIC_ROOT
+except:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SITE_ID=1
 
