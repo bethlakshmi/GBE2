@@ -183,7 +183,6 @@ urlpatterns = patterns ('',
                             views.register, name='register'),
                         url(r'update_profile/?$',
                             views.update_profile, name='profile_update'),
-
                         url(r'^special/?$',
                             views.special, name='special'),
 # password reset 
