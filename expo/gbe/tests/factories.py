@@ -15,7 +15,7 @@ class UserFactory(DjangoModelFactory):
         model = conf.User
     first_name = factory.Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
-    username = factory.LazyAttribute(lambda a: "%s %s" % (a.first_name, a.last_name))
+    username = factory.LazyAttribute(lambda a: "%s" % (a.first_name))
     email = '%s@smith.com' % username
 
     
@@ -30,7 +30,7 @@ class ProfileFactory(DjangoModelFactory):
     zip_code = '12345'
     country = 'USA'
     phone = '617-282-9268'
-    display_name=factory.LazyAttribute(lambda a: "%s %s"%(a.user_object.first_name, 
+    display_name=factory.LazyAttribute(lambda a: "%s_%s"%(a.user_object.first_name, 
                                                           a.user_object.last_name))
 
 class ShowFactory(DjangoModelFactory):

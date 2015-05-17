@@ -36,3 +36,7 @@ def is_login_page(response):
 
 def is_profile_update_page(response):
     return 'Your privacy is very important to us' in response.content
+
+def location(response):
+    response_dict = dict(response.items())
+    return response_dict['Location']
