@@ -104,6 +104,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
 
+    'filer',
+    'easy_thumbnails',
+#    'aldryn_bootstrap3',
+    'cmsplugin_bootstrap_carousel',
     'djangocms_style',
     'djangocms_column',
     'djangocms_file',
@@ -122,6 +126,7 @@ INSTALLED_APPS = (
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+THUMBNAIL_HIGH_RESOLUTION = True
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
