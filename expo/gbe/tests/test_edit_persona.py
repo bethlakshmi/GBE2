@@ -17,7 +17,7 @@ class TestEditPersona(TestCase):
         self.client = Client()
         self.troupe_string = 'Tell Us About Your Stage Persona'
 
-    def test_create_troupe(self):
+    def test_edit_persona(self):
         '''edit_troupe view, create flow
         '''
         contact = factories.PersonaFactory.create()
