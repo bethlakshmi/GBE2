@@ -12,8 +12,8 @@ from functions import (login_as,
                        is_profile_update_page,
                        location)
 
-class TestEditPersona(TestCase):
-    '''Tests for edit_persona view'''
+class TestBidAct(TestCase):
+    '''Tests for bid_act view'''
 
     def setUp(self):
         self.factory = RequestFactory()

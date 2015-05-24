@@ -164,11 +164,11 @@ class GenericEventFactory(DjangoModelFactory):
     volunteer_category = 'VA0'
 
 
-
 class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class
-
+    title = factory.Sequence(lambda x: "Test Class #%d" %x)
+    teacher = SubFactory(PersonaFactory)
     minimum_enrollment = 1
     maximum_enrollment = 20
     organization = "Some Organization"
@@ -176,10 +176,12 @@ class ClassFactory(DjangoModelFactory):
     fee = 0
     length_minutes = 60
     history =  factory.LazyAttribute(lambda a:"History for test Class %s"%a.title)
-    run_before = factory.LazyAttribute("run_before for test Class")
-    schedule_constraints = factory.LazyAttribute(lambda a: "schedule constraints for test Class %s" % a.title)
+    run_before = factory.LazyAttribute(lambda a:"run_before for test Class")
+    schedule_constraints = factory.LazyAttribute(lambda a: "schedule constraints for test Class %s" 
+                                                 % a.title)
     space_needs = ''                    
-    physical_restrictions = factory.LazyAttribute(lambda a:"physical restrictions for test Class" % a.title)
+    physical_restrictions = factory.LazyAttribute(lambda a:"physical restrictions for test Class %s"
+                                                  % a.title)
     multiple_run =  "No"
 
 
