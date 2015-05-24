@@ -201,12 +201,17 @@ class VolunteerFactory(DjangoModelFactory):
 
     profile = SubFactory(ProfileFactory)
     number_shifts = 1
-    availability = factory.LazyAttribute(lambda a: "Availability for test Volunteer #%d" % a.id)
-    unavailability = factory.LazyAttribute(lambda a: "Unavailability for test Volunteer #%d" % a.id)
-    interests = factory.LazyAttribute(lambda a: "Interests for test Volunteer #%d" % a.id)
-    opt_outs = factory.LazyAttribute(lambda a: "Opt-outs for test Volunteer #%d" % a.id )
+    availability = factory.LazyAttribute(lambda a: "Availability for test Volunteer #%s" %
+                                         a.profile.display_name)
+    unavailability = factory.LazyAttribute(lambda a: "Unavailability for test Volunteer #%s" % 
+                                           a.profile.display_name)
+    interests = factory.LazyAttribute(lambda a: "Interests for test Volunteer #%s" % 
+                                         a.profile.display_name)
+    opt_outs = factory.LazyAttribute(lambda a: "Opt-outs for test Volunteer #%s" %
+                                         a.profile.display_name)
     pre_event = False
-    background = factory.LazyAttribute(lambda a: "Background for test Volunteer #%d" %a.id)
+    background = factory.LazyAttribute(lambda a: "Background for test Volunteer #%s" %
+                                         a.profile.display_name)
 
 
 

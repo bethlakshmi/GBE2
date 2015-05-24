@@ -1035,9 +1035,6 @@ def class_changestate (request, bid_id):
             
     return bid_changestate (request, bid_id, 'class_review_list')
 
-
-
-
 @login_required
 def create_volunteer(request):
     page_title = 'Volunteer'
