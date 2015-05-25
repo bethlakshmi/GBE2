@@ -1163,7 +1163,6 @@ def review_volunteer (request, volunteer_id):
                         'actionform':actionform,
                         'actionURL': actionURL})
 
-
  
 @login_required
 def review_volunteer_list (request):
@@ -1368,13 +1367,12 @@ def vendor_changestate (request, bid_id):
 
 @login_required
 def create_vendor(request):
-
     title = "Vendor Application"
     fee_link = vendor_submittal_link(request.user.id)
 
-    profile = validate_profile(request, require='False')
+    profile = validate_profile(request, require=False)
     if not profile:
-        return HttpResponseRedirect(reverse('accounts_profile', urlconf='gbe.urls') +
+        return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('vendor_create', urlconf='gbe.urls'))
     if request.method == 'POST':
