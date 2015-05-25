@@ -1529,13 +1529,6 @@ def view_vendor (request, vendor_id):
 
     return render (request, 'gbe/bid_view.tmpl',
                    {'readonlyform': [vendorform, profile]})
-    
-
-@login_required
-def bid_response(request,type,response):
-    if response == "error":
-        return render(request, 'bids/'+response+'.html')
-    return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
     '''
@@ -1543,9 +1536,6 @@ def act(request, act_id):
     '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
-
-
-
 
 def profile(request, profile_id=None):
     '''
@@ -1572,9 +1562,7 @@ def profile(request, profile_id=None):
                         'user' : requested_profile.user_object,                        
                         'viewer_is_admin':viewer_is_admin,
                         'own_profile': own_profile})
-        
-    
-    
+
 def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones 
