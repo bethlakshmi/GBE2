@@ -1533,6 +1533,7 @@ def view_vendor (request, vendor_id):
 def act(request, act_id):
     '''
     Act detail view. Display depends on state of act and identity of viewer. 
+    Not used. Remove?
     '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
@@ -1542,6 +1543,7 @@ def profile(request, profile_id=None):
     Display a profile. Display depends on user. If own profile, show everything and 
     link to edit. If admin user, show everything and link to admin. 
     For non-owners and unregistered, display TBD
+    Not used. Remove?
     '''
     viewer_profile = validate_profile(request, require=True)
     if profile_id == None:
@@ -1567,6 +1569,7 @@ def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones 
     and how much information depends on the viewer. TBD
+    Not used. Remove?
     '''
     return render (request, 'gbe/error.tmpl', 
                    {'error' : "Not yet implemented"})
@@ -1574,7 +1577,7 @@ def profiles(request):
 
 @login_required
 def review_profiles(request):
-
+    '''Not used. Remove?'''
     admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
                                              'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
 
@@ -1602,12 +1605,15 @@ def review_profiles(request):
     
 @login_required
 def review_user_commitments(request, profile_id):
-
-    admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
-                                             'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
+    # note: this function is broken. (header is not defined)
+    admin_profile = validate_perms(request, ('Registrar',
+                                             'Volunteer Coordinator',
+                                             'Act Coordinator',
+                                             'Conference Coordinator',
+                                             'Vendor Coordinator',
+                                             'Ticketing - Admin'))
 
     user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
-
  
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
