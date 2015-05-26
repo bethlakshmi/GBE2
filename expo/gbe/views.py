@@ -1620,7 +1620,7 @@ def review_user_commitments(request, profile_id):
 
 @login_required
 def manage_user_tickets(request, profile_id):
-
+    # note: this function is broken. (header is not defined)
     admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
 
     user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
@@ -1776,9 +1776,6 @@ def logout_view (request):
     logout(request)
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
-
-
-
 def propose_class (request):
     '''
     Handle suggestions for classes from the great unwashed 
@@ -1835,9 +1832,6 @@ def publish_proposal (request, class_id):
                         'view_title': view_title,
                         'nodraft': submit_button})
         return HttpResponse(template.render(context))
-    
-    
-
 
 @login_required
 def review_proposal_list (request):
@@ -2008,14 +2002,12 @@ def ad_delete(request, ad_id):
     but marks it as deleted.
     Boilerplate
     '''
-
     pass
 
 def bios_staff(request):
     '''
     Display the staff bios, pulled from their profiles.
     '''
-
     pass
 
 def bios_teachers(request):
@@ -2056,14 +2048,12 @@ def bios_volunteer(request):
     '''
     Display the volunteer bios, pulled from their profiles.
     '''
-
     pass
 
 def special(request):
     '''
     Edit special privledges.
     '''
-
     pass
 
 def volunteer(request):
@@ -2072,14 +2062,12 @@ def volunteer(request):
     pages for panel, class, tech, etc volunteering, or a more flexible widget to
     deal with all type of volunteering.
     '''
-
     pass
 
 def costume_display(request):
     '''
     Costume Display.  May move this and a few other things into a separate app?
     '''
-
     pass
 
 def fashion_faire(request):
@@ -2093,8 +2081,7 @@ def fashion_faire(request):
     template = 'gbe/fashionfair.tmpl'
     context = {'vendor_rows':vendor_rows}
     return render(request, template, context)
-    
-    
+
 @login_required
 def bid_changestate (request, bid_id, redirectURL):
     '''
