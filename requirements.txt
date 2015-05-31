@@ -31,3 +31,6 @@ djangocms_link
 djangocms_picture
 djangocms_teaser
 djangocms_video
+filer
+easy_thumbnails
+cmsplugin_bootstrap_carousel

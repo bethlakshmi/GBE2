@@ -624,10 +624,9 @@ class ConferenceVolunteerForm(forms.ModelForm):
 class ProfilePreferencesForm(forms.ModelForm):
     inform_about = forms.MultipleChoiceField(choices=inform_about_options,
                                              required=False,
-                                             widget=forms.CheckboxSelectMultiple(),
+                                             widget=forms.CheckboxSelectMultiple(), 
                                              label=profile_preferences_labels['inform_about'])
-
-class Meta:
+    class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
