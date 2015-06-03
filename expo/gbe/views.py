@@ -14,11 +14,11 @@ from django.core.urlresolvers import reverse
 from duration import Duration
 from scheduler.functions import set_time_format
 
+from expo.gbe_logging import *
 
 
 
-
-
+@log_func
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template with 
@@ -28,6 +28,7 @@ def down(request):
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
+@log_func
 def index(request):
     '''
     one of two cases: 
@@ -47,6 +48,7 @@ def index(request):
     context = RequestContext (request, context_dict)
     return HttpResponse(template.render(context))
 
+@log_func
 def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list']  = Event.objects.all()[:5]
@@ -108,11 +110,13 @@ def landing_page(request, profile_id=None):
     return HttpResponse(template.render(context))
 
 
+@log_func
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
 
+@log_func
 def techinfo(request):
     form = TechInfoForm()
     return render(request, 
@@ -120,6 +124,7 @@ def techinfo(request):
                   {'form':form})
 
     
+@log_func
 @login_required
 def register_persona(request, **kwargs):
     page_title = 'Stage Persona'
@@ -155,6 +160,7 @@ def register_persona(request, **kwargs):
                        'view_title':view_title})
              
 
+@log_func
 @login_required
 def edit_troupe(request, troupe_id=None):
     page_title = 'Manage Troupe'
@@ -210,6 +216,7 @@ def edit_troupe(request, troupe_id=None):
                        'view_title': view_title,
                        'view_header_text':troupe_header_text})
                                    
+@log_func
 @login_required
 def view_troupe(request, troupe_id=None):
     '''
@@ -233,6 +240,7 @@ def view_troupe(request, troupe_id=None):
     return render (request, 'gbe/bid_view.tmpl',
                    {'readonlyform': [form, owner]})
  
+@log_func
 @login_required         
 def create_combo(request):
     page_title = 'Manage Combo'
@@ -272,6 +280,7 @@ def create_combo(request):
                        'view_header_text':combo_header_text })
                                    
     
+@log_func
 @login_required
 def edit_persona(request, persona_id):
     '''
@@ -312,6 +321,7 @@ def edit_persona(request, persona_id):
                     })  
                         
 
+@log_func
 @login_required
 def bid_act(request):
     '''
@@ -426,6 +436,7 @@ def bid_act(request):
                         'draft_fields': draft_fields
                         })
 
+@log_func
 @login_required
 def edit_act(request, act_id):
     '''
@@ -558,6 +569,7 @@ def edit_act(request, act_id):
                         })
                     
 
+@log_func
 @login_required
 def view_act (request, act_id):
     '''
@@ -593,6 +605,7 @@ def view_act (request, act_id):
                    {'readonlyform': [actform, performer]})
     
     
+@log_func
 @login_required
 def review_act (request, act_id):
     '''
@@ -674,6 +687,7 @@ def review_act (request, act_id):
                         'actionform':actionform,
                         'actionURL': actionURL})
 
+@log_func
 @login_required
 def review_act_list (request):
     '''
@@ -700,6 +714,7 @@ def review_act_list (request):
     return render (request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows})
 
+@log_func
 @login_required
 def act_changestate (request, bid_id):
     '''
@@ -739,6 +754,7 @@ def act_changestate (request, bid_id):
 
 
 
+@log_func
 @login_required
 def submit_act(request, act_id):
     submitter = validate_profile(request, require=True)
@@ -761,6 +777,7 @@ def submit_act(request, act_id):
 
 class_durations = {0:0, 1:60, 2:90,3:120}
 
+@log_func
 @login_required
 def bid_class(request):
     '''
@@ -835,6 +852,7 @@ def bid_class(request):
 
 
     
+@log_func
 def edit_class(request, class_id):
     '''
     Edit an existing class.
@@ -900,6 +918,7 @@ def edit_class(request, class_id):
                         'draft_fields': draft_fields
                         })
 
+@log_func
 @login_required
 def view_class (request, class_id):
     '''
@@ -920,6 +939,7 @@ def view_class (request, class_id):
                    {'readonlyform': [classform, teacher]})
     
 
+@log_func
 @login_required
 def review_class (request, class_id):
     '''
@@ -985,6 +1005,7 @@ def review_class (request, class_id):
                         'actionform':actionform,
                         'actionURL': actionURL })
 
+@log_func
 @login_required
 def review_class_list (request):
     '''
@@ -1012,6 +1033,7 @@ def review_class_list (request):
                    'action1_text': 'Review',
                    'action1_link': reverse('class_review', urlconf='gbe.urls')})
 
+@log_func
 @login_required
 def class_changestate (request, bid_id):
     '''
@@ -1040,6 +1062,7 @@ def class_changestate (request, bid_id):
 
 
 
+@log_func
 @login_required
 def create_volunteer(request):
     page_title = 'Volunteer'
@@ -1083,6 +1106,7 @@ def create_volunteer(request):
                         'view_title': view_title,
                         'nodraft':'Submit'})
                             
+@log_func
 @login_required
 def view_volunteer (request, volunteer_id):
     '''
@@ -1105,6 +1129,7 @@ def view_volunteer (request, volunteer_id):
     return render (request, 'gbe/bid_view.tmpl',
                    {'readonlyform': [volunteerform, profile]})
 
+@log_func
 @login_required
 def review_volunteer (request, volunteer_id):
     '''
@@ -1170,6 +1195,7 @@ def review_volunteer (request, volunteer_id):
 
 
  
+@log_func
 @login_required
 def review_volunteer_list (request):
     '''
@@ -1197,6 +1223,7 @@ def review_volunteer_list (request):
                    'action1_text': 'Review',
                    'action1_link': reverse('volunteer_review', urlconf='gbe.urls') })
     
+@log_func
 @login_required
 def volunteer_changestate (request, bid_id):
     '''
@@ -1223,6 +1250,7 @@ def volunteer_changestate (request, bid_id):
 
 
 
+@log_func
 @login_required
 def edit_volunteer (request, volunteer_id):
     page_title = "Edit Volunteer Bid"
@@ -1274,6 +1302,7 @@ def edit_volunteer (request, volunteer_id):
 
 
 
+@log_func
 def review_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user. 
@@ -1330,6 +1359,7 @@ def review_vendor(request, vendor_id):
                         'actionURL': actionURL})
     
  
+@log_func
 @login_required
 def review_vendor_list (request):
     '''
@@ -1358,6 +1388,7 @@ def review_vendor_list (request):
                    'action1_text': 'Review',
                    'action1_link': reverse('vendor_review', urlconf='gbe.urls')})
 
+@log_func
 @login_required
 def vendor_changestate (request, bid_id):
     '''
@@ -1371,6 +1402,7 @@ def vendor_changestate (request, bid_id):
     return bid_changestate (request, bid_id, 'vendor_review_list')
 
 
+@log_func
 @login_required
 def create_vendor(request):
 
@@ -1432,6 +1464,7 @@ def create_vendor(request):
                         'page_title': title,
                         'view_title':title})
 
+@log_func
 @login_required
 def edit_vendor(request, vendor_id):
 
@@ -1515,6 +1548,7 @@ def edit_vendor(request, vendor_id):
                         'fee_link': fee_link
                         })
                     
+@log_func
 @login_required
 def view_vendor (request, vendor_id):
     '''
@@ -1538,12 +1572,14 @@ def view_vendor (request, vendor_id):
                    {'readonlyform': [vendorform, profile]})
     
 
+@log_func
 @login_required
 def bid_response(request,type,response):
     if response == "error":
         return render(request, 'bids/'+response+'.html')
     return render(request, 'bids/'+type+response+'.html')
 
+@log_func
 def act(request, act_id):
     '''
     Act detail view. Display depends on state of act and identity of viewer. 
@@ -1554,6 +1590,7 @@ def act(request, act_id):
 
 
 
+@log_func
 def profile(request, profile_id=None):
     '''
     Display a profile. Display depends on user. If own profile, show everything and 
@@ -1582,6 +1619,7 @@ def profile(request, profile_id=None):
         
     
     
+@log_func
 def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones 
@@ -1591,6 +1629,7 @@ def profiles(request):
                    {'error' : "Not yet implemented"})
     
 
+@log_func
 @login_required
 def review_profiles(request):
 
@@ -1619,6 +1658,7 @@ def review_profiles(request):
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
     
+@log_func
 @login_required
 def review_user_commitments(request, profile_id):
 
@@ -1631,6 +1671,7 @@ def review_user_commitments(request, profile_id):
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
 
+@log_func
 @login_required
 def manage_user_tickets(request, profile_id):
 
@@ -1642,6 +1683,7 @@ def manage_user_tickets(request, profile_id):
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
 
+@log_func
 @login_required
 def admin_profile(request, profile_id):
 
@@ -1697,6 +1739,7 @@ def admin_profile(request, profile_id):
                       {'left_forms': [form], 'right_forms':[prefs_form], 'display_name': user_profile.display_name})
 
 
+@log_func
 @login_required
 def update_profile(request):
     profile = validate_profile(request, require = False)
@@ -1759,6 +1802,7 @@ def update_profile(request):
                       {'left_forms': [form], 'right_forms':[prefs_form]})
 
 
+@log_func
 def register (request):
     '''
     Allow a user to register with gbe. This should create both a user
@@ -1780,6 +1824,7 @@ def register (request):
     return render(request, 'gbe/register.html', {
         'form':form})
 
+@log_func
 def logout_view (request):
     '''
     End the current user's session. 
@@ -1792,6 +1837,7 @@ def logout_view (request):
 
 
 
+@log_func
 def propose_class (request):
     '''
     Handle suggestions for classes from the great unwashed 
@@ -1812,6 +1858,7 @@ def propose_class (request):
         return HttpResponse(template.render(context))
     
     
+@log_func
 @login_required
 def publish_proposal (request, class_id):
     '''
@@ -1852,6 +1899,7 @@ def publish_proposal (request, class_id):
     
 
 
+@log_func
 @login_required
 def review_proposal_list (request):
     '''
@@ -1874,6 +1922,7 @@ def review_proposal_list (request):
                   {'header': header, 'rows': rows})
 
 
+@log_func
 def panel_create(request):
     '''
     View for creating a panel.  Boilerplate for now, more later.
@@ -1882,6 +1931,7 @@ def panel_create(request):
 
 
 
+@log_func
 def panel_view(request, panel_id):
     '''
     View for viewing a panel.
@@ -1889,6 +1939,7 @@ def panel_view(request, panel_id):
     '''
     pass
 
+@log_func
 def panel_edit(request, panel_id):
     '''
     View for editting a panel.
@@ -1897,6 +1948,7 @@ def panel_edit(request, panel_id):
 
     pass
 
+@log_func
 def panel_delete(request, panel_id):
     '''
     View to delete a panel.  Deleting only marks panel as deleted, does not
@@ -1906,6 +1958,7 @@ def panel_delete(request, panel_id):
 
     pass
 
+@log_func
 def conference_volunteer(request):
     '''
     Volunteer to chair or sit on a panel or teach a class.
@@ -1983,6 +2036,7 @@ def conference_volunteer(request):
                    {'view_title': view_title, 'page_title': page_title,
                     'header': header, 'rows': rows})
 
+@log_func
 def ad_create(request):
     '''
     View to create an advertisement.
@@ -1991,6 +2045,7 @@ def ad_create(request):
 
     pass
 
+@log_func
 def ad_list(request):
     '''
     View to get a list of advertisements.
@@ -1999,6 +2054,7 @@ def ad_list(request):
 
     pass
 
+@log_func
 def ad_edit(request, ad_id):
     '''
     View to edit or alter an advertisement.
@@ -2007,6 +2063,7 @@ def ad_edit(request, ad_id):
 
     pass
 
+@log_func
 def ad_view(request, ad_id):
     '''
     View an advertisement.
@@ -2015,6 +2072,7 @@ def ad_view(request, ad_id):
 
     pass
 
+@log_func
 def ad_delete(request, ad_id):
     '''
     Delete an advertisement.  Deletion does not remove the ad from the database,
@@ -2024,6 +2082,7 @@ def ad_delete(request, ad_id):
 
     pass
 
+@log_func
 def bios_staff(request):
     '''
     Display the staff bios, pulled from their profiles.
@@ -2031,6 +2090,7 @@ def bios_staff(request):
 
     pass
 
+@log_func
 def bios_teachers(request):
     '''
     Display the teachers bios.  Teachers are anyone teaching,
@@ -2065,6 +2125,7 @@ def bios_teachers(request):
     
     return render(request, template, context)
 
+@log_func
 def bios_volunteer(request):
     '''
     Display the volunteer bios, pulled from their profiles.
@@ -2072,6 +2133,7 @@ def bios_volunteer(request):
 
     pass
 
+@log_func
 def special(request):
     '''
     Edit special privledges.
@@ -2079,6 +2141,7 @@ def special(request):
 
     pass
 
+@log_func
 def volunteer(request):
     '''
     Gateway to volunteering pages for users.  Either places links to individual
@@ -2088,6 +2151,7 @@ def volunteer(request):
 
     pass
 
+@log_func
 def costume_display(request):
     '''
     Costume Display.  May move this and a few other things into a separate app?
@@ -2095,6 +2159,7 @@ def costume_display(request):
 
     pass
 
+@log_func
 def fashion_faire(request):
     '''
     The Vintage Fashion Faire.  Glorified vendor list
@@ -2108,6 +2173,7 @@ def fashion_faire(request):
     return render(request, template, context)
     
     
+@log_func
 @login_required
 def bid_changestate (request, bid_id, redirectURL):
     '''
@@ -2132,6 +2198,7 @@ def bid_changestate (request, bid_id, redirectURL):
 
     return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))
 
+@log_func
 @login_required
 def edit_act_techinfo(request, act_id):
     '''
@@ -2280,6 +2347,7 @@ def edit_act_techinfo(request, act_id):
                         })
     
 
+@log_func
 def create_event(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))
     page_title = "Create " + event_type

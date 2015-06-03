@@ -1,0 +1,15 @@
+import gbe_logging
+from django.http import HttpRequest
+
+gbe_logging.info('HTTP Request: '+str(HttpRequest.get_host()+'/'+HttpRequest.get_full_path()))  
+
+###  Or it could be:
+
+'''
+gbe_logging.info('HTTP Request: '+str(HttpRequest.body))
+gbe_logging.info('HTTP Request: '+str(HttpRequest.path))
+gbe_logging.info('HTTP Request: '+str(request.GET('url')))
+gbe_logging.info('HTTP Request: '+str(HttpRequest.get_full_path(request)))
+'''
+
+###  But it is something like that

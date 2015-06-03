@@ -1,0 +1,345 @@
+2015-05-13 00:40:14,155:INFO:root - GBE Initialized, Logging begins
+2015-05-13 04:40:14,378:INFO:root - GBE Initialized, Logging begins
+2015-05-13 05:04:07,277:INFO:root - GBE Initialized, Logging begins
+2015-05-13 05:04:13,895:ERROR:django.request - Internal Server Error: /
+Traceback (most recent call last):
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    resolver_match = resolver.resolve(request.path_info)
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 318, in resolve
+    for pattern in self.url_patterns:
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 346, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 341, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/usr/lib64/python2.7/site-packages/django/utils/importlib.py", line 40, in import_module
+    __import__(name)
+  File "/home/dracus/Projects/stack/logging/expo/expo/urls.py", line 9, in <module>
+    url(r'^', include('gbe.urls', namespace = 'gbe')),
+  File "/usr/lib64/python2.7/site-packages/django/conf/urls/__init__.py", line 26, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib64/python2.7/site-packages/django/utils/importlib.py", line 40, in import_module
+    __import__(name)
+  File "/home/dracus/Projects/stack/logging/expo/gbe/urls.py", line 3, in <module>
+    from gbe import views
+  File "/home/dracus/Projects/stack/logging/expo/gbe/views.py", line 17, in <module>
+    expo.gbe_logging
+NameError: name 'expo' is not defined
+2015-05-13 05:04:35,728:ERROR:django.request - Internal Server Error: /
+Traceback (most recent call last):
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    resolver_match = resolver.resolve(request.path_info)
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 318, in resolve
+    for pattern in self.url_patterns:
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 346, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/usr/lib64/python2.7/site-packages/django/core/urlresolvers.py", line 341, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/usr/lib64/python2.7/site-packages/django/utils/importlib.py", line 40, in import_module
+    __import__(name)
+  File "/home/dracus/Projects/stack/logging/expo/expo/urls.py", line 9, in <module>
+    url(r'^', include('gbe.urls', namespace = 'gbe')),
+  File "/usr/lib64/python2.7/site-packages/django/conf/urls/__init__.py", line 26, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/usr/lib64/python2.7/site-packages/django/utils/importlib.py", line 40, in import_module
+    __import__(name)
+  File "/home/dracus/Projects/stack/logging/expo/gbe/urls.py", line 3, in <module>
+    from gbe import views
+  File "/home/dracus/Projects/stack/logging/expo/gbe/views.py", line 31, in <module>
+    @gbe_logging.log_func_info
+NameError: name 'gbe_logging' is not defined
+2015-05-13 05:06:26,537:INFO:root - GBE Initialized, Logging begins
+2015-05-13 17:32:31,804:INFO:root - GBE Initialized, Logging begins
+2015-05-14 16:22:55,051:INFO:root - GBE Initialized, Logging begins
+2015-05-14 21:04:08,164:INFO:root - ('Some text',)
+---------
+{}
+2015-05-15 01:20:15,605:INFO:<module> - GBE Initialized, Logging begins
+2015-05-14 21:20:24,121:INFO:<module> - GBE Initialized, Logging begins
+2015-05-15 01:23:30,872:INFO:__call__ - ('Some text',)
+---------
+{}
+2015-05-15 05:01:20,832:INFO:<module> - GBE Initialized, Logging begins
+2015-05-29 21:05:50,085:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:05:52,074:INFO:<module> - GBE Initialized, Logging begins
+2015-05-29 21:06:07,976:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:06:08,203:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:10:09,500:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:13:51,042:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:19:37,261:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:20:31,212:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:27:46,681:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:28:54,513:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:30:46,709:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 01:50:46,476:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 02:19:15,306:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 02:20:34,528:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 02:22:36,674:INFO:<module> - GBE Initialized, Logging begins
+2015-05-30 02:24:42,838::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:26:18,719::INFO::<module> - GBE Initialized, Logging begins
+2015-05-29 22:30:02,774::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:30:09,801::INFO::__call__ - request_test/n('Some text',)
+---------
+{}
+---------
+
+2015-05-30 02:30:55,928::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:32:30,782::INFO::<module> - GBE Initialized, Logging begins
+2015-05-29 22:32:33,617::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:32:40,119::INFO::__call__ - request_test - args :
+('Some text',)
+---------
+kwargs:
+{}
+---------
+
+2015-05-30 02:35:42,342::INFO::<module> - GBE Initialized, Logging begins
+2015-05-29 22:40:21,793::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:40:26,683::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:40:33,527::INFO::__call__ - request_test - args :
+('Some text',)
+---------
+kwargs:
+{}
+---------
+
+2015-05-29 22:43:41,268::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:44:11,260::INFO::<module> - GBE Initialized, Logging begins
+2015-05-29 22:44:15,589::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:44:20,555::INFO::__call__ - request_test - args :
+('Some text',)
+---------
+kwargs:
+{}
+---------
+
+2015-05-30 02:58:41,474::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 02:58:53,857::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:02:08,260::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:08:20,657::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:28:04,651::INFO::<module> - Log test, just to see if it works
+2015-05-30 03:28:04,651::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:29:02,388::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:30:11,865::INFO::<module> - Another test of logging
+2015-05-30 03:30:44,323::INFO::<module> - GBE Initialized, Logging begins
+2015-05-30 03:30:49,429::INFO::<module> - Another test of logging
+2015-05-30 03:30:49,483::INFO::__call__ - landing_page - args :
+(<WSGIRequest
+path:/,
+GET:<QueryDict: {}>,
+POST:<QueryDict: {}>,
+COOKIES:{},
+META:{'ANT_HOME': '/usr/share/ant',
+ 'COLORFGBG': '15;0',
+ 'CONTENT_LENGTH': '',
+ 'CONTENT_TYPE': 'text/plain',
+ 'CPLUS_INCLUDE_PATH': '/usr/lib64/qt/include',
+ u'CSRF_COOKIE': u'VuNMQOJZduaqY0IzEP2kg3jd8xJIxThI',
+ 'DBUS_SESSION_BUS_ADDRESS': 'unix:abstract=/tmp/dbus-6iJAhx5o7I,guid=d735af11ec1200406ede52f3000000f4',
+ 'DISPLAY': ':0',
+ 'DJANGO_SETTINGS_MODULE': 'expo.settings',
+ 'EDITOR': '/usr/bin/emacs',
+ 'FCEDIT': '/usr/bin/emacs',
+ 'GATEWAY_INTERFACE': 'CGI/1.1',
+ 'GDK_USE_XFT': '1',
+ 'GS_LIB': '/home/dracus/.fonts',
+ 'GTK2_RC_FILES': '/etc/gtk-2.0/gtkrc:/home/dracus/.gtkrc-2.0:/home/dracus/.kde/share/config/gtkrc-2.0',
+ 'GTK_RC_FILES': '/etc/gtk/gtkrc:/home/dracus/.gtkrc:/home/dracus/.kde/share/config/gtkrc',
+ 'G_BROKEN_FILENAMES': '1',
+ 'HOME': '/home/dracus',
+ 'HOSTNAME': 'selene.paxdraconis.org',
+ 'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+ 'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+ 'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.8,nl;q=0.6,de;q=0.4,ja;q=0.2',
+ 'HTTP_CONNECTION': 'keep-alive',
+ 'HTTP_DNT': '1',
+ 'HTTP_HOST': 'localhost:8004',
+ 'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+ 'HUSHLOGIN': 'FALSE',
+ 'HZ': '100',
+ 'INPUTRC': '/etc/inputrc',
+ 'JAVA_HOME': '/usr/lib64/java',
+ 'KDEDIRS': '/usr',
+ 'KDE_FULL_SESSION': 'true',
+ 'KDE_MULTIHEAD': 'false',
+ 'KDE_SESSION_UID': '1000',
+ 'KDE_SESSION_VERSION': '4',
+ 'KONSOLE_DBUS_SERVICE': ':1.46',
+ 'KONSOLE_DBUS_SESSION': '/Sessions/3',
+ 'KRB5CCNAME': '/tmp/krb5cc_1000',
+ 'LANG': 'en_US',
+ 'LANGUAGE': '',
+ 'LC_COLLATE': 'C',
+ 'LESS': '-M',
+ 'LESSOPEN': '|lesspipe.sh %s',
+ 'LOGNAME': 'dracus',
+ 'LS_COLORS': 'no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.bat=01;32:*.BAT=01;32:*.btm=01;32:*.BTM=01;32:*.cmd=01;32:*.CMD=01;32:*.com=01;32:*.COM=01;32:*.dll=01;32:*.DLL=01;32:*.exe=01;32:*.EXE=01;32:*.7z=01;31:*.ace=01;31:*.ACE=01;31:*.arj=01;31:*.bz2=01;31:*.cpio=01;31:*.deb=01;31:*.dz=01;31:*.gz=01;31:*.jar=01;31:*.lzh=01;31:*.lzma=01;31:*.rar=01;31:*.RAR=01;31:*.rpm=01;31:*.rz=01;31:*.tar=01;31:*.taz=01;31:*.tb2=01;31:*.tbz2=01;31:*.tbz=01;31:*.tgz=01;31:*.tlz=01;31:*.trz=01;31:*.txz=01;31:*.tz=01;31:*.tz2=01;31:*.xz=01;31:*.z=01;31:*.Z=01;31:*.zip=01;31:*.ZIP=01;31:*.zoo=01;31:*.aac=01;35:*.AAC=01;35:*.anx=01;35:*.asf=01;35:*.ASF=01;35:*.au=01;35:*.axa=01;35:*.axv=01;35:*.avi=01;35:*.AVI=01;35:*.bmp=01;35:*.BMP=01;35:*.divx=01;35:*.DIVX=01;35:*.flac=01;35:*.FLAC=01;35:*.gif=01;35:*.GIF=01;35:*.jpg=01;35:*.JPG=01;35:*.jpeg=01;35:*.JPEG=01;35:*.m2a=01;35:*.M2A=01;35:*.m2v=01;35:*.M2V=01;35:*.m4a=01;35:*.M4A=01;35:*.m4p=01;35:*.M4P=01;35:*.m4v=01;35:*.M4V=01;35:*.mid=01;35:*.midi=01;35:*.mka=01;35:*.mkv=01;35:*.MKV=01;35:*.mov=01;35:*.MOV=01;35:*.mp3=01;35:*.MP3=01;35:*.mp4=01;35:*.MP4=01;35:*.mp4v=01;35:*.mpc=01;35:*.MPC=01;35:*.mpeg=01;35:*.MPEG=01;35:*.mpg=01;35:*.MPG=01;35:*.nuv=01;35:*.oga=01;35:*.ogv=01;35:*.ogx=01;35:*.ogg=01;35:*.OGG=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.PNG=01;35:*.ppm=01;35:*.qt=01;35:*.ra=01;35:*.RA=01;35:*.ram=01;35:*.RAM=01;35:*.rm=01;35:*.RM=01;35:*.spx=01;35:*.svg=01;35:*.svgz=01;35:*.tga=01;35:*.TGA=01;35:*.tif=01;35:*.TIF=01;35:*.tiff=01;35:*.TIFF=01;35:*.vob=01;35:*.VOB=01;35:*.wav=01;35:*.WAV=01;35:*.wma=01;35:*.WMA=01;35:*.wmv=01;35:*.WMV=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xspf=01;35:*.xwd=01;35:*.XWD=01;35:*.xvid=01;35:',
+ 'LS_OPTIONS': '-F -b -T 0 --color=auto',
+ 'MAIL': '/var/spool/mail/dracus',
+ 'MANPATH': '/usr/local/man:/usr/man:/usr/lib64/java/man:/usr/share/texmf/man',
+ 'MINICOM': '-c on',
+ 'NODE_PATH': '/usr/lib64/node_modules',
+ 'OLDPWD': '/home/dracus/Projects/stack/logging/expo/expo',
+ 'PATH': '/usr/lib64/qt/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/contrib/bin:/usr/games:/usr/local/games:/usr/lib64/java/bin:/home/dracus/bin:/usr/local/adt-bundle/sdk/tools:/usr/local/heroku/bin',
+ 'PATH_INFO': u'/',
+ 'PKG_CONFIG_PATH': '/usr/local/lib64/pkgconfig:/usr/lib64/pkgconfig',
+ 'PROFILEHOME': '',
+ 'PWD': '/home/dracus/Projects/stack/logging/expo/logs',
+ 'PYTHONPATH': '/home/dracus/src/python/lib',
+ 'QT4DIR': '/usr/lib64/qt',
+ 'QT_PLUGIN_PATH': '/home/dracus/.kde/lib64/kde4/plugins/:/usr/lib64/kde4/plugins/',
+ 'QUERY_STRING': '',
+ 'REMOTE_ADDR': '127.0.0.1',
+ 'REMOTE_HOST': '',
+ 'REQUEST_METHOD': 'GET',
+ 'RUN_MAIN': 'true',
+ 'SCRIPT_NAME': u'',
+ 'SERVER_NAME': 'selene.paxdraconis.org',
+ 'SERVER_PORT': '8004',
+ 'SERVER_PROTOCOL': 'HTTP/1.1',
+ 'SERVER_SOFTWARE': 'WSGIServer/0.1 Python/2.7.3',
+ 'SESSION_MANAGER': 'local/selene:@/tmp/.ICE-unix/3086,unix/selene:/tmp/.ICE-unix/3086',
+ 'SHELL': '/bin/bash',
+ 'SHELL_SESSION_ID': '403f1ad85d0c4000bc023f4cbd4622a5',
+ 'SHLVL': '5',
+ 'T1LIB_CONFIG': '/usr/share/t1lib/t1lib.config',
+ 'TERM': 'xterm',
+ 'TZ': 'UTC',
+ 'USER': 'dracus',
+ 'VISUAL': '/usr/bin/emacs',
+ 'WINDOWID': '65011767',
+ 'WINDOWPATH': '7',
+ 'XAUTHORITY': '/tmp/kde-dracus/xauth-1000-_0',
+ 'XCURSOR_THEME': 'default',
+ 'XDG_CONFIG_DIRS': '/etc/xdg:/etc/kde/xdg',
+ 'XDG_DATA_DIRS': '/usr/share:/usr/share:/usr/local/share',
+ 'XDG_SESSION_COOKIE': 'de54959a4691d071000ed35b00000017-1432616236.750456-917513463',
+ '_': '/home/dracus/bin/deploy.py',
+ 'wsgi.errors': <open file '<stderr>', mode 'w' at 0x7f4e8e713270>,
+ 'wsgi.file_wrapper': <class wsgiref.util.FileWrapper at 0x1d41258>,
+ 'wsgi.input': <socket._fileobject object at 0x2431750>,
+ 'wsgi.multiprocess': False,
+ 'wsgi.multithread': True,
+ 'wsgi.run_once': False,
+ 'wsgi.url_scheme': 'http',
+ 'wsgi.version': (1, 0)}>,)
+---------
+kwargs:
+{}
+---------
+
+2015-05-30 03:40:11,348::INFO::__call__ - landing_page - args :
+(<WSGIRequest
+path:/index.html,
+GET:<QueryDict: {}>,
+POST:<QueryDict: {}>,
+COOKIES:{},
+META:{'ANT_HOME': '/usr/share/ant',
+ 'COLORFGBG': '15;0',
+ 'CONTENT_LENGTH': '',
+ 'CONTENT_TYPE': 'text/plain',
+ 'CPLUS_INCLUDE_PATH': '/usr/lib64/qt/include',
+ u'CSRF_COOKIE': u'IEfF9vHIYhG2t2qdKs0uhwN5BLn5GXLL',
+ 'DBUS_SESSION_BUS_ADDRESS': 'unix:abstract=/tmp/dbus-6iJAhx5o7I,guid=d735af11ec1200406ede52f3000000f4',
+ 'DISPLAY': ':0',
+ 'DJANGO_SETTINGS_MODULE': 'expo.settings',
+ 'EDITOR': '/usr/bin/emacs',
+ 'FCEDIT': '/usr/bin/emacs',
+ 'GATEWAY_INTERFACE': 'CGI/1.1',
+ 'GDK_USE_XFT': '1',
+ 'GS_LIB': '/home/dracus/.fonts',
+ 'GTK2_RC_FILES': '/etc/gtk-2.0/gtkrc:/home/dracus/.gtkrc-2.0:/home/dracus/.kde/share/config/gtkrc-2.0',
+ 'GTK_RC_FILES': '/etc/gtk/gtkrc:/home/dracus/.gtkrc:/home/dracus/.kde/share/config/gtkrc',
+ 'G_BROKEN_FILENAMES': '1',
+ 'HOME': '/home/dracus',
+ 'HOSTNAME': 'selene.paxdraconis.org',
+ 'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+ 'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+ 'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.8,nl;q=0.6,de;q=0.4,ja;q=0.2',
+ 'HTTP_CONNECTION': 'keep-alive',
+ 'HTTP_DNT': '1',
+ 'HTTP_HOST': 'localhost:8004',
+ 'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+ 'HUSHLOGIN': 'FALSE',
+ 'HZ': '100',
+ 'INPUTRC': '/etc/inputrc',
+ 'JAVA_HOME': '/usr/lib64/java',
+ 'KDEDIRS': '/usr',
+ 'KDE_FULL_SESSION': 'true',
+ 'KDE_MULTIHEAD': 'false',
+ 'KDE_SESSION_UID': '1000',
+ 'KDE_SESSION_VERSION': '4',
+ 'KONSOLE_DBUS_SERVICE': ':1.46',
+ 'KONSOLE_DBUS_SESSION': '/Sessions/3',
+ 'KRB5CCNAME': '/tmp/krb5cc_1000',
+ 'LANG': 'en_US',
+ 'LANGUAGE': '',
+ 'LC_COLLATE': 'C',
+ 'LESS': '-M',
+ 'LESSOPEN': '|lesspipe.sh %s',
+ 'LOGNAME': 'dracus',
+ 'LS_COLORS': 'no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.bat=01;32:*.BAT=01;32:*.btm=01;32:*.BTM=01;32:*.cmd=01;32:*.CMD=01;32:*.com=01;32:*.COM=01;32:*.dll=01;32:*.DLL=01;32:*.exe=01;32:*.EXE=01;32:*.7z=01;31:*.ace=01;31:*.ACE=01;31:*.arj=01;31:*.bz2=01;31:*.cpio=01;31:*.deb=01;31:*.dz=01;31:*.gz=01;31:*.jar=01;31:*.lzh=01;31:*.lzma=01;31:*.rar=01;31:*.RAR=01;31:*.rpm=01;31:*.rz=01;31:*.tar=01;31:*.taz=01;31:*.tb2=01;31:*.tbz2=01;31:*.tbz=01;31:*.tgz=01;31:*.tlz=01;31:*.trz=01;31:*.txz=01;31:*.tz=01;31:*.tz2=01;31:*.xz=01;31:*.z=01;31:*.Z=01;31:*.zip=01;31:*.ZIP=01;31:*.zoo=01;31:*.aac=01;35:*.AAC=01;35:*.anx=01;35:*.asf=01;35:*.ASF=01;35:*.au=01;35:*.axa=01;35:*.axv=01;35:*.avi=01;35:*.AVI=01;35:*.bmp=01;35:*.BMP=01;35:*.divx=01;35:*.DIVX=01;35:*.flac=01;35:*.FLAC=01;35:*.gif=01;35:*.GIF=01;35:*.jpg=01;35:*.JPG=01;35:*.jpeg=01;35:*.JPEG=01;35:*.m2a=01;35:*.M2A=01;35:*.m2v=01;35:*.M2V=01;35:*.m4a=01;35:*.M4A=01;35:*.m4p=01;35:*.M4P=01;35:*.m4v=01;35:*.M4V=01;35:*.mid=01;35:*.midi=01;35:*.mka=01;35:*.mkv=01;35:*.MKV=01;35:*.mov=01;35:*.MOV=01;35:*.mp3=01;35:*.MP3=01;35:*.mp4=01;35:*.MP4=01;35:*.mp4v=01;35:*.mpc=01;35:*.MPC=01;35:*.mpeg=01;35:*.MPEG=01;35:*.mpg=01;35:*.MPG=01;35:*.nuv=01;35:*.oga=01;35:*.ogv=01;35:*.ogx=01;35:*.ogg=01;35:*.OGG=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.PNG=01;35:*.ppm=01;35:*.qt=01;35:*.ra=01;35:*.RA=01;35:*.ram=01;35:*.RAM=01;35:*.rm=01;35:*.RM=01;35:*.spx=01;35:*.svg=01;35:*.svgz=01;35:*.tga=01;35:*.TGA=01;35:*.tif=01;35:*.TIF=01;35:*.tiff=01;35:*.TIFF=01;35:*.vob=01;35:*.VOB=01;35:*.wav=01;35:*.WAV=01;35:*.wma=01;35:*.WMA=01;35:*.wmv=01;35:*.WMV=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xspf=01;35:*.xwd=01;35:*.XWD=01;35:*.xvid=01;35:',
+ 'LS_OPTIONS': '-F -b -T 0 --color=auto',
+ 'MAIL': '/var/spool/mail/dracus',
+ 'MANPATH': '/usr/local/man:/usr/man:/usr/lib64/java/man:/usr/share/texmf/man',
+ 'MINICOM': '-c on',
+ 'NODE_PATH': '/usr/lib64/node_modules',
+ 'OLDPWD': '/home/dracus/Projects/stack/logging/expo/expo',
+ 'PATH': '/usr/lib64/qt/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin:/usr/contrib/bin:/usr/games:/usr/local/games:/usr/lib64/java/bin:/home/dracus/bin:/usr/local/adt-bundle/sdk/tools:/usr/local/heroku/bin',
+ 'PATH_INFO': u'/index.html',
+ 'PKG_CONFIG_PATH': '/usr/local/lib64/pkgconfig:/usr/lib64/pkgconfig',
+ 'PROFILEHOME': '',
+ 'PWD': '/home/dracus/Projects/stack/logging/expo/logs',
+ 'PYTHONPATH': '/home/dracus/src/python/lib',
+ 'QT4DIR': '/usr/lib64/qt',
+ 'QT_PLUGIN_PATH': '/home/dracus/.kde/lib64/kde4/plugins/:/usr/lib64/kde4/plugins/',
+ 'QUERY_STRING': '',
+ 'REMOTE_ADDR': '127.0.0.1',
+ 'REMOTE_HOST': '',
+ 'REQUEST_METHOD': 'GET',
+ 'RUN_MAIN': 'true',
+ 'SCRIPT_NAME': u'',
+ 'SERVER_NAME': 'selene.paxdraconis.org',
+ 'SERVER_PORT': '8004',
+ 'SERVER_PROTOCOL': 'HTTP/1.1',
+ 'SERVER_SOFTWARE': 'WSGIServer/0.1 Python/2.7.3',
+ 'SESSION_MANAGER': 'local/selene:@/tmp/.ICE-unix/3086,unix/selene:/tmp/.ICE-unix/3086',
+ 'SHELL': '/bin/bash',
+ 'SHELL_SESSION_ID': '403f1ad85d0c4000bc023f4cbd4622a5',
+ 'SHLVL': '5',
+ 'T1LIB_CONFIG': '/usr/share/t1lib/t1lib.config',
+ 'TERM': 'xterm',
+ 'TZ': 'UTC',
+ 'USER': 'dracus',
+ 'VISUAL': '/usr/bin/emacs',
+ 'WINDOWID': '65011767',
+ 'WINDOWPATH': '7',
+ 'XAUTHORITY': '/tmp/kde-dracus/xauth-1000-_0',
+ 'XCURSOR_THEME': 'default',
+ 'XDG_CONFIG_DIRS': '/etc/xdg:/etc/kde/xdg',
+ 'XDG_DATA_DIRS': '/usr/share:/usr/share:/usr/local/share',
+ 'XDG_SESSION_COOKIE': 'de54959a4691d071000ed35b00000017-1432616236.750456-917513463',
+ '_': '/home/dracus/bin/deploy.py',
+ 'wsgi.errors': <open file '<stderr>', mode 'w' at 0x7f4e8e713270>,
+ 'wsgi.file_wrapper': <class wsgiref.util.FileWrapper at 0x1d41258>,
+ 'wsgi.input': <socket._fileobject object at 0x2431ad0>,
+ 'wsgi.multiprocess': False,
+ 'wsgi.multithread': True,
+ 'wsgi.run_once': False,
+ 'wsgi.url_scheme': 'http',
+ 'wsgi.version': (1, 0)}>,)
+---------
+kwargs:
+{}
+---------
+
+2015-05-30 04:04:30,462::INFO::<module> - GBE Initialized, Logging begins
+2015-06-01 19:51:44,717::INFO::<module> - GBE Initialized, Logging begins
+2015-06-01 23:51:46,648::INFO::<module> - GBE Initialized, Logging begins
+2015-06-01 23:51:59,132::INFO::__call__ - landing_page
+2015-06-02 06:02:39,815::INFO::<module> - GBE Initialized, Logging begins
+2015-06-02 02:11:01,881::INFO::<module> - GBE Initialized, Logging begins
+2015-06-02 06:11:02,111::INFO::<module> - GBE Initialized, Logging begins
+2015-06-02 06:11:32,578::INFO::__call__ - detail_view
+2015-06-02 06:11:32,579::INFO::__call__ - get_event_display_info
+2015-06-02 06:12:49,858::INFO::__call__ - landing_page
+2015-06-02 06:12:52,357::INFO::__call__ - calendar_view

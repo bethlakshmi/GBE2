@@ -11,8 +11,11 @@ from ticketing.forms import *
 from ticketing.brown_paper import *
 import pytz
 
+from expo.gbe_logging import *
+
 # Create your views here.
 
+@log_func
 def index(request):
     '''
     Represents the view for the main screen.  This will eventually be the 
@@ -24,6 +27,7 @@ def index(request):
     context = {'ticket_items': ticket_items, 'user_id':request.user.id }
     return render(request, 'ticketing/index.html', context)
     
+@log_func
 def ticket_items(request):
     '''
     Represents the view for working with ticket items.  This will have a
@@ -42,6 +46,7 @@ def ticket_items(request):
     context = {'ticket_items' : ticket_items}
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
+@log_func
 def transactions(request):
     '''
     Represents the view for working with ticket items.  This will have a
@@ -68,6 +73,7 @@ def transactions(request):
     return render(request, r'ticketing/transactions.tmpl', context) 
     
     
+@log_func
 def import_ticket_items():
     '''
     Function is used to initiate an import from BPT or other sources of 
@@ -80,6 +86,7 @@ def import_ticket_items():
         if all(db_item.ticket_id != i_item.ticket_id for db_item in db_item_list):
             i_item.save()
             
+@log_func
 def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.

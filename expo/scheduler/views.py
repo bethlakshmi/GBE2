@@ -18,6 +18,9 @@ from scheduler.functions import table_prep, event_info, day_to_cal_time, overlap
 from scheduler.functions import set_time_format, conference_dates
 #from scheduler.functions import volunteer_info
 
+from expo.gbe_logging import *
+
+@log_func
 def validate_profile(request):
     '''
     Return the user profile if any
@@ -30,6 +33,7 @@ def validate_profile(request):
             return False
 
 
+@log_func
 def validate_perms(request, perms, require = True):
     '''
     Validate that the requesting user has the stated permissions
@@ -44,6 +48,7 @@ def validate_perms(request, perms, require = True):
         raise Http404
     return False               # or just return false if we're just checking
 
+@log_func
 def selfcast(sobj):
     '''
     Takes a scheduler object and casts it to its underlying type. 
@@ -56,6 +61,7 @@ def selfcast(sobj):
         return sobj
 
 
+@log_func
 def get_events_display_info(event_type = 'Class', time_format = None):
     '''
     Helper for displaying lists of events. Gets a supply of conference event items and munges 
@@ -122,6 +128,7 @@ def get_events_display_info(event_type = 'Class', time_format = None):
 
     return eventslist
 
+@log_func
 def get_event_display_info(eventitem_id):
     '''
     Helper for displaying a single of event. Same idea as get_events_display_info - but for
@@ -142,6 +149,7 @@ def get_event_display_info(eventitem_id):
     return eventitem_view
 
     
+@log_func
 @login_required
 def event_list(request, event_type=''):
     '''
@@ -169,6 +177,7 @@ def event_list(request, event_type=''):
                                                 args=[event_type])})
 
 
+@log_func
 def detail_view(request, eventitem_id):
     '''
     Takes the id of a single event_item and displays all its details in a template
@@ -183,6 +192,7 @@ def detail_view(request, eventitem_id):
                                       })
 
 
+@log_func
 def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
@@ -268,6 +278,7 @@ def schedule_acts(request, show_title=None):
     
 
 
+@log_func
 def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
@@ -327,6 +338,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
     
+@log_func
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
 
@@ -384,6 +396,7 @@ def edit_event_display(request, item, errorcontext=None):
                                         initial = initial)
     return render(request, template, context)
 
+@log_func
 def delete_schedule(request, scheduler_event_id):
     '''
     Remove the scheduled item
@@ -395,6 +408,7 @@ def delete_schedule(request, scheduler_event_id):
                                                 args=[type]))
 
 
+@log_func
 def delete_event(request, eventitem_id, event_type):
     '''
     Remove any scheduled items, make basic event item invisible
@@ -404,6 +418,7 @@ def delete_event(request, eventitem_id, event_type):
     return HttpResponseRedirect(reverse('event_schedule', urlconf='scheduler.urls', 
                                                 args=[event_type]))
 
+@log_func
 def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     '''
     Generate the forms to allocate, edit, or delete volunteer opportunities associated with 
@@ -454,6 +469,7 @@ def get_manage_opportunity_forms( item, initial, errorcontext=None ):
     return context
 
 
+@log_func
 def get_worker_allocation_forms( opp, errorcontext=None ):
     '''
     Returns a list of allocation forms for a volunteer opportunity
@@ -484,6 +500,7 @@ def get_worker_allocation_forms( opp, errorcontext=None ):
             'opp_id': opp.id}
 
                 
+@log_func
 def show_potential_workers( opp ):
     '''
     Get lists of potential workers for this opportunity. These will be inserted into the
@@ -507,6 +524,7 @@ def show_potential_workers( opp ):
 
 
 
+@log_func
 def allocate_workers(request, opp_id):
     '''
     Process a worker allocation form
@@ -557,6 +575,7 @@ def allocate_workers(request, opp_id):
                                         args = [opp.event_type_name, opp_id]))
 
 
+@log_func
 def manage_volunteer_opportunities(request, event_id):
     '''
     Create or edit volunteer opportunities for an event. 
@@ -647,6 +666,7 @@ def manage_volunteer_opportunities(request, event_id):
         
         
 
+@log_func
 def contact_info(request, event_id=None, resource_type = 'All', status=None, worker_type=None):
     '''
     Return contact info (email addresses) for a scheduler.Event. Currently configured for shows only
@@ -666,6 +686,7 @@ def contact_info(request, event_id=None, resource_type = 'All', status=None, wor
     return response
     
 
+@log_func
 def contact_by_role(request, participant_type):
     from django.db.models import Q
     import csv
@@ -763,6 +784,7 @@ def contact_by_role(request, participant_type):
     return response
 
 
+@log_func
 def add_event(request, eventitem_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details (start
@@ -825,6 +847,7 @@ def add_event(request, eventitem_id, event_type='class'):
                                       'user_id': request.user.id,
                                       'event_type': event_type})
 
+@log_func
 def view_list(request, event_type='All'):
     '''
     One function to cut down on replicating code.  If adding a new view-only event list, do the following;
@@ -877,6 +900,7 @@ def view_list(request, event_type='All'):
                    'events': events})
 
 
+@log_func
 def manage_rehearsals(request, event_id):
     '''
     handler for rehearsal slot manage calls
@@ -886,6 +910,7 @@ def manage_rehearsals(request, event_id):
         
 
 
+@log_func
 def calendar_view(request = None,
                   event_type = 'Show',
                   day = None,
@@ -939,6 +964,7 @@ def calendar_view(request = None,
 
     return render(request, template, table)
 
+@log_func
 @login_required
 def volunteer_shifts(request = 'None', day = 'Saturday',
         filter_type = 'None',

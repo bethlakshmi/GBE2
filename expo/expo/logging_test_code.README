@@ -1,0 +1,43 @@
+from django.shortcuts import render, get_object_or_404, render_to_response
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.contrib.auth.forms import UserCreationForm
+from django.template import loader, RequestContext, Context
+from gbe.models import Event, Act, Performer
+from gbe.forms import *
+from gbe.functions import *
+from gbe.ticketing_idd_interface import *
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+import gbe_forms_text
+from ticketingfuncs import compute_submission
+from django.core.urlresolvers import reverse
+from duration import Duration
+from scheduler.functions import set_time_format
+
+from expo import gbe_logging
+
+
+
+###  Test code to be used in a Django shell.
+
+def bog_request(object):
+    def __call__(*args, **kwargs):
+        print len(args), type(args), args
+        print len(kwargs), type(kwargs), kwargs
+        return object(*args, **kwargs)
+    return __call__
+
+@bog_request
+def some_func(text, options = [1,2], theme = 'test text'):
+    return 'This is some text: '+text, options, theme
+
+some_func('This is a test', options = (1, 2, 3))
+
+###  Some test code to use in the shell....
+
+@gbe_logging.log_func_info
+def request_test(request, bargle=''):
+    print request
+    print bargle
+
+request_test('Some text')
