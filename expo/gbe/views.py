@@ -15,10 +15,6 @@ from duration import Duration
 from scheduler.functions import set_time_format
 
 
-
-
-
-
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template with 
@@ -109,6 +105,8 @@ def landing_page(request, profile_id=None):
 
 
 def event(request, event_id):
+    '''Not listed in urlconf - can delete?
+    '''
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event':event})
 
@@ -176,7 +174,7 @@ def edit_troupe(request, troupe_id=None):
     else:
         troupe = Troupe();
         
-    if troupe_id > 0 and troupe.contact != request.user.profile:
+    if troupe_id > 0 and request.user and troupe.contact != request.user.profile:
           return HttpResponseRedirect(reverse('troupe_view', 
                                               urlconf='gbe.urls', 
                                               args=[str(troupe_id)])) 
@@ -1037,9 +1035,6 @@ def class_changestate (request, bid_id):
             
     return bid_changestate (request, bid_id, 'class_review_list')
 
-
-
-
 @login_required
 def create_volunteer(request):
     page_title = 'Volunteer'
@@ -1167,7 +1162,6 @@ def review_volunteer (request, volunteer_id):
                         'form':form,
                         'actionform':actionform,
                         'actionURL': actionURL})
-
 
  
 @login_required
@@ -1373,13 +1367,12 @@ def vendor_changestate (request, bid_id):
 
 @login_required
 def create_vendor(request):
-
     title = "Vendor Application"
     fee_link = vendor_submittal_link(request.user.id)
 
-    profile = validate_profile(request, require='False')
+    profile = validate_profile(request, require=False)
     if not profile:
-        return HttpResponseRedirect(reverse('accounts_profile', urlconf='gbe.urls') +
+        return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('vendor_create', urlconf='gbe.urls'))
     if request.method == 'POST':
@@ -1536,29 +1529,21 @@ def view_vendor (request, vendor_id):
 
     return render (request, 'gbe/bid_view.tmpl',
                    {'readonlyform': [vendorform, profile]})
-    
-
-@login_required
-def bid_response(request,type,response):
-    if response == "error":
-        return render(request, 'bids/'+response+'.html')
-    return render(request, 'bids/'+type+response+'.html')
 
 def act(request, act_id):
     '''
     Act detail view. Display depends on state of act and identity of viewer. 
+    Not used. Remove?
     '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act':act})
-
-
-
 
 def profile(request, profile_id=None):
     '''
     Display a profile. Display depends on user. If own profile, show everything and 
     link to edit. If admin user, show everything and link to admin. 
     For non-owners and unregistered, display TBD
+    Not used. Remove?
     '''
     viewer_profile = validate_profile(request, require=True)
     if profile_id == None:
@@ -1579,13 +1564,12 @@ def profile(request, profile_id=None):
                         'user' : requested_profile.user_object,                        
                         'viewer_is_admin':viewer_is_admin,
                         'own_profile': own_profile})
-        
-    
-    
+
 def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones 
     and how much information depends on the viewer. TBD
+    Not used. Remove?
     '''
     return render (request, 'gbe/error.tmpl', 
                    {'error' : "Not yet implemented"})
@@ -1593,7 +1577,7 @@ def profiles(request):
 
 @login_required
 def review_profiles(request):
-
+    '''Not used. Remove?'''
     admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
                                              'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
 
@@ -1621,19 +1605,22 @@ def review_profiles(request):
     
 @login_required
 def review_user_commitments(request, profile_id):
-
-    admin_profile = validate_perms(request, ('Registrar','Volunteer Coordinator', 'Act Coordinator',
-                                             'Conference Coordinator','Vendor Coordinator', 'Ticketing - Admin'))
+    # note: this function is broken. (header is not defined)
+    admin_profile = validate_perms(request, ('Registrar',
+                                             'Volunteer Coordinator',
+                                             'Act Coordinator',
+                                             'Conference Coordinator',
+                                             'Vendor Coordinator',
+                                             'Ticketing - Admin'))
 
     user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
-
  
     return render (request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
 
 @login_required
 def manage_user_tickets(request, profile_id):
-
+    # note: this function is broken. (header is not defined)
     admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
 
     user_profile=get_object_or_404(Profile, resourceitem_id=profile_id)
@@ -1789,9 +1776,6 @@ def logout_view (request):
     logout(request)
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
-
-
-
 def propose_class (request):
     '''
     Handle suggestions for classes from the great unwashed 
@@ -1848,9 +1832,6 @@ def publish_proposal (request, class_id):
                         'view_title': view_title,
                         'nodraft': submit_button})
         return HttpResponse(template.render(context))
-    
-    
-
 
 @login_required
 def review_proposal_list (request):
@@ -2021,14 +2002,12 @@ def ad_delete(request, ad_id):
     but marks it as deleted.
     Boilerplate
     '''
-
     pass
 
 def bios_staff(request):
     '''
     Display the staff bios, pulled from their profiles.
     '''
-
     pass
 
 def bios_teachers(request):
@@ -2069,14 +2048,12 @@ def bios_volunteer(request):
     '''
     Display the volunteer bios, pulled from their profiles.
     '''
-
     pass
 
 def special(request):
     '''
     Edit special privledges.
     '''
-
     pass
 
 def volunteer(request):
@@ -2085,14 +2062,12 @@ def volunteer(request):
     pages for panel, class, tech, etc volunteering, or a more flexible widget to
     deal with all type of volunteering.
     '''
-
     pass
 
 def costume_display(request):
     '''
     Costume Display.  May move this and a few other things into a separate app?
     '''
-
     pass
 
 def fashion_faire(request):
@@ -2106,8 +2081,7 @@ def fashion_faire(request):
     template = 'gbe/fashionfair.tmpl'
     context = {'vendor_rows':vendor_rows}
     return render(request, template, context)
-    
-    
+
 @login_required
 def bid_changestate (request, bid_id, redirectURL):
     '''

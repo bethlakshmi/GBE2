@@ -57,7 +57,7 @@ urlpatterns = patterns ('',
 # classes
                         url(r'^class/create/?$',
                             views.bid_class, name='class_create'),
-                        url(r'class/edit/(\d+)/?$', 
+                        url(r'class/edit/(\d+)/?$',
                             views.edit_class, name='class_edit'),
                         url(r'^class/view/(\d+)/?$',
                             views.view_class, name='class_view'),

@@ -1251,9 +1251,6 @@ class ArtBid(Biddable):
     art3 = models.FileField(upload_to="uploads/images", blank=True)
     def __unicode__(self):  # Python 3: def __str__(self):
         return self.bidder.display_name;
-                
-
-
 
 class ClassProposal(models.Model):
     '''
