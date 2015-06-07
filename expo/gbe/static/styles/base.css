@@ -610,3 +610,12 @@ div.landing_box>div.vendor_section {
     padding-left:5px;
     padding-top:5px;
 }
+
+.filer_image.right {
+  float: right;
+}
+
+
+.filer_image.left {
+  float: left;
+}
