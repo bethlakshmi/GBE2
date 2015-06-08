@@ -109,6 +109,8 @@ INSTALLED_APPS = (
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
     'cmsplugin_bootstrap_carousel',
+    'djangocms-css-background',
+    'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
 #    'djangocms_file',

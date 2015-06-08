@@ -34,3 +34,4 @@ djangocms_video
 filer
 easy_thumbnails
 cmsplugin_bootstrap_carousel
+djangocms-placeholder-attr

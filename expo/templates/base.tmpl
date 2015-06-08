@@ -11,12 +11,15 @@
 	    type="text/css" 
 	    href= {% static "styles/base.css" %} media="all"/>
     <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon"/>
-  
+    {% load placeholder_attr %}
   </head>
   <body style="padding-top:60px">
     {% cms_toolbar %}
-    <div class="container">
-      <div class='banner'>{% static_placeholder 'banner' %}</div>
+
+    <div class="container" style="{% placeholder_attr 'Beneath Banner' 'CssBackground' 'css_background' %}">
+      {% placeholder 'Beneath Banner' %}
+ 
+    <div class='banner'>{% static_placeholder 'banner' %}</div>
       
       <div class="navbar navbar-default" role="navigation">
             <div class="navbar-header">
@@ -35,7 +38,7 @@
               </ul>
             </div>
       </div>
-      
+
         {% block content %}
         {% endblock content %}
     </div>
