@@ -142,6 +142,7 @@ class ActItem(ResourceItem):
         ra =ResourceAllocation(event=rehearsal, resource=resource)
         ra.save()
 
+
     @property
     def as_subtype(self):
         return self.act
