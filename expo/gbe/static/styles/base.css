@@ -5,44 +5,40 @@ body {
   padding: 0px;
 }
 
-div#container {
-/*    width:774px; */
+
+div.container {
     top:0;
-/*    margin: 0px auto 5px;*/
+    width: 960px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
     
-div#banner {
-    position=fixed; top: 0; bottom: 129px; left:auto;right:auto;
+div.banner {
+  left: 0px;
+  top: 0px;
+  width: 960px;
+
+  height: 130px;
+  overflow: hidden;
+  padding: 10px 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  
 }
 
-div#nav { 
-    top:130px; bottom:0; left:0; 
-
+.big_block {
+  width: 960px;
 }
 
-div#nav ul {
-   width: 12em; 
-
-}
-div#nav ul li {
-    list-style:none;
-    text-align:left;
-    margin:0;
-
-}
-
-div#nav ul li a{
-    display: block;
-    text-decoration: none;
-
+.cms_placeholder {
+  width: 960px;
 }
 
 
-
-div#main-content{
+div.main-content{
     margin-left: 20px; margin-right: 20px;
-
+    background-color: rgb(235,235,235);
 }
 
 div#middle {
