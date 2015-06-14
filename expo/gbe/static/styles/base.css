@@ -68,14 +68,14 @@ div#middle {
 
 
 div.left_col {
-    width:32%;
+    width:46%;
     float:left;
     margin: 10px;
     padding: 10px;
 }
 
 div.right_col {
-    width:32%;
+    width:46%;
     float:right;
 }
 
