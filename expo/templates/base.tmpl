@@ -14,16 +14,14 @@
 	    type="text/css" 
 	    href= {% static "styles/gbe_bootstrap.min.css" %} media="all"/>
    <link rel="shortcut icon" href= {% static "img/favicon.ico" %} type="image/x-icon"/>
-    {% load placeholder_attr %}
   </head>
-  <body style="{% placeholder_attr 'Whole_Body' 'CssBackground' 'css_background' %}">
+  <body style="background-image: url({% static "img/curtains.jpeg" %})">
     <div class="container">
 
     {% cms_toolbar %}
 
  
     <div class='banner'>{% static_placeholder 'banner' %}
-      {% placeholder 'Whole_Body' %}
     </div>
      
       <div class="navbar navbar-default" role="navigation">
@@ -48,9 +46,11 @@
         {% block content %}
         {% endblock content %}        
       </div>
+      <div class='footer'>{% static_placeholder 'footer'%}</div>
     </div>
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
     {% render_block "js" %}
+
   </body>
 </html>

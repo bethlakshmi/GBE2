@@ -28,18 +28,35 @@ div.banner {
 }
 
 .big_block {
-  width: 960px;
+  width: 910px;
+  box-sizing: initial;
 }
 
-.cms_placeholder {
-  width: 960px;
-}
+
 
 
 div.main-content{
-    margin-left: 20px; margin-right: 20px;
+    top:0;
+    width: 960px;
+    padding: 20px;
+
     background-color: rgb(235,235,235);
 }
+
+div.footer{
+  width:960px;
+  color:#FFF;
+  margin: 0px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 16.5px;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;
+}
+
 
 div#middle {
     /* The menu scrolls are ugly and driving me crazy.  Change back if you want guys. -MDB */
