@@ -4046,7 +4046,12 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 	.navbar-collapse{
 		width:auto;
 		border-top:0;
-		box-shadow:none
+		box-shadow:none;
+		position: absolute;
+		left: 50%;
+		top: 0;
+		margin-left: -240px;
+		
 	}
 
 	.navbar-collapse.collapse{
@@ -4359,6 +4364,7 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
   font-family: "TwentiethCenturyPoster";
   font-size: 18px;
   border-radius: 0px;
+  height: 27px;
 }
 
 .navbar-default .navbar-brand{
