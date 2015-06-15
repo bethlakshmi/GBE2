@@ -4367,6 +4367,39 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
   height: 27px;
 }
 
+.subtitle{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 20px;
+  color: #000;
+  letter-spacing: normal;
+  font-weight: normal;
+  text-transform: none;
+  font-style: normal;
+  vertical-align: middle;
+}
+
+.font_large{
+  color: #000;
+  font-size: 15.4px;
+  line-height: 1.5;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: normal;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;
+	
+}
+
+.font_regular{
+  color: #000;
+  font-size: 11px;
+  line-height: 1.5;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;	
+}
 .navbar-default .navbar-brand{
 	color:#000
 }

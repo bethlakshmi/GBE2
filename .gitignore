@@ -52,4 +52,14 @@ expo/expo/local_settings.py
 
 *.bettytest
 
+#created by collect static and all our various plugins that are installed via pip
+# if we ever mess with this CSS, we should un-ignore.
 expo/db.sqlite3.cmsnew
+expo/gbe/static/cms/*
+expo/gbe/static/cmsplugin_filer_folder/*
+expo/gbe/static/django_tinymce/*
+expo/gbe/static/djangocms_text_ckeditor/*
+expo/gbe/static/filer/*
+expo/gbe/static/nivo/*
+expo/gbe/static/tiny_mce/*
+

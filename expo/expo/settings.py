@@ -108,7 +108,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
-    'cmsplugin_bootstrap_carousel',
+    'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
@@ -137,6 +137,7 @@ THUMBNAIL_HIGH_RESOLUTION = True
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
+    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
     #'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
@@ -264,6 +265,17 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
     'django.template.loaders.eggs.Loader'
 )
+
+CMS_STYLE_NAMES = (
+    ('info', ("info")),
+    ('new', ("new")),
+    ('hint', ("hint")),
+    ('footer', ("footer")),
+    ('subtitle',("20th Century Poster")),
+    ('font_large',("Large, plain font")),
+    ('font_regular',("Regular Text"))
+)
+
 
 CMS_LANGUAGES = {
     ## Customize this
