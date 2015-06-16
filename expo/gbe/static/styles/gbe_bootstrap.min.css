@@ -3282,7 +3282,8 @@ input[type="submit"].btn-block,input[type="reset"].btn-block,input[type="button"
 .dropdown-menu>.active>a,.dropdown-menu>.active>a:hover,.dropdown-menu>.active>a:focus{
 	color:#fff;
 	text-decoration:none;
-	background-color:#428bca;
+	background-color:#555;
+	text-shadow: 0px 0px 8px #F03;
 	outline:0
 }
 
@@ -4424,7 +4425,8 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 
 .navbar-default .navbar-nav>.active>a,.navbar-default .navbar-nav>.active>a:hover,.navbar-default .navbar-nav>.active>a:focus{
 	color:#000;
-	background-color:transparent
+	text-shadow: 0px 0px 8px #F03;
+	background-color:#EBEBEB
 }
 
 .navbar-default .navbar-nav>.disabled>a,.navbar-default .navbar-nav>.disabled>a:hover,.navbar-default .navbar-nav>.disabled>a:focus{
