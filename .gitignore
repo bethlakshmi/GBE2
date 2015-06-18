@@ -63,3 +63,9 @@ expo/gbe/static/filer/*
 expo/gbe/static/nivo/*
 expo/gbe/static/tiny_mce/*
 
+
+expo/src/pip-delete-this-directory.txt
+
+expo/db.sqlite3.bak
+
+expo/src/image-gallery/

@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
+    'djangocms_snippet',
 #    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
