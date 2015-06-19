@@ -108,6 +108,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
+    'image_gallery',  #I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
@@ -132,6 +133,9 @@ INSTALLED_APPS = (
     'scheduler',
     'django_nose',
 )
+
+
+
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 THUMBNAIL_HIGH_RESOLUTION = True
@@ -194,6 +198,9 @@ MIGRATION_MODULES = {
     'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
 }
 
+SOUTH_MIGRATION_MODULES = {
+    'image_gallery': 'image_gallery.south_migrations',
+}
 
 FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler",
                         "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
