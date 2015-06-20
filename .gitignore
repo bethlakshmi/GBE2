@@ -69,3 +69,5 @@ expo/src/pip-delete-this-directory.txt
 expo/db.sqlite3.bak
 
 expo/src/image-gallery/
+
+*.good

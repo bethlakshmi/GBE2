@@ -1,5 +1,5 @@
 div.imageGalleryItem.default {
-    width: 33%;
+    width: 25%;
     display: inline-block;
     vertical-align: top;
     position: relative;
@@ -8,8 +8,15 @@ div.imageGalleryItem.default {
     box-sizing: border-box;
 
 }
-
-div.imageGalleryItem.default>img{
+a.imageGallery {
+    padding: 0px;
+    margin: 0px;
+    line-height: 0px;
+    font-size:0px;
+    position: relative;
+    display: block;
+}
+div.imageGalleryItem.default>a>img{
     width: 100%;
 }
 
