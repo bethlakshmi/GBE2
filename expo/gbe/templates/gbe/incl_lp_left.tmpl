@@ -21,4 +21,11 @@ Have you reserved your room at The Hyatt Regency Hotel yet? A single or double r
 This is your personal landing page, or it will be as soon as you  <a href='{% url 'gbe:register' %}'>create an account</a>. if you've already created an account, you just need to <a href = '{% url 'gbe:login' %}'>log in</a>.
 
 Once you're logged in, the middle column will show you your personal schedule of events you're signed up for: rehearsals, shows, classes you're teaching, volunteer shifts, etc. and the right-hand column is where you can see acts and classes you've submitted, submit your tech info for acts, and <a href='{% url 'gbe:volunteer_create' %}'>volunteer for The Expo</a>.
+
+{% endif %}
+
+{% if contact_form %}
+  {% include 'gbe/incl_contact_form.tmpl' %}
+{% else %}
+  <br>NO CONTACT FORM</br>
 {% endif %}

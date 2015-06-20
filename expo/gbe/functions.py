@@ -53,3 +53,17 @@ def mail_to_group(subject, message, group_name):
                User.objects.filter(groups__name=group_name)]
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
     return None
+
+
+def send_user_contact_email(name, from_address, message):
+    subject = "EMAIL FROM GBE SITE USER %s" %name
+    to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
+    send_mail(subject, 
+              message, 
+              from_email, 
+              to_addresses)
+    # TO DO: handle (log) possible exceptions
+    # TO DO: log usage of this function
+    # TO DO: close the spam hole that this opens up. 
+              
+              
