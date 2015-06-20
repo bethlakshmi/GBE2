@@ -41,10 +41,7 @@ class Biddable(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    def typeof(self):
-        return self.__class_
-
+        
     def typeof(self):
         return self.__class__
 
