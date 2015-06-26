@@ -676,3 +676,13 @@ class ClassScheduleForm(forms.ModelForm):
                   ]
         help_texts = classbid_help_texts
         labels = classbid_labels
+
+class ContactForm(forms.Form):
+    '''Form for managing user contacts. Notice that there 
+    are no models associated with this form.
+    '''
+    name = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    subject = forms.CharField(required=True)
+    message = forms.CharField(widget=forms.Textarea)
+

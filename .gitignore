@@ -14,6 +14,8 @@ db.sqlite3
 
 *.css~
 
+*.bak
+
 expo/gbe/static/img/GBE_PageBanner.png
 expo/gbe/static/admin
 expo/gbe/static/admin/*
@@ -71,3 +73,4 @@ expo/db.sqlite3.bak
 expo/src/image-gallery/
 
 *.good
+
