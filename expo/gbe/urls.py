@@ -12,7 +12,8 @@ urlpatterns = patterns ('',
 
 # landing page
                         url(r'^/?$',
-                            views.landing_page, name='home'),
+                            views.landing_page, 
+                            name='home'),
                         url(r'index.html/?',
                             views.landing_page),
 
@@ -202,6 +203,9 @@ urlpatterns = patterns ('',
                             password_reset_complete),
 
 # registration & user management
+                        url(r'^user_contact/?$',
+                            views.handle_user_contact_email, 
+                            name='handle_user_contact_email'),
                         url(r'^profile/manage/?$',
                             views.review_profiles, 
                             name='manage_users'),
