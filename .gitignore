@@ -53,3 +53,5 @@ expo/expo/local_settings.py
 *.bettytest
 
 expo/db.sqlite3.cmsnew
+
+expo/src/pip-delete-this-directory.txt
