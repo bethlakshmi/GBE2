@@ -123,7 +123,6 @@ INSTALLED_APPS = (
     'ticketing',
     'scheduler',
     'django_nose',
-    'django_extensions',
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
