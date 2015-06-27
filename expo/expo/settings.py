@@ -280,3 +280,8 @@ CMS_PERMISSION = True
 
 
 CMS_PLACEHOLDER_CONF = {}
+
+try: 
+   MC_API_KEY
+except:
+   MC_API_KEY = 'TEST'  # if not set, we won't try to hit mailchimp's API

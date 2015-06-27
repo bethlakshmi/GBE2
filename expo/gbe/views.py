@@ -18,8 +18,8 @@ from scheduler.models import Event, ResourceAllocation, ActResource
 
 def down(request):
     '''
-    Static "Site down" notice. Simply refers user to a static template with
-    a message.
+    Static "Site down" notice. Simply refers user to a static template 
+    with a message.
     '''
     template = loader.get_template('down.tmpl')
     context = RequestContext(request, {})
@@ -192,7 +192,6 @@ def edit_troupe(request, troupe_id=None):
                                             urlconf='gbe.urls'))
     if troupe_id:
         troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
-
     else:
         troupe = Troupe()
 
@@ -2365,4 +2364,22 @@ def create_event(request, event_type):
                        'nodraft': submit_button,
                        'page_title': page_title,
                        'view_title': view_title,
-                       'view_header_text': event_create_text[event_type]})
+                       'view_header_text':event_create_text[event_type] })
+
+def handle_user_contact_email(request):
+#    import pdb; pdb.set_trace()
+    return_redirect = HttpResponseRedirect(reverse('home',
+                                                   urlconf='gbe.urls', 
+                                                   args = []))
+    if request.method is not 'POST':
+        return return_redirect
+    form = ContactForm(request.POST)
+    if not form.is_valid():
+        return return_redirect
+    name = form.get('name', 'UNKNOWN USER')
+    from_address = form.get('email', 'UNKNOWN ADDRESS')
+    message = form.get('message', 'UNKNOWN MESSAGE')
+    send_user_contact_email(name, from_address, message)
+    return return_redirect
+
+    # TO DO: error handling

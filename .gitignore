@@ -14,6 +14,8 @@ db.sqlite3
 
 *.css~
 
+*.bak
+
 expo/gbe/static/img/GBE_PageBanner.png
 expo/gbe/static/admin
 expo/gbe/static/admin/*
@@ -53,3 +55,5 @@ expo/expo/local_settings.py
 *.bettytest
 
 expo/db.sqlite3.cmsnew
+
+expo/src/pip-delete-this-directory.txt
