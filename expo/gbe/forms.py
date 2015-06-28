@@ -110,10 +110,6 @@ class UserCreateForm(UserCreationForm):
         if User.objects.filter(email=email).count():
             self._errors['email'] = 'That email address is already in use'
             valid = False
-        username = self.cleaned_data['username']
-        if User.objects.filter(username=username).count():
-            self._errors['username'] = 'That username is taken'
-            valid = False
         return valid
 
     class Meta:
