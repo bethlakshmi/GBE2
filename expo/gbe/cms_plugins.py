@@ -27,7 +27,13 @@ class GoFundMePlugin(CMSPluginBase):
     name = _("Go Fund Me Widget")  # name of the plugin in the interface
     render_template = loader.get_template('gbe/go_fund_me.tmpl')
 
+class ShareOnFacebookPlugin(CMSPluginBase):
+    model = CMSPlugin
+    module = _("GBE Plugins")
+    name = _("Share on Facebook")  # name of the plugin in the interface
+    render_template = loader.get_template('gbe/facebook_share.tmpl')
 
 plugin_pool.register_plugin(ContactFormPlugin)  # register the plugin
 plugin_pool.register_plugin(SubscribeEmailPlugin)  # register the plugin
 plugin_pool.register_plugin(GoFundMePlugin)  # register the plugin
+plugin_pool.register_plugin(ShareOnFacebookPlugin)  # register the plugin
