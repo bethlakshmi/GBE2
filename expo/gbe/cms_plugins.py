@@ -33,7 +33,15 @@ class ShareOnFacebookPlugin(CMSPluginBase):
     name = _("Share on Facebook")  # name of the plugin in the interface
     render_template = loader.get_template('gbe/facebook_share.tmpl')
 
+class FollowOnFacebookPlugin(CMSPluginBase):
+    model = CMSPlugin
+    module = _("GBE Plugins")
+    name = _("Follow us on Facebook")  # name of the plugin in the interface
+    render_template = loader.get_template('gbe/facebook_follow.tmpl')
+
+
 plugin_pool.register_plugin(ContactFormPlugin)  # register the plugin
 plugin_pool.register_plugin(SubscribeEmailPlugin)  # register the plugin
 plugin_pool.register_plugin(GoFundMePlugin)  # register the plugin
 plugin_pool.register_plugin(ShareOnFacebookPlugin)  # register the plugin
+plugin_pool.register_plugin(FollowOnFacebookPlugin)  # register the plugin
