@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.tmpl' %}
 {% load staticfiles %}
 
 {% block title %}
@@ -20,7 +20,7 @@
     </p>
     <div class=left_col>
       <form action="" method="post">
-      {% include "form_table.html" %}
+      {% include "form_table.tmpl" %}
       <input type="submit" value="Submit Form"> 
       </form>
     </div>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.tmpl' %}
 
 {% block title %}
   Update Your Profile
@@ -25,14 +25,14 @@ etc.).
 <form method="POST" action="" enctype="multipart/form-data">
 <div class = "left_col">
   {% for form in left_forms %}
-    {% include "form_table.html" %}
+    {% include "form_table.tmpl" %}
   {% endfor %}
     <input type="submit" value="Update my account"> 
 </div>
 
 <div class = "right_col">
   {% for form in right_forms %}
-  {%include "form_table.html" %}
+  {%include "form_table.tmpl" %}
   {% endfor %}
 
      

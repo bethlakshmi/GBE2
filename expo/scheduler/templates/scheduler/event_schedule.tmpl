@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.tmpl" %}
 {% load staticfiles %}
 {% block title %}
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
@@ -47,7 +47,7 @@
   {% if form %}
   <form method="POST" action="{{event_edit_url}}" enctype="multipart/form-data">
 
-  {% include "form_table.html" %}
+  {% include "form_table.tmpl" %}
   <input type = "submit" name="submit" value="Submit">
   </form>
     {% if event_id %}
