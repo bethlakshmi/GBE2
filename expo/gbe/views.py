@@ -110,13 +110,13 @@ def landing_page(request, profile_id=None):
 
 def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.html', {'event':event})
+    return render(request, 'gbe/event.tmpl', {'event':event})
 
 
 def techinfo(request):
     form = TechInfoForm()
     return render(request, 
-                  'gbe/techinfo.html', 
+                  'gbe/techinfo.tmpl', 
                   {'form':form})
 
     
@@ -1549,7 +1549,7 @@ def act(request, act_id):
     Act detail view. Display depends on state of act and identity of viewer. 
     '''
     act = get_object_or_404(Act, pk=act_id)
-    return render(request, 'gbe/act.html', {'act':act})
+    return render(request, 'gbe/act.tmpl', {'act':act})
 
 
 
