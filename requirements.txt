@@ -12,6 +12,8 @@ django-classy-tags
 djangocms-admin-style
 html5lib
 six
+easy_thumbnails
+django-polymorphic  # dependancy for cmsplugin-filer
 
 # Optional, recommended packages
 Pillow>=2
@@ -31,8 +33,11 @@ djangocms_link
 djangocms_picture
 djangocms_teaser
 djangocms_video
-easy_thumbnails
+djangocms_snippet
+
 djangocms-placeholder-attr
 cmsplugin_nivoslider
 django_nose
 -e git://github.com/bethlakshmi/cmsplugin-image-gallery.git#egg=image_gallery
+pytz
+django-nose

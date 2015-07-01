@@ -93,7 +93,6 @@ INSTALLED_APPS = (
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',  # for the admin skin. You **must** add 'djangocms_admin_style' in the list **before** 'django.contrib.admin'.
     'django.contrib.messages',    
-    'tinymce',
     
     'djangocms_text_ckeditor', # tutorial ... hmm...
     'django.contrib.auth',
@@ -127,7 +126,7 @@ INSTALLED_APPS = (
 #    'djangocms_picture',
 #    'djangocms_teaser',
 #    'djangocms_video',
-    'reversion', # for versioning in cms
+    'reversion', # for versioning in cms -- had to do easy install on new site...
     'gbe',
     'ticketing',
     'scheduler',
