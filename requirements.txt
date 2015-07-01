@@ -14,6 +14,7 @@ html5lib
 six
 easy_thumbnails
 django-polymorphic  # dependancy for cmsplugin-filer
+django-tinymce
 
 # Optional, recommended packages
 Pillow>=2
@@ -42,3 +43,5 @@ django_nose
 pytz
 django-nose
 django-treebeard
+
+django-model-utils
