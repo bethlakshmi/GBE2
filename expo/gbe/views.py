@@ -1,49 +1,49 @@
 from expo.gbe_logging import *
 
 from django.shortcuts import render, get_object_or_404, render_to_response
-logger.info('Import from django.shortcuts, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.shortcuts, VmSize: '+memusage())
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-logger.info('Import from django.http, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.http, VmSize: '+memusage())
 
 from django.contrib.auth.forms import UserCreationForm
-logger.info('Import from django.contrib.auth.forms, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.contrib.auth.forms, VmSize: '+memusage())
 
 from django.template import loader, RequestContext, Context
-logger.info('Import from django.template, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.template, VmSize: '+memusage())
 
 from gbe.models import Event, Act, Performer
-logger.info('Import from gbe.models, VmSize: '+procinfo('VmSize'))
+logger.info('Import from gbe.models, VmSize: '+memusage())
 
 from gbe.forms import *
-logger.info('Import from gbe.forms, VmSize: '+procinfo('VmSize'))
+logger.info('Import from gbe.forms, VmSize: '+memusage())
 
 from gbe.functions import *
-logger.info('Import from gbe.functions, VmSize: '+procinfo('VmSize'))
+logger.info('Import from gbe.functions, VmSize: '+memusage())
 
 from gbe.ticketing_idd_interface import *
-logger.info('Import from gbe.ticketing_idd_interface, VmSize: '+procinfo('VmSize'))
+logger.info('Import from gbe.ticketing_idd_interface, VmSize: '+memusage())
 
 from django.contrib.auth.decorators import login_required
-logger.info('Import from django.contrib.auth.decorators, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.contrib.auth.decorators, VmSize: '+memusage())
 
 from django.contrib.auth import login, logout, authenticate
-logger.info('Import from django.contrib.auth, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.contrib.auth, VmSize: '+memusage())
 
 import gbe_forms_text
-logger.info('Import from gbe_forms_text, VmSize: '+procinfo('VmSize'))
+logger.info('Import from gbe_forms_text, VmSize: '+memusage())
 
 from ticketingfuncs import compute_submission
-logger.info('Import from ticketingfuncts, VmSize: '+procinfo('VmSize'))
+logger.info('Import from ticketingfuncts, VmSize: '+memusage())
 
 from django.core.urlresolvers import reverse
-logger.info('Import from django.core.urlresolvers, VmSize: '+procinfo('VmSize'))
+logger.info('Import from django.core.urlresolvers, VmSize: '+memusage())
 
 from duration import Duration
-logger.info('Import from duration, VmSize: '+procinfo('VmSize'))
+logger.info('Import from duration, VmSize: '+memusage())
 
 from scheduler.functions import set_time_format
-logger.info('Import from scheduler.functions, VmSize: '+procinfo('VmSize'))
+logger.info('Import from scheduler.functions, VmSize: '+memusage())
 
 
 @log_func

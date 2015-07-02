@@ -25,7 +25,7 @@ def log_func(funct):
     '''
     
     def __call__(*args, **kwargs):
-        if LOG_LEVEL == 'debug':
+        if LOG_LEVEL in ('debug', 'error', 'critical'):
 
             out_text = funct.func_name+' - args :\n'+str(args)+'\n---------\nkwargs:\n'+str(kwargs)+'\n---------\n'
         else:
@@ -57,3 +57,11 @@ def procinfo(proc_value = False):
         return tmp_dict
     else:
         return procdict
+
+def memusage():
+    '''
+    Returns the memory footprint of the current instance, in kilobytes.
+    '''
+
+    from resource import getrusage, RUSAGE_SELF
+    return getrusage(RUSAGE_SELF).rumaxrss
