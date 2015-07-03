@@ -75,7 +75,12 @@ except:
    ALLOWED_HOSTS = []
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+try:
+    MEDIA_ROOT
+except:
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    
 LOGIN_URL = '/login/'
 
 try:
@@ -103,7 +108,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps', # tutorial
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
-
+    'tinymce'
     'filer',
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
