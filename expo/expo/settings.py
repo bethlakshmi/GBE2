@@ -108,7 +108,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps', # tutorial
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
-    'tinymce'
+    'tinymce',
     'filer',
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
