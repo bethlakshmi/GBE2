@@ -116,7 +116,7 @@ def event(request, event_id):
 def techinfo(request):
     form = TechInfoForm()
     return render(request, 
-                  'gbe/techinfo.tmpl', 
+                  'gbe/techinfo.html', 
                   {'form':form})
 
     
@@ -1777,7 +1777,7 @@ def register (request):
             return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
     else:
         form = UserCreateForm()
-    return render(request, 'gbe/register.html', {
+    return render(request, 'gbe/register.tmpl', {
         'form':form})
 
 def logout_view (request):
