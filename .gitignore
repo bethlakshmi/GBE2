@@ -14,7 +14,18 @@ db.sqlite3
 
 *.css~
 
+*.bak
+
 expo/gbe/static/img/GBE_PageBanner.png
+expo/gbe/static/admin
+expo/gbe/static/admin/*
+expo/gbe/static/cms
+expo/gbe/static/cms/*
+expo/gbe/static/djangocms_text_ckeditor
+expo/gbe/static/djangocms_text_ckeditor/*
+expo/gbe/static/djangocms_admin_style
+expo/gbe/static/djangocms_admin_style/*
+expo/media*
 
 expo/expo/settings.pyc
 
@@ -28,7 +39,6 @@ Text-1.txt
 
 *.sqlplite3
 
-*.txt
 
 expo/performer.json
 
@@ -36,11 +46,14 @@ expo/profilesinherit.json
 
 expo/db.sqlite3.preactitem
 
-expo/expo/localsettings.py
 
-
+expo/env/*
 expo/expo/local_settings.py
 
 *.zip
 
 *.bettytest
+
+expo/db.sqlite3.cmsnew
+
+expo/src/pip-delete-this-directory.txt

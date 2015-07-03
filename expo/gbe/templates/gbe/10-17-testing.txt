@@ -1,0 +1,87 @@
+10/17/2014 testing:
+- refreshed DB and...
+- made admin
+- set profile with checkboxes and hotel choice
+- tested reload of that
+- set up groups and put all on admin user
+
+- registered new user, new profile, all fields
+- Class bid
+   - prompted for persona, made one
+   - prompted for class, made one as draft
+   - persona worked and is editable
+   - class draft save worked, and is editable
+   - submit works, and looks good (fixed bug)
+   
+- Act bid
+   - used first persona
+   - was able to save draft
+   - submit fails (no payment) as expected.
+   - hacked it to submit
+   - viewed act - looks good
+   
+- Vendor Bid
+   - draft - check
+   - submit fails (no poyment) as expected
+   - hacked submit
+   - view works (fixed bug)
+   
+- Volunteer Bid
+   - submitted one
+   
+- Proposal
+   - proposed panel
+
+As privileged user:
+- reviewed act
+- reviewed class
+- published proposal
+- applied to present
+- reviewed volunteer
+- reviewed vendor
+- accepted vendor
+- accepted class
+- accepted show (bug)
+
+BUGs -
+- Betty has no items to review - when there are tons of bids I'm elible to review and have not reviewed.
+- Can't change act state when no shows are set - something in the post value checking is creating an unslightly error.
+
+
+NOTES:
+
+
+class Schedulable(models.Model):
+- ? properties for start_time, duration and end_time, but no actual start time?
+
+  class Event (Schedulable):
+  class ResourceAllocation(Schedulable):
+     - CONNECTS - Event and Resource
+    
+class ResourceItem (models.Model):
+  class LocationItem(ResourceItem):
+    -- class Room -- GBE
+  class WorkerItem(ResourceItem):
+    -- class Profile -- GBE
+  class EquipmentItem(ResourceItem):
+
+
+class Resource(models.Model):
+  class Location(Resource):
+     - item connects to LocationItem
+  class Worker (Resource):
+     - item connects to WorkerItem
+  class Equipment(Resource):
+     - item connects to EquipmentItem
+
+
+class EventItem (models.Model):
+-- class Event -- GBE
+      class Class
+      class Show
+      class GenericEvent
+        
+
+
+
+

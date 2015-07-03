@@ -17,7 +17,9 @@ example_string = '''this is a multiline string. a newline
 
 # models
 
-
+stageinfo_incomplete_warning = "Please confirm that you have no props requirements"
+lightinginfo_incomplete_warning = "Please check your lighting info."
+audioinfo_incomplete_warning = "Please confirm that you will have no audio playback for your performance"
 
 landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
 
