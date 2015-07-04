@@ -25,6 +25,8 @@ expo/gbe/static/djangocms_text_ckeditor
 expo/gbe/static/djangocms_text_ckeditor/*
 expo/gbe/static/djangocms_admin_style
 expo/gbe/static/djangocms_admin_style/*
+expo/gbe/static/treebeard/*
+
 expo/media*
 
 expo/expo/settings.pyc
@@ -54,6 +56,32 @@ expo/expo/local_settings.py
 
 *.bettytest
 
+#created by collect static and all our various plugins that are installed via pip
+# if we ever mess with this CSS, we should un-ignore.
 expo/db.sqlite3.cmsnew
+expo/gbe/static/cms/*
+expo/gbe/static/cmsplugin_filer_folder/*
+expo/gbe/static/django_tinymce/*
+expo/gbe/static/djangocms_text_ckeditor/*
+expo/gbe/static/filer/*
+expo/gbe/static/nivo/*
+expo/gbe/static/tiny_mce/*
+
 
 expo/src/pip-delete-this-directory.txt
+
+expo/db.sqlite3.bak
+
+expo/src/image-gallery/
+
+*.good
+
+
+
+expo/media/cms_page_media/1/GBE_PageBanner.png
+
+expo/media/cms_page_media/2015/4/26/GBE_PageBanner.png
+
+expo/media/cms_page_media/1/GBE_PageBanner.png
+
+expo/media/cms_page_media/2015/4/26/GBE_PageBanner.png
