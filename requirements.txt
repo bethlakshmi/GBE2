@@ -41,7 +41,6 @@ cmsplugin_nivoslider
 django_nose
 -e git://github.com/bethlakshmi/cmsplugin-image-gallery.git#egg=image_gallery
 pytz
-django-nose
 django-treebeard
 
 django-model-utils
