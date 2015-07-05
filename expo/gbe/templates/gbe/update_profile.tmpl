@@ -23,6 +23,7 @@ etc.).
 
 
 <form method="POST" action="" enctype="multipart/form-data">
+<div class="colmask">
 <div class = "left_col">
   {% for form in left_forms %}
     {% include "form_table.tmpl" %}
@@ -34,7 +35,8 @@ etc.).
   {% for form in right_forms %}
   {%include "form_table.tmpl" %}
   {% endfor %}
-
+</div>
+</div>
      
 </form>
 

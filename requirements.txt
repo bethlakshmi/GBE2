@@ -12,6 +12,9 @@ django-classy-tags
 djangocms-admin-style
 html5lib
 six
+easy_thumbnails
+django-polymorphic  # dependancy for cmsplugin-filer
+django-tinymce
 
 # Optional, recommended packages
 Pillow>=2
@@ -23,7 +26,7 @@ django-reversion==1.8.5
 djangocms_text_ckeditor
 djangocms_style
 djangocms_column
-djangocms_file
+# djangocms_file
 djangocms_flash
 djangocms_googlemap
 djangocms_inherit
@@ -31,6 +34,14 @@ djangocms_link
 djangocms_picture
 djangocms_teaser
 djangocms_video
-filer
-easy_thumbnails
-cmsplugin_bootstrap_carousel
+djangocms_snippet
+
+djangocms-placeholder-attr
+cmsplugin_nivoslider
+django_nose
+-e git://github.com/bethlakshmi/cmsplugin-image-gallery.git#egg=image_gallery
+pytz
+django-nose
+django-treebeard
+
+django-model-utils
