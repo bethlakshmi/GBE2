@@ -125,7 +125,6 @@ def event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event': event})
 
-
 def techinfo(request):
     form = TechInfoForm()
     return render(request,
@@ -1832,7 +1831,7 @@ def register(request):
                                                 urlconf='gbe.urls'))
     else:
         form = UserCreateForm()
-    return render(request, 'gbe/register.html', {'form': form})
+    return render(request, 'gbe/register.tmpl', {'form': form})
 
 
 def logout_view(request):
