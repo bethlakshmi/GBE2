@@ -11,7 +11,7 @@ from gbe import views
 urlpatterns = patterns ('',
 
 # landing page
-                        url(r'account.html/?',
+                        url(r'^gbe/?',
                             views.landing_page, 
                             name='home'),
                         url(r'index.html/?',

@@ -1,5 +1,5 @@
 # Bare minimum
-django-cms>=3.0
+django-cms==3.0.14
 
 # These dependencies are brought in by django CMS, but if you want to
 # lock-in their version, specify them
@@ -44,3 +44,5 @@ pytz
 django-treebeard
 
 django-model-utils
+factory_boy
+mock

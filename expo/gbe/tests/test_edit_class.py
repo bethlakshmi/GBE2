@@ -71,7 +71,7 @@ class TestEditClass(TestCase):
         request.POST.update(self.get_class_form())
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/')
+        nt.assert_equal(location(response), '/gbe')
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
