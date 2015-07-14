@@ -75,7 +75,12 @@ except:
    ALLOWED_HOSTS = []
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+try:
+    MEDIA_ROOT
+except:
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    
 LOGIN_URL = '/login/'
 
 try:
@@ -93,7 +98,7 @@ INSTALLED_APPS = (
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',  # for the admin skin. You **must** add 'djangocms_admin_style' in the list **before** 'django.contrib.admin'.
     'django.contrib.messages',    
-    
+    'treebeard',    
     'djangocms_text_ckeditor', # tutorial ... hmm...
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,30 +108,50 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps', # tutorial
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
-
+    'tinymce',
     'filer',
     'easy_thumbnails',
 #    'aldryn_bootstrap3',
-    'cmsplugin_bootstrap_carousel',
+    'image_gallery',  #I forked this and extended a little.
+    'cmsplugin_nivoslider',
+    'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
-    'djangocms_file',
+    'djangocms_snippet',
+#    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
-    'djangocms_link',
-    'djangocms_picture',
-    'djangocms_teaser',
-    'djangocms_video',
-    'reversion', # for versioning in cms
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_link',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',#    'djangocms_link',
+#    'djangocms_picture',
+#    'djangocms_teaser',
+#    'djangocms_video',
+    'reversion', # for versioning in cms -- had to do easy install on new site...
     'gbe',
     'ticketing',
     'scheduler',
     'django_nose',
 )
 
+
+
+
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 THUMBNAIL_HIGH_RESOLUTION = True
+
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
+    'easy_thumbnails.processors.autocrop',
+    #'easy_thumbnails.processors.scale_and_crop',
+    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters',
+)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -144,6 +169,8 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.language.LanguageCookieMiddleware', #end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
+
+TEXT_SAVE_IMAGE_FUNCTION='cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
 #all django-cms
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -177,6 +204,9 @@ MIGRATION_MODULES = {
     'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
 }
 
+SOUTH_MIGRATION_MODULES = {
+    'image_gallery': 'image_gallery.south_migrations',
+}
 
 FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler",
                         "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
@@ -249,6 +279,17 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
     'django.template.loaders.eggs.Loader'
 )
+
+CMS_STYLE_NAMES = (
+    ('info', ("info")),
+    ('new', ("new")),
+    ('hint', ("hint")),
+    ('footer', ("footer")),
+    ('subtitle',("20th Century Poster")),
+    ('font_large',("Large, plain font")),
+    ('font_regular',("Regular Text"))
+)
+
 
 CMS_LANGUAGES = {
     ## Customize this

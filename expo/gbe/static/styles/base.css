@@ -5,45 +5,58 @@ body {
   padding: 0px;
 }
 
-div#container {
-/*    width:774px; */
+
+div.container {
     top:0;
-/*    margin: 0px auto 5px;*/
+    width: 960px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
     
-div#banner {
-    position=fixed; top: 0; bottom: 129px; left:auto;right:auto;
+div.banner {
+  left: 0px;
+  top: 0px;
+  width: 960px;
+
+  height: 130px;
+  overflow: hidden;
+  padding: 10px 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  
 }
 
-div#nav { 
-    top:130px; bottom:0; left:0; 
-
-}
-
-div#nav ul {
-   width: 12em; 
-
-}
-div#nav ul li {
-    list-style:none;
-    text-align:left;
-    margin:0;
-
-}
-
-div#nav ul li a{
-    display: block;
-    text-decoration: none;
-
+.big_block {
+  width: 910px;
+  box-sizing: initial;
 }
 
 
 
-div#main-content{
-    margin-left: 20px; margin-right: 20px;
 
+div.main-content{
+    top:0;
+    width: 960px;
+    padding: 20px;
+
+    background-color: rgb(235,235,235);
 }
+
+div.footer{
+  width:960px;
+  color:#FFF;
+  margin: 0px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 16.5px;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;
+}
+
 
 div#middle {
     /* The menu scrolls are ugly and driving me crazy.  Change back if you want guys. -MDB */
@@ -55,14 +68,14 @@ div#middle {
 
 
 div.left_col {
-    width:32%;
+    width:46%;
     float:left;
     margin: 10px;
     padding: 10px;
 }
 
 div.right_col {
-    width:32%;
+    width:46%;
     float:right;
 }
 
@@ -507,7 +520,6 @@ div.alert
 .colmask {
 	position:relative;	/* This fixes the IE7 overflow hidden bug */
 	clear:both;
-	float:left;
 	width:100%;			/* width of whole page */
 	overflow:hidden;		/* This chops off any overhanging divs */
 }
@@ -609,4 +621,13 @@ div.landing_box>div.vendor_section {
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;
+}
+
+.filer_image.right {
+  float: right;
+}
+
+
+.filer_image.left {
+  float: left;
 }
