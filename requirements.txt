@@ -44,3 +44,5 @@ pytz
 django-treebeard
 
 django-model-utils
+factory_boy
+mock
