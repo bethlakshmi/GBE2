@@ -104,7 +104,7 @@ class TestBidAct(TestCase):
             response = bid_act(request)
 
 #        nt.assert_equal(response.status_code, 302)
-#        nt.assert_equal(location(response), '/')
+#        nt.assert_equal(location(response), '/gbe')
 
         # this test is not working. To do: Fix it. 
 
@@ -117,7 +117,7 @@ class TestBidAct(TestCase):
         request.POST.update(self.get_act_form())
         response = bid_act(request)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/')
+        nt.assert_equal(location(response), '/gbe')
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
