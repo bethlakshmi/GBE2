@@ -24,7 +24,7 @@
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>
             {% elif field.field.widget.input_type == "file" %}
-              <a href="/{{field.value}}">Go to {{ field.label }}</a>
+              <a href="{{MEDIA_URL}}{{field.value}}">Go to {{ field.label }}</a>
             {% elif field.field.choices %}
               <ul>
               {% for choice_id, choice_label in field.field.choices %}
