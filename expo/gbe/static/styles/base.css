@@ -180,7 +180,6 @@ span.dropt span {position: absolute; left: -9999px;
   border-style:solid; border-color:black; border-width:1px;}
 span.dropt:hover span {margin: 0px 0 0 0px; background: #ffffff; z-index:6;} 
 
-td.form_label {width: 150px;}
 
 /* Fashion Fair display of vendors.  Also not bad for performers... */
 
@@ -630,4 +629,27 @@ div.landing_box>div.vendor_section {
 
 .filer_image.left {
   float: left;
+}
+
+table.gbe_table {
+  width: 100%;
+}
+
+td.form_label {
+  width: 30%;
+}
+
+td.form_field {
+  width: 60%;
+  padding: 5px;
+}
+
+td.form_field > ul 
+{
+  padding: 0px;
+}
+
+td.form_field > ul > li
+{
+  list-style-type: none;
 }

@@ -11,7 +11,7 @@
   <span class=formtitle>{{ form.form_title }}<span>
   {% endif %}
 
-    <table border=0>
+    <table class="gbe_table">
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
         <tr>
@@ -46,7 +46,7 @@
                 </span>
               {% endif %}
             </td>
-            <td>
+            <td class="form_field">
               {{ field }}
             </td>
           {% if field.errors %}
