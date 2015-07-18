@@ -3270,7 +3270,8 @@ input[type="submit"].btn-block,input[type="reset"].btn-block,input[type="button"
 	font-weight:normal;
 	line-height:1.428571429;
 	color:#FFF;
-	white-space:nowrap
+	white-space:nowrap;
+	font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
 }
 
 .dropdown-menu>li>a:hover,.dropdown-menu>li>a:focus{
