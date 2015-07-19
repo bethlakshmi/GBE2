@@ -23,26 +23,22 @@ profile_preferences_labels = {
     'show_hotel_infobox': ('Show the hotel booking info on your landing page?'),
 }
 
+inform_about_options = [('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes'),
+                        ('Performing', 'Performing'),
+                        ('Pre-event Organizing', 'Pre-event Organizing'),
+                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'),
+                        ('Teaching', 'Teaching'),
+                        ('Vending', 'Vending'),
+                        ('Volunteering', 'Volunteering at the Expo')]
 
-
-inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'), 
-                        ('Volunteering', 'Volunteering at the Expo'), 
-                        ('Performing', 'Performing'), 
-                        ('Vending', 'Vending'), 
-                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'), 
-                        ('Teaching', 'Teaching'), 
-                        ('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes')]
-
-
-
-how_heard_options = [('Previous attendee', 'Attended Previously'), 
-                     ('Facebook', 'Facebook'), 
-                     ('Yahoo! Group', 'Yahoo! Group'), 
-                     ('Received a direct email', 'Received a direct email'), 
-                     ('Word of mouth', 'Word of mouth'), 
-                     ('Saw a postcard', 'Saw a postcard'), 
-                     ('Saw a print ad', 'Saw a print ad'), 
-                     ('B.A.B.E.', 'B.A.B.E.'), 
+how_heard_options = [('Previous attendee', 'Attended Previously'),
+                     ('B.A.B.E.', 'B.A.B.E.'),
+                     ('Facebook', 'Facebook'),
+                     ('Received a direct email', 'Received a direct email'),
+                     ('Saw a postcard', 'Saw a postcard'),
+                     ('Saw a print ad', 'Saw a print ad'),
+                     ('Word of mouth', 'Word of mouth'),
+                     ('Yahoo! Group', 'Yahoo! Group'),
                      ('Other', 'Other')]
 
 participant_form_help_texts = {

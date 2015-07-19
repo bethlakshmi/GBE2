@@ -1,4 +1,10 @@
    {% load staticfiles %}
+   <br><br>
+   In lists of choices:
+   <ul>
+    <li><i>Italic choices</i> - were not selected</li>
+    <li><b>Bold choices</b> - have been selected</li>
+   </ul>
     <table>
       {% for info in readonlyform %}
       	 {% if info.form_title %}
@@ -19,7 +25,7 @@
             {% endif %}
          </td>
 
-         <td class="readonlyform form_field">
+         <td class="readonlyform form_field {% if field.field.choices|length > 7 and field.value|length %}long_choice{%endif%}">
           {% if field.value %}
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>
@@ -27,27 +33,41 @@
               <a href="{{MEDIA_URL}}{{field.value}}">Go to {{ field.label }}</a>
             {% elif field.field.choices %}
               <ul>
-              {% for choice_id, choice_label in field.field.choices %}
-                {% if choice_id and choice_id in field.value %}
+              {% if field.field.choices|length > 7 and field.value|length %}
+                {% for choice_id, choice_label in field.field.choices %}
                   {% if choice_id != 'SH1' or "u'SH1'" in field.value %}
-                  <li>{{ choice_label }}</li>
-                  {%endif%}
-                {% elif choice_id and choice_id = field.value %}
-                  </ul>{{ choice_label }}<ul>
-                {% elif choice_id >= 0 and choice_id <= 100 %}
-                  {% for idagain in choice_id|make_list %}
-                    {% if idagain and idagain in field.value %}
+                    <li>
+                    {% if choice_id and choice_id in field.value %}
+                      <b>{{ choice_label }}</b>
+                    {% else %}
+                      <i>{{ choice_label }}</i>
+                    {% endif %}
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              {% else %} 
+                {% for choice_id, choice_label in field.field.choices %}
+                  {% if choice_id and choice_id in field.value %}
+                    {% if choice_id != 'SH1' or "u'SH1'" in field.value %}
                       <li>{{ choice_label }}</li>
-                    {% endif %}
-                  {% endfor %}
-                {% else %}
-                  {% for id, label in choice_label %}
-                    {% if id == field.value %}
-                    <li>{{ label }}</li>
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
-              {% endfor %}
+                    {%endif%}
+                  {% elif choice_id and choice_id = field.value %}
+                    </ul>{{ choice_label }}<ul>
+                  {% elif choice_id >= 0 and choice_id <= 100 %}
+                    {% for idagain in choice_id|make_list %}
+                      {% if idagain and idagain in field.value %}
+                        <li>{{ choice_label }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {% for id, label in choice_label %}
+                      {% if id == field.value %}
+                      <li>{{ label }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
               </ul>
             {% else %}
               {{ field.value }}
