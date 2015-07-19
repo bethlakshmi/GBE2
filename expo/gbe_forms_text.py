@@ -86,32 +86,44 @@ you are probably a troupe. If you want to put something special together just fo
 the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
 event_create_text = {'GenericEvent': '''Enter the details for a new event.  A generic event \
-		      can be event that is not a show or a conference class.  Be sure to set the \
-		      type of event properly as each type is displayed differently in the public \
-		      website.''',
-		     'Show': '''Enter the details for a new show.  Shows are displayed on show \
-		     listings, but if you are adding a show and want specialized menu items, please \
-		     contact the web web team.  REMINDER:  For linking to show tickets, you must also \
-		     use the ticketing section to link tickets.''',
-		     'Class': '''Enter the details for a new class.  This is specifically for \
-		     conference classes.  For Master Classes and Drop-In classes, please use \
-		     Generic Events.'''}
+                      can be event that is not a show or a conference class.  Be sure to set the \
+                      type of event properly as each type is displayed differently in the public \
+                      website.''',
+                     'Show': '''Enter the details for a new show.  Shows are displayed on show \
+                      listings, but if you are adding a show and want specialized menu items, please \
+                      contact the web web team.  REMINDER:  For linking to show tickets, you must also \
+                      use the ticketing section to link tickets.''',
+                     'Class': '''Enter the details for a new class.  This is specifically for \
+                      conference classes.  For Master Classes and Drop-In classes, please use \
+                      Generic Events.'''}
 
 event_help_texts = {'type': '''Special Events, Master Classes, and Drop In classes are shown in \
-		     event lists, Staff Areas do not..'''}
+                     event lists, Staff Areas do not..'''}
 
-volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
-                                  ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
-                                  ('SH4', 'Friday late night'), ('SH5', 'Saturday morning'), 
-                                  ('SH6', 'Saturday afternoon'), ('SH7', 'Saturday night'), 
-                                  ('SH8', 'Saturday late night'), ('SH9', 'Sunday morning'), 
-                                  ('SH10', 'Sunday afternoon'), ('SH11', 'Sunday night'), 
-                                  ('SH12', 'Strike Crew'), ('SH13', 'Monday morning')]
+volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
+                                  ('SH8', 'Saturday late night (10PM-1AM)'),
+                                  ('SH1', 'Friday morning (9AM-12PM)'), 
+                                  ('SH9', 'Sunday morning (8AM-12PM)'), 
+                                  ('SH2', 'Friday afternoon (12PM-6PM)'),
+                                  ('SH10', 'Sunday afternoon (12PM-6PM)'),
+                                  ('SH3', 'Friday night (5PM-10PM)'), 
+                                  ('SH11', 'Sunday night (5PM-10PM)'), 
+                                  ('SH4', 'Friday late night (10PM-1AM)'),
+                                  ('SH12', 'Strike Crew (10PM-1AM)'),
+                                  ('SH5', 'Saturday morning (8AM-12PM)'), 
+                                  ('SH13', 'Monday morning (9AM-12PM)'),
+                                  ('SH6', 'Saturday afternoon (12PM-6PM)'),
+                                  ('SH7', 'Saturday night (5PM-10PM)')]
 
-volunteer_interests_options = [('VA0', 'Registration'), ('VA1', 'Security/usher'), 
-                          ('VA2', 'Stage crew'), ('VA3', 'Stage Management'), 
-                          ('VA4', 'Conference Staff'), ('VA5', 'Tech crew'), 
-                          ('VA6', 'Vendor room'), ('VA7', 'Costume Exhibit'), ('VA8', 'Art Show')]
+volunteer_interests_options = [('VA8', 'Art Show'),
+                               ('VA2', 'Stage crew'),
+                               ('VA4', 'Conference Staff'),
+                               ('VA3', 'Stage Management'), 
+                               ('VA7', 'Costume Exhibit'),
+                               ('VA5', 'Tech crew'), 
+                               ('VA0', 'Registration'),
+                               ('VA6', 'Vendor room'),
+                               ('VA1', 'Security/usher')]
 
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
@@ -127,7 +139,11 @@ volunteer_labels = {
 volunteer_help_texts = {
     'pre_event': ('Pre-event tasks could be anything from marketing \
     to logistics to advertising sales to data entry. In short, \
-    anything we need done before the BurlExpo starts') }
+    anything we need done before the BurlExpo starts'),
+    'volunteer_availability_options': ('These times are general guidelines.  \
+    If there are specific times that you cannot work, please let us know in the \
+    box below.')
+}
 
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']

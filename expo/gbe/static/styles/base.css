@@ -646,10 +646,13 @@ td.form_field {
 
 td.form_field > ul 
 {
-  padding: 0px;
+  padding: 5px 0px;
+  border-top: 1px solid black;
 }
 
 td.form_field > ul > li
 {
   list-style-type: none;
+  float: left;
+  width: 250px;
 }
