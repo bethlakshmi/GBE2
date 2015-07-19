@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+  
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
   {% endif %}
@@ -15,17 +16,10 @@
      {% include "readonly_form_table.tmpl" %}
 
   </div>
-  <div>
-    <p><font color=red>*</font> indicates a required field
-    </p>
-    <div class=left_col>
-      <form action="" method="post">
-      {% include "form_table.tmpl" %}
-      <input type="submit" value="Submit Form"> 
-      </form>
-    </div>
+  <div class="review_area">
+
     {% if actionURL %}
-    <div class=bid_col><div class=side_box>
+    <div class="bid_col side_box">
       <h2>Bid Control for Coordinator</h2>
         {% if actionform.errors %}
         <p style= "color:red"> There is an error on the form.  </p>
@@ -45,7 +39,17 @@
         <br><br>
         <input type="submit" value="Submit Form"> 
         </form>
-    </div></div>
+    </div>
     {% endif %}
+    <h2>Review Information</h2>
+    <p><font color=red>*</font> indicates a required field
+    </p>
+    <div class=reviewer_col>
+      <form action="" method="post">
+      {% include "form_table.tmpl" %}
+      <input type="submit" value="Submit Form"> 
+      </form>
+    </div>
   </div>
+  
 {% endblock %}

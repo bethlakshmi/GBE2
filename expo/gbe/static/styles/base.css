@@ -39,7 +39,6 @@ div.main-content{
     top:0;
     width: 960px;
     padding: 20px;
-
     background-color: rgb(235,235,235);
 }
 
@@ -66,21 +65,29 @@ div#middle {
     padding: 10px 3px 10px 20px;
 }
 
-
 div.left_col {
     width:46%;
     float:left;
     margin: 10px;
     padding: 10px;
+    bottom: 10%;
 }
 
 div.right_col {
     width:46%;
     float:right;
+    bottom: 10%;
 }
 
+div.reviewer_col{
+    width:35%;
+    margin: 10px;
+    padding: 10px;
+    bottom: 10%;
+  
+}
 div.bid_col {
-    width:60%;
+    width:55%;
     float:right;
 }
 
