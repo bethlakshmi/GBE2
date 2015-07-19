@@ -46,7 +46,7 @@
                 </span>
               {% endif %}
             </td>
-            <td class="form_field">
+            <td class="form_field {% if field.field.choices|length > 7 %}long_choice{%endif%}">
               {{ field }}
             </td>
           {% if field.errors %}

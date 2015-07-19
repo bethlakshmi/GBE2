@@ -644,15 +644,23 @@ td.form_field {
   padding: 5px;
 }
 
+td.form_field.long_choice > ul 
+{
+  border-top: 1px solid black;
+}
+
 td.form_field > ul 
 {
   padding: 5px 0px;
-  border-top: 1px solid black;
+}
+
+td.form_field.long_choice > ul > li
+{
+  float: left;
+  width: 250px;
 }
 
 td.form_field > ul > li
 {
   list-style-type: none;
-  float: left;
-  width: 250px;
 }
