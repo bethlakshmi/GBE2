@@ -8,7 +8,7 @@
 	{% endif %}
         {% for field in info.visible_fields %}
         <tr>
-         <td>{{ field.label_tag }}
+         <td class="readonlyform form_label">{{ field.label_tag }}
             {% if field.help_text %}
             <span class="dropt" title="Help">
               <img src= "{% static "img/question.png" %}" alt="?"/>
@@ -19,7 +19,7 @@
             {% endif %}
          </td>
 
-         <td>
+         <td class="readonlyform form_field">
           {% if field.value %}
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>
