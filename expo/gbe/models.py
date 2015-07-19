@@ -1217,7 +1217,7 @@ class Volunteer(Biddable):
             commitment_string = "%s - %s, \n " % (str(event),
                                                   start_time)
             commitments += commitment_string
-        format_string = "Availability: %s\n Conflicts: %d\n Commitments: %d"
+        format_string = "Availability: %s\n Conflicts: %s\n Commitments: %s"
         scheduling = format_string % (availability_string,
                                       unavailability_string,
                                       commitments)
