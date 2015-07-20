@@ -9,9 +9,8 @@
    Thanks for your interest in the Great Burlesque Exposition. Suggestions 
     are welcome for classes you'd like to see offered. <br><br>
    <form action="" method="post">
-    {% csrf_token %}
    <table>
-   {{ form}}
+    {% include "form_table.tmpl" %}
    </table>
    <input type="submit" name="submit" value="Submit My Idea">
    </form>
