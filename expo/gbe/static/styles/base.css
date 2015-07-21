@@ -393,17 +393,17 @@ td.describe
 {
   padding-top: 10px;
   align:left;
-  width:75%;
+  width:70%;
   display: inline-block;
   vertical-align: top;
 }
 .sched_times
 {
-  width:20%;
+  width:27%;
   align: right;
   display: inline-block;
   border-style: double;
-  background: #aaffff;
+  background: #C3BDBF;
   border-radius: 8px;
   padding: 8px;
 }
@@ -465,7 +465,7 @@ td.describe
 }
 .bio_words
 {
-  width: 70%;
+  width: 65%;
   display: inline-block;
   vertical-align: top;
 }

@@ -33,9 +33,11 @@
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
 	  {% for sched_event in eventitem.scheduled_events %}
-	    <label class="sched_detail">Time:</label> {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
-	      <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
-	  <br>
+	    <label class="sched_detail">Time:</label>  {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
+	      <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
+            {% if not forloop.last %}
+	    <br>
+	    {%endif%}
 	  {% endfor %}
       </div>
       {% endif %}
@@ -55,9 +57,9 @@
 	    <div class="vimg">
 	      <a href="{{bio.homepage}}">
 	   	{% if bio.promo_small %}
-	   	<img src="/{{bio.promo_small}}" class="vimage">
+	   	<img src="{{MEDIA_URL}}{{bio.promo_small}}" class="vimage">
 		{% else %}
-		<img src="/static/img/defaultperfpromo.png" class="vimage">
+		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" class="vimage">
 		{% endif %}
 	      </a><br>
 	      <span>
@@ -66,8 +68,8 @@
 
 	   	  {% if bio.promo_image %}
 		  <div style="float:right">
-                  <a href="/{{bio.promo_image}}">
-		    <img src="/{{bio.promo_small}}" alt="Photo" width=200 style="float:right">
+                  <a href="{{MEDIA_URL}}{{bio.promo_image}}">
+		    <img src="{{MEDIA_URL}}{{bio.promo_small}}" alt="Photo" width=200 style="float:right">
 		  </a></div><BR>
 		  {%endif%}
                   <div class="vdesc">
@@ -102,7 +104,7 @@
       </div>
         {% if worker.workeritem.promo_image %}
           <div class="bio_image_block">
-          <img src="/{{worker.workeritem.promo_small}}" class="sched_bio_image">
+          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_small}}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
@@ -116,10 +118,11 @@
         <br><br>
 	
       </div>
-        {% if bio.promo_image %}
-        <div class="bio_image_block">
-        <img src="/{{bio.promo_small}}" class="sched_bio_image">
-        </div>
+
+       {% if bio.promo_image %}
+          <div class="bio_image_block">
+            <img src="{{MEDIA_URL}}{{bio.promo_small}}" class="sched_bio_image">
+          </div>
         {% endif %}
       {% endfor %}
     </div>
