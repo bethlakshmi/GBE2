@@ -32,7 +32,7 @@ class Conference(Schedulable):
     
     class Meta:
         verbose_name="conference"
-        verbose_name_plural="conference names"
+        verbose_name_plural="conferences"
 
     
 
