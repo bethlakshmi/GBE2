@@ -3,6 +3,7 @@ body {
   margin: 0px;
   border: 0px;
   padding: 0px;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
 }
 
 
@@ -344,12 +345,22 @@ td.describe
   padding-right: 20px;
   padding-left: 20px;
 }
+
+
 .listheader
 {
+  font-family: "TwentiethCenturyPoster";
+  font-size: 30px;
   color: #333333;
-  font-family: Impact, Charcoal, sans-serif;
-  letter-spacing: 1px;
 }
+
+.listsubheader
+{
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-size: 20px;
+  color: #333333;
+}
+
 .listdetails
 {
 }
@@ -360,7 +371,14 @@ td.describe
 .listdesc
 {
   padding-top: 10px;
-  white-space: pre-wrap;
+  padding-left: 30px;
+  color: #000;
+  font-size: 11px;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;	
 }
 .listline
 {
