@@ -61,14 +61,15 @@ class SpecialMenu(Menu):
         populate for users based on profile.
         Users must have special privileges to use this
         """
+#        import pdb; pdb.set_trace()
         nodes = []
         user = request.user
-        if validate_perms(request, 'any'):
+        if validate_perms(request, 'any', require=False):
             nodes.append(NavigationNode(_("Special"), "", 1))
             nodes.append(NavigationNode(_("Reporting"),
                                         reverse('reporting:report_list'),
                                         2, 1))
-            for n,priv in enumerate(user.profile.special_privs,3):
+            for n,priv in enumerate(user.profile.special_privs,len(nodes)+1):
                 if priv["url"]:
                     nodes.append(NavigationNode(priv["title"],
                                                 priv["url"],
