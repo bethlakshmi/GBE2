@@ -6,27 +6,28 @@ participant_labels = {
     'display_name': ('Badge Name'),
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
-    'best_time':('Best time to call'),
-    'offsite_preferred':('Offsite phone'),
+    'best_time': ('Best time to call'),
+    'offsite_preferred': ('Offsite phone'),
     'how_heard': "How did you hear about The Expo?",
     'purchase_email': ('BPT Purchase Email'),
 
 }
 
-profile_preferences_help_texts= {
+profile_preferences_help_texts = {
     'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.',
 }
 
 profile_preferences_labels = {
     'inform_about': 'Please let me know about...',
     'in_hotel': 'I am staying at the hotel',
-    'show_hotel_infobox': ('Show the hotel booking info on your landing page?'),
+    'show_hotel_infobox': ('Show hotel booking info on your landing page?'),
 }
 
-inform_about_options = [('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes'),
+inform_about_options = [('Exhibiting Art or Costumes', 
+                         'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
                         ('Pre-event Organizing', 'Pre-event Organizing'),
-                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'),
+                        ('Sponsoring/Advertising', 'Sponsoring/Advertising'),
                         ('Teaching', 'Teaching'),
                         ('Vending', 'Vending'),
                         ('Volunteering', 'Volunteering at the Expo')]
@@ -42,30 +43,36 @@ how_heard_options = [('Previous attendee', 'Attended Previously'),
                      ('Other', 'Other')]
 
 participant_form_help_texts = {
-    'display_name': ('The name you want to be known by as an Expo participant. This can \
-be a stage name, or your real-world name, or anything that you want to have printed on your \
-Expo badge and other official Expo communications. This defaults to your First and Last Name.'),
-    'phone': ('A phone number we can use to reach you when you are at the Expo, \
-such as cell phone.'),
-    'offsite_preferred': ('Your preferred phone number (if different from above), \
-for communication before the Expo.  Use this if you prefer to get phone calls at a \
-phone you cannot bring to the Expo.'),
+    'display_name': ('The name you want to be known by as an Expo participant. \
+    This can be a stage name, or your real-world name, or anything that you \
+    want to have printed on your Expo badge and other official Expo \
+    communications. This defaults to your First and Last Name.'),
+    'phone': ('A phone number we can use to reach you when you are at the \
+    Expo, such as cell phone.'),
+    'offsite_preferred': ('Your preferred phone number (if different from \
+    above), for communication before the Expo.  Use this if you prefer to \
+    get phone calls at a phone you cannot bring to the Expo.'),
 }
 
 
-phone_validation_error_text = '''If Preferred contact is a Phone call or Text, \
-we need your phone number as either an Onsite phone or Offsite preferred.'''
+phone_validation_error_text = (
+    'If Preferred contact is a Phone call or '
+    'Text, we need your phone number as either an Onsite phone or Offsite '
+    'preferred.')
 
 
 combo_form_help_texts = {
-    'contact': ('The person we should contact about this act\'s appearance at the Expo. This \
-    can be a member of your combo or an agent, but whoever it is will be authorized to speak \
-    for and make decisions for you.'), 
-    'name': ('If you leave this blank, it\'ll fill in with the names of the performers involved in \
-             this act.'),
-    'membership': ('Select the performers who will be on stage with you. If they have not created \
-    a persona on the site, you can either create one for them, or just fill in their name in the \
-    notes and we\'ll sort it out.'), # edit this text please
+    'contact': ('The person we should contact about this act\'s appearance at '
+                'the Expo. This can be a member of your combo or an agent, '
+                'but whoever it is will be authorized to speak for and make '
+                'decisions for you.'),
+    'name': ('If you leave this blank, it\'ll fill in with the names of the '
+             'performers involved in this act.'),
+    'membership': ('Select the performers who will be on stage with you. If '
+                   'they have not created a persona on the site, you can '
+                   'either create one for them, or just fill in their name '
+                   'in the notes and we\'ll sort it out.'
+               ),
 }
 
 
@@ -422,8 +429,8 @@ vendor_help_texts = {
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
                            ('VSH4', 'Sunday, 9am to noon'), 
-                           ('VSH1', 'Saturday, 12p to 4pm'), 
-                           ('VSH5', 'Sunday, 12p to 4pm'), 
+                           ('VSH1', 'Saturday, 12pm to 4pm'), 
+                           ('VSH5', 'Sunday, 12pm to 4pm'), 
                            ('VSH2', 'Saturday, 4pm to 8pm'), 
                            ('VSH6', 'Sunday, 4pm to 8pm'), 
                            ('VSH3', 'Saturday after 8pm'), 
@@ -431,13 +438,13 @@ vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'),
 
 
 help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
-					('Saturday, 12p to 4pm','Saturday, 12p to 4pm'),
-					('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
-					('Saturday after 8pm', 'Saturday after 8pm'),
-					('Sunday, 9am to noon', 'Sunday, 9am to noon'),
-					('Sunday, 12p to 4pm', 'Sunday, 12p to 4pm'),
-					('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
-					('Sunday after 8pm', 'Sunday after 8pm'))
+                     ('Saturday, 12pm to 4pm','Saturday, 12p to 4pm'),
+                     ('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
+                     ('Saturday after 8pm', 'Saturday after 8pm'),
+                     ('Sunday, 9am to noon', 'Sunday, 9am to noon'),
+                     ('Sunday, 12pm to 4pm', 'Sunday, 12p to 4pm'),
+                     ('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
+                     ('Sunday after 8pm', 'Sunday after 8pm'))
 
 
 

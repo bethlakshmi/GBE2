@@ -63,23 +63,16 @@ class SpecialMenu(Menu):
         """
         nodes = []
         user = request.user
-
-        if user.is_authenticated() \
-           and validate_profile(request) \
-           and user.profile.special_privs:
-
+        if validate_perms(request, 'any'):
             nodes.append(NavigationNode(_("Special"), "", 1))
             nodes.append(NavigationNode(_("Reporting"),
                                         reverse('reporting:report_list'),
                                         2, 1))
-            for priv in user.profile.special_privs:
-                n = 3
-
-                if priv["url"] and len(priv["url"]) > 0:
+            for n,priv in enumerate(user.profile.special_privs,3):
+                if priv["url"]:
                     nodes.append(NavigationNode(priv["title"],
                                                 priv["url"],
                                                 n, 1))
-                    n = n+1
         return nodes
 
 
