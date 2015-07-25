@@ -217,7 +217,7 @@ div.vimg
 .vname
 {
   font-size:20px;
-  font-family: sans-serif;
+  font-family: "TwentiethCenturyPoster";
   font-weight: bold;
   text-align:center;
   text-transform: capitalize;
@@ -434,8 +434,8 @@ td.describe
 .sched_detail_title
 {
   color: #333333;
-  font-family: Impact, Charcoal, sans-serif;
-  letter-spacing: 1px;
+  font-family: TwentiethCenturyPoster;
+  font-size: 30px;
 }
 .sched_detail
 {
@@ -487,7 +487,10 @@ td.describe
   display: inline-block;
   vertical-align: top;
 }
-
+.bio_name
+{
+  margin: 10px 0px;
+}
 
 table.events-table
 {

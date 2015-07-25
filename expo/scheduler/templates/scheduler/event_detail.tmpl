@@ -10,10 +10,10 @@
   {% include "ticket_link.tmpl" %}
 {% endif %}  
     <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
-    <div class="sched_block">
+    <div class="sched_block font_regular">
       <div class="sched_desc">
-	 {{eventitem.event.payload.description |safe}}
-      <div class="sched_details">
+	{{eventitem.event.payload.description |safe}}
+        <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
         <label class="sched_detail">
 	{% autoescape off %}
@@ -28,8 +28,8 @@
 	{% endautoescape %}
         {% endfor %}
 
+        </div>
       </div>
-    </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
 	  {% for sched_event in eventitem.scheduled_events %}
@@ -46,7 +46,7 @@
     {% if eventitem.bio_grid_list %}
       <table class="vtable" align=center>
       <tr  class="vrow"><th colspan="3" class="vheader">
-        <div class="vheadertext"><p>Check out our fabulous Performers!</p></div>
+        <div class="vheadertext font_large"><p>Check out our fabulous Performers!</p></div>
       </th></tr>
       {% for bio in eventitem.bio_grid_list %}
 	{% cycle '<tr class="vrow"><td class="vendorff">' '<td class="vendorff">' '<td class="vendorff">' %}
@@ -54,7 +54,7 @@
 	      {{bio.name}}
 	    </div>
             <span class="perfhover">
-	    <div class="vimg">
+	    <div class="vimg font_regular">
 	      <a href="{{bio.homepage}}">
 	   	{% if bio.promo_small %}
 	   	<img src="{{MEDIA_URL}}{{bio.promo_small}}" class="vimage">
@@ -91,29 +91,29 @@
       {% endfor %} 
       </table>
     {% elif eventitem.event.roles %}
-    <div class="bio_block">
+    <div class="bio_block font_regular">
       {% for worker in eventitem.event.roles %}
       <div class="bio_words">
 	{%if worker.role == "Staff Lead"%}
-	  <h2>{{worker.role}} - {{worker.workeritem}}</h2>
+	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
         {%else%}
-          <h2>About the {{worker.role}} - {{worker.workeritem.name}}</h2>
+          <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
           {{worker.workeritem.bio |linebreaksbr}}
 	{%endif%}
       <br><br>
       </div>
         {% if worker.workeritem.promo_image %}
-          <div class="bio_image_block">
+          <div class="bio_name bio_image_block">
           <img src="{{MEDIA_URL}}{{worker.workeritem.promo_small}}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
     </div>
     {% elif eventitem.event.bios %}
-      <div class="bio_block">
+    <div class="bio_block font_regular">
       {% for bio in eventitem.event.bios %}
       <div class="bio_words">
-        <h2>About {{bio.name}}</h2>
+        <h2 class="bio_name subtitle">About {{bio.name}}</h2>
         {{bio.bio |linebreaksbr}}
         <br><br>
 	
