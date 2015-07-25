@@ -60,7 +60,7 @@ def send_user_contact_email(name, from_address, message):
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
     send_mail(subject, 
               message, 
-              from_email, 
+              from_address, 
               to_addresses)
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
