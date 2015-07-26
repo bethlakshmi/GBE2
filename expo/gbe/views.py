@@ -25,7 +25,7 @@ def down(request):
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
-
+    
 def index(request):
     '''
     one of two cases:
@@ -589,7 +589,7 @@ def edit_act(request, act_id):
                        'draft_fields': draft_fields
                    })
 
-
+        
 @login_required
 def view_act(request, act_id):
     '''
@@ -1023,7 +1023,7 @@ def review_class(request, class_id):
                        'actionform': actionform,
                        'actionURL': actionURL})
 
-
+        
 @login_required
 def review_class_list(request):
     '''
@@ -1966,8 +1966,8 @@ def conference_volunteer(request):
     Volunteer to chair or sit on a panel or teach a class.
     Builds out from Class Proposal
     '''
-    page_title = "Volunteer for the Conference"
-    view_title = "Volunteer to be a Teacher or Panelist"
+    page_title = "Apply to Present"
+    view_title = "Apply to Present"
     owner = validate_profile(request, require=False)
     if not owner:
         return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
@@ -2370,8 +2370,9 @@ def create_event(request, event_type):
 
 def handle_user_contact_email(request):
     return_redirect = HttpResponseRedirect(reverse('home',
-                                                   urlconf='gbe.urls', 
-                                                   args = []))
+                                       urlconf='gbe.urls', 
+                                       args = []))
+
     if request.method != 'POST':
         return return_redirect
     form = ContactForm(request.POST)
@@ -2379,8 +2380,15 @@ def handle_user_contact_email(request):
         return return_redirect
     data = form.cleaned_data
     name = data.get('name', 'UNKNOWN USER')
-    from_address = data.get('email', 'UNKNOWN ADDRESS')
-    message = data.get('message', 'UNKNOWN MESSAGE')
+    user_address = data.get('email', 'UNKNOWN ADDRESS')
+    user_msg = data.get('message', 'UNKNOWN MESSAGE')
+    format_string = "Burlesque Expo user %s (%s) says: \n\n %s" 
+    message = format_string % (name, 
+                               user_address, 
+                               user_msg)
+
+    from_address = settings.DEFAULT_FROM_EMAIL
+
     send_user_contact_email(name, from_address, message)
     return return_redirect
 

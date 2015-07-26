@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-   <h3>{{view_title}}</h3>
+<h2 class="subtitle">{{view_title}}</h2>
 <p>{{view_header_text | safe}}
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
