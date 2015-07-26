@@ -1,11 +1,13 @@
 # 
 # views.py - Contains Django Views for Ticketing
 # edited by mdb 8/18/2014
+# updated by BB 7/26/2015
 #
 
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
+from django.contrib.sites.models import get_current_site
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
@@ -21,7 +23,10 @@ def index(request):
     
     ticket_items =  TicketItem.objects.all()
     
-    context = {'ticket_items': ticket_items, 'user_id':request.user.id }
+    context = {'ticket_items': ticket_items,
+               'user_id':request.user.id,
+               'site_name': get_current_site(request).name
+               }
     return render(request, 'ticketing/purchase_tickets.tmpl', context)
     
 def ticket_items(request):
