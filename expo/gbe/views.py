@@ -1963,8 +1963,8 @@ def conference_volunteer(request):
     Volunteer to chair or sit on a panel or teach a class.
     Builds out from Class Proposal
     '''
-    page_title = "Volunteer for the Conference"
-    view_title = "Volunteer to be a Teacher or Panelist"
+    page_title = "Apply to Present"
+    view_title = "Apply to Present"
     owner = validate_profile(request, require=False)
     if not owner:
         return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
