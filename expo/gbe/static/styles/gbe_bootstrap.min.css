@@ -3270,7 +3270,8 @@ input[type="submit"].btn-block,input[type="reset"].btn-block,input[type="button"
 	font-weight:normal;
 	line-height:1.428571429;
 	color:#FFF;
-	white-space:nowrap
+	white-space:nowrap;
+	font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
 }
 
 .dropdown-menu>li>a:hover,.dropdown-menu>li>a:focus{
@@ -4051,7 +4052,7 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 		position: absolute;
 		left: 50%;
 		top: 0;
-		margin-left: -240px;
+		margin-left: -460px;
 		
 	}
 
@@ -4419,8 +4420,9 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 }
 
 .navbar-default .navbar-nav>li>a:hover,.navbar-default .navbar-nav>li>a:focus{
-	color:#F03;
-	background-color:transparent
+	color:#AF1515;
+	background-color:transparent;
+
 }
 
 .navbar-default .navbar-nav>.active>a,.navbar-default .navbar-nav>.active>a:hover,.navbar-default .navbar-nav>.active>a:focus{

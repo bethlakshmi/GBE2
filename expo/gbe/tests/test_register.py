@@ -28,6 +28,7 @@ class TestRegister(TestCase):
 
 
     def test_register_not_post(self):
+        import pdb; pdb.set_trace
         request= self.factory.get('accounts/register')
         request.user = factories.UserFactory.create()
         response = register(request)

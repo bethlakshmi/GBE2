@@ -111,7 +111,7 @@ def landing_page(request, profile_id=None):
                                   'bookings': viewer_profile.get_schedule(),
                                   'tickets': get_purchased_tickets(viewer_profile.user_object),
                                   'acceptance_states': acceptance_states,
-                                  'admin_message': admin_message
+                                  'admin_message': admin_message,
                                  })
     else:
         context = RequestContext(request,
@@ -124,7 +124,6 @@ def event(request, event_id):
     '''
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event': event})
-
 
 def techinfo(request):
     form = TechInfoForm()
@@ -1835,7 +1834,7 @@ def register(request):
                                                 urlconf='gbe.urls'))
     else:
         form = UserCreateForm()
-    return render(request, 'gbe/register.html', {'form': form})
+    return render(request, 'gbe/register.tmpl', {'form': form})
 
 
 def logout_view(request):
@@ -2370,18 +2369,18 @@ def create_event(request, event_type):
                        'view_header_text':event_create_text[event_type] })
 
 def handle_user_contact_email(request):
-#    import pdb; pdb.set_trace()
     return_redirect = HttpResponseRedirect(reverse('home',
                                                    urlconf='gbe.urls', 
                                                    args = []))
-    if request.method is not 'POST':
+    if request.method != 'POST':
         return return_redirect
     form = ContactForm(request.POST)
     if not form.is_valid():
         return return_redirect
-    name = form.get('name', 'UNKNOWN USER')
-    from_address = form.get('email', 'UNKNOWN ADDRESS')
-    message = form.get('message', 'UNKNOWN MESSAGE')
+    data = form.cleaned_data
+    name = data.get('name', 'UNKNOWN USER')
+    from_address = data.get('email', 'UNKNOWN ADDRESS')
+    message = data.get('message', 'UNKNOWN MESSAGE')
     send_user_contact_email(name, from_address, message)
     return return_redirect
 
