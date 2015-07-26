@@ -22,7 +22,7 @@ def index(request):
     ticket_items =  TicketItem.objects.all()
     
     context = {'ticket_items': ticket_items, 'user_id':request.user.id }
-    return render(request, 'ticketing/index.html', context)
+    return render(request, 'ticketing/purchase_tickets.tmpl', context)
     
 def ticket_items(request):
     '''
