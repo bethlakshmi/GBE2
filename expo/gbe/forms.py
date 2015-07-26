@@ -34,7 +34,8 @@ class ParticipantForm(forms.ModelForm):
     def clean(self):
         changed = self.changed_data
         if self.has_changed() and 'email' in self.changed_data:
-            if User.objects.filter(email=self.cleaned_data.get('email')).exists():
+            if User.objects.filter(
+                            email=self.cleaned_data.get('email')).exists():
                 raise ValidationError('That email address is already in use')
         return self.cleaned_data
 
@@ -44,14 +45,16 @@ class ParticipantForm(forms.ModelForm):
             return
         partform.user_object.email = self.cleaned_data.get('email')
         if len(self.cleaned_data['first_name'].strip()) > 0:
-            partform.user_object.first_name = self.cleaned_data['first_name'].strip()
+            partform.user_object.first_name = \
+                        self.cleaned_data['first_name'].strip()
         if len(self.cleaned_data['last_name'].strip()) > 0:
-            partform.user_object.last_name = self.cleaned_data['last_name'].strip()
+            partform.user_object.last_name = \
+                        self.cleaned_data['last_name'].strip()
         if self.cleaned_data['display_name']:
             pass   # if they enter a display name, respect it
         else:
             partform.display_name = " ".join([self.cleaned_data['first_name'],
-                                               self.cleaned_data['last_name']])
+                                              self.cleaned_data['last_name']])
         if commit and self.is_valid():
             partform.save()
             partform.user_object.save()
@@ -63,7 +66,6 @@ class ParticipantForm(forms.ModelForm):
                   'last_name',
                   'display_name',
                   'email',
-                  'purchase_email',
                   'address1',
                   'address2',
                   'city',
@@ -73,7 +75,7 @@ class ParticipantForm(forms.ModelForm):
                   'phone',
                   'best_time',
                   'how_heard',
-        ]
+                  ]
         labels = participant_labels
         help_texts = participant_form_help_texts
 
@@ -103,7 +105,7 @@ class ProfileAdminForm(ParticipantForm):
                   'phone',
                   'best_time',
                   'how_heard',
-              )
+                  )
 
 
 class UserCreateForm(UserCreationForm):
@@ -130,7 +132,7 @@ class UserCreateForm(UserCreationForm):
                   'last_name',
                   'password1',
                   'password2',
-        ]
+                  ]
 
 
 class PersonaForm (forms.ModelForm):
@@ -147,7 +149,7 @@ class PersonaForm (forms.ModelForm):
                   'promo_image',
                   'performer_profile',
                   'contact',
-              ]
+                  ]
         help_texts = persona_help_texts
         labels = persona_labels
         widgets = {'performer_profile': forms.HiddenInput(),
@@ -324,11 +326,14 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                                          "Found event conflict, new booking " +
                                          str(event) +
                                          " - " +
-                                         event.starttime.strftime(time_format) +
+                                         event.starttime.
+                                         strftime(time_format) +
                                          " conflicts with " +
                                          str(problem) +
                                          " - " +
-                                         problem.starttime.strftime(time_format))
+                                         problem.starttime.
+                                         strftime(time_format)
+                                         )
                     volunteer_assignment = ResourceAllocation()
                     volunteer_assignment.event = event
                     volunteer_assignment.resource = worker
@@ -342,8 +347,8 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                                        )
                         messages.warning(
                             self.request,
-                            str(event)
-                            + " - " +
+                            str(event) +
+                            " - " +
                             event.starttime.strftime(time_format) +
                             " is overfull.  Over by " +
                             str(event.extra_volunteers()) +
@@ -443,7 +448,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
                   'day',
                   'time',
                   'location',
-              ]
+                  ]
         hidden_fields = ['opp_event_id']
 
 
@@ -534,7 +539,7 @@ class AudioInfoSubmitForm(forms.ModelForm):
                 (self.cleaned_data['track_title'] and
                  self.cleaned_data['track_artist'] and
                  self.cleaned_data['track_duration']
-               ) or
+                 ) or
                 self.cleaned_data['confirm_no_music']):
             raise ValidationError(
                 ('Incomplete Audio Info - please either provide Track Title,'
