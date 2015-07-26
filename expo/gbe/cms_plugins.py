@@ -2,7 +2,11 @@ from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from django.utils.translation import ugettext as _
 from django.template import loader
-from gbe.forms import *
+from gbe.forms import (
+    ContactForm,
+    ClassProposalForm,
+    )
+
 from cms.models.pluginmodel import CMSPlugin
 from django.core.urlresolvers import reverse
 
