@@ -1,6 +1,6 @@
 {% extends "base.tmpl" %}
 {% load ticketing_filters %}
-{% load staticfiles %}
+{% load staticfiles cms_tags %}
 
 {% block title %}
   Great Burlesque Exposition 
@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<H3>Ticket Purchase Options for {{ site_name }}</H3>
+<H2 class="subtitle">Ticket Purchase Options for {{ site_name }}</H2>
 
 Welcome! 
 <br> 
@@ -23,22 +23,22 @@ please read the descriptions carefully.
 {% for item in ticket_items %}
 {% if item.active %}
 <tr><td>
-    <img src= "{% static "img/divider.png" %}" alt="---"/>  
-    </td>
+{% static_placeholder "separator" %}
+</td>
 </tr>
 
 <tr valign="top">
-    <th align="left"> {{ item.title }} </th>
+    <th class="font_large" align="left"> {{ item.title }} </th>
     <td align=\"right\"> ${{ item.cost|floatformat:2 }} </td>
 </tr>
 <tr valign="top">
-    <td align=\"left\" colspan=2> {{ item.description | safe }} </td>
+    <td class="font_regular" align=\"left\" colspan=2> {{ item.description | safe }} </td>
 </tr>
 <tr valign="top">
 </tr>
-    <td align=\"left\" colspan=2> &nbsp </td>
+    <td class="font_regular" align=\"left\" colspan=2> &nbsp </td>
 <tr valign="top">
-    <td align="left" colspan=2>
+    <td class="font_regular" align="left" colspan=2>
     <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank">
     Purchase {{ item.title }} from Brown Paper Tickets
     </a>
@@ -49,8 +49,8 @@ please read the descriptions carefully.
 {% endfor %}
 
 <tr><td>
-    <img src= "{% static "img/divider.png" %}" alt="---"/> 
-    </td>
+{% static_placeholder "separator" %}
+</td>
 </tr>
 </table>
 
