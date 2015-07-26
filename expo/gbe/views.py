@@ -1763,7 +1763,10 @@ def update_profile(request):
         profile.preferences.save()
         profile.save()
     if request.method == 'POST':
-        form = ParticipantForm(request.POST, instance=profile)
+        form = ParticipantForm(request.POST, 
+                               instance=profile,
+                               initial={'email':profile.user_object.email
+                                        })
         prefs_form = ProfilePreferencesForm(request.POST,
                                             instance=profile.preferences,
                                             prefix='prefs')

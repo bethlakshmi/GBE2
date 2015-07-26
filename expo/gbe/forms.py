@@ -30,10 +30,19 @@ class ParticipantForm(forms.ModelForm):
                                           widget=forms.CheckboxSelectMultiple(),
                                           label=participant_labels['how_heard'])
 
+    
+
+    def clean(self):
+        changed = self.changed_data
+        if self.has_changed() and 'email' in self.changed_data:
+            if User.objects.filter(email=self.cleaned_data.get('email')).exists():
+                raise ValidationError('That email address is already in use')
+        return self.cleaned_data
+        
+
         
     def save(self, commit=True):
         partform = super(ParticipantForm, self).save(commit=False)
-        partform.user_object.email = self.cleaned_data['email']
         if len(self.cleaned_data['first_name'].strip()) > 0:
             partform.user_object.first_name = self.cleaned_data['first_name'].strip()
         if len(self.cleaned_data['last_name'].strip()) > 0:
