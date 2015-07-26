@@ -54,6 +54,7 @@ class TicketItem(models.Model):
     modified_by = models.CharField(max_length=30)
     badgeable = models.BooleanField(default=False)
     ticket_style = models.CharField(max_length=50, blank=True)
+    bpt_event = models.ForeignKey(BrownPaperEvents, blank=True)
     
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)

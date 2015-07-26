@@ -147,11 +147,11 @@ def get_bpt_price_list():
             price_xml = perform_bpt_api_call(price_call)
             
             for price in price_xml.findall('.//price'):
-                ti_list.append(bpt_price_to_ticketitem(event.bpt_event_id, price, event_text))
+                ti_list.append(bpt_price_to_ticketitem(event, price, event_text))
             
     return ti_list
 
-def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
+def bpt_price_to_ticketitem(event, bpt_price, event_text):
     '''
     Function takes an XML price object from the BPT pricelist call and returns an
     equivalent TicketItem object.
@@ -163,12 +163,13 @@ def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
     '''
 
     t_item = TicketItem()
-    t_item.ticket_id = '%s-%s' % (event_id, bpt_price.find('price_id').text)
+    t_item.ticket_id = '%s-%s' % (event.pk, bpt_price.find('price_id').text)
     t_item.title = bpt_price.find('name').text
     t_item.active = False
     t_item.cost = bpt_price.find('value').text
     t_item.description = event_text    
     t_item.modified_by = 'BPT Auto Import'
+    t_item.bpt_event = event
     
     return t_item
     
