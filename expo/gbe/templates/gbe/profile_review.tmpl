@@ -18,13 +18,15 @@
     {% for row in rows %}
       <tr class="bid-table">
               {% for value in row.profile %}
-	                <td class="bid-table">      
-            		{{ value }}
-          		</td>	
+                <td class="bid-table">      
+        	{{ value }}
+                </td>	
 		{% endfor %}
           <td class="bid-table">
               {%for action in row.actions %}
-              <a href="{{ action.url }}">{% if action.text %}{{ action.text }}{% else %}Action{% endif %}</a><br>
+              <a href="{{ action.url }}">
+	        {% if action.text %}{{ action.text }}{% else %}Action{% endif %}
+	      </a><br>
               {%endfor%}
           </td>
 

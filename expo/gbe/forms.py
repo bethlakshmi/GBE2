@@ -25,10 +25,39 @@ class ParticipantForm(forms.ModelForm):
     last_name = forms.CharField(required=True)
     phone = forms.CharField(required=True)
 
-    how_heard = forms.MultipleChoiceField(choices=how_heard_options, 
-                                          required=False,
-                                          widget=forms.CheckboxSelectMultiple(),
-                                          label=participant_labels['how_heard'])
+    how_heard = forms.MultipleChoiceField(
+        choices=how_heard_options,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        label=participant_labels['how_heard'])
+
+    def clean(self):
+        changed = self.changed_data
+        if self.has_changed() and 'email' in self.changed_data:
+            if User.objects.filter(
+                            email=self.cleaned_data.get('email')).exists():
+                raise ValidationError('That email address is already in use')
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        partform = super(ParticipantForm, self).save(commit=False)
+        if not self.is_valid():
+            return
+        partform.user_object.email = self.cleaned_data.get('email')
+        if len(self.cleaned_data['first_name'].strip()) > 0:
+            partform.user_object.first_name = \
+                        self.cleaned_data['first_name'].strip()
+        if len(self.cleaned_data['last_name'].strip()) > 0:
+            partform.user_object.last_name = \
+                        self.cleaned_data['last_name'].strip()
+        if self.cleaned_data['display_name']:
+            pass   # if they enter a display name, respect it
+        else:
+            partform.display_name = " ".join([self.cleaned_data['first_name'],
+                                              self.cleaned_data['last_name']])
+        if commit and self.is_valid():
+            partform.save()
+            partform.user_object.save()
 
     class Meta:
         model = Profile
@@ -36,62 +65,48 @@ class ParticipantForm(forms.ModelForm):
         fields = ['first_name',
                   'last_name',
                   'display_name',
-                  'email', 
+                  'email',
                   'address1',
                   'address2',
                   'city',
                   'state',
                   'zip_code',
                   'country',
-                  'phone', 
+                  'phone',
                   'best_time',
                   'how_heard',
-        ]
+                  ]
         labels = participant_labels
         help_texts = participant_form_help_texts
-        
-    def save(self, commit=True):
-        partform = super(ParticipantForm, self).save(commit=False)
-        partform.user_object.email = self.cleaned_data['email']
-        if len(self.cleaned_data['first_name'].strip()) > 0:
-            partform.user_object.first_name = self.cleaned_data['first_name'].strip()
-        if len(self.cleaned_data['last_name'].strip()) > 0:
-            partform.user_object.last_name = self.cleaned_data['last_name'].strip()
-        if self.cleaned_data['display_name']:
-            pass   # if they enter a display name, respect it
-        else:
-            partform.display_name = " ".join([self.cleaned_data['first_name'],
-                                               self.cleaned_data['last_name']])
-        if commit:
-            partform.save()
-            partform.user_object.save()
 
 
 class ProfileAdminForm(ParticipantForm):
     '''
     Form for administratively modifying a Profile
     '''
-    purchase_email = forms.CharField(required=True,
-                                     label=participant_labels['purchase_email'])
+    purchase_email = forms.CharField(
+        required=True,
+        label=participant_labels['purchase_email'])
+
     class Meta:
         model = Profile
         # purchase_email should be display only
-        fields = [ 'first_name',
-                   'last_name',
-                   'display_name',
-                   'email',
-                   'purchase_email',
-                   'address1',
-                   'address2',
-                   'city',
-                   'state',
-                   'zip_code',
-                   'country',
-                   'phone',
-                   'best_time',
-                   'how_heard'
-                  ]
- 
+        fields = ('first_name',
+                  'last_name',
+                  'display_name',
+                  'email',
+                  'purchase_email',
+                  'address1',
+                  'address2',
+                  'city',
+                  'state',
+                  'zip_code',
+                  'country',
+                  'phone',
+                  'best_time',
+                  'how_heard',
+                  )
+
 
 class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
@@ -100,19 +115,30 @@ class UserCreateForm(UserCreationForm):
     username = forms.CharField(label=username_label, help_text=username_help)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
+
+    def is_valid(self):
+        valid = super(UserCreateForm, self).is_valid()
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).count():
+            self._errors['email'] = 'That email address is already in use'
+            valid = False
+        return valid
+
     class Meta:
         model = User
-        fields = [ 'username',
-                   'email',
-                   'first_name',
-                   'last_name',
-                   'password1',
-                   'password2']
+        fields = ['username',
+                  'email',
+                  'first_name',
+                  'last_name',
+                  'password1',
+                  'password2',
+                  ]
 
 
 class PersonaForm (forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+
     class Meta:
         model = Persona
         fields = ['name',
@@ -122,17 +148,18 @@ class PersonaForm (forms.ModelForm):
                   'awards',
                   'promo_image',
                   'performer_profile',
-                  'contact'
-        ]
+                  'contact',
+                  ]
         help_texts = persona_help_texts
         labels = persona_labels
-        widgets = {'performer_profile': forms.HiddenInput(), 
+        widgets = {'performer_profile': forms.HiddenInput(),
                    'contact': forms.HiddenInput()}
 
 
 class TroupeForm (forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+
     class Meta:
         model = Troupe
         fields = '__all__'
@@ -146,23 +173,29 @@ class ComboForm (forms.ModelForm):
 
     class Meta:
         model = Combo
-        fields= ['contact', 'name', 'membership']
+        fields = ['contact', 'name', 'membership']
 
 
 class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    act_duration = DurationFormField(required=False,
-                                     help_text=act_help_texts['act_duration'])
-    track_duration = DurationFormField(required=False,
-                                       help_text=act_help_texts['track_duration'],
-                                       label=act_bid_labels['track_duration'])
+    act_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['act_duration']
+    )
+    track_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['track_duration'],
+        label=act_bid_labels['track_duration']
+    )
     track_artist = forms.CharField(required=False)
     track_title = forms.CharField(required=False)
-    shows_preferences = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                  choices=act_shows_options,
-                                                  label=act_bid_labels['shows_preferences'],
-                                                  help_text=act_help_texts['shows_preferences'])
+    shows_preferences = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=act_shows_options,
+        label=act_bid_labels['shows_preferences'],
+        help_text=act_help_texts['shows_preferences']
+    )
     description = forms.CharField(required=True,
                                   label=act_bid_labels['description'],
                                   help_text=act_help_texts['description'],
@@ -176,24 +209,30 @@ class ActEditForm(forms.ModelForm):
                    'track_artist',
                    'track_title']
         labels = act_bid_labels
-        help_texts=act_help_texts
+        help_texts = act_help_texts
 
 
 class ActEditDraftForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    act_duration = DurationFormField(required=False,
-                                     help_text=act_help_texts['act_duration'])
-    track_duration = DurationFormField(required=False, 
-                                       help_text=act_help_texts['track_duration'],
-                                       label=act_bid_labels['track_duration'])
+    act_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['act_duration']
+    )
+    track_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['track_duration'],
+        label=act_bid_labels['track_duration']
+    )
     track_artist = forms.CharField(required=False)
     track_title = forms.CharField(required=False)
-    shows_preferences = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                  choices=act_shows_options,
-                                                  label=act_bid_labels['shows_preferences'],
-                                                  help_text = act_help_texts['shows_preferences'],
-                                                  required=False)
+    shows_preferences = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=act_shows_options,
+        label=act_bid_labels['shows_preferences'],
+        help_text=act_help_texts['shows_preferences'],
+        required=False
+    )
 
     class Meta:
         model = Act
@@ -204,7 +243,7 @@ class ActEditDraftForm(forms.ModelForm):
                    'track_title']
         required = Act().bid_draft_fields
         labels = act_bid_labels
-        help_texts=act_help_texts
+        help_texts = act_help_texts
 
 
 class BidEvaluationForm(forms.ModelForm):
@@ -232,23 +271,23 @@ class BidStateChangeForm(forms.ModelForm):
 
 class EventCheckBox(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        time_format = set_time_format(days = 2)
+        time_format = set_time_format(days=2)
         return (str(obj) +
-                " - "+
-                obj.starttime.strftime(time_format)+
-                ' ('+
-                obj.volunteer_count+
-                '/'+
-                str(obj.max_volunteer)+')')
+                " - " +
+                obj.starttime.strftime(time_format) +
+                ' (' +
+                obj.volunteer_count +
+                '/' +
+                str(obj.max_volunteer) + ')')
 
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
     qset = Event.objects.filter(max_volunteer__gt=0).order_by('starttime')
     events = EventCheckBox(queryset=qset,
-        	           widget=forms.CheckboxSelectMultiple(),
-        	           required=False,
-        	           label='Choose Volunteer Schedule')
+                           widget=forms.CheckboxSelectMultiple(),
+                           required=False,
+                           label='Choose Volunteer Schedule')
 
     class Meta:
         model = Biddable
@@ -269,50 +308,63 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
             # Clear out previous assignments, deletes
             # Worker and ResourceAllocation
             if not self.cleaned_data['accepted'] == 5:
-              Worker.objects.filter(_item=volform.profile,
-                                    role='Volunteer').delete()
+                Worker.objects.filter(_item=volform.profile,
+                                      role='Volunteer').delete()
 
             # if the act has been accepted, set the show.
             if self.cleaned_data['accepted'] == 3:
                 worker = Worker(_item=volform.profile, role='Volunteer')
                 worker.save()
 
-                # Cast the act into the show by adding it to 
+                # Cast the act into the show by adding it to
                 # the schedule resource allocation
                 for assigned_event in self.cleaned_data['events']:
                     event = get_object_or_404(Event, pk=assigned_event)
                     conflicts = worker._item.get_conflicts(event)
                     for problem in conflicts:
                         messages.warning(self.request,
-                                         "Found event conflict, new booking "+
-                                         str(event)+
-                                         " - "+
-                                         event.starttime.strftime(time_format)+
-                                         " conflicts with "+
+                                         "Found event conflict, new booking " +
+                                         str(event) +
+                                         " - " +
+                                         event.starttime.
+                                         strftime(time_format) +
+                                         " conflicts with " +
                                          str(problem) +
                                          " - " +
-                                         problem.starttime.strftime(time_format))
+                                         problem.starttime.
+                                         strftime(time_format)
+                                         )
                     volunteer_assignment = ResourceAllocation()
                     volunteer_assignment.event = event
                     volunteer_assignment.resource = worker
                     volunteer_assignment.save()
                     if event.extra_volunteers() > 0:
-                        messages.warning(self.request, 
-                                         str(event) 
-                                         + " - "+
-                                         event.starttime.strftime(time_format)+
-                                         " is overfull.  Over by "+
-                                         str(event.extra_volunteers())+
-                                         " volunteer.")
+                        warn = "%s - %s is overfull. Over by %d volunteer%s."
+                        warn = warn % (str(event),
+                                       event.starttime.strftime(time_format),
+                                       event.extra_volunteers(),
+                                       's' * event.extra_volunteers() > 1
+                                       )
+                        messages.warning(
+                            self.request,
+                            str(event) +
+                            " - " +
+                            event.starttime.strftime(time_format) +
+                            " is overfull.  Over by " +
+                            str(event.extra_volunteers()) +
+                            " volunteer.")
             volform.save()
         return self
+
 
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    schedule_constraints = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
-                                                     choices=class_schedule_options,
-                                                     label=classbid_labels['schedule_constraints'])
+    schedule_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        label=classbid_labels['schedule_constraints'])
+
     class Meta:
         model = Class
         fields, required = Class().get_bid_fields
@@ -323,13 +375,15 @@ class ClassBidForm(forms.ModelForm):
 class ClassBidDraftForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    schedule_constraints = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                     choices=class_schedule_options,
-                                                     required=False,
-                                                     label=classbid_labels['schedule_constraints'])
-    ''' Needed this to override forced required value in Biddable.  
+    schedule_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        required=False,
+        label=classbid_labels['schedule_constraints']
+    )
+    ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
-    description = forms.CharField(required=False, 
+    description = forms.CharField(required=False,
                                   widget=forms.Textarea)
 
     class Meta:
@@ -345,34 +399,36 @@ class VolunteerBidForm(forms.ModelForm):
     error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()
-    availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                             choices = volunteer_availability_options,
-                                             label = volunteer_labels['availability'],
-                                             help_text = volunteer_help_texts['volunteer_availability_options'],
-                                             required = True)
-    unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                             choices = volunteer_availability_options,
-                                             label = volunteer_labels['unavailability'],
-                                             help_text = volunteer_help_texts['volunteer_availability_options'],
-                                             required = False)
-
-    interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
+    availability = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=volunteer_availability_options,
+        label=volunteer_labels['availability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=True)
+    unavailability = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=volunteer_availability_options,
+        label=volunteer_labels['unavailability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=False)
+    interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                           choices=volunteer_interests_options)
+
     class Meta:
         model = Volunteer
         fields = '__all__'
         widgets = {'accepted': forms.HiddenInput(),
-                   'submitted' : forms.HiddenInput(),
-                   'title' : forms.HiddenInput(),
-                   'description' : forms.HiddenInput(),
-                   'profile' : forms.HiddenInput()}
+                   'submitted': forms.HiddenInput(),
+                   'title': forms.HiddenInput(),
+                   'description': forms.HiddenInput(),
+                   'profile': forms.HiddenInput()}
         labels = volunteer_labels
         help_texts = volunteer_help_texts
 
 
 class VolunteerOpportunityForm(forms.ModelForm):
-    day = forms.ChoiceField(choices = conference_days)
-    time = forms.ChoiceField(choices = conference_times)
+    day = forms.ChoiceField(choices=conference_days)
+    time = forms.ChoiceField(choices=conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
     opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(),
@@ -380,8 +436,9 @@ class VolunteerOpportunityForm(forms.ModelForm):
     num_volunteers = forms.IntegerField()
     volunteer_category = forms.ChoiceField(choices=volunteer_interests_options,
                                            required=False)
-    location = forms.ModelChoiceField(queryset = Room.objects.all())
+    location = forms.ModelChoiceField(queryset=Room.objects.all())
     duration = DurationFormField()
+
     class Meta:
         model = GenericEvent
         fields = ['title',
@@ -390,12 +447,15 @@ class VolunteerOpportunityForm(forms.ModelForm):
                   'duration',
                   'day',
                   'time',
-                  'location', ]
+                  'location',
+                  ]
         hidden_fields = ['opp_event_id']
 
 
 class RehearsalSelectionForm(forms.Form):
-    show = forms.CharField(widget = forms.TextInput(attrs={'readonly':'readonly'}))
+    show = forms.CharField(widget=forms.TextInput(
+        attrs={'readonly': 'readonly'})
+    )
 
     def __init__(self, *args, **kwargs):
         super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
@@ -414,22 +474,22 @@ class VendorBidForm(forms.ModelForm):
                                   help_text=vendor_help_texts['description'],
                                   label=vendor_labels['description'])
     help_times = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                                choices=vendor_schedule_options,
-                                                required=False,
-                                                label=vendor_labels['help_times'])
-  
+                                           choices=vendor_schedule_options,
+                                           required=False,
+                                           label=vendor_labels['help_times'])
+
     class Meta:
         model = Vendor
         fields = '__all__'
         help_texts = vendor_help_texts
         labels = vendor_labels
-        widgets = {'accepted': forms.HiddenInput(), 
-                   'submitted' : forms.HiddenInput(),
-                   'profile' : forms.HiddenInput()}
+        widgets = {'accepted': forms.HiddenInput(),
+                   'submitted': forms.HiddenInput(),
+                   'profile': forms.HiddenInput()}
 
 
 class ActTechInfoForm(forms.ModelForm):
-    form_title="Act Tech Info"
+    form_title = "Act Tech Info"
     required_css_class = 'required'
     error_css_class = 'error'
 
@@ -446,44 +506,51 @@ class AudioInfoForm(forms.ModelForm):
     form_title = "Audio Info"
     required_css_class = 'required'
     error_css_class = 'error'
-    track_duration = DurationFormField(required=False,
-                                       help_text=act_help_texts['track_duration'],
-                                       label=act_bid_labels['track_duration'])
+    track_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['track_duration'],
+        label=act_bid_labels['track_duration']
+    )
 
     class Meta:
-        model=AudioInfo
+        model = AudioInfo
 
 
 class AudioInfoSubmitForm(forms.ModelForm):
-    form_title="Audio Info"
+    form_title = "Audio Info"
     required_css_class = 'required'
     error_css_class = 'error'
-    track_duration = DurationFormField(required=False,
-                                       help_text=act_help_texts['track_duration'],
-                                       label=act_bid_labels['track_duration'])
+    track_duration = DurationFormField(
+        required=False,
+        help_text=act_help_texts['track_duration'],
+        label=act_bid_labels['track_duration']
+    )
 
     class Meta:
-        model=AudioInfo
+        model = AudioInfo
 
     def clean(self):
         # run the parent validation first
         cleaned_data = super(AudioInfoSubmitForm, self).clean()
-        
-        # doing is_complete doesn't work, that executes the pre-existing 
+
+        # doing is_complete doesn't work, that executes the pre-existing
         # instance, not the current data
-        if not ((self.cleaned_data['track_title'] and 
-                 self.cleaned_data['track_artist']
-                 and self.cleaned_data['track_duration']) or 
-                 self.cleaned_data['confirm_no_music']):
+        if not (
+                (self.cleaned_data['track_title'] and
+                 self.cleaned_data['track_artist'] and
+                 self.cleaned_data['track_duration']
+                 ) or
+                self.cleaned_data['confirm_no_music']):
             raise ValidationError(
-                '''Incomplete Audio Info - please either provide Track Title, 
-                Artist and Duration, or confirm that there is no music.''',
+                ('Incomplete Audio Info - please either provide Track Title,'
+                 'Artist and Duration, or confirm that there is no music.'),
                 code='invalid')
         return cleaned_data
 
 
 class LightingInfoForm(forms.ModelForm):
     form_title = "Lighting Info"
+
     class Meta:
         model = LightingInfo
         labels = lighting_labels
@@ -494,21 +561,21 @@ class CueInfoForm(forms.ModelForm):
     form_title = "Cue List"
     required_css_class = 'required'
     error_css_class = 'error'
-    
+
     class Meta:
         model = CueInfo
         widgets = {'techinfo': forms.HiddenInput(),
-                   'cue_sequence': forms.TextInput(attrs={'readonly':
-                                                          'readonly', 
-                                                          'size':
-                                                          '1'}),
-                   'cue_off_of': forms.Textarea(attrs={'cols': '20', 'rows':'8'}),
-                   'sound_note': forms.Textarea(attrs={'rows': '8'}),
-               }
-        required = ['wash','cyc_color']
+                   'cue_sequence': forms.TextInput(
+                       attrs={'readonly': 'readonly',
+                              'size': '1'}),
+                   'cue_off_of': forms.Textarea(attrs={'cols': '20',
+                                                       'rows': '8'}),
+                   'sound_note': forms.Textarea(attrs={'rows': '8'})}
+        required = ['wash', 'cyc_color']
         labels = main_cue_header
-        cue_off_of_msg = 'Add text if you wish to save information for this cue.'
-        error_messages = {'cue_off_of': {'required':cue_off_of_msg}}
+        cue_off_of_msg = ('Add text if you wish to save information '
+                          'for this cue.')
+        error_messages = {'cue_off_of': {'required': cue_off_of_msg}}
 
 
 class VendorCueInfoForm(forms.ModelForm):
@@ -525,22 +592,21 @@ class VendorCueInfoForm(forms.ModelForm):
                   'sound_note',
                   'techinfo']
         widgets = {'techinfo': forms.HiddenInput(),
-                   'cue_sequence': forms.TextInput(attrs={'readonly':
-                                                          'readonly', 
-                                                          'size': 
-                                                          '1'}),
-                   'cue_off_of': forms.Textarea(attrs={'cols': '20', 'rows':'8'}),
-                   'sound_note':forms.Textarea(attrs={'rows': '8'}),
-               }
+                   'cue_sequence': forms.TextInput(
+                       attrs={'readonly': 'readonly',
+                              'size': '1'}),
+                   'cue_off_of': forms.Textarea(attrs={'cols': '20',
+                                                       'rows': '8'}),
+                   'sound_note': forms.Textarea(attrs={'rows': '8'})}
         required = ['wash']
         labels = main_cue_header
-        cue_off_of_msg = ("Add text if you wish to save information "+
+        cue_off_of_msg = ("Add text if you wish to save information "
                           "for this cue.")
-        error_messages = {'cue_off_of': {'required':cue_off_of_msg}}
+        error_messages = {'cue_off_of': {'required': cue_off_of_msg}}
 
 
 class StageInfoForm(forms.ModelForm):
-    form_title="Stage Info"
+    form_title = "Stage Info"
     required_css_class = 'required'
     error_css_class = 'error'
     act_duration = DurationFormField(required=False,
@@ -567,16 +633,17 @@ class StageInfoSubmitForm(forms.ModelForm):
     def clean(self):
         # run the parent validation first
         cleaned_data = super(StageInfoSubmitForm, self).clean()
-        
         # doing is_complete doesn't work, that executes the pre-existing
         # instance, not the current data
 
-        if not (self.cleaned_data['set_props'] or self.cleaned_data['clear_props']
-                or self.cleaned_data['cue_props'] or self.cleaned_data['confirm']):
+        if not (self.cleaned_data['set_props'] or
+                self.cleaned_data['clear_props'] or
+                self.cleaned_data['cue_props'] or
+                self.cleaned_data['confirm']):
             raise ValidationError(
                 '''Incomplete Prop Info - please either check of whether props
-                must set, cleaned up or provided on cue, or confirm that no 
-                props or set peices are needed.''',
+                must set, cleaned up or provided on cue, or confirm that no
+                props or set pieces are needed.''',
                 code='invalid')
 
         return cleaned_data
@@ -585,7 +652,7 @@ class StageInfoSubmitForm(forms.ModelForm):
 class ClassProposalForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    proposal = forms.CharField(max_length = 500,
+    proposal = forms.CharField(max_length=500,
                                widget=forms.Textarea,
                                help_text=class_proposal_help_texts['proposal'],
                                label=class_proposal_labels['proposal'])
@@ -624,10 +691,12 @@ class ConferenceVolunteerForm(forms.ModelForm):
 
 
 class ProfilePreferencesForm(forms.ModelForm):
-    inform_about = forms.MultipleChoiceField(choices=inform_about_options,
-                                             required=False,
-                                             widget=forms.CheckboxSelectMultiple(), 
-                                             label=profile_preferences_labels['inform_about'])
+    inform_about = forms.MultipleChoiceField(
+        choices=inform_about_options,
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        label=profile_preferences_labels['inform_about'])
+
     class Meta:
         model = ProfilePreferences
         fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
@@ -662,7 +731,7 @@ class ClassScheduleForm(forms.ModelForm):
     error_css_class = 'error'
     accepted = forms.ChoiceField(choices=acceptance_states,
                                  initial=3,
-                                 help_text = acceptance_note)
+                                 help_text=acceptance_note)
 
     class Meta:
         model = Class
@@ -679,12 +748,12 @@ class ClassScheduleForm(forms.ModelForm):
         help_texts = classbid_help_texts
         labels = classbid_labels
 
+
 class ContactForm(forms.Form):
-    '''Form for managing user contacts. Notice that there 
+    '''Form for managing user contacts. Notice that there
     are no models associated with this form.
     '''
     name = forms.CharField(required=True)
     email = forms.EmailField(required=True)
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)
-
