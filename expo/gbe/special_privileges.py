@@ -40,10 +40,6 @@ special_privileges= {'Act Reviewers':
                         {'url':reverse('ticket_items',
                                        urlconf='ticketing.urls'),
                          'title':'Ticket Items'},
-                    'Ticketing - Edit Item':
-                        {'url':reverse('ticket_item_edit',
-                                       urlconf='ticketing.urls'),
-                         'title':'Ticket Item Edit'},
                     'Ticketing - Transactions':
                         {'url':reverse('transactions',
                                        urlconf='ticketing.urls'),

@@ -11,6 +11,7 @@ from django.contrib.sites.models import get_current_site
 from ticketing.models import *
 from ticketing.forms import *
 from ticketing.brown_paper import *
+from gbe.functions import *
 import pytz
 
 # Create your views here.
@@ -34,12 +35,9 @@ def ticket_items(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not request.user.is_authenticated():
+    if not validate_perms(request, ('Ticketing - Admin', )):
         raise Http404
-
-    if 'Ticketing - Admin' not in request.user.profile.privilege_groups:
-        raise Http404
-        
+            
     if 'Import' in request.POST:
         import_ticket_items()
         
@@ -52,9 +50,9 @@ def transactions(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if not validate_perms(request, ('Ticketing - Transactions', )):
         raise Http404
-    
+     
     count = -1
     error = ''
     
@@ -89,7 +87,7 @@ def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    if not (request.user.is_authenticated() and request.user.is_staff):
+    if not validate_perms(request, ('Ticketing - Admin', )):
         raise Http404
         
     error = ''
