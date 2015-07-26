@@ -4,18 +4,18 @@
   Great Burlesque Exposition 
 {% endblock %}
 {% block content %}
-
-<H3>
-Click on a type of ticket to edit or delete it, or click the button below to add.
-</H3>
-Note:  The Show to Public flag below indicates of the ticket item is displayed to end users.  By default it is "false".
-<br>
-To add a new ticket item, <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
-<br><br>
+<h2 class="subtitle">Edit Ticket Items</h2>
+<p class="font_large">Click on a type of ticket to edit or delete it, or click the button below to
+add.</p>
+<p class="font_regular">
+Note:  The Show to Public flag below indicates of the ticket item is displayed
+to end users.  By default it is "false".</p>
+<p class="font_regular">To add a new ticket item, <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
+</p>
 
 {% if ticket_items|length > 0 %}
 
-<table border=1> <tr>
+<table border=1> <tr class="font_large">
   <th>Ticket Item Id</th>
   <th>Title</th>
   <th>Description</th>
@@ -28,7 +28,7 @@ To add a new ticket item, <a href={% url 'ticketing:ticket_item_edit' %}> click 
 <tr>    
   <td><a href={% url 'ticketing:ticket_item_edit' item.id %}> {{item.ticket_id}} </a></td>
   <td>{{ item.title | safe }}</td>
-  <td>{{ item.description | safe }}</td>
+  <td>{{ item.description | safe | truncatechars:100 }}</td>
   <td>{{ item.active }}</td>
   <td>{{ item.cost }}</td>
   <td>{{ item.modified_by }}</td>
