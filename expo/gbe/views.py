@@ -1699,7 +1699,10 @@ def admin_profile(request, profile_id):
     user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
 
     if request.method == 'POST':
-        form = ProfileAdminForm(request.POST, instance=user_profile)
+        form = ProfileAdminForm(request.POST, 
+                                instance=user_profile,
+                                initial={'email':user_profile.user_object.email}
+                            )
         prefs_form = ProfilePreferencesForm(request.POST,
                                             instance=user_profile.preferences,
                                             prefix='prefs')
