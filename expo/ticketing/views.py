@@ -134,16 +134,3 @@ def ticket_item_edit(request, item_id=None):
 
     context = {'forms': [form,], 'error':error} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
-
-            
-            
-            
-            
-    
-    
-    
-    
-    
-        
-
-    

@@ -14,18 +14,18 @@ class TicketItemForm(forms.ModelForm):
     Used to create a form for editing ticket item.  Used by the TicketItemEdit
     view.
     '''
-
     required_css_class = 'required'
     error_css_class = 'error'
-
     class Meta:
         model = TicketItem
         fields = ['ticket_id',
                   'title',
                   'description',
                   'active',
-                  'cost'
+                  'cost',
+                  'bpt_event'
                   ]
+        widgets = {'bpt_event': forms.HiddenInput()}
         labels = ticket_item_labels
 
     def save(self, user, commit=True):
