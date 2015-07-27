@@ -24,14 +24,26 @@ class BrownPaperSettings(models.Model):
     
 class BrownPaperEvents(models.Model):
     '''
-    This class is used to hold the BPT event list.  It defines with Brown Paper Ticket
-    Events should be queried to obtain information on the Ticket Items above.  This 
-    information mainly remains static - it is set up info for the interface with BPT.
+    This class is used to hold the BPT event list.  It defines with Brown Paper
+    Ticket Events should be queried to obtain information on the Ticket Items
+    above.  This information mainly remains static - it is set up info for the
+    interface with BPT.
+    
+      - include_conferece = if True this event provides tickets for all parts
+            of the conference - Classes, Panels, Workshops - but not Master
+            Classes
+      - include_most = includes everything EXCEPT Master Classes
+      
     '''
     bpt_event_id = models.CharField(max_length=10, primary_key=True)
     primary = models.BooleanField(default=False)  
     act_submission_event = models.BooleanField(default=False)
     vendor_submission_event = models.BooleanField(default=False)
+    linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item', blank=True)
+    include_conference = models.BooleanField(default=False)
+    include_most = models.BooleanField(default=False)
+    badgeable = models.BooleanField(default=False)
+    ticket_style = models.CharField(max_length=50, blank=True)
     
     def __unicode__(self):
         return self.bpt_event_id
@@ -40,20 +52,20 @@ class BrownPaperEvents(models.Model):
         
 class TicketItem(models.Model):
     '''
-    This class represents a type of ticket.  Examples include 'The Whole Shebang',
-    'Fan Admission', 'The Main Event', and so forth.  A ticket may admit to multiple
-    events.  
+    This class represents a type of ticket.  There is one ticket per price point,
+    so an event like the Whole Shebang can have 10 or so different ticket - early bird,
+    various discount codes, full price, etc.
+      - active = whether the ticket should be actively displayed on the website.  Manually
+          set
+      - ticket_id = is calculated to conjoin event and ticket identifiers from BPT
     '''    
     ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
     description = models.TextField()
     active = models.BooleanField(default=False)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
-    linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item')
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
-    badgeable = models.BooleanField(default=False)
-    ticket_style = models.CharField(max_length=50, blank=True)
     bpt_event = models.ForeignKey(BrownPaperEvents, blank=True)
     
     def __unicode__(self):
