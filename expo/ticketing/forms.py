@@ -16,6 +16,7 @@ class TicketItemForm(forms.ModelForm):
     '''
     required_css_class = 'required'
     error_css_class = 'error'
+
     class Meta:
         model = TicketItem
         fields = ['ticket_id',
