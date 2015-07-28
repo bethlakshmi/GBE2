@@ -9,7 +9,10 @@
 the button below to add.</p>
 <p class="hint">
 Note:  The Show to Public flag below indicates of the ticket item is displayed
-to end users.  By default it is "false".</p><br>
+to end users.  By default it is "false".</p>
+<p class="hint">
+<span class="visible">Items that look like this</span> are currently visible under lists for
+tickets on the site.</p><br>
 <p class="font_large">To add a new ticket item,
 <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
 </p>
@@ -40,15 +43,15 @@ to end users.  By default it is "false".</p><br>
 <table>
 {% for item in event.ticketitems.all %}
 <tr {% if item.active %}class="visible"{% endif %}>    
-  <td>
+  <td class="ticket_item">
   <a href="{% url 'ticketing:ticket_item_edit' item.id %}">{{item.ticket_id}}</a>
   </td>
-  <td>{{ item.title | safe }}</td>
-  <td>{{ item.description | safe | truncatechars:100 }}</td>
-  <td>{% if item.active %}Visible{% else %}Hidden{% endif %}</td>
-  <td>${{ item.cost }}</td>
-  <td>{{ item.modified_by }}</td>
-  <td>{{ item.datestamp }}</td>
+  <td class="ticket_item">{{ item.title | safe }}</td>
+  <td class="ticket_item">{{ item.description | safe | truncatechars:80 }}</td>
+  <td class="ticket_item">{% if item.active %}Visible{% else %}Hidden{% endif %}</td>
+  <td class="ticket_item">${{ item.cost }}</td>
+  <td class="ticket_item">{{ item.modified_by }}</td>
+  <td class="ticket_item">{{ item.datestamp }}</td>
 <tr>   
 {% endfor %}  
 </table>

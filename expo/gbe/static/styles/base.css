@@ -193,6 +193,12 @@ span.dropt:hover span {margin: 0px 0 0 0px; background: #ffffff; z-index:6;}
     border: 2px solid black;
     padding: 2px;
 }
+
+.ticket_item
+{
+    padding: 4px;
+}
+
 .header
 {
     background-color: #B28E8E;
