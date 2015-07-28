@@ -1,6 +1,7 @@
 #
 # forms.py - Contains Django Forms for Ticketing based on forms.ModelForm
 # edited by mdb 5/28/2014
+# edited by bb 7/27/2015
 #
 
 from ticketing.models import *
@@ -49,8 +50,8 @@ class BPTEventForm(forms.ModelForm):
     '''
     required_css_class = 'required'
     error_css_class = 'error'
-    linked_events = forms.ModelMultipleChoiceField(
-                                 queryset=Event.objects.all())
+    linked_events = forms.ModelMultipleChoiceField(queryset=Event.objects.all(),
+                                                   required=False)
 
     class Meta:
         model = BrownPaperEvents

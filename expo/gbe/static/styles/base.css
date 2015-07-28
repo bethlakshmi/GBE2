@@ -188,7 +188,29 @@ span.dropt span {position: absolute; left: -9999px;
   border-style:solid; border-color:black; border-width:1px;}
 span.dropt:hover span {margin: 0px 0 0 0px; background: #ffffff; z-index:6;} 
 
+.ticketing
+{
+    border: 2px solid black;
+    padding: 2px;
+}
+.header
+{
+    background-color: #B28E8E;
+    color: white;
+    font-size: larger;
+    font-weight: bold;
+}
+.dark_row
+{
+    font-weight: bold;
+    background-color: #D5BBBB;
+}
 
+.visible
+{
+    font-weight: bold;
+
+}
 /* Fashion Fair display of vendors.  Also not bad for performers... */
 
 .vtable

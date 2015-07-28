@@ -163,7 +163,7 @@ def bpt_price_to_ticketitem(event, bpt_price, event_text):
     '''
 
     t_item = TicketItem()
-    t_item.ticket_id = '%s-%s' % (event.pk, bpt_price.find('price_id').text)
+    t_item.ticket_id = '%s-%s' % (event.bpt_event_id, bpt_price.find('price_id').text)
     t_item.title = bpt_price.find('name').text
     t_item.active = False
     t_item.cost = bpt_price.find('value').text
