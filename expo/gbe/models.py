@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
+from itertools import chain
+from django.db.models import Q
 from scheduler.models import (EventItem,
                               LocationItem,
                               WorkerItem,
@@ -957,6 +959,20 @@ class Show (Event):
     def schedule_ready(self):
         return True      # shows are always ready for scheduling
 
+    @property
+    #
+    # tickets that apply to shows are:
+    #   - any ticket that applies to "most" ("most"= no Master Classes)
+    #   - any ticket that links this event specifically
+    # but for all tickets - iff the ticket is active
+    #
+    def get_tickets(self):
+        from ticketing.models import TicketItem
+        most_events = TicketItem.objects.filter(bpt_event__include_most=True, active=True)
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
+        tickets = list(chain(my_events, most_events ))
+        return tickets
+
 
 class GenericEvent (Event):
     '''
@@ -1006,6 +1022,23 @@ class GenericEvent (Event):
     @property
     def schedule_ready(self):
         return True
+    
+    #
+    # tickets that apply to generic events are:
+    #   - any ticket that applies to "most" iff this is not a master class
+    #   - any ticket that links this event specifically
+    # but for all tickets - iff the ticket is active
+    #
+    def get_tickets(self):
+        from ticketing.models import TicketItem
+        if self.type != "Master":
+            most_events = TicketItem.objects.filter(bpt_event__include_most=True, active=True)
+        else:
+            most_events = []
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
+        tickets = list(chain(my_events, most_events ))
+        return tickets
+
 
 class Class(Biddable, Event):
     '''
@@ -1136,6 +1169,22 @@ class Class(Biddable, Event):
 
     def __str__(self):
         return self.title
+    
+    #
+    # tickets that apply to class are:
+    #   - any ticket that applies to "most"
+    #   - any ticket that applies to the conference
+    #   - any ticket that links this event specifically
+    # but for all tickets - iff the ticket is active
+    #
+    def get_tickets(self):
+        from ticketing.models import TicketItem
+        most_events = TicketItem.objects.filter(Q(bpt_event__include_most = True) |
+                                                Q(bpt_event__include_conference = True)) \
+                                                .filter(active=True)
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
+        tickets = list(chain(my_events, most_events ))
+        return tickets
 
     class Meta:
         verbose_name_plural = 'classes'
