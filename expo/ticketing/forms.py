@@ -11,7 +11,10 @@ from gbe_forms_text import *
 from django.db.models import Q
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> PEP8 no steps back
 class TicketItemForm(forms.ModelForm):
     '''
     Used to create a form for editing ticket item.  Used by the TicketItemEdit
@@ -60,11 +63,16 @@ class BPTEventForm(forms.ModelForm):
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
     event_set = Event.objects.filter(Q(show__in=shows) |
                                      Q(genericevent__in=genericevents))
+<<<<<<< HEAD
     linked_events = forms.ModelMultipleChoiceField \
                                (queryset=event_set,
                                 required=False,
                                 label=bpt_event_labels['linked_events'])
 
+=======
+    linked_events = forms.ModelMultipleChoiceField(queryset=event_set,
+                                                   required=False)
+>>>>>>> PEP8 no steps back
 
     class Meta:
         model = BrownPaperEvents
