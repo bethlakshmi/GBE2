@@ -6,9 +6,9 @@
 
 from ticketing.models import *
 from django import forms
-from gbe.models import Event
+from gbe.models import Show, GenericEvent, Event
 from gbe_forms_text import *
-
+from django.db.models import Q
 
 class TicketItemForm(forms.ModelForm):
     '''
@@ -50,7 +50,10 @@ class BPTEventForm(forms.ModelForm):
     '''
     required_css_class = 'required'
     error_css_class = 'error'
-    linked_events = forms.ModelMultipleChoiceField(queryset=Event.objects.all(),
+    shows = Show.objects.all()
+    genericevents = GenericEvent.objects.exclude(type="Volunteer")
+    event_set = Event.objects.filter(Q(show__in=shows) | Q(genericevent__in=genericevents))
+    linked_events = forms.ModelMultipleChoiceField(queryset=event_set,
                                                    required=False)
 
     class Meta:
