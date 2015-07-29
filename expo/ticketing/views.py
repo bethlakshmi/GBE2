@@ -150,35 +150,33 @@ def ticket_item_edit(request, item_id=None):
         else:
             form = TicketItemForm()
 
+
     context = {'forms': [form,], 'error': error, 'can_delete': True} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
 
 
-def bptevent_edit(request, event_id=None):
+def bptevent_edit(request, event_id):
     '''
-    Used to display a form for editing ticket, or adding events.
-    Deleting events should only be done by an Admin
+    Used to display a form for editing events.
+    Deleting and adding events should only be done by an Admin
     '''
     if not validate_perms(request, ('Ticketing - Admin', )):
         raise Http404
         
     error = ''
 
-    if (event_id != None):
-        event = get_object_or_404(BrownPaperEvents, id=event_id)
+    event = get_object_or_404(BrownPaperEvents, id=event_id)
         
     if (request.method == 'POST'):
     
         # save the item using the Forms API
         form = BPTEventForm(request.POST, instance=event)
+
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('ticket_items', urlconf='ticketing.urls'))
     else:
-        if (event_id != None):
-            form = BPTEventForm(instance=event)
-        else:
-            form = BPTEventForm()
+        form = BPTEventForm(instance=event)
 
     context = {'forms': [form,], 'error': error, 'can_delete': False} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)

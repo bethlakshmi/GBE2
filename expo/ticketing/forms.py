@@ -11,10 +11,6 @@ from gbe_forms_text import *
 from django.db.models import Q
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> PEP8 no steps back
 class TicketItemForm(forms.ModelForm):
     '''
     Used to create a form for editing ticket item.  Used by the TicketItemEdit
@@ -27,6 +23,9 @@ class TicketItemForm(forms.ModelForm):
                             empty_label=None)
 
 
+    bpt_event = forms.ModelChoiceField(
+                            queryset = BrownPaperEvents.objects.all(),
+                            empty_label=None)
     class Meta:
         model = TicketItem
         fields = ['ticket_id',
@@ -36,7 +35,6 @@ class TicketItemForm(forms.ModelForm):
                   'cost',
                   'bpt_event'
                   ]
-        widgets = {'bpt_event': forms.HiddenInput()}
         labels = ticket_item_labels
 
     def save(self, user, commit=True):
@@ -63,16 +61,10 @@ class BPTEventForm(forms.ModelForm):
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
     event_set = Event.objects.filter(Q(show__in=shows) |
                                      Q(genericevent__in=genericevents))
-<<<<<<< HEAD
     linked_events = forms.ModelMultipleChoiceField \
                                (queryset=event_set,
                                 required=False,
                                 label=bpt_event_labels['linked_events'])
-
-=======
-    linked_events = forms.ModelMultipleChoiceField(queryset=event_set,
-                                                   required=False)
->>>>>>> PEP8 no steps back
 
     class Meta:
         model = BrownPaperEvents

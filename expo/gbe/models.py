@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from itertools import chain
 from django.db.models import Q
+<<<<<<< HEAD
 from scheduler.models import (
     Schedulable,
     EventItem,
@@ -11,6 +12,13 @@ from scheduler.models import (
     ActItem,
     ResourceAllocation
 )
+=======
+from scheduler.models import (EventItem,
+                              LocationItem,
+                              WorkerItem,
+                              ActItem,
+                              ResourceAllocation)
+>>>>>>> making and linking tickets
 from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
