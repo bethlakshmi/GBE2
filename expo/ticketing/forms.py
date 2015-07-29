@@ -10,6 +10,7 @@ from gbe.models import Show, GenericEvent, Event
 from gbe_forms_text import *
 from django.db.models import Q
 
+
 class TicketItemForm(forms.ModelForm):
     '''
     Used to create a form for editing ticket item.  Used by the TicketItemEdit
@@ -52,7 +53,8 @@ class BPTEventForm(forms.ModelForm):
     error_css_class = 'error'
     shows = Show.objects.all()
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
-    event_set = Event.objects.filter(Q(show__in=shows) | Q(genericevent__in=genericevents))
+    event_set = Event.objects.filter(Q(show__in=shows) |
+                                     Q(genericevent__in=genericevents))
     linked_events = forms.ModelMultipleChoiceField(queryset=event_set,
                                                    required=False)
 
