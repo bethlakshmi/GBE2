@@ -21,25 +21,29 @@ tickets on the site.</p><br>
 </p>
 <table class="ticketing">
   <tr class="header ticketing">
-    <th class="ticketing">&nbsp;</th>
-    <th class="ticketing">Event #</th>
-    <th class="ticketing">Type of Event</th>
-    <th class="ticketing">Connected Expo Content</th>
-    <th class="ticketing">Make a Badge</th>
-    <th class="ticketing">Registration Details</th>
+    <th class="ticketing">Event</th>
+    <th class="ticketing">Purpose</th>
+    <th class="ticketing">Events</th>
+    <th class="ticketing">Reg Info</th>
   </tr>
 {% for event in events %}
   <tr class="dark_row ticketing">
-    <td class="ticketing">+</td>
     <td class="ticketing"><a href="{% url 'ticketing:bptevent_edit' event.id %}">{{event}}</a></td>
-    <td class="ticketing">{{event.primary}}</td>
-    <td class="ticketing">{{event.include_conference}}</td>
-    <td class="ticketing">{{event.badgeable}}</td>
-    <td class="ticketing">{{event.ticket_style}}</td>
+    <td class="ticketing">{% if event.primary %}Primary, {%endif%}
+    {% if event.act_submission_event %}Act Fee, {%endif%}
+    {% if event.vendor_submission_event %}Vendor Fee, {%endif%}
+    </td>
+    <td class="ticketing">
+      {% if event.include_conference %}Includes Conference,{% endif %}
+      {% if event.include_most %}All Except Master Class,{% endif %}
+    </td>
+    <td class="ticketing">{% if event.badgeable %}Badges Given{%endif%}
+    {% if event.badgeable and event.ticket_style %}<br>{% endif %}
+    {% if event.ticket_style %}Ticket Notes: {{event.ticket_style}}{% endif %}</td>
   </tr>
   <tr>
-    <td colspan=2>&nbsp;</td>
-    <td colspan=4>
+    <td>&nbsp;</td>
+    <td colspan=3>
 <table>
 {% for item in event.ticketitems.all %}
 <tr {% if item.active %}class="visible"{% endif %}>    
