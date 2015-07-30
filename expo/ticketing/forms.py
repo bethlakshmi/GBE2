@@ -57,8 +57,10 @@ class BPTEventForm(forms.ModelForm):
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
     event_set = Event.objects.filter(Q(show__in=shows) |
                                      Q(genericevent__in=genericevents))
-    linked_events = forms.ModelMultipleChoiceField(queryset=event_set,
-                                                   required=False)
+    linked_events = forms.ModelMultipleChoiceField \
+                               (queryset=event_set,
+                                required=False,
+                                label=bpt_event_labels['linked_events'])
 
     class Meta:
         model = BrownPaperEvents
@@ -71,4 +73,5 @@ class BPTEventForm(forms.ModelForm):
                   'badgeable',
                   'ticket_style'
                   ]
-        labels = ticket_item_labels
+        labels = bpt_event_labels
+        help_texts = bpt_event_help_text

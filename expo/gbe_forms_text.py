@@ -492,23 +492,48 @@ proposal_edit_labels = {
 }
 
 presenter_help_text = {
-    'volunteering' : 'Are you interested in volunteering for this opportunity?',
-    'presenter': 'Please provide a background we can use for you as a presenter.',
-    'bid' : '',
-    'how_volunteer' : 'What role would you prefer?',
-    'qualification' : 'Please describe any qualities that make you particualrly great for this opportunity.'
+    'volunteering': 'Are you interested in volunteering for this opportunity?',
+    'presenter': 'Please provide a background we can use for you as a \
+                  presenter.',
+    'bid': '',
+    'how_volunteer': 'What role would you prefer?',
+    'qualification': 'Please describe any qualities that make you particualrly \
+                      great for this opportunity.'
 }
 
 ticket_item_labels = {
     'ticket_id': 'Ticket Item Id:',
-    'title':'Title:',
+    'title': 'Title:',
     'active': 'Display Item to Users?:',
     'cost': 'Ticket Price:',
+    'bpt_event': 'Event in BPT',
+}
 
+bpt_event_labels = {
+    'act_submission_event': 'Act Submission Fee?:',
+    'vendor_submission_event': 'Vendor Submission Fee?:',
+    'linked_events': 'GBE Events on Ticket:',
+    'include_conference': 'Includes the Conference?:',
+    'include_most': 'Whole Shebang?:',
+    'badgeable': 'Print a Badge?:',
+    'ticket_style': 'Other Ticket Notes:'
+}
+
+bpt_event_help_text = {
+    'act_submission_event': 'Used to submit Act Applications',
+    'vendor_submission_event': 'Used to submit Vendor Applications',
+    'linked_events': 'Conference Items and Volunteer Opportunties are not in \
+                      this list.',
+    'include_conference': 'All Classes, Panels and Workshops are included.',
+    'include_most': 'Everything except Master Classes and Volunteer \
+                     Opportunities',
+    'badgeable': 'The Reg Desk will print a name badge if this is true',
+    'ticket_style': 'Special instructions for Reg Desk'
 }
 
 username_label = 'Login'
-username_help = 'Required. 30 characters or fewer. Letters, digits and @ . + - _ only.'
+username_help = 'Required. 30 characters or fewer. Letters, digits and \
+		@ . + - _ only.'
 
 conference_participation_types = [('Teacher', 'Teacher'), 
                         ('Moderator', 'Moderator'), 
