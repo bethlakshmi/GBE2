@@ -148,8 +148,7 @@ def bptevent_edit(request, event_id):
     Used to display a form for editing events.
     Deleting and adding events should only be done by an Admin
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     error = ''
 
