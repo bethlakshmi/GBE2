@@ -31,11 +31,7 @@ def index(request):
     return render(request, 'ticketing/purchase_tickets.tmpl', context)
 
 
-<<<<<<< HEAD
-def ticket_items(request, conference_choice=None):
-=======
 def ticket_items(request):
->>>>>>> pep8 of views
     '''
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
@@ -46,23 +42,8 @@ def ticket_items(request):
     if 'Import' in request.POST:
         import_ticket_items()
 
-<<<<<<< HEAD
-    if conference_choice:
-        events = BrownPaperEvents.objects.filter(
-            conference__conference_slug=conference_choice)
-    else:
-        events = BrownPaperEvents.objects.exclude(
-            conference__status='completed')
-        
-    conferences = Conference.objects.all()
-    context = {'events': events,
-               'conferences': conferences,
-               'conference_choice':  conference_choice}
-
-=======
     events = BrownPaperEvents.objects.all()
     context = {'events': events}
->>>>>>> pep8 of views
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
 
@@ -168,8 +149,7 @@ def bptevent_edit(request, event_id):
     Used to display a form for editing events.
     Deleting and adding events should only be done by an Admin
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     error = ''
 
