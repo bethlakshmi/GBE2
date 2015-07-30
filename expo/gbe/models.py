@@ -1,12 +1,14 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import (Schedulable,
-                              EventItem,
-                              LocationItem,
-                              WorkerItem,
-                              ActItem,
-                              ResourceAllocation)
+from scheduler.models import (
+    Schedulable,
+    EventItem,
+    LocationItem,
+    WorkerItem,
+    ActItem,
+    ResourceAllocation
+)
 from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
@@ -61,8 +63,14 @@ class Biddable(models.Model):
         return self.__class__
 
     @property
+    def is_current(self):
+        return self.conference.status == 'upcoming'
+
+    @property
     def ready_for_review(self):
-        return self.submitted and self.accepted == 0
+        return (self.is_current and 
+                self.submitted and 
+                self.accepted == 0)
 
 
 class Profile(WorkerItem):
@@ -716,10 +724,6 @@ class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal.
-    Note: Act contains only information about a particular item that
-    can occupy a particular time slot in a particular performance. All
-    information about performers is carried in Performer objects
-    linked to Acts.
     '''
     performer = models.ForeignKey(Performer,
                                   related_name='acts',
@@ -742,8 +746,7 @@ class Act (Biddable, ActItem):
 
     def get_performer_profiles(self):
         '''
-        Gets all of the performer's involved in the act.
-        Useful for checking the schedules of the actual humans
+        Gets all of the performers involved in the act.
         '''
         return self.performer.get_profiles()
 
@@ -790,12 +793,17 @@ class Act (Biddable, ActItem):
                 'Order']
 
     @property
-    def visible(self):
-        return self.accepted == 3
+    def visible(self, current=True):
+        if current:
+            return self.accepted == 3 and self.is_current
+        else:
+            return self.accepted == 3
+        
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
+        return [bid for bid in bids if bid.is_current]
 
     @property
     def bid_review_header(self):
@@ -989,6 +997,11 @@ class GenericEvent (Event):
         return self.title
 
     @property
+    def is_current(self):
+        return self.conference.status == 'upcoming'
+
+
+    @property
     def sched_payload(self):
         types = dict(event_options)
         payload = {
@@ -1019,7 +1032,7 @@ class GenericEvent (Event):
 
     @property
     def schedule_ready(self):
-        return True
+        return self.is_current
 
 class Class(Biddable, Event):
     '''
@@ -1092,8 +1105,9 @@ class Class(Biddable, Event):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
-
+        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
+        return [bid for bid in bids if bid.is_current]
+        
     @property
     def get_bid_fields(self):
         '''
@@ -1120,7 +1134,7 @@ class Class(Biddable, Event):
 
     @property
     def schedule_ready(self):
-        return self.accepted == 3
+        return self.accepted == 3 and self.is_current
 
     @property
     def complete(self):
@@ -1247,8 +1261,8 @@ class Volunteer(Biddable):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
-
+        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
+        return [bid for bid in bids if bid.is_current]
 
 class Vendor(Biddable):
     '''
@@ -1291,7 +1305,8 @@ class Vendor(Biddable):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        bid = type(self).objects.filter(submitted=True).filter(accepted=0)
+        return [bid for bid in bids if bid.is_current]
 
 
 class AdBid(Biddable):
@@ -1379,6 +1394,8 @@ class ConferenceVolunteer(models.Model):
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
     conference = models.ForeignKey(Conference, null=True)
+
+
     def __unicode__(self):
         return self.bid.title+": "+self.presenter.name
 
