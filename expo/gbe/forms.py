@@ -348,11 +348,13 @@ class VolunteerBidForm(forms.ModelForm):
     availability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                              choices = volunteer_availability_options,
                                              label = volunteer_labels['availability'],
+                                             help_text = volunteer_help_texts['volunteer_availability_options'],
                                              required = True)
     unavailability = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                              choices = volunteer_availability_options,
                                              label = volunteer_labels['unavailability'],
-                                               required = False)
+                                             help_text = volunteer_help_texts['volunteer_availability_options'],
+                                             required = False)
 
     interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, 
                                           choices=volunteer_interests_options)

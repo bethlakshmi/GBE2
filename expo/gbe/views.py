@@ -36,7 +36,7 @@ def down(request):
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
-
+    
 def index(request):
     '''
     one of two cases:
@@ -106,6 +106,7 @@ def landing_page(request, profile_id=None):
                                 'url': url,
                                 'action': "Review",
                                 'bid_type': bid_type}]
+
         context = RequestContext(
             request,
             {'profile': viewer_profile,
@@ -607,7 +608,7 @@ def edit_act(request, act_id):
                        'draft_fields': draft_fields
                    })
 
-
+        
 @login_required
 def view_act(request, act_id):
     '''
@@ -1049,7 +1050,7 @@ def review_class(request, class_id):
                        'actionform': actionform,
                        'actionURL': actionURL})
 
-
+        
 @login_required
 def review_class_list(request):
     '''
@@ -1989,8 +1990,8 @@ def conference_volunteer(request):
     Volunteer to chair or sit on a panel or teach a class.
     Builds out from Class Proposal
     '''
-    page_title = "Volunteer for the Conference"
-    view_title = "Volunteer to be a Teacher or Panelist"
+    page_title = "Apply to Present"
+    view_title = "Apply to Present"
     owner = validate_profile(request, require=False)
     if not owner:
         return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
@@ -2390,16 +2391,25 @@ def create_event(request, event_type):
 
 def handle_user_contact_email(request):
     return_redirect = HttpResponseRedirect(reverse('home',
-                                                   urlconf='gbe.urls', 
-                                                   args = []))
-    if request.method is not 'POST':
+                                       urlconf='gbe.urls', 
+                                       args = []))
+
+    if request.method != 'POST':
         return return_redirect
     form = ContactForm(request.POST)
     if not form.is_valid():
         return return_redirect
-    name = form.get('name', 'UNKNOWN USER')
-    from_address = form.get('email', 'UNKNOWN ADDRESS')
-    message = form.get('message', 'UNKNOWN MESSAGE')
+    data = form.cleaned_data
+    name = data.get('name', 'UNKNOWN USER')
+    user_address = data.get('email', 'UNKNOWN ADDRESS')
+    user_msg = data.get('message', 'UNKNOWN MESSAGE')
+    format_string = "Burlesque Expo user %s (%s) says: \n\n %s" 
+    message = format_string % (name, 
+                               user_address, 
+                               user_msg)
+
+    from_address = settings.DEFAULT_FROM_EMAIL
+
     send_user_contact_email(name, from_address, message)
     return return_redirect
 
