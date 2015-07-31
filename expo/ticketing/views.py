@@ -151,8 +151,6 @@ def bptevent_edit(request, event_id):
     '''
     validate_perms(request, ('Ticketing - Admin', ))
 
-    error = ''
-
     event = get_object_or_404(BrownPaperEvents, id=event_id)
 
     if (request.method == 'POST'):
@@ -164,8 +162,15 @@ def bptevent_edit(request, event_id):
             form.save()
             return HttpResponseRedirect(reverse('ticket_items',
                                                 urlconf='ticketing.urls'))
+        else:
+            return render(request,
+                          r'ticketing/ticket_item_edit.tmpl',
+                          {'forms': [form], 'can_delete': False})
+
+            #return render(request, r'ticketing/ticket_item_edit.tmpl')
+
     else:
         form = BPTEventForm(instance=event)
 
-    context = {'forms': [form], 'error': error, 'can_delete': False}
+    context = {'forms': [form], 'can_delete': False}
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)

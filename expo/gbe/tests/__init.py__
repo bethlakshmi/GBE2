@@ -1,2 +1,4 @@
 from basic_tests import *
+from test_landing_page import *
 from factories import *
+
