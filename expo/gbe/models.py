@@ -24,7 +24,7 @@ import pytz
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
-class Conference(Schedulable):
+class Conference(models.Model):
     conference_name = models.CharField(max_length=128)
     conference_slug = models.SlugField()
     status = models.CharField(choices=conference_statuses, 
@@ -32,10 +32,13 @@ class Conference(Schedulable):
                                    default='upcoming')
     accepting_bids = models.BooleanField(default=False)
     
+    def __unicode__(self):
+        return self.conference_name
+
     class Meta:
         verbose_name="conference"
         verbose_name_plural="conferences"
-
+        
     
 
 class Biddable(models.Model):
@@ -237,6 +240,7 @@ class Profile(WorkerItem):
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
+        acts = [act for act in acts if act.is_current]
         return acts
 
     def get_shows(self):

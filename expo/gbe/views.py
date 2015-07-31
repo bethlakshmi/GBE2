@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.forms import UserCreationForm
@@ -134,6 +135,8 @@ def event(request, event_id):
     '''Not listed in urlconf - can delete?
     '''
     event = get_object_or_404(Event, pk=event_id)
+    if not event.is_current:
+        raise PermissionDenied
     return render(request, 'gbe/event.html', {'event': event})
 
 def techinfo(request):
