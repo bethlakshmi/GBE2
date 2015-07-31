@@ -135,8 +135,6 @@ def event(request, event_id):
     '''Not listed in urlconf - can delete?
     '''
     event = get_object_or_404(Event, pk=event_id)
-    if not event.is_current:
-        raise PermissionDenied
     return render(request, 'gbe/event.html', {'event': event})
 
 def techinfo(request):

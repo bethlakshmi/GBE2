@@ -131,4 +131,4 @@ def get_purchased_tickets(user):
     '''
     tickets = TicketItem.objects.filter(transaction__purchaser__matched_to_user=user).\
               annotate(number_of_tickets=Count('transaction'))
-    return tickets
+    return [] # tickets

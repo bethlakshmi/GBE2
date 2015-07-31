@@ -66,13 +66,8 @@ class Biddable(models.Model):
         return self.__class__
 
     @property
-    def is_current(self):
-        return self.conference.status == 'upcoming'
-
-    @property
     def ready_for_review(self):
-        return (self.is_current and 
-                self.submitted and 
+        return (self.submitted and 
                 self.accepted == 0)
 
 
@@ -240,7 +235,6 @@ class Profile(WorkerItem):
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
-        acts = [act for act in acts if act.is_current]
         return acts
 
     def get_shows(self):
@@ -798,16 +792,13 @@ class Act (Biddable, ActItem):
 
     @property
     def visible(self, current=True):
-        if current:
-            return self.accepted == 3 and self.is_current
-        else:
-            return self.accepted == 3
+        return self.accepted == 3
         
 
     @property
     def bids_to_review(self):
-        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
-        return [bid for bid in bids if bid.is_current]
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
+
 
     @property
     def bid_review_header(self):
@@ -953,7 +944,7 @@ class Event (EventItem):
 
     @property
     def get_tickets(self):
-        return self.ticketing_item.all()
+        return [] #self.ticketing_item.all()
 
     class Meta:
         ordering = ['title']
@@ -1001,11 +992,6 @@ class GenericEvent (Event):
         return self.title
 
     @property
-    def is_current(self):
-        return self.conference.status == 'upcoming'
-
-
-    @property
     def sched_payload(self):
         types = dict(event_options)
         payload = {
@@ -1036,7 +1022,7 @@ class GenericEvent (Event):
 
     @property
     def schedule_ready(self):
-        return self.is_current
+        return True
 
 class Class(Biddable, Event):
     '''
@@ -1109,8 +1095,8 @@ class Class(Biddable, Event):
 
     @property
     def bids_to_review(self):
-        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
-        return [bid for bid in bids if bid.is_current]
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
+
         
     @property
     def get_bid_fields(self):
@@ -1138,7 +1124,7 @@ class Class(Biddable, Event):
 
     @property
     def schedule_ready(self):
-        return self.accepted == 3 and self.is_current
+        return self.accepted == 3
 
     @property
     def complete(self):
@@ -1265,8 +1251,8 @@ class Volunteer(Biddable):
 
     @property
     def bids_to_review(self):
-        bids = type(self).objects.filter(submitted=True).filter(accepted=0)
-        return [bid for bid in bids if bid.is_current]
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
+
 
 class Vendor(Biddable):
     '''
@@ -1309,8 +1295,7 @@ class Vendor(Biddable):
 
     @property
     def bids_to_review(self):
-        bid = type(self).objects.filter(submitted=True).filter(accepted=0)
-        return [bid for bid in bids if bid.is_current]
+        return type(self).objects.filter(submitted=True).filter(accepted=0)
 
 
 class AdBid(Biddable):
