@@ -54,7 +54,7 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    conference = models.ForeignKey(Conference, null=True)
+    conference = models.ForeignKey(Conference, blank=True)
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -918,7 +918,7 @@ class Event (EventItem):
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
-    conference = models.ForeignKey(Conference, null=True)
+    conference = models.ForeignKey(Conference, blank=True)
     def __str__(self):
         return self.title
 
@@ -1338,7 +1338,7 @@ class ClassProposal(models.Model):
                             choices=class_proposal_choices,
                             default='Class')
     display = models.BooleanField(default=False)
-    conference = models.ForeignKey(Conference, null=True)
+    conference = models.ForeignKey(Conference, blank=True)
 
     def __unicode__(self):
         return self.title
@@ -1382,7 +1382,7 @@ class ConferenceVolunteer(models.Model):
                                      default='Any of the Above')
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
-    conference = models.ForeignKey(Conference, null=True)
+    conference = models.ForeignKey(Conference, blank=True)
 
 
     def __unicode__(self):
