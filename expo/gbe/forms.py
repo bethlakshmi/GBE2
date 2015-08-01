@@ -430,7 +430,8 @@ class VolunteerBidForm(forms.ModelForm):
 
     class Meta:
         model = Volunteer
-        fields = ['availability',
+        fields = ['number_shifts',
+                  'availability',
                   'unavailability',
                   'interests',
                   'opt_outs',
@@ -501,7 +502,9 @@ class VendorBidForm(forms.ModelForm):
 
     class Meta:
         model = Vendor
-        fields = ['profile',
+        fields = ['title',
+                  'description',
+                  'profile',
                   'website',
                   'physical_address',                  
                   'publish_physical_address',
@@ -510,6 +513,7 @@ class VendorBidForm(forms.ModelForm):
                   'help_description',
                   'help_times',
                   ]
+        help_texts = vendor_help_texts
         labels = vendor_labels
         widgets = {'accepted': forms.HiddenInput(),
                    'submitted': forms.HiddenInput(),

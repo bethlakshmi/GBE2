@@ -57,7 +57,7 @@ class TicketItem(models.Model):
     ticket_style = models.CharField(max_length=50, blank=True)
     conference = models.ForeignKey('gbe.Conference',
                                    related_name='ticketing_item',
-                                   default=lambda: Conference.objects.get(id=2))
+                                   default=lambda: Conference.objects.filter(status="upcoming").first())
     
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)

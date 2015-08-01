@@ -54,8 +54,9 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    conference = models.ForeignKey(Conference, default=lambda: Conference.objects.get(id=2))
-    
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
+
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -70,6 +71,10 @@ class Biddable(models.Model):
     def ready_for_review(self):
         return (self.submitted and 
                 self.accepted == 0)
+
+    @property
+    def is_current(self):
+        return self.conference.status == "upcoming"
 
 
 class Profile(WorkerItem):
@@ -191,7 +196,9 @@ class Profile(WorkerItem):
                                   reverse ('profile_update',
                                            urlconf=gbe.urls))
         for act in self.get_acts():
-            if act.accepted==3 and (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
+            if act.accepted==3 and \
+               act.is_current and \
+               (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
                 profile_alerts.append(gbetext.profile_alerts['schedule_rehearsal'] %
                                       (act.title, 
                                        reverse('act_techinfo_edit', 
@@ -254,14 +261,18 @@ class Profile(WorkerItem):
         Returns schedule as a list of Scheduler.Events
         NOTE:  Things that haven't been booked with start times won't be here.
         '''
-        from scheduler.models import Event
+        '''
+        from scheduler.models import Event as sEvent
         acts = self.get_acts()
-        events = sum([list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+        events = sum([list(sEvent.objects.filter(resources_allocated__resource__actresource___item=act))
                       for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
-            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
-        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+            events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=performer)]
+        events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=self)]
+        
         return sorted(set(events), key=lambda event: event.start_time)
+        '''
+        return []
 
     @property
     def schedule(self):
@@ -920,7 +931,8 @@ class Event (EventItem):
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
-    conference = models.ForeignKey(Conference, blank=True)
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
     def __str__(self):
         return self.title
 
@@ -947,6 +959,11 @@ class Event (EventItem):
     @property
     def get_tickets(self):
         return [] #self.ticketing_item.all()
+    
+    @property
+    def is_current(self):
+        return self.conference.status == "upcoming"
+
 
     class Meta:
         ordering = ['title']
@@ -1340,7 +1357,8 @@ class ClassProposal(models.Model):
                             choices=class_proposal_choices,
                             default='Class')
     display = models.BooleanField(default=False)
-    conference = models.ForeignKey(Conference, blank=True)
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
 
     def __unicode__(self):
         return self.title
@@ -1384,7 +1402,6 @@ class ConferenceVolunteer(models.Model):
                                      default='Any of the Above')
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
-    conference = models.ForeignKey(Conference, blank=True)
 
 
     def __unicode__(self):

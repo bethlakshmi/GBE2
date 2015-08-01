@@ -784,7 +784,7 @@ def act_changestate(request, bid_id):
             # Cast the act into the show by adding it to the schedule 
             # resource time
             allocation_format = set_time_format(days=2)
-            show = get_object_or_404(Event,
+            show = get_object_or_404(sEvent,
                                      eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
             casting.event = show
@@ -796,7 +796,7 @@ def act_changestate(request, bid_id):
                     messages.warning(request, 
                                      str(worker) + " is booked for - " + 
                                      str(problem) + " - " + 
-                                     problem.starttime.strftime(time_format)
+                                     problem.starttime.strftime(allocation_format)
                     )
                                      
             casting.resource = actresource
@@ -1478,6 +1478,7 @@ def create_vendor(request):
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
+            vendor = form.save(commit=False)
             vendor.conference = conference
             vendor = form.save()
         else:
