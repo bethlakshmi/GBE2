@@ -5,6 +5,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from gbe.models import Conference
 
 # Create your models here.
     
@@ -54,7 +55,9 @@ class TicketItem(models.Model):
     modified_by = models.CharField(max_length=30)
     badgeable = models.BooleanField(default=False)
     ticket_style = models.CharField(max_length=50, blank=True)
-    conference = models.ForeignKey('gbe.Conference', related_name='ticketing_item')
+    conference = models.ForeignKey('gbe.Conference',
+                                   related_name='ticketing_item',
+                                   default=lambda: Conference.objects.get(id=2))
     
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)

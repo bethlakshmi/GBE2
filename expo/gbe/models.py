@@ -54,7 +54,8 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    conference = models.ForeignKey(Conference, blank=True)
+    conference = models.ForeignKey(Conference, default=lambda: Conference.objects.get(id=2))
+    
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
