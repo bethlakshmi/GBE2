@@ -5,15 +5,21 @@
 {% endblock %}
 
 {% block content %}
-  
+ 
 
   <form action="" method=post>
     {% csrf_token %}
     <br><br>
-    <table>
+    <table border=1px>
     <tr>
       <td><label for="username">Login: </label></td>
       <td><input type="text" name="username" value="" id="username"/></td>
+      <td rowspan="3"><div class="login_text">This is the login page.
+        You may have ended up here if you tried to do something which requires
+        a login (like submit an act or a class).
+        If you have a login, please enter it at left, or
+        <a href='{% url 'gbe:register' %}'>register</a> to create a login.</br></br>
+        <a href='{% url 'gbe:password_reset' %}'>Help!</a> I forgot my username or password!</div></td>
     </tr>
     <tr>
       <td><label for="password">Password: </label></td>
@@ -26,8 +32,6 @@
     <input type="hidden" name="next" value = "{{next |escape}}" />
   </form>
    {% if form.errors %}
-    <p class="error" style="color: red">This site does not recognize your username or password.</p>
+    <p class="error">This site does not recognize your username or password.</p>
   {% endif %} 
-    <a href='{% url 'gbe:password_reset' %}'>Help!</a> I forgot my password!
-
 {% endblock %}

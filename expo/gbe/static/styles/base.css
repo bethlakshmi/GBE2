@@ -57,7 +57,13 @@ div.footer{
   letter-spacing: normal;
 }
 
+div.login_text{
+  padding: 5px;
+}
 
+p.error {
+  color: red;
+}
 div#middle {
     /* The menu scrolls are ugly and driving me crazy.  Change back if you want guys. -MDB */
     

@@ -57,7 +57,7 @@ def index(request):
     context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
 
-
+@login_required
 def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
