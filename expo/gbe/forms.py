@@ -196,6 +196,13 @@ class ActEditForm(forms.ModelForm):
         label=act_bid_labels['shows_preferences'],
         help_text=act_help_texts['shows_preferences']
     )
+    other_performance = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=act_other_perf_options,
+        label=act_bid_labels['other_performance'],
+        help_text=act_help_texts['other_performance'],
+        required = False,
+    )
     description = forms.CharField(required=True,
                                   label=act_bid_labels['description'],
                                   help_text=act_help_texts['description'],
@@ -233,7 +240,14 @@ class ActEditDraftForm(forms.ModelForm):
         help_text=act_help_texts['shows_preferences'],
         required=False
     )
-
+    other_performance = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=act_other_perf_options,
+        label=act_bid_labels['other_performance'],
+        help_text=act_help_texts['other_performance'],
+        required = False
+    )
+    
     class Meta:
         model = Act
         fields, required = Act().bid_fields

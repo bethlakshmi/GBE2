@@ -733,6 +733,7 @@ class Act (Biddable, ActItem):
                                     choices=video_options,
                                     blank=True)
     shows_preferences = models.TextField(blank=True)
+    other_performance = models.TextField(blank=True)
     why_you = models.TextField(blank=True)
 
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
@@ -860,6 +861,7 @@ class Act (Biddable, ActItem):
         return (
             ['performer',
              'shows_preferences',
+             'other_performance',
              'title',
              'track_title',
              'track_artist',
