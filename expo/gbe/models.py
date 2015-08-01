@@ -1,11 +1,14 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-from scheduler.models import (EventItem,
-                              LocationItem,
-                              WorkerItem,
-                              ActItem,
-                              ResourceAllocation)
+from scheduler.models import (
+    Schedulable,
+    EventItem,
+    LocationItem,
+    WorkerItem,
+    ActItem,
+    ResourceAllocation
+)
 from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
@@ -21,6 +24,23 @@ import pytz
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
+class Conference(models.Model):
+    conference_name = models.CharField(max_length=128)
+    conference_slug = models.SlugField()
+    status = models.CharField(choices=conference_statuses, 
+                                   max_length=50,
+                                   default='upcoming')
+    accepting_bids = models.BooleanField(default=False)
+    
+    def __unicode__(self):
+        return self.conference_name
+
+    class Meta:
+        verbose_name="conference"
+        verbose_name_plural="conferences"
+        
+    
+
 class Biddable(models.Model):
     '''
     Abstract base class for items which can be Bid
@@ -34,7 +54,7 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    conference = models.ForeignKey(Conference, blank=True)
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -47,7 +67,8 @@ class Biddable(models.Model):
 
     @property
     def ready_for_review(self):
-        return self.submitted and self.accepted == 0
+        return (self.submitted and 
+                self.accepted == 0)
 
 
 class Profile(WorkerItem):
@@ -326,7 +347,6 @@ class Performer (WorkerItem):
     awards = models.TextField(blank=True)
     promo_image = models.FileField(upload_to="uploads/images",
                                    blank=True)
-
     festivals = models.TextField(blank=True)     # placeholder only
 
     def append_alerts(self, alerts):
@@ -702,10 +722,6 @@ class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal.
-    Note: Act contains only information about a particular item that
-    can occupy a particular time slot in a particular performance. All
-    information about performers is carried in Performer objects
-    linked to Acts.
     '''
     performer = models.ForeignKey(Performer,
                                   related_name='acts',
@@ -728,8 +744,7 @@ class Act (Biddable, ActItem):
 
     def get_performer_profiles(self):
         '''
-        Gets all of the performer's involved in the act.
-        Useful for checking the schedules of the actual humans
+        Gets all of the performers involved in the act.
         '''
         return self.performer.get_profiles()
 
@@ -776,12 +791,14 @@ class Act (Biddable, ActItem):
                 'Order']
 
     @property
-    def visible(self):
+    def visible(self, current=True):
         return self.accepted == 3
+        
 
     @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
+
 
     @property
     def bid_review_header(self):
@@ -901,7 +918,7 @@ class Event (EventItem):
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
-
+    conference = models.ForeignKey(Conference, blank=True)
     def __str__(self):
         return self.title
 
@@ -927,7 +944,7 @@ class Event (EventItem):
 
     @property
     def get_tickets(self):
-        return self.ticketing_item.all()
+        return [] #self.ticketing_item.all()
 
     class Meta:
         ordering = ['title']
@@ -1080,6 +1097,7 @@ class Class(Biddable, Event):
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
 
+        
     @property
     def get_bid_fields(self):
         '''
@@ -1320,6 +1338,7 @@ class ClassProposal(models.Model):
                             choices=class_proposal_choices,
                             default='Class')
     display = models.BooleanField(default=False)
+    conference = models.ForeignKey(Conference, blank=True)
 
     def __unicode__(self):
         return self.title
@@ -1363,6 +1382,8 @@ class ConferenceVolunteer(models.Model):
                                      default='Any of the Above')
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
+    conference = models.ForeignKey(Conference, blank=True)
+
 
     def __unicode__(self):
         return self.bid.title+": "+self.presenter.name

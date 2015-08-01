@@ -21,6 +21,13 @@ stageinfo_incomplete_warning = "Please confirm that you have no props requiremen
 lightinginfo_incomplete_warning = "Please check your lighting info."
 audioinfo_incomplete_warning = "Please confirm that you will have no audio playback for your performance"
 
+
+conference_statuses = (
+    ('upcoming', 'upcoming'),
+    ('ongoing', 'ongoing'),
+    ('completed', 'completed'),
+    )
+
 landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
 
 phone_number_format_error = '''Phone numbers must be in a standard US format, \

@@ -54,6 +54,7 @@ class TicketItem(models.Model):
     modified_by = models.CharField(max_length=30)
     badgeable = models.BooleanField(default=False)
     ticket_style = models.CharField(max_length=50, blank=True)
+    conference = models.ForeignKey('gbe.Conference', related_name='ticketing_item')
     
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
