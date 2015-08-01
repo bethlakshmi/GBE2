@@ -397,7 +397,10 @@ def bid_act(request):
             form = ActEditDraftForm(request.POST,
                                     prefix='theact')
         if form.is_valid():
+            #hack
+            conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
+            act.conference = conference
             techinfo = TechInfo()
             audioinfoform = AudioInfoForm(request.POST, prefix='theact')
             techinfo.audio = audioinfoform.save()
@@ -853,12 +856,14 @@ def bid_class(request):
             form = ClassBidDraftForm(request.POST)
 
         if form.is_valid():
+            conference = Conference.objects.filter(accepting_bids=True).first()
             new_class = form.save(commit=False)
             new_class.duration = Duration(minutes=new_class.length_minutes)
             new_class = form.save(commit=True)
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
+                    new_class.conference=conference
                     new_class.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
@@ -1118,7 +1123,12 @@ def create_volunteer(request):
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
-            volunteer = form.save()
+            
+            volunteer = form.save(commit=False)
+            #hack
+            conference = Conference.objects.filter(accepting_bids=True).first()
+            volunteer.conference = conference                
+            volunteer.profile = profile
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
@@ -1247,12 +1257,22 @@ def review_volunteer_list(request):
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
-    review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
+    review_query = BidEvaluation.objects.filter(
+        bid=volunteers
+    ).select_related(
+            'evaluator'
+    ).order_by('bid', 'evaluator')
+
     rows = []
     for volunteer in volunteers:
         bid_row = {}
         bid_row['bid'] = volunteer.bid_review_summary
-        bid_row['reviews'] = review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')
+        bid_row['reviews'] = review_query.filter(
+            bid=volunteer.id
+        ).select_related(
+            'evaluator'
+        ).order_by('evaluator')
+
         bid_row['id'] = volunteer.id
         bid_row['review_url'] = reverse('volunteer_review',
                                         urlconf='gbe.urls',
@@ -1457,6 +1477,8 @@ def create_vendor(request):
     if request.method == 'POST':
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
+            conference = Conference.objects.filter(accepting_bids=True).first()
+            vendor.conference = conference
             vendor = form.save()
         else:
             return render(request,
@@ -1482,6 +1504,8 @@ def create_vendor(request):
                 '''
                 if (verify_vendor_app_paid(request.user.username)):
                     vendor.submitted = True
+                    conference = Conference.objects.filter(accepting_bids=True).first()
+                    vendor.conference = conference
                     vendor.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
@@ -2025,8 +2049,7 @@ def conference_volunteer(request):
                 if not form.is_valid():
                     return render(request, 'gbe/error.tmpl',
                                   {'error': conf_volunteer_save_error})
-
-                volunteer, created = ConferenceVolunteer.objects.get_or_create(
+                volunteer, created = ConferenceVolunteer.objects.get_or_create(                    
                     presenter=form.cleaned_data['presenter'],
                     bid=aclass,
                     defaults=form.cleaned_data)

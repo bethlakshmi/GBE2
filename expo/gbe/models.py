@@ -200,7 +200,7 @@ class Profile(WorkerItem):
         return profile_alerts
 
     def get_volunteerbids(self):
-        return self.volunteering.all()
+        return [vbid for vbid in self.volunteering.all() if vbid.is_current]
 
     def get_performers(self):
         performers = self.get_personae()
@@ -278,11 +278,14 @@ class Profile(WorkerItem):
         '''
         from scheduler.models import Event
         acts = self.get_acts()
-        events = sum([list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+        events = sum([list(Event.objects.filter(
+            resources_allocated__resource__actresource___item=act))
                   for act in acts if act.accepted==3], [])
         for performer in self.get_performers():
-            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
-        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+            events += [e for e in Event.objects.filter(
+                resources_allocated__resource__worker___item=performer)]
+        events += [e for e in Event.objects.filter(
+            resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
     def get_badge_name(self):
@@ -296,10 +299,11 @@ class Profile(WorkerItem):
         return a list of classes this user is teaching
         (not a list of classes they are taking, that's another list)
         '''
-        return self.workeritem.get_bookings('Teacher')
+        return [c for c in self.workeritem.get_bookings('Teacher') if c.is_current]
 
     def proposed_classes(self):
-        classes = sum([list(teacher.is_teaching.all()) for teacher in self.personae.all()], [])
+        classes = sum([list(teacher.is_teaching.all()) 
+                       for teacher in self.personae.all()], [])
 #        return list(set (classes))
         return classes
 
@@ -370,11 +374,6 @@ class Performer (WorkerItem):
     def get_profiles(self):
         '''
         Gets all of the people performing in the act
-        BB - my theory is that this should really be an abstract class, and it
-        should be the subclasses, but we don't use Inheritance manager in GBE
-        and I'm not ready for that design change.
-        So... using None, because the Performer only has a contact
-        point, not actual humans actually performing
         '''
         return Performer.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_profiles()
 
