@@ -7,8 +7,9 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from ticketing.views import bptevent_edit
-import factories
+from tests.factories import gbe_factories, ticketing_factories
 import mock
+import gbe.tests as gbe_tests
 
 def location(response):
     response_dict = dict(response.items())
@@ -21,9 +22,9 @@ class TestEditBPTEvent(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.bpt_event = factories.BrownPaperEventsFactory.create()
+        self.bpt_event = ticketing_factories.BrownPaperEventsFactory.create()
         group, created = Group.objects.get_or_create(name='Ticketing - Admin')
-        self.privileged_user = factories.ProfileFactory.create().user_object
+        self.privileged_user = gbe_factories.ProfileFactory.create().user_object
         self.privileged_user.groups.add(group)
 
     def get_bptevent_form(self):
@@ -40,7 +41,7 @@ class TestEditBPTEvent(TestCase):
     
     @nt.raises(Http404)
     def test_edit_event_user_is_not_ticketing(self):
-        user = factories.ProfileFactory.create().user_object
+        user = gbe_factories.ProfileFactory.create().user_object
         request = self.factory.get('/ticketing/bptevent_edit/%d'%self.bpt_event.pk)
         request.user = user
         response = bptevent_edit(request, self.bpt_event.pk)
