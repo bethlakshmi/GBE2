@@ -58,11 +58,20 @@ act_alerts = {
     }
    
 
-act_shows_options  = [ (0, 'The Bordello (Fri. Late)'), 
-                       (1, 'The Main Event, in competition'),
-                       (2, 'The Main Event, not in competition'), 
-                       (3, 'The Newcomer\'s Showcase'),
-                       ]
+act_shows_options = [ (0, 'The Bordello (Fri. Late)'), 
+                      (1, 'The Main Event, in competition'),
+                      (2, 'The Main Event, not in competition'), 
+                      (3, 'The Newcomer\'s Showcase'),
+                    ]
+
+act_other_perf_options = [ (0, "Go-go dance during one or more of the shows \
+                                (we'll ask which one later)"), 
+                           (1, 'Be part of the opening number for The Main \
+                                Event'),
+                           (2, 'Model in the Fashion Show (Sunday afternoon)'),
+                           (3, 'Model in the Swimsuit Show (Saturday night \
+                                late)'),
+                         ]
 
 all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 

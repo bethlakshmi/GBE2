@@ -10,10 +10,10 @@ from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 
 conference_days = ( 
-    (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
+    (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
+    (datetime(2016, 02, 5).strftime('%Y-%m-%d'), 'Friday'),
+    (datetime(2016, 02, 6).strftime('%Y-%m-%d'), 'Saturday'),
+    (datetime(2016, 02, 7).strftime('%Y-%m-%d'), 'Sunday'),
 )
 
 
