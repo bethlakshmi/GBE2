@@ -194,38 +194,51 @@ act_length_too_long = ("The Act Length is too long.")  # note: this refers to th
 
 act_help_texts = {
     'shows_preferences':('Check as many as apply to you'),
-    'act_duration':('Length of entire act in mm:ss - please include any time \
-    you are performing before or after your song.'), 
-    'track_duration':('Please enter the duration of your music or backing track in \
-    minutes and seconds. Something that was four minutes and twenty seconds would be \
-    entered as "04:20". Remember, the maximum duration for an act in competition in \
-    The Main Event is 5 minutes for a soloist, 7 minutes for a group'),
-    'description':('Please give a brief description of your act. \
-    Stage kittens will retrieve costumes and props, but we cannot clean the stage \
-    after your act. Please do not leave anything on the stage (water, glitter, \
-    confetti, etc.)'), 
+    'act_duration': ('Length of entire act in mm:ss - please include any time \
+                     you are performing before or after your song.'), 
+    'track_duration': ('Please enter the duration of your music or backing \
+                       track in minutes and seconds. Something that was four \
+                       minutes and twenty seconds would be entered as "04:20". \
+                       Remember, the maximum duration for an act in \
+                       competition in The Main Event is 5 minutes for a \
+                       soloist, 7 minutes for a group'),
+    'description': ('Please give a brief description of your act. Stage \
+                    kittens will retrieve costumes and props, but we cannot \
+                    clean the stage after your act. Please do not leave \
+                    anything on the stage (water, glitter, confetti, etc.)'), 
     'performer': ('Select the stage persona, combo, or troupe who will be \
-    performing. Hit "create" to create a new persona, troupe, or combo.'),
-    'video_link' : ('Link to some video of your performance, or a similar act. This \
-    will be used for evaluating your bid, and will not appear on your performer page.'),
-    'shows_preferences':('Check as many as apply to you'),
+                  performing. Hit "create" to create a new persona, troupe, \
+                  or combo.'),
+    'video_link' : ('Link to some video of your performance, or a similar \
+                    act. This will be used for evaluating your bid, and will \
+                    not appear on your performer page.'),
+    'other_performance': ("Don't feel badly if you're not accepted to perform \
+                          in one of the formal shows. We have a ton of other \
+                          ways to get your performance fix! Indicating that you \
+                          are interested in doing one or more of these \
+                          activities has no effect on whether or not you are \
+                          accepted to perform in a show. You may be accepted to \
+                          perform and still do these activities."),
     'video_link':('Make sure to include \'http://\' '),
     'intro_text':('This text will be used by the MC to introduce your act.'),
-    'notes': ('Please clarify any instructions with respect to prop setting, clearing, or cueing' )
+    'notes': ('Please clarify any instructions with respect to prop setting, \
+              clearing, or cueing' )
 }
 
 act_bid_labels = {
-    'performer' :'Performer',
+    'performer': 'Performer',
     'title': 'Name of Act',
-    'shows_preferences':'I am interested in:',
-    'song_title':'Name of Song',
-    'song_artist':'Song Artist',
-    'track_duration':'Duration of Song',
-    'act_duration':'Duration of Act',
-    'description':'Description of Act',
-    'video_choice':'Video Notes',
-    'why_you':'Why Would You Like to Perform at The Great Burlesque Exposition?',
-    'video_link':'URL of Video'
+    'shows_preferences': 'I am interested in:',
+    'other_performance': 'Other performance opportunities',
+    'song_title':' Name of Song',
+    'song_artist': 'Song Artist',
+    'track_duration': 'Duration of Song',
+    'act_duration': 'Duration of Act',
+    'description': 'Description of Act',
+    'video_choice': 'Video Notes',
+    'why_you': 'Why Would You Like to Perform at The Great Burlesque \
+                Exposition?',
+    'video_link': 'URL of Video'
 }
 
 

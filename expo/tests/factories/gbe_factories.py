@@ -4,7 +4,15 @@ from factory import SubFactory
 import gbe.models as conf
 import scheduler.models as sched
 from gbe.duration import Duration
+from django.utils.text import slugify
 
+class ConferenceFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.Conference
+
+    conference_name = "Test Conference"
+    conference_slug = slugify(u"test_conf")
+    
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
         model= sched.WorkerItem    
@@ -39,6 +47,7 @@ class ShowFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Test Show%d' % n)
     description = 'Test Description'
     duration = Duration(hours=1)
+    conference = SubFactory(ConferenceFactory)
 
 
 class PersonaFactory(DjangoModelFactory):
@@ -48,6 +57,7 @@ class PersonaFactory(DjangoModelFactory):
     performer_profile = factory.LazyAttribute(lambda a: a.contact)
     name = factory.Sequence(lambda n:'Test Persona %d' % n)
     experience = 4
+
 
 class TroupeFactory(DjangoModelFactory):
     class Meta:
@@ -63,6 +73,7 @@ class ComboFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n:'Test Combo %d' % n)
     experience = 5
 
+
 class AudioInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.AudioInfo
@@ -76,12 +87,12 @@ class AudioInfoFactory(DjangoModelFactory):
     notes = "Notes about test AudioInfo object."
     confirm_no_music = False
 
+
 class LightingInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.LightingInfo
     notes = "Notes field for test LightingInfo object."
     costume = "Costume field for test LightingInfo object."
-
 
 
 class StageInfoFactory(DjangoModelFactory):
@@ -95,8 +106,8 @@ class StageInfoFactory(DjangoModelFactory):
     cue_props = False
     clear_props = False
     notes = "Notes field for test StageInfo object"
-
-
+    
+    
 class TechInfoFactory(DjangoModelFactory):  
     class Meta:
         model = conf.TechInfo
@@ -130,6 +141,8 @@ class ActFactory(DjangoModelFactory):
     video_choice = ""
     shows_preferences = ""
     why_you = "why_you field for test Act"
+    conference = SubFactory(ConferenceFactory)
+
 
 class RoomFactory(DjangoModelFactory):
     class Meta:
@@ -148,12 +161,7 @@ class EventFactory(DjangoModelFactory):
     description = factory.LazyAttribute(lambda a:"Description for %s" % a.title)
     blurb = factory.LazyAttribute("Blurb for %s" % title)
     duration = Duration(hours=2)
-
-
-class ShowFactory(DjangoModelFactory):
-    class Meta:
-        model = conf.Show
-    pass
+    conference = SubFactory(ConferenceFactory)
 
 
 class GenericEventFactory(DjangoModelFactory):
@@ -162,6 +170,7 @@ class GenericEventFactory(DjangoModelFactory):
 
     type = 'Special'
     volunteer_category = 'VA0'
+    conference = SubFactory(ConferenceFactory)
 
 
 class ClassFactory(DjangoModelFactory):
@@ -183,6 +192,7 @@ class ClassFactory(DjangoModelFactory):
     physical_restrictions = factory.LazyAttribute(lambda a:"physical restrictions for test Class %s"
                                                   % a.title)
     multiple_run =  "No"
+    conference = SubFactory(ConferenceFactory)
 
 
 class BidEvaluationFactory(DjangoModelFactory):
@@ -212,7 +222,7 @@ class VolunteerFactory(DjangoModelFactory):
     pre_event = False
     background = factory.LazyAttribute(lambda a: "Background for test Volunteer #%s" %
                                          a.profile.display_name)
-
+    conference = SubFactory(ConferenceFactory)
 
 
 class VendorFactory(DjangoModelFactory):
@@ -227,6 +237,7 @@ class VendorFactory(DjangoModelFactory):
     want_help = False
     help_description = factory.LazyAttribute(lambda a: "Help description for test Volunteer")
     help_times = factory.LazyAttribute(lambda a: "Help times for test Volunteer")
+    conference = SubFactory(ConferenceFactory)
 
 
 class ClassProposalFactory(DjangoModelFactory):
@@ -239,7 +250,7 @@ class ClassProposalFactory(DjangoModelFactory):
     proposal = factory.LazyAttribute(lambda a: "Proposal titled %s" % a.title)
     type = 'Class'
     display = False
-
+    conference = SubFactory(ConferenceFactory)
 
 
 class ConferenceVolunteerFactory(DjangoModelFactory):
@@ -253,7 +264,6 @@ class ConferenceVolunteerFactory(DjangoModelFactory):
     volunteering = True
 
 
-
 class ProfilePreferencesFactory(DjangoModelFactory):
     class Meta:
         model = conf.ProfilePreferences
@@ -262,6 +272,7 @@ class ProfilePreferencesFactory(DjangoModelFactory):
     in_hotel = "No"
     inform_about = True
     show_hotel_infobox = True
+
 
 
 

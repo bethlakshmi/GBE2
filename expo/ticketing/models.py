@@ -5,6 +5,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from gbe.models import Conference
 
 # Create your models here.
     
@@ -44,6 +45,9 @@ class BrownPaperEvents(models.Model):
     include_most = models.BooleanField(default=False)
     badgeable = models.BooleanField(default=False)
     ticket_style = models.CharField(max_length=50, blank=True)
+    conference = models.ForeignKey('gbe.Conference',
+                                   related_name='ticketing_item',
+                                   default=lambda: Conference.objects.filter(status="upcoming").first())
     
     def __unicode__(self):
         return self.bpt_event_id

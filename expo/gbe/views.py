@@ -1,8 +1,15 @@
+from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.forms import UserCreationForm
 from django.template import loader, RequestContext, Context
-from gbe.models import Event, Act, Performer
+from gbe.models import (
+    Event, 
+    Act, 
+    Performer,
+)
 from gbe.forms import *
 from gbe.functions import *
 from gbe.ticketing_idd_interface import *
@@ -10,10 +17,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 import gbe_forms_text
 from ticketingfuncs import compute_submission
-from django.core.urlresolvers import reverse
 from duration import Duration
 from scheduler.functions import set_time_format
-from scheduler.models import Event, ResourceAllocation, ActResource
+from scheduler.models import (
+    Event as sEvent,
+    ResourceAllocation, 
+    ActResource,
+    Worker, 
+)
 
 
 def down(request):
@@ -46,7 +57,7 @@ def index(request):
     context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
 
-
+@login_required
 def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
@@ -95,24 +106,26 @@ def landing_page(request, profile_id=None):
                                 'url': url,
                                 'action': "Review",
                                 'bid_type': bid_type}]
-        context = RequestContext(request,
-                                 {'profile': viewer_profile,
-                                  'standard_context': standard_context,
-                                  'personae': viewer_profile.get_personae(),
-                                  'troupes': viewer_profile.get_troupes(),
-                                  'combos': viewer_profile.get_combos(),
-                                  'acts': viewer_profile.get_acts(),
-                                  'shows': viewer_profile.get_shows(),
-                                  'classes': viewer_profile.is_teaching(),
-                                  'proposed_classes': viewer_profile.proposed_classes(),
-                                  'vendors': Vendor.objects.filter(profile=viewer_profile),
-                                  'volunteering': viewer_profile.get_volunteerbids(),
-                                  'review_items': bids_to_review,
-                                  'bookings': viewer_profile.get_schedule(),
-                                  'tickets': get_purchased_tickets(viewer_profile.user_object),
-                                  'acceptance_states': acceptance_states,
-                                  'admin_message': admin_message,
-                                 })
+
+        context = RequestContext(
+            request,
+            {'profile': viewer_profile,
+             'standard_context': standard_context,
+             'personae': viewer_profile.get_personae(),
+             'troupes': viewer_profile.get_troupes(),
+             'combos': viewer_profile.get_combos(),
+             'acts': viewer_profile.get_acts(),
+             'shows': viewer_profile.get_shows(),
+             'classes': viewer_profile.is_teaching(),
+             'proposed_classes': viewer_profile.proposed_classes(),
+             'vendors': Vendor.objects.filter(profile=viewer_profile),
+             'volunteering': viewer_profile.get_volunteerbids(),
+             'review_items': bids_to_review,
+             'bookings': viewer_profile.get_schedule(),
+             'tickets': get_purchased_tickets(viewer_profile.user_object),
+             'acceptance_states': acceptance_states,
+             'admin_message': admin_message
+         })
     else:
         context = RequestContext(request,
                                  {'standard_context': standard_context})
@@ -194,7 +207,9 @@ def edit_troupe(request, troupe_id=None):
     else:
         troupe = Troupe()
 
-    if troupe_id > 0 and request.user and troupe.contact != request.user.profile:
+    if (troupe_id > 0 and 
+        request.user and 
+        troupe.contact != request.user.profile):
         return HttpResponseRedirect(reverse('troupe_view',
                                             urlconf='gbe.urls',
                                             args=[str(troupe_id)]))
@@ -206,9 +221,10 @@ def edit_troupe(request, troupe_id=None):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             q = Profile.objects.filter(resourceitem_id=profile.resourceitem_id)
-            form.fields['contact'] = forms.ModelChoiceField(queryset=q,
-                                                            empty_label=None,
-                                                            label=persona_labels['contact'])
+            form.fields['contact'] = forms.ModelChoiceField(
+                queryset=q,
+                empty_label=None,
+                label=persona_labels['contact'])
             return render(request,
                           'gbe/bid.tmpl',
                           {'forms': [form],
@@ -219,9 +235,10 @@ def edit_troupe(request, troupe_id=None):
     else:
         form = TroupeForm(instance=troupe, initial={'contact': profile})
         q = Profile.objects.filter(resourceitem_id=profile.resourceitem_id)
-        form.fields['contact'] = forms.ModelChoiceField(queryset=q,
-                                                        empty_label=None,
-                                                        label=persona_labels['contact'])
+        form.fields['contact'] = forms.ModelChoiceField(
+            queryset=q,
+            empty_label=None,
+            label=persona_labels['contact'])
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
@@ -245,11 +262,12 @@ def view_troupe(request, troupe_id=None):
 
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
     form = TroupeForm(instance=troupe, prefix='The Troupe')
-    owner = ParticipantForm(instance=profile,
-                            prefix='Troupe Contact',
-                            initial={'email': profile.user_object.email,
-                                     'first_name': profile.user_object.first_name,
-                                     'last_name': profile.user_object.last_name})
+    owner = ParticipantForm(
+        instance=profile,
+        prefix='Troupe Contact',
+        initial={'email': profile.user_object.email,
+                 'first_name': profile.user_object.first_name,
+                 'last_name': profile.user_object.last_name})
 
     return render(request,
                   'gbe/bid_view.tmpl',
@@ -379,7 +397,10 @@ def bid_act(request):
             form = ActEditDraftForm(request.POST,
                                     prefix='theact')
         if form.is_valid():
+            #hack
+            conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
+            act.conference = conference
             techinfo = TechInfo()
             audioinfoform = AudioInfoForm(request.POST, prefix='theact')
             techinfo.audio = audioinfoform.save()
@@ -502,15 +523,16 @@ def edit_act(request, act_id):
                                    'act_duration': stage_info.act_duration
                                })
         else:
-            form = ActEditDraftForm(request.POST,
-                                    instance=act,
-                                    prefix='theact',
-                                    initial={
-                                        'track_title': audio_info.track_title,
-                                        'track_artist': audio_info.track_artist,
-                                        'track_duration': audio_info.track_duration,
-                                        'act_duration': stage_info.act_duration
-                                    })
+            form = ActEditDraftForm(
+                request.POST,
+                instance=act,
+                prefix='theact',
+                initial={
+                    'track_title': audio_info.track_title,
+                    'track_artist': audio_info.track_artist,
+                    'track_duration': audio_info.track_duration,
+                    'act_duration': stage_info.act_duration
+                })
         audioform = AudioInfoForm(request.POST, prefix='theact',
                                   instance=audio_info)
         stageform = StageInfoForm(request.POST, prefix='theact',
@@ -651,10 +673,10 @@ def review_act(request, act_id):
         # current workflow and lets me order by date.  Also - assumes
         # that shows are only scheduled once
         try:
-            start = Show.objects.all().filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+            start = Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
         except:
             start = ""
-        q = Show.objects.all().filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime')
+        q = Show.objects.filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime')
         actionform.fields['show'] = forms.ModelChoiceField(
             queryset=q,
             empty_label=None,
@@ -671,7 +693,8 @@ def review_act(request, act_id):
     if user has previously reviewed the act, provide their review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, 
+                                                evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
 
@@ -714,7 +737,8 @@ def review_act_list(request):
         header = Act().bid_review_header
         acts = Act.objects.filter(submitted=True).order_by('accepted',
                                                            'performer')
-        review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 'evaluator')
+        review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 
+                                                                                                   'evaluator')
         rows = []
         for act in acts:
             bid_row = {}
@@ -739,7 +763,8 @@ def act_changestate(request, bid_id):
     the act to the selected show (if accepted/waitlisted), and then does
     the regular state change
     NOTE: only call on a post request
-    BB - I'd like to refactor this to be the same as volunteer form, but not right now - 2015?
+    BB - I'd like to refactor this to be the same as volunteer form, but 
+    not right now - 2015?
     '''
     def act_accepted(request):
         return (request.POST['show'] and
@@ -756,9 +781,10 @@ def act_changestate(request, bid_id):
 
         # if the act has been accepted, set the show.
         if act_accepted(request):
-            # Cast the act into the show by adding it to the schedule resource time
+            # Cast the act into the show by adding it to the schedule 
+            # resource time
             allocation_format = set_time_format(days=2)
-            show = get_object_or_404(Event,
+            show = get_object_or_404(sEvent,
                                      eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
             casting.event = show
@@ -767,8 +793,12 @@ def act_changestate(request, bid_id):
             for worker in act.get_performer_profiles():
                 conflicts = worker.get_conflicts(show)
                 for problem in conflicts:
-                    messages.warning(request, str(worker) + " is booked for - " + str(problem) +
-                                     " - " + problem.starttime.strftime(time_format))
+                    messages.warning(request, 
+                                     str(worker) + " is booked for - " + 
+                                     str(problem) + " - " + 
+                                     problem.starttime.strftime(allocation_format)
+                    )
+                                     
             casting.resource = actresource
             casting.save()
     return bid_changestate(request, bid_id, 'act_review_list')
@@ -786,8 +816,8 @@ def submit_act(request, act_id):
                       'gbe/error.tmpl',
                       {'error': "You don't own that act."})
     else:
-        the_act.submitted = True             # Should show a review screen with a submit button
-        the_act.save()                       # but I want to review how bid review is working to
+        the_act.submitted = True            
+        the_act.save()                      
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
@@ -826,12 +856,14 @@ def bid_class(request):
             form = ClassBidDraftForm(request.POST)
 
         if form.is_valid():
+            conference = Conference.objects.filter(accepting_bids=True).first()
             new_class = form.save(commit=False)
             new_class.duration = Duration(minutes=new_class.length_minutes)
             new_class = form.save(commit=True)
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
+                    new_class.conference=conference
                     new_class.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
@@ -1091,7 +1123,12 @@ def create_volunteer(request):
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
-            volunteer = form.save()
+            
+            volunteer = form.save(commit=False)
+            #hack
+            conference = Conference.objects.filter(accepting_bids=True).first()
+            volunteer.conference = conference                
+            volunteer.profile = profile
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
@@ -1220,12 +1257,22 @@ def review_volunteer_list(request):
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
-    review_query = BidEvaluation.objects.filter(bid=volunteers).select_related('evaluator').order_by('bid', 'evaluator')
+    review_query = BidEvaluation.objects.filter(
+        bid=volunteers
+    ).select_related(
+            'evaluator'
+    ).order_by('bid', 'evaluator')
+
     rows = []
     for volunteer in volunteers:
         bid_row = {}
         bid_row['bid'] = volunteer.bid_review_summary
-        bid_row['reviews'] = review_query.filter(bid=volunteer.id).select_related('evaluator').order_by('evaluator')
+        bid_row['reviews'] = review_query.filter(
+            bid=volunteer.id
+        ).select_related(
+            'evaluator'
+        ).order_by('evaluator')
+
         bid_row['id'] = volunteer.id
         bid_row['review_url'] = reverse('volunteer_review',
                                         urlconf='gbe.urls',
@@ -1430,6 +1477,9 @@ def create_vendor(request):
     if request.method == 'POST':
         form = VendorBidForm(request.POST, request.FILES)
         if form.is_valid():
+            conference = Conference.objects.filter(accepting_bids=True).first()
+            vendor = form.save(commit=False)
+            vendor.conference = conference
             vendor = form.save()
         else:
             return render(request,
@@ -1455,6 +1505,8 @@ def create_vendor(request):
                 '''
                 if (verify_vendor_app_paid(request.user.username)):
                     vendor.submitted = True
+                    conference = Conference.objects.filter(accepting_bids=True).first()
+                    vendor.conference = conference
                     vendor.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
@@ -1998,8 +2050,7 @@ def conference_volunteer(request):
                 if not form.is_valid():
                     return render(request, 'gbe/error.tmpl',
                                   {'error': conf_volunteer_save_error})
-
-                volunteer, created = ConferenceVolunteer.objects.get_or_create(
+                volunteer, created = ConferenceVolunteer.objects.get_or_create(                    
                     presenter=form.cleaned_data['presenter'],
                     bid=aclass,
                     defaults=form.cleaned_data)
@@ -2094,9 +2145,6 @@ def bios_teachers(request):
     Display the teachers bios.  Teachers are anyone teaching,
     moderating or being a panelist.
     '''
-    from scheduler.models import Worker, ResourceAllocation, Event
-    from django.db.models import Q
-
     try:
         performers = Performer.objects.all()
         commits = ResourceAllocation.objects.all()
@@ -2246,7 +2294,7 @@ def edit_act_techinfo(request, act_id):
     else:
         rehearsal_forms = []
     if request.method == 'POST':
-        from scheduler.models import Event as sEvent
+#        from scheduler.models import Event as sEvent
         if 'rehearsal' in request.POST:
             rehearsal = get_object_or_404(sEvent,
                                           id=request.POST['rehearsal'])

@@ -21,6 +21,13 @@ stageinfo_incomplete_warning = "Please confirm that you have no props requiremen
 lightinginfo_incomplete_warning = "Please check your lighting info."
 audioinfo_incomplete_warning = "Please confirm that you will have no audio playback for your performance"
 
+
+conference_statuses = (
+    ('upcoming', 'upcoming'),
+    ('ongoing', 'ongoing'),
+    ('completed', 'completed'),
+    )
+
 landing_page_no_profile_alert = "There's been an issue with your registration. Contact registrar@burlesque-expo.com"
 
 phone_number_format_error = '''Phone numbers must be in a standard US format, \
@@ -51,11 +58,20 @@ act_alerts = {
     }
    
 
-act_shows_options  = [ (0, 'The Bordello (Fri. Late)'), 
-                       (1, 'The Main Event, in competition'),
-                       (2, 'The Main Event, not in competition'), 
-                       (3, 'The Newcomer\'s Showcase'),
-                       ]
+act_shows_options = [ (0, 'The Bordello (Fri. Late)'), 
+                      (1, 'The Main Event, in competition'),
+                      (2, 'The Main Event, not in competition'), 
+                      (3, 'The Newcomer\'s Showcase'),
+                    ]
+
+act_other_perf_options = [ (0, "Go-go dance during one or more of the shows \
+                                (we'll ask which one later)"), 
+                           (1, 'Be part of the opening number for The Main \
+                                Event'),
+                           (2, 'Model in the Fashion Show (Sunday afternoon)'),
+                           (3, 'Model in the Swimsuit Show (Saturday night \
+                                late)'),
+                         ]
 
 all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 

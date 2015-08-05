@@ -3,11 +3,14 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from itertools import chain
 from django.db.models import Q
-from scheduler.models import (EventItem,
-                              LocationItem,
-                              WorkerItem,
-                              ActItem,
-                              ResourceAllocation)
+from scheduler.models import (
+    Schedulable,
+    EventItem,
+    LocationItem,
+    WorkerItem,
+    ActItem,
+    ResourceAllocation
+)
 from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
@@ -23,6 +26,23 @@ import pytz
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
+class Conference(models.Model):
+    conference_name = models.CharField(max_length=128)
+    conference_slug = models.SlugField()
+    status = models.CharField(choices=conference_statuses, 
+                                   max_length=50,
+                                   default='upcoming')
+    accepting_bids = models.BooleanField(default=False)
+    
+    def __unicode__(self):
+        return self.conference_name
+
+    class Meta:
+        verbose_name="conference"
+        verbose_name_plural="conferences"
+        
+    
+
 class Biddable(models.Model):
     '''
     Abstract base class for items which can be Bid
@@ -36,7 +56,9 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
+
     class Meta:
         verbose_name="biddable item"
         verbose_name_plural = "biddable items"
@@ -49,7 +71,12 @@ class Biddable(models.Model):
 
     @property
     def ready_for_review(self):
-        return self.submitted and self.accepted == 0
+        return (self.submitted and 
+                self.accepted == 0)
+
+    @property
+    def is_current(self):
+        return self.conference.status == "upcoming"
 
 
 class Profile(WorkerItem):
@@ -171,7 +198,9 @@ class Profile(WorkerItem):
                                   reverse ('profile_update',
                                            urlconf=gbe.urls))
         for act in self.get_acts():
-            if act.accepted==3 and (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
+            if act.accepted==3 and \
+               act.is_current and \
+               (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
                 profile_alerts.append(gbetext.profile_alerts['schedule_rehearsal'] %
                                       (act.title, 
                                        reverse('act_techinfo_edit', 
@@ -180,7 +209,7 @@ class Profile(WorkerItem):
         return profile_alerts
 
     def get_volunteerbids(self):
-        return self.volunteering.all()
+        return [vbid for vbid in self.volunteering.all() if vbid.is_current]
 
     def get_performers(self):
         performers = self.get_personae()
@@ -234,14 +263,18 @@ class Profile(WorkerItem):
         Returns schedule as a list of Scheduler.Events
         NOTE:  Things that haven't been booked with start times won't be here.
         '''
-        from scheduler.models import Event
+        '''
+        from scheduler.models import Event as sEvent
         acts = self.get_acts()
-        events = sum([list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+        events = sum([list(sEvent.objects.filter(resources_allocated__resource__actresource___item=act))
                       for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
-            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
-        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+            events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=performer)]
+        events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=self)]
+        
         return sorted(set(events), key=lambda event: event.start_time)
+        '''
+        return []
 
     @property
     def schedule(self):
@@ -258,11 +291,14 @@ class Profile(WorkerItem):
         '''
         from scheduler.models import Event
         acts = self.get_acts()
-        events = sum([list(Event.objects.filter(resources_allocated__resource__actresource___item=act))
+        events = sum([list(Event.objects.filter(
+            resources_allocated__resource__actresource___item=act))
                   for act in acts if act.accepted==3], [])
         for performer in self.get_performers():
-            events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=performer)]
-        events += [e for e in Event.objects.filter(resources_allocated__resource__worker___item=self)]
+            events += [e for e in Event.objects.filter(
+                resources_allocated__resource__worker___item=performer)]
+        events += [e for e in Event.objects.filter(
+            resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
     def get_badge_name(self):
@@ -276,10 +312,11 @@ class Profile(WorkerItem):
         return a list of classes this user is teaching
         (not a list of classes they are taking, that's another list)
         '''
-        return self.workeritem.get_bookings('Teacher')
+        return [c for c in self.workeritem.get_bookings('Teacher') if c.is_current]
 
     def proposed_classes(self):
-        classes = sum([list(teacher.is_teaching.all()) for teacher in self.personae.all()], [])
+        classes = sum([list(teacher.is_teaching.all()) 
+                       for teacher in self.personae.all()], [])
 #        return list(set (classes))
         return classes
 
@@ -328,7 +365,6 @@ class Performer (WorkerItem):
     awards = models.TextField(blank=True)
     promo_image = models.FileField(upload_to="uploads/images",
                                    blank=True)
-
     festivals = models.TextField(blank=True)     # placeholder only
 
     def append_alerts(self, alerts):
@@ -351,11 +387,6 @@ class Performer (WorkerItem):
     def get_profiles(self):
         '''
         Gets all of the people performing in the act
-        BB - my theory is that this should really be an abstract class, and it
-        should be the subclasses, but we don't use Inheritance manager in GBE
-        and I'm not ready for that design change.
-        So... using None, because the Performer only has a contact
-        point, not actual humans actually performing
         '''
         return Performer.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_profiles()
 
@@ -704,10 +735,6 @@ class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
     Until approved, an Act is simply a proposal.
-    Note: Act contains only information about a particular item that
-    can occupy a particular time slot in a particular performance. All
-    information about performers is carried in Performer objects
-    linked to Acts.
     '''
     performer = models.ForeignKey(Performer,
                                   related_name='acts',
@@ -719,6 +746,7 @@ class Act (Biddable, ActItem):
                                     choices=video_options,
                                     blank=True)
     shows_preferences = models.TextField(blank=True)
+    other_performance = models.TextField(blank=True)
     why_you = models.TextField(blank=True)
 
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
@@ -730,8 +758,7 @@ class Act (Biddable, ActItem):
 
     def get_performer_profiles(self):
         '''
-        Gets all of the performer's involved in the act.
-        Useful for checking the schedules of the actual humans
+        Gets all of the performers involved in the act.
         '''
         return self.performer.get_profiles()
 
@@ -778,12 +805,14 @@ class Act (Biddable, ActItem):
                 'Order']
 
     @property
-    def visible(self):
+    def visible(self, current=True):
         return self.accepted == 3
+        
 
     @property
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
+
 
     @property
     def bid_review_header(self):
@@ -845,6 +874,7 @@ class Act (Biddable, ActItem):
         return (
             ['performer',
              'shows_preferences',
+             'other_performance',
              'title',
              'track_title',
              'track_artist',
@@ -903,7 +933,8 @@ class Event (EventItem):
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
-
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
     def __str__(self):
         return self.title
 
@@ -929,7 +960,12 @@ class Event (EventItem):
 
     @property
     def get_tickets(self):
-        return self.ticketing_item.all()
+        return [] #self.ticketing_item.all()
+    
+    @property
+    def is_current(self):
+        return self.conference.status == "upcoming"
+
 
     class Meta:
         ordering = ['title']
@@ -1113,6 +1149,7 @@ class Class(Biddable, Event):
     def bids_to_review(self):
         return type(self).objects.filter(submitted=True).filter(accepted=0)
 
+        
     @property
     def get_bid_fields(self):
         '''
@@ -1369,6 +1406,8 @@ class ClassProposal(models.Model):
                             choices=class_proposal_choices,
                             default='Class')
     display = models.BooleanField(default=False)
+    conference = models.ForeignKey(Conference,
+        default=lambda: Conference.objects.filter(status="upcoming").first())
 
     def __unicode__(self):
         return self.title
@@ -1412,6 +1451,7 @@ class ConferenceVolunteer(models.Model):
                                      default='Any of the Above')
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
+
 
     def __unicode__(self):
         return self.bid.title+": "+self.presenter.name

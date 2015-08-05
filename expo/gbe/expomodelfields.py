@@ -4,7 +4,9 @@ from expoformfields import DurationFormField
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 from duration import Duration
+from south.modelsinspector import add_introspection_rules
 
+add_introspection_rules([], ["^gbe\.expomodelfields\.DurationField"])
 
 class DurationField(IntegerField):
     __metaclass__ = models.SubfieldBase
