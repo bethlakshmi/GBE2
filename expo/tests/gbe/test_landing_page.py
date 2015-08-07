@@ -3,7 +3,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from gbe.views import landing_page
-import factories
+from tests.factories import gbe_factories as factories
 
 
 class TestIndex(TestCase):

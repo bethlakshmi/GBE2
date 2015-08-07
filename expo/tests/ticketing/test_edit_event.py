@@ -8,12 +8,10 @@ from django.test.client import RequestFactory
 from django.test import Client
 from ticketing.views import bptevent_edit
 from tests.factories import gbe_factories, ticketing_factories
+from tests.functions.gbe_functions import location
 import mock
 import gbe.tests as gbe_tests
 
-def location(response):
-    response_dict = dict(response.items())
-    return response_dict['Location']
 
 
 class TestEditBPTEvent(TestCase):
@@ -36,40 +34,47 @@ class TestEditBPTEvent(TestCase):
                 'include_conference': True,
                 'include_most': True,
                 'badgeable': True,
-                'ticket_style': 'ticket style'
+                'ticket_style': 'ticket style',
+                'conference': self.bpt_event.conference.pk
         }
     
     @nt.raises(Http404)
     def test_edit_event_user_is_not_ticketing(self):
+        '''
+            The user does not have the right privileges.  Fail with a 404
+        '''
         user = gbe_factories.ProfileFactory.create().user_object
         request = self.factory.get('/ticketing/bptevent_edit/%d'%self.bpt_event.pk)
         request.user = user
         response = bptevent_edit(request, self.bpt_event.pk)
 
-    def test_edit_event_authorized_user(self):
-        request = self.factory.get('/ticketing/bptevent_edit/%d'%self.bpt_event.pk)
-        request.user =  self.privileged_user
-        response = bptevent_edit(request, self.bpt_event.pk)
-        nt.assert_equal(response.status_code, 200)
-
     @nt.raises(Http404)        
     def test_edit_event_bad_bptevent(self):
+        '''
+           Unknown event submitted by valid user, should have an error
+           and resend same form (status 200)
+        '''
         request = self.factory.get('/ticketing/bptevent_edit/200')
         request.user =  self.privileged_user
         response = bptevent_edit(request, 200)
 
-    def test_class_edit_post_form_all_good(self):
-        # bptevent_edit, if form not valid, should return to ActEditForm
+    def test_event_edit_post_form_all_good(self):
+        '''
+            Good form, good user, return the main edit page
+        '''
         request = self.factory.post('/ticketing/bptevent_edit/%d'%self.bpt_event.pk,
                                     self.get_bptevent_form())
         request.user = self.privileged_user
         response = bptevent_edit(request, self.bpt_event.pk)
+        print(response)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/ticketing/ticket_items')
 
 
-    def test_class_edit_post_form_bad_event(self):
-        # bptevent_edit, if form not valid, should return to ActEditForm
+    def test_event_edit_post_form_bad_event(self):
+        '''
+            Invalid form data submitted, fail with error and return form
+        '''
         error_form = self.get_bptevent_form()
         error_form['linked_events'] = -1
         request = self.factory.post('/ticketing/bptevent_edit/%d'%self.bpt_event.pk,

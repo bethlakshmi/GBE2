@@ -4,11 +4,12 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_combo
-import factories
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from tests.factories import gbe_factories as factories
+from tests.functions.gbe_functions import (login_as,
+                                           is_login_page,
+                                           is_profile_update_page,
+                                           location)
+
 
 class TestCreateCombo(TestCase):
     '''Tests for create_combo view'''

@@ -4,10 +4,10 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_volunteer
-import factories
+from tests.factories import gbe_factories as factories
 import mock
 import gbe.ticketing_idd_interface 
-from functions import (login_as,
+from tests.functions.gbe_functions import (login_as,
                        is_login_page,
                        is_profile_update_page,
                        location)

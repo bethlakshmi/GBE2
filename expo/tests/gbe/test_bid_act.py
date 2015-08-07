@@ -4,13 +4,15 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import bid_act
-import factories
 import mock
 import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from tests.factories import gbe_factories as factories
+from tests.functions.gbe_functions import (login_as,
+                                           is_login_page,
+                                           is_profile_update_page,
+                                           location)
+
+
 
 class TestBidAct(TestCase):
     '''Tests for bid_act view'''
@@ -19,8 +21,9 @@ class TestBidAct(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
-        
-
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.accepting_bids = True
+        current_conference.save()
 
     def get_act_form(self):
         return {"theact-shows_preferences":[1],

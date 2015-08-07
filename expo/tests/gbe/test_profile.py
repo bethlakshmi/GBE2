@@ -1,4 +1,4 @@
-import factories
+from tests.factories import gbe_factories as factories
 import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
