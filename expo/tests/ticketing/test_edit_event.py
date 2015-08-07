@@ -66,6 +66,7 @@ class TestEditBPTEvent(TestCase):
                                     self.get_bptevent_form())
         request.user = self.privileged_user
         response = bptevent_edit(request, self.bpt_event.pk)
+        print(response)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/ticketing/ticket_items')
 
