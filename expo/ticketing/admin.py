@@ -55,13 +55,13 @@ class BPTEventsAdmin(admin.ModelAdmin):
                     'badgeable',
                     'ticket_style',
                     'include_conference',
-                    'include_most')
+                    'include_most',
+                    'conference')
     list_filter = ['primary',
                    'act_submission_event',
                    'vendor_submission_event',
                    'badgeable',
-                   'ticket_style']
-
+                   'conference']
 
 admin.site.register(BrownPaperSettings)
 admin.site.register(BrownPaperEvents, BPTEventsAdmin)

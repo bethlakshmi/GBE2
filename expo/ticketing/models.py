@@ -38,8 +38,8 @@ class BrownPaperEvents(models.Model):
     '''
     bpt_event_id = models.CharField(max_length=10)
     primary = models.BooleanField(default=False)  
-    act_submission_event = models.BooleanField(default=False)
-    vendor_submission_event = models.BooleanField(default=False)
+    act_submission_event = models.BooleanField(default=False, verbose_name='Act Fee')
+    vendor_submission_event = models.BooleanField(default=False, verbose_name='Vendor Fee')
     linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item', blank=True)
     include_conference = models.BooleanField(default=False)
     include_most = models.BooleanField(default=False)
