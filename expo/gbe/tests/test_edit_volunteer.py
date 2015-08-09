@@ -7,18 +7,14 @@ from django.test import Client
 from django.contrib.auth.models import Group
 from gbe.views import edit_volunteer
 import factories
-import mock
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from functions import login_as
+
 
 class TestEditVolunteer(TestCase):
     '''Tests for edit_volunteer view'''
 
     # this test case should be unnecessary, since edit_volunteer should go away
-    # for now, test it. 
+    # for now, test it.
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -26,13 +22,13 @@ class TestEditVolunteer(TestCase):
         self.performer = factories.PersonaFactory.create()
         self.privileged_profile = factories.ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        volunteer_reviewers, created = Group.objects.get_or_create(name='Volunteer Coordinator')
-        self.privileged_user.groups.add(volunteer_reviewers)
+        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
+        self.privileged_user.groups.add(group)
 
     def get_volunteer_form(self, submit=False, invalid=False):
-        form = {'profile':1,
-                'number_shifts':2,
-                'availability':('SH0',),
+        form = {'profile': 1,
+                'number_shifts': 2,
+                'availability': ('SH0',),
                 'interests': ('VA0',),
                 }
         if submit:
@@ -48,17 +44,18 @@ class TestEditVolunteer(TestCase):
         request = self.factory.get('/volunteer/edit/-1')
         request.user = profile.user_object
         response = edit_volunteer(request, -1)
-        
+
     @nt.raises(Http404)
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = factories.ProfileFactory.create().user_object
         volunteer = factories.VolunteerFactory.create()
-        request = self.factory.get('/volunteer/edit/%d'%volunteer.pk)
+        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
         request.user = user
         response = edit_volunteer(request, volunteer.pk)
 
 #    def test_volunteer_edit_post_form_not_valid(self):
-#        '''volunteer_edit, if form not valid, should return to VolunteerEditForm'''
+#        '''volunteer_edit, if form not valid, should return
+#        to VolunteerEditForm'''
 #        volunteer = factories.VolunteerFactory.create()
 #        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
 #        request.user = self.privileged_user
@@ -87,4 +84,3 @@ class TestEditVolunteer(TestCase):
 #        response = edit_volunteer(request, volunteer.pk)
 #        nt.assert_equal(response.status_code, 200)
 #        nt.assert_true('Edit Your Volunteer Proposal' in response.content)
-    

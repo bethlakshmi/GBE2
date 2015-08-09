@@ -6,6 +6,7 @@ import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
 
+
 class ConferenceFactory(DjangoModelFactory):
     class Meta:
         model = conf.Conference
@@ -14,9 +15,10 @@ class ConferenceFactory(DjangoModelFactory):
     conference_slug = factory.Sequence(lambda n: u"test_conf %d" % n)
     accepting_bids = False
 
+
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
-        model= sched.WorkerItem    
+        model = sched.WorkerItem
 
 
 class UserFactory(DjangoModelFactory):
@@ -27,7 +29,7 @@ class UserFactory(DjangoModelFactory):
     username = factory.LazyAttribute(lambda a: "%s" % (a.first_name))
     email = '%s@smith.com' % username
 
-    
+
 class ProfileFactory(DjangoModelFactory):
     class Meta:
         model = conf.Profile
@@ -39,8 +41,10 @@ class ProfileFactory(DjangoModelFactory):
     zip_code = '12345'
     country = 'USA'
     phone = '617-282-9268'
-    display_name=factory.LazyAttribute(lambda a: "%s_%s"%(a.user_object.first_name, 
-                                                          a.user_object.last_name))
+    display_name = factory.LazyAttribute(lambda a:
+                                         "%s_%s" % (a.user_object.first_name,
+                                                    a.user_object.last_name))
+
 
 class ShowFactory(DjangoModelFactory):
     class Meta:
@@ -56,7 +60,7 @@ class PersonaFactory(DjangoModelFactory):
         model = conf.Persona
     contact = SubFactory(ProfileFactory)
     performer_profile = factory.LazyAttribute(lambda a: a.contact)
-    name = factory.Sequence(lambda n:'Test Persona %d' % n)
+    name = factory.Sequence(lambda n: 'Test Persona %d' % n)
     experience = 4
 
 
@@ -64,14 +68,15 @@ class TroupeFactory(DjangoModelFactory):
     class Meta:
         model = conf.Troupe
     contact = SubFactory(ProfileFactory)
-    name = factory.Sequence(lambda n:'Test Troupe %d' % n)
+    name = factory.Sequence(lambda n: 'Test Troupe %d' % n)
     experience = 4
+
 
 class ComboFactory(DjangoModelFactory):
     class Meta:
         model = conf.Combo
     contact = SubFactory(ProfileFactory)
-    name = factory.Sequence(lambda n:'Test Combo %d' % n)
+    name = factory.Sequence(lambda n: 'Test Combo %d' % n)
     experience = 5
 
 
@@ -79,10 +84,10 @@ class AudioInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.AudioInfo
 
-    track_title  = factory.Sequence(lambda n:'Test Track Title %d' % n)
-    track_artist  = factory.Sequence(lambda n:'Test Track Artist %d' % n)
+    track_title = factory.Sequence(lambda n: 'Test Track Title %d' % n)
+    track_artist = factory.Sequence(lambda n: 'Test Track Artist %d' % n)
 #  no track for now  - do we mock this, or what?
-    track_duration  = Duration (minutes=5)
+    track_duration = Duration(minutes=5)
     need_mic = True
     own_mic = False
     notes = "Notes about test AudioInfo object."
@@ -100,16 +105,16 @@ class StageInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.StageInfo
 
-    act_duration = Duration(minutes = 5)
+    act_duration = Duration(minutes=5)
     intro_text = "intro text field for test StageInfo object"
     confirm = True
     set_props = False
     cue_props = False
     clear_props = False
     notes = "Notes field for test StageInfo object"
-    
-    
-class TechInfoFactory(DjangoModelFactory):  
+
+
+class TechInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.TechInfo
 
@@ -130,8 +135,8 @@ class CueInfoFactory(DjangoModelFactory):
     cyc_color = "WHITE"
     wash = "WHITE"
     sound_note = "sound_note field for test CueInfo object"
-    
-    
+
+
 class ActFactory(DjangoModelFactory):
     class Meta:
         model = conf.Act
@@ -149,17 +154,18 @@ class RoomFactory(DjangoModelFactory):
     class Meta:
         model = conf.Room
 
-    name = factory.Sequence(lambda x:"Test Room #%d" % x)
+    name = factory.Sequence(lambda x: "Test Room #%d" % x)
     capacity = 40
     overbook_size = 50
 
-    
+
 class EventFactory(DjangoModelFactory):
     class Meta:
         model = conf.Event
 
     title = factory.Sequence(lambda x: "Test Event #%d" % x)
-    description = factory.LazyAttribute(lambda a:"Description for %s" % a.title)
+    description = factory.LazyAttribute(lambda a:
+                                        "Description for %s" % a.title)
     blurb = factory.LazyAttribute("Blurb for %s" % title)
     duration = Duration(hours=2)
     conference = SubFactory(ConferenceFactory)
@@ -177,7 +183,7 @@ class GenericEventFactory(DjangoModelFactory):
 class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class
-    title = factory.Sequence(lambda x: "Test Class #%d" %x)
+    title = factory.Sequence(lambda x: "Test Class #%d" % x)
     teacher = SubFactory(PersonaFactory)
     minimum_enrollment = 1
     maximum_enrollment = 20
@@ -185,14 +191,17 @@ class ClassFactory(DjangoModelFactory):
     type = "Lecture"
     fee = 0
     length_minutes = 60
-    history =  factory.LazyAttribute(lambda a:"History for test Class %s"%a.title)
-    run_before = factory.LazyAttribute(lambda a:"run_before for test Class")
-    schedule_constraints = factory.LazyAttribute(lambda a: "schedule constraints for test Class %s" 
-                                                 % a.title)
-    space_needs = ''                    
-    physical_restrictions = factory.LazyAttribute(lambda a:"physical restrictions for test Class %s"
-                                                  % a.title)
-    multiple_run =  "No"
+    history = factory.LazyAttribute(
+        lambda a: "History for test Class %s" % a.title)
+    run_before = factory.LazyAttribute(
+        lambda a:
+        "run_before for test Class %s" % a.title)
+    schedule_constraints = factory.LazyAttribute(
+        lambda a: "schedule constraints for test Class %s" % a.title)
+    space_needs = ''
+    physical_restrictions = factory.LazyAttribute(
+        lambda a: "physical restrictions for test Class %s" % a.title)
+    multiple_run = 'No'
     conference = SubFactory(ConferenceFactory)
 
 
@@ -212,17 +221,22 @@ class VolunteerFactory(DjangoModelFactory):
 
     profile = SubFactory(ProfileFactory)
     number_shifts = 1
-    availability = factory.LazyAttribute(lambda a: "Availability for test Volunteer #%s" %
-                                         a.profile.display_name)
-    unavailability = factory.LazyAttribute(lambda a: "Unavailability for test Volunteer #%s" % 
-                                           a.profile.display_name)
-    interests = factory.LazyAttribute(lambda a: "Interests for test Volunteer #%s" % 
-                                         a.profile.display_name)
-    opt_outs = factory.LazyAttribute(lambda a: "Opt-outs for test Volunteer #%s" %
-                                         a.profile.display_name)
+    availability = factory.LazyAttribute(
+        lambda a: ("Availability for test Volunteer #%s" %
+                   a.profile.display_name))
+    unavailability = factory.LazyAttribute(
+        lambda a: ("Unavailability for test Volunteer #%s" %
+                   a.profile.display_name))
+    interests = factory.LazyAttribute(
+        lambda a: ("Interests for test Volunteer #%s" %
+                   a.profile.display_name))
+    opt_outs = factory.LazyAttribute(
+        lambda a: ("Opt-outs for test Volunteer #%s" %
+                   a.profile.display_name))
     pre_event = False
-    background = factory.LazyAttribute(lambda a: "Background for test Volunteer #%s" %
-                                         a.profile.display_name)
+    background = factory.LazyAttribute(
+        lambda a: ("Background for test Volunteer #%s" %
+                   a.profile.display_name))
     conference = SubFactory(ConferenceFactory)
 
 
@@ -236,8 +250,11 @@ class VendorFactory(DjangoModelFactory):
     publish_physical_address = False
 #    logo = models.FileField(upload_to="uploads/images", blank=True)
     want_help = False
-    help_description = factory.LazyAttribute(lambda a: "Help description for test Volunteer")
-    help_times = factory.LazyAttribute(lambda a: "Help times for test Volunteer")
+    help_description = factory.LazyAttribute(
+        lambda a: "Help description for Test Volunteer #%s" %
+        a.profile.display_name)
+    help_times = factory.LazyAttribute(lambda a:
+                                       "Help times for test Volunteer")
     conference = SubFactory(ConferenceFactory)
 
 
@@ -245,9 +262,10 @@ class ClassProposalFactory(DjangoModelFactory):
     class Meta:
         model = conf.ClassProposal
 
-    title = factory.Sequence(lambda x:"Class Proposal %d: Title" % x)
-    name = factory.Sequence(lambda x:"Class Proposal %d: Name of Proposer" % x)
-    email = factory.Sequence(lambda x:"john%d@gmail.com" % x)
+    title = factory.Sequence(lambda x: "Class Proposal %d: Title" % x)
+    name = factory.Sequence(lambda x:
+                            "Class Proposal %d: Name of Proposer" % x)
+    email = factory.Sequence(lambda x: "john%d@gmail.com" % x)
     proposal = factory.LazyAttribute(lambda a: "Proposal titled %s" % a.title)
     type = 'Class'
     display = False
@@ -273,9 +291,3 @@ class ProfilePreferencesFactory(DjangoModelFactory):
     in_hotel = "No"
     inform_about = True
     show_hotel_infobox = True
-
-
-
-
-
-
