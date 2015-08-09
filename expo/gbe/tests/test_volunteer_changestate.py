@@ -8,7 +8,7 @@ from gbe.views import volunteer_changestate
 import factories
 import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
+import gbe.ticketing_idd_interface
 from functions import (login_as,
                        is_login_page,
                        is_profile_update_page,

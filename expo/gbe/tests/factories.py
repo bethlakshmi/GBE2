@@ -1,6 +1,6 @@
 import factory
 from factory import DjangoModelFactory
-from factory import SubFactory
+from factory import SubFactory, RelatedFactory
 import gbe.models as conf
 import scheduler.models as sched
 from gbe.duration import Duration
@@ -10,9 +10,10 @@ class ConferenceFactory(DjangoModelFactory):
     class Meta:
         model = conf.Conference
 
-    conference_name = "Test Conference"
-    conference_slug = slugify(u"test_conf")
-    
+    conference_name = factory.Sequence(lambda n: "Test Conference %d" % n)
+    conference_slug = factory.Sequence(lambda n: u"test_conf %d" % n)
+    accepting_bids = False
+
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
         model= sched.WorkerItem    
@@ -141,7 +142,7 @@ class ActFactory(DjangoModelFactory):
     video_choice = ""
     shows_preferences = ""
     why_you = "why_you field for test Act"
-    conference = SubFactory(ConferenceFactory)
+    conference = RelatedFactory(ConferenceFactory)
 
 
 class RoomFactory(DjangoModelFactory):

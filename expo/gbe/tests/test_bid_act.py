@@ -71,6 +71,7 @@ class TestBidAct(TestCase):
 
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
+        factories.ConferenceFactory.create(accepting_bids=True)
         profile = factories.ProfileFactory.create()
         request = self.factory.get('/act/create')
         request.user = profile.user_object
@@ -92,6 +93,7 @@ class TestBidAct(TestCase):
         '''act_bid, submitting, user has paid, should save and redirect to home'''
 #        nt.assert_true(gbe.ticketing_idd_interface.verify_performer_app_paid(self))
         profile = factories.ProfileFactory.create()
+        factories.ConferenceFactory.create(accepting_bids=True)
         request = self.factory.get('/act/create')
         request.user = profile.user_object
         request.user = self.performer.performer_profile.user_object
@@ -110,6 +112,7 @@ class TestBidAct(TestCase):
 
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems, should redirect to home'''
+        factories.ConferenceFactory.create(accepting_bids=True)
         request = self.factory.get('/act/create')
         request.user = self.performer.performer_profile.user_object
         request.method='POST'
