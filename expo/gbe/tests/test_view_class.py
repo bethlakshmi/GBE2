@@ -5,10 +5,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_class
 import factories
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+
 
 class TestViewClass(TestCase):
     '''Tests for view_class view'''
@@ -16,7 +13,6 @@ class TestViewClass(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.class_string = 'Tell Us About Your Class'
-
 
     def test_view_class(self):
         '''view_class view, success

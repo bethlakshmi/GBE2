@@ -7,13 +7,9 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_user_commitments
 import factories
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from functions import login_as
+
 
 class TestReviewUserCommitments(TestCase):
     '''Tests for review_user_commitments view'''
@@ -22,9 +18,9 @@ class TestReviewUserCommitments(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
-        volunteer_reviewers, created = Group.objects.get_or_create(name='Volunteer Coordinator')
+        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
         self.privileged_user = factories.ProfileFactory.create().user_object
-        self.privileged_user.groups.add(volunteer_reviewers)
+        self.privileged_user.groups.add(group)
 
     @nt.raises(Http404)
     def test_review_user_commitments_profile_does_not_exist(self):
@@ -32,7 +28,6 @@ class TestReviewUserCommitments(TestCase):
         request.user = self.privileged_user
         login_as(self.privileged_user, self)
         response = review_user_commitments(request, -1)
-
 
 '''
     def test_review_user_commitments_profile_exists(self):
@@ -45,5 +40,3 @@ class TestReviewUserCommitments(TestCase):
         response = review_user_commitments(request, other_profile.pk)
         nt.assert_equal(response.status_code, 200)
 '''
-
-

@@ -14,6 +14,7 @@ from functions import (login_as,
                        is_profile_update_page,
                        location)
 
+
 class TestVolunteerChangestate(TestCase):
     '''Tests for volunteer_changestate view'''
 
