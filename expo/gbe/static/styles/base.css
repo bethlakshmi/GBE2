@@ -86,6 +86,10 @@ div.right_col {
     bottom: 10%;
 }
 
+table.conf_list {
+    width: 100%;
+}
+
 div.reviewer_col{
     width:35%;
     margin: 10px;

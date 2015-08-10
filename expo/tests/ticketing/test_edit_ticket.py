@@ -14,8 +14,8 @@ import gbe.tests as gbe_tests
 
 
 
-class TestEditBPTEvent(TestCase):
-    '''Tests for bptevent_edit view'''
+class TestEditTicketItem(TestCase):
+    '''Tests for ticket_item_edit view'''
 
     def setUp(self):
         self.factory = RequestFactory()
