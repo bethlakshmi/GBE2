@@ -42,7 +42,7 @@ def validate_perms(request, perms, require=True):
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
     if require:                # error out if permission is required
-        raise Permission
+        raise PermissionDenied
     return False               # or just return false if we're just checking
 
 '''
