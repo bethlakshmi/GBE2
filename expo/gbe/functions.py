@@ -1,6 +1,7 @@
 import gbe.models as conf
 from django.http import Http404
 from django.core.mail import send_mail
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 
@@ -27,7 +28,7 @@ def validate_perms(request, perms, require=True):
     profile = validate_profile(request, require=False)
     if not profile:
         if require:
-            raise Http404
+            raise PermissionDenied
         else:
             return False
     if perms == 'any':
@@ -35,13 +36,13 @@ def validate_perms(request, perms, require=True):
             return profile
         else:
             if require:
-                raise Http404
+                raise PermissionDenied
             else:
                 return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
     if require:                # error out if permission is required
-        raise Http404
+        raise Permission
     return False               # or just return false if we're just checking
 
 '''

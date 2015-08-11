@@ -615,14 +615,11 @@ def edit_act(request, act_id):
 @login_required
 def view_act(request, act_id):
     '''
-    Show a bid  which needs to be reviewed by the current user.
-    To show: display all information about the bid, and a standard
-    review form.
-    If user is not a reviewer, politely decline to show anything.
+    Show a bid as a read-only form. 
     '''
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != request.user.profile:
-        raise Http404
+        raise PermissionDenied
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -651,9 +648,10 @@ def review_act(request, act_id):
     To show: display all information about the bid, and a standard
     review form.
     If user is not a reviewer, politely decline to show anything.
+    TODO: refactor to eliminate duplication between this and view_act
     '''
     reviewer = validate_perms(request, ('Act Reviewers', ))
-    act = get_object_or_404(Act, id=act_id)
+    act = get_object_or_404(Act, id=act_id, biddable_ptr__conference__status='upcoming')
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -667,16 +665,18 @@ def review_act(request, act_id):
     performer = PersonaForm(instance=act.performer,
                             prefix='The Performer(s)')
 
-    if 'Act Coordinator' in request.user.profile.privilege_groups:
+    if validate_perms(request, ('Act Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=act)
         # This requires that the show be scheduled - seems reasonable in
         # current workflow and lets me order by date.  Also - assumes
         # that shows are only scheduled once
         try:
-            start = Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+            start = Show.objects.filter(
+                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
         except:
             start = ""
-        q = Show.objects.filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime')
+        q = Show.objects.filter(
+            scheduler_events__isnull=False).order_by('scheduler_events__starttime')
         actionform.fields['show'] = forms.ModelChoiceField(
             queryset=q,
             empty_label=None,
@@ -693,8 +693,9 @@ def review_act(request, act_id):
     if user has previously reviewed the act, provide their review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, 
-                                                evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=act_id, 
+            evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
 
@@ -735,15 +736,24 @@ def review_act_list(request):
     reviewer = validate_perms(request, ('Act Reviewers',))
     try:
         header = Act().bid_review_header
-        acts = Act.objects.filter(submitted=True).order_by('accepted',
-                                                           'performer')
-        review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 
-                                                                                                   'evaluator')
+        acts = Act.objects.filter(
+            submitted=True).filter(
+                    biddable_ptr__conference__status='upcoming').order_by(
+                        'accepted',
+                        'performer')
+        review_query = BidEvaluation.objects.filter(
+            bid=acts).select_related(
+                'evaluator').order_by(
+                    'bid', 
+                    'evaluator')
         rows = []
         for act in acts:
             bid_row = {}
             bid_row['bid'] = act.bid_review_summary
-            bid_row['reviews'] = review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')
+            bid_row['reviews'] = review_query.filter(
+                bid=act.id).select_related(
+                    'evaluator').order_by(
+                        'evaluator')
             bid_row['id'] = act.id
             bid_row['review_url'] = reverse('act_review',
                                             urlconf='gbe.urls',
