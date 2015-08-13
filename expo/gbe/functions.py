@@ -50,9 +50,11 @@ def validate_perms(request, perms, require=True):
     Will always send using default_from_email
 '''
 def mail_to_group(subject, message, group_name):
+
     to_list = [user.email for user in 
                User.objects.filter(groups__name=group_name)]
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
+    if not settings.DEBUG:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
     return None
 
 

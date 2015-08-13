@@ -1051,7 +1051,11 @@ def review_class(request, class_id):
     '''
     reviewer = validate_perms(request, ('Class Reviewers',))
 
-    aclass = get_object_or_404(Class, id=class_id)
+    aclass = get_object_or_404(
+        Class, 
+        id=class_id,
+        biddable_ptr__conference__status='upcoming'
+    )
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
                           prefix='The Teacher(s)')
@@ -1062,7 +1066,7 @@ def review_class(request, class_id):
                  'first_name': aclass.teacher.performer_profile.user_object.first_name,
                  'last_name': aclass.teacher.performer_profile.user_object.last_name})
 
-    if 'Class Coordinator' in request.user.profile.privilege_groups:
+    if validate_perms(request, ('Class Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=aclass)
         actionURL = reverse('class_changestate',
                             urlconf='gbe.urls',
@@ -1121,8 +1125,11 @@ def review_class_list(request):
     reviewer = validate_perms(request, ('Class Reviewers', ))
 
     header = Class().bid_review_header
-    classes = Class.objects.filter(submitted=True).order_by('accepted',
-                                                            'title')
+    classes = Class.objects.filter(
+        submitted=True).filter(
+            biddable_ptr__conference__status='upcoming').order_by(
+            'accepted',
+            'title')
     review_query = BidEvaluation.objects.filter(
         bid=classes).select_related(
             'evaluator').order_by('bid',
@@ -1257,7 +1264,10 @@ def review_volunteer(request, volunteer_id):
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     if int(volunteer_id) == 0 and request.method == 'POST':
         volunteer_id = int(request.POST['volunteer'])
-    volunteer = get_object_or_404(Volunteer, id=volunteer_id)
+    volunteer = get_object_or_404(
+        Volunteer,
+        id=volunteer_id,
+        biddable_ptr__conference__status='upcoming')
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
                                prefix='The Volunteer')
@@ -1323,10 +1333,11 @@ def review_volunteer_list(request):
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     header = Volunteer().bid_review_header
-    volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
+    volunteers = Volunteer.objects.filter(
+        submitted=True).filter(
+            biddable_ptr__conference__status='upcoming').order_by('accepted')
     review_query = BidEvaluation.objects.filter(
-        bid=volunteers
-    ).select_related(
+        bid=volunteers).select_related(
         'evaluator'
     ).order_by('bid', 'evaluator')
 
@@ -1440,7 +1451,10 @@ def review_vendor(request, vendor_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Vendor Reviewers',))
-    vendor = get_object_or_404(Vendor, id=vendor_id)
+    vendor = get_object_or_404(
+        Vendor,
+        id=vendor_id,
+        biddable_ptr__conference__status='upcoming')
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance=vendor)
@@ -1497,8 +1511,11 @@ def review_vendor_list(request):
     reviewer = validate_perms(request, ('Vendor Reviewers',))
 
     header = Vendor().bid_review_header
-    vendors = Vendor.objects.filter(submitted=True).order_by('accepted',
-                                                             'title')
+    vendors = Vendor.objects.filter(
+        submitted=True).filter(
+            biddable_ptr__conference__status='upcoming').order_by(
+                'accepted',
+                'title')
     review_query = BidEvaluation.objects.filter(
         bid=vendors).select_related(
             'evaluator').order_by('bid',
