@@ -1,42 +1,58 @@
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import (
+    render,
+    get_object_or_404,
+    render_to_response,
+)
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    Http404,
+)
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import (
+    login,
+    logout,
+    authenticate,
+)
 from django.contrib.auth.forms import UserCreationForm
-from django.template import loader, RequestContext, Context
+from django.template import (
+    loader,
+    RequestContext,
+    Context,
+)
 from gbe.models import (
-    Event, 
-    Act, 
+    Event,
+    Act,
     Performer,
 )
 from gbe.forms import *
 from gbe.functions import *
 from gbe.ticketing_idd_interface import *
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout, authenticate
 import gbe_forms_text
 from ticketingfuncs import compute_submission
 from duration import Duration
 from scheduler.functions import set_time_format
 from scheduler.models import (
     Event as sEvent,
-    ResourceAllocation, 
+    ResourceAllocation,
     ActResource,
-    Worker, 
+    Worker,
 )
 
 
 def down(request):
     '''
-    Static "Site down" notice. Simply refers user to a static template 
+    Static "Site down" notice. Simply refers user to a static template
     with a message.
     '''
     template = loader.get_template('down.tmpl')
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
-    
+
 def index(request):
     '''
     one of two cases:
@@ -56,6 +72,7 @@ def index(request):
         pass
     context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
+
 
 @login_required
 def landing_page(request, profile_id=None):
@@ -81,8 +98,9 @@ def landing_page(request, profile_id=None):
             bid_type = ""
             if bid.__class__ == Act:
                 url = reverse('act_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
+                               urlconf='gbe.urls',
+                               args=[str(bid.id)]
+                )
                 bid_type = "Act"
             elif bid.__class__ == Class:
                 url = reverse('class_review',
@@ -137,6 +155,7 @@ def event(request, event_id):
     '''
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event': event})
+
 
 def techinfo(request):
     form = TechInfoForm()
@@ -397,7 +416,7 @@ def bid_act(request):
             form = ActEditDraftForm(request.POST,
                                     prefix='theact')
         if form.is_valid():
-            #hack
+            # hack
             conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
             act.conference = conference
@@ -2367,9 +2386,10 @@ def edit_act_techinfo(request, act_id):
         rehearsal_forms = [RehearsalSelectionForm(
             initial={'show': show, 'rehearsal_choices':
                      [(r.id, "%s: %s" % (
-                         r.as_subtype.title,
+                        r.as_subtype.title,
                          r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
-                           for (show, r_set) in rehearsal_sets.items()]
+                           for (show, r_set) in rehearsal_sets.items()
+        ]
     else:
         rehearsal_forms = []
     if request.method == 'POST':
