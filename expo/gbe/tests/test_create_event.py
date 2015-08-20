@@ -38,4 +38,3 @@ class TestCreateEvent(TestCase):
         request.POST['duration'] = duration
         create_event(request, 'Show')
         nt.assert_true(conf.Show.objects.filter(title=title).count() > 0)
-
