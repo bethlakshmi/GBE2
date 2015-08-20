@@ -21,8 +21,20 @@ class TestCreateEvent(TestCase):
         self.privileged_user = factories.ProfileFactory.create().user_object
         self.privileged_user.groups.add(group)
 
-    def test_create_event_authorized_user(self):
-        request = self.factory.get('create_event/Show')
+    def test_authorized_user_can_access(self):
+        request= self.factory.get('create_event/Show')
         request.user = self.privileged_user
         response = create_event(request, 'Show')
-        nt.assert_equal(response.status_code, 200)
+        nt.assert_equal(response.status_code, 200)    
+
+    def test_auth_user_can_create_show(self):
+        request = self.factory.post('create_event/Show')
+        request.user = self.privileged_user
+        title = 'The Big Show'
+        request.POST['title'] = title
+        description = 'Really Big Show'
+        request.POST['description'] = description
+        duration = '2:00:00'
+        request.POST['duration'] = duration
+        create_event(request, 'Show')
+        nt.assert_true(conf.Show.objects.filter(title=title).count() > 0)
