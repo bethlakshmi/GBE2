@@ -45,13 +45,9 @@ class TestEditVolunteer(TestCase):
         request = self.factory.get('/volunteer/edit/-1')
         request.user = profile.user_object
         response = edit_volunteer(request, -1)
-<<<<<<< HEAD
+
         
     @nt.raises(PermissionDenied)
-=======
-
-    @nt.raises(Http404)
->>>>>>> master
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = factories.ProfileFactory.create().user_object
         volunteer = factories.VolunteerFactory.create()
