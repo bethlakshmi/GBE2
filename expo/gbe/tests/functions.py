@@ -1,6 +1,7 @@
 import gbe.models as conf
 from django.contrib.auth.models import Group
 
+
 def user_for(user_or_profile):
     if type(user_or_profile) == conf.Profile:
         user = user_or_profile.user_object
@@ -9,6 +10,7 @@ def user_for(user_or_profile):
     else:
         raise ValueError("login_as requires a Profile or User")
     return user
+
 
 def login_as(user_or_profile, testcase):
     user = user_for(user_or_profile)
@@ -31,11 +33,14 @@ def grant_privilege(user_or_profile, privilege):
     else:
         user.groups.add(g)
 
+
 def is_login_page(response):
     return 'I forgot my password!' in response.content
 
+
 def is_profile_update_page(response):
     return 'Your privacy is very important to us' in response.content
+
 
 def location(response):
     response_dict = dict(response.items())

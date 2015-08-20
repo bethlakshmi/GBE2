@@ -7,13 +7,8 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_event
 import factories
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+
 
 class TestCreateEvent(TestCase):
     '''Tests for create_event view'''
@@ -43,4 +38,4 @@ class TestCreateEvent(TestCase):
         request.POST['duration'] = duration
         create_event(request, 'Show')
         nt.assert_true(conf.Show.objects.filter(title=title).count() > 0)
-        
+

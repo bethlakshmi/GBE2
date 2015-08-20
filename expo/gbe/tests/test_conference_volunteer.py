@@ -7,13 +7,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import conference_volunteer
 import factories
-import mock
-from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+
 
 class TestReviewProposalList(TestCase):
     '''Tests for conference_volunteer view'''
@@ -24,19 +18,14 @@ class TestReviewProposalList(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_class_form(self):
-        return { 'name': 'someone@host.com',
-                 'title': 'some class name', 
-                 'proposal': 'some class description'
-                 }
+        return {'name': 'someone@host.com',
+                'title': 'some class name',
+                'proposal': 'some class description'
+                }
 
     def test_conference_volunteer_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
-        request= self.factory.get('classpropose/reviewlist/')
-        request.user =  factories.ProfileFactory.create().user_object
+        request = self.factory.get('classpropose/reviewlist/')
+        request.user = factories.ProfileFactory.create().user_object
         response = conference_volunteer(request)
-        nt.assert_equal(response.status_code, 200)    
-        
-        
-    
-
-
+        nt.assert_equal(response.status_code, 200)
