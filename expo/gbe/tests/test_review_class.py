@@ -5,13 +5,9 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_class
 import factories
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from functions import login_as
+
 
 class TestReviewClass(TestCase):
     '''Tests for review_class view'''
@@ -22,9 +18,8 @@ class TestReviewClass(TestCase):
         self.performer = factories.PersonaFactory.create()
         self.privileged_profile = factories.ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        class_reviewers = Group(name='Class Reviewers')
-        class_reviewers.save()
-        self.privileged_user.groups.add(class_reviewers)
+        group, nil = Group.objects.get_or_create(name='Class Reviewers')
+        self.privileged_user.groups.add(group)
 
     def test_review_act_all_well(self):
         klass = factories.ClassFactory.create()

@@ -6,13 +6,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import submit_act
 import factories
-import mock
-from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+
 
 class TestSubmitAct(TestCase):
     '''Tests for submit_act view'''

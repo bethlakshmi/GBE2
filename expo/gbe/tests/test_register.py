@@ -7,13 +7,9 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import register
 import factories
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+from functions import login_as
+
 
 class TestRegister(TestCase):
     '''Tests for register  view'''
@@ -26,17 +22,8 @@ class TestRegister(TestCase):
         self.privileged_user = factories.ProfileFactory.create().user_object
         self.privileged_user.groups.add(registrar)
 
-
     def test_register_not_post(self):
-        import pdb; pdb.set_trace
-        request= self.factory.get('accounts/register')
+        request = self.factory.get('accounts/register')
         request.user = factories.UserFactory.create()
         response = register(request)
         nt.assert_equal(response.status_code, 200)
-        
-
-    
-        
-        
-
-
