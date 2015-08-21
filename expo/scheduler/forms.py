@@ -53,19 +53,25 @@ class EventScheduleForm(forms.ModelForm):
     day = forms.ChoiceField(choices = conference_days)
     time = forms.ChoiceField(choices = conference_times)
     location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all().order_by('room__name')])
-    duration = DurationFormField(help_text='Enter duration as HH:MM:SS')
+    duration = DurationFormField(
+                   help_text=scheduling_help_texts['description'])
     import gbe.models as conf
     teacher = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
     moderator = forms.ModelChoiceField(queryset = conf.Persona.objects.all(), required = False)
     panelists =  forms.ModelMultipleChoiceField(queryset = conf.Performer.objects.all(), required = False)
     staff_lead = forms.ModelChoiceField(queryset = conf.Profile.objects.all(), required = False)
-    description = forms.CharField(required=False, widget=forms.Textarea)
+    description = forms.CharField(required=False,
+                                  widget=forms.Textarea,
+                                  help_text=scheduling_help_texts['description'])
+    title = forms.CharField(required=False,
+                            help_text=scheduling_help_texts['title'])
 
     class Meta:
         model = Event
-        fields = ['day', 'time', 'location', 'duration', 'max_volunteer', 'teacher', 
-                  'moderator', 'panelists', 'staff_lead', 'description']
-        help_texts= {'duration':'Enter duration as HH:MM:SS'}
+        fields = ['day', 'time', 'location', 'duration', 'max_volunteer',
+                  'teacher', 'moderator', 'panelists', 'staff_lead', 'title',
+                  'description']
+        help_texts= scheduling_help_texts
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)

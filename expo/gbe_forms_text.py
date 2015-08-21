@@ -599,3 +599,9 @@ list_text = {
 }
 
 acceptance_note ='''Only accepted classes will show up in scheduling and on the website.'''
+
+scheduling_help_texts ={
+    'description': "Note, this will change the description for all bookings of this event",
+    'title': "Note, this will change the title for all bookings of this event",
+    'duration': "Enter duration as HH:MM:SS"
+}

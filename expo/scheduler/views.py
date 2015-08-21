@@ -94,8 +94,8 @@ def get_events_display_info(event_type = 'Class', time_format = None):
             entry['confitem'].sched_payload['details']['type'] = entry['confitem'].type
         eventinfo = {'title' : entry['confitem'].sched_payload['title'],
                      'duration': entry['confitem'].sched_payload['duration'],
-                    'type':entry['confitem'].sched_payload['details'].get('type', ''),
-                    'detail': reverse('detail_view', 
+                     'type':entry['confitem'].sched_payload['details'].get('type', ''),
+                     'detail': reverse('detail_view', 
                                       urlconf='scheduler.urls', 
                                       args = [entry['eventitem'].eventitem_id]),
                     }
@@ -342,7 +342,8 @@ def edit_event_display(request, item, errorcontext=None):
     initial['duration'] = item.duration
     initial['day'] = item.starttime.strftime("%Y-%m-%d")
     initial['time'] = item.starttime.strftime("%H:%M:%S")
-    initial['description'] = item.as_subtype.description
+    initial['description'] = item.as_subtype.sched_payload['description']
+    initial['title'] = item.as_subtype.sched_payload['title']
     initial['location'] = item.location
 
     allocs = ResourceAllocation.objects.filter(event = item)
@@ -355,6 +356,7 @@ def edit_event_display(request, item, errorcontext=None):
     # Set initial values for specialized event roles
     if len(teachers) > 0:
         initial['teacher'] = teachers[0].item
+    
     elif item.event_type_name == 'Class':
         try:
             initial['teacher'] = item.as_subtype.teacher
@@ -765,10 +767,11 @@ def contact_by_role(request, participant_type):
 
 def add_event(request, eventitem_id, event_type='class'):
     '''
-    Add an item to the conference schedule and/or set its schedule details (start
-    time, location, duration, or allocations)
-    Takes a scheduler.EventItem id - BB - separating new event from editing existing, so that
-    edit can identify particular schedule items, while this identifies the event item.
+    Add an item to the conference schedule and/or set its schedule details
+    (start time, location, duration, or allocations)
+    Takes a scheduler.EventItem id - BB - separating new event from editing
+    existing, so that edit can identify particular schedule items, while this
+    identifies the event item.
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
@@ -810,13 +813,14 @@ def add_event(request, eventitem_id, event_type='class'):
         else:
             raise Http404
     else:
-        duration = item.duration
+        initial_form_info = {'duration': item.duration,
+                   'description': item.sched_payload['description'],
+                   'title': item.sched_payload['title']
+                  }
         if item.__class__.__name__ == 'Class':
-            form =  EventScheduleForm( prefix='event', 
-                                       initial={'duration':duration,
-                                                'teacher': item.teacher})
-        else:
-            form =  EventScheduleForm( prefix='event', initial={'duration':duration})
+            initial_form_info['teacher'] = item.teacher
+            
+        form =  EventScheduleForm( prefix='event', initial=initial_form_info)
 
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)
