@@ -315,9 +315,10 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             if data['staff_lead']:
                 s_event.allocate_worker(data['staff_lead'].workeritem, 'Staff Lead')
                 
-            if data['description']:
+            if data['description'] or data['title']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
+                c_event.title = data['title']
                 c_event.save()
             return HttpResponseRedirect(reverse('edit_event', 
                                                 urlconf='scheduler.urls', 
