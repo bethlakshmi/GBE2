@@ -43,6 +43,9 @@ from scheduler.models import (
 )
 
 
+visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
+                     Q(biddable_ptr__conference__status='ongoing'))
+
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template
@@ -682,9 +685,9 @@ def review_act(request, act_id):
     reviewer = validate_perms(request, ('Act Reviewers', ))
     act = get_object_or_404(
         Act,
-        id=act_id,
-        biddable_ptr__conference__status='upcoming'
+        id=act_id
     )
+    
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -772,7 +775,7 @@ def review_act_list(request):
         header = Act().bid_review_header
         acts = Act.objects.filter(
             submitted=True).filter(
-                biddable_ptr__conference__status='upcoming').order_by(
+                visible_bid_query).order_by(
                     'accepted',
                     'performer')
         review_query = BidEvaluation.objects.filter(
@@ -1054,7 +1057,6 @@ def review_class(request, class_id):
     aclass = get_object_or_404(
         Class, 
         id=class_id,
-        biddable_ptr__conference__status='upcoming'
     )
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
@@ -1126,8 +1128,7 @@ def review_class_list(request):
 
     header = Class().bid_review_header
     classes = Class.objects.filter(
-        submitted=True).filter(
-            biddable_ptr__conference__status='upcoming').order_by(
+        submitted=True).filter(visible_bid_query).order_by(
             'accepted',
             'title')
     review_query = BidEvaluation.objects.filter(
@@ -1267,7 +1268,7 @@ def review_volunteer(request, volunteer_id):
     volunteer = get_object_or_404(
         Volunteer,
         id=volunteer_id,
-        biddable_ptr__conference__status='upcoming')
+    )
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
                                prefix='The Volunteer')
@@ -1335,7 +1336,7 @@ def review_volunteer_list(request):
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(
         submitted=True).filter(
-            biddable_ptr__conference__status='upcoming').order_by('accepted')
+            visible_bid_query).order_by('accepted')
     review_query = BidEvaluation.objects.filter(
         bid=volunteers).select_related(
         'evaluator'
@@ -1454,7 +1455,7 @@ def review_vendor(request, vendor_id):
     vendor = get_object_or_404(
         Vendor,
         id=vendor_id,
-        biddable_ptr__conference__status='upcoming')
+    )
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance=vendor)
@@ -1513,7 +1514,7 @@ def review_vendor_list(request):
     header = Vendor().bid_review_header
     vendors = Vendor.objects.filter(
         submitted=True).filter(
-            biddable_ptr__conference__status='upcoming').order_by(
+            visible_bid_query).order_by(
                 'accepted',
                 'title')
     review_query = BidEvaluation.objects.filter(

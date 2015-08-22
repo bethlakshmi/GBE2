@@ -35,7 +35,6 @@ class TestReports(TestCase):
         request.user = profile.user_object
         response = list_reports(request)
 
-
     def test_list_reports_fail(self):
         '''list_reports view should load
         '''
@@ -49,7 +48,6 @@ class TestReports(TestCase):
         response = list_reports(request)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_review_staff_area_not_visible_without_permission(self):
         profile = self.profile_factory.create()
@@ -57,7 +55,6 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request.user = profile.user_object
         response = review_staff_area(request)
-
 
     def test_review_staff_area_path(self):
         '''review_staff_area view should load
@@ -87,7 +84,6 @@ class TestReports(TestCase):
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_env_stuff_fail(self):
         '''env_stuff view should load for privileged users
@@ -98,7 +94,6 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request.user = profile.user_object
         response = env_stuff(request)
-
 
     def test_env_stuff_succeed(self):
         '''env_stuff view should load for privileged users
@@ -112,7 +107,6 @@ class TestReports(TestCase):
         response = env_stuff(request)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_personal_schedule_fail(self):
         '''personal_schedule view should load for privileged users
@@ -123,7 +117,6 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request.user = profile.user_object
         response = personal_schedule(request)
-
 
     def test_personal_schedule_succeed(self):
         '''personal_schedule view should load for privileged users
@@ -138,7 +131,6 @@ class TestReports(TestCase):
         response = personal_schedule(request)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_review_act_techinfo_fail(self):
         '''review_act_techinfo view should load for Tech Crew
@@ -149,7 +141,6 @@ class TestReports(TestCase):
         request = self.factory.get('reports/review_act_techinfo')
         request.user = profile.user_object
         response = review_act_techinfo(request)
-
 
     def test_review_act_techinfo_succeed(self):
         '''review_act_techinfo view should load for Tech Crew
@@ -163,10 +154,9 @@ class TestReports(TestCase):
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_room_schedule_fail(self):
-        '''room_schedule view should load for privileged users, 
+        '''room_schedule view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
@@ -175,7 +165,7 @@ class TestReports(TestCase):
         response = room_schedule(request)
 
     def test_room_schedule_succeed(self):
-        '''room_schedule view should load for privileged users, 
+        '''room_schedule view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
@@ -186,10 +176,9 @@ class TestReports(TestCase):
         response = room_schedule(request)
         self.assertEqual(response.status_code, 200)
 
-
     @nt.raises(PermissionDenied)
     def test_room_setup_not_visible_without_permission(self):
-        '''room_setup view should load for privileged users, 
+        '''room_setup view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
@@ -198,7 +187,7 @@ class TestReports(TestCase):
         response = room_setup(request)
 
     def test_room_setup_visible_with_permission(self):
-        '''room_setup view should load for privileged users, 
+        '''room_setup view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
@@ -208,7 +197,6 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
-
 
     @nt.raises(PermissionDenied)
     def test_export_badge_report_succeed(self):
