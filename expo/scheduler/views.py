@@ -85,31 +85,32 @@ def get_events_display_info(event_type = 'Class', time_format = None):
                              'confitem':ci,
                              'schedule_event':None}]
 
-                    
-
     eventslist = []
     for entry in eventitems:
         if ('type' not in entry['confitem'].sched_payload['details'].keys() or
-            entry['confitem'].sched_payload['details']['type']==''):
-            entry['confitem'].sched_payload['details']['type'] = entry['confitem'].type
-        eventinfo = {'title' : entry['confitem'].sched_payload['title'],
+                entry['confitem'].sched_payload['details']['type'] == ''):
+                entry['confitem'].sched_payload['details']['type'] = \
+                    entry['confitem'].type
+        eventinfo = {'title': entry['confitem'].sched_payload['title'],
                      'duration': entry['confitem'].sched_payload['duration'],
-                     'type':entry['confitem'].sched_payload['details'].get('type', ''),
-                     'detail': reverse('detail_view', 
-                                      urlconf='scheduler.urls', 
-                                      args = [entry['eventitem'].eventitem_id]),
-                    }
-        
+                     'type': entry['confitem'].sched_payload['details']
+                                              .get('type', ''),
+                     'detail': reverse('detail_view',
+                                       urlconf='scheduler.urls',
+                                       args=[entry['eventitem'].eventitem_id])}
+
         if entry['schedule_event']:
-            eventinfo ['edit'] = reverse('edit_event', urlconf='scheduler.urls', 
-                                         args =  [event_type,  entry['schedule_event'].id])
+            eventinfo ['edit'] = reverse('edit_event',
+                                         urlconf='scheduler.urls', 
+                                         args=[event_type,
+                                               entry['schedule_event'].id])
             eventinfo ['location'] = entry['schedule_event'].location
             eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
             eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
             eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo ['delete'] = reverse('delete_schedule', urlconf='scheduler.urls', 
                                          args =  [entry['schedule_event'].id])
-           
+
         else:
             eventinfo ['create'] = reverse('create_event', urlconf='scheduler.urls', 
                                          args =  [event_type, entry['eventitem'].eventitem_id])
@@ -300,45 +301,50 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             s_event.unallocate_role('Teacher')
             if data['teacher']:
                 s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()                        
+            s_event.save()
 
             s_event.unallocate_role('Moderator')
             if data['moderator']:
-                s_event.allocate_worker(data['moderator'].workeritem, 'Moderator')
+                s_event.allocate_worker(data['moderator'].workeritem,
+                                        'Moderator')
 
             s_event.unallocate_role('Panelist')
-            if len(data['panelists']) > 0 :
+            if len(data['panelists']) > 0:
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
-                    
+
             s_event.unallocate_role('Staff Lead')
             if data['staff_lead']:
-                s_event.allocate_worker(data['staff_lead'].workeritem, 'Staff Lead')
-                
+                s_event.allocate_worker(data['staff_lead'].workeritem,
+                                        'Staff Lead')
+
             if data['description'] or data['title']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
                 c_event.title = data['title']
                 c_event.save()
-            return HttpResponseRedirect(reverse('edit_event', 
-                                                urlconf='scheduler.urls', 
-                                                args=[event_type, scheduler_event_id]))
+            return HttpResponseRedirect(reverse('edit_event',
+                                                urlconf='scheduler.urls',
+                                                args=[event_type,
+                                                      scheduler_event_id]))
         else:
             raise Http404
     else:
         return edit_event_display(request, item)
-    
+
+
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
 
     template = 'scheduler/event_schedule.tmpl'
-    context =  {'user_id':request.user.id,
-                'event_id':item.id,
-                'event_edit_url': reverse('edit_event', 
-                                        urlconf='scheduler.urls', 
-                                        args = [item.event_type_name, item.id])}
+    context = {'user_id': request.user.id,
+               'event_id': item.id,
+               'event_edit_url': reverse('edit_event',
+                                         urlconf='scheduler.urls',
+                                         args=[item.event_type_name,
+                                               item.id])}
     context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
-    
+
     initial = {}
     initial['duration'] = item.duration
     initial['day'] = item.starttime.strftime("%Y-%m-%d")
@@ -347,29 +353,30 @@ def edit_event_display(request, item, errorcontext=None):
     initial['title'] = item.as_subtype.sched_payload['title']
     initial['location'] = item.location
 
-    allocs = ResourceAllocation.objects.filter(event = item)
-    workers = [Worker.objects.get(id = a.resource.id) for a in allocs if type(a.resource.item) == WorkerItem]
+    allocs = ResourceAllocation.objects.filter(event=item)
+    workers = [Worker.objects.get(id=a.resource.id)
+               for a in allocs if type(a.resource.item) == WorkerItem]
     teachers = [worker for worker in workers if worker.role == 'Teacher']
     moderators = [worker for worker in workers if worker.role == 'Moderator']
-    panelists = Performer.objects.filter(worker__role = 'Panelist', worker__allocations__event=item)
+    panelists = Performer.objects.filter(worker__role='Panelist',
+                                         worker__allocations__event=item)
     staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
-                
+
     # Set initial values for specialized event roles
     if len(teachers) > 0:
         initial['teacher'] = teachers[0].item
-    
+
     elif item.event_type_name == 'Class':
         try:
             initial['teacher'] = item.as_subtype.teacher
         except:
             pass
 
-    if len(moderators) >0:
+    if len(moderators) > 0:
         initial['moderator'] = moderators[0].item
-    if len(panelists) >0:
+    if len(panelists) > 0:
         initial['panelists'] = panelists
-        
-    if len(staff_leads) >0:
+    if len(staff_leads) > 0:
         initial['staff_lead'] = staff_leads[0].item
 
     context ['event_type']= item.event_type_name
@@ -750,15 +757,14 @@ def contact_by_role(request, participant_type):
         acceptance_dict = dict(acceptance_states)
         contacts = Vendor.objects.all()
         header = ['Business Name', 'Personal Name', 'Email', 'Status']
-        contact_info = [[v.title, 
-                        v.profile.display_name, 
-                        v.profile.contact_email, 
-                        acceptance_dict[v.accepted]] for v in contacts]
- 
-
+        contact_info = [[v.title,
+                         v.profile.display_name,
+                         v.profile.contact_email,
+                         acceptance_dict[v.accepted]] for v in contacts]
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s_contacts.csv' % participant_type
+    response['Content-Disposition'] = \
+        'attachment; filename=%s_contacts.csv' % participant_type
     writer = csv.writer(response)
     writer.writerow(header)
     for row in contact_info:
@@ -777,33 +783,33 @@ def add_event(request, eventitem_id, event_type='class'):
     profile = validate_perms(request, ('Scheduling Mavens',))
 
     try:
-        item = EventItem.objects.get_subclass(eventitem_id = eventitem_id)
+        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
     except:
-        raise Exception ("Error code XYZZY: Couldn't get an item for id")
-    
-    if request.method=='POST':
-        event_form = EventScheduleForm(request.POST, 
-                                     prefix='event')
-        if (event_form.is_valid()  and True):
-            s_event=event_form.save(commit=False)
+        raise Exception("Error code XYZZY: Couldn't get an item for id")
+
+    if request.method == 'POST':
+        event_form = EventScheduleForm(request.POST,
+                                       prefix='event')
+        if (event_form.is_valid() and True):
+            s_event = event_form.save(commit=False)
             s_event.eventitem = item
             data = event_form.cleaned_data
-                         
+
             if data['duration']:
                 s_event.set_duration(data['duration'])
-                            
-                         
-            l = LocationItem.objects.get_subclass(room__name = data['location'])
-            s_event.save()                        
+
+            l = LocationItem.objects.get_subclass(room__name=data['location'])
+            s_event.save()
             s_event.set_location(l)
             if data['teacher']:
                 s_event.unallocate_role('Teacher')
                 s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()                        
+            s_event.save()
             if data['moderator']:
                 s_event.unallocate_role('Moderator')
-                s_event.allocate_worker(data['moderator'].workeritem, 'Moderator')
-            if len(data['panelists']) > 0 :
+                s_event.allocate_worker(data['moderator'].workeritem,
+                                        'Moderator')
+            if len(data['panelists']) > 0:
                 s_event.unallocate_role('Panelist')
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
@@ -814,20 +820,19 @@ def add_event(request, eventitem_id, event_type='class'):
                 c_event.title = data['title']
                 c_event.save()
 
-            return HttpResponseRedirect(reverse('event_schedule', 
-                                                urlconf='scheduler.urls', 
+            return HttpResponseRedirect(reverse('event_schedule',
+                                                urlconf='scheduler.urls',
                                                 args=[event_type]))
         else:
             raise Http404
     else:
         initial_form_info = {'duration': item.duration,
-                   'description': item.sched_payload['description'],
-                   'title': item.sched_payload['title']
-                  }
+                             'description': item.sched_payload['description'],
+                             'title': item.sched_payload['title']}
         if item.__class__.__name__ == 'Class':
             initial_form_info['teacher'] = item.teacher
-            
-        form =  EventScheduleForm( prefix='event', initial=initial_form_info)
+
+        form = EventScheduleForm(prefix='event', initial=initial_form_info)
 
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)

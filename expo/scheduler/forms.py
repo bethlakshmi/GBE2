@@ -48,21 +48,28 @@ class WorkerAllocationForm (forms.Form):
     alloc_id = forms.IntegerField(required=False, widget = forms.HiddenInput())
 
 
-
 class EventScheduleForm(forms.ModelForm):
-    day = forms.ChoiceField(choices = conference_days)
-    time = forms.ChoiceField(choices = conference_times)
-    location = forms.ChoiceField(choices = [ (loc, loc.__str__()) for loc in LocationItem.objects.all().order_by('room__name')])
+    day = forms.ChoiceField(choices=conference_days)
+    time = forms.ChoiceField(choices=conference_times)
+    location = forms.ChoiceField(choices=[
+                (loc, loc.__str__()) for loc in
+                LocationItem.objects.all().order_by('room__name')])
     duration = DurationFormField(
                    help_text=scheduling_help_texts['description'])
     import gbe.models as conf
-    teacher = forms.ModelChoiceField(queryset = conf.Performer.objects.all(), required = False)
-    moderator = forms.ModelChoiceField(queryset = conf.Persona.objects.all(), required = False)
-    panelists =  forms.ModelMultipleChoiceField(queryset = conf.Performer.objects.all(), required = False)
-    staff_lead = forms.ModelChoiceField(queryset = conf.Profile.objects.all(), required = False)
+    teacher = forms.ModelChoiceField(queryset=conf.Performer.objects.all(),
+                                     required=False)
+    moderator = forms.ModelChoiceField(queryset=conf.Persona.objects.all(),
+                                       required=False)
+    panelists = forms.ModelMultipleChoiceField(
+                            queryset=conf.Performer.objects.all(),
+                            required=False)
+    staff_lead = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
+                                        required=False)
     description = forms.CharField(required=False,
                                   widget=forms.Textarea,
-                                  help_text=scheduling_help_texts['description'])
+                                  help_text=scheduling_help_texts
+                                  ['description'])
     title = forms.CharField(required=False,
                             help_text=scheduling_help_texts['title'])
 
@@ -71,23 +78,21 @@ class EventScheduleForm(forms.ModelForm):
         fields = ['day', 'time', 'location', 'duration', 'max_volunteer',
                   'teacher', 'moderator', 'panelists', 'staff_lead', 'title',
                   'description']
-        help_texts= scheduling_help_texts
+        help_texts = scheduling_help_texts
+
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)
         day = data.get('day')
         time = data.get('time')
-        day = ' '.join([day.split(' ')[0],time])
-        
-        event.starttime =datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
-        
+        day = ' '.join([day.split(' ')[0], time])
+
+        event.starttime = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+
         if commit:
             self.save()
         return event
 
-
-
-    
 
 class EventItemScheduleForm(forms.ModelForm):
     '''
@@ -95,6 +100,5 @@ class EventItemScheduleForm(forms.ModelForm):
     '''
     duration = DurationFormField()
 
-        
     class Meta:
         model = EventItem
