@@ -808,6 +808,12 @@ def add_event(request, eventitem_id, event_type='class'):
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
 
+            if data['description'] or data['title']:
+                c_event = s_event.as_subtype
+                c_event.description = data['description']
+                c_event.title = data['title']
+                c_event.save()
+
             return HttpResponseRedirect(reverse('event_schedule', 
                                                 urlconf='scheduler.urls', 
                                                 args=[event_type]))
