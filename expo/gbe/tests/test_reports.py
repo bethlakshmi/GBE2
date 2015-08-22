@@ -187,7 +187,6 @@ class TestReports(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-
     @nt.raises(PermissionDenied)
     def test_room_setup_not_visible_without_permission(self):
         '''room_setup view should load for privileged users, 
