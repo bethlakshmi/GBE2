@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from scheduler.models import (
@@ -23,6 +24,10 @@ import gbe
 import pytz
 
 phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+
+visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
+                     Q(biddable_ptr__conference__status='ongoing'))
+
 
 class Conference(models.Model):
     conference_name = models.CharField(max_length=128)
@@ -809,7 +814,10 @@ class Act (Biddable, ActItem):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        return type(self).objects.filter(
+            visible_bid_query,
+            submitted=True,
+            accepted=0)
 
 
     @property
@@ -1114,7 +1122,10 @@ class Class(Biddable, Event):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        return type(self).objects.filter(
+            visible_bid_query,
+            submitted=True,
+            accepted=0)
 
         
     @property
@@ -1270,7 +1281,10 @@ class Volunteer(Biddable):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        return type(self).objects.filter(
+            visible_bid_query,
+            submitted=True,
+            accepted=0)
 
 
 class Vendor(Biddable):
@@ -1314,7 +1328,10 @@ class Vendor(Biddable):
 
     @property
     def bids_to_review(self):
-        return type(self).objects.filter(submitted=True).filter(accepted=0)
+        return type(self).objects.filter(
+            visible_bid_query, 
+            submitted=True, 
+            accepted=0)
 
 
 class AdBid(Biddable):

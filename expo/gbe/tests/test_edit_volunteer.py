@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 import gbe.models as conf
 import nose.tools as nt
@@ -37,15 +38,15 @@ class TestEditVolunteer(TestCase):
             del(form['number_shifts'])
         return form
 
-    @nt.raises(Http404)
+    @nt.raises(PermissionDenied)
     def test_edit_volunteer_no_volunteer(self):
         '''Should get 404 if no valid volunteer ID'''
         profile = factories.ProfileFactory.create()
         request = self.factory.get('/volunteer/edit/-1')
         request.user = profile.user_object
         response = edit_volunteer(request, -1)
-
-    @nt.raises(Http404)
+        
+    @nt.raises(PermissionDenied)
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = factories.ProfileFactory.create().user_object
         volunteer = factories.VolunteerFactory.create()

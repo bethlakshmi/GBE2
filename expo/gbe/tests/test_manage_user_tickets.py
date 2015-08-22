@@ -9,11 +9,12 @@ from gbe.views import manage_user_tickets
 import factories
 import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
+import gbe.ticketing_idd_interface
 from functions import (login_as,
                        is_login_page,
                        is_profile_update_page,
                        location)
+
 
 class TestManageUserTickets(TestCase):
     '''Tests for manage_user_tickets  view'''
@@ -33,7 +34,6 @@ class TestManageUserTickets(TestCase):
         request.user = self.privileged_user
         login_as(self.privileged_user, self)
         response = manage_user_tickets(request, -1)
-
 
 '''
     def test_review_user_commitments_profile_exists(self):
