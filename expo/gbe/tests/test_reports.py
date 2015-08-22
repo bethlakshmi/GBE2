@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 import gbe.models as conf
 import nose.tools as nt
 from django.test import TestCase
@@ -24,23 +25,36 @@ class TestReports(TestCase):
         self.factory = RequestFactory()
         self.profile_factory = factories.ProfileFactory
 
-    def test_list_reports_path(self):
+    @nt.raises(PermissionDenied)
+    def test_list_reports_succeed(self):
         '''list_reports view should load
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = list_reports(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = list_reports(request)
+
+    def test_list_reports_fail(self):
+        '''list_reports view should load
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/')
+        functions.login_as(profile, self)
+        request.user = profile.user_object
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         request.user = profile.user_object
         response = list_reports(request)
         self.assertEqual(response.status_code, 200)
+
+    @nt.raises(PermissionDenied)
+    def test_review_staff_area_not_visible_without_permission(self):
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/review_staff_area')
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+        response = review_staff_area(request)
 
     def test_review_staff_area_path(self):
         '''review_staff_area view should load
@@ -49,11 +63,6 @@ class TestReports(TestCase):
         request = self.factory.get('reports/review_staff_area')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = review_staff_area(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
         functions.grant_privilege(profile, 'Act Reviewers')
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
@@ -69,13 +78,14 @@ class TestReports(TestCase):
         try:
             response = staff_area(request, show.eventitem_id)
             assertFalse(True)  # should fail!
-        except Http404 as e:
+        except PermissionDenied as e:
             pass   # expected
         functions.grant_privilege(profile, 'Act Reviewers')
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
 
-    def test_env_stuff_path(self):
+    @nt.raises(PermissionDenied)
+    def test_env_stuff_fail(self):
         '''env_stuff view should load for privileged users
            and fail for others
         '''
@@ -83,16 +93,22 @@ class TestReports(TestCase):
         request = self.factory.get('reports/stuffing')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = env_stuff(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = env_stuff(request)
+
+    def test_env_stuff_succeed(self):
+        '''env_stuff view should load for privileged users
+           and fail for others
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/stuffing')
+        functions.login_as(profile, self)
+        request.user = profile.user_object
         functions.grant_privilege(profile, 'Registrar')
         response = env_stuff(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_personal_schedule_path(self):
+    @nt.raises(PermissionDenied)
+    def test_personal_schedule_fail(self):
         '''personal_schedule view should load for privileged users
            and fail for others
         '''
@@ -100,16 +116,23 @@ class TestReports(TestCase):
         request = self.factory.get('reports/schedule_all')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = personal_schedule(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = personal_schedule(request)
+
+    def test_personal_schedule_succeed(self):
+        '''personal_schedule view should load for privileged users
+           and fail for others
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/schedule_all')
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+
         functions.grant_privilege(profile, 'Act Reviewers')
         response = personal_schedule(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_review_act_techinfo_path(self):
+    @nt.raises(PermissionDenied)
+    def test_review_act_techinfo_fail(self):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
@@ -117,50 +140,66 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request = self.factory.get('reports/review_act_techinfo')
         request.user = profile.user_object
-        try:
-            response = review_act_techinfo(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = review_act_techinfo(request)
+
+    def test_review_act_techinfo_succeed(self):
+        '''review_act_techinfo view should load for Tech Crew
+           and fail for others
+        '''
+        profile = self.profile_factory.create()
+        functions.login_as(profile, self)
+        request = self.factory.get('reports/review_act_techinfo')
+        request.user = profile.user_object
         functions.grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_room_schedule_path(self):
+    @nt.raises(PermissionDenied)
+    def test_room_schedule_fail(self):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_schedule')
         request.user = profile.user_object
-        try:
-            response = room_schedule(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = room_schedule(request)
+
+    def test_room_schedule_succeed(self):
+        '''room_schedule view should load for privileged users,
+           and fail for others
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/room_schedule')
+        request.user = profile.user_object
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         response = room_schedule(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_room_setup_path(self):
+    @nt.raises(PermissionDenied)
+    def test_room_setup_not_visible_without_permission(self):
         '''room_setup view should load for privileged users,
            and fail for others
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
-        try:
-            response = room_setup(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = room_setup(request)
+
+    def test_room_setup_visible_with_permission(self):
+        '''room_setup view should load for privileged users,
+           and fail for others
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/room_setup')
+        request.user = profile.user_object
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_export_badge_report_path(self):
+    @nt.raises(PermissionDenied)
+    def test_export_badge_report_succeed(self):
         '''export_badge_report view should load for Registrars
            and fail for other users
         '''
@@ -168,11 +207,17 @@ class TestReports(TestCase):
         request = self.factory.get('reports/badges/print_run')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = export_badge_report(request)
-            assertFalse(True)  # should fail!
-        except Http404 as e:
-            pass   # expected
+        response = export_badge_report(request)
+
+    def test_export_badge_report_fail(self):
+        '''export_badge_report view should load for Registrars
+           and fail for other users
+        '''
+        profile = self.profile_factory.create()
+        request = self.factory.get('reports/badges/print_run')
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+
         functions.grant_privilege(profile, 'Registrar')
         request = self.factory.get('reports/badges/print_run')
         request.user = profile.user_object
