@@ -26,8 +26,9 @@ class TestReports(TestCase):
         self.profile_factory = factories.ProfileFactory
 
     @nt.raises(PermissionDenied)
-    def test_list_reports_succeed(self):
-        '''list_reports view should load
+    def test_list_reports_fail(self):
+        '''list_reports view should fail because user
+           is not in one of the privileged groups
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/')
@@ -35,8 +36,9 @@ class TestReports(TestCase):
         request.user = profile.user_object
         response = list_reports(request)
 
-    def test_list_reports_fail(self):
-        '''list_reports view should load
+    def test_list_reports_succeed(self):
+        '''list_reports view should load, user has proper
+           privileges
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/')
