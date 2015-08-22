@@ -2516,7 +2516,9 @@ def create_event(request, event_type):
     if request.method == 'POST':
         form = eval(event_type+"ScheduleForm")(request.POST)
         if form.is_valid():
-            event = form.save(commit=True)
+            event = form.save(commit=False)
+            event.conference = Conference.objects.filter(status='upcoming').first()
+            event.save()
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',
                                                 args=[event_type]))
