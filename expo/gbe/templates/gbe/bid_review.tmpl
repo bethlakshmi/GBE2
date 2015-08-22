@@ -13,6 +13,10 @@
   <p class="vanilla">{{title}} </p>
   <div class="review-pane">
     <h2 class="review-title">Bid Information</h2>
+    <h3> {{ conference.conference_name }} </h3> 
+    {% if old_bid %}
+    <h3> This bid is for a conference which has already happened </h3>
+    {% endif %}
      {% include "readonly_form_table.tmpl" %}
 
   </div>

@@ -69,4 +69,8 @@ def send_user_contact_email(name, from_address, message):
     # TO DO: log usage of this function
     # TO DO: close the spam hole that this opens up. 
               
-              
+
+def get_conf(biddable):
+    conference = biddable.biddable_ptr.conference
+    old_bid = conference.status == 'completed'
+    return conference, old_bid

@@ -687,7 +687,7 @@ def review_act(request, act_id):
         Act,
         id=act_id
     )
-    
+    conference, old_bid = get_conf(act)    
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -752,7 +752,9 @@ def review_act(request, act_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL,
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -761,7 +763,9 @@ def review_act(request, act_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -1058,6 +1062,7 @@ def review_class(request, class_id):
         Class, 
         id=class_id,
     )
+    conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
                           prefix='The Teacher(s)')
@@ -1105,7 +1110,9 @@ def review_class(request, class_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1114,7 +1121,9 @@ def review_class(request, class_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -1269,6 +1278,7 @@ def review_volunteer(request, volunteer_id):
         Volunteer,
         id=volunteer_id,
     )
+    conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
                                prefix='The Volunteer')
@@ -1314,7 +1324,9 @@ def review_volunteer(request, volunteer_id):
                           {'readonlyform': [volform],
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1323,7 +1335,9 @@ def review_volunteer(request, volunteer_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL, 
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -1456,6 +1470,7 @@ def review_vendor(request, vendor_id):
         Vendor,
         id=vendor_id,
     )
+    conference, old_bid = get_conf(vendor)
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance=vendor)
@@ -1491,7 +1506,9 @@ def review_vendor(request, vendor_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1500,7 +1517,9 @@ def review_vendor(request, vendor_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL, 
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
