@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
 import gbe.models as conf
 import nose.tools as nt
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.http import Http404
 from gbe.report_views import (list_reports,
@@ -24,6 +24,7 @@ class TestReports(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.profile_factory = factories.ProfileFactory
+        self.client = Client()
 
     @nt.raises(PermissionDenied)
     def test_list_reports_fail(self):

@@ -271,14 +271,14 @@ def schedule_acts(request, show_title=None):
 
 def edit_event(request, scheduler_event_id, event_type='class'):
     '''
-    Add an item to the conference schedule and/or set its schedule details (start
-    time, location, duration, or allocations)
+    Add an item to the conference schedule and/or set its schedule details
+    (start time, location, duration, or allocations)
     Takes a scheduler.Event id 
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
     try:
-        item = Event.objects.get_subclass(id = scheduler_event_id)
+        item = Event.objects.get_subclass(id=scheduler_event_id)
     except:
         raise Exception ("Error code XYZZY: Couldn't get an item for id")
 
@@ -772,7 +772,7 @@ def contact_by_role(request, participant_type):
     return response
 
 
-def add_event(request, eventitem_id, event_type='class'):
+def add_event(request, eventitem_id, event_type='Class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
     (start time, location, duration, or allocations)
@@ -787,9 +787,13 @@ def add_event(request, eventitem_id, event_type='class'):
     except:
         raise Exception("Error code XYZZY: Couldn't get an item for id")
 
+    template = 'scheduler/event_schedule.tmpl'
+    eventitem_view = get_event_display_info(eventitem_id)
+ 
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
                                        prefix='event')
+
         if (event_form.is_valid() and True):
             s_event = event_form.save(commit=False)
             s_event.eventitem = item
@@ -824,7 +828,10 @@ def add_event(request, eventitem_id, event_type='class'):
                                                 urlconf='scheduler.urls',
                                                 args=[event_type]))
         else:
-            raise Http404
+            return render(request, template, {'eventitem': eventitem_view,
+                                      'form': event_form,
+                                      'user_id': request.user.id,
+                                      'event_type': event_type})
     else:
         initial_form_info = {'duration': item.duration,
                              'description': item.sched_payload['description'],
@@ -834,8 +841,6 @@ def add_event(request, eventitem_id, event_type='class'):
 
         form = EventScheduleForm(prefix='event', initial=initial_form_info)
 
-    template = 'scheduler/event_schedule.tmpl'
-    eventitem_view = get_event_display_info(eventitem_id)
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
                                       'user_id': request.user.id,
