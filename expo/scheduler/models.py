@@ -562,7 +562,7 @@ class EventItem (models.Model):
 
     
 
-class Event (Schedulable):
+class Event(Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload. 
     '''

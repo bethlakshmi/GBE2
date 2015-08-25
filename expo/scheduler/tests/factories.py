@@ -5,6 +5,8 @@ import gbe.models as conf
 import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
+from datetime import datetime
+from django.utils import timezone
 
 class ConferenceFactory(DjangoModelFactory):
     class Meta:
@@ -160,8 +162,13 @@ class EventFactory(DjangoModelFactory):
     duration = Duration(hours=2)
     conference = SubFactory(ConferenceFactory)
 
+class SchedEventFactory(DjangoModelFactory):
+    class Meta:
+        model = sched.Event
 
-
+    eventitem = SubFactory(GenericEventFactory)
+    starttime = timezone.make_aware(datetime(2016, 02, 4),
+                                    timezone.get_current_timezone())
 
 
 class ClassFactory(DjangoModelFactory):

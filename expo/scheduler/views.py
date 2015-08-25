@@ -328,7 +328,12 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                                                 args=[event_type,
                                                       scheduler_event_id]))
         else:
-            raise Http404
+            template = 'scheduler/event_schedule.tmpl'
+            return render(request, template, {
+                'eventitem': get_event_display_info(item.eventitem.eventitem_id),
+                'form': event_form,
+                'event_type': item.event_type_name})
+
     else:
         return edit_event_display(request, item)
 
@@ -379,7 +384,7 @@ def edit_event_display(request, item, errorcontext=None):
     if len(staff_leads) > 0:
         initial['staff_lead'] = staff_leads[0].item
 
-    context ['event_type']= item.event_type_name
+    context['event_type']= item.event_type_name
 
 
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
