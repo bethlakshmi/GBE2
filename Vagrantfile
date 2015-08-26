@@ -17,6 +17,17 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-get install -y nfs-common portmap
   sudo apt-fast -y install git openssh-server li
   sudo apt-fast -y install git openssh-server libfreetype6-dev pkg-config
+  sudo echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
+  sudo echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
+  sudo apt-fast -y install mysql-server-5.5
+  sudo apt-fast -y install libmysqlclient-dev
+  sudo apt-fast -y install mysql-client
+  sudo useradd -m -g mysql mysql
+  sudo chown -R vagrant /var/lib/
+  sudo chown -R mysql /var/log/mysql
+  sudo chown -R mysql /var/log/mysql
+
+
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -31,9 +42,30 @@ $bootstrap = <<BOOTSTRAP
   sudo ssh -T git@bitbucket.org -o StrictHostKeyChecking=no
   sudo ssh -T git@github.com -o StrictHostKeyChecking=no
   sudo sed -i  '/requiretty/s/^/#/'  /etc/sudoers
-  
+  echo " 
+  [mysqld]
+  user=mysql
+  server-id=$SERVER_ID
+  default-storage-engine=innodb
+  log-bin=mysql-bin
+  max-allowed-packet=52m
+  binlog-format=row
+  open-files-limit=65535
+  max-connections=500
+  port=13306" >> /etc/my.cnf
+  sudo chown -R mysql /var/lib/mysql/
+  sudo /etc/init.d/mysql start
+  #service mysql restart
+  mysql -u root -proot -e "CREATE USER django_user IDENTIFIED BY 'secret'"
+  mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
+  mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
+  mysql -u root -proot  -e "USE gbe_dev"
+  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
+  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
+  mysql -u root -proot  -e "flush privileges"
+ 
   echo "your initialization shell scripts go here"
-  sudo apt-fast -y install python2.7-dev
+  sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
   sudo pip install --requirement /vagrant/config/requirements.txt
 BOOTSTRAP
