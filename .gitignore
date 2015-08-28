@@ -38,6 +38,9 @@ expo/db.sqlite3.preactitem
 
 expo/expo/localsettings.py
 
+expo/logs/main.log
+
+stack_settings.py
 
 expo/expo/local_settings.py
 

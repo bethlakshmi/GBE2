@@ -11,8 +11,9 @@ from gbe import views
 urlpatterns = patterns ('',
 
 # landing page
-                        url(r'^/?$',
-                            views.landing_page, name='home'),
+                        url(r'^gbe/?',
+                            views.landing_page, 
+                            name='home'),
                         url(r'index.html/?',
                             views.landing_page),
 
@@ -57,7 +58,7 @@ urlpatterns = patterns ('',
 # classes
                         url(r'^class/create/?$',
                             views.bid_class, name='class_create'),
-                        url(r'class/edit/(\d+)/?$', 
+                        url(r'class/edit/(\d+)/?$',
                             views.edit_class, name='class_edit'),
                         url(r'^class/view/(\d+)/?$',
                             views.view_class, name='class_view'),
@@ -202,11 +203,15 @@ urlpatterns = patterns ('',
                             password_reset_complete),
 
 # registration & user management
+                        url(r'^user_contact/?$',
+                            views.handle_user_contact_email, 
+                            name='handle_user_contact_email'),
                         url(r'^profile/manage/?$',
                             views.review_profiles, 
                             name='manage_users'),
                         url(r'^profile/admin/(\d+)/?$',
-                            views.admin_profile, name = 'admin_profile'),
+                            views.admin_profile, 
+                            name = 'admin_profile'),
                         url(r'^profile/review_commitments/(\d+)/?$',
                             views.review_user_commitments,
                             name='review_user_commitments'),
@@ -214,5 +219,6 @@ urlpatterns = patterns ('',
                             views.manage_user_tickets,
                             name='manage_user_tickets'),
                         url(r'^profile/landing_page/(\d+)/?$',
-                            views.landing_page, name='admin_landing_page')
+                            views.landing_page, 
+                            name='admin_landing_page')
                         )

@@ -6,70 +6,73 @@ participant_labels = {
     'display_name': ('Badge Name'),
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
-    'best_time':('Best time to call'),
-    'offsite_preferred':('Offsite phone'),
+    'best_time': ('Best time to call'),
+    'offsite_preferred': ('Offsite phone'),
     'how_heard': "How did you hear about The Expo?",
     'purchase_email': ('BPT Purchase Email'),
 
 }
 
-profile_preferences_help_texts= {
+profile_preferences_help_texts = {
     'in_hotel':  'It is helpful for us to know who\'s staying in the hotel.',
 }
 
 profile_preferences_labels = {
     'inform_about': 'Please let me know about...',
     'in_hotel': 'I am staying at the hotel',
-    'show_hotel_infobox': ('Show the hotel booking info on your landing page?'),
+    'show_hotel_infobox': ('Show hotel booking info on your landing page?'),
 }
 
+inform_about_options = [('Exhibiting Art or Costumes', 
+                         'Exhibiting Art or Costumes'),
+                        ('Performing', 'Performing'),
+                        ('Pre-event Organizing', 'Pre-event Organizing'),
+                        ('Sponsoring/Advertising', 'Sponsoring/Advertising'),
+                        ('Teaching', 'Teaching'),
+                        ('Vending', 'Vending'),
+                        ('Volunteering', 'Volunteering at the Expo')]
 
-
-inform_about_options = [('Pre-event Organizing', 'Pre-event Organizing'), 
-                        ('Volunteering', 'Volunteering at the Expo'), 
-                        ('Performing', 'Performing'), 
-                        ('Vending', 'Vending'), 
-                        ('Sponsoring/Advertising',  'Sponsoring/Advertising'), 
-                        ('Teaching', 'Teaching'), 
-                        ('Exhibiting Art or Costumes', 'Exhibiting Art or Costumes')]
-
-
-
-how_heard_options = [('Previous attendee', 'Attended Previously'), 
-                     ('Facebook', 'Facebook'), 
-                     ('Yahoo! Group', 'Yahoo! Group'), 
-                     ('Received a direct email', 'Received a direct email'), 
-                     ('Word of mouth', 'Word of mouth'), 
-                     ('Saw a postcard', 'Saw a postcard'), 
-                     ('Saw a print ad', 'Saw a print ad'), 
-                     ('B.A.B.E.', 'B.A.B.E.'), 
+how_heard_options = [('Previous attendee', 'Attended Previously'),
+                     ('B.A.B.E.', 'B.A.B.E.'),
+                     ('Facebook', 'Facebook'),
+                     ('Received a direct email', 'Received a direct email'),
+                     ('Saw a postcard', 'Saw a postcard'),
+                     ('Saw a print ad', 'Saw a print ad'),
+                     ('Word of mouth', 'Word of mouth'),
+                     ('Yahoo! Group', 'Yahoo! Group'),
                      ('Other', 'Other')]
 
 participant_form_help_texts = {
-    'display_name': ('The name you want to be known by as an Expo participant. This can \
-be a stage name, or your real-world name, or anything that you want to have printed on your \
-Expo badge and other official Expo communications. This defaults to your First and Last Name.'),
-    'phone': ('A phone number we can use to reach you when you are at the Expo, \
-such as cell phone.'),
-    'offsite_preferred': ('Your preferred phone number (if different from above), \
-for communication before the Expo.  Use this if you prefer to get phone calls at a \
-phone you cannot bring to the Expo.'),
+    'display_name': ('The name you want to be known by as an Expo participant. \
+    This can be a stage name, or your real-world name, or anything that you \
+    want to have printed on your Expo badge and other official Expo \
+    communications. This defaults to your First and Last Name.'),
+    'phone': ('A phone number we can use to reach you when you are at the \
+    Expo, such as cell phone.'),
+    'offsite_preferred': ('Your preferred phone number (if different from \
+    above), for communication before the Expo.  Use this if you prefer to \
+    get phone calls at a phone you cannot bring to the Expo.'),
 }
 
 
-phone_validation_error_text = '''If Preferred contact is a Phone call or Text, \
-we need your phone number as either an Onsite phone or Offsite preferred.'''
+phone_validation_error_text = (
+    'If Preferred contact is a Phone call or '
+    'Text, we need your phone number as either an Onsite phone or Offsite '
+    'preferred.')
 
 
 combo_form_help_texts = {
-    'contact': ('The person we should contact about this act\'s appearance at the Expo. This \
-    can be a member of your combo or an agent, but whoever it is will be authorized to speak \
-    for and make decisions for you.'), 
-    'name': ('If you leave this blank, it\'ll fill in with the names of the performers involved in \
-             this act.'),
-    'membership': ('Select the performers who will be on stage with you. If they have not created \
-    a persona on the site, you can either create one for them, or just fill in their name in the \
-    notes and we\'ll sort it out.'), # edit this text please
+    'contact': ('The person we should contact about this act\'s appearance at '
+                'the Expo. This can be a member of your combo or an agent, '
+                'but whoever it is will be authorized to speak for and make '
+                'decisions for you.'),
+    'name': ('If you leave this blank, it\'ll fill in with the names of the '
+             'performers involved in this act.'),
+    'membership': ('Select the performers who will be on stage with you. If '
+                   'they have not created a persona on the site, you can '
+                   'either create one for them, or just fill in their name '
+                   'in the notes and we\'ll sort it out.'
+               ),
 }
 
 
@@ -86,32 +89,44 @@ you are probably a troupe. If you want to put something special together just fo
 the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
 event_create_text = {'GenericEvent': '''Enter the details for a new event.  A generic event \
-		      can be event that is not a show or a conference class.  Be sure to set the \
-		      type of event properly as each type is displayed differently in the public \
-		      website.''',
-		     'Show': '''Enter the details for a new show.  Shows are displayed on show \
-		     listings, but if you are adding a show and want specialized menu items, please \
-		     contact the web web team.  REMINDER:  For linking to show tickets, you must also \
-		     use the ticketing section to link tickets.''',
-		     'Class': '''Enter the details for a new class.  This is specifically for \
-		     conference classes.  For Master Classes and Drop-In classes, please use \
-		     Generic Events.'''}
+                      can be event that is not a show or a conference class.  Be sure to set the \
+                      type of event properly as each type is displayed differently in the public \
+                      website.''',
+                     'Show': '''Enter the details for a new show.  Shows are displayed on show \
+                      listings, but if you are adding a show and want specialized menu items, please \
+                      contact the web web team.  REMINDER:  For linking to show tickets, you must also \
+                      use the ticketing section to link tickets.''',
+                     'Class': '''Enter the details for a new class.  This is specifically for \
+                      conference classes.  For Master Classes and Drop-In classes, please use \
+                      Generic Events.'''}
 
 event_help_texts = {'type': '''Special Events, Master Classes, and Drop In classes are shown in \
-		     event lists, Staff Areas do not..'''}
+                     event lists, Staff Areas do not..'''}
 
-volunteer_availability_options = [('SH0', 'Thursday evening'), ('SH1', 'Friday morning'), 
-                                  ('SH2', 'Friday afternoon'), ('SH3', 'Friday night'), 
-                                  ('SH4', 'Friday late night'), ('SH5', 'Saturday morning'), 
-                                  ('SH6', 'Saturday afternoon'), ('SH7', 'Saturday night'), 
-                                  ('SH8', 'Saturday late night'), ('SH9', 'Sunday morning'), 
-                                  ('SH10', 'Sunday afternoon'), ('SH11', 'Sunday night'), 
-                                  ('SH12', 'Strike Crew'), ('SH13', 'Monday morning')]
+volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
+                                  ('SH8', 'Saturday late night (10PM-1AM)'),
+                                  ('SH1', 'Friday morning (9AM-12PM)'), 
+                                  ('SH9', 'Sunday morning (8AM-12PM)'), 
+                                  ('SH2', 'Friday afternoon (12PM-6PM)'),
+                                  ('SH10', 'Sunday afternoon (12PM-6PM)'),
+                                  ('SH3', 'Friday night (5PM-10PM)'), 
+                                  ('SH11', 'Sunday night (5PM-10PM)'), 
+                                  ('SH4', 'Friday late night (10PM-1AM)'),
+                                  ('SH12', 'Strike Crew (10PM-1AM)'),
+                                  ('SH5', 'Saturday morning (8AM-12PM)'), 
+                                  ('SH13', 'Monday morning (9AM-12PM)'),
+                                  ('SH6', 'Saturday afternoon (12PM-6PM)'),
+                                  ('SH7', 'Saturday night (5PM-10PM)')]
 
-volunteer_interests_options = [('VA0', 'Registration'), ('VA1', 'Security/usher'), 
-                          ('VA2', 'Stage crew'), ('VA3', 'Stage Management'), 
-                          ('VA4', 'Conference Staff'), ('VA5', 'Tech crew'), 
-                          ('VA6', 'Vendor room'), ('VA7', 'Costume Exhibit'), ('VA8', 'Art Show')]
+volunteer_interests_options = [('VA8', 'Art Show'),
+                               ('VA2', 'Stage crew'),
+                               ('VA4', 'Conference Staff'),
+                               ('VA3', 'Stage Management'), 
+                               ('VA7', 'Costume Exhibit'),
+                               ('VA5', 'Tech crew'), 
+                               ('VA0', 'Registration'),
+                               ('VA6', 'Vendor room'),
+                               ('VA1', 'Security/usher')]
 
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
@@ -127,7 +142,11 @@ volunteer_labels = {
 volunteer_help_texts = {
     'pre_event': ('Pre-event tasks could be anything from marketing \
     to logistics to advertising sales to data entry. In short, \
-    anything we need done before the BurlExpo starts') }
+    anything we need done before the BurlExpo starts'),
+    'volunteer_availability_options': ('These times are general guidelines.  \
+    If there are specific times that you cannot work, please let us know in the \
+    box below.')
+}
 
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']
@@ -175,38 +194,51 @@ act_length_too_long = ("The Act Length is too long.")  # note: this refers to th
 
 act_help_texts = {
     'shows_preferences':('Check as many as apply to you'),
-    'act_duration':('Length of entire act in mm:ss - please include any time \
-    you are performing before or after your song.'), 
-    'track_duration':('Please enter the duration of your music or backing track in \
-    minutes and seconds. Something that was four minutes and twenty seconds would be \
-    entered as "04:20". Remember, the maximum duration for an act in competition in \
-    The Main Event is 5 minutes for a soloist, 7 minutes for a group'),
-    'description':('Please give a brief description of your act. \
-    Stage kittens will retrieve costumes and props, but we cannot clean the stage \
-    after your act. Please do not leave anything on the stage (water, glitter, \
-    confetti, etc.)'), 
+    'act_duration': ('Length of entire act in mm:ss - please include any time \
+                     you are performing before or after your song.'), 
+    'track_duration': ('Please enter the duration of your music or backing \
+                       track in minutes and seconds. Something that was four \
+                       minutes and twenty seconds would be entered as "04:20". \
+                       Remember, the maximum duration for an act in \
+                       competition in The Main Event is 5 minutes for a \
+                       soloist, 7 minutes for a group'),
+    'description': ('Please give a brief description of your act. Stage \
+                    kittens will retrieve costumes and props, but we cannot \
+                    clean the stage after your act. Please do not leave \
+                    anything on the stage (water, glitter, confetti, etc.)'), 
     'performer': ('Select the stage persona, combo, or troupe who will be \
-    performing. Hit "create" to create a new persona, troupe, or combo.'),
-    'video_link' : ('Link to some video of your performance, or a similar act. This \
-    will be used for evaluating your bid, and will not appear on your performer page.'),
-    'shows_preferences':('Check as many as apply to you'),
+                  performing. Hit "create" to create a new persona, troupe, \
+                  or combo.'),
+    'video_link' : ('Link to some video of your performance, or a similar \
+                    act. This will be used for evaluating your bid, and will \
+                    not appear on your performer page.'),
+    'other_performance': ("Don't feel badly if you're not accepted to perform \
+                          in one of the formal shows. We have a ton of other \
+                          ways to get your performance fix! Indicating that you \
+                          are interested in doing one or more of these \
+                          activities has no effect on whether or not you are \
+                          accepted to perform in a show. You may be accepted to \
+                          perform and still do these activities."),
     'video_link':('Make sure to include \'http://\' '),
     'intro_text':('This text will be used by the MC to introduce your act.'),
-    'notes': ('Please clarify any instructions with respect to prop setting, clearing, or cueing' )
+    'notes': ('Please clarify any instructions with respect to prop setting, \
+              clearing, or cueing' )
 }
 
 act_bid_labels = {
-    'performer' :'Performer',
+    'performer': 'Performer',
     'title': 'Name of Act',
-    'shows_preferences':'I am interested in:',
-    'song_title':'Name of Song',
-    'song_artist':'Song Artist',
-    'track_duration':'Duration of Song',
-    'act_duration':'Duration of Act',
-    'description':'Description of Act',
-    'video_choice':'Video Notes',
-    'why_you':'Why Would You Like to Perform at The Great Burlesque Exposition?',
-    'video_link':'URL of Video'
+    'shows_preferences': 'I am interested in:',
+    'other_performance': 'Other performance opportunities',
+    'song_title':' Name of Song',
+    'song_artist': 'Song Artist',
+    'track_duration': 'Duration of Song',
+    'act_duration': 'Duration of Act',
+    'description': 'Description of Act',
+    'video_choice': 'Video Notes',
+    'why_you': 'Why Would You Like to Perform at The Great Burlesque \
+                Exposition?',
+    'video_link': 'URL of Video'
 }
 
 
@@ -409,23 +441,23 @@ vendor_help_texts = {
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
-                           ('VSH1', 'Saturday, 12p to 4pm'), 
-                           ('VSH2', 'Saturday, 4pm to 8pm'), 
-                           ('VSH3', 'Saturday after 8pm'), 
                            ('VSH4', 'Sunday, 9am to noon'), 
-                           ('VSH5', 'Sunday, 12p to 4pm'), 
+                           ('VSH1', 'Saturday, 12pm to 4pm'), 
+                           ('VSH5', 'Sunday, 12pm to 4pm'), 
+                           ('VSH2', 'Saturday, 4pm to 8pm'), 
                            ('VSH6', 'Sunday, 4pm to 8pm'), 
+                           ('VSH3', 'Saturday after 8pm'), 
                            ('VSH7', 'Sunday after 8pm')]
 
 
 help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
-					('Saturday, 12p to 4pm','Saturday, 12p to 4pm'),
-					('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
-					('Saturday after 8pm', 'Saturday after 8pm'),
-					('Sunday, 9am to noon', 'Sunday, 9am to noon'),
-					('Sunday, 12p to 4pm', 'Sunday, 12p to 4pm'),
-					('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
-					('Sunday after 8pm', 'Sunday after 8pm'))
+                     ('Saturday, 12pm to 4pm','Saturday, 12p to 4pm'),
+                     ('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
+                     ('Saturday after 8pm', 'Saturday after 8pm'),
+                     ('Sunday, 9am to noon', 'Sunday, 9am to noon'),
+                     ('Sunday, 12pm to 4pm', 'Sunday, 12p to 4pm'),
+                     ('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
+                     ('Sunday after 8pm', 'Sunday after 8pm'))
 
 
 

@@ -91,7 +91,7 @@ class EventAdmin(admin.ModelAdmin):
         except:
             return "Event"
 
-
+admin.site.register(Conference)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Biddable, BidAdmin)
 admin.site.register(Act, ActAdmin)
