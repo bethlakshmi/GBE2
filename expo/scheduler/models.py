@@ -36,7 +36,7 @@ class Schedulable(models.Model):
     @property
     def end_time(self):
         return self.starttime + self.duration
-    
+
     def __unicode__(self):
         if self.start_time:
             return "Start: " + str(self.start_time.astimezone(pytz.timezone('UTC')))
@@ -51,7 +51,8 @@ class Schedulable(models.Model):
 
     class Meta:
         verbose_name_plural='Schedulable Items'
-    
+
+
 class ResourceItem (models.Model):
     '''
     The payload for a resource
@@ -88,6 +89,7 @@ class ResourceItem (models.Model):
     
     pass
 
+
 class Resource(models.Model):
     '''
     A person, place, or thing that can be allocated for an event. 
@@ -115,7 +117,8 @@ class Resource(models.Model):
             
     def __unicode__(self):
         return self.__str__()
-    
+
+
 class ActItem(ResourceItem):
     '''
     Payload object for an Act
@@ -207,6 +210,7 @@ class ActItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
+
 class ActResource(Resource):
     '''
     A schedulable object wrapping an Act
@@ -257,7 +261,6 @@ class ActResource(Resource):
             return "No Act Item"    
 
 
-
 class LocationItem(ResourceItem):
     '''
     "Payload" object for a Location
@@ -306,6 +309,7 @@ class LocationItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
+
 class Location(Resource):
     '''
     A resource which is a location. 
@@ -328,6 +332,7 @@ class Location(Resource):
             return self.item.describe
         except:
             return "No Location Item"
+
 
 class WorkerItem(ResourceItem):
     '''
@@ -405,7 +410,7 @@ class WorkerItem(ResourceItem):
                	conflicts += [event]
         return conflicts
 
-    
+
 class Worker (Resource):
     '''
     objects = InheritanceManager()
@@ -413,8 +418,8 @@ class Worker (Resource):
     '''
     _item = models.ForeignKey(WorkerItem)
     role = models.CharField(max_length=50,
-                                    choices=role_options, 
-                                    blank=True)
+                            choices=role_options, 
+                            blank=True)
     @property
     def workeritem(self):
         return WorkerItem.objects.get_subclass(resourceitem_id=self._item.resourceitem_id)
@@ -434,6 +439,7 @@ class Worker (Resource):
             return self.item.describe
         except:
             return "No Worker Item"
+
 
 class EquipmentItem(ResourceItem):
     '''
@@ -469,6 +475,7 @@ class EquipmentItem(ResourceItem):
         return unicode(self.describe)
     
     pass
+
 
 class Equipment(Resource):
     '''
@@ -560,14 +567,13 @@ class EventItem (models.Model):
     def __unicode__(self):
         return unicode(self.describe)
 
-    
 
 class Event(Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload. 
     '''
     objects = InheritanceManager()
-    eventitem = models.ForeignKey(EventItem, related_name = "scheduler_events")                             
+    eventitem = models.ForeignKey(EventItem, related_name="scheduler_events")                             
     starttime = models.DateTimeField(blank=True)
     max_volunteer = models.PositiveIntegerField(default=0)
 
@@ -875,6 +881,7 @@ class Event(Schedulable):
             is_conflict = True
         return is_conflict
 
+
 class ResourceAllocation(Schedulable):
     '''
     Joins a particular Resource to a particular Event
@@ -920,7 +927,7 @@ class ResourceAllocation(Schedulable):
                    ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
         except:
             return "Missing an Item"
-            
+
 
 class Ordering(models.Model):
     '''
@@ -939,11 +946,12 @@ class Label (models.Model):
     '''
     A decorator allowing free-entry "tags" on allocations
     '''
-    text = models.TextField (default = '')
+    text = models.TextField (default='')
     allocation = models.OneToOneField(ResourceAllocation)
 
     def __str__(self):
         return self.text
+
 
 class EventContainer (models.Model):
     '''
@@ -951,5 +959,4 @@ class EventContainer (models.Model):
     a volunteer shift (Generic Event) to a Show (or other conf event)
     '''
     parent_event = models.ForeignKey(Event, related_name='contained_events')
-    child_event = models.OneToOneField(Event, related_name = 'container_event')
-                             
+    child_event = models.OneToOneField(Event, related_name='container_event')

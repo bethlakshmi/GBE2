@@ -36,7 +36,6 @@ class TestAddEvent(TestCase):
                 'description': 'New Description',
                 }
 
-    
     @nt.raises(Http404)
     def test_add_event_no_eventitem(self):
         '''Should get 404 if no valid act ID'''
@@ -62,27 +61,32 @@ class TestAddEvent(TestCase):
                                    self.eventitem.pk)
         request.user = profile.user_object
         functions.grant_privilege(profile, 'Scheduling Mavens')
-        response = add_event(request, self.eventitem.pk, "GenericEvent")    
+        response = add_event(request, self.eventitem.pk, "GenericEvent")
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.eventitem.title in response.content)
         self.assertTrue(self.eventitem.description in response.content)
-        
+
     def test_add_event_submit_succeed(self):
         '''add event post succeeds, user has proper privileges
         '''
         profile = self.profile_factory.create()
         form_post = self.get_add_session_form()
         request = self.factory.post('/scheduler/create/GenericEvent/%d' %
-                                   self.eventitem.pk,
-                                   form_post)
+                                    self.eventitem.pk,
+                                    form_post)
         request.user = profile.user_object
         functions.grant_privilege(profile, 'Scheduling Mavens')
+        '''
         rooms = LocationItem.objects.all().order_by('room__name')
         for loc in rooms:
             print "Room:" + loc.__str__() + "| \n"
+        '''
         response = add_event(request, self.eventitem.pk, "GenericEvent")
-        
-        self.assertEqual(response.status_code, 200)
-        print(response.content)
 
+        self.assertEqual(response.status_code, 200)
+        '''
+        # BB - when code smell in EventScheduleForm is fixed, these should be
+        #print(response.content)
+        #self.assertFalse('<font color="red">!</font>' in response.content)
         #self.assertTrue("Events Information" in response.content)
+        '''
