@@ -280,7 +280,6 @@ class ActResource(Resource):
         except:
             return "No Act Item"
 
-
 class LocationItem(ResourceItem):
     '''
     "Payload" object for a Location
@@ -507,6 +506,7 @@ class EquipmentItem(ResourceItem):
         return unicode(self.describe)
 
 
+
 class Equipment(Resource):
     '''
     An allocatable thing
@@ -615,7 +615,7 @@ class EventItem (models.Model):
         return unicode(self.describe)
 
 
-class Event (Schedulable):
+class Event(Schedulable):
     '''
     An Event is a schedulable item with a conference model item as its payload.
     '''

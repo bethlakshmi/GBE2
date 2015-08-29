@@ -51,14 +51,17 @@ class WorkerAllocationForm (forms.Form):
     label = forms.CharField(max_length=100, required=False)
     alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
-
 class EventScheduleForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    
     day = forms.ChoiceField(choices=conference_days)
     time = forms.ChoiceField(choices=conference_times)
-    location = forms.ChoiceField(
-        choices=[(loc, loc.__str__()) for loc
-                 in LocationItem.objects.all().order_by('room__name')])
-    duration = DurationFormField(help_text='Enter duration as HH:MM:SS')
+    location = forms.ChoiceField(choices=[
+                (loc, loc.__str__()) for loc in
+                LocationItem.objects.all().order_by('room__name')])
+    duration = DurationFormField(
+                   help_text=scheduling_help_texts['duration'])
     teacher = forms.ModelChoiceField(queryset=conf.Performer.objects.all(),
                                      required=False)
     moderator = forms.ModelChoiceField(queryset=conf.Persona.objects.all(),
@@ -68,8 +71,13 @@ class EventScheduleForm(forms.ModelForm):
         required=False)
     staff_lead = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
                                         required=False)
+
     description = forms.CharField(required=False,
-                                  widget=forms.Textarea)
+                                  widget=forms.Textarea,
+                                  help_text=scheduling_help_texts
+                                  ['description'])
+    title = forms.CharField(required=False,
+                            help_text=scheduling_help_texts['title'])
 
     class Meta:
         model = Event
@@ -83,7 +91,7 @@ class EventScheduleForm(forms.ModelForm):
                   'panelists',
                   'staff_lead',
                   'description']
-        help_texts = {'duration': 'Enter duration as HH:MM:SS'}
+        help_texts = scheduling_help_texts
 
     def save(self, commit=True):
         data = self.cleaned_data
