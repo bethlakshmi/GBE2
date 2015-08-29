@@ -90,7 +90,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             shell.args = %q{/etc/sudoers.d/root_ssh_agent "Defaults env_keep += \"SSH_AUTH_SOCK\""}
   end 
   
-  config.vm.network :forwarded_port, guest: 8111, host: 8181, auto_correct: true
+  config.vm.network :forwarded_port, guest: 8111, host: 8282, auto_correct: true
 
   config.vm.network "private_network", ip: "192.168.50.5", auto_config: true
   
