@@ -23,6 +23,7 @@ class TicketItemForm(forms.ModelForm):
                             queryset = BrownPaperEvents.objects.all(),
                             empty_label=None)
 
+
     class Meta:
         model = TicketItem
         fields = ['ticket_id',
