@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 import gbe.models as conf
 import ticketing.models as tickets
 import nose.tools as nt
@@ -38,10 +39,10 @@ class TestEditBPTEvent(TestCase):
                 'conference': self.bpt_event.conference.pk
         }
     
-    @nt.raises(Http404)
+    @nt.raises(PermissionDenied)
     def test_edit_event_user_is_not_ticketing(self):
         '''
-            The user does not have the right privileges.  Fail with a 404
+            The user does not have the right privileges.  Fail with a PermissionDenied
         '''
         user = gbe_factories.ProfileFactory.create().user_object
         request = self.factory.get('/ticketing/bptevent_edit/%d'%self.bpt_event.pk)

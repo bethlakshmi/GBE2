@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 import gbe.models as conf
 import ticketing.models as tickets
 import nose.tools as nt
@@ -24,10 +25,10 @@ class TestListTickets(TestCase):
         self.privileged_user.groups.add(group)
     
 
-    @nt.raises(Http404)
+    @nt.raises(PermissionDenied)
     def test_list_ticket_user_is_not_ticketing(self):
         '''
-            The user does not have the right privileges.  Fail with a 404
+            The user does not have the right privileges.  Fail with a PermissionDenied
         '''
         user = gbe_factories.ProfileFactory.create().user_object
         request = self.factory.get('/ticketing/ticket_items/')
@@ -39,7 +40,7 @@ class TestListTickets(TestCase):
         '''
            privileged user gets the list
         '''
-        request = self.factory.get('/ticketing/ticket_items')
+        request = self.factory.get('/ticketing/ticket_items/')
         request.user =  self.privileged_user
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)

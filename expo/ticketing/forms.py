@@ -18,6 +18,10 @@ class TicketItemForm(forms.ModelForm):
     '''
     required_css_class = 'required'
     error_css_class = 'error'
+    bpt_event = forms.ModelChoiceField(
+                            queryset = BrownPaperEvents.objects.all(),
+                            empty_label=None)
+
 
     bpt_event = forms.ModelChoiceField(
                             queryset = BrownPaperEvents.objects.all(),
