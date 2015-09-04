@@ -4,7 +4,6 @@
       <b>Act Bids</b>
     </span><br>
     {% for act in acts %}
-      {% if act.is_current %}
       <div class='act'>
         {% if act.submitted %}
 	  {{ act }} - {{act.get_accepted_display}} 
@@ -13,11 +12,11 @@
               <a href = '{% url 'gbe:act_view' act.id %}'>View</a> act
             </li>
             <br>
-            {% if act.get_accepted_display == 'Accepted' %} 
+            {% if act.get_accepted_display == 'Accepted' and not historical %} 
 	      <li> <a href = '{%url "gbe:act_techinfo_edit" act.id %}'>View/edit</a> 
 		      Act Tech Info and rehearsal schedule
               </li>
-             {% endif %}
+        {% endif %}
           </ul>
         {% elif act.performer.contact = profile %}
 	  {{ act }} - Not submitted
@@ -30,11 +29,17 @@
         {% for alert in act.alerts %}
           <span class='alert'> {{ alert|safe}}</span> <br>	      	 
         {% endfor %}
-      {% endif %}
     {% endfor %}
+    {% if historical %}
+    <ul>
+      <li><a href='{% url 'gbe:act_clone' %}'>Clone this act</a></li>
+    </ul>
+
+    {% else %}
     <ul>
       <li><a href='{% url 'gbe:act_create' %}'>Propose a new act</a></li>
     </ul>
+    {% endif %}
 {% else %}
   {{ profile.display_name }} has no acts listed.	   
   <ul class="rightsidebar">	 

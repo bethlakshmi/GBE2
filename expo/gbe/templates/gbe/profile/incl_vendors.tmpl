@@ -4,7 +4,7 @@
       <b>Vendor Bids</b>
     </span><br>
     {% for vendor in vendors %}
-      {% if vendor.is_current %}
+
       <div class='vendor'>
         {% if vendor.submitted %}
           <a href = '{% url 'gbe:vendor_view' vendor.id%}'> 
@@ -26,10 +26,11 @@
       {% for alert in vendor.alerts %}
         <span class='alert'> {{ alert|safe}}</span> <br>	      	 
       {% endfor %}
-      {% endif %}
+
     {% endfor %}
     <ul class="rightsidebar">
       <li><a href='{% url 'gbe:vendor_create' %}'>Propose a new business</a></li>
-    </ul>
+    </ul>    
   {% endif %}
+
 </div>

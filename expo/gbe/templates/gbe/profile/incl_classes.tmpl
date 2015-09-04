@@ -4,7 +4,7 @@
   {% if proposed_classes %} 
     <b>Class Bids</b>
     {% for class in proposed_classes %}
-      {% if class.is_current %}
+
       <div class='class'>
         {% if class.submitted %}
           <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>
@@ -23,7 +23,7 @@
       {% for alert in class.alerts %}
         <span class='alert'>{{alert | safe }}</a>
       {% endfor %}
-     {% endif %}
+
     {% endfor %}
     <ul class="rightsidebar">
       <li><a href='{% url 'gbe:class_create' %}'>Propose a new class</a></li>

@@ -7,7 +7,18 @@
   {% endif %} 
     Stuff
 </h3>
-{% for alert in profile.alerts %}
+
+{% if historical %}
+<h4>
+Showing Historical Bids
+</h4>
+<p>
+These bids are not currently available for consideration. Click the "clone"
+button to copy them into the current conference.
+</p>
+{% endif %}
+
+{% for alert in alerts %}
   <div class='alert'>{{alert|safe}}</a> <br><br> </div>
 {% endfor %}
 <br>
