@@ -35,13 +35,8 @@ class TestEditTicketItem(TestCase):
                 'cost': 1.01,
                 'bpt_event': self.ticketitem.bpt_event.pk
         }
-<<<<<<< HEAD
-    
-    @nt.raises(PermissionDenied)
-=======
 
-    @nt.raises(Http404)
->>>>>>> origin/GBE-471
+    @nt.raises(PermissionDenied)
     def test_edit_ticket_user_is_not_ticketing(self):
         '''
             The user does not have the right privileges.  Fail with a PermissionDenied
