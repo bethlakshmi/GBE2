@@ -40,7 +40,7 @@ class TestListTickets(TestCase):
         '''
            privileged user gets the list
         '''
-        request = self.factory.get('/ticketing/ticket_items/')
+        request = self.factory.get('/ticketing/ticket_items')
         request.user =  self.privileged_user
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
