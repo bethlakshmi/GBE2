@@ -11,6 +11,7 @@ from gbe_forms_text import *
 from django.db.models import Q
 
 
+
 class TicketItemForm(forms.ModelForm):
     '''
     Used to create a form for editing ticket item.  Used by the TicketItemEdit
@@ -22,6 +23,7 @@ class TicketItemForm(forms.ModelForm):
     bpt_event = forms.ModelChoiceField(
                             queryset = BrownPaperEvents.objects.all(),
                             empty_label=None)
+
     class Meta:
         model = TicketItem
         fields = ['ticket_id',

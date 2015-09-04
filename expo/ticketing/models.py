@@ -70,7 +70,7 @@ class TicketItem(models.Model):
     cost = models.DecimalField(max_digits=20, decimal_places=2)
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
-    bpt_event = models.ForeignKey(BrownPaperEvents, related_name="ticketitems", blank=True)
+    bpt_event = models.ForeignKey(BrownPaperEvents, related_name="ticketitems", blank=True) 
     
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
