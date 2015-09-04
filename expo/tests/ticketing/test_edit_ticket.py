@@ -34,7 +34,7 @@ class TestEditTicketItem(TestCase):
                 'cost': 1.01,
                 'bpt_event': self.ticketitem.bpt_event.pk
         }
-    
+
     @nt.raises(Http404)
     def test_edit_ticket_user_is_not_ticketing(self):
         '''
