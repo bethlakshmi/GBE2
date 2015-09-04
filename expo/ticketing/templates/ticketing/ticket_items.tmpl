@@ -9,67 +9,46 @@
 the button below to add.</p>
 <p class="hint">
 Note:  The Show to Public flag below indicates of the ticket item is displayed
-to end users.  By default it is "false".</p>
-<p class="hint">
-<span class="visible">Items that look like this</span> are currently visible under lists for
-tickets on the site.</p><br>
+to end users.  By default it is "false".</p><br>
 <p class="font_large">To add a new ticket item,
 <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
 </p>
-
-<table class="conf_list">
-  <tr>
-    {% for conference in conferences %}
-    <td>
-      {% if conference.conference_slug == conference_choice %}
-        <b>{{ conference.conference_name }}</b>
-      {% else %}
-      <a href="{% url 'ticketing:ticket_items' conference.conference_slug %}"}}>
-        {{ conference.conference_name }}
-      </a>&nbsp;
-      {% endif %}
-    </td>
-    {% endfor %}
-  </tr>
-</table>
-
+<p class="font_large">To add a new event,
+<a href={% url 'ticketing:bptevent_edit' %}> click here</a>.
+</p>
 <table class="ticketing">
   <tr class="header ticketing">
-    <th class="ticketing">Event</th>
-    <th class="ticketing">Purpose</th>
-    <th class="ticketing">Events</th>
-    <th class="ticketing">Reg Info</th>
+    <th class="ticketing">&nbsp;</th>
+    <th class="ticketing">Event #</th>
+    <th class="ticketing">Type of Event</th>
+    <th class="ticketing">Connected Expo Content</th>
+    <th class="ticketing">Make a Badge</th>
+    <th class="ticketing">Registration Details</th>
   </tr>
 {% for event in events %}
   <tr class="dark_row ticketing">
+    <td class="ticketing">+</td>
     <td class="ticketing"><a href="{% url 'ticketing:bptevent_edit' event.id %}">{{event}}</a></td>
-    <td class="ticketing">{% if event.primary %}Primary, {%endif%}
-    {% if event.act_submission_event %}Act Fee, {%endif%}
-    {% if event.vendor_submission_event %}Vendor Fee, {%endif%}
-    </td>
-    <td class="ticketing">
-      {% if event.include_conference %}Includes Conference,{% endif %}
-      {% if event.include_most %}All Except Master Class,{% endif %}
-    </td>
-    <td class="ticketing">{% if event.badgeable %}Badges Given{%endif%}
-    {% if event.badgeable and event.ticket_style %}<br>{% endif %}
-    {% if event.ticket_style %}Ticket Notes: {{event.ticket_style}}{% endif %}</td>
+    <td class="ticketing">{{event.primary}}</td>
+    <td class="ticketing">{{event.include_conference}}</td>
+    <td class="ticketing">{{event.badgeable}}</td>
+    <td class="ticketing">{{event.ticket_style}}</td>
   </tr>
   <tr>
-    <td>&nbsp;</td>
-    <td colspan=3>
+    <td colspan=2>&nbsp;</td>
+    <td colspan=4>
 <table>
 {% for item in event.ticketitems.all %}
 <tr {% if item.active %}class="visible"{% endif %}>    
-  <td class="ticket_item">
+  <td>
   <a href="{% url 'ticketing:ticket_item_edit' item.id %}">{{item.ticket_id}}</a>
   </td>
-  <td class="ticket_item">{{ item.title | safe }}</td>
-  <td class="ticket_item">{{ item.description | safe | truncatechars:80 }}</td>
-  <td class="ticket_item">{% if item.active %}Visible{% else %}Hidden{% endif %}</td>
-  <td class="ticket_item">${{ item.cost }}</td>
-  <td class="ticket_item">{{ item.modified_by }}</td>
-  <td class="ticket_item">{{ item.datestamp }}</td>
+  <td>{{ item.title | safe }}</td>
+  <td>{{ item.description | safe | truncatechars:100 }}</td>
+  <td>{% if item.active %}Visible{% else %}Hidden{% endif %}</td>
+  <td>${{ item.cost }}</td>
+  <td>{{ item.modified_by }}</td>
+  <td>{{ item.datestamp }}</td>
 <tr>   
 {% endfor %}  
 </table>

@@ -65,6 +65,7 @@ class BPTEventForm(forms.ModelForm):
                                 required=False,
                                 label=bpt_event_labels['linked_events'])
 
+
     class Meta:
         model = BrownPaperEvents
         fields = ['primary',

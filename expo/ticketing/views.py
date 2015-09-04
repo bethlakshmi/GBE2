@@ -53,6 +53,7 @@ def ticket_items(request, conference_choice=None):
     context = {'events': events,
                'conferences': conferences,
                'conference_choice':  conference_choice}
+
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
 
@@ -149,37 +150,35 @@ def ticket_item_edit(request, item_id=None):
         else:
             form = TicketItemForm()
 
-    context = {'forms': [form], 'error': error, 'can_delete': True}
+    context = {'forms': [form,], 'error': error, 'can_delete': True} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
 
 
-def bptevent_edit(request, event_id):
+def bptevent_edit(request, event_id=None):
     '''
-    Used to display a form for editing events.
-    Deleting and adding events should only be done by an Admin
+    Used to display a form for editing ticket, or adding events.
+    Deleting events should only be done by an Admin
     '''
-    validate_perms(request, ('Ticketing - Admin', ))
+    if not validate_perms(request, ('Ticketing - Admin', )):
+        raise Http404
+        
+    error = ''
 
-    event = get_object_or_404(BrownPaperEvents, id=event_id)
-
+    if (event_id != None):
+        event = get_object_or_404(BrownPaperEvents, id=event_id)
+        
     if (request.method == 'POST'):
-
+    
         # save the item using the Forms API
         form = BPTEventForm(request.POST, instance=event)
-
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('ticket_items',
-                                                urlconf='ticketing.urls'))
-        else:
-            return render(request,
-                          r'ticketing/ticket_item_edit.tmpl',
-                          {'forms': [form], 'can_delete': False})
-
-            #return render(request, r'ticketing/ticket_item_edit.tmpl')
-
+            return HttpResponseRedirect(reverse('ticket_items', urlconf='ticketing.urls'))
     else:
-        form = BPTEventForm(instance=event)
+        if (event_id != None):
+            form = BPTEventForm(instance=event)
+        else:
+            form = BPTEventForm()
 
-    context = {'forms': [form], 'can_delete': False}
+    context = {'forms': [form,], 'error': error, 'can_delete': False} 
     return render(request, r'ticketing/ticket_item_edit.tmpl', context)
