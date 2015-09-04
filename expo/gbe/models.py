@@ -1177,6 +1177,27 @@ class Class(Biddable, Event):
     multiple_run = models.CharField(max_length=20,
                                     choices=yesno_options, default="No")
 
+
+
+    def clone(self):
+        new_class = Class(teacher=self.teacher,
+                          minimum_enrollment=self.minimum_enrollment,
+                          organization=self.organization, 
+                          type=self.type,
+                          fee=self.fee,
+                          other_teachers=self.other_teachers,
+                          length_minutes=self.length_minutes,
+                          history=self.history,
+                          run_before=self.run_before,
+                          space_needs=self.space_needs,
+                          physical_restrictions=self.physical_restrictions,
+                          multiple_run=self.multiple_run,
+                          title=self.title,
+                          description=self.description)
+        new_class.save()
+        return new_class
+
+
     @property
     def get_space_needs(self):
         needs = ""
@@ -1400,6 +1421,22 @@ class Vendor(Biddable):
 
     def validation_problems_for_submit(self):
         return []
+
+
+    def clone(self):
+        vendor = Vendor(profile=self.profile,
+                        website=self.website,
+                        physical_address=self.physical_address,
+                        publish_physical_address=self.publish_physical_address,
+                        logo = self.logo,
+                        want_help=self.want_help,
+                        help_description=self.help_description,
+                        help_times= self.help_times,
+                        title=self.title,
+                        description=self.description)
+
+        vendor.save()
+        return vendor
 
     @property
     def bid_review_header(self):
