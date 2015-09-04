@@ -19,7 +19,6 @@ class TicketItemForm(forms.ModelForm):
     '''
     required_css_class = 'required'
     error_css_class = 'error'
-
     bpt_event = forms.ModelChoiceField(
                             queryset = BrownPaperEvents.objects.all(),
                             empty_label=None)
@@ -33,6 +32,7 @@ class TicketItemForm(forms.ModelForm):
                   'cost',
                   'bpt_event'
                   ]
+        widgets = {'bpt_event': forms.HiddenInput()}
         labels = ticket_item_labels
 
     def save(self, user, commit=True):
