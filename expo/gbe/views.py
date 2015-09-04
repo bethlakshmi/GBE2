@@ -76,9 +76,11 @@ def index(request):
     context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
 
-
+    
 @login_required
 def landing_page(request, profile_id=None):
+    import pdb; pdb.set_trace()
+    historical = "historical" in request.GET.keys()
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
     if (profile_id):
@@ -131,15 +133,18 @@ def landing_page(request, profile_id=None):
         context = RequestContext(
             request,
             {'profile': viewer_profile,
+             'historical': historical,
+             'alerts': viewer_profile.alerts(historical),
              'standard_context': standard_context,
              'personae': viewer_profile.get_personae(),
              'troupes': viewer_profile.get_troupes(),
              'combos': viewer_profile.get_combos(),
-             'acts': viewer_profile.get_acts(),
+             'acts': viewer_profile.get_acts(historical),
              'shows': viewer_profile.get_shows(),
-             'classes': viewer_profile.is_teaching(),
-             'proposed_classes': viewer_profile.proposed_classes(),
-             'vendors': Vendor.objects.filter(profile=viewer_profile),
+             'classes': viewer_profile.is_teaching(historical),
+             'proposed_classes': viewer_profile.proposed_classes(historical),
+             'vendors': viewer_profile.vendors(historical),
+#             'vendors': Vendor.objects.filter(profile=viewer_profile),
              'volunteering': viewer_profile.get_volunteerbids(),
              'review_items': bids_to_review,
              'bookings': viewer_profile.get_schedule(),
@@ -509,6 +514,13 @@ def bid_act(request):
              'fee_link': fee_link,
              'draft_fields': draft_fields}
         )
+
+
+def close_bit(request, bid_type, bid_id):
+    '''
+    "Revive" an existing bid for use in the existing conference
+    '''
+
 
 
 @login_required
