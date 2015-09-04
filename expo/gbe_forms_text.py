@@ -602,25 +602,36 @@ list_text = {
         Check out the full list of all shows, classes, master classes, dropin classes and special events!\
         </p> ''',
     'Volunteer': '''    <p> \
-        Check out the many ways you can help to make the expo even more awesome!  We're always adding \
-        new ways to help, so check here often!
-        </p> ''',
-    'Master': '''    <p> For the student of burlesque who wants to get even more out of the conference, \
-        The Great Burlesque Exposition offers Master Classes.  These are intensive, double-length classes \
-        taught by world-renowned experts in burlesque.  If you want to take your performance to the next \
-        level, this is how to do it. </p> <font color="red">Please note:</font><br><br>\
-        <ul><li>It is strongly suggested you sign up for Master Classes in advance.  Space is limited and \
-        we expect them to sell out.</li>\
-        <li>You do not need to be registered for any other portion of The Great Burlesque Exposition to \
-        attend a Master Class.</li>\
-        <li>Master Classes are not included in the Whole Shebang package.  If you wish to attend a master \
+        Check out the many ways you can help to make the expo even more \
+        awesome!  We're always adding new ways to help, so check here often! \
+        </p>''',
+    'Master': '''    <p> For the student of burlesque who wants to get even \
+        more out of the conference, The Great Burlesque Exposition offers \
+        Master Classes.  These are intensive, double-length classes \
+        taught by world-renowned experts in burlesque.  If you want to take \
+        your performance to the next level, this is how to do it. </p> <font \
+        color="red">Please note:</font><br><br><ul><li>It is strongly \
+        suggested you sign up for Master Classes in advance.  Space is
+        limited and we expect them to sell out.</li>\
+        <li>You do not need to be registered for any other portion of The \
+        Great Burlesque Exposition to attend a Master Class.</li>\
+        <li>Master Classes are not included in the Whole Shebang package.  \
+        If you wish to attend a master \
         class, an additional fee applies.</li>''',
-    'Drop-In': '''    <p> Brought to you by the <a href="http://www.studyburlesque.com">Boston Academy\
-        of Burlesque Education (B.A.B.E.)</a> these classes are a great "tease" into the art of Burlesque.\
-        </p> ''',
-    'Special': '''    <p> A collection of events so special that we had no choice but to call them\
-        "Special Events".
-        </p> '''
+    'Drop-In': '''    <p> Brought to you by the \
+        <a href="http://www.studyburlesque.com">Boston Academy of Burlesque \
+        Education (B.A.B.E.)</a> these classes are a great "tease" into the \
+        art of Burlesque.</p> ''',
+    'Special': '''    <p> A collection of events so special that we had no \
+        choice but to call them "Special Events".</p> '''
 }
 
-acceptance_note ='''Only accepted classes will show up in scheduling and on the website.'''
+acceptance_note = '''Only accepted classes will show up in scheduling and on \
+                  the website.'''
+
+scheduling_help_texts = {
+    'description': "Note, this will change the description for all bookings \
+        of this event",
+    'title': "Note, this will change the title for all bookings of this event",
+    'duration': "Enter duration as HH:MM:SS"
+}

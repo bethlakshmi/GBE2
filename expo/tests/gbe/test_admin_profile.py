@@ -16,7 +16,6 @@ from tests.functions.gbe_functions import (login_as,
                                            location)
 
 
-
 class TestAdminProfile(TestCase):
     '''Tests for admin_profile  view'''
 
@@ -30,9 +29,6 @@ class TestAdminProfile(TestCase):
 
     @nt.raises(Http404)
     def test_admin_profile_no_such_profile(self):
-        request= self.factory.get('profile/admin/%d' %-1 )
+        request = self.factory.get('profile/admin/%d' % -1)
         request.user = self.privileged_user
         response = admin_profile(request, -1)
-
-
-

@@ -12,6 +12,7 @@ from tests.functions.gbe_functions import (login_as,
                        is_profile_update_page,
                        location)
 
+
 class TestViewVolunteer(TestCase):
     '''Tests for view_volunteer view'''
 
@@ -25,5 +26,6 @@ class TestViewVolunteer(TestCase):
         request = self.factory.get('volunteer/view/%d' % volunteer.pk)
         request.user = volunteer.profile.user_object
         response = view_volunteer(request, volunteer.pk)
+        test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Submitted proposals cannot be modified' in response.content)
+        nt.assert_true(test_string in response.content)

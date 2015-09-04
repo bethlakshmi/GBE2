@@ -35,7 +35,6 @@ class TestManageUserTickets(TestCase):
         login_as(self.privileged_user, self)
         response = manage_user_tickets(request, -1)
 
-
 '''
     def test_review_user_commitments_profile_exists(self):
         # currently failing because the function being tested is broken

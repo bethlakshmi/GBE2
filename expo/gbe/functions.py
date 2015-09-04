@@ -1,6 +1,7 @@
 import gbe.models as conf
 from django.http import Http404
 from django.core.mail import send_mail
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 
@@ -27,7 +28,7 @@ def validate_perms(request, perms, require=True):
     profile = validate_profile(request, require=False)
     if not profile:
         if require:
-            raise Http404
+            raise PermissionDenied
         else:
             return False
     if perms == 'any':
@@ -35,13 +36,13 @@ def validate_perms(request, perms, require=True):
             return profile
         else:
             if require:
-                raise Http404
+                raise PermissionDenied
             else:
                 return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
     if require:                # error out if permission is required
-        raise Http404
+        raise PermissionDenied
     return False               # or just return false if we're just checking
 
 '''
@@ -49,9 +50,11 @@ def validate_perms(request, perms, require=True):
     Will always send using default_from_email
 '''
 def mail_to_group(subject, message, group_name):
+
     to_list = [user.email for user in 
                User.objects.filter(groups__name=group_name)]
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
+    if not settings.DEBUG:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
     return None
 
 
@@ -66,4 +69,8 @@ def send_user_contact_email(name, from_address, message):
     # TO DO: log usage of this function
     # TO DO: close the spam hole that this opens up. 
               
-              
+
+def get_conf(biddable):
+    conference = biddable.biddable_ptr.conference
+    old_bid = conference.status == 'completed'
+    return conference, old_bid

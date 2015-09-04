@@ -23,23 +23,19 @@ class TestReviewProposalList(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
-        class_coordinator, created = Group.objects.get_or_create(name='Class Coordinator')
+        group, nil = Group.objects.get_or_create(name='Class Coordinator')
         self.privileged_user = factories.ProfileFactory.create().user_object
-        self.privileged_user.groups.add(class_coordinator)
+        self.privileged_user.groups.add(group)
 
     def get_class_form(self):
-        return { 'name': 'someone@host.com',
-                 'title': 'some class name', 
-                 'proposal': 'some class description'
-                 }
+        return {'name': 'someone@host.com',
+                'title': 'some class name',
+                'proposal': 'some class description'
+                }
 
     def test_review_proposal_list_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
-        request= self.factory.get('classpropose/reviewlist/')
-        request.user =  self.privileged_user
+        request = self.factory.get('classpropose/reviewlist/')
+        request.user = self.privileged_user
         response = review_proposal_list(request)
-        nt.assert_equal(response.status_code, 200)    
-        
-        
-
-
+        nt.assert_equal(response.status_code, 200)

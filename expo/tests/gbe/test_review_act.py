@@ -23,8 +23,8 @@ class TestReviewAct(TestCase):
         self.performer = factories.PersonaFactory.create()
         self.privileged_profile = factories.ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        act_reviewers, created = Group.objects.get_or_create(name='Act Reviewers')
-        self.privileged_user.groups.add(act_reviewers)
+        group, nil = Group.objects.get_or_create(name='Act Reviewers')
+        self.privileged_user.groups.add(group)
 
     def test_review_act_all_well(self):
         act = factories.ActFactory.create()

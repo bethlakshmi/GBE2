@@ -26,19 +26,15 @@ class TestCreateCombo(TestCase):
         request.user = factories.UserFactory.create()
         response = create_combo(request)
         self.assertEqual(response.status_code, 302)
-
-
         user = factories.UserFactory.create()
         login_as(user, self)
         request.user = user
         response = create_combo(request)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), 
+        nt.assert_equal(location(response),
                         '/update_profile?next=/troupe/create')
         request.user = contact.performer_profile.user_object
         login_as(contact.performer_profile, self)
         response = create_combo(request)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.troupe_string in response.content)
-
-

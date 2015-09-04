@@ -19,7 +19,7 @@ class TestEditVendor(TestCase):
     '''Tests for edit_vendor view'''
 
     # this test case should be unnecessary, since edit_vendor should go away
-    # for now, test it. 
+    # for now, test it.
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -27,10 +27,10 @@ class TestEditVendor(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_vendor_form(self, submit=False, invalid=False):
-        form = {'profile':1,
-                'title':'title here',
-                'description':'description here',
-                'physical address':'123 Maple St.',
+        form = {'profile': 1,
+                'title': 'title here',
+                'description': 'description here',
+                'physical address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
@@ -45,12 +45,12 @@ class TestEditVendor(TestCase):
         request = self.factory.get('/vendor/edit/-1')
         request.user = profile.user_object
         response = edit_vendor(request, -1)
-        
+
     @nt.raises(Http404)
     def test_edit_vendor_profile_is_not_coordinator(self):
         user = factories.ProfileFactory.create().user_object
         vendor = factories.VendorFactory.create()
-        request = self.factory.get('/vendor/edit/%d'%vendor.pk)
+        request = self.factory.get('/vendor/edit/%d' % vendor.pk)
         request.user = user
         response = edit_vendor(request, vendor.pk)
 
@@ -84,4 +84,3 @@ class TestEditVendor(TestCase):
 #        response = edit_vendor(request, vendor.pk)
 #        nt.assert_equal(response.status_code, 200)
 #        nt.assert_true('Edit Your Vendor Proposal' in response.content)
-    

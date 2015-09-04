@@ -16,7 +16,6 @@ from tests.functions.gbe_functions import (login_as,
                                            location)
 
 
-
 class TestProposeClass(TestCase):
     '''Tests for propose_class view'''
 
@@ -28,26 +27,19 @@ class TestProposeClass(TestCase):
         self.privileged_user = factories.ProfileFactory.create().user_object
         self.privileged_user.groups.add(registrar)
 
-
     def get_class_form(self):
-        return { 'name': 'someone@host.com',
-                 'title': 'some class name', 
-                 'proposal': 'some class description'
-                 }
-                 
+        return {'name': 'someone@host.com',
+                'title': 'some class name',
+                'proposal': 'some class description'
+                }
 
     def test_propose_class(self):
-        '''Basic up/down test for propose_class view - no login or profile required'''
-        request= self.factory.get('class/propose/')
+        '''Basic up/down test for propose_class view -
+        no login or profile required'''
+
+        request = self.factory.get('class/propose/')
         request.method = "POST"
         request.POST = self.get_class_form()
         request.user = factories.UserFactory.create()
         response = propose_class(request)
         nt.assert_equal(response.status_code, 200)
-        
-
-    
-        
-        
-
-

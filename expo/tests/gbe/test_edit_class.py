@@ -4,6 +4,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
+
 from gbe.views import edit_class
 import mock
 import gbe.ticketing_idd_interface 
@@ -18,7 +19,7 @@ class TestEditClass(TestCase):
     '''Tests for edit_class view'''
 
     # this test case should be unnecessary, since edit_class should go away
-    # for now, test it. 
+    # for now, test it.
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -26,13 +27,13 @@ class TestEditClass(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_class_form(self):
-        return {"teacher":2,
-                "title":'A class',
-                "description":'a description',
-                "length_minutes":60,
-                'maximum_enrollment':20,
-                'fee':0,
-        }        
+        return {"teacher": 2,
+                "title": 'A class',
+                "description": 'a description',
+                "length_minutes": 60,
+                'maximum_enrollment': 20,
+                'fee': 0,
+                }
 
     @nt.raises(Http404)
     def test_edit_class_no_class(self):
@@ -41,12 +42,12 @@ class TestEditClass(TestCase):
         request = self.factory.get('/class/edit/-1')
         request.user = profile.user_object
         response = edit_class(request, -1)
-        
+
     @nt.raises(Http404)
     def test_edit_class_profile_is_not_contact(self):
         user = factories.ProfileFactory.create().user_object
         klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/edit/%d'%klass.pk)
+        request = self.factory.get('/class/edit/%d' % klass.pk)
         request.user = user
         response = edit_class(request, klass.pk)
 
@@ -63,11 +64,12 @@ class TestEditClass(TestCase):
         nt.assert_true('Edit Your Class Proposal' in response.content)
 
     def test_edit_bid_post_no_submit(self):
-        '''act_bid, not submitting and no other problems, should redirect to home'''
+        '''act_bid, not submitting and no other problems,
+        should redirect to home'''
         klass = factories.ClassFactory.create()
         request = self.factory.get('/class/edit/%d' % klass.pk)
         request.user = klass.teacher.contact.user_object
-        request.method='POST'
+        request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_class_form())
         response = edit_class(request, klass.pk)
@@ -82,4 +84,3 @@ class TestEditClass(TestCase):
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
-    

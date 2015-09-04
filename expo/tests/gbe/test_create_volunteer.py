@@ -23,11 +23,10 @@ class TestCreateVolunteer(TestCase):
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
 
-
     def get_volunteer_form(self, submit=False, invalid=False):
-        form = {'profile':1,
-                'number_shifts':2,
-                'availability':'SH0',
+        form = {'profile': 1,
+                'number_shifts': 2,
+                'availability': 'SH0',
                 'interests': 'VA0',
                 }
         if submit:
@@ -35,7 +34,7 @@ class TestCreateVolunteer(TestCase):
         if invalid:
             del(form['number_shifts'])
         return form
-    
+
     def test_create_volunteer_no_profile(self):
         request = self.factory.get('volunteer/bid/')
         request.user = factories.UserFactory.create()
@@ -44,16 +43,15 @@ class TestCreateVolunteer(TestCase):
 
     def test_create_volunteer_post_no_submit(self):
         request = self.factory.get('volunteer/bid/')
-        request.method='POST'
+        request.method = 'POST'
         request.user = factories.UserFactory.create()
         request.POST = self.get_volunteer_form()
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 302)
 
-
     def test_create_volunteer_post_form_invalid(self):
         request = self.factory.get('volunteer/bid/')
-        request.method='POST'
+        request.method = 'POST'
         request.user = factories.ProfileFactory.create().user_object
         request.POST = self.get_volunteer_form(invalid=True)
         response = create_volunteer(request)
@@ -64,4 +62,3 @@ class TestCreateVolunteer(TestCase):
         request.user = factories.ProfileFactory.create().user_object
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 200)
-        

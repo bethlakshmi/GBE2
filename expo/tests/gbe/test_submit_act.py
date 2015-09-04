@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (login_as,
                                            is_profile_update_page,
                                            location)
 
+
 class TestSubmitAct(TestCase):
     '''Tests for submit_act view'''
 

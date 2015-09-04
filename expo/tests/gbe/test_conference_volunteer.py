@@ -25,19 +25,14 @@ class TestReviewProposalList(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_class_form(self):
-        return { 'name': 'someone@host.com',
-                 'title': 'some class name', 
-                 'proposal': 'some class description'
-                 }
+        return {'name': 'someone@host.com',
+                'title': 'some class name',
+                'proposal': 'some class description'
+                }
 
     def test_conference_volunteer_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
-        request= self.factory.get('classpropose/reviewlist/')
-        request.user =  factories.ProfileFactory.create().user_object
+        request = self.factory.get('classpropose/reviewlist/')
+        request.user = factories.ProfileFactory.create().user_object
         response = conference_volunteer(request)
-        nt.assert_equal(response.status_code, 200)    
-        
-        
-    
-
-
+        nt.assert_equal(response.status_code, 200)

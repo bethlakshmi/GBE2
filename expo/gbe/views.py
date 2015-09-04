@@ -1,42 +1,61 @@
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import (
+    render,
+    get_object_or_404,
+    render_to_response,
+)
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    Http404,
+)
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import (
+    login,
+    logout,
+    authenticate,
+)
 from django.contrib.auth.forms import UserCreationForm
-from django.template import loader, RequestContext, Context
+from django.template import (
+    loader,
+    RequestContext,
+    Context,
+)
 from gbe.models import (
-    Event, 
-    Act, 
+    Event,
+    Act,
     Performer,
 )
 from gbe.forms import *
 from gbe.functions import *
 from gbe.ticketing_idd_interface import *
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout, authenticate
 import gbe_forms_text
 from ticketingfuncs import compute_submission
 from duration import Duration
 from scheduler.functions import set_time_format
 from scheduler.models import (
     Event as sEvent,
-    ResourceAllocation, 
+    ResourceAllocation,
     ActResource,
-    Worker, 
+    Worker,
 )
 
 
+visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
+                     Q(biddable_ptr__conference__status='ongoing'))
+
 def down(request):
     '''
-    Static "Site down" notice. Simply refers user to a static template 
+    Static "Site down" notice. Simply refers user to a static template
     with a message.
     '''
     template = loader.get_template('down.tmpl')
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
-    
+
 def index(request):
     '''
     one of two cases:
@@ -56,6 +75,7 @@ def index(request):
         pass
     context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
+
 
 @login_required
 def landing_page(request, profile_id=None):
@@ -81,8 +101,9 @@ def landing_page(request, profile_id=None):
             bid_type = ""
             if bid.__class__ == Act:
                 url = reverse('act_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
+                               urlconf='gbe.urls',
+                               args=[str(bid.id)]
+                )
                 bid_type = "Act"
             elif bid.__class__ == Class:
                 url = reverse('class_review',
@@ -137,6 +158,7 @@ def event(request, event_id):
     '''
     event = get_object_or_404(Event, pk=event_id)
     return render(request, 'gbe/event.html', {'event': event})
+
 
 def techinfo(request):
     form = TechInfoForm()
@@ -397,7 +419,7 @@ def bid_act(request):
             form = ActEditDraftForm(request.POST,
                                     prefix='theact')
         if form.is_valid():
-            #hack
+            # hack
             conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
             act.conference = conference
@@ -425,28 +447,30 @@ def bid_act(request):
 
         else:
             fields, requiredsub = Act().bid_fields
-            return render(request,
-                          'gbe/bid.tmpl',
-                          {'forms': [form],
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'draft_fields': draft_fields,
-                           'fee_link': fee_link,
-                           'submit_fields': requiredsub
-                          })
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'fee_link': fee_link,
+                 'submit_fields': requiredsub}
+            )
 
         if 'submit' in request.POST.keys():
             problems = act.validation_problems_for_submit()
             if problems:
-                return render(request,
-                              'gbe/bid.tmpl',
-                              {'forms': [form],
-                               'page_title': page_title,
-                               'view_title': view_title,
-                               'draft_fields': draft_fields,
-                               'fee_link': fee_link,
-                               'errors': problems
-                              })
+                return render(
+                    request,
+                    'gbe/bid.tmpl',
+                    {'forms': [form],
+                     'page_title': page_title,
+                     'view_title': view_title,
+                     'draft_fields': draft_fields,
+                     'fee_link': fee_link,
+                     'errors': problems}
+                )
 
             else:
                 '''
@@ -460,10 +484,12 @@ def bid_act(request):
                                                         urlconf='gbe.urls'))
                 else:
                     page_title = 'Act Payment'
-                    return render(request, 'gbe/please_pay.tmpl',
-                                  {'link': fee_link,
-                                   'page_title': page_title
-                                  })
+                    return render(
+                        request,
+                        'gbe/please_pay.tmpl',
+                        {'link': fee_link,
+                         'page_title': page_title}
+                    )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
@@ -474,14 +500,15 @@ def bid_act(request):
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = forms.ModelChoiceField(queryset=q)
 
-        return render(request,
-                      'gbe/bid.tmpl',
-                      {'forms': [form],
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'fee_link': fee_link,
-                       'draft_fields': draft_fields
-                      })
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form],
+             'page_title': page_title,
+             'view_title': view_title,
+             'fee_link': fee_link,
+             'draft_fields': draft_fields}
+        )
 
 
 @login_required
@@ -548,15 +575,16 @@ def edit_act(request, act_id):
             form.save()
         else:
             fields, requiredsub = Act().bid_fields
-            return render(request,
-                          'gbe/bid.tmpl',
-                          {'forms': [form],
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'draft_fields': draft_fields,
-                           'fee_link': fee_link,
-                           'submit_fields': requiredsub
-                          })
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'fee_link': fee_link,
+                 'submit_fields': requiredsub}
+            )
 
         if 'submit' in request.POST.keys():
             problems = act.validation_problems_for_submit()
@@ -582,10 +610,12 @@ def edit_act(request, act_id):
                                                         urlconf='gbe.urls'))
                 else:
                     page_title = 'Act Payment'
-                    return render(request, 'gbe/please_pay.tmpl',
-                                  {'link': fee_link,
-                                   'page_title': page_title
-                               })
+                    return render(
+                        request,
+                        'gbe/please_pay.tmpl',
+                        {'link': fee_link,
+                         'page_title': page_title}
+                    )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
@@ -602,36 +632,35 @@ def edit_act(request, act_id):
                            })
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = forms.ModelChoiceField(queryset=q)
-        return render(request,
-                      'gbe/bid.tmpl',
-                      {'forms': [form],
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'fee_link': fee_link,
-                       'draft_fields': draft_fields
-                   })
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form],
+             'page_title': page_title,
+             'view_title': view_title,
+             'fee_link': fee_link,
+             'draft_fields': draft_fields}
+        )
 
-        
+
 @login_required
 def view_act(request, act_id):
     '''
-    Show a bid  which needs to be reviewed by the current user.
-    To show: display all information about the bid, and a standard
-    review form.
-    If user is not a reviewer, politely decline to show anything.
+    Show a bid as a read-only form.
     '''
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != request.user.profile:
-        raise Http404
+        raise PermissionDenied
     audio_info = act.tech.audio
     stage_info = act.tech.stage
-    actform = ActEditForm(instance=act,
-                          prefix='The Act',
-                          initial={'track_title': audio_info.track_title,
-                                   'track_artist': audio_info.track_artist,
-                                   'track_duration': audio_info.track_duration,
-                                   'act_duration': stage_info.act_duration
-                               })
+    actform = ActEditForm(
+        instance=act,
+        prefix='The Act',
+        initial={'track_title': audio_info.track_title,
+                 'track_artist': audio_info.track_artist,
+                 'track_duration': audio_info.track_duration,
+                 'act_duration': stage_info.act_duration}
+    )
     try:
         instance = Troupe.objects.get(pk=act.performer.id)
         performer = TroupeForm(instance=instance,
@@ -651,9 +680,14 @@ def review_act(request, act_id):
     To show: display all information about the bid, and a standard
     review form.
     If user is not a reviewer, politely decline to show anything.
+    TODO: refactor to eliminate duplication between this and view_act
     '''
     reviewer = validate_perms(request, ('Act Reviewers', ))
-    act = get_object_or_404(Act, id=act_id)
+    act = get_object_or_404(
+        Act,
+        id=act_id
+    )
+    conference, old_bid = get_conf(act)    
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -667,16 +701,19 @@ def review_act(request, act_id):
     performer = PersonaForm(instance=act.performer,
                             prefix='The Performer(s)')
 
-    if 'Act Coordinator' in request.user.profile.privilege_groups:
+    if validate_perms(request, ('Act Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=act)
         # This requires that the show be scheduled - seems reasonable in
         # current workflow and lets me order by date.  Also - assumes
         # that shows are only scheduled once
         try:
-            start = Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+            start = Show.objects.filter(
+                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
         except:
             start = ""
-        q = Show.objects.filter(scheduler_events__isnull=False).order_by('scheduler_events__starttime')
+        q = Show.objects.filter(
+            scheduler_events__isnull=False).order_by(
+                'scheduler_events__starttime')
         actionform.fields['show'] = forms.ModelChoiceField(
             queryset=q,
             empty_label=None,
@@ -693,8 +730,9 @@ def review_act(request, act_id):
     if user has previously reviewed the act, provide their review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=act_id, 
-                                                evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=act_id,
+            evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
 
@@ -714,7 +752,9 @@ def review_act(request, act_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL,
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -723,7 +763,9 @@ def review_act(request, act_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -735,15 +777,24 @@ def review_act_list(request):
     reviewer = validate_perms(request, ('Act Reviewers',))
     try:
         header = Act().bid_review_header
-        acts = Act.objects.filter(submitted=True).order_by('accepted',
-                                                           'performer')
-        review_query = BidEvaluation.objects.filter(bid=acts).select_related('evaluator').order_by('bid', 
-                                                                                                   'evaluator')
+        acts = Act.objects.filter(
+            submitted=True).filter(
+                visible_bid_query).order_by(
+                    'accepted',
+                    'performer')
+        review_query = BidEvaluation.objects.filter(
+            bid=acts).select_related(
+                'evaluator').order_by(
+                    'bid',
+                    'evaluator')
         rows = []
         for act in acts:
             bid_row = {}
             bid_row['bid'] = act.bid_review_summary
-            bid_row['reviews'] = review_query.filter(bid=act.id).select_related('evaluator').order_by('evaluator')
+            bid_row['reviews'] = review_query.filter(
+                bid=act.id).select_related(
+                    'evaluator').order_by(
+                        'evaluator')
             bid_row['id'] = act.id
             bid_row['review_url'] = reverse('act_review',
                                             urlconf='gbe.urls',
@@ -763,7 +814,7 @@ def act_changestate(request, bid_id):
     the act to the selected show (if accepted/waitlisted), and then does
     the regular state change
     NOTE: only call on a post request
-    BB - I'd like to refactor this to be the same as volunteer form, but 
+    BB - I'd like to refactor this to be the same as volunteer form, but
     not right now - 2015?
     '''
     def act_accepted(request):
@@ -781,7 +832,7 @@ def act_changestate(request, bid_id):
 
         # if the act has been accepted, set the show.
         if act_accepted(request):
-            # Cast the act into the show by adding it to the schedule 
+            # Cast the act into the show by adding it to the schedule
             # resource time
             allocation_format = set_time_format(days=2)
             show = get_object_or_404(sEvent,
@@ -793,12 +844,15 @@ def act_changestate(request, bid_id):
             for worker in act.get_performer_profiles():
                 conflicts = worker.get_conflicts(show)
                 for problem in conflicts:
-                    messages.warning(request, 
-                                     str(worker) + " is booked for - " + 
-                                     str(problem) + " - " + 
-                                     problem.starttime.strftime(allocation_format)
+                    messages.warning(
+                        request,
+                        "%s is booked for - %s - %s" % (
+                            str(worker),
+                            str(problem),
+                            problem.starttime.strftime(allocation_format)
+                        )
                     )
-                                     
+
             casting.resource = actresource
             casting.save()
     return bid_changestate(request, bid_id, 'act_review_list')
@@ -816,8 +870,8 @@ def submit_act(request, act_id):
                       'gbe/error.tmpl',
                       {'error': "You don't own that act."})
     else:
-        the_act.submitted = True            
-        the_act.save()                      
+        the_act.submitted = True
+        the_act.save()
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
@@ -863,7 +917,7 @@ def bid_class(request):
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
-                    new_class.conference=conference
+                    new_class.conference = conference
                     new_class.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
@@ -880,14 +934,15 @@ def bid_class(request):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Class().get_bid_fields
-            return render(request,
-                          'gbe/bid.tmpl',
-                          {'forms': [form],
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'draft_fields': draft_fields,
-                           'submit_fields': requiredsub
-                       })
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'submit_fields': requiredsub}
+            )
 
     else:
         form = ClassBidForm(initial={'owner': owner,
@@ -895,13 +950,14 @@ def bid_class(request):
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
         form.fields['teacher'] = forms.ModelChoiceField(queryset=q)
 
-        return render(request,
-                      'gbe/bid.tmpl',
-                      {'forms': [form],
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'draft_fields': draft_fields
-                   })
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form],
+             'page_title': page_title,
+             'view_title': view_title,
+             'draft_fields': draft_fields}
+        )
 
 
 def edit_class(request, class_id):
@@ -938,35 +994,39 @@ def edit_class(request, class_id):
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
                 else:
-                    return render(request,
-                                  'gbe/bid.tmpl',
-                                  {'forms': [form],
-                                   'page_title': page_title,
-                                   'view_title': view_title,
-                                   'draft_fields': draft_fields,
-                                   'errors': ['Cannot submit, class is not complete']})
+                    return render(
+                        request,
+                        'gbe/bid.tmpl',
+                        {'forms': [form],
+                         'page_title': page_title,
+                         'view_title': view_title,
+                         'draft_fields': draft_fields,
+                         'errors': ['Cannot submit, class is not complete']}
+                    )
             the_class.save()
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Class().get_bid_fields
-            return render(request,
-                          'gbe/bid.tmpl',
-                          {'forms': [form],
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'draft_fields': draft_fields,
-                           'submit_fields': requiredsub
-                       })
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'submit_fields': requiredsub}
+            )
     else:
         form = ClassBidForm(instance=the_class)
         draft_fields = Class().get_draft_fields
-        return render(request,
-                      'gbe/bid.tmpl',
-                      {'forms': [form],
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'draft_fields': draft_fields
-                })
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form],
+             'page_title': page_title,
+             'view_title': view_title,
+             'draft_fields': draft_fields}
+        )
 
 
 @login_required
@@ -998,17 +1058,22 @@ def review_class(request, class_id):
     '''
     reviewer = validate_perms(request, ('Class Reviewers',))
 
-    aclass = get_object_or_404(Class, id=class_id)
+    aclass = get_object_or_404(
+        Class, 
+        id=class_id,
+    )
+    conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
                           prefix='The Teacher(s)')
-    contact = ParticipantForm(instance=aclass.teacher.performer_profile,
-                              prefix='Teacher Contact Info',
-                              initial={'email': aclass.teacher.performer_profile.user_object.email,
-                                       'first_name': aclass.teacher.performer_profile.user_object.first_name,
-                                       'last_name': aclass.teacher.performer_profile.user_object.last_name})
+    contact = ParticipantForm(
+        instance=aclass.teacher.performer_profile,
+        prefix='Teacher Contact Info',
+        initial={'email': aclass.teacher.performer_profile.user_object.email,
+                 'first_name': aclass.teacher.performer_profile.user_object.first_name,
+                 'last_name': aclass.teacher.performer_profile.user_object.last_name})
 
-    if 'Class Coordinator' in request.user.profile.privilege_groups:
+    if validate_perms(request, ('Class Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=aclass)
         actionURL = reverse('class_changestate',
                             urlconf='gbe.urls',
@@ -1020,8 +1085,9 @@ def review_class(request, class_id):
     if user has previously reviewed the class, provide their review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=class_id,
-                                                evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=class_id,
+            evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer,
                                  bid=aclass)
@@ -1044,7 +1110,9 @@ def review_class(request, class_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1053,9 +1121,11 @@ def review_class(request, class_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
-        
+
 @login_required
 def review_class_list(request):
     '''
@@ -1066,13 +1136,21 @@ def review_class_list(request):
     reviewer = validate_perms(request, ('Class Reviewers', ))
 
     header = Class().bid_review_header
-    classes = Class.objects.filter(submitted=True).order_by('accepted', 'title')
-    review_query = BidEvaluation.objects.filter(bid=classes).select_related('evaluator').order_by('bid', 'evaluator')
+    classes = Class.objects.filter(
+        submitted=True).filter(visible_bid_query).order_by(
+            'accepted',
+            'title')
+    review_query = BidEvaluation.objects.filter(
+        bid=classes).select_related(
+            'evaluator').order_by('bid',
+                                  'evaluator')
     rows = []
     for aclass in classes:
         bid_row = {}
         bid_row['bid'] = aclass.bid_review_summary
-        bid_row['reviews'] = review_query.filter(bid=aclass.id).select_related('evaluator').order_by('evaluator')
+        bid_row['reviews'] = review_query.filter(
+            bid=aclass.id).select_related(
+                'evaluator').order_by('evaluator')
         bid_row['id'] = aclass.id
         bid_row['review_url'] = reverse('class_review',
                                         urlconf='gbe.urls',
@@ -1099,9 +1177,11 @@ def class_changestate(request, bid_id):
         thisclass = get_object_or_404(Class, id=bid_id)
 
         # if the class has been rejected/no decision, clear any schedule items.
-        if (request.POST['accepted'] == '0' or request.POST['accepted'] == '1'):
+        if (request.POST['accepted'] == '0' or
+            request.POST['accepted'] == '1'):
             try:
-                sched_classes = Event.objects.filter(eventitem__event=thisclass.event_id).delete()
+                sched_classes = Event.objects.filter(
+                    eventitem__event=thisclass.event_id).delete()
             except:
                 return HttpResponseRedirect(reverse('home',
                                                     urlconf='gbe.urls'))
@@ -1123,11 +1203,10 @@ def create_volunteer(request):
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST)
         if form.is_valid():
-            
             volunteer = form.save(commit=False)
-            #hack
+            # hack TO DO: do this better
             conference = Conference.objects.filter(accepting_bids=True).first()
-            volunteer.conference = conference                
+            volunteer.conference = conference
             volunteer.profile = profile
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
@@ -1174,11 +1253,12 @@ def view_volunteer(request, volunteer_id):
         raise Http404
     volunteerform = VolunteerBidForm(instance=volunteer,
                                      prefix='Volunteer Info')
-    profile = ParticipantForm(instance=volunteer.profile,
-                              initial={'email': volunteer.profile.user_object.email,
-                                       'first_name': volunteer.profile.user_object.first_name,
-                                       'last_name': volunteer.profile.user_object.last_name},
-                              prefix='Contact Info')
+    profile = ParticipantForm(
+        instance=volunteer.profile,
+        initial={'email': volunteer.profile.user_object.email,
+                 'first_name': volunteer.profile.user_object.first_name,
+                 'last_name': volunteer.profile.user_object.last_name},
+        prefix='Contact Info')
     return render(request, 'gbe/bid_view.tmpl',
                   {'readonlyform': [volunteerform, profile]})
 
@@ -1194,21 +1274,28 @@ def review_volunteer(request, volunteer_id):
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     if int(volunteer_id) == 0 and request.method == 'POST':
         volunteer_id = int(request.POST['volunteer'])
-    volunteer = get_object_or_404(Volunteer, id=volunteer_id)
+    volunteer = get_object_or_404(
+        Volunteer,
+        id=volunteer_id,
+    )
+    conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
                                prefix='The Volunteer')
-    profile = ParticipantForm(instance=volunteer_prof,
-                              initial={'email': volunteer_prof.user_object.email,
-                                       'first_name': volunteer_prof.user_object.first_name,
-                                       'last_name': volunteer_prof.user_object.last_name},
-                              prefix='Contact Info')
+    profile = ParticipantForm(
+        instance=volunteer_prof,
+        initial={'email': volunteer_prof.user_object.email,
+                 'first_name': volunteer_prof.user_object.first_name,
+                 'last_name': volunteer_prof.user_object.last_name},
+        prefix='Contact Info')
     if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
         events = volunteer_prof.get_bookings('Volunteer')
         actionform = VolunteerBidStateChangeForm(instance=volunteer,
                                                  request=request,
                                                  initial={'events': events})
-        actionURL = reverse('volunteer_changestate', urlconf='gbe.urls', args=[volunteer_id])
+        actionURL = reverse('volunteer_changestate',
+                            urlconf='gbe.urls',
+                            args=[volunteer_id])
     else:
         actionform = False
         actionURL = False
@@ -1216,8 +1303,9 @@ def review_volunteer(request, volunteer_id):
     if user has previously reviewed the bid, provide his review for update
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=volunteer_id,
-                                                evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=volunteer_id,
+            evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=volunteer)
     # show info and inputs for review
@@ -1236,7 +1324,9 @@ def review_volunteer(request, volunteer_id):
                           {'readonlyform': [volform],
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1245,7 +1335,9 @@ def review_volunteer(request, volunteer_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL, 
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -1256,11 +1348,12 @@ def review_volunteer_list(request):
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
     header = Volunteer().bid_review_header
-    volunteers = Volunteer.objects.filter(submitted=True).order_by('accepted')
+    volunteers = Volunteer.objects.filter(
+        submitted=True).filter(
+            visible_bid_query).order_by('accepted')
     review_query = BidEvaluation.objects.filter(
-        bid=volunteers
-    ).select_related(
-            'evaluator'
+        bid=volunteers).select_related(
+        'evaluator'
     ).order_by('bid', 'evaluator')
 
     rows = []
@@ -1352,10 +1445,11 @@ def edit_volunteer(request, volunteer_id):
             interests_initial = eval(the_bid.interests)
         else:
             interests_initial = []
-        form = VolunteerBidForm(instance=the_bid,
-                                initial={'availability': availability_initial,
-                                         'unavailability': unavailability_initial,
-                                         'interests': interests_initial})
+        form = VolunteerBidForm(
+            instance=the_bid,
+            initial={'availability': availability_initial,
+                     'unavailability': unavailability_initial,
+                     'interests': interests_initial})
         return render(request,
                       'gbe/bid.tmpl',
                       {'forms': [form],
@@ -1372,7 +1466,11 @@ def review_vendor(request, vendor_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Vendor Reviewers',))
-    vendor = get_object_or_404(Vendor, id=vendor_id)
+    vendor = get_object_or_404(
+        Vendor,
+        id=vendor_id,
+    )
+    conference, old_bid = get_conf(vendor)
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance=vendor)
@@ -1385,11 +1483,11 @@ def review_vendor(request, vendor_id):
 
     '''
     if user has previously reviewed the act, provide his review for update
-    BB - get_or_create caused a ValueError to be thrown when there was no bid, and the Vote was null
     '''
     try:
-        bid_eval = BidEvaluation.objects.filter(bid_id=vendor_id,
-                                                evaluator_id=reviewer.resourceitem_id)[0]
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=vendor_id,
+            evaluator_id=reviewer.resourceitem_id)[0]
     except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=vendor)
     # show act info and inputs for review
@@ -1408,7 +1506,9 @@ def review_vendor(request, vendor_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL})
+                           'actionURL': actionURL, 
+                           'conference': conference,
+                           'old_bid': old_bid,})
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1417,7 +1517,9 @@ def review_vendor(request, vendor_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL})
+                       'actionURL': actionURL, 
+                       'conference': conference,
+                       'old_bid': old_bid,})
 
 
 @login_required
@@ -1429,13 +1531,22 @@ def review_vendor_list(request):
     reviewer = validate_perms(request, ('Vendor Reviewers',))
 
     header = Vendor().bid_review_header
-    vendors = Vendor.objects.filter(submitted=True).order_by('accepted', 'title')
-    review_query = BidEvaluation.objects.filter(bid=vendors).select_related('evaluator').order_by('bid', 'evaluator')
+    vendors = Vendor.objects.filter(
+        submitted=True).filter(
+            visible_bid_query).order_by(
+                'accepted',
+                'title')
+    review_query = BidEvaluation.objects.filter(
+        bid=vendors).select_related(
+            'evaluator').order_by('bid',
+                                  'evaluator')
     rows = []
     for vendor in vendors:
         bid_row = {}
         bid_row['bid'] = vendor.bid_review_summary
-        bid_row['reviews'] = review_query.filter(bid=vendor.id).select_related('evaluator').order_by('evaluator')
+        bid_row['reviews'] = review_query.filter(
+            bid=vendor.id).select_related(
+                'evaluator').order_by('evaluator')
         bid_row['id'] = vendor.id
         bid_row['review_url'] = reverse('vendor_review',
                                         urlconf='gbe.urls',
@@ -1505,17 +1616,19 @@ def create_vendor(request):
                 '''
                 if (verify_vendor_app_paid(request.user.username)):
                     vendor.submitted = True
-                    conference = Conference.objects.filter(accepting_bids=True).first()
+                    conference = Conference.objects.filter(
+                        accepting_bids=True).first()
                     vendor.conference = conference
                     vendor.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
                 else:
                     page_title = 'Vendor Payment'
-                    return render(request, 'gbe/please_pay.tmpl',
-                                  {'link': fee_link,
-                                   'page_title': page_title
-                               })
+                    return render(
+                        request, 'gbe/please_pay.tmpl',
+                        {'link': fee_link,
+                         'page_title': page_title}
+                    )
         else:   # saving a draft
             if form.is_valid():
                 vendor = form.save()
@@ -1560,13 +1673,14 @@ def edit_vendor(request, vendor_id):
         if form.is_valid():
             form.save()
         else:
-            return render(request,
-                          'gbe/bid.tmpl',
-                          {'forms': [form],
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'fee_link': fee_link
-                       })
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'fee_link': fee_link}
+            )
 
         if 'submit' in request.POST.keys():
             problems = vendor.validation_problems_for_submit()
@@ -1590,10 +1704,11 @@ def edit_vendor(request, vendor_id):
                                                         urlconf='gbe.urls'))
                 else:
                     page_title = 'Vendor Payment'
-                    return render(request, 'gbe/please_pay.tmpl',
-                                  {'link': fee_link,
-                                   'page_title': page_title
-                               })
+                    return render(
+                        request, 'gbe/please_pay.tmpl',
+                        {'link': fee_link,
+                         'page_title': page_title}
+                    )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
@@ -1605,13 +1720,14 @@ def edit_vendor(request, vendor_id):
                              prefix='thebiz',
                              initial={'help_times': help_times_initial})
 
-        return render(request,
-                      'gbe/bid.tmpl',
-                      {'forms': [form],
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'fee_link': fee_link
-                   })
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form],
+             'page_title': page_title,
+             'view_title': view_title,
+             'fee_link': fee_link}
+        )
 
 
 @login_required
@@ -1703,14 +1819,18 @@ def review_profiles(request):
         bid_row['id'] = aprofile.resourceitem_id
         bid_row['actions'] = []
         if 'Registrar' in request.user.profile.privilege_groups:
-            bid_row['actions'] += [{'url': reverse('admin_profile',
-                                                   urlconf='gbe.urls',
-                                                   args=[aprofile.resourceitem_id]),
-                                    'text': "Update"}]
-        bid_row['actions'] += [{'url': reverse('admin_landing_page',
-                                               urlconf='gbe.urls',
-                                               args=[aprofile.resourceitem_id]),
-                                'text': "View Landing Page"}]
+            bid_row['actions'] += [
+                {'url': reverse('admin_profile',
+                                urlconf='gbe.urls',
+                                args=[aprofile.resourceitem_id]),
+                 'text': "Update"}]
+        bid_row['actions'] += [
+            {'url': reverse(
+                'admin_landing_page',
+                urlconf='gbe.urls',
+                args=[aprofile.resourceitem_id]),
+             'text': "View Landing Page"}
+        ]
         rows.append(bid_row)
 
     return render(request, 'gbe/profile_review.tmpl',
@@ -1751,10 +1871,11 @@ def admin_profile(request, profile_id):
     user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
 
     if request.method == 'POST':
-        form = ProfileAdminForm(request.POST, 
-                                instance=user_profile,
-                                initial={'email':user_profile.user_object.email}
-                            )
+        form = ProfileAdminForm(
+            request.POST,
+            instance=user_profile,
+            initial={'email': user_profile.user_object.email}
+        )
         prefs_form = ProfilePreferencesForm(request.POST,
                                             instance=user_profile.preferences,
                                             prefix='prefs')
@@ -1784,12 +1905,13 @@ def admin_profile(request, profile_id):
         else:
             how_heard_initial = []
 
-        form = ProfileAdminForm(instance=user_profile,
-                                initial={'email': user_profile.user_object.email,
-                                         'first_name': user_profile.user_object.first_name,
-                                         'last_name': user_profile.user_object.last_name,
-                                         'display_name': display_name,
-                                         'how_heard': how_heard_initial})
+        form = ProfileAdminForm(
+            instance=user_profile,
+            initial={'email': user_profile.user_object.email,
+                     'first_name': user_profile.user_object.first_name,
+                     'last_name': user_profile.user_object.last_name,
+                     'display_name': display_name,
+                     'how_heard': how_heard_initial})
 
         if len(user_profile.preferences.inform_about.strip()) > 0:
             inform_initial = eval(user_profile.preferences.inform_about)
@@ -1817,9 +1939,9 @@ def update_profile(request):
         profile.preferences.save()
         profile.save()
     if request.method == 'POST':
-        form = ParticipantForm(request.POST, 
+        form = ParticipantForm(request.POST,
                                instance=profile,
-                               initial={'email':profile.user_object.email
+                               initial={'email': profile.user_object.email
                                         })
         prefs_form = ProfilePreferencesForm(request.POST,
                                             instance=profile.preferences,
@@ -1827,8 +1949,9 @@ def update_profile(request):
         if form.is_valid():
             form.save(commit=True)
             if profile.display_name.strip() == '':
-                profile.display_name = " ".join([request.user.first_name.strip(),
-                                                 request.user.last_name.strip()])
+                profile.display_name = "%s %s" % (
+                    request.user.first_name.strip(),
+                    request.user.last_name.strip())
             if profile.purchase_email.strip() == '':
                 profile.purchase_email = request.user.email.strip()
             if prefs_form.is_valid():
@@ -1844,7 +1967,8 @@ def update_profile(request):
 
     else:
         if profile.display_name.strip() == '':
-            display_name = request.user.first_name + ' ' + request.user.last_name
+            display_name = "%s %s" % (request.user.first_name.strip(),
+                                      request.user.last_name.strip())
         else:
             display_name = profile.display_name
         if len(profile.how_heard.strip()) > 0:
@@ -1925,9 +2049,10 @@ def propose_class(request):
 @login_required
 def publish_proposal(request, class_id):
     '''
-    Edit an existing proposal.  This is only available to the proposal reviewer.
-    The only use here is to prep and publish a proposal, so it's a different user
-    community than the traditional "edit" thread, so it's named "publish" instead.
+    Edit an existing proposal.  This is only available to the
+    proposal reviewer. The only use here is to prep and publish
+    a proposal, so it's a different user community than the
+    traditional "edit" thread, so it's named "publish" instead.
     '''
     page_title = "Edit Proposal"
     view_title = "Edit & Publish Proposal"
@@ -1941,7 +2066,8 @@ def publish_proposal(request, class_id):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('proposal_review_list', urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse('proposal_review_list',
+                                                urlconf='gbe.urls'))
         else:
             template = loader.get_template('gbe/bid.tmpl')
             context = RequestContext(request,
@@ -2025,7 +2151,8 @@ def conference_volunteer(request):
     view_title = "Apply to Present"
     owner = validate_profile(request, require=False)
     if not owner:
-        return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile_update',
+                                            urlconf='gbe.urls'))
 
     presenters = owner.personae.all()
     classes = ClassProposal.objects.filter(display=True).order_by('type',
@@ -2036,9 +2163,11 @@ def conference_volunteer(request):
         return render(request, 'gbe/conf_volunteer_list.tmpl',
                       {'view_title': view_title, 'page_title': page_title})
     if len(presenters) == 0:
-        return HttpResponseRedirect(reverse('persona_create', urlconf='gbe.urls') +
+        return HttpResponseRedirect(reverse('persona_create',
+                                            urlconf='gbe.urls') +
                                     '?next=' +
-                                    reverse('conference_volunteer', urlconf='gbe.urls'))
+                                    reverse('conference_volunteer',
+                                            urlconf='gbe.urls'))
     header = ClassProposal().presenter_bid_header
     header += ConferenceVolunteer().presenter_bid_header
 
@@ -2050,7 +2179,7 @@ def conference_volunteer(request):
                 if not form.is_valid():
                     return render(request, 'gbe/error.tmpl',
                                   {'error': conf_volunteer_save_error})
-                volunteer, created = ConferenceVolunteer.objects.get_or_create(                    
+                volunteer, created = ConferenceVolunteer.objects.get_or_create(
                     presenter=form.cleaned_data['presenter'],
                     bid=aclass,
                     defaults=form.cleaned_data)
@@ -2068,19 +2197,24 @@ def conference_volunteer(request):
     else:
         rows = []
         for aclass in classes:
-            form = ConferenceVolunteerForm(initial={'bid': aclass, 'presenter': presenters[0]},
-                                           prefix=str(aclass.id))
-            form.fields['presenter'] = forms.ModelChoiceField(queryset=Performer.
-                                                              objects.filter(contact=owner),
-                                                              empty_label=None)
+            form = ConferenceVolunteerForm(
+                initial={'bid': aclass, 'presenter': presenters[0]},
+                prefix=str(aclass.id))
+            form.fields['presenter'] = forms.ModelChoiceField(
+                queryset=Performer.
+                objects.filter(contact=owner),
+                empty_label=None)
             if aclass.type == "Class":
-                form.fields['how_volunteer'] = forms.ChoiceField(choices=class_participation_types)
+                form.fields['how_volunteer'] = forms.ChoiceField(
+                    choices=class_participation_types)
                 form.fields['how_volunteer'].widget.attrs['readonly'] = True
             elif aclass.type == "Panel":
-                form.fields['how_volunteer'] = forms.ChoiceField(choices=panel_participation_types,
-                                                                 initial="Panelist")
+                form.fields['how_volunteer'] = forms.ChoiceField(
+                    choices=panel_participation_types,
+                    initial="Panelist")
             else:
-                form.fields['how_volunteer'] = forms.ChoiceField(choices=conference_participation_types)
+                form.fields['how_volunteer'] = forms.ChoiceField(
+                    choices=conference_participation_types)
             form.fields['how_volunteer'].widget.attrs['class'] = 'how_volunteer'
             bid_row = {}
             bid_row['conf_item'] = aclass.presenter_bid_info
@@ -2185,8 +2319,9 @@ def special(request):
 
 def volunteer(request):
     '''
-    Gateway to volunteering pages for users.  Either places links to individual
-    pages for panel, class, tech, etc volunteering, or a more flexible widget to
+    Gateway to volunteering pages for users.  Either places
+    links to individual pages for panel, class, tech, etc
+    volunteering, or a more flexible widget to
     deal with all type of volunteering.
     '''
     pass
@@ -2228,7 +2363,8 @@ def bid_changestate(request, bid_id, redirectURL):
         form = BidStateChangeForm(request.POST, instance=bid)
         if form.is_valid():
             bid = form.save()
-            return HttpResponseRedirect(reverse(redirectURL, urlconf='gbe.urls'))
+            return HttpResponseRedirect(reverse(redirectURL,
+                                                urlconf='gbe.urls'))
         else:
             return render(request,
                           'gbe/bid_review.tmpl',
@@ -2282,24 +2418,24 @@ def edit_act_techinfo(request, act_id):
             re_set.insert(0, existing_rehearsal)
         if len(re_set) > 0:
             rehearsal_sets[show] = re_set
-#    rehearsal_sets = {show:show.get_open_rehearsals() for show in shows}
-#    rehearsal_sets = {show:rehearsals for (show, rehearsals) in rehearsal_sets.items()
-#                          if rehearsals}
     location = shows[0].location
     if len(rehearsal_sets) > 0:
-        rehearsal_forms = [RehearsalSelectionForm(initial={'show': show, 'rehearsal_choices':
-                                                           [(r.id, "%s: %s" % (r.as_subtype.title,
-                                                                              r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
-                           for (show, r_set) in rehearsal_sets.items()]
+        rehearsal_forms = [RehearsalSelectionForm(
+            initial={'show': show, 'rehearsal_choices':
+                     [(r.id, "%s: %s" % (
+                        r.as_subtype.title,
+                         r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
+                           for (show, r_set) in rehearsal_sets.items()
+        ]
     else:
         rehearsal_forms = []
     if request.method == 'POST':
-#        from scheduler.models import Event as sEvent
         if 'rehearsal' in request.POST:
             rehearsal = get_object_or_404(sEvent,
                                           id=request.POST['rehearsal'])
-            show = get_object_or_404(Show,
-                                     title=request.POST['show']).scheduler_events.first()
+            show = get_object_or_404(
+                Show,
+                title=request.POST['show']).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
         form = ActTechInfoForm(request.POST,
                                instance=act,
@@ -2323,8 +2459,9 @@ def edit_act_techinfo(request, act_id):
                               prefix='cue%d' % i,
                               instance=cue_objects[i])
                      for i in range(3)]
-        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(choices=starting_cues,
-                                                              initial=starting_cues[0])
+        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
+            choices=starting_cues,
+            initial=starting_cues[0])
         for f in cue_forms:
             if f.is_valid():
                 f.save()
@@ -2350,7 +2487,7 @@ def edit_act_techinfo(request, act_id):
                            'showheader': False,
                            'nodraft': submit_button,
                            'location': location
-                       })
+                           })
     else:
         form = ActTechInfoForm(instance=act,
                                prefix='act_tech_info')
@@ -2367,10 +2504,11 @@ def edit_act_techinfo(request, act_id):
         else:
             formtype = VendorCueInfoForm
 
-        cue_forms = [formtype(prefix='cue%d' % i, instance=cue_objects[i]) for i in range(3)]
-
-        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(choices=starting_cues,
-                                                              initial=starting_cues[0])
+        cue_forms = [formtype(prefix='cue%d' % i, instance=cue_objects[i])
+                     for i in range(3)]
+        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
+            choices=starting_cues,
+            initial=starting_cues[0])
 
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = forms.ModelChoiceField(queryset=q)
@@ -2386,7 +2524,7 @@ def edit_act_techinfo(request, act_id):
                        'showheader': False,
                        'nodraft': submit_button,
                        'location': location
-                   })
+                       })
 
 
 def create_event(request, event_type):
@@ -2398,7 +2536,9 @@ def create_event(request, event_type):
     if request.method == 'POST':
         form = eval(event_type+"ScheduleForm")(request.POST)
         if form.is_valid():
-            event = form.save(commit=True)
+            event = form.save(commit=False)
+            event.conference = Conference.objects.filter(status='upcoming').first()
+            event.save()
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',
                                                 args=[event_type]))
@@ -2417,12 +2557,13 @@ def create_event(request, event_type):
                        'nodraft': submit_button,
                        'page_title': page_title,
                        'view_title': view_title,
-                       'view_header_text':event_create_text[event_type] })
+                       'view_header_text': event_create_text[event_type]})
+
 
 def handle_user_contact_email(request):
     return_redirect = HttpResponseRedirect(reverse('home',
-                                       urlconf='gbe.urls', 
-                                       args = []))
+                                                   urlconf='gbe.urls',
+                                                   args=[]))
 
     if request.method != 'POST':
         return return_redirect
@@ -2433,9 +2574,9 @@ def handle_user_contact_email(request):
     name = data.get('name', 'UNKNOWN USER')
     user_address = data.get('email', 'UNKNOWN ADDRESS')
     user_msg = data.get('message', 'UNKNOWN MESSAGE')
-    format_string = "Burlesque Expo user %s (%s) says: \n\n %s" 
-    message = format_string % (name, 
-                               user_address, 
+    format_string = "Burlesque Expo user %s (%s) says: \n\n %s"
+    message = format_string % (name,
+                               user_address,
                                user_msg)
 
     from_address = settings.DEFAULT_FROM_EMAIL

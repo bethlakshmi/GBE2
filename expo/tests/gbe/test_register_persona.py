@@ -15,7 +15,7 @@ class TestRegisterPersona(TestCase):
     def test_register_persona(self):
         '''register_persona view should load and return:
         302 if user but no profile
-        200 if profile but no form 
+        200 if profile but no form
         302 if profile and valid form - need to write this
         '''
         request = self.factory.get('/')
@@ -28,5 +28,3 @@ class TestRegisterPersona(TestCase):
         request.method = 'POST'
         response = register_persona(request)
         self.assertEqual(response.status_code, 200)
-        
-        

@@ -22,24 +22,20 @@ class TestEditPersona(TestCase):
         '''edit_troupe view, create flow
         '''
         contact = factories.PersonaFactory.create()
-        request = self.factory.get('/persona/edit/%d'%contact.resourceitem_id)
+        urlstring = '/persona/edit/%d' % contact.resourceitem_id
+        request = self.factory.get(urlstring)
         request.user = factories.UserFactory.create()
         response = edit_persona(request, contact.resourceitem_id)
         nt.assert_equal(response.status_code, 302)
-        
-
-
         user = factories.UserFactory.create()
         login_as(user, self)
         request.user = user
         response = edit_persona(request, contact.resourceitem_id)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), 
+        nt.assert_equal(location(response),
                         '/profile')
         request.user = contact.performer_profile.user_object
         login_as(contact.performer_profile, self)
         response = edit_persona(request, contact.resourceitem_id)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.troupe_string in response.content)
-
-

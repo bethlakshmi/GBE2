@@ -15,12 +15,12 @@ from tests.functions.gbe_functions import (login_as,
                                            location)
 
 
-class TestActChangestate(TestCase):
+class TestClassChangestate(TestCase):
     '''Tests for act_changestate view'''
 
     def setUp(self):
         pass
 
-    def test_act_changestate(self):
+    def test_class_changestate(self):
         # needs a little work to test
         pass

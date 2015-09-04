@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
@@ -24,8 +23,8 @@ class TestReviewClassList(TestCase):
         self.performer = factories.PersonaFactory.create()
         self.privileged_profile = factories.ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        class_reviewers = get_object_or_404(Group, name='Class Reviewers')
-        self.privileged_user.groups.add(class_reviewers)
+        group, nil = Group.objects.get_or_create(name='Class Reviewers')
+        self.privileged_user.groups.add(group)
 
     def test_review_class_all_well(self):
         request = self.factory.get('class/review/')

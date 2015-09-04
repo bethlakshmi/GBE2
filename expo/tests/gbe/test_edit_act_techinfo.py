@@ -34,12 +34,8 @@ class TestReviewProposalList(TestCase):
         request= self.factory.get('act/changestate/%d' %act.pk)
         request.user =  act.performer.performer_profile.user_object
         mock_get_shows = mock.MagicMock(return_value = [])
-        with mock.patch ('scheduler.models.ActItem.get_scheduled_shows', mock_get_shows):
+        with mock.patch ('scheduler.models.ActItem.get_scheduled_shows',
+                          mock_get_shows):
             response = edit_act_techinfo(request, act.pk)
-        nt.assert_equal(response.status_code, 302)        
-
-
-'''     
-    
-
-
+        nt.assert_equal(response.status_code, 302)
+'''

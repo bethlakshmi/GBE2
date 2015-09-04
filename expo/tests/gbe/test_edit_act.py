@@ -18,7 +18,7 @@ class TestEditAct(TestCase):
     '''Tests for edit_act view'''
 
     # this test case should be unnecessary, since edit_act should go away
-    # for now, test it. 
+    # for now, test it.
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -26,13 +26,13 @@ class TestEditAct(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_act_form(self):
-        return {"teacher":2,
-                "title":'A act',
-                "description":'a description',
-                "length_minutes":60,
-                'maximum_enrollment':20,
-                'fee':0,
-        }        
+        return {'teacher': 2,
+                'title': 'A act',
+                'description': 'a description',
+                'length_minutes': 60,
+                'maximum_enrollment': 20,
+                'fee': 0,
+                }
 
     @nt.raises(Http404)
     def test_edit_act_no_act(self):
@@ -41,7 +41,7 @@ class TestEditAct(TestCase):
         request = self.factory.get('/act/edit/-1')
         request.user = profile.user_object
         response = edit_act(request, -1)
-        
+
     @nt.raises(Http404)
     def test_edit_act_profile_is_not_contact(self):
         user = factories.ProfileFactory.create().user_object
@@ -63,12 +63,13 @@ class TestEditAct(TestCase):
         nt.assert_true('Edit Your Act Proposal' in response.content)
 
     def t_edit_bid_post_no_submit(self):
-        '''act_bid, not submitting and no other problems, should redirect to home'''
-        ''' have to solve the mocking problem to get submit paid'''
+        '''act_bid, not submitting and no other problems,
+        should redirect to home
+        have to solve the mocking problem to get submit paid'''
         act = factories.ActFactory.create()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = act.performer.contact.user_object
-        request.method='POST'
+        request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_act_form())
         response = edit_act(request, act.pk)

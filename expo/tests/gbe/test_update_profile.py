@@ -15,6 +15,7 @@ from tests.functions.gbe_functions import (login_as,
                                            is_profile_update_page,
                                            location)
 
+
 class TestUpdateProfile(TestCase):
     '''Tests for update_profile  view'''
 
@@ -27,11 +28,8 @@ class TestUpdateProfile(TestCase):
         self.privileged_user.groups.add(registrar)
 
     def test_update_profile_no_such_profile(self):
-        request= self.factory.get('update_profile/' )
+        request = self.factory.get('update_profile/')
         user = factories.UserFactory.create()
         request.user = user
         response = update_profile(request)
         nt.assert_true(user.profile is not None)
-        
-
-
