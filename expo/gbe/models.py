@@ -79,7 +79,7 @@ class Biddable(models.Model):
 
     @property
     def is_current(self):
-        return self.conference.status == "upcoming"
+        return self.conference.status in ("upcoming", "current")
 
 
 class Profile(WorkerItem):
@@ -185,8 +185,9 @@ class Profile(WorkerItem):
         groups = [group.name for group in self.user_object.groups.all().order_by('name')]
         return groups
 
-    @property
-    def alerts(self):
+    def alerts(self, historical=False):
+        if historical:
+            return []
         profile_alerts = []
         if (len(self.display_name.strip()) == 0 or
             len(self.purchase_email.strip()) == 0):
@@ -243,17 +244,22 @@ class Profile(WorkerItem):
         perf_set = set(performers)
         return perf_set
 
-    def get_acts(self):
+    def get_acts(self, show_historical=False):
         acts = []
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
-        return acts
+        if show_historical:
+            f = lambda a: not a.is_current
+        else:
+            f = lambda a: a.is_current
+        return filter(f, acts)
 
     def get_shows(self):
         acts = self.get_acts()
-        shows = [Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
-                 for act in acts if act.accepted == 3]
+        shows = [Show.objects.filter(
+            scheduler_events__resources_allocated__resource__actresource___item=act)
+                 for act in acts if act.accepted == 3 and act.is_current]
         return sum([list(s) for s in shows], [])
 
     def get_schedule(self):
@@ -310,17 +316,33 @@ class Profile(WorkerItem):
             badge_name = self.user_object.first_name
         return badge_name
 
-    def is_teaching(self):
+    def is_teaching(self, historical=False):
         '''
         return a list of classes this user is teaching
-        (not a list of classes they are taking, that's another list)
         '''
-        return [c for c in self.workeritem.get_bookings('Teacher') if c.is_current]
+        if historical:
+            return [c for c in self.workeritem.get_bookings('Teacher') if not c.is_current]
+        else:
+            return [c for c in self.workeritem.get_bookings('Teacher') if c.is_current]
 
-    def proposed_classes(self):
+
+    def vendors(self, historical=False):
+        vendors = Vendor.objects.filter(profile=self)
+        if historical:
+            f = lambda v: not v.is_current
+        else:
+            f = lambda v: v.is_current
+        return filter(f, vendors)
+                                
+
+    def proposed_classes(self, historical=False):
         classes = sum([list(teacher.is_teaching.all()) 
                        for teacher in self.personae.all()], [])
-#        return list(set (classes))
+        if historical:
+            f = lambda c: not c.is_current
+        else:
+            f = lambda c: c.is_current
+        classes = filter(f, classes)
         return classes
 
     def sched_payload(self):
@@ -544,6 +566,19 @@ class  AudioInfo(models.Model):
                self.confirm_no_music
        ]
 
+
+    def clone(self):
+        ai = AudioInfo(track_title=self.track_title,
+                       track_artist=self.track_artist,
+                       track=self.track,
+                       track_duration=self.track_duration,
+                       need_mic=self.need_mic,
+                       own_mic=self.own_mic,
+                       notes=self.notes,
+                       confirm_no_music=self.confirm_no_music)
+        ai.save()
+        return ai
+
     @property
     def is_complete(self):
         return bool(self.confirm_no_music or
@@ -575,6 +610,12 @@ class LightingInfo (models.Model):
     '''
     notes = models.TextField(blank=True)
     costume = models.TextField(blank=True)
+
+    def clone(self):
+        li = LightingInfo(notes=self.notes,
+                          costume=self.costume)
+        li.save()
+        return li
 
     @property
     def dump_data(self):
@@ -614,6 +655,17 @@ class StageInfo(models.Model):
     cue_props = models.BooleanField(default=False)
     clear_props = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
+
+    def clone(self):
+        si = StageInfo(act_duration=self.act_duration,
+                       intro_text=self.intro_text,
+                       confirm=self.confirm,
+                       set_props=self.set_props,
+                       cue_props=self.cue_props,
+                       clear_props=self.clear_props,
+                       notes=self.notes)
+        si.save()
+        return si
 
     @property
     def dump_data(self):
@@ -658,6 +710,16 @@ class TechInfo(models.Model):
     audio = models.OneToOneField(AudioInfo, blank=True)
     lighting = models.OneToOneField(LightingInfo, blank=True)
     stage = models.OneToOneField(StageInfo, blank=True)
+
+    def clone(self):
+        ti = TechInfo()
+        ti.audio=self.audio.clone()
+        ti.lighting=self.lighting.clone()
+        ti.stage=self.stage.clone()
+        ti.save()
+        for ci in CueInfo.objects.filter(techinfo=self):
+            ci.clone(self)
+        return ti
 
     @property
     def is_complete(self):
@@ -716,15 +778,26 @@ class CueInfo(models.Model):
     sound_note = models.TextField(blank=True)
     techinfo = models.ForeignKey(TechInfo)
 
+    def clone(self, techinfo):
+        CueInfo(cue_sequence=self.cue_sequence,
+                cue_off_of=self.cue_off_of,
+                follow_spot=self.follow_spot,
+                center_spot=self.center_spot,
+                backlight=self.backlight,
+                cyc_color=self.cyc_color, 
+                wash=self.wash,
+                sound_note=self.sound_note,
+                techinfo=techinfo).save()
+
     @property
     def is_complete(self):
         return bool(self.cue_off_of and self.cue_sequence and self.tech_info)
 
     def __unicode__(self):
         try:
-            return self.techinfo.act.title+' - cue '+str(self.cue_sequence)
+            return self.techinfo.act.title+' - cue ' + str(self.cue_sequence)
         except:
-            return "Cue: (deleted act) - "+self.cue_sequence
+            return "Cue: (deleted act) - " + str(self.cue_sequence)
 
     class Meta:
         verbose_name_plural = 'cue info'
@@ -758,6 +831,24 @@ class Act (Biddable, ActItem):
         (('title', 'Title'), is_not_blank),
         (('description', 'Description'), is_not_blank),
     ]
+
+    def clone(self):
+        act = Act(performer=self.performer, 
+                   tech = self.tech.clone(),
+                   video_link=self.video_link,
+                   video_choice=self.video_link,
+                   other_performance=self.other_performance,
+                   why_you=self.why_you,
+                   title = self.title,
+                   description = self.description,
+                   submitted = False,
+                   accepted = False,
+                   conference = Conference.objects.filter(
+                       status="upcoming").first()
+        )
+        act.save()
+        return act
+                   
 
     def get_performer_profiles(self):
         '''
