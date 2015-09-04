@@ -29,10 +29,10 @@
         {% for alert in act.alerts %}
           <span class='alert'> {{ alert|safe}}</span> <br>	      	 
         {% endfor %}
-    {% endfor %}
+
     {% if historical %}
     <ul>
-      <li><a href='{% url 'gbe:act_clone' %}'>Clone this act</a></li>
+      <li><a href='{% url 'gbe:clone_bid' bid_type='Act' bid_id=act.id %}'>Clone this act</a></li>
     </ul>
 
     {% else %}
@@ -40,6 +40,7 @@
       <li><a href='{% url 'gbe:act_create' %}'>Propose a new act</a></li>
     </ul>
     {% endif %}
+    {% endfor %}
 {% else %}
   {{ profile.display_name }} has no acts listed.	   
   <ul class="rightsidebar">	 

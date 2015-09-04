@@ -79,7 +79,6 @@ def index(request):
     
 @login_required
 def landing_page(request, profile_id=None):
-    import pdb; pdb.set_trace()
     historical = "historical" in request.GET.keys()
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
@@ -516,12 +515,24 @@ def bid_act(request):
         )
 
 
-def close_bit(request, bid_type, bid_id):
+@login_required
+def clone_bid(request, bid_type, bid_id):
     '''
     "Revive" an existing bid for use in the existing conference
     '''
+#    import pdb;pdb.set_trace()
+    owner = {'Act': lambda bid: bid.performer.contact,
+             'Class': lambda bid: bid.teacher.contact,
+             'Vendor': lambda bid: bid.profile}
 
-
+    if bid_type not in ('Act', 'Class', 'Vendor'):
+        raise Http404   # or something
+    bid = eval(bid_type).objects.get(pk=bid_id)
+    owner_profile = owner[bid_type](bid)
+    if request.user.profile != owner_profile:
+        raise PermissionDenied
+    new_bid = bid.clone()
+    return landing_page(request)
 
 @login_required
 def edit_act(request, act_id):

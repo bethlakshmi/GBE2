@@ -163,6 +163,12 @@ urlpatterns = patterns ('',
                         url(r'^vendor/changestate/(\d+)/?$',
                             views.vendor_changestate,
                             name='vendor_changestate'),
+
+                        url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',
+                            views.clone_bid,
+                            name='clone_bid'),
+                        
+
 # miscellaneous URLs
                         url(r'^costume_display/?$',
                             views.costume_display, name='costume_display'),
