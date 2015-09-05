@@ -21,8 +21,8 @@ Pillow>=2
 django-filer
 cmsplugin-filer
 django-reversion==1.8.5
-#mysql-python
-
+mysql-python
+reportlab
 djangocms_text_ckeditor
 djangocms_style
 djangocms_column
