@@ -17,7 +17,7 @@ class TestEditEvent(TestCase):
     '''Tests for edit_event view'''
 
     # Fixture to create some rooms, location items, and resource items
-    fixtures = ['scheduler/fixtures/rooms.json']
+    fixtures = ['tests/fixtures/rooms.json']
 
     def setUp(self):
         self.factory = RequestFactory()
