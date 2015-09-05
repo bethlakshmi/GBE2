@@ -7,7 +7,9 @@
 {% block content %}
  
 {% if tickets %}
+  <div class="sched_block font_regular">
   {% include "ticket_link.tmpl" %}
+  </div>
 {% endif %}  
     <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
     <div class="sched_block font_regular">

@@ -1012,8 +1012,11 @@ class Show (Event):
     #
     def get_tickets(self):
         from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(bpt_event__include_most=True, active=True)
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
+        most_events = TicketItem.objects.filter(bpt_event__include_most=True,
+                                        active=True,
+                                        bpt_event__conference=self.conference)
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
+                                        active=True)
         tickets = list(chain(my_events, most_events ))
         return tickets
 
@@ -1075,11 +1078,16 @@ class GenericEvent (Event):
     #
     def get_tickets(self):
         from ticketing.models import TicketItem
-        if self.type != "Master":
-            most_events = TicketItem.objects.filter(bpt_event__include_most=True, active=True)
+        if self.type in ["Special", "Drop-In"]:
+            most_events = TicketItem.objects.filter(
+                                        bpt_event__include_most=True,
+                                        active=True,
+                                        bpt_event__conference=self.conference)
         else:
             most_events = []
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
+            
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
+                                              active=True)
         tickets = list(chain(my_events, most_events ))
         return tickets
 
@@ -1229,7 +1237,8 @@ class Class(Biddable, Event):
         from ticketing.models import TicketItem
         most_events = TicketItem.objects.filter(Q(bpt_event__include_most = True) |
                                                 Q(bpt_event__include_conference = True)) \
-                                                .filter(active=True)
+                                                .filter(active=True,
+                                                        bpt_event__conference=self.conference)
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
         tickets = list(chain(my_events, most_events ))
         return tickets
