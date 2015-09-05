@@ -56,7 +56,8 @@ class BPTEventForm(forms.ModelForm):
     shows = Show.objects.all()
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
     event_set = Event.objects.filter(Q(show__in=shows) |
-                                     Q(genericevent__in=genericevents))
+                                     Q(genericevent__in=genericevents)) \
+                             .exclude(conference__status="completed")
     linked_events = forms.ModelMultipleChoiceField \
                                (queryset=event_set,
                                 required=False,
