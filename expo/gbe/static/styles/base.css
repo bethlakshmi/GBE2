@@ -487,9 +487,14 @@ td.describe
 {
 }
 
-.tickets
+.ticket
 {
-  
+  margin-left: 10px;
+  font-weight: normal;
+}
+.conf_tickets
+{
+  font-weight: bold;
 }
 .ticket_link
 {

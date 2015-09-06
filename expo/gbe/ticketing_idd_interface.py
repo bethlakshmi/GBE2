@@ -129,6 +129,13 @@ def get_purchased_tickets(user):
     '''
     get the tickets purchased by the given profile
     '''
-    tickets = TicketItem.objects.filter(transaction__purchaser__matched_to_user=user).\
-              annotate(number_of_tickets=Count('transaction'))
-    return [] # tickets
+    ticket_by_conf = []
+    conferences = Conference.objects.exclude(status="completed").order_by('status')
+    for conf in conferences:
+        tickets = TicketItem.objects.filter(bpt_event__conference=conf,
+                            transaction__purchaser__matched_to_user=user).\
+                            annotate(number_of_tickets=Count('transaction')).\
+                            order_by('title')
+        if tickets:
+            ticket_by_conf.append({'conference': conf, 'tickets': tickets})
+    return ticket_by_conf
