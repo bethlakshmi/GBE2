@@ -83,8 +83,10 @@ class TestEditTicketItem(TestCase):
                                     self.get_ticketitem_form())
         request.user = self.privileged_user
         response = ticket_item_edit(request, self.ticketitem.pk)
+        conf_slug = self.ticketitem.bpt_event.conference.conference_slug
+
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items')
+        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
 
     def test_ticket_add_post_form_all_good(self):
         '''
@@ -95,8 +97,10 @@ class TestEditTicketItem(TestCase):
                                     new_ticket)
         request.user = self.privileged_user
         response = ticket_item_edit(request)
+        conf_slug = self.ticketitem.bpt_event.conference.conference_slug
+
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items')
+        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
 
 
     def test_ticket_edit_post_form_bad_bptevent(self):
@@ -122,12 +126,13 @@ class TestEditTicketItem(TestCase):
         delete_me = ticketing_factories.TicketItemFactory.create()
         delete_me.ticket_id = "444444-555555"
         delete_me.save()
+        conf_slug = delete_me.bpt_event.conference.conference_slug
         request = self.factory.post('/ticketing/ticket_item_edit/%d'%delete_me.pk,
                                     delete_ticket)
         request.user = self.privileged_user
         response = ticket_item_edit(request, delete_me.pk)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items')
+        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
 
     @nt.raises(Http404)
     def test_ticket_form_delete_missing_item(self):

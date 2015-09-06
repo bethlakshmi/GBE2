@@ -1003,7 +1003,6 @@ class Show (Event):
     def schedule_ready(self):
         return True      # shows are always ready for scheduling
 
-    @property
     #
     # tickets that apply to shows are:
     #   - any ticket that applies to "most" ("most"= no Master Classes)
