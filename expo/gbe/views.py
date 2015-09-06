@@ -2141,7 +2141,7 @@ def panel_delete(request, panel_id):
     '''
     pass
 
-
+@login_required
 def conference_volunteer(request):
     '''
     Volunteer to chair or sit on a panel or teach a class.
