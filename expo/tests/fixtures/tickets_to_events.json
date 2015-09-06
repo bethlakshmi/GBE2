@@ -939,6 +939,81 @@
 },
 {
     "pk": 1, 
+    "model": "ticketing.transaction", 
+    "fields": {
+        "purchaser": 1, 
+        "ticket_item": 2, 
+        "reference": "reference", 
+        "payment_source": "credit card", 
+        "shipping_method": "electronic", 
+        "import_date": "2015-09-06T18:18:58.573Z", 
+        "amount": "1", 
+        "order_date": "2015-09-06T14:18:31Z", 
+        "order_notes": "pickup at desk"
+    }
+},
+{
+    "pk": 2, 
+    "model": "ticketing.transaction", 
+    "fields": {
+        "purchaser": 1, 
+        "ticket_item": 8, 
+        "reference": "reference", 
+        "payment_source": "credit card", 
+        "shipping_method": "electronic", 
+        "import_date": "2015-09-06T18:19:30.427Z", 
+        "amount": "1", 
+        "order_date": "2015-09-06T14:19:13Z", 
+        "order_notes": "pickup at desk"
+    }
+},
+{
+    "pk": 3, 
+    "model": "ticketing.transaction", 
+    "fields": {
+        "purchaser": 1, 
+        "ticket_item": 15, 
+        "reference": "reference", 
+        "payment_source": "credit card", 
+        "shipping_method": "electronic", 
+        "import_date": "2015-09-06T18:19:50.447Z", 
+        "amount": "1", 
+        "order_date": "2015-09-06T14:19:42Z", 
+        "order_notes": "asdf"
+    }
+},
+{
+    "pk": 4, 
+    "model": "ticketing.transaction", 
+    "fields": {
+        "purchaser": 1, 
+        "ticket_item": 5, 
+        "reference": "reference", 
+        "payment_source": "credit card", 
+        "shipping_method": "electronic", 
+        "import_date": "2015-09-06T18:20:47.590Z", 
+        "amount": "1", 
+        "order_date": "2015-09-06T14:19:13Z", 
+        "order_notes": "asdf"
+    }
+},
+{
+    "pk": 5, 
+    "model": "ticketing.transaction", 
+    "fields": {
+        "purchaser": 1, 
+        "ticket_item": 6, 
+        "reference": "reference", 
+        "payment_source": "credit card", 
+        "shipping_method": "electronic", 
+        "import_date": "2015-09-06T18:21:06.163Z", 
+        "amount": "1", 
+        "order_date": "2015-09-06T14:19:42Z", 
+        "order_notes": "asdf"
+    }
+},
+{
+    "pk": 1, 
     "model": "scheduler.resourceitem", 
     "fields": {}
 },
@@ -1214,6 +1289,24 @@
     }
 },
 {
+    "pk": 3, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "elcheapo", 
+        "first_name": "", 
+        "last_name": "", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2015-09-06T18:44:47.698Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$12000$iv93GLfqiHzM$LjRSTxPoMbp1h2G1p2p4gqqPeDCXIsOaTpXi/eocW68=", 
+        "email": "", 
+        "date_joined": "2015-09-06T18:44:47.698Z"
+    }
+},
+{
     "pk": 1, 
     "model": "gbe.profile", 
     "fields": {
@@ -1229,6 +1322,40 @@
         "country": "", 
         "user_object": 1, 
         "zip_code": ""
+    }
+},
+{
+    "pk": 3, 
+    "model": "gbe.profile", 
+    "fields": {
+        "city": "", 
+        "purchase_email": "cheapo@test.com", 
+        "display_name": "Cheap User", 
+        "best_time": "Any", 
+        "address1": "", 
+        "address2": "", 
+        "how_heard": "[]", 
+        "phone": "111-222-3333", 
+        "state": "", 
+        "country": "", 
+        "user_object": 3, 
+        "zip_code": ""
+    }
+},
+{
+    "pk": 1, 
+    "model": "ticketing.purchaser", 
+    "fields": {
+        "city": "Testville", 
+        "first_name": "Betty", 
+        "last_name": "Admin", 
+        "matched_to_user": 1, 
+        "zip": "12345", 
+        "country": "USA", 
+        "phone": "111-222-3333", 
+        "state": "UT", 
+        "address": "test address\r\n", 
+        "email": "bethlakshmi@gmail.com"
     }
 }
 ]

@@ -7,7 +7,7 @@ from ticketing.models import TicketItem
 import mock
 
 
-class TestEditEvent(TestCase):
+class TestGetTickets(TestCase):
     '''Tests for edit_event view'''
 
     # Fixture to create some rooms, location items, and resource items

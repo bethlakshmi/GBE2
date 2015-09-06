@@ -8,10 +8,15 @@
     {% endif %} Tickets
   </h3>	
   {% if tickets %}
-    {% for ticket in tickets %}
-      <div class='ticket'>
+    {% for conf in tickets %}
+      <div class='conf_tickets'>
+      {{conf.conference}}:<br>
+      {% for ticket in conf.tickets %}
+        <div class='ticket'>
 	{{ticket.title}} - {{ticket.number_of_tickets}} 
-      </div> <br>
+        </div> 
+      {% endfor %}
+      </div>
     {% endfor %}
   {% else %}
       No tickets have been purchased, if {{profile.purchase_email}} is not 
