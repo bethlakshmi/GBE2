@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from expo.gbe_logging import *
 logger.info('Import from gbe_logging, VmSize: '+memusage())
 
@@ -11,69 +10,49 @@ logger.info('Import of reverse from django.core.urlresolvers, VmSize: '+memusage
 from django.core.exceptions import PermissionDenied
 logger.info('Import of PermissionDenied from django.core.exceptions, VmSize: '+memusage())
 
-=======
-from django.db.models import Q
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
->>>>>>> master
 from django.shortcuts import (
     render,
     get_object_or_404,
     render_to_response,
 )
-<<<<<<< HEAD
 logger.info('Import of render and object 404 from django.shortcuts, VmSize: '+memusage())
 
-=======
->>>>>>> master
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
-<<<<<<< HEAD
+
 logger.info('Import of http response and 404 from django.http, VmSize: '+memusage())
 
 from django.contrib.auth.decorators import login_required
 logger.info('Import of login_required from django.contrib.auth.decorators, VmSize: '+memusage())
 
-=======
-from django.contrib.auth.decorators import login_required
->>>>>>> master
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
-<<<<<<< HEAD
 logger.info('Import of login, logout, and authenticate from django.contrib.auth, VmSize: '+memusage())
 
 from django.contrib.auth.forms import UserCreationForm
 logger.info('Import of UserCreationForm from django.contrib.auth.forms, VmSize: '+memusage())
 
-=======
-from django.contrib.auth.forms import UserCreationForm
->>>>>>> master
+
 from django.template import (
     loader,
     RequestContext,
     Context,
 )
-<<<<<<< HEAD
 logger.info('Import of loader and Context from django.template, VmSize: '+memusage())
 
-=======
->>>>>>> master
 from gbe.models import (
     Event,
     Act,
     Performer,
 )
-<<<<<<< HEAD
 logger.info('Import of Event, Act, Performer from gbe.models, VmSize: '+memusage())
 
-=======
->>>>>>> master
 from gbe.forms import *
 logger.info('Import of * from gbe.forms, VmSize: '+memusage())
 
@@ -81,50 +60,34 @@ from gbe.functions import *
 logger.info('Import of * from gbe.functions, VmSize: '+memusage())
 
 from gbe.ticketing_idd_interface import *
-<<<<<<< HEAD
 logger.info('Import of * from gbe.ticketing_idd_interface, VmSize: '+memusage())
 
-=======
->>>>>>> master
+
 import gbe_forms_text
 logger.info('Import all from gbe_forms_text, VmSize: '+memusage())
 
 from ticketingfuncs import compute_submission
-<<<<<<< HEAD
 logger.info('Import of compute_submission from ticketingfuncs, VmSize: '+memusage())
 
-=======
->>>>>>> master
 from duration import Duration
 logger.info('Import of Duration from duration, VmSize: '+memusage())
 
 from scheduler.functions import set_time_format
-<<<<<<< HEAD
 logger.info('Import of set_time_format from scheduler.functions, VmSize: '+memusage())
 
-=======
->>>>>>> master
 from scheduler.models import (
     Event as sEvent,
     ResourceAllocation,
     ActResource,
     Worker,
 )
-<<<<<<< HEAD
 logger.info('Import of Event, Resources, Workeer from scheduler.models, VmSize: '+memusage())
-=======
->>>>>>> master
+
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
 
-<<<<<<< HEAD
 @log_func
-=======
-visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
-                     Q(biddable_ptr__conference__status='ongoing'))
-
->>>>>>> master
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template
@@ -135,10 +98,7 @@ def down(request):
     return HttpResponse(template.render(context))
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def index(request):
     '''
     one of two cases:
@@ -161,10 +121,7 @@ def index(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
@@ -389,10 +346,7 @@ def view_troupe(request, troupe_id=None):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def create_combo(request):
     page_title = 'Manage Combo'
     view_title = 'Who is in this Combo?'
@@ -743,10 +697,7 @@ def edit_act(request, act_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def view_act(request, act_id):
     '''
     Show a bid as a read-only form.
@@ -777,10 +728,7 @@ def view_act(request, act_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_act(request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -876,10 +824,7 @@ def review_act(request, act_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_act_list(request):
     '''
     Show the list of act bids, review results,
@@ -919,10 +864,7 @@ def review_act_list(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def act_changestate(request, bid_id):
     '''
     Fairly specific to act - removes the act from all shows, and resets
@@ -932,19 +874,12 @@ def act_changestate(request, bid_id):
     BB - I'd like to refactor this to be the same as volunteer form, but
     not right now - 2015?
     '''
-<<<<<<< HEAD
 
     @log_func
     def act_accepted(request):
         return (request.POST['show'] and
                (request.POST['accepted'] == '3' or
                 request.POST['accepted'] == '2'))
-=======
-    def act_accepted(request):
-        return (request.POST['show'] and
-                (request.POST['accepted'] == '3' or
-                 request.POST['accepted'] == '2'))
->>>>>>> master
 
     reviewer = validate_perms(request, ('Act Coordinator',))
     if request.method == 'POST':
@@ -1086,10 +1021,7 @@ def bid_class(request):
         )
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def edit_class(request, class_id):
     '''
     Edit an existing class.
@@ -1160,10 +1092,7 @@ def edit_class(request, class_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def view_class(request, class_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1183,10 +1112,7 @@ def view_class(request, class_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_class(request, class_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1265,10 +1191,7 @@ def review_class(request, class_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_class_list(request):
     '''
     Show the list of class bids, review results,
@@ -1307,10 +1230,7 @@ def review_class_list(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def class_changestate(request, bid_id):
     '''
     Because classes are scheduleable, if a class is rejected, or
@@ -1388,10 +1308,7 @@ def create_volunteer(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def view_volunteer(request, volunteer_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1415,10 +1332,7 @@ def view_volunteer(request, volunteer_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_volunteer(request, volunteer_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1496,10 +1410,7 @@ def review_volunteer(request, volunteer_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_volunteer_list(request):
     '''
     Show the list of act bids, review results,
@@ -1542,10 +1453,7 @@ def review_volunteer_list(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def volunteer_changestate(request, bid_id):
     '''
     Fairly specific to volunteer - removes the profile from all volunteer
@@ -1574,10 +1482,7 @@ def volunteer_changestate(request, bid_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def edit_volunteer(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
@@ -1691,10 +1596,7 @@ def review_vendor(request, vendor_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_vendor_list(request):
     '''
     Show the list of act bids, review results,
@@ -1734,10 +1636,7 @@ def review_vendor_list(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def vendor_changestate(request, bid_id):
     '''
     The generic function to change a bid to a new state (accepted,
@@ -1909,10 +1808,7 @@ def edit_vendor(request, vendor_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def view_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1943,10 +1839,6 @@ def act(request, act_id):
     '''
     act = get_object_or_404(Act, pk=act_id)
     return render(request, 'gbe/act.html', {'act': act})
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 
 @log_func
@@ -1977,10 +1869,6 @@ def profile(request, profile_id=None):
                        'user': requested_profile.user_object,
                        'viewer_is_admin': viewer_is_admin,
                        'own_profile': own_profile})
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 
 @log_func
@@ -2192,10 +2080,8 @@ def update_profile(request):
                       {'left_forms': [form], 'right_forms': [prefs_form]})
 
 
-<<<<<<< HEAD
+
 @log_func
-=======
->>>>>>> master
 def register(request):
     '''
     Allow a user to register with gbe. This should create both a user
@@ -2218,10 +2104,7 @@ def register(request):
     return render(request, 'gbe/register.tmpl', {'form': form})
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def logout_view(request):
     '''
     End the current user's session.
@@ -2231,10 +2114,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def propose_class(request):
     '''
     Handle suggestions for classes from the great unwashed
@@ -2257,10 +2137,7 @@ def propose_class(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def publish_proposal(request, class_id):
     '''
     Edit an existing proposal.  This is only available to the
@@ -2302,10 +2179,7 @@ def publish_proposal(request, class_id):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def review_proposal_list(request):
     '''
     Show the list of class bids, review results,
@@ -2336,10 +2210,7 @@ def panel_create(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def panel_view(request, panel_id):
     '''
     View for viewing a panel.
@@ -2348,10 +2219,7 @@ def panel_view(request, panel_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def panel_edit(request, panel_id):
     '''
     View for editing a panel.
@@ -2360,10 +2228,7 @@ def panel_edit(request, panel_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def panel_delete(request, panel_id):
     '''
     View to delete a panel.  Deleting only marks panel as deleted, does not
@@ -2373,10 +2238,7 @@ def panel_delete(request, panel_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def conference_volunteer(request):
     '''
     Volunteer to chair or sit on a panel or teach a class.
@@ -2459,10 +2321,6 @@ def conference_volunteer(request):
     return render(request, 'gbe/conf_volunteer_list.tmpl',
                   {'view_title': view_title, 'page_title': page_title,
                    'header': header, 'rows': rows})
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 
 @log_func
@@ -2474,10 +2332,7 @@ def ad_create(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def ad_list(request):
     '''
     View to get a list of advertisements.
@@ -2486,10 +2341,7 @@ def ad_list(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def ad_edit(request, ad_id):
     '''
     View to edit or alter an advertisement.
@@ -2498,10 +2350,7 @@ def ad_edit(request, ad_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def ad_view(request, ad_id):
     '''
     View an advertisement.
@@ -2510,10 +2359,7 @@ def ad_view(request, ad_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def ad_delete(request, ad_id):
     '''
     Delete an advertisement.  Deletion does not remove the ad from
@@ -2523,10 +2369,7 @@ def ad_delete(request, ad_id):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def bios_staff(request):
     '''
     Display the staff bios, pulled from their profiles.
@@ -2534,10 +2377,7 @@ def bios_staff(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def bios_teachers(request):
     '''
     Display the teachers bios.  Teachers are anyone teaching,
@@ -2567,10 +2407,7 @@ def bios_teachers(request):
     return render(request, template, context)
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def bios_volunteer(request):
     '''
     Display the volunteer bios, pulled from their profiles.
@@ -2578,10 +2415,7 @@ def bios_volunteer(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def special(request):
     '''
     Edit special privledges.
@@ -2589,10 +2423,7 @@ def special(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def volunteer(request):
     '''
     Gateway to volunteering pages for users.  Either places
@@ -2603,10 +2434,7 @@ def volunteer(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def costume_display(request):
     '''
     Costume Display.  May move this and a few other things into a separate app?
@@ -2614,10 +2442,7 @@ def costume_display(request):
     pass
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def fashion_faire(request):
     '''
     The Vintage Fashion Faire.  Glorified vendor list
@@ -2632,10 +2457,7 @@ def fashion_faire(request):
 
 
 @login_required
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def bid_changestate(request, bid_id, redirectURL):
     '''
     The generic function to change a bid to a new state (accepted,
@@ -2850,15 +2672,11 @@ def create_event(request, event_type):
                        'view_header_text': event_create_text[event_type]})
 
 
-<<<<<<< HEAD
 @log_func
-=======
->>>>>>> master
 def handle_user_contact_email(request):
     return_redirect = HttpResponseRedirect(reverse('home',
                                                    urlconf='gbe.urls',
                                                    args=[]))
-
     if request.method != 'POST':
         return return_redirect
     form = ContactForm(request.POST)
