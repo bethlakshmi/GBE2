@@ -24,7 +24,7 @@ def grant_privilege(user_or_profile, privilege):
     '''
     user = user_for(user_or_profile)
     try:
-        g = Group.objects.get(privilege)
+        g, nil = Group.objects.get_or_create(name=privilege)
     except:
         g = Group(name=privilege)
         g.save()
