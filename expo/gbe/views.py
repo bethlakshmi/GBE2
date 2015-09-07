@@ -1393,7 +1393,7 @@ def review_volunteer(request, volunteer_id):
                           {'readonlyform': [volform],
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL, 
+                           'actionURL': actionURL,
                            'conference': conference,
                            'old_bid': old_bid,})
     else:
@@ -1404,7 +1404,7 @@ def review_volunteer(request, volunteer_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL, 
+                       'actionURL': actionURL,
                        'conference': conference,
                        'old_bid': old_bid,})
 
@@ -1579,7 +1579,7 @@ def review_vendor(request, vendor_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL, 
+                           'actionURL': actionURL,
                            'conference': conference,
                            'old_bid': old_bid,})
     else:
@@ -1590,7 +1590,7 @@ def review_vendor(request, vendor_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL, 
+                       'actionURL': actionURL,
                        'conference': conference,
                        'old_bid': old_bid,})
 
