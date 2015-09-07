@@ -520,7 +520,6 @@ def clone_bid(request, bid_type, bid_id):
     '''
     "Revive" an existing bid for use in the existing conference
     '''
-#    import pdb;pdb.set_trace()
     owner = {'Act': lambda bid: bid.performer.contact,
              'Class': lambda bid: bid.teacher.contact,
              'Vendor': lambda bid: bid.profile}
