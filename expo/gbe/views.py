@@ -78,7 +78,7 @@ def index(request):
 
     
 @login_required
-def landing_page(request, profile_id=None):
+def landing_page(request, profile_id=None, historical=False):
     historical = "historical" in request.GET.keys()
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]

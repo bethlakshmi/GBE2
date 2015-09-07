@@ -24,10 +24,17 @@
         <span class='alert'>{{alert | safe }}</a>
       {% endfor %}
 
-    {% endfor %}
+    {% if historical %}
+    <ul>
+      <li><a href='{% url 'gbe:clone_bid' bid_type='Class' bid_id=class.id %}'>Clone this class</a></li>
+    </ul>
+
+{%else%}	
     <ul class="rightsidebar">
       <li><a href='{% url 'gbe:class_create' %}'>Propose a new class</a></li>
     </ul>
+{% endif %}
+    {% endfor %}
   {% else %}
     {{ profile.display_name }} has not proposed any classes
     <ul class="rightsidebar">

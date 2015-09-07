@@ -14,7 +14,14 @@ Showing Historical Bids
 </h4>
 <p>
 These bids are not currently available for consideration. Click the "clone"
-button to copy them into the current conference.
+button to re-submit an act, class, or vendor bid in the current conference.
+</p>
+<p><a href="{% url 'gbe:home' %}">View current bids</a></p>
+{% else %}
+<p>
+We are only showing bids for the current conference. If you have proposed
+acts, classes, or vendors in previous years, 
+<a href = "{% url 'gbe:home' %}?historical=1">click here</a>
 </p>
 {% endif %}
 

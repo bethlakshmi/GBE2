@@ -1192,8 +1192,9 @@ class Class(Biddable, Event):
                           space_needs=self.space_needs,
                           physical_restrictions=self.physical_restrictions,
                           multiple_run=self.multiple_run,
-                          title=self.title,
-                          description=self.description)
+                          title=self.biddable_ptr.title,
+                          description=self.biddable_ptr.description, 
+                          conference=Conference.objects.filter(status="upcoming").first())
         new_class.save()
         return new_class
 
@@ -1433,7 +1434,8 @@ class Vendor(Biddable):
                         help_description=self.help_description,
                         help_times= self.help_times,
                         title=self.title,
-                        description=self.description)
+                        description=self.description,
+                        conference=Conference.objects.filter(status="upcoming").first())
 
         vendor.save()
         return vendor
