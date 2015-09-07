@@ -140,8 +140,6 @@ class CueInfoFactory(DjangoModelFactory):
 class ActFactory(DjangoModelFactory):
     class Meta:
         model = conf.Act
-
-    
     performer = SubFactory(PersonaFactory)
     tech = SubFactory(TechInfoFactory)
     video_link = ""

@@ -3,10 +3,10 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from gbe.views import landing_page
-from factories import (
-    ConferenceFactory, 
-    ProfileFactory, 
-    ActFactory, 
+from factories import(
+    ConferenceFactory,
+    ProfileFactory,
+    ActFactory,
     ClassFactory,
     VendorFactory,
     PersonaFactory,
@@ -28,11 +28,6 @@ class TestIndex(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_historical_view(self):
-#        current_conf = ConferenceFactory.create(accepting_bids=True, 
-#                                                status='upcoming')
-#        previous_conf = ConferenceFactory.create(accepting_bids=False,
-#                                                 status='completed')
-
         current_conf = ConferenceFactory.create(accepting_bids=True)
         current_conf.status = 'upcoming'
         current_conf.save()
@@ -40,7 +35,7 @@ class TestIndex(TestCase):
         previous_conf.status = 'completed'
         previous_conf.save()
         profile = ProfileFactory.create()
-        performer = PersonaFactory.create(performer_profile=profile, 
+        performer = PersonaFactory.create(performer_profile=profile,
                                           contact=profile)
         current_act = ActFactory.create(performer=performer,
                                         submitted=True)
@@ -49,8 +44,8 @@ class TestIndex(TestCase):
         current_act.save()
         previous_act = ActFactory.create(performer=performer,
                                          submitted=True)
-        previous_act.title='Previous Act'
-        previous_act.conference=previous_conf
+        previous_act.title = 'Previous Act'
+        previous_act.conference = previous_conf
         previous_act.save()
         current_class = ClassFactory.create(teacher=performer,
                                             submitted=True)
@@ -59,8 +54,8 @@ class TestIndex(TestCase):
         current_class.save()
         previous_class = ClassFactory.create(teacher=performer,
                                              submitted=True)
-        previous_class.conference=previous_conf
-        previous_class.title='Previous Class'
+        previous_class.conference = previous_conf
+        previous_class.title = 'Previous Class'
         previous_class.save()
         current_vendor = VendorFactory.create(profile=profile,
                                               submitted=True)
@@ -69,15 +64,14 @@ class TestIndex(TestCase):
         current_vendor.save()
         previous_vendor = VendorFactory.create(profile=profile,
                                                submitted=True)
-        previous_vendor.conference=previous_conf
-        previous_vendor.title='Previous Vendor'
+        previous_vendor.conference = previous_conf
+        previous_vendor.title = 'Previous Vendor'
         previous_vendor.save()
         request = self.factory.get('/')
         request.user = profile.user_object
-        request.GET = {'historical':1}
-        import pdb;pdb.set_trace()
+        request.GET = {'historical': 1}
         response = landing_page(request)
-        content=response.content
+        content = response.content
         shows_all_previous = (previous_act.title in content and
                               previous_class.title in content and
                               previous_vendor.title in content)
