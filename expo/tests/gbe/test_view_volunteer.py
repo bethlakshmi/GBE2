@@ -6,11 +6,7 @@ from django.test import Client
 from gbe.views import view_volunteer
 from tests.factories import gbe_factories as factories
 import mock
-import gbe.ticketing_idd_interface 
-from tests.functions.gbe_functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+import gbe.ticketing_idd_interface
 
 
 class TestViewVolunteer(TestCase):
