@@ -18,7 +18,7 @@ class TestGetTickets(TestCase):
         '''
         event = GenericEvent.objects.get(pk=12)
         tickets = event.get_tickets()
-        
+
         self.assertEqual(tickets, [])
 
     def test_get_tickets_for_master_class(self):
@@ -26,25 +26,25 @@ class TestGetTickets(TestCase):
         '''
         event = GenericEvent.objects.get(pk=4)
         tickets = event.get_tickets()
-        
+
         self.assertEqual(len(tickets), 1)
         self.assertEqual(tickets[0].title, "Master Class 2017")
-        
+
     def test_get_tickets_for_special_event(self):
         '''get the one ticket that is active for all except master classes
         '''
         event = GenericEvent.objects.get(pk=8)
         tickets = event.get_tickets()
-        
+
         self.assertEqual(len(tickets), 1)
         self.assertEqual(tickets[0].title, "The Whole Shebang 2016")
-        
+
     def test_get_tickets_for_class(self):
         '''get one ticket for everything but master, and one for classes
         '''
         event = Class.objects.get(pk=2)
         tickets = event.get_tickets()
-        
+
         whole_shebang = TicketItem.objects.get(pk=1)
         scholar = TicketItem.objects.get(pk=3)
 
@@ -57,6 +57,6 @@ class TestGetTickets(TestCase):
         '''
         event = Show.objects.get(pk=2)
         tickets = event.get_tickets()
-        
+
         self.assertEqual(len(tickets), 1)
         self.assertEqual(tickets[0].title, "The Whole Shebang 2016")
