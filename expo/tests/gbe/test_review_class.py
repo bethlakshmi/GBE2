@@ -6,7 +6,6 @@ from django.test import Client
 from gbe.views import review_class
 import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (login_as,
                                            is_login_page,

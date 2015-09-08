@@ -18,6 +18,7 @@ from gbe.report_views import (list_reports,
 from tests.factories import gbe_factories as factories
 import tests.functions.gbe_functions as functions
 
+
 class TestReports(TestCase):
     '''Tests for index view'''
     def setUp(self):
