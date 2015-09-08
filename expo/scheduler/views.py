@@ -859,48 +859,69 @@ def view_list(request, event_type='All'):
       - add the type of list you want to have to the list_titles dictionary in gbetext
       - add the text for the list you want to have to the list_text dicionary
       - double check if any new label text needs to be added to event_labels
-         LATER:  I'd like to find a way to get all this ugly large text blobs in *.py files and into the
-         DB where Scratch can change them - Betty
+         LATER:  I'd like to find a way to get all this ugly large text blobs 
+    in *.py files and into the DB where Scratch can change them - Betty
     '''
-    from gbe.models import Class, Show, GenericEvent, Event
+    from gbe.models import Class, Show, GenericEvent, Event, Conference
+    # TO DO (urgent) get rid of this dependency - jpk 9/2015
+
+    conf_slug = request.GET.get('conference', None)
+    if not conf_slug:
+        conference = Conference.current_conf()
+    else:
+        conference = Conference.by_slug(conf_slug)
 
     try:
         items = []
         event_types = dict(event_options)
         class_types = dict(class_options)
 
-        ''' BB - darn it, this is less open ended than I wanted but after finding that there is
-        no elegant filter for child class type, and that select_subclasses isn't a *filter* - I gave up
-        '''
         if event_types.has_key(event_type):
-            items = GenericEvent.objects.filter(type=event_type, visible=True).order_by('title')
+            items = GenericEvent.objects.filter(
+                type=event_type,
+                visible=True,
+                conference=conference).order_by('title')
         elif class_types.has_key(event_type):
-            items = Class.objects.filter(accepted='3', type=event_type, visible=True).order_by('title')
+            items = Class.objects.filter(
+                accepted='3',
+                visible=True,
+                type=event_type,
+                conference=conference).order_by('title')
         elif event_type=='Show':
-            items = Show.objects.filter(visible=True).order_by('title')
+            items = Show.objects.filter(
+                conference=conference).order_by('title')
         elif event_type=='Class':
-            items = Class.objects.filter(accepted='3', visible=True).exclude(type='Panel').order_by('title')
-
+            items = Class.objects.filter(
+                accepted='3',
+                visible=True,
+                conference=conference).exclude(
+                    type='Panel').order_by('title')
         else:
-            items = Event.objects.filter(visible=True).select_subclasses().order_by('title')
+            items = Event.objects.filter(
+                visible=True,
+                conference=conference).select_subclasses().order_by(
+                    'title')
             
             event_type="All"
 
-        items = items.filter(visible=True)
-
         events = [{'eventitem': item, 
-                    'scheduled_events':item.scheduler_events.all().order_by('starttime'),
+                    'scheduled_events':item.scheduler_events.order_by(
+                        'starttime'),
                     'detail': reverse('detail_view', 
                                       urlconf='scheduler.urls', 
                                       args = [item.eventitem_id])}
                     for item in items]
     except:
         events = None
+    conferences = Conference.objects.all()
     return render(request, 'scheduler/event_display_list.tmpl',
                   {'title': list_titles[event_type],
                    'view_header_text': list_text[event_type],
                    'labels': event_labels,
-                   'events': events})
+                   'events': events,
+                   'conferences': conferences,
+                   'etype':event_type,
+                   })
 
 
 def manage_rehearsals(request, event_id):

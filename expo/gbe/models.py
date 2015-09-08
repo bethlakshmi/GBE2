@@ -40,6 +40,18 @@ class Conference(models.Model):
     def __unicode__(self):
         return self.conference_name
 
+    @classmethod
+    def current_conf(cls):
+        return cls.objects.filter(status__in=('upcoming', 'ongoing')).first()
+        
+    @classmethod
+    def by_slug(cls, slug):
+        try:
+            return cls.objects.get(conference_slug=slug)
+        except cls.DoesNotExist:
+            return cls.current_conf()
+            
+
     class Meta:
         verbose_name="conference"
         verbose_name_plural="conferences"
