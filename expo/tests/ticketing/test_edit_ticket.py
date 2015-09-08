@@ -14,7 +14,6 @@ import mock
 import gbe.tests as gbe_tests
 
 
-
 class TestEditTicketItem(TestCase):
     '''Tests for ticket_item_edit view'''
 
@@ -23,7 +22,8 @@ class TestEditTicketItem(TestCase):
         self.client = Client()
         self.ticketitem = ticketing_factories.TicketItemFactory.create()
         group, created = Group.objects.get_or_create(name='Ticketing - Admin')
-        self.privileged_user = gbe_factories.ProfileFactory.create().user_object
+        self.privileged_user = gbe_factories.ProfileFactory.create().\
+            user_object
         self.privileged_user.groups.add(group)
 
     def get_ticketitem_form(self):
@@ -39,21 +39,22 @@ class TestEditTicketItem(TestCase):
     @nt.raises(PermissionDenied)
     def test_edit_ticket_user_is_not_ticketing(self):
         '''
-            The user does not have the right privileges.  Fail with a PermissionDenied
+            The user does not have the right privileges.  Send PermissionDenied
         '''
         user = gbe_factories.ProfileFactory.create().user_object
-        request = self.factory.get('/ticketing/ticket_item_edit/%d'%self.ticketitem.pk)
+        request = self.factory.get('/ticketing/ticket_item_edit/%d' %
+                                   self.ticketitem.pk)
         request.user = user
         response = ticket_item_edit(request, self.ticketitem.pk)
 
-    @nt.raises(Http404)        
+    @nt.raises(Http404)
     def test_edit_ticket_bad_ticketitem(self):
         '''
            Unknown ticket item submitted by valid user, should have an error
            and resend same form (status 200)
         '''
         request = self.factory.get('/ticketing/ticket_item_edit/200')
-        request.user =  self.privileged_user
+        request.user = self.privileged_user
         response = ticket_item_edit(request, 200)
 
     def test_get_new_ticketitem(self):
@@ -61,7 +62,7 @@ class TestEditTicketItem(TestCase):
            good user gets new ticket form, all is good.
         '''
         request = self.factory.get('/ticketing/ticket_item_edit')
-        request.user =  self.privileged_user
+        request.user = self.privileged_user
         response = ticket_item_edit(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -70,8 +71,9 @@ class TestEditTicketItem(TestCase):
            good user gets form to edit existing ticket, all is good.
         '''
         self.ticketitem.save()
-        request = self.factory.get('/ticketing/ticket_item_edit/%d'%self.ticketitem.pk)
-        request.user =  self.privileged_user
+        request = self.factory.get('/ticketing/ticket_item_edit/%d' %
+                                   self.ticketitem.pk)
+        request.user = self.privileged_user
         response = ticket_item_edit(request, self.ticketitem.pk)
         nt.assert_equal(response.status_code, 200)
 
@@ -79,14 +81,16 @@ class TestEditTicketItem(TestCase):
         '''
             Good form, good user, return the main edit page
         '''
-        request = self.factory.post('/ticketing/ticket_item_edit/%d'%self.ticketitem.pk,
+        request = self.factory.post('/ticketing/ticket_item_edit/%d' %
+                                    self.ticketitem.pk,
                                     self.get_ticketitem_form())
         request.user = self.privileged_user
         response = ticket_item_edit(request, self.ticketitem.pk)
         conf_slug = self.ticketitem.bpt_event.conference.conference_slug
 
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
+        nt.assert_equal(location(response),
+                        '/ticketing/ticket_items/%s' % conf_slug)
 
     def test_ticket_add_post_form_all_good(self):
         '''
@@ -100,8 +104,8 @@ class TestEditTicketItem(TestCase):
         conf_slug = self.ticketitem.bpt_event.conference.conference_slug
 
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
-
+        nt.assert_equal(location(response),
+                        '/ticketing/ticket_items/%s' % conf_slug)
 
     def test_ticket_edit_post_form_bad_bptevent(self):
         '''
@@ -109,7 +113,8 @@ class TestEditTicketItem(TestCase):
         '''
         error_form = self.get_ticketitem_form()
         error_form['bpt_event'] = -1
-        request = self.factory.post('/ticketing/ticket_item_edit/%d'%self.ticketitem.pk,
+        request = self.factory.post('/ticketing/ticket_item_edit/%d' %
+                                    self.ticketitem.pk,
                                     error_form)
         request.user = self.privileged_user
         response = ticket_item_edit(request, self.ticketitem.pk)
@@ -127,12 +132,14 @@ class TestEditTicketItem(TestCase):
         delete_me.ticket_id = "444444-555555"
         delete_me.save()
         conf_slug = delete_me.bpt_event.conference.conference_slug
-        request = self.factory.post('/ticketing/ticket_item_edit/%d'%delete_me.pk,
+        request = self.factory.post('/ticketing/ticket_item_edit/%d' %
+                                    delete_me.pk,
                                     delete_ticket)
         request.user = self.privileged_user
         response = ticket_item_edit(request, delete_me.pk)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/ticketing/ticket_items/%s'%conf_slug)
+        nt.assert_equal(location(response),
+                        '/ticketing/ticket_items/%s' % conf_slug)
 
     @nt.raises(Http404)
     def test_ticket_form_delete_missing_item(self):
@@ -141,7 +148,7 @@ class TestEditTicketItem(TestCase):
         '''
         delete_ticket = self.get_ticketitem_form()
         delete_ticket['delete_item'] = ''
-        request = self.factory.post('/ticketing/ticket_item_edit/%d'%200,
+        request = self.factory.post('/ticketing/ticket_item_edit/%d' % 200,
                                     delete_ticket)
         request.user = self.privileged_user
         response = ticket_item_edit(request, 200)
@@ -156,7 +163,8 @@ class TestEditTicketItem(TestCase):
         transaction = ticketing_factories.TransactionFactory.create()
         transaction.save()
         self.ticketitem.save()
-        request = self.factory.post('/ticketing/ticket_item_edit/%d'%transaction.ticket_item.pk,
+        request = self.factory.post('/ticketing/ticket_item_edit/%d' %
+                                    transaction.ticket_item.pk,
                                     delete_ticket)
         request.user = self.privileged_user
         response = ticket_item_edit(request, transaction.ticket_item.pk)
