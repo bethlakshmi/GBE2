@@ -4,7 +4,6 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_act
-import mock
 from tests.factories import gbe_factories as factories
 
 

@@ -7,10 +7,7 @@ from gbe.views import review_class_list
 import mock
 from django.contrib.auth.models import Group
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestReviewClassList(TestCase):
