@@ -325,3 +325,12 @@ try:
    MC_API_KEY
 except:
    MC_API_KEY = 'TEST'  # if not set, we won't try to hit mailchimp's API
+
+
+#  Logging settings.
+##  Local path and filename to write logs to
+LOG_FILE='logs/main.log'
+##  Available levels are DEBUG, INFO, WARNING, ERROR, and CRITICAL
+LOG_LEVEL='INFO'
+##  Format for the log file.  Should begin with a timestamp and the log level.
+LOG_FORMAT='%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
