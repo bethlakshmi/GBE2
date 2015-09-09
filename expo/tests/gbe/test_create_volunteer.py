@@ -6,7 +6,6 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_volunteer
 import mock
-from django.contrib.auth.models import Group
 from tests.factories import gbe_factories as factories
 
 

@@ -7,8 +7,9 @@ from gbe.views import edit_persona
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (
     login_as,
-    location
-    )
+    location,
+)
+
 
 class TestEditPersona(TestCase):
     '''Tests for edit_persona view'''

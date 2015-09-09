@@ -5,7 +5,6 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_vendor
 from tests.factories import gbe_factories as factories
-import mock
 
 
 class TestViewVendor(TestCase):

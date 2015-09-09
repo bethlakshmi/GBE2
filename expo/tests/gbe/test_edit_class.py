@@ -8,8 +8,9 @@ from gbe.views import edit_class
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (
     login_as,
-    location
-    )
+    location,
+)
+
 
 class TestEditClass(TestCase):
     '''Tests for edit_class view'''

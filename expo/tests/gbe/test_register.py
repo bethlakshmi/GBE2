@@ -6,7 +6,6 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import register
-import mock
 from django.contrib.auth.models import Group
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import login_as

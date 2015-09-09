@@ -7,8 +7,9 @@ from gbe.views import create_combo
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (
     login_as,
-    location
-    )
+    location,
+)
+
 
 class TestCreateCombo(TestCase):
     '''Tests for create_combo view'''

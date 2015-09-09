@@ -9,8 +9,9 @@ import mock
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (
     login_as,
-    location
-    )
+    location,
+)
+
 
 class TestEditAct(TestCase):
     '''Tests for edit_act view'''
