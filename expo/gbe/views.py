@@ -1,79 +1,81 @@
 from expo.gbe_logging import *
-logger.info('Import from gbe_logging, VmSize: '+memusage())
+log_import(('*',), 'gbe_logging')
 
 from django.db.models import Q
-logger.info('Import of Q from django.db.models, VmSize: '+memusage())
+log_import(('Q',), 'django.db.models')
 
 from django.core.urlresolvers import reverse
-logger.info('Import of reverse from django.core.urlresolvers, VmSize: '+memusage())
+log_import(('reverse',), 'django.core.urlresolvers')
 
 from django.core.exceptions import PermissionDenied
-logger.info('Import of PermissionDenied from django.core.exceptions, VmSize: '+memusage())
+log_import(('PermissionDenied',), 'django.core.exceptions')
 
 from django.shortcuts import (
     render,
     get_object_or_404,
     render_to_response,
 )
-logger.info('Import of render and object 404 from django.shortcuts, VmSize: '+memusage())
+log_import(('render', 'get_object_or_404', 'render_to_response'),
+           'django.shortcuts')
 
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
-
-logger.info('Import of http response and 404 from django.http, VmSize: '+memusage())
+log_import(('HttpResponse', 'HttpResponseRedirect', 'Http404'), 'django.http')
 
 from django.contrib.auth.decorators import login_required
-logger.info('Import of login_required from django.contrib.auth.decorators, VmSize: '+memusage())
+log_import(('login_required',), 'django.contrib.auth.decorators')
 
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
-logger.info('Import of login, logout, and authenticate from django.contrib.auth, VmSize: '+memusage())
+log_import(('login',
+            'logout',
+            'authenticate'),
+           'django.contrib.auth')
 
 from django.contrib.auth.forms import UserCreationForm
-logger.info('Import of UserCreationForm from django.contrib.auth.forms, VmSize: '+memusage())
-
+log_import(('UserCreationForm',), 'django.contrib.auth.forms')
 
 from django.template import (
     loader,
     RequestContext,
     Context,
 )
-logger.info('Import of loader and Context from django.template, VmSize: '+memusage())
+log_import(('loader', 'RequestContext', 'Context'), 'django.template')
 
 from gbe.models import (
     Event,
     Act,
     Performer,
 )
-logger.info('Import of Event, Act, Performer from gbe.models, VmSize: '+memusage())
+log_import(('Event', 'Act', 'Performer'), 'gbe.models')
+
 
 from gbe.forms import *
-logger.info('Import of * from gbe.forms, VmSize: '+memusage())
+log_import(('*',), 'gbe.forms')
 
 from gbe.functions import *
-logger.info('Import of * from gbe.functions, VmSize: '+memusage())
+log_import(('*',), 'gbe.functions')
 
 from gbe.ticketing_idd_interface import *
-logger.info('Import of * from gbe.ticketing_idd_interface, VmSize: '+memusage())
-
+log_import(('*',), 'gbe.ticketing_idd_interface')
 
 import gbe_forms_text
-logger.info('Import all from gbe_forms_text, VmSize: '+memusage())
+log_import(('all',), 'gbe_forms_text')
 
 from ticketingfuncs import compute_submission
-logger.info('Import of compute_submission from ticketingfuncs, VmSize: '+memusage())
+log_import(('compute_submission'), 'ticketingfuncs')
 
 from duration import Duration
-logger.info('Import of Duration from duration, VmSize: '+memusage())
+log_import(('Duration',), 'duration')
 
 from scheduler.functions import set_time_format
-logger.info('Import of set_time_format from scheduler.functions, VmSize: '+memusage())
+log_import(('set_time_format'), 'scheduler.functions')
 
 from scheduler.models import (
     Event as sEvent,
@@ -81,11 +83,12 @@ from scheduler.models import (
     ActResource,
     Worker,
 )
-logger.info('Import of Event, Resources, Workeer from scheduler.models, VmSize: '+memusage())
-
+log_import(('Event', 'ResourceAllocation', 'ActResource', 'Worker'),
+           'scheduler.models')
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
+
 
 @log_func
 def down(request):
@@ -144,9 +147,10 @@ def landing_page(request, profile_id=None):
         for bid in viewer_profile.bids_to_review():
             bid_type = ""
             if bid.__class__ == Act:
-                url = reverse('act_review',
-                               urlconf='gbe.urls',
-                               args=[str(bid.id)]
+                url = reverse(
+                    'act_review',
+                    urlconf='gbe.urls',
+                    args=[str(bid.id)]
                 )
                 bid_type = "Act"
             elif bid.__class__ == Class:
@@ -190,7 +194,7 @@ def landing_page(request, profile_id=None):
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
              'admin_message': admin_message
-         })
+             })
     else:
         context = RequestContext(request,
                                  {'standard_context': standard_context})
@@ -239,17 +243,17 @@ def register_persona(request, **kwargs):
                            'nodraft': submit_button,
                            'page_title': page_title,
                            'view_title': view_title,
-                          })
+                           })
     else:
         form = PersonaForm(initial={'performer_profile': profile,
                                     'contact': profile,
-                                   })
+                                    })
         return render(request, 'gbe/bid.tmpl',
                       {'forms': [form],
                        'nodraft': submit_button,
                        'page_title': page_title,
                        'view_title': view_title,
-                      })
+                       })
 
 
 @login_required
@@ -277,8 +281,8 @@ def edit_troupe(request, troupe_id=None):
     else:
         troupe = Troupe()
 
-    if (troupe_id > 0 and 
-        request.user and 
+    if (troupe_id > 0 and
+        request.user and
         troupe.contact != request.user.profile):
         return HttpResponseRedirect(reverse('troupe_view',
                                             urlconf='gbe.urls',
@@ -420,7 +424,7 @@ def edit_persona(request, persona_id):
                            'nodraft': submit_button,
                            'page_title': page_title,
                            'view_title': view_title,
-                          })
+                           })
     else:
         form = PersonaForm(instance=persona)
         return render(request,
@@ -429,7 +433,7 @@ def edit_persona(request, persona_id):
                        'nodraft': submit_button,
                        'page_title': page_title,
                        'view_title': view_title,
-                      })
+                       })
 
 
 @login_required
@@ -742,7 +746,7 @@ def review_act(request, act_id):
         Act,
         id=act_id
     )
-    conference, old_bid = get_conf(act)    
+    conference, old_bid = get_conf(act)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(instance=act,
@@ -809,7 +813,8 @@ def review_act(request, act_id):
                            'actionform': actionform,
                            'actionURL': actionURL,
                            'conference': conference,
-                           'old_bid': old_bid,})
+                           'old_bid': old_bid,
+                           })
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -820,7 +825,8 @@ def review_act(request, act_id):
                        'actionform': actionform,
                        'actionURL': actionURL,
                        'conference': conference,
-                       'old_bid': old_bid,})
+                       'old_bid': old_bid,
+                       })
 
 
 @login_required
@@ -878,8 +884,7 @@ def act_changestate(request, bid_id):
     @log_func
     def act_accepted(request):
         return (request.POST['show'] and
-               (request.POST['accepted'] == '3' or
-                request.POST['accepted'] == '2'))
+                request.POST['accepted'] in ('3', '2'))
 
     reviewer = validate_perms(request, ('Act Coordinator',))
     if request.method == 'POST':
@@ -1123,7 +1128,7 @@ def review_class(request, class_id):
     reviewer = validate_perms(request, ('Class Reviewers',))
 
     aclass = get_object_or_404(
-        Class, 
+        Class,
         id=class_id,
     )
     conference, old_bid = get_conf(aclass)
@@ -1133,9 +1138,10 @@ def review_class(request, class_id):
     contact = ParticipantForm(
         instance=aclass.teacher.performer_profile,
         prefix='Teacher Contact Info',
-        initial={'email': aclass.teacher.performer_profile.user_object.email,
-                 'first_name': aclass.teacher.performer_profile.user_object.first_name,
-                 'last_name': aclass.teacher.performer_profile.user_object.last_name})
+        initial={
+            'email': aclass.teacher.performer_profile.user_object.email,
+            'first_name': aclass.teacher.performer_profile.user_object.first_name,
+            'last_name': aclass.teacher.performer_profile.user_object.last_name})
 
     if validate_perms(request, ('Class Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=aclass)
@@ -1174,9 +1180,10 @@ def review_class(request, class_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL, 
+                           'actionURL': actionURL,
                            'conference': conference,
-                           'old_bid': old_bid,})
+                           'old_bid': old_bid,
+                           })
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1187,7 +1194,8 @@ def review_class(request, class_id):
                        'actionform': actionform,
                        'actionURL': actionURL,
                        'conference': conference,
-                       'old_bid': old_bid,})
+                       'old_bid': old_bid,
+                       })
 
 
 @login_required
@@ -1243,8 +1251,7 @@ def class_changestate(request, bid_id):
         thisclass = get_object_or_404(Class, id=bid_id)
 
         # if the class has been rejected/no decision, clear any schedule items.
-        if (request.POST['accepted'] == '0' or
-            request.POST['accepted'] == '1'):
+        if request.POST['accepted'] in ('0', '1'):
             try:
                 sched_classes = Event.objects.filter(
                     eventitem__event=thisclass.event_id).delete()
@@ -1395,7 +1402,8 @@ def review_volunteer(request, volunteer_id):
                            'actionform': actionform,
                            'actionURL': actionURL,
                            'conference': conference,
-                           'old_bid': old_bid,})
+                           'old_bid': old_bid,
+                           })
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1406,7 +1414,8 @@ def review_volunteer(request, volunteer_id):
                        'actionform': actionform,
                        'actionURL': actionURL,
                        'conference': conference,
-                       'old_bid': old_bid,})
+                       'old_bid': old_bid,
+                       })
 
 
 @login_required
@@ -1581,7 +1590,8 @@ def review_vendor(request, vendor_id):
                            'actionform': actionform,
                            'actionURL': actionURL,
                            'conference': conference,
-                           'old_bid': old_bid,})
+                           'old_bid': old_bid,
+                           })
     else:
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
@@ -1592,7 +1602,8 @@ def review_vendor(request, vendor_id):
                        'actionform': actionform,
                        'actionURL': actionURL,
                        'conference': conference,
-                       'old_bid': old_bid,})
+                       'old_bid': old_bid,
+                       })
 
 
 @login_required
@@ -2080,7 +2091,6 @@ def update_profile(request):
                       {'left_forms': [form], 'right_forms': [prefs_form]})
 
 
-
 @log_func
 def register(request):
     '''
@@ -2534,7 +2544,7 @@ def edit_act_techinfo(request, act_id):
         rehearsal_forms = [RehearsalSelectionForm(
             initial={'show': show, 'rehearsal_choices':
                      [(r.id, "%s: %s" % (
-                        r.as_subtype.title,
+                         r.as_subtype.title,
                          r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
                            for (show, r_set) in rehearsal_sets.items()
         ]
@@ -2649,7 +2659,8 @@ def create_event(request, event_type):
         form = eval(event_type+"ScheduleForm")(request.POST)
         if form.is_valid():
             event = form.save(commit=False)
-            event.conference = Conference.objects.filter(status='upcoming').first()
+            event.conference = Conference.objects.filter(
+                status='upcoming').first()
             event.save()
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',

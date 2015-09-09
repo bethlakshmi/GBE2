@@ -20,11 +20,10 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # DO NOT commit local settings files to the repo!
 
 
-
 try:
-   from local_settings import *
+    from local_settings import *
 except:
-   pass
+    pass
 
 import os
 gettext = lambda s: s
@@ -34,12 +33,12 @@ try:
 except:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
-SITE_ID=1
+SITE_ID = 1
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
     ('three_column.tmpl', 'Three Column'),
-    #('template_2.tmpl', 'Template Two'),
+    # ('template_2.tmpl', 'Template Two'),
 )
 
 LANGUAGES = [
@@ -54,25 +53,25 @@ LANGUAGES = [
 
 # SECURITY WARNING: keep the secret key used in production secret!
 try:
-   SECRET_KEY
+    SECRET_KEY
 except:
-   SECRET_KEY = '0sdq74686*ayl^0!tqlt*!mgsycr)h4h#*4*_x=2_dw9cq8d!i'
+    SECRET_KEY = '0sdq74686*ayl^0!tqlt*!mgsycr)h4h#*4*_x=2_dw9cq8d!i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-try: 
-   DEBUG
+try:
+    DEBUG
 except:
-   DEBUG = True
+    DEBUG = True
 
 try:
-   TEMPLATE_DEBUG
+    TEMPLATE_DEBUG
 except:
-   TEMPLATE_DEBUG = True
+    TEMPLATE_DEBUG = True
 
 try:
-   ALLOWED_HOSTS
+    ALLOWED_HOSTS
 except:
-   ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = []
 
 MEDIA_URL = '/media/'
 
@@ -80,13 +79,13 @@ try:
     MEDIA_ROOT
 except:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-    
+
 LOGIN_URL = '/login/'
 
 try:
-   LOGIN_REDIRECT_URL
+    LOGIN_REDIRECT_URL
 except:
-   LOGIN_REDIRECT_URL = '/'
+    LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -96,7 +95,7 @@ INSTALLED_APPS = (
     'menus',
     'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
-    'djangocms_admin_style',  # for the admin skin. You **must** add 'djangocms_admin_style' in the list **before** 'django.contrib.admin'.
+    'djangocms_admin_style',
     'django.contrib.messages',    
     'treebeard',    
     'djangocms_text_ckeditor', # tutorial ... hmm...
@@ -111,14 +110,14 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-#    'aldryn_bootstrap3',
+   #    'aldryn_bootstrap3',
     'image_gallery',  #I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-#    'djangocms_file',
+   #    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -127,19 +126,16 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',#    'djangocms_link',
-#    'djangocms_picture',
-#    'djangocms_teaser',
-#    'djangocms_video',
+    'cmsplugin_filer_video',  # 'djangocms_link',
+   #    'djangocms_picture',
+   #    'djangocms_teaser',
+   #    'djangocms_video',
     'reversion', # for versioning in cms -- had to do easy install on new site...
     'gbe',
     'ticketing',
     'scheduler',
     'django_nose',
 )
-
-
-
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 THUMBNAIL_HIGH_RESOLUTION = True
@@ -148,7 +144,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
-    #'easy_thumbnails.processors.scale_and_crop',
+    # 'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
@@ -159,29 +155,29 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.locale.LocaleMiddleware', # added for django-cms
+    'django.middleware.locale.LocaleMiddleware',  # added for django-cms
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware', #end of add for django-cms
+    'cms.middleware.language.LanguageCookieMiddleware',  # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
-TEXT_SAVE_IMAGE_FUNCTION='cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
+TEXT_SAVE_IMAGE_FUNCTION = 'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
-#all django-cms
+# all django-cms
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.i18n',
-    'django.core.context_processors.debug', # used in tutorial
+    'django.core.context_processors.debug',  # used in tutorial
     'django.core.context_processors.request',
     'django.core.context_processors.media',
-    'django.core.context_processors.csrf', # tutorial
-    'django.core.context_processors.tz', # tutorial
+    'django.core.context_processors.csrf',   # tutorial
+    'django.core.context_processors.tz',     # tutorial
     'sekizai.context_processors.sekizai',
     'django.core.context_processors.static',
     'cms.context_processors.cms_settings',
@@ -208,12 +204,14 @@ SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
 }
 
-FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.MemoryFileUploadHandler",
-                        "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
 
 
-#uncomment this to take the site down
-#ROOT_URLCONF = 'expo.downconf'
+# uncomment this to take the site down
+# ROOT_URLCONF = 'expo.downconf'
 ROOT_URLCONF = 'expo.urls'
 
 WSGI_APPLICATION = 'expo.wsgi.application'
@@ -222,13 +220,14 @@ WSGI_APPLICATION = 'expo.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 try:
-   DATABASES
+    DATABASES
 except:
-   DATABASES = {
-      'default': {        'ENGINE': 'django.db.backends.sqlite3',
-                          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-                          }
-      }
+    DATABASES = {
+       'default': {
+          'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+       }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -250,15 +249,14 @@ try:
 except:
     STATIC_URL = '/static/'
 
-
-#Email settings for password reset
+# Email settings for password reset
 
 try:
     EMAIL_HOST
-    EMAIL_HOST_USER 
-    EMAIL_HOST_PASSWORD 
-    EMAIL_USE_TLS 
-    DEFAULT_FROM_EMAIL 
+    EMAIL_HOST_USER
+    EMAIL_HOST_PASSWORD
+    EMAIL_USE_TLS
+    DEFAULT_FROM_EMAIL
 except:
     EMAIL_HOST = 'localhost'
     EMAIL_PORT = 1025
@@ -285,14 +283,14 @@ CMS_STYLE_NAMES = (
     ('new', ("new")),
     ('hint', ("hint")),
     ('footer', ("footer")),
-    ('subtitle',("20th Century Poster")),
-    ('font_large',("Large, plain font")),
-    ('font_regular',("Regular Text"))
+    ('subtitle', ("20th Century Poster")),
+    ('font_large', ("Large, plain font")),
+    ('font_regular', ("Regular Text"))
 )
 
 
 CMS_LANGUAGES = {
-    ## Customize this
+    # Customize this
     'default': {
         'public': True,
         'hide_untranslated': False,
@@ -318,19 +316,18 @@ CMS_LANGUAGES = {
 
 CMS_PERMISSION = True
 
-
 CMS_PLACEHOLDER_CONF = {}
 
-try: 
-   MC_API_KEY
+try:
+    MC_API_KEY
 except:
-   MC_API_KEY = 'TEST'  # if not set, we won't try to hit mailchimp's API
+    MC_API_KEY = 'TEST'  # if not set, we won't try to hit mailchimp's API
 
 
 #  Logging settings.
-##  Local path and filename to write logs to
-LOG_FILE='logs/main.log'
-##  Available levels are DEBUG, INFO, WARNING, ERROR, and CRITICAL
-LOG_LEVEL='INFO'
-##  Format for the log file.  Should begin with a timestamp and the log level.
-LOG_FORMAT='%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
+#  Local path and filename to write logs to
+LOG_FILE = 'logs/main.log'
+#  Available levels are DEBUG, INFO, WARNING, ERROR, and CRITICAL
+LOG_LEVEL = 'INFO'
+#  Format for the log file.  Should begin with a timestamp and the log level.
+LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
