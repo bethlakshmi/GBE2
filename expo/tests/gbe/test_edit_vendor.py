@@ -6,7 +6,6 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.contrib.auth.models import Group
 from gbe.views import edit_vendor
-import mock
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import login_as
 
