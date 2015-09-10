@@ -41,6 +41,7 @@ Text-1.txt
 
 *.sqlplite3
 
+*.txt
 
 expo/performer.json
 
@@ -48,8 +49,12 @@ expo/profilesinherit.json
 
 expo/db.sqlite3.preactitem
 
+expo/expo/localsettings.py
 
-expo/env/*
+expo/logs/main.log
+
+stack_settings.py
+
 expo/expo/local_settings.py
 
 *.zip
@@ -91,3 +96,4 @@ src/image-gallery/
 src/pip-delete-this-directory.txt
 
 expo/db.sqlite3.1stconf
+

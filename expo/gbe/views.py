@@ -1,51 +1,93 @@
+from expo.gbe_logging import *
+logger.info('Import from gbe_logging, VmSize: '+memusage())
+
 from django.db.models import Q
+logger.info('Import of Q from django.db.models, VmSize: '+memusage())
+
 from django.core.urlresolvers import reverse
+logger.info('Import of reverse from django.core.urlresolvers, VmSize: '+memusage())
+
 from django.core.exceptions import PermissionDenied
+logger.info('Import of PermissionDenied from django.core.exceptions, VmSize: '+memusage())
+
 from django.shortcuts import (
     render,
     get_object_or_404,
     render_to_response,
 )
+logger.info('Import of render and object 404 from django.shortcuts, VmSize: '+memusage())
+
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
+
+logger.info('Import of http response and 404 from django.http, VmSize: '+memusage())
+
 from django.contrib.auth.decorators import login_required
+logger.info('Import of login_required from django.contrib.auth.decorators, VmSize: '+memusage())
+
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
+logger.info('Import of login, logout, and authenticate from django.contrib.auth, VmSize: '+memusage())
+
 from django.contrib.auth.forms import UserCreationForm
+logger.info('Import of UserCreationForm from django.contrib.auth.forms, VmSize: '+memusage())
+
+
 from django.template import (
     loader,
     RequestContext,
     Context,
 )
+logger.info('Import of loader and Context from django.template, VmSize: '+memusage())
+
 from gbe.models import (
     Event,
     Act,
     Performer,
 )
+logger.info('Import of Event, Act, Performer from gbe.models, VmSize: '+memusage())
+
 from gbe.forms import *
+logger.info('Import of * from gbe.forms, VmSize: '+memusage())
+
 from gbe.functions import *
+logger.info('Import of * from gbe.functions, VmSize: '+memusage())
+
 from gbe.ticketing_idd_interface import *
+logger.info('Import of * from gbe.ticketing_idd_interface, VmSize: '+memusage())
+
+
 import gbe_forms_text
+logger.info('Import all from gbe_forms_text, VmSize: '+memusage())
+
 from ticketingfuncs import compute_submission
+logger.info('Import of compute_submission from ticketingfuncs, VmSize: '+memusage())
+
 from duration import Duration
+logger.info('Import of Duration from duration, VmSize: '+memusage())
+
 from scheduler.functions import set_time_format
+logger.info('Import of set_time_format from scheduler.functions, VmSize: '+memusage())
+
 from scheduler.models import (
     Event as sEvent,
     ResourceAllocation,
     ActResource,
     Worker,
 )
+logger.info('Import of Event, Resources, Workeer from scheduler.models, VmSize: '+memusage())
 
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
 
+@log_func
 def down(request):
     '''
     Static "Site down" notice. Simply refers user to a static template
@@ -56,6 +98,7 @@ def down(request):
     return HttpResponse(template.render(context))
 
 
+@log_func
 def index(request):
     '''
     one of two cases:
@@ -78,6 +121,7 @@ def index(request):
 
 
 @login_required
+@log_func
 def landing_page(request, profile_id=None):
     standard_context = {}
     standard_context['events_list'] = Event.objects.all()[:5]
@@ -153,6 +197,7 @@ def landing_page(request, profile_id=None):
     return HttpResponse(template.render(context))
 
 
+@log_func
 def event(request, event_id):
     '''Not listed in urlconf - can delete?
     '''
@@ -160,6 +205,7 @@ def event(request, event_id):
     return render(request, 'gbe/event.html', {'event': event})
 
 
+@log_func
 def techinfo(request):
     form = TechInfoForm()
     return render(request,
@@ -168,6 +214,7 @@ def techinfo(request):
 
 
 @login_required
+@log_func
 def register_persona(request, **kwargs):
     page_title = 'Stage Persona'
     view_title = 'Tell Us About Your Stage Persona'
@@ -206,6 +253,7 @@ def register_persona(request, **kwargs):
 
 
 @login_required
+@log_func
 def edit_troupe(request, troupe_id=None):
     page_title = 'Manage Troupe'
     view_title = 'Tell Us About Your Troupe'
@@ -270,6 +318,7 @@ def edit_troupe(request, troupe_id=None):
 
 
 @login_required
+@log_func
 def view_troupe(request, troupe_id=None):
     '''
     Show troupes to troupe members, only contact should edit.
@@ -297,6 +346,7 @@ def view_troupe(request, troupe_id=None):
 
 
 @login_required
+@log_func
 def create_combo(request):
     page_title = 'Manage Combo'
     view_title = 'Who is in this Combo?'
@@ -340,6 +390,7 @@ def create_combo(request):
 
 
 @login_required
+@log_func
 def edit_persona(request, persona_id):
     '''
     Modify an existing Persona object.
@@ -382,6 +433,7 @@ def edit_persona(request, persona_id):
 
 
 @login_required
+@log_func
 def bid_act(request):
     '''
     Create a proposed Act object.
@@ -512,6 +564,7 @@ def bid_act(request):
 
 
 @login_required
+@log_func
 def edit_act(request, act_id):
     '''
     Modify an existing Act object.
@@ -644,6 +697,7 @@ def edit_act(request, act_id):
 
 
 @login_required
+@log_func
 def view_act(request, act_id):
     '''
     Show a bid as a read-only form.
@@ -674,6 +728,7 @@ def view_act(request, act_id):
 
 
 @login_required
+@log_func
 def review_act(request, act_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -769,6 +824,7 @@ def review_act(request, act_id):
 
 
 @login_required
+@log_func
 def review_act_list(request):
     '''
     Show the list of act bids, review results,
@@ -808,6 +864,7 @@ def review_act_list(request):
 
 
 @login_required
+@log_func
 def act_changestate(request, bid_id):
     '''
     Fairly specific to act - removes the act from all shows, and resets
@@ -817,10 +874,12 @@ def act_changestate(request, bid_id):
     BB - I'd like to refactor this to be the same as volunteer form, but
     not right now - 2015?
     '''
+
+    @log_func
     def act_accepted(request):
         return (request.POST['show'] and
-                (request.POST['accepted'] == '3' or
-                 request.POST['accepted'] == '2'))
+               (request.POST['accepted'] == '3' or
+                request.POST['accepted'] == '2'))
 
     reviewer = validate_perms(request, ('Act Coordinator',))
     if request.method == 'POST':
@@ -859,6 +918,7 @@ def act_changestate(request, bid_id):
 
 
 @login_required
+@log_func
 def submit_act(request, act_id):
     submitter = validate_profile(request, require=True)
     try:
@@ -879,6 +939,7 @@ class_durations = {0: 0, 1: 60, 2: 90, 3: 120}
 
 
 @login_required
+@log_func
 def bid_class(request):
     '''
     Propose a class. Bidder is volunteering to teach this class - we have to
@@ -960,6 +1021,7 @@ def bid_class(request):
         )
 
 
+@log_func
 def edit_class(request, class_id):
     '''
     Edit an existing class.
@@ -1030,6 +1092,7 @@ def edit_class(request, class_id):
 
 
 @login_required
+@log_func
 def view_class(request, class_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1049,6 +1112,7 @@ def view_class(request, class_id):
 
 
 @login_required
+@log_func
 def review_class(request, class_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1127,6 +1191,7 @@ def review_class(request, class_id):
 
 
 @login_required
+@log_func
 def review_class_list(request):
     '''
     Show the list of class bids, review results,
@@ -1165,6 +1230,7 @@ def review_class_list(request):
 
 
 @login_required
+@log_func
 def class_changestate(request, bid_id):
     '''
     Because classes are scheduleable, if a class is rejected, or
@@ -1190,6 +1256,7 @@ def class_changestate(request, bid_id):
 
 
 @login_required
+@log_func
 def create_volunteer(request):
     page_title = 'Volunteer'
     view_title = "Volunteer at the Expo"
@@ -1241,6 +1308,7 @@ def create_volunteer(request):
 
 
 @login_required
+@log_func
 def view_volunteer(request, volunteer_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1264,6 +1332,7 @@ def view_volunteer(request, volunteer_id):
 
 
 @login_required
+@log_func
 def review_volunteer(request, volunteer_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1324,7 +1393,7 @@ def review_volunteer(request, volunteer_id):
                           {'readonlyform': [volform],
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL, 
+                           'actionURL': actionURL,
                            'conference': conference,
                            'old_bid': old_bid,})
     else:
@@ -1335,12 +1404,13 @@ def review_volunteer(request, volunteer_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL, 
+                       'actionURL': actionURL,
                        'conference': conference,
                        'old_bid': old_bid,})
 
 
 @login_required
+@log_func
 def review_volunteer_list(request):
     '''
     Show the list of act bids, review results,
@@ -1383,6 +1453,7 @@ def review_volunteer_list(request):
 
 
 @login_required
+@log_func
 def volunteer_changestate(request, bid_id):
     '''
     Fairly specific to volunteer - removes the profile from all volunteer
@@ -1411,6 +1482,7 @@ def volunteer_changestate(request, bid_id):
 
 
 @login_required
+@log_func
 def edit_volunteer(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
@@ -1458,6 +1530,7 @@ def edit_volunteer(request, volunteer_id):
                        'nodraft': 'Submit'})
 
 
+@log_func
 def review_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1506,7 +1579,7 @@ def review_vendor(request, vendor_id):
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
-                           'actionURL': actionURL, 
+                           'actionURL': actionURL,
                            'conference': conference,
                            'old_bid': old_bid,})
     else:
@@ -1517,12 +1590,13 @@ def review_vendor(request, vendor_id):
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,
-                       'actionURL': actionURL, 
+                       'actionURL': actionURL,
                        'conference': conference,
                        'old_bid': old_bid,})
 
 
 @login_required
+@log_func
 def review_vendor_list(request):
     '''
     Show the list of act bids, review results,
@@ -1562,6 +1636,7 @@ def review_vendor_list(request):
 
 
 @login_required
+@log_func
 def vendor_changestate(request, bid_id):
     '''
     The generic function to change a bid to a new state (accepted,
@@ -1574,6 +1649,7 @@ def vendor_changestate(request, bid_id):
 
 
 @login_required
+@log_func
 def create_vendor(request):
     title = "Vendor Application"
     fee_link = vendor_submittal_link(request.user.id)
@@ -1646,6 +1722,7 @@ def create_vendor(request):
 
 
 @login_required
+@log_func
 def edit_vendor(request, vendor_id):
     page_title = 'Edit Vendor Application'
     view_title = 'Edit Your Vendor Application'
@@ -1731,6 +1808,7 @@ def edit_vendor(request, vendor_id):
 
 
 @login_required
+@log_func
 def view_vendor(request, vendor_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
@@ -1753,6 +1831,7 @@ def view_vendor(request, vendor_id):
                   {'readonlyform': [vendorform, profile]})
 
 
+@log_func
 def act(request, act_id):
     '''
     Act detail view. Display depends on state of act and identity of viewer.
@@ -1762,6 +1841,7 @@ def act(request, act_id):
     return render(request, 'gbe/act.html', {'act': act})
 
 
+@log_func
 def profile(request, profile_id=None):
     '''
     Display a profile. Display depends on user. If own profile, show
@@ -1791,6 +1871,7 @@ def profile(request, profile_id=None):
                        'own_profile': own_profile})
 
 
+@log_func
 def profiles(request):
     '''
     Profiles browse view. If implemented, this should show profiles. Which ones
@@ -1802,6 +1883,7 @@ def profiles(request):
 
 
 @login_required
+@log_func
 def review_profiles(request):
     '''Not used. Remove?'''
     admin_profile = validate_perms(request, ('Registrar',
@@ -1838,6 +1920,7 @@ def review_profiles(request):
 
 
 @login_required
+@log_func
 def review_user_commitments(request, profile_id):
     # note: this function is broken. (header is not defined)
     admin_profile = validate_perms(request, ('Registrar',
@@ -1853,6 +1936,7 @@ def review_user_commitments(request, profile_id):
 
 
 @login_required
+@log_func
 def manage_user_tickets(request, profile_id):
     # note: this function is broken. (header is not defined)
     admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
@@ -1864,6 +1948,7 @@ def manage_user_tickets(request, profile_id):
 
 
 @login_required
+@log_func
 def admin_profile(request, profile_id):
 
     admin_profile = validate_perms(request, ('Registrar',))
@@ -1929,6 +2014,7 @@ def admin_profile(request, profile_id):
 
 
 @login_required
+@log_func
 def update_profile(request):
     profile = validate_profile(request, require=False)
     if not profile:
@@ -1994,6 +2080,8 @@ def update_profile(request):
                       {'left_forms': [form], 'right_forms': [prefs_form]})
 
 
+
+@log_func
 def register(request):
     '''
     Allow a user to register with gbe. This should create both a user
@@ -2016,6 +2104,7 @@ def register(request):
     return render(request, 'gbe/register.tmpl', {'form': form})
 
 
+@log_func
 def logout_view(request):
     '''
     End the current user's session.
@@ -2025,6 +2114,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
+@log_func
 def propose_class(request):
     '''
     Handle suggestions for classes from the great unwashed
@@ -2047,6 +2137,7 @@ def propose_class(request):
 
 
 @login_required
+@log_func
 def publish_proposal(request, class_id):
     '''
     Edit an existing proposal.  This is only available to the
@@ -2088,6 +2179,7 @@ def publish_proposal(request, class_id):
 
 
 @login_required
+@log_func
 def review_proposal_list(request):
     '''
     Show the list of class bids, review results,
@@ -2110,6 +2202,7 @@ def review_proposal_list(request):
                   {'header': header, 'rows': rows})
 
 
+@log_func
 def panel_create(request):
     '''
     View for creating a panel.  Boilerplate for now, more later.
@@ -2117,6 +2210,7 @@ def panel_create(request):
     pass
 
 
+@log_func
 def panel_view(request, panel_id):
     '''
     View for viewing a panel.
@@ -2125,6 +2219,7 @@ def panel_view(request, panel_id):
     pass
 
 
+@log_func
 def panel_edit(request, panel_id):
     '''
     View for editing a panel.
@@ -2133,6 +2228,7 @@ def panel_edit(request, panel_id):
     pass
 
 
+@log_func
 def panel_delete(request, panel_id):
     '''
     View to delete a panel.  Deleting only marks panel as deleted, does not
@@ -2142,6 +2238,7 @@ def panel_delete(request, panel_id):
     pass
 
 
+@log_func
 def conference_volunteer(request):
     '''
     Volunteer to chair or sit on a panel or teach a class.
@@ -2226,6 +2323,7 @@ def conference_volunteer(request):
                    'header': header, 'rows': rows})
 
 
+@log_func
 def ad_create(request):
     '''
     View to create an advertisement.
@@ -2234,6 +2332,7 @@ def ad_create(request):
     pass
 
 
+@log_func
 def ad_list(request):
     '''
     View to get a list of advertisements.
@@ -2242,6 +2341,7 @@ def ad_list(request):
     pass
 
 
+@log_func
 def ad_edit(request, ad_id):
     '''
     View to edit or alter an advertisement.
@@ -2250,6 +2350,7 @@ def ad_edit(request, ad_id):
     pass
 
 
+@log_func
 def ad_view(request, ad_id):
     '''
     View an advertisement.
@@ -2258,6 +2359,7 @@ def ad_view(request, ad_id):
     pass
 
 
+@log_func
 def ad_delete(request, ad_id):
     '''
     Delete an advertisement.  Deletion does not remove the ad from
@@ -2267,6 +2369,7 @@ def ad_delete(request, ad_id):
     pass
 
 
+@log_func
 def bios_staff(request):
     '''
     Display the staff bios, pulled from their profiles.
@@ -2274,6 +2377,7 @@ def bios_staff(request):
     pass
 
 
+@log_func
 def bios_teachers(request):
     '''
     Display the teachers bios.  Teachers are anyone teaching,
@@ -2303,6 +2407,7 @@ def bios_teachers(request):
     return render(request, template, context)
 
 
+@log_func
 def bios_volunteer(request):
     '''
     Display the volunteer bios, pulled from their profiles.
@@ -2310,6 +2415,7 @@ def bios_volunteer(request):
     pass
 
 
+@log_func
 def special(request):
     '''
     Edit special privledges.
@@ -2317,6 +2423,7 @@ def special(request):
     pass
 
 
+@log_func
 def volunteer(request):
     '''
     Gateway to volunteering pages for users.  Either places
@@ -2327,6 +2434,7 @@ def volunteer(request):
     pass
 
 
+@log_func
 def costume_display(request):
     '''
     Costume Display.  May move this and a few other things into a separate app?
@@ -2334,6 +2442,7 @@ def costume_display(request):
     pass
 
 
+@log_func
 def fashion_faire(request):
     '''
     The Vintage Fashion Faire.  Glorified vendor list
@@ -2348,6 +2457,7 @@ def fashion_faire(request):
 
 
 @login_required
+@log_func
 def bid_changestate(request, bid_id, redirectURL):
     '''
     The generic function to change a bid to a new state (accepted,
@@ -2375,6 +2485,7 @@ def bid_changestate(request, bid_id, redirectURL):
 
 
 @login_required
+@log_func
 def edit_act_techinfo(request, act_id):
     '''
     Modify tech info for an existing act
@@ -2527,6 +2638,7 @@ def edit_act_techinfo(request, act_id):
                        })
 
 
+@log_func
 def create_event(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))
     page_title = "Create " + event_type
@@ -2560,11 +2672,11 @@ def create_event(request, event_type):
                        'view_header_text': event_create_text[event_type]})
 
 
+@log_func
 def handle_user_contact_email(request):
     return_redirect = HttpResponseRedirect(reverse('home',
                                                    urlconf='gbe.urls',
                                                    args=[]))
-
     if request.method != 'POST':
         return return_redirect
     form = ContactForm(request.POST)

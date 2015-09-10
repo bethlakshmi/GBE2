@@ -37,6 +37,7 @@ class TestReports(TestCase):
         request.user = profile.user_object
         response = list_reports(request)
 
+
     def test_list_reports_succeed(self):
         '''list_reports view should load, user has proper
            privileges
