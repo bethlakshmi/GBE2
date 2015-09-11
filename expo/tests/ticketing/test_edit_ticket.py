@@ -11,7 +11,6 @@ from ticketing.views import ticket_item_edit
 from tests.factories import gbe_factories, ticketing_factories
 from tests.functions.gbe_functions import location
 import mock
-import gbe.tests as gbe_tests
 
 
 class TestEditTicketItem(TestCase):
