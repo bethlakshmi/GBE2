@@ -1,0 +1,157 @@
+[
+{
+    "pk": 1, 
+    "model": "scheduler.resourceitem", 
+    "fields": {}
+},
+{
+    "pk": 2, 
+    "model": "scheduler.resourceitem", 
+    "fields": {}
+},
+{
+    "pk": 3, 
+    "model": "scheduler.resourceitem", 
+    "fields": {}
+},
+{
+    "pk": 4, 
+    "model": "scheduler.resourceitem", 
+    "fields": {}
+},
+{
+    "pk": 5, 
+    "model": "scheduler.resourceitem", 
+    "fields": {}
+},
+{
+    "pk": 2, 
+    "model": "scheduler.locationitem", 
+    "fields": {}
+},
+{
+    "pk": 3, 
+    "model": "scheduler.locationitem", 
+    "fields": {}
+},
+{
+    "pk": 4, 
+    "model": "scheduler.locationitem", 
+    "fields": {}
+},
+{
+    "pk": 1, 
+    "model": "scheduler.workeritem", 
+    "fields": {}
+},
+{
+    "pk": 5, 
+    "model": "scheduler.workeritem", 
+    "fields": {}
+},
+{
+    "pk": 1, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 2, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 3, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 4, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 5, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 6, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 7, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 8, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 9, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 10, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 11, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 12, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 13, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 14, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+},
+{
+    "pk": 15, 
+    "model": "scheduler.eventitem", 
+    "fields": {
+        "visible": true
+    }
+}
+]

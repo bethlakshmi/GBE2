@@ -91,3 +91,5 @@ src/image-gallery/
 src/pip-delete-this-directory.txt
 
 expo/db.sqlite3.1stconf
+
+expo/db.sqlite3.current
