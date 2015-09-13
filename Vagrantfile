@@ -52,7 +52,7 @@ $bootstrap = <<BOOTSTRAP
   binlog-format=row
   open-files-limit=65535
   max-connections=500
-  port=13306" >> /etc/my.cnf
+  port=3306" >> /etc/my.cnf
   sudo chown -R mysql /var/lib/mysql/
   sudo /etc/init.d/mysql start
   #service mysql restart
