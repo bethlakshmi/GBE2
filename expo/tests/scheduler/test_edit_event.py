@@ -61,6 +61,7 @@ class TestEditEvent(TestCase):
         request = self.factory.get('/scheduler/create/GenericEvent/%d' %
                                    self.s_event.pk)
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Scheduling Mavens')
         response = edit_event(request, self.s_event.pk, "GenericEvent")
         self.assertEqual(response.status_code, 200)
@@ -76,6 +77,7 @@ class TestEditEvent(TestCase):
                                     self.s_event.pk,
                                     form_post)
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Scheduling Mavens')
         '''
         rooms = Room.objects.all().order_by('name')

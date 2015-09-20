@@ -61,6 +61,7 @@ class TestAddEvent(TestCase):
                                    self.eventitem.pk)
         request.user = profile.user_object
         functions.grant_privilege(profile, 'Scheduling Mavens')
+        request.session = {'cms_admin_site':1}
         response = add_event(request, self.eventitem.pk, "GenericEvent")
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.eventitem.title in response.content)
@@ -75,6 +76,7 @@ class TestAddEvent(TestCase):
                                     self.eventitem.pk,
                                     form_post)
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Scheduling Mavens')
         '''
         rooms = LocationItem.objects.all().order_by('room__name')
