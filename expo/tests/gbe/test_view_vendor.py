@@ -19,8 +19,8 @@ class TestViewVendor(TestCase):
         vendor = factories.VendorFactory.create()
         request = self.factory.get('vendor/view/%d' % vendor.pk)
         request.user = vendor.profile.user_object
-        response = view_vendor(request, vendor.pk)
         request.session = {'cms_admin_site':1}
+        response = view_vendor(request, vendor.pk)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
