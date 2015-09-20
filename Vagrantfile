@@ -56,12 +56,13 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R mysql /var/lib/mysql/
   sudo /etc/init.d/mysql start
   #service mysql restart
-  mysql -u root -proot -e "CREATE USER django_user IDENTIFIED BY 'secret'"
+  mysql -u root -proot -e "CREATE USER 'django_user' IDENTIFIED BY 'secret'"
   mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
   mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
   mysql -u root -proot  -e "USE gbe_dev"
   mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
   mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
+  mysql -u root -proot  -e "GRANT ALL ON test_gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
   mysql -u root -proot  -e "flush privileges"
  
   echo "your initialization shell scripts go here"
