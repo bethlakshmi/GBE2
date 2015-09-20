@@ -48,11 +48,13 @@ class TestCreateVolunteer(TestCase):
         request.method = 'POST'
         request.user = factories.ProfileFactory.create().user_object
         request.POST = self.get_volunteer_form(invalid=True)
+        request.session = {'cms_admin_site':1}
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 200)
 
     def test_create_volunteer_no_post(self):
         request = self.factory.get('volunteer/bid/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 200)

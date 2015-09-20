@@ -29,6 +29,7 @@ class TestCreateCombo(TestCase):
         user = factories.UserFactory.create()
         login_as(user, self)
         request.user = user
+        request.session = {'cms_admin_site':1}
         response = create_combo(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response),

@@ -15,7 +15,7 @@ import tests.functions.gbe_functions as functions
 
 class TestAddEvent(TestCase):
     '''Tests for add_event view'''
-    fixtures = ['tests/fixtures/rooms.json']
+    fixtures = ['expo/tests/fixtures/rooms.json']
 
     def setUp(self):
         self.factory = RequestFactory()

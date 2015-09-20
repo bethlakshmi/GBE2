@@ -40,6 +40,7 @@ class TestEditClass(TestCase):
         request.user = self.performer.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         del(request.POST['title'])
         response = bid_class(request)
         nt.assert_equal(response.status_code, 200)
@@ -53,14 +54,16 @@ class TestEditClass(TestCase):
         request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         response = bid_class(request)
-        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(response.status_code, 200)
         nt.assert_equal(location(response), '/gbe')
 
     def test_class_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
         request = self.factory.get('/act/create')
         request.user = self.performer.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = bid_class(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Submit a Class' in response.content)

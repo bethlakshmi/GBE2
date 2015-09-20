@@ -19,6 +19,7 @@ class TestViewAct(TestCase):
         act = factories.ActFactory.create()
         request = self.factory.get('act/view/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = view_act(request, act.pk)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)

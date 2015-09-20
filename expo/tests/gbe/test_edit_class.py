@@ -55,6 +55,7 @@ class TestEditClass(TestCase):
         request.user = klass.teacher.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         del(request.POST['title'])
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
@@ -69,8 +70,9 @@ class TestEditClass(TestCase):
         request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         response = edit_class(request, klass.pk)
-        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(response.status_code, 200)
         nt.assert_equal(location(response), '/gbe')
 
     def test_edit_bid_not_post(self):
@@ -78,6 +80,7 @@ class TestEditClass(TestCase):
         klass = factories.ClassFactory.create()
         request = self.factory.get('/class/edit/%d' % klass.pk)
         request.user = klass.teacher.contact.user_object
+        request.session = {'cms_admin_site':1}
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
