@@ -22,14 +22,16 @@ class TestEditClass(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
+        self.teacher = factories.PersonaFactory.create()
 
     def get_class_form(self):
-        return {"teacher": 2,
+        return {"teacher": self.teacher.pk,
                 "title": 'A class',
                 "description": 'a description',
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
+                'schedule_constraints': ['0'],            
                 }
 
     @nt.raises(Http404)
@@ -72,7 +74,7 @@ class TestEditClass(TestCase):
         request.POST.update(self.get_class_form())
         request.session = {'cms_admin_site':1}
         response = edit_class(request, klass.pk)
-        nt.assert_equal(response.status_code, 200)
+        nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
 
     def test_edit_bid_not_post(self):
