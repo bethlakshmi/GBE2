@@ -326,8 +326,17 @@ except:
 
 #  Logging settings.
 #  Local path and filename to write logs to
-LOG_FILE = 'logs/main.log'
+try:
+    from expo.local_settings import LOG_FILE
+except:
+    LOG_FILE = 'logs/main.log'
 #  Available levels are DEBUG, INFO, WARNING, ERROR, and CRITICAL
-LOG_LEVEL = 'INFO'
+try:
+    from expo.local_settings import LOG_LEVEL
+except:
+    LOG_LEVEL = 'INFO'
 #  Format for the log file.  Should begin with a timestamp and the log level.
-LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
+try:
+    from expo.local_settings import LOG_FORMAT
+except:
+    LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
