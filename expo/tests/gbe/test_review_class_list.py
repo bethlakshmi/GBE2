@@ -24,6 +24,7 @@ class TestReviewClassList(TestCase):
     def test_review_class_all_well(self):
         request = self.factory.get('class/review/')
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         login_as(request.user, self)
         response = review_class_list(request)
         nt.assert_equal(response.status_code, 200)

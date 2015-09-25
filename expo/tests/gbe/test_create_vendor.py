@@ -49,11 +49,13 @@ class TestCreateVendor(TestCase):
         request.method = 'POST'
         request.user = factories.ProfileFactory.create().user_object
         request.POST = self.get_vendor_form(invalid=True)
+        request.session = {'cms_admin_site':1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)
 
     def test_create_vendor_no_post(self):
         request = self.factory.get('vendor/bid/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)

@@ -22,14 +22,16 @@ class TestEditClass(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
+        self.teacher = factories.PersonaFactory.create()
 
     def get_class_form(self):
-        return {"teacher": 2,
+        return {"teacher": self.teacher.pk,
                 "title": 'A class',
                 "description": 'a description',
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
+                'schedule_constraints': ['0'],            
                 }
 
     @nt.raises(Http404)
@@ -55,6 +57,7 @@ class TestEditClass(TestCase):
         request.user = klass.teacher.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         del(request.POST['title'])
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
@@ -69,6 +72,7 @@ class TestEditClass(TestCase):
         request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_class_form())
+        request.session = {'cms_admin_site':1}
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
@@ -78,6 +82,7 @@ class TestEditClass(TestCase):
         klass = factories.ClassFactory.create()
         request = self.factory.get('/class/edit/%d' % klass.pk)
         request.user = klass.teacher.contact.user_object
+        request.session = {'cms_admin_site':1}
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)

@@ -20,5 +20,6 @@ class TestViewClass(TestCase):
         klass = factories.ClassFactory.create()
         request = self.factory.get('/class/view/%d' % klass.pk)
         request.user = klass.teacher.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = view_class(request, klass.pk)
         self.assertEqual(response.status_code, 200)

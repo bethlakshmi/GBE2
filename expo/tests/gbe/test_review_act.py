@@ -24,6 +24,7 @@ class TestReviewAct(TestCase):
     def test_review_act_all_well(self):
         act = factories.ActFactory.create()
         request = self.factory.get('act/review/%d' % act.pk)
+        request.session = {'cms_admin_site':1}
         request.user = self.privileged_user
         login_as(request.user, self)
         response = review_act(request, act.pk)

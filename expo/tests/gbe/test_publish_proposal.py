@@ -32,6 +32,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         response = publish_proposal(request, proposal.pk)
         nt.assert_equal(response.status_code, 200)
 
@@ -39,6 +40,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         request.method = "POST"
         response = publish_proposal(request,  proposal.pk)
         nt.assert_equal(response.status_code, 200)
@@ -47,6 +49,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         request.method = "POST"
         request.POST = self.get_class_form()
         response = publish_proposal(request, proposal.pk)

@@ -25,6 +25,7 @@ class TestReviewClass(TestCase):
         klass = factories.ClassFactory.create()
         request = self.factory.get('class/review/%d' % klass.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         login_as(request.user, self)
         response = review_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)

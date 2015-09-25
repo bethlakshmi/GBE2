@@ -25,6 +25,7 @@ class TestReviewVendor(TestCase):
         vendor = factories.VendorFactory.create()
         request = self.factory.get('vendor/review/%d' % vendor.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         login_as(request.user, self)
         response = review_vendor(request, vendor.pk)
         nt.assert_equal(response.status_code, 200)

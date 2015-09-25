@@ -19,6 +19,7 @@ class TestRegisterPersona(TestCase):
         302 if profile and valid form - need to write this
         '''
         request = self.factory.get('/')
+        request.session = {'cms_admin_site':1}
         user = factories.UserFactory.create()
         request.user = user
         response = register_persona(request)

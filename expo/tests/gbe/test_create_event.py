@@ -24,6 +24,7 @@ class TestCreateEvent(TestCase):
     def test_authorized_user_can_access(self):
         request = self.factory.get('create_event/Show')
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         response = create_event(request, 'Show')
         nt.assert_equal(response.status_code, 200)
 

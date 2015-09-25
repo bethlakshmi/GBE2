@@ -27,5 +27,6 @@ class TestReviewProposalList(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('bios/teachers/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = bios_teachers(request)
         nt.assert_equal(response.status_code, 200)

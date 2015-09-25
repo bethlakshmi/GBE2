@@ -28,5 +28,6 @@ class TestReviewProposalList(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('costume_display')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = fashion_faire(request)
         nt.assert_equal(response.status_code, 200)

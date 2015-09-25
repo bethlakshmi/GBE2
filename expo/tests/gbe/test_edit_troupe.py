@@ -35,6 +35,7 @@ class TestEditTroupe(TestCase):
         nt.assert_equal(location(response),
                         '/update_profile?next=/troupe/create')
         request.user = contact.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         login_as(contact.performer_profile, self)
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)
@@ -48,6 +49,7 @@ class TestEditTroupe(TestCase):
         troupe = factories.TroupeFactory.create(contact=contact)
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = contact.profile.user_object
+        request.session = {'cms_admin_site':1}
         self.client.logout()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)

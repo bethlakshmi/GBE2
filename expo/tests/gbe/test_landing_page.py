@@ -18,5 +18,6 @@ class TestIndex(TestCase):
         profile = self.profile_factory.create()
         request = self.factory.get('/')
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         response = landing_page(request)
         self.assertEqual(response.status_code, 200)

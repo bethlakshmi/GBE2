@@ -1,0 +1,3 @@
+alias runcoverage='cd /vagrant;coverage run --source="expo" expo/manage.py test expo/tests -s;coverage html --omit="*/migrations/*,*/tests/*"'
+alias pepdiff='git diff --name-only master | grep ".py" | xargs pep8'
+alias rmpyc='find . -name "*.pyc" | xargs rm'
