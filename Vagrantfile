@@ -69,6 +69,8 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
   sudo pip install --requirement /vagrant/config/requirements.txt
+  cp /vagrant/aliases /home/vagrant/
+  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 BOOTSTRAP
 
 
