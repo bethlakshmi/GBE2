@@ -14,7 +14,7 @@ class TestGetPurchasedTickets(TestCase):
     '''Tests for edit_event view'''
 
     # Fixture to create some rooms, location items, and resource items
-    fixtures = ['expo/tests/fixtures/tickets_to_events.json']
+    fixtures = ['tests/fixtures/tickets_to_events.json']
 
     def test_no_purchases(self):
         '''should get no tickets, this person never purchased any

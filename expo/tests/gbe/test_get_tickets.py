@@ -11,7 +11,7 @@ class TestGetTickets(TestCase):
     '''Tests for edit_event view'''
 
     # Fixture to create some rooms, location items, and resource items
-    fixtures = ['expo/tests/fixtures/tickets_to_events.json']
+    fixtures = ['tests/fixtures/tickets_to_events.json']
 
     def test_get_tickets_for_volunteer_opp(self):
         '''should get no tickets, volunteer opportunities are free
