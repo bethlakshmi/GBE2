@@ -31,6 +31,7 @@ class TestReviewProposalList(TestCase):
     def test_review_proposal_list_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/reviewlist/')
+        request.session = {'cms_admin_site':1}
         request.user = self.privileged_user
         response = review_proposal_list(request)
         nt.assert_equal(response.status_code, 200)

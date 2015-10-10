@@ -56,6 +56,7 @@ class TestEditAct(TestCase):
         request.user = act.performer.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_act_form())
+        request.session = {'cms_admin_site':1}
         del(request.POST['title'])
         response = edit_act(request, act.pk)
         nt.assert_equal(response.status_code, 200)
@@ -80,6 +81,7 @@ class TestEditAct(TestCase):
         act = factories.ActFactory.create()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = act.performer.contact.user_object
+        request.session = {'cms_admin_site':1}
         response = edit_act(request, act.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Act Proposal' in response.content)

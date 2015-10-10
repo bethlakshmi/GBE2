@@ -27,5 +27,6 @@ class TestReviewProposalList(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/reviewlist/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = conference_volunteer(request)
         nt.assert_equal(response.status_code, 200)
