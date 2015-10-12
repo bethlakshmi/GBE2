@@ -8,11 +8,7 @@ from gbe.views import volunteer_changestate
 from tests.factories import gbe_factories as factories
 import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
-from tests.functions.gbe_functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
+import gbe.ticketing_idd_interface
 
 
 class TestVolunteerChangestate(TestCase):

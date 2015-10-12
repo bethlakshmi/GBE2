@@ -21,7 +21,7 @@ class TestGetPurchasedTickets(TestCase):
         '''
         elcheapo = User.objects.get(pk=3)
         ticket_set = get_purchased_tickets(elcheapo)
-        
+
         self.assertEqual(ticket_set, [])
 
     def test_buys_each_year(self):
@@ -29,10 +29,9 @@ class TestGetPurchasedTickets(TestCase):
         '''
         buyer = User.objects.get(pk=1)
         ticket_set = get_purchased_tickets(buyer)
-        
+
         self.assertEqual(len(ticket_set), 2)
         self.assertEqual(ticket_set[0]['conference'].status, "ongoing")
         self.assertEqual(ticket_set[1]['conference'].status, "upcoming")
         self.assertEqual(len(ticket_set[0]['tickets']), 3)
         self.assertEqual(len(ticket_set[1]['tickets']), 1)
-

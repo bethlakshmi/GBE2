@@ -5,12 +5,8 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import bid_act
 import mock
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import location
 
 
 class TestBidAct(TestCase):
@@ -65,6 +61,7 @@ class TestBidAct(TestCase):
         request.user = self.performer.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_act_form())
+        request.session = {'cms_admin_site':1}
         del(request.POST['theact-title'])
         response = bid_act(request)
         nt.assert_equal(response.status_code, 200)
@@ -81,6 +78,7 @@ class TestBidAct(TestCase):
         request.POST = {}
         request.POST.update(self.get_act_form())
         request.POST.update({'submit': ''})
+        request.session = {'cms_admin_site':1}
         response = bid_act(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Fee has not been Paid' in response.content)
@@ -100,6 +98,7 @@ class TestBidAct(TestCase):
         request.POST = {}
         request.POST.update(self.get_act_form())
         request.POST.update({'submit': ''})
+        request.session = {'cms_admin_site':1}
         true = mock.MagicMock(return_value=True)
         with mock.patch(
                 'gbe.ticketing_idd_interface.verify_performer_app_paid', true):
@@ -127,6 +126,7 @@ class TestBidAct(TestCase):
         '''act_bid, not post, should take us to bid process'''
         request = self.factory.get('/act/create')
         request.user = self.performer.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = bid_act(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)

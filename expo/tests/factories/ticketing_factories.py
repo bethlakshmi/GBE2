@@ -6,11 +6,13 @@ import gbe.models as conf
 from tests.factories import gbe_factories
 from django.utils import timezone
 
+
 class BrownPaperEventsFactory(DjangoModelFactory):
     class Meta:
         model = tickets.BrownPaperEvents
     bpt_event_id = "111111"
     conference = SubFactory(gbe_factories.ConferenceFactory)
+
 
 class TicketItemFactory(DjangoModelFactory):
     class Meta:
@@ -21,7 +23,8 @@ class TicketItemFactory(DjangoModelFactory):
     description = "Describing Test Ticket Item"
     cost = 99.99
     modified_by = "Ticket Item Mock"
-    
+
+
 class PurchaserFactory(DjangoModelFactory):
     class Meta:
         model = tickets.Purchaser
@@ -35,7 +38,8 @@ class PurchaserFactory(DjangoModelFactory):
     email = "purchaseemail@test.com"
     phone = "111-222-3333"
     matched_to_user = SubFactory(gbe_factories.UserFactory)
-    
+
+
 class TransactionFactory(DjangoModelFactory):
     class Meta:
         model = tickets.Transaction

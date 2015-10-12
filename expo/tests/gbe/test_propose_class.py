@@ -6,14 +6,9 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import propose_class
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestProposeClass(TestCase):
@@ -41,5 +36,6 @@ class TestProposeClass(TestCase):
         request.method = "POST"
         request.POST = self.get_class_form()
         request.user = factories.UserFactory.create()
+        request.session = {'cms_admin_site':1}
         response = propose_class(request)
         nt.assert_equal(response.status_code, 200)

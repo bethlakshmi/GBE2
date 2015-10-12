@@ -4,13 +4,7 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_act
-import mock
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
 
 
 class TestViewAct(TestCase):
@@ -25,6 +19,7 @@ class TestViewAct(TestCase):
         act = factories.ActFactory.create()
         request = self.factory.get('act/view/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = view_act(request, act.pk)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)

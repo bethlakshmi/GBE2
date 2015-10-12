@@ -5,10 +5,10 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import edit_troupe
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import (
+    login_as,
+    location
+    )
 
 
 class TestEditTroupe(TestCase):
@@ -35,6 +35,7 @@ class TestEditTroupe(TestCase):
         nt.assert_equal(location(response),
                         '/update_profile?next=/troupe/create')
         request.user = contact.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         login_as(contact.performer_profile, self)
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)
@@ -48,6 +49,7 @@ class TestEditTroupe(TestCase):
         troupe = factories.TroupeFactory.create(contact=contact)
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = contact.profile.user_object
+        request.session = {'cms_admin_site':1}
         self.client.logout()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)

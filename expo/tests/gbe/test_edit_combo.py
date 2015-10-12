@@ -5,10 +5,10 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_combo
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import (
+    login_as,
+    location,
+)
 
 
 class TestCreateCombo(TestCase):
@@ -29,6 +29,7 @@ class TestCreateCombo(TestCase):
         user = factories.UserFactory.create()
         login_as(user, self)
         request.user = user
+        request.session = {'cms_admin_site':1}
         response = create_combo(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response),

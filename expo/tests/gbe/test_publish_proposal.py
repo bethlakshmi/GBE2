@@ -6,14 +6,9 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import publish_proposal
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestPublishProposal(TestCase):
@@ -37,6 +32,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         response = publish_proposal(request, proposal.pk)
         nt.assert_equal(response.status_code, 200)
 
@@ -44,6 +40,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         request.method = "POST"
         response = publish_proposal(request,  proposal.pk)
         nt.assert_equal(response.status_code, 200)
@@ -52,6 +49,7 @@ class TestPublishProposal(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/edit/%d' % proposal.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         request.method = "POST"
         request.POST = self.get_class_form()
         response = publish_proposal(request, proposal.pk)

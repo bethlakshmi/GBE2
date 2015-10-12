@@ -4,14 +4,9 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_act
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestReviewAct(TestCase):
@@ -29,6 +24,7 @@ class TestReviewAct(TestCase):
     def test_review_act_all_well(self):
         act = factories.ActFactory.create()
         request = self.factory.get('act/review/%d' % act.pk)
+        request.session = {'cms_admin_site':1}
         request.user = self.privileged_user
         login_as(request.user, self)
         response = review_act(request, act.pk)

@@ -1,23 +1,31 @@
-Django==1.6.11
-MySQL-python==1.2.3
+# Bare minimum
+django-cms==3.1.1
+
+# These dependencies are brought in by django CMS, but if you want to
+# lock-in their version, specify them
+Django==1.6.5
+
 South
-Pillow
+django-mptt==0.6.1
+django-sekizai
+django-classy-tags
+html5lib
+six
+easy_thumbnails
+django-polymorphic  # dependancy for cmsplugin-filer
+django-tinymce
+
+# Optional, recommended packages
+Pillow>=2
+django-filer
+django-reversion==1.8.7
+mysql-python
+reportlab
+ 
 cmsplugin-bootstrap-carousel==0.2.2
-cmsplugin-filer
+cmsplugin-filer==0.10.1
 -e git://github.com/bethlakshmi/cmsplugin-image-gallery.git@53f60e1624e0785ad0fe09396dd49c555038c138#egg=cmsplugin_image_gallery-master
 cmsplugin-nivoslider==0.5.9
-django-classy-tags==0.6.1
-django-cms==3.1.1
-django-model-utils==2.2
-django-mptt==0.6.1
-django-nose==1.4
-django-polymorphic==0.6.1
-django-polymorphic-tree==1.0.1
-django-filer==0.9.11
-django-reversion==1.8.7
-django-sekizai==0.8.1
-django-tinymce==1.5.3
-django-treebeard==3.0
 djangocms-admin-style==0.2.5
 djangocms-column==1.5
 djangocms-file==0.1
@@ -32,14 +40,12 @@ djangocms-style==1.5
 djangocms-teaser==0.1
 djangocms-text-ckeditor==2.4.3
 djangocms-video==0.1
-easy-thumbnails==2.2
-factory-boy==2.5.2
-html5lib==0.999
-importlib==1.0.3
-mock==1.1.3
-nose==1.3.4
-pytest==2.6.4
-pytz==2015.4
-reportlab==2.4
-six==1.9.0
 
+
+django_nose
+pytz
+django-treebeard
+
+django-model-utils
+factory_boy
+mock

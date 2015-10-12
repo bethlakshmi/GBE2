@@ -7,13 +7,8 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.contrib.auth.models import Group
 from gbe.views import edit_volunteer
-import mock
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestEditVolunteer(TestCase):
@@ -50,7 +45,7 @@ class TestEditVolunteer(TestCase):
         request = self.factory.get('/volunteer/edit/-1')
         request.user = profile.user_object
         response = edit_volunteer(request, -1)
-        
+
     @nt.raises(PermissionDenied)
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = factories.ProfileFactory.create().user_object

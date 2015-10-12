@@ -6,14 +6,8 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_event
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
 
 
 class TestCreateEvent(TestCase):
@@ -28,10 +22,11 @@ class TestCreateEvent(TestCase):
         self.privileged_user.groups.add(group)
 
     def test_authorized_user_can_access(self):
-        request= self.factory.get('create_event/Show')
+        request = self.factory.get('create_event/Show')
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         response = create_event(request, 'Show')
-        nt.assert_equal(response.status_code, 200)    
+        nt.assert_equal(response.status_code, 200)
 
     def test_auth_user_can_create_show(self):
         request = self.factory.post('create_event/Show')

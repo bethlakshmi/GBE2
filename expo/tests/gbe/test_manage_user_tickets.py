@@ -8,7 +8,6 @@ from django.test import Client
 from gbe.views import manage_user_tickets
 import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import (login_as,
                                            is_login_page,
@@ -39,7 +38,8 @@ class TestManageUserTickets(TestCase):
     def test_review_user_commitments_profile_exists(self):
         # currently failing because the function being tested is broken
         other_profile = factories.ProfileFactory.create()
-        request = self.factory.get('profile/review_commitments/%d'%other_profile.pk)
+        request = self.factory.get('profile/review_commitments/%d'\
+                                   %other_profile.pk)
         this_profile = factories.ProfileFactory.create()
         request.user = self.privileged_user
         login_as(self.privileged_user, self)

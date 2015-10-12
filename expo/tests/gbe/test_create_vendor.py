@@ -5,14 +5,7 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_vendor
-import mock
-from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
 
 
 class TestCreateVendor(TestCase):
@@ -56,11 +49,13 @@ class TestCreateVendor(TestCase):
         request.method = 'POST'
         request.user = factories.ProfileFactory.create().user_object
         request.POST = self.get_vendor_form(invalid=True)
+        request.session = {'cms_admin_site':1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)
 
     def test_create_vendor_no_post(self):
         request = self.factory.get('vendor/bid/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)

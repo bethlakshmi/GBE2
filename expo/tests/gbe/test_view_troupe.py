@@ -5,10 +5,6 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_troupe
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
 
 
 class TestViewTroupe(TestCase):
@@ -25,6 +21,7 @@ class TestViewTroupe(TestCase):
         contact = persona.performer_profile
         troupe = factories.TroupeFactory.create(contact=contact)
         request = self.factory.get('/troupe/view/%d' % troupe.resourceitem_id)
+        request.session = {'cms_admin_site':1}
         request.user = contact.profile.user_object
         response = view_troupe(request, troupe.resourceitem_id)
         self.assertEqual(response.status_code, 200)

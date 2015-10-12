@@ -5,10 +5,10 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import edit_persona
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import (
+    login_as,
+    location,
+)
 
 
 class TestEditPersona(TestCase):
@@ -20,11 +20,13 @@ class TestEditPersona(TestCase):
 
     def test_edit_persona(self):
         '''edit_troupe view, create flow
+        FIX THIS TEST
         '''
         contact = factories.PersonaFactory.create()
         urlstring = '/persona/edit/%d' % contact.resourceitem_id
         request = self.factory.get(urlstring)
         request.user = factories.UserFactory.create()
+        request.session = {'cms_admin_site':1}
         response = edit_persona(request, contact.resourceitem_id)
         nt.assert_equal(response.status_code, 302)
         user = factories.UserFactory.create()

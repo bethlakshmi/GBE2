@@ -5,14 +5,9 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_volunteer_list
-import mock
 from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface 
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                                           is_login_page,
-                                           is_profile_update_page,
-                                           location)
+from tests.functions.gbe_functions import login_as
 
 
 class TestReviewVolunteerList(TestCase):
@@ -30,6 +25,7 @@ class TestReviewVolunteerList(TestCase):
     def test_review_volunteer_all_well(self):
         request = self.factory.get('volunteer/review/')
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         login_as(request.user, self)
         response = review_volunteer_list(request)
         nt.assert_equal(response.status_code, 200)

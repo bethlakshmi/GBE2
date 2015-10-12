@@ -5,10 +5,6 @@ from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_class
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import (login_as,
-                       is_login_page,
-                       is_profile_update_page,
-                       location)
 
 
 class TestViewClass(TestCase):
@@ -24,5 +20,6 @@ class TestViewClass(TestCase):
         klass = factories.ClassFactory.create()
         request = self.factory.get('/class/view/%d' % klass.pk)
         request.user = klass.teacher.performer_profile.user_object
+        request.session = {'cms_admin_site':1}
         response = view_class(request, klass.pk)
         self.assertEqual(response.status_code, 200)
