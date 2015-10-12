@@ -11,7 +11,6 @@ from ticketing.views import ticket_items
 from tests.factories import gbe_factories, ticketing_factories
 from tests.functions.gbe_functions import location
 import mock
-import gbe.tests as gbe_tests
 
 
 class TestListTickets(TestCase):
@@ -41,5 +40,6 @@ class TestListTickets(TestCase):
         '''
         request = self.factory.get('/ticketing/ticket_items')
         request.user = self.privileged_user
+        request.session = {'cms_admin_site':1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
