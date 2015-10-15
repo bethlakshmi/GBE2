@@ -91,3 +91,9 @@ src/image-gallery/
 src/pip-delete-this-directory.txt
 
 expo/db.sqlite3.1stconf
+
+<<<<<<< Updated upstream
+expo/db.sqlite3.current
+=======
+.vagrant/machines/default/virtualbox/*
+>>>>>>> Stashed changes
