@@ -1043,6 +1043,11 @@
     "fields": {}
 },
 {
+    "pk": 3, 
+    "model": "scheduler.workeritem", 
+    "fields": {}
+},
+{
     "pk": 5, 
     "model": "scheduler.workeritem", 
     "fields": {}
@@ -1306,6 +1311,7 @@
         "date_joined": "2015-09-06T18:44:47.698Z"
     }
 },
+
 {
     "pk": 1, 
     "model": "gbe.profile", 

@@ -9,7 +9,7 @@ from gbe.views import conference_volunteer
 from tests.factories import gbe_factories as factories
 
 
-class TestReviewProposalList(TestCase):
+class TestConferenceVolunteer(TestCase):
     '''Tests for conference_volunteer view'''
 
     def setUp(self):
@@ -25,7 +25,19 @@ class TestReviewProposalList(TestCase):
 
     def test_conference_volunteer_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
-        request = self.factory.get('classpropose/reviewlist/')
+        request = self.factory.get('conference/volunteer/')
         request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site':1}
         response = conference_volunteer(request)
         nt.assert_equal(response.status_code, 200)
+
+    def test_onference_volunteer_no_personae(self):
+        '''class_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = factories.ProfileFactory.create()
+        request = self.factory.get('conference/volunteer/')
+        request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
+        response = conference_volunteer(request)
+        nt.assert_equal(response.status_code, 200)
+

@@ -2248,6 +2248,7 @@ def panel_delete(request, panel_id):
     pass
 
 
+@login_required
 @log_func
 def conference_volunteer(request):
     '''

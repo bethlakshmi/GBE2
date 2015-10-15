@@ -68,6 +68,10 @@ $bootstrap = <<BOOTSTRAP
   echo "your initialization shell scripts go here"
   sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
+  sudo apt-fast -y install libjpeg-dev
+  sudo apt-fast -y  install libjpeg8-dev
+  sudo apt-fast -y install libpng3 
+  sudo apt-fast -y install libfreetype6-dev
   sudo pip install --requirement /vagrant/config/requirements.txt
   cp /vagrant/aliases /home/vagrant/
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
