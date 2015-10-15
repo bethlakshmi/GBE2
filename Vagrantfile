@@ -52,21 +52,26 @@ $bootstrap = <<BOOTSTRAP
   binlog-format=row
   open-files-limit=65535
   max-connections=500
-  port=13306" >> /etc/my.cnf
+  port=3306" >> /etc/my.cnf
   sudo chown -R mysql /var/lib/mysql/
   sudo /etc/init.d/mysql start
   #service mysql restart
-  mysql -u root -proot -e "CREATE USER django_user IDENTIFIED BY 'secret'"
+  mysql -u root -proot -e "CREATE USER 'django_user' IDENTIFIED BY 'secret'"
   mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
   mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
   mysql -u root -proot  -e "USE gbe_dev"
   mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
   mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
+  mysql -u root -proot  -e "GRANT ALL ON test_gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
   mysql -u root -proot  -e "flush privileges"
  
   echo "your initialization shell scripts go here"
   sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
+  sudo apt-fast -y install libjpeg-dev
+  sudo apt-fast -y  install libjpeg8-dev
+  sudo apt-fast -y install libpng3 
+  sudo apt-fast -y install libfreetype6-dev
   sudo pip install --requirement /vagrant/config/requirements.txt
 BOOTSTRAP
 

@@ -92,7 +92,7 @@ def env_stuff(request):
         ticket_names = ""
 
         for ticket in tickets.filter(purchaser__matched_to_user=person.user_object):
-            ticket_list += str(ticket.ticket_item.ticket_style)+", "
+            ticket_list += str(ticket.ticket_item.bpt_event.ticket_style)+", "
             ticket_names += ticket.ticket_item.title+", "
 
         for lead in roles.filter(role="Staff Lead", _item=person):
@@ -371,7 +371,7 @@ def export_badge_report(request):
     reviewer = validate_perms(request, ('Registrar',))
 
     people = conf.Profile.objects.all()
-    badges = tix.Transaction.objects.filter(ticket_item__badgeable=True).order_by('ticket_item')
+    badges = tix.Transaction.objects.filter(ticket_item__bpt_event__badgeable=True).order_by('ticket_item')
 
     # build header, segmented in same structure as subclasses
     header =  ['First',
