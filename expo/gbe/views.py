@@ -407,7 +407,7 @@ def edit_persona(request, persona_id):
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     persona = get_object_or_404(Persona, resourceitem_id=persona_id)
     if persona.performer_profile != profile:
-        raise Http404
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = PersonaForm(request.POST,
@@ -2543,12 +2543,13 @@ def edit_act_techinfo(request, act_id):
     location = shows[0].location
     if len(rehearsal_sets) > 0:
         rehearsal_forms = [RehearsalSelectionForm(
-            initial={'show': show, 'rehearsal_choices':
+            initial={'show': show,
+                     'rehearsal_choices':
                      [(r.id, "%s: %s" % (
                          r.as_subtype.title,
                          r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
                            for (show, r_set) in rehearsal_sets.items()
-        ]
+                       ]
     else:
         rehearsal_forms = []
     if request.method == 'POST':
