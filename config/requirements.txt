@@ -1,6 +1,7 @@
 Django==1.6.11
 MySQL-python==1.2.3
 South
+Pillow
 cmsplugin-bootstrap-carousel==0.2.2
 cmsplugin-filer
 -e git://github.com/bethlakshmi/cmsplugin-image-gallery.git@53f60e1624e0785ad0fe09396dd49c555038c138#egg=cmsplugin_image_gallery-master

@@ -36,5 +36,6 @@ class TestProposeClass(TestCase):
         request.method = "POST"
         request.POST = self.get_class_form()
         request.user = factories.UserFactory.create()
+        request.session = {'cms_admin_site':1}
         response = propose_class(request)
         nt.assert_equal(response.status_code, 200)

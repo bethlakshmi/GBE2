@@ -20,11 +20,13 @@ class TestEditPersona(TestCase):
 
     def test_edit_persona(self):
         '''edit_troupe view, create flow
+        FIX THIS TEST
         '''
         contact = factories.PersonaFactory.create()
         urlstring = '/persona/edit/%d' % contact.resourceitem_id
         request = self.factory.get(urlstring)
         request.user = factories.UserFactory.create()
+        request.session = {'cms_admin_site':1}
         response = edit_persona(request, contact.resourceitem_id)
         nt.assert_equal(response.status_code, 302)
         user = factories.UserFactory.create()

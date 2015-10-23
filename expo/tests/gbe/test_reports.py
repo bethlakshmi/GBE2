@@ -48,6 +48,7 @@ class TestReports(TestCase):
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         response = list_reports(request)
         self.assertEqual(response.status_code, 200)
 
@@ -66,6 +67,7 @@ class TestReports(TestCase):
         request = self.factory.get('reports/review_staff_area')
         functions.login_as(profile, self)
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Act Reviewers')
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
@@ -78,14 +80,21 @@ class TestReports(TestCase):
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
         functions.login_as(profile, self)
         request.user = profile.user_object
-        try:
-            response = staff_area(request, show.eventitem_id)
-            assertFalse(True)  # should fail!
-        except PermissionDenied as e:
-            pass   # expected
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Act Reviewers')
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
+
+    @nt.raises(PermissionDenied)
+    def test_staff_area_path_fail(self):
+        '''staff_area view should fail for non-authenticated users
+        '''
+        profile = self.profile_factory.create()
+        show = factories.ShowFactory.create()
+        request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+        response = staff_area(request, show.eventitem_id)
 
     @nt.raises(PermissionDenied)
     def test_env_stuff_fail(self):
@@ -153,6 +162,7 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request = self.factory.get('reports/review_act_techinfo')
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
@@ -196,6 +206,7 @@ class TestReports(TestCase):
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
+        request.session = {'cms_admin_site':1}
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         response = room_setup(request)
