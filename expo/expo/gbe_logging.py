@@ -2,19 +2,9 @@
 
 from logging import *
 
-try:
-    from expo.local_settings import LOG_FILE
-except:
-    from expo.settings import LOG_FILE
-
-try:
-    from expo.local_settings import LOG_LEVEL
-except:
-    from expo.settings import LOG_LEVEL
-try:
-    from expo.local_settings import LOG_FORMAT
-except:
-    from expo.settings import LOG_FORMAT
+from expo.settings import LOG_FILE
+from expo.settings import LOG_LEVEL
+from expo.settings import LOG_FORMAT
 
 logger = getLogger(__name__)
 basicConfig(filename=LOG_FILE, level=LOG_LEVEL, format=LOG_FORMAT)

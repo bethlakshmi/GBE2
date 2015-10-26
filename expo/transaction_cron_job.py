@@ -18,16 +18,15 @@
 import sys, os
 sys.path.append('./expo')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from expo.gbe_logging import logger
 from django.conf import settings
 from ticketing.models import *
 from ticketing.brown_paper import *
 
 
-print 'Executing Cron Job Script....'
-print ''
+logger.info('Executing Cron Job Script....')
 count = process_bpt_order_list()
-print '%s transactions added to the system.' % count
-print ''
+logger.info('%s transactions added to the system.' % count)
 
 
 
