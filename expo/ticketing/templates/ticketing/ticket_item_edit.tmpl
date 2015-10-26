@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
 
-<b>Your are editing the below Ticket Item.</b>
+<h2 class="subtitle">Edit Ticketing</h2>
 <br><br>
 Notes:  Ticket Item Id must be unique.  Editing it will create a new Ticket Item.
 
@@ -22,8 +22,10 @@ Notes:  Ticket Item Id must be unique.  Editing it will create a new Ticket Item
 <form action="" method="post">
 {% include "form_table_wrapper.tmpl" %}
 <br>
-<input type="submit" value="Save Ticket Item"> 
+<input type="submit" value="Save Ticket Item">
+{% if can_delete %}
 <input type="submit" value="Delete Ticket Item" name="delete_item">
+{% endif %}
 </form>
 
 {% endblock %}

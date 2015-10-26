@@ -4,6 +4,7 @@
 #
 #
 
+from expo.gbe_logging import logger
 import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
@@ -31,10 +32,10 @@ def perform_bpt_api_call(api_call):
         res = urllib2.urlopen(req)
         xml_tree = et.fromstring(res.read())  
     except urllib2.URLError as io_error:
-        print 'Could not perform BPT call:  %s' % io_error.reason
+        logger.error('Could not perform BPT call:  %s' % io_error.reason)
         return None
     except:
-        print 'Could not perform BPT call.  Reason unknown.'
+        logger.error('Could not perform BPT call.  Reason unknown.')
         return None        
     return xml_tree
 
@@ -147,11 +148,11 @@ def get_bpt_price_list():
             price_xml = perform_bpt_api_call(price_call)
             
             for price in price_xml.findall('.//price'):
-                ti_list.append(bpt_price_to_ticketitem(event.bpt_event_id, price, event_text))
+                ti_list.append(bpt_price_to_ticketitem(event, price, event_text))
             
     return ti_list
 
-def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
+def bpt_price_to_ticketitem(event, bpt_price, event_text):
     '''
     Function takes an XML price object from the BPT pricelist call and returns an
     equivalent TicketItem object.
@@ -163,12 +164,13 @@ def bpt_price_to_ticketitem(event_id, bpt_price, event_text):
     '''
 
     t_item = TicketItem()
-    t_item.ticket_id = '%s-%s' % (event_id, bpt_price.find('price_id').text)
+    t_item.ticket_id = '%s-%s' % (event.bpt_event_id, bpt_price.find('price_id').text)
     t_item.title = bpt_price.find('name').text
     t_item.active = False
     t_item.cost = bpt_price.find('value').text
     t_item.description = event_text    
     t_item.modified_by = 'BPT Auto Import'
+    t_item.bpt_event = event
     
     return t_item
     

@@ -4,6 +4,7 @@
 # section:  "By Friday - needed for integration"
 # - Betty 8/15
 
+from expo.gbe_logging import logger
 from ticketing.models import *
 from gbe.models import *
 from ticketing.brown_paper import *
@@ -71,7 +72,8 @@ def verify_performer_app_paid(user_name):
             pass
         if act_user_name == unicode(user_name):
             acts_submitted += 1
-    # print "Purchased Count:  %s  Submitted Count:  %s" % (act_fees_purchased, acts_submitted)
+    logger.info("Purchased Count:  %s  Submitted Count:  %s" % \
+                (act_fees_purchased, acts_submitted))
     return act_fees_purchased > acts_submitted
    
 
@@ -105,7 +107,7 @@ def verify_vendor_app_paid(user_name):
             pass
         if vendor_user_name == unicode(user_name):
             vendor_apps_submitted += 1
-    print "Purchased Count:  %s  Submitted Count:  %s" % (vendor_fees_purchased, vendor_apps_submitted)
+    logger.info("Purchased Count:  %s  Submitted Count:  %s" % (vendor_fees_purchased, vendor_apps_submitted))
     return vendor_fees_purchased > vendor_apps_submitted
     return False
     
@@ -129,6 +131,13 @@ def get_purchased_tickets(user):
     '''
     get the tickets purchased by the given profile
     '''
-    tickets = TicketItem.objects.filter(transaction__purchaser__matched_to_user=user).\
-              annotate(number_of_tickets=Count('transaction'))
-    return [] # tickets
+    ticket_by_conf = []
+    conferences = Conference.objects.exclude(status="completed").order_by('status')
+    for conf in conferences:
+        tickets = TicketItem.objects.filter(bpt_event__conference=conf,
+                            transaction__purchaser__matched_to_user=user).\
+                            annotate(number_of_tickets=Count('transaction')).\
+                            order_by('title')
+        if tickets:
+            ticket_by_conf.append({'conference': conf, 'tickets': tickets})
+    return ticket_by_conf

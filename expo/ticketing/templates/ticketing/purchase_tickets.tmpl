@@ -1,0 +1,59 @@
+{% extends "base.tmpl" %}
+{% load ticketing_filters %}
+{% load staticfiles cms_tags %}
+
+{% block title %}
+  Great Burlesque Exposition 
+{% endblock %}
+
+{% block content %}
+
+<H2 class="subtitle">Ticket Purchase Options for {{ site_name }}</H2>
+
+Welcome! 
+<br> 
+Thanks for your interest in the Great Burlesque Expo.
+Below are the ticket options available for purchase.  
+There are many ways you can be a part of the convention, so
+please read the descriptions carefully.
+<br>
+
+<table>
+
+{% for item in ticket_items %}
+{% if item.active %}
+<tr><td>
+{% static_placeholder "separator" %}
+</td>
+</tr>
+
+<tr valign="top">
+    <th class="font_large" align="left"> {{ item.title }} </th>
+    <td align=\"right\"> ${{ item.cost|floatformat:2 }} </td>
+</tr>
+<tr valign="top">
+    <td class="font_regular" align=\"left\" colspan=2> {{ item.description | safe }} </td>
+</tr>
+<tr valign="top">
+</tr>
+    <td class="font_regular" align=\"left\" colspan=2> &nbsp </td>
+<tr valign="top">
+    <td class="font_regular" align="left" colspan=2>
+    <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank">
+    Purchase {{ item.title }} from Brown Paper Tickets
+    </a>
+    </td>
+</tr>    
+
+{% endif %}
+{% endfor %}
+
+<tr><td>
+{% static_placeholder "separator" %}
+</td>
+</tr>
+</table>
+
+
+
+{% endblock %}
