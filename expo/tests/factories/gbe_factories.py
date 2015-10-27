@@ -15,7 +15,6 @@ class ConferenceFactory(DjangoModelFactory):
     conference_slug = factory.Sequence(lambda n: u"test_conf_%d" % n)
     accepting_bids = False
 
-
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
         model = sched.WorkerItem
