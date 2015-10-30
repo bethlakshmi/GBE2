@@ -52,13 +52,11 @@ class Conference(models.Model):
             return cls.objects.get(conference_slug=slug)
         except cls.DoesNotExist:
             return cls.current_conf()
-            
 
     class Meta:
         verbose_name="conference"
         verbose_name_plural="conferences"
-        
-    
+
 
 class Biddable(models.Model):
     '''
