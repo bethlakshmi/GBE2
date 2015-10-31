@@ -32,6 +32,8 @@ from scheduler.functions import (
     conference_dates,
 )
 from functions import volunteer_shifts
+
+
 def validate_profile(request):
     '''
     Return the user profile if any
@@ -44,7 +46,7 @@ def validate_profile(request):
             return False
 
 
-def validate_perms(request, perms, require = True):
+def validate_perms(request, perms, require=True):
     '''
     Validate that the requesting user has the stated permissions
     Returns profile object if perms exist, False if not
@@ -58,10 +60,11 @@ def validate_perms(request, perms, require = True):
         raise Http404
     return False               # or just return false if we're just checking
 
+
 def selfcast(sobj):
     '''
-    Takes a scheduler object and casts it to its underlying type. 
-    This can (will) fail if object ids are out of sync, see issue 145 
+    Takes a scheduler object and casts it to its underlying type.
+    This can (will) fail if object ids are out of sync, see issue 145
     Pretty rudimentary, can probably be improved
     '''
     try:
@@ -70,34 +73,36 @@ def selfcast(sobj):
         return sobj
 
 
-def get_events_display_info(event_type = 'Class', time_format = None):
+def get_events_display_info(event_type='Class', time_format=None):
     '''
-    Helper for displaying lists of events. Gets a supply of conference event items and munges 
-    them into displayable shape
-    "Conference event items" = things in the conference model which extend EventItems and therefore 
+    Helper for displaying lists of events. Gets a supply of conference event
+    items and munges them into displayable shape
+    "Conference event items" = things in the conference model which extend
+    EventItems and therefore
     could be Events
     '''
     import gbe.models as gbe
-    if time_format == None: time_format = set_time_format(days = 2)
+    if time_format is None:
+        time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
 
     confitems = event_class.objects.filter(visible=True)
-    if event_type=='Event':
+    if event_type == 'Event':
         confitems = confitems.select_subclasses()
-    else: 
+    else:
         confitems = confitems.all()
     confitems = [item for item in confitems if item.schedule_ready]
     eventitems = []
     for ci in confitems:
-        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(), 
-                                  key = lambda sched_event: sched_event.starttime):
-            eventitems += [{ 'eventitem': ci.eventitem_ptr , 
-                             'confitem':ci,
-                             'schedule_event':sched_event}]
+        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(),
+                                  key=lambda sched_event: sched_event.starttime):
+            eventitems += [{'eventitem': ci.eventitem_ptr,
+                            'confitem': ci,
+                            'schedule_event': sched_event}]
         else:
-            eventitems += [{ 'eventitem': ci.eventitem_ptr , 
-                             'confitem':ci,
-                             'schedule_event':None}]
+            eventitems += [{'eventitem': ci.eventitem_ptr,
+                            'confitem': ci,
+                            'schedule_event': None}]
 
     eventslist = []
     for entry in eventitems:
@@ -114,33 +119,34 @@ def get_events_display_info(event_type = 'Class', time_format = None):
                                        args=[entry['eventitem'].eventitem_id])}
 
         if entry['schedule_event']:
-            eventinfo ['edit'] = reverse('edit_event',
-                                         urlconf='scheduler.urls', 
-                                         args=[event_type,
-                                               entry['schedule_event'].id])
-            eventinfo ['location'] = entry['schedule_event'].location
-            eventinfo ['datetime'] =  entry['schedule_event'].starttime.strftime(time_format)
-            eventinfo ['max_volunteer'] =  entry['schedule_event'].max_volunteer
-            eventinfo ['volunteer_count'] = entry['schedule_event'].volunteer_count
+            eventinfo['edit'] = reverse('edit_event',
+                                        urlconf='scheduler.urls',
+                                        args=[event_type,
+                                              entry['schedule_event'].id])
+            eventinfo['location'] = entry['schedule_event'].location
+            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(time_format)
+            eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
+            eventinfo['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo['delete'] = reverse('delete_schedule',
-                                          urlconf='scheduler.urls', 
-                                         args=[entry['schedule_event'].id])
+                                          urlconf='scheduler.urls',
+                                          args=[entry['schedule_event'].id])
 
         else:
             eventinfo['create'] = reverse(
                 'create_event',
-                urlconf='scheduler.urls', 
+                urlconf='scheduler.urls',
                 args=[event_type,
                       entry['eventitem'].eventitem_id])
             eventinfo['delete'] = reverse(
                 'delete_event',
-                urlconf='scheduler.urls', 
+                urlconf='scheduler.urls',
                 args=[event_type, entry['eventitem'].eventitem_id])
             eventinfo['location'] = None
             eventinfo['datetime'] = None
-            eventinfo['max_volunteer'] =  None
+            eventinfo['max_volunteer'] = None
         eventslist.append(eventinfo)
     return eventslist
+
 
 def get_event_display_info(eventitem_id):
     '''
@@ -153,7 +159,8 @@ def get_event_display_info(eventitem_id):
     for sched_event in item.scheduler_events.all():
         bio_grid_list += sched_event.bio_list
     eventitem_view = {'event': item,
-                      'scheduled_events':item.scheduler_events.all().order_by('starttime'),
+                      'scheduled_events': item.scheduler_events.all().order_by(
+                          'starttime'),
                       'labels': event_labels,
                       'bio_grid_list': bio_grid_list
                       }
@@ -194,9 +201,9 @@ def event_list(request, event_type=''):
     template = 'scheduler/events_review_list.tmpl'
     return render(request,
                   template,
-                  {'events':events,
-                   'header':header,
-                   'create_url': reverse('create_event',  
+                  {'events': events,
+                   'header': header,
+                   'create_url': reverse('create_event',
                                          urlconf='gbe.urls',
                                          args=[event_type])})
 
@@ -527,17 +534,17 @@ def get_worker_allocation_forms(opp, errorcontext=None):
             forms.append(errorcontext['worker_alloc_forms'])
         else:
             forms.append(WorkerAllocationForm(
-                initial = {'worker': alloc.resource.item.as_subtype,
-                           'role': Worker.objects.get(
-                               id=alloc.resource.id).role,
-                           'label': alloc.get_label,
-                           'alloc_id': alloc.id}
+                initial={'worker': alloc.resource.item.as_subtype,
+                         'role': Worker.objects.get(
+                             id=alloc.resource.id).role,
+                         'label': alloc.get_label,
+                         'alloc_id': alloc.id}
                 )
             )
     if errorcontext and 'new_worker_alloc_form' in errorcontext:
         forms.append(errorcontext['new_worker_alloc_form'])
     forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
-                                                'alloc_id': -1}))
+                                               'alloc_id': -1}))
     return {'worker_alloc_forms': forms,
             'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
             'opp_id': opp.id}
@@ -1025,7 +1032,7 @@ def calendar_view(request=None,
                        'Drop-In Class']
         events = []
         for e_type in event_types:
-            events = events + event_info(confitem_type=e_type, 
+            events = events + event_info(confitem_type=e_type,
                                          cal_times=cal_times)
     elif event_type == 'Show':
         events = event_info(confitem_type='Show',
@@ -1033,7 +1040,7 @@ def calendar_view(request=None,
         events += event_info(confitem_type='Special Event',
                              cal_times=cal_times)
         events += event_info(confitem_type='Master Class',
-                             cal_times=cal_times) 
+                             cal_times=cal_times)
         events += event_info(confitem_type='Drop-In Class',
                              cal_times=cal_times)
     else:

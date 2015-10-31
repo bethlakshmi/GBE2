@@ -6,6 +6,7 @@ from gbe.models import Conference
 
 import nose.tools as nt
 
+
 def test_by_slug_gets_conf_for_given_slug():
     conf = ConferenceFactory.create(conference_slug="foo",
                                     status="not_ongoing")
@@ -21,6 +22,3 @@ def test_by_slug_gets_default_if_bad_slug_given():
     other_conf = ConferenceFactory.create(conference_slug="bar",
                                           status="ongoing")
     nt.assert_equal(type(conf).by_slug("quux"), other_conf)
-
-    
-    
