@@ -16,6 +16,8 @@ db.sqlite3
 
 *.bak
 
+*.log
+
 expo/gbe/static/img/GBE_PageBanner.png
 expo/gbe/static/admin
 expo/gbe/static/admin/*
