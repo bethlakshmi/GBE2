@@ -69,7 +69,7 @@ do
     if [ "$db_backup_file" != "$prev_backup" ]
     then
         diff -q $db_backup_file $prev_backup > /dev/null 2>&1
-        if [ $? ]
+        if [ ! $? ]
         then
             rm $db_backup_file
         else
