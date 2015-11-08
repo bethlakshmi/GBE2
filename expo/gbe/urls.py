@@ -1,6 +1,11 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import (
+    patterns, 
+    url,
+    include
+)
 from django.contrib.auth.views import *
 from gbe import views
+import hijack 
 
 # NOTE: in general, url patterns should end with '/?$'. This 
 # means "match the preceding patter, plus an optional final '?', 
@@ -220,5 +225,6 @@ urlpatterns = patterns ('',
                             name='manage_user_tickets'),
                         url(r'^profile/landing_page/(\d+)/?$',
                             views.landing_page, 
-                            name='admin_landing_page')
+                            name='admin_landing_page'),
+                        url(r'^hijack/', include('hijack.urls'))
                         )
