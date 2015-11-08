@@ -23,7 +23,7 @@
 	       this act bid</li>
 	{% endif %}	       
 
-	  {% if historical %}
+	  {% if historical and act.performer.contact = profile %}
             <li><a href='{% url 'gbe:clone_bid' bid_type='Act' bid_id=act.id %}'>Clone this act</a></li>
           {% endif %}
 	  </ul>
