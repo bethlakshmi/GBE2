@@ -34,17 +34,12 @@
     <ul>
       <li><a href='{% url 'gbe:clone_bid' bid_type='Act' bid_id=act.id %}'>Clone this act</a></li>
     </ul>
-
-    {% else %}
-    <ul>
-      <li><a href='{% url 'gbe:act_create' %}'>Propose a new act</a></li>
-    </ul>
     {% endif %}
     {% endfor %}
 {% else %}
   {{ profile.display_name }} has no acts listed.	   
-  <ul class="rightsidebar">	 
-    <li><a href='{% url 'gbe:act_create' %}'>Propose an act</a></li>
-  </ul>
-{% endif %}
+  {% endif %}
+    <a href='{% url 'gbe:act_create' %}'>Propose an{%if acts%}other{% endif %} act</a>
+
+
 </div>

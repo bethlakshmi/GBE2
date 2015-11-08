@@ -1,4 +1,4 @@
-
+<div class="sidebar {% if historical %} history {% endif %}">
 <h3>
   {% if profile.display_name %}
     {{ profile.display_name }}'s
@@ -12,17 +12,22 @@
 <h4>
 Showing Historical Bids
 </h4>
-<p>
+<div class="sidebar-text history">
+<p>  
 These bids are not currently available for consideration. Click the "clone"
 button to re-submit an act, class, or vendor bid in the current conference.
 </p>
+</div>
 <p><a href="{% url 'gbe:home' %}">View current bids</a></p>
 {% else %}
+
+<div class="sidebar-text">
 <p>
 We are only showing bids for the current conference. If you have proposed
 acts, classes, or vendors in previous years, 
 <a href = "{% url 'gbe:home' %}?historical=1">click here</a>
 </p>
+</div>
 {% endif %}
 
 {% for alert in alerts %}
@@ -38,3 +43,4 @@ acts, classes, or vendors in previous years,
 {% include 'gbe/profile/incl_shows.tmpl' %}
 <br>
 {% include 'gbe/profile/incl_bids.tmpl' %}
+</div
