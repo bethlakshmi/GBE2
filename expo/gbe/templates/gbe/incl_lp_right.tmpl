@@ -17,30 +17,27 @@ Showing Historical Bids
 These bids are not currently available for consideration. Click the "clone"
 button to re-submit an act, class, or vendor bid in the current conference.
 </p>
+<a href="{% url 'gbe:home' %}">View current bids</a>
 </div>
-<p><a href="{% url 'gbe:home' %}">View current bids</a></p>
 {% else %}
 
 <div class="sidebar-text">
 <p>
 We are only showing bids for the current conference. If you have proposed
-acts, classes, or vendors in previous years, 
-<a href = "{% url 'gbe:home' %}?historical=1">click here</a>
+acts, classes, or vendors in previous years.
 </p>
+<a href = "{% url 'gbe:home' %}?historical=1">View older bids</a>
 </div>
 {% endif %}
 
 {% for alert in alerts %}
   <div class='alert'>{{alert|safe}}</a> <br><br> </div>
 {% endfor %}
-<br>
 {% include 'gbe/profile/incl_performer.tmpl' %}	
 {% include 'gbe/profile/incl_acts.tmpl' %}
 {% include 'gbe/profile/incl_classes.tmpl' %}
 {% include 'gbe/profile/incl_vendors.tmpl' %}
-{% include 'gbe/profile/incl_volunteering.tmpl' %}
-<br>      
+{% include 'gbe/profile/incl_volunteering.tmpl' %}  
 {% include 'gbe/profile/incl_shows.tmpl' %}
-<br>
 {% include 'gbe/profile/incl_bids.tmpl' %}
-</div
+</div>

@@ -648,46 +648,57 @@ div.landing_box>div.ticket_section > div.ticket {
 }
 
 /* Landing page, right-column blocks */
+div.sidebar>div.sidebar-text {
+    border: solid;
+    border-color: #C3BDBF;
+    padding: 18px;
+    margin-bottom: 10px;
+}
 
-div.landing_box>div.act_section {
+div.sidebar>div.act_section {
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;
 }
 
 div.bid_review_section{
+    margin-top: 10px;
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;
 }
 
-div.landing_box>div.class_section {
+div.sidebar>div.class_section {
+    margin-top: 10px;
     background-color:#E3DDDF;
     padding-left:5px;
     padding-top:5px;
 }
 
-div.landing_box>div.performer_section {
+div.sidebar>div.performer_section {
     background-color:#E3DDDF;;
     padding-left:5px;
     padding-top:5px;
 }
 
 
-div.landing_box>div.show_section {
+div.sidebar>div.show_section {
+    margin-top: 10px;
     background-color:#E3DDDF;;
     padding-left:5px;
     padding-top:5px;
 }
 
 
-div.landing_box>div.volunteer_section {
+div.sidebar>div.volunteer_section {
+    margin-top: 10px;
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;
 }
 
-div.landing_box>div.vendor_section {    
+div.sidebar>div.vendor_section {
+    margin-top: 10px;
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;

@@ -1,9 +1,9 @@
 <div class = 'class_section'>
-  <span class='heading classes'> 
-  </span><br>
   {% if proposed_classes %} 
+  <span class='heading classes'> 
     <b>Class Bids</b>
     {% for class in proposed_classes %}
+  </span><br>
 
       <div class='class'>
         {% if class.submitted %}
@@ -30,15 +30,13 @@
     </ul>
 
 {%else%}	
-    <ul class="rightsidebar">
-      <li><a href='{% url 'gbe:class_create' %}'>Propose a new class</a></li>
-    </ul>
+
 {% endif %}
     {% endfor %}
   {% else %}
     {{ profile.display_name }} has not proposed any classes
-  {% endif %}	
+  {% endif %}
+  <br>
       <a href='{% url 'gbe:class_create' %}'>Propose a{%if proposed_classes%}nother{%endif%} class</a>
-    </ul>
 
 </div>
