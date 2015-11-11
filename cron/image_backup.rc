@@ -1,0 +1,6 @@
+#!/bin/bash
+
+img_dir='/home/gbelive/uploads/images'
+bckup_dir='/home/gbelive/.BACKUP'
+
+rsync -av $img_dir $bckup_dir

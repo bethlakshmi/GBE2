@@ -85,9 +85,10 @@ def get_events_display_info(event_type='Class', time_format=None):
     if time_format is None:
         time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
-
-    confitems = event_class.objects.filter(visible=True)
-    if event_type == 'Event':
+    conference = gbe.Conference.current_conf()
+    confitems = event_class.objects.filter(visible=True, 
+                                           conference=conference)
+    if event_type=='Event':
         confitems = confitems.select_subclasses()
     else:
         confitems = confitems.all()
