@@ -1,10 +1,10 @@
 <div class = 'class_section'>
-  <span class='heading classes'> 
-  </span><br>
   {% if proposed_classes %} 
+  <span class='heading classes'> 
     <b>Class Bids</b>
     {% for class in proposed_classes %}
-      {% if class.is_current %}
+  </span><br>
+
       <div class='class'>
         {% if class.submitted %}
           <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>
@@ -23,16 +23,20 @@
       {% for alert in class.alerts %}
         <span class='alert'>{{alert | safe }}</a>
       {% endfor %}
-     {% endif %}
-    {% endfor %}
-    <ul class="rightsidebar">
-      <li><a href='{% url 'gbe:class_create' %}'>Propose a new class</a></li>
+
+    {% if historical %}
+    <ul>
+      <li><a href='{% url 'gbe:clone_bid' bid_type='Class' bid_id=class.id %}'>Clone this class</a></li>
     </ul>
+
+{%else%}	
+
+{% endif %}
+    {% endfor %}
   {% else %}
     {{ profile.display_name }} has not proposed any classes
-    <ul class="rightsidebar">
-      <li><a href='{% url 'gbe:class_create' %}'>Propose a class</a>
-      </li>
-    </ul>
-  {% endif %}	
+  {% endif %}
+  <br>
+      <a href='{% url 'gbe:class_create' %}'>Propose a{%if proposed_classes%}nother{%endif%} class</a>
+
 </div>
