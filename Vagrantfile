@@ -26,7 +26,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-
+  sudo apt-fast -y install emacs24-nox
 
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
@@ -73,6 +73,8 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
   sudo pip install --requirement /vagrant/config/requirements.txt
+  cp /vagrant/aliases /home/vagrant/
+  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 BOOTSTRAP
 
 

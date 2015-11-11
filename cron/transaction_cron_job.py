@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env /usr/local/bin/python2.7
 
 # 
 # transaction_cron_job.py - Stand-Alone executable file for the Ticketing cron job.  
@@ -12,24 +12,25 @@
 # edited by mdb 8/18/2014
 #
 # Needed on webfactional installation in place of current lines 19 & 20
-#sys.path.append('/home/gbeadmin/webapps/gbetest/expo')
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'expo.settings'
+print 'start'
+'''import sys, os
+sys.path.append('/home/gbelive/webapps/gbelive/expo')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'expo.settings'
 
-import sys, os
-sys.path.append('./expo')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-from expo.gbe_logging import logger
+
 from django.conf import settings
 from ticketing.models import *
 from ticketing.brown_paper import *
 
 
-logger.info('Executing Cron Job Script....')
+print 'Executing Cron Job Script....'
+print ''
 count = process_bpt_order_list()
-logger.info('%s transactions added to the system.' % count)
+print '%s transactions added to the system.' % count
+print ''
 
 
-
+'''
 
 
 

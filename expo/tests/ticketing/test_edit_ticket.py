@@ -173,4 +173,4 @@ class TestEditTicketItem(TestCase):
         response = ticket_item_edit(request, transaction.ticket_item.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Ticketing' in response.content)
-        nt.assert_true('ERROR' in response.content)
+        nt.assert_true('Cannot remove Ticket' in response.content)

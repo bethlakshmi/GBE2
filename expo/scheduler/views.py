@@ -66,8 +66,9 @@ def get_events_display_info(event_type = 'Class', time_format = None):
     import gbe.models as gbe
     if time_format == None: time_format = set_time_format(days = 2)
     event_class = eval('gbe.' + event_type)
-
-    confitems = event_class.objects.filter(visible=True)
+    conference = gbe.Conference.current_conf()
+    confitems = event_class.objects.filter(visible=True, 
+                                           conference=conference)
     if event_type=='Event':
         confitems = confitems.select_subclasses()
     else: 
@@ -206,7 +207,6 @@ def schedule_acts(request, show_title=None):
 
 
     if show_title == 'POST':      # we're coming from an ActSchedulerForm
-#        foo()  # trigger error so I can see the post....
         alloc_prefixes = set([key.split('-')[0] for key in request.POST.keys()
                       if key.startswith('allocation_')])
         for prefix in alloc_prefixes:
@@ -588,7 +588,7 @@ def manage_volunteer_opportunities(request, event_id):
     template = 'scheduler/event_schedule.tmpl'
 
     if request.method != 'POST':
-        foo ()   # trigger error, for testing
+        pass
         #return HttpResponseRedirect(reverse('edit_schedule', urlconf='scheduler.urls'))
     event = get_object_or_404(Event, id=event_id) 
     
@@ -647,14 +647,13 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event.save()
         opp_event.set_location (data.get('location').locationitem)
         opp_event.save()
-#        foo()
     elif 'allocate' in request.POST.keys():   # forward this to allocate view
         return HttpResponseRedirect(reverse('edit_event', urlconf='scheduler.urls', 
                                     args = ['GenericEvent',  request.POST['opp_sched_id']]))
 
 
     else:
-        foo()  # trigger error so I can see the locals
+        pass
     return HttpResponseRedirect(reverse('edit_event', 
                                         urlconf='scheduler.urls', 
                                         args = [event.event_type_name, event_id]))

@@ -4,6 +4,7 @@
 #
 #
 
+from expo.gbe_logging import logger
 import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
@@ -31,10 +32,10 @@ def perform_bpt_api_call(api_call):
         res = urllib2.urlopen(req)
         xml_tree = et.fromstring(res.read())  
     except urllib2.URLError as io_error:
-        print 'Could not perform BPT call:  %s' % io_error.reason
+        logger.error('Could not perform BPT call:  %s' % io_error.reason)
         return None
     except:
-        print 'Could not perform BPT call.  Reason unknown.'
+        logger.error('Could not perform BPT call.  Reason unknown.')
         return None        
     return xml_tree
 

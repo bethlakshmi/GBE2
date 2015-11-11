@@ -1,0 +1,81 @@
+#!/bin/bash
+
+
+backup_path='backup/db'
+key="$HOME/.ssh/id_rsa.pub"
+ssh_id="remoteusr@paxdraconis.org"
+
+# List of projects to be backed up
+db_list=( "gbelive" )
+db_user=( "gbelivedb" )
+db_pass=( "!@#%%$#@(*#^*" )
+
+backup_num=( "2" )
+
+mysql_backup() {
+    if [ -d $1 ]
+    then
+
+        db_backup_file="$1/DB_backup_$4_`/bin/date +%F-%R`.sql"
+        /usr/bin/mysqldump --single-transaction -q -X -u $2 --password=$3 $4 > $db_backup_file
+
+    else
+        echo "ERROR: No Backup Directory: $1"
+        exit 5
+    fi
+    echo $db_backup_file
+}
+
+clear_old() {
+
+    db_file_list=($(/bin/ls -1 $2/DB_backup_$1_????-??-??-??:??.sql | /bin/sort))
+
+    length=${#db_file_list[@]}
+    let "number = $3"
+    while [ $length -gt $number ]
+    do
+        /bin/rm ${db_file_list[0]}
+        unset db_file_list[0]
+        let "length = $length - 1"
+
+        db_file_list=( "${db_file_list[@]}" )
+
+    done
+}
+
+scp_file() {
+    if [ $1 == $(/bin/basename $1) ]
+    then
+        db_file=$3/$1
+    else
+        db_file=$1
+    fi
+
+    /usr/bin/scp $db_file $2:$3
+}
+
+prev_db_backup_file () {
+    prev_file=$(/bin/ls -1 $2/DB_backup_$1_????-??-??-??:??.sql | /bin/sort | /usr/bin/uniq | /usr/bin/tail -n 2 | /usr/bin/head -n 1)
+    echo $prev_file
+}
+
+let "db_len = ${#db_list[@]} - 1"
+for position in $(/usr/bin/seq 0 $db_len)
+do
+    let "position = $position"
+    db_backup_file=`mysql_backup $HOME/$backup_path ${db_user[$position]} ${db_pass[$position]0} ${db_list[$position]}`
+    prev_backup=`prev_db_backup_file ${db_list[$position]} $HOME/$backup_path`
+
+    if [ "$db_backup_file" != "$prev_backup" ]
+    then
+        diff -q $db_backup_file $prev_backup > /dev/null 2>&1
+        if [ ! $? ]
+        then
+            rm $db_backup_file
+        else
+            scp_file $db_backup_file $ssh_id $backup_path
+        fi
+    fi
+    clear_old ${db_list[$postition]} $HOME/$backup_path ${backup_num[$position]}
+
+done

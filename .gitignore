@@ -16,6 +16,8 @@ db.sqlite3
 
 *.bak
 
+*.log
+
 expo/gbe/static/img/GBE_PageBanner.png
 expo/gbe/static/admin
 expo/gbe/static/admin/*
@@ -55,7 +57,7 @@ expo/expo/local_settings.py
 *.zip
 
 *.bettytest
-
+stack_settings.py
 #created by collect static and all our various plugins that are installed via pip
 # if we ever mess with this CSS, we should un-ignore.
 expo/db.sqlite3.cmsnew

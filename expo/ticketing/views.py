@@ -4,6 +4,7 @@
 # updated by BB 7/26/2015
 #
 
+from expo.gbe_logging import logger
 from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
@@ -72,6 +73,7 @@ def transactions(request):
             count = process_bpt_order_list()
         except Exception as e:
             error = 'Error processing transactions:  ' + str(e)
+            logger.error(error)
 
     transactions = Transaction.objects.all()
     purchasers = Purchaser.objects.all()
@@ -119,7 +121,6 @@ def ticket_item_edit(request, item_id=None):
 
             trans_exists = False
             for trans in Transaction.objects.all():
-                print "%s %s" % (trans.ticket_item.ticket_id, item.ticket_id)
                 if (trans.ticket_item.ticket_id == item.ticket_id):
                     trans_exists = True
                     break
@@ -130,8 +131,9 @@ def ticket_item_edit(request, item_id=None):
                                 urlconf='ticketing.urls',
                                 args=[str(item.bpt_event.conference.conference_slug)]))
             else:
-                error = 'ERROR:  Cannot remove Ticket Item:  \
-                        It is used in a Transaction.'
+                error = 'Cannot remove Ticket Item: %s \
+                        It is used in a Transaction.' % item.ticket_id
+                logger.error(error)
                 form = TicketItemForm(instance=item)
 
         else:

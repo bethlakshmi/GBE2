@@ -9,10 +9,15 @@ import datetime
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
-from expoformfields import DurationFormField
-from scheduler.functions import (set_time_format,
-                                 conference_days,
-                                 conference_times,)
+from expoformfields import (
+    DurationFormField,
+    FriendlyURLInput,
+)
+from scheduler.functions import (
+    set_time_format,
+    conference_days,
+    conference_times,
+)
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
@@ -35,21 +40,20 @@ class ParticipantForm(forms.ModelForm):
         changed = self.changed_data
         if self.has_changed() and 'email' in self.changed_data:
             if User.objects.filter(
-                            email=self.cleaned_data.get('email')).exists():
+                    email=self.cleaned_data.get('email')).exists():
                 raise ValidationError('That email address is already in use')
         return self.cleaned_data
 
     def save(self, commit=True):
         partform = super(ParticipantForm, self).save(commit=False)
+        user = partform.user_object
         if not self.is_valid():
             return
         partform.user_object.email = self.cleaned_data.get('email')
         if len(self.cleaned_data['first_name'].strip()) > 0:
-            partform.user_object.first_name = \
-                        self.cleaned_data['first_name'].strip()
+            user.first_name = self.cleaned_data['first_name'].strip()
         if len(self.cleaned_data['last_name'].strip()) > 0:
-            partform.user_object.last_name = \
-                        self.cleaned_data['last_name'].strip()
+            user.last_name = self.cleaned_data['last_name'].strip()
         if self.cleaned_data['display_name']:
             pass   # if they enter a display name, respect it
         else:
@@ -153,7 +157,9 @@ class PersonaForm (forms.ModelForm):
         help_texts = persona_help_texts
         labels = persona_labels
         widgets = {'performer_profile': forms.HiddenInput(),
-                   'contact': forms.HiddenInput()}
+                   'contact': forms.HiddenInput(),
+                   'homepage': FriendlyURLInput,
+                   }
 
 
 class TroupeForm (forms.ModelForm):
@@ -201,7 +207,7 @@ class ActEditForm(forms.ModelForm):
         choices=act_other_perf_options,
         label=act_bid_labels['other_performance'],
         help_text=act_help_texts['other_performance'],
-        required = False,
+        required=False,
     )
     description = forms.CharField(required=True,
                                   label=act_bid_labels['description'],
@@ -245,9 +251,9 @@ class ActEditDraftForm(forms.ModelForm):
         choices=act_other_perf_options,
         label=act_bid_labels['other_performance'],
         help_text=act_help_texts['other_performance'],
-        required = False
+        required=False
     )
-    
+
     class Meta:
         model = Act
         fields, required = Act().bid_fields
@@ -506,7 +512,7 @@ class VendorBidForm(forms.ModelForm):
                   'description',
                   'profile',
                   'website',
-                  'physical_address',                  
+                  'physical_address',
                   'publish_physical_address',
                   'logo',
                   'want_help',
@@ -517,7 +523,9 @@ class VendorBidForm(forms.ModelForm):
         labels = vendor_labels
         widgets = {'accepted': forms.HiddenInput(),
                    'submitted': forms.HiddenInput(),
-                   'profile': forms.HiddenInput()}
+                   'profile': forms.HiddenInput(),
+                   'website': FriendlyURLInput,
+                   }
 
 
 class ActTechInfoForm(forms.ModelForm):
@@ -532,6 +540,7 @@ class ActTechInfoForm(forms.ModelForm):
                   'performer',
                   'video_link',
                   'video_choice']
+        widgets = {'video_link': FriendlyURLInput}
 
 
 class AudioInfoForm(forms.ModelForm):
