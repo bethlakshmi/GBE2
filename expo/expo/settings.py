@@ -90,8 +90,6 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
-    'hijack', 
-    'compat',
     'cms',  # django CMS itself
     'mptt',  # utilities for implementing a tree
     'menus',
@@ -137,6 +135,9 @@ INSTALLED_APPS = (
     'ticketing',
     'scheduler',
     'django_nose',
+    'hijack', 
+    'compat',
+
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

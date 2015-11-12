@@ -16,4 +16,5 @@ urlpatterns = patterns('',
                        url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
                            {'sitemaps': {'cmspages': CMSSitemap}}),
                        url(r'^', include('cms.urls')),
+                       url(r'^hijack/', include('hijack.urls'))
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
