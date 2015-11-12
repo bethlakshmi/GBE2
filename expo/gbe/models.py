@@ -25,7 +25,7 @@ import gbetext
 import gbe
 import pytz
 
-phone_regex='(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
@@ -34,54 +34,54 @@ visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
 class Conference(models.Model):
     conference_name = models.CharField(max_length=128)
     conference_slug = models.SlugField()
-    status = models.CharField(choices=conference_statuses, 
-                                   max_length=50,
-                                   default='upcoming')
+    status = models.CharField(choices=conference_statuses,
+                              max_length=50,
+                              default='upcoming')
     accepting_bids = models.BooleanField(default=False)
-    
+
     def __unicode__(self):
         return self.conference_name
 
     class Meta:
-        verbose_name="conference"
-        verbose_name_plural="conferences"
-        
-    
+        verbose_name = "conference"
+        verbose_name_plural = "conferences"
+
 
 class Biddable(models.Model):
     '''
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
-    title = models.CharField(max_length=128) 
+    title = models.CharField(max_length=128)
     description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
-    accepted = models.IntegerField(choices=acceptance_states, 
-                                   default=0, 
+    accepted = models.IntegerField(choices=acceptance_states,
+                                   default=0,
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    conference = models.ForeignKey(Conference,
+    conference = models.ForeignKey(
+        Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
 
     class Meta:
-        verbose_name="biddable item"
+        verbose_name = "biddable item"
         verbose_name_plural = "biddable items"
 
     def __unicode__(self):
         return self.title
-        
+
     def typeof(self):
         return self.__class__
 
     @property
     def ready_for_review(self):
-        return (self.submitted and 
+        return (self.submitted and
                 self.accepted == 0)
 
     @property
     def is_current(self):
-        return self.conference.status == "upcoming"
+        return self.conference.status in ("upcoming", "current")
 
 
 class Profile(WorkerItem):
@@ -93,24 +93,24 @@ class Profile(WorkerItem):
     user_object = models.OneToOneField(User)
     display_name = models.CharField(max_length=128, blank=True)
 
-    # used for linking tickets  
+    # used for linking tickets
     purchase_email = models.CharField(max_length=64, blank=True, default='')
- 
+
     # contact info - I'd like to split this out to its own object
-    # so we can do real validation 
+    # so we can do real validation
     # but for now, let's just take what we get
 
     address1 = models.CharField(max_length=128, blank=True)
     address2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=128, blank=True)
     state = models.CharField(max_length=2,
-                             choices = states_options,
-                             blank=True) 
-    zip_code = models.CharField(max_length=10, blank=True) # allow for ext. ZIP
+                             choices=states_options,
+                             blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
-    phone = models.CharField(max_length=50, 
+    phone = models.CharField(max_length=50,
                              validators=[RegexValidator(regex=phone_regex,
                                                         message=phone_number_format_error)])
     best_time = models.CharField(max_length=50,
@@ -131,11 +131,11 @@ class Profile(WorkerItem):
 
     @property
     def review_summary(self):
-        return (self.display_name, 
-                self.user_object.username, 
-                self.user_object.last_login, 
-                self.user_object.email, 
-                self.purchase_email, 
+        return (self.display_name,
+                self.user_object.username,
+                self.user_object.last_login,
+                self.user_object.email,
+                self.purchase_email,
                 self.phone)
 
     def bids_to_review(self):
@@ -166,14 +166,14 @@ class Profile(WorkerItem):
             return ''
         if (len(self.city) == 0 or
             len(self.country) == 0 or
-            len (self.state) == 0 or
+            len(self.state) == 0 or
             len(self.zip_code) == 0
-        ):
+            ):
             return ''
-        return address_string + '\n' + ' '.join ((self.city + ',',
-                                                  self.state,
-                                                  self.zip_code,
-                                                  self.country))
+        return address_string + '\n' + ' '.join((self.city + ',',
+                                                 self.state,
+                                                 self.zip_code,
+                                                 self.country))
 
     @property
     def special_privs(self):
@@ -187,28 +187,29 @@ class Profile(WorkerItem):
         groups = [group.name for group in self.user_object.groups.all().order_by('name')]
         return groups
 
-    @property
-    def alerts(self):
+    def alerts(self, historical=False):
+        if historical:
+            return []
         profile_alerts = []
         if (len(self.display_name.strip()) == 0 or
             len(self.purchase_email.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['empty_profile'] %
-                                   reverse ('profile_update',
-                                            urlconf=gbe.urls))
+                                  reverse('profile_update',
+                                          urlconf=gbe.urls))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and len(self.phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'] %
-                                  reverse ('profile_update',
-                                           urlconf=gbe.urls))
+                                  reverse('profile_update',
+                                          urlconf=gbe.urls))
         for act in self.get_acts():
-            if act.accepted==3 and \
+            if act.accepted == 3 and \
                act.is_current and \
                (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
                 profile_alerts.append(gbetext.profile_alerts['schedule_rehearsal'] %
-                                      (act.title, 
-                                       reverse('act_techinfo_edit', 
+                                      (act.title,
+                                       reverse('act_techinfo_edit',
                                                urlconf=gbe.urls,
                                                args=[act.id])))
         return profile_alerts
@@ -245,17 +246,22 @@ class Profile(WorkerItem):
         perf_set = set(performers)
         return perf_set
 
-    def get_acts(self):
+    def get_acts(self, show_historical=False):
         acts = []
         performers = self.get_performers()
         for performer in performers:
             acts += performer.acts.all()
-        return acts
+        if show_historical:
+            f = lambda a: not a.is_current
+        else:
+            f = lambda a: a.is_current
+        return filter(f, acts)
 
     def get_shows(self):
         acts = self.get_acts()
-        shows = [Show.objects.filter(scheduler_events__resources_allocated__resource__actresource___item=act)
-                 for act in acts if act.accepted == 3]
+        shows = [Show.objects.filter(
+            scheduler_events__resources_allocated__resource__actresource___item=act)
+                 for act in acts if act.accepted == 3 and act.is_current]
         return sum([list(s) for s in shows], [])
 
     def get_schedule(self):
@@ -276,7 +282,7 @@ class Profile(WorkerItem):
         for performer in self.get_performers():
             events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=performer)]
         events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=self)]
-        
+
         return sorted(set(events), key=lambda event: event.start_time)
         '''
         return []
@@ -298,7 +304,7 @@ class Profile(WorkerItem):
         acts = self.get_acts()
         events = sum([list(Event.objects.filter(
             resources_allocated__resource__actresource___item=act))
-                  for act in acts if act.accepted==3], [])
+                      for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
             events += [e for e in Event.objects.filter(
                 resources_allocated__resource__worker___item=performer)]
@@ -312,17 +318,33 @@ class Profile(WorkerItem):
             badge_name = self.user_object.first_name
         return badge_name
 
-    def is_teaching(self):
+    def is_teaching(self, historical=False):
         '''
         return a list of classes this user is teaching
-        (not a list of classes they are taking, that's another list)
         '''
-        return [c for c in self.workeritem.get_bookings('Teacher') if c.is_current]
+        if historical:
+            return [c for c in self.workeritem.get_bookings('Teacher')
+                    if not c.is_current]
+        else:
+            return [c for c in self.workeritem.get_bookings('Teacher')
+                    if c.is_current]
 
-    def proposed_classes(self):
-        classes = sum([list(teacher.is_teaching.all()) 
+    def vendors(self, historical=False):
+        vendors = Vendor.objects.filter(profile=self)
+        if historical:
+            f = lambda v: not v.is_current
+        else:
+            f = lambda v: v.is_current
+        return filter(f, vendors)
+
+    def proposed_classes(self, historical=False):
+        classes = sum([list(teacher.is_teaching.all())
                        for teacher in self.personae.all()], [])
-#        return list(set (classes))
+        if historical:
+            f = lambda c: not c.is_current
+        else:
+            f = lambda c: c.is_current
+        classes = filter(f, classes)
         return classes
 
     def sched_payload(self):
@@ -348,20 +370,14 @@ class Performer (WorkerItem):
     can appear in a show lineup or teach a class
     The fields are named as we would name them for a single performer.
     In all cases, when applied to an aggregate (group or troup) they
-    apply to the aggregate as a whole. The Boston Baby Dolls DO NOT 
-    list awards won by members of the troupe, only those won by the 
-    troup. (individuals can list their own, and these can roll up if 
-    we want). Likewise, the bio of the Baby Dolls is the bio of the 
+    apply to the aggregate as a whole. The Boston Baby Dolls DO NOT
+    list awards won by members of the troupe, only those won by the
+    troup. (individuals can list their own, and these can roll up if
+    we want). Likewise, the bio of the Baby Dolls is the bio of the
     company, not of the members, and so forth.
     '''
     objects = InheritanceManager()
     contact = models.ForeignKey(Profile, related_name='contact')
-                # the single person the expo should
-                # talk to about Expo stuff. Could be the
-                # solo performer, or a member of the troupe,
-                # or a designated agent, but this person
-                # is authorized to make decisions about
-                # the Performer's expo appearances.
     name = models.CharField(max_length=100,     # How this Performer is listed
                             unique=True)        # in a playbill.
     homepage = models.URLField(blank=True)
@@ -387,13 +403,15 @@ class Performer (WorkerItem):
 
     @property
     def get_schedule(self):
-        return Performer.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_schedule()
+        return Performer.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id).get_schedule()
 
     def get_profiles(self):
         '''
         Gets all of the people performing in the act
         '''
-        return Performer.objects.get_subclass(resourceitem_id=self.resourceitem_id).get_profiles()
+        return Performer.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id).get_profiles()
 
     @property
     def contact_email(self):
@@ -521,7 +539,8 @@ class Combo (Performer):
 ###################
 # Technical info #
 ###################
-class  AudioInfo(models.Model):
+
+class AudioInfo(models.Model):
     '''
     Information about the audio required for a particular Act
     '''
@@ -529,22 +548,34 @@ class  AudioInfo(models.Model):
     track_artist = models.CharField(max_length=123, blank=True)
     track = models.FileField(upload_to='uploads/audio', blank=True)
     track_duration = DurationField(blank=True)
-    need_mic = models.BooleanField (default=False, blank=True)
+    need_mic = models.BooleanField(default=False, blank=True)
     own_mic = models.BooleanField(default=False, blank=True)
     notes = models.TextField(blank=True)
     confirm_no_music = models.BooleanField(default=False)
 
     @property
     def dump_data(self):
-       return [self.track_title,
-               self.track_artist,
-               self.track,
-               self.track_duration,
-               self.need_mic,
-               self.own_mic,
-               self.notes,
-               self.confirm_no_music
-       ]
+        return [self.track_title,
+                self.track_artist,
+                self.track,
+                self.track_duration,
+                self.need_mic,
+                self.own_mic,
+                self.notes,
+                self.confirm_no_music
+                ]
+
+    def clone(self):
+        ai = AudioInfo(track_title=self.track_title,
+                       track_artist=self.track_artist,
+                       track=self.track,
+                       track_duration=self.track_duration,
+                       need_mic=self.need_mic,
+                       own_mic=self.own_mic,
+                       notes=self.notes,
+                       confirm_no_music=self.confirm_no_music)
+        ai.save()
+        return ai
 
     @property
     def is_complete(self):
@@ -552,15 +583,14 @@ class  AudioInfo(models.Model):
                     (self.track_title and
                      self.track_artist and
                      self.track_duration
-                 ))
+                     ))
 
     @property
     def incomplete_warnings(self):
         if self.is_complete:
             return {}
         else:
-            return {'audio':audioinfo_incomplete_warning}
-
+            return {'audio': audioinfo_incomplete_warning}
 
     def __unicode__(self):
         try:
@@ -569,21 +599,29 @@ class  AudioInfo(models.Model):
             return "AudioInfo: (deleted act)"
 
     class Meta:
-        verbose_name_plural='audio info'
+        verbose_name_plural = 'audio info'
+
 
 class LightingInfo (models.Model):
     '''
-    Information about the basic (not related to cues) lighting needs of a particular Act
+    Information about the basic (not related to cues) lighting
+    needs of a particular Act
     '''
     notes = models.TextField(blank=True)
     costume = models.TextField(blank=True)
+
+    def clone(self):
+        li = LightingInfo(notes=self.notes,
+                          costume=self.costume)
+        li.save()
+        return li
 
     @property
     def dump_data(self):
         return [self.notes, self.costume]
 
     @property
-    def is_complete (self):
+    def is_complete(self):
         return True
 
     @property
@@ -611,22 +649,33 @@ class StageInfo(models.Model):
     '''
     act_duration = DurationField(blank=True)
     intro_text = models.TextField(blank=True)
-    confirm = models.BooleanField(default = False)
+    confirm = models.BooleanField(default=False)
     set_props = models.BooleanField(default=False)
     cue_props = models.BooleanField(default=False)
     clear_props = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
 
+    def clone(self):
+        si = StageInfo(act_duration=self.act_duration,
+                       intro_text=self.intro_text,
+                       confirm=self.confirm,
+                       set_props=self.set_props,
+                       cue_props=self.cue_props,
+                       clear_props=self.clear_props,
+                       notes=self.notes)
+        si.save()
+        return si
+
     @property
     def dump_data(self):
-       return [self.act_duration,
-               self.intro_text,
-               self.confirm,
-               self.set_props,
-               self.cue_props,
-               self.clear_props,
-               self.notes,
-       ]
+        return [self.act_duration,
+                self.intro_text,
+                self.confirm,
+                self.set_props,
+                self.cue_props,
+                self.clear_props,
+                self.notes,
+                ]
 
     @property
     def is_complete(self):
@@ -661,6 +710,16 @@ class TechInfo(models.Model):
     lighting = models.OneToOneField(LightingInfo, blank=True)
     stage = models.OneToOneField(StageInfo, blank=True)
 
+    def clone(self):
+        ti = TechInfo()
+        ti.audio = self.audio.clone()
+        ti.lighting = self.lighting.clone()
+        ti.stage = self.stage.clone()
+        ti.save()
+        for ci in CueInfo.objects.filter(techinfo=self):
+            ci.clone(self)
+        return ti
+
     @property
     def is_complete(self):
         try:
@@ -668,10 +727,10 @@ class TechInfo(models.Model):
             cueinfopresent = True
         except CueInfo.DoesNotExist:
             cueinfopresent = False
-        return bool (self.audio.is_complete and
-                     self.lighting.is_complete and
-                     self.stage.is_complete and
-                     cueinfopresent)
+        return bool(self.audio.is_complete and
+                    self.lighting.is_complete and
+                    self.stage.is_complete and
+                    cueinfopresent)
 
     def get_incomplete_warnings(self):
         warnings = {}
@@ -689,13 +748,14 @@ class TechInfo(models.Model):
     class Meta:
         verbose_name_plural = 'tech info'
 
+
 class CueInfo(models.Model):
     '''
     Information about the lighting needs of a particular Act as they
     relate to one or more cues within the Act.  Each item is the change
     that occurs after a cue
     '''
-    cue_sequence=models.PositiveIntegerField(default=0)
+    cue_sequence = models.PositiveIntegerField(default=0)
     cue_off_of = models.TextField()
 
     follow_spot = models.CharField(max_length=25,
@@ -718,15 +778,26 @@ class CueInfo(models.Model):
     sound_note = models.TextField(blank=True)
     techinfo = models.ForeignKey(TechInfo)
 
+    def clone(self, techinfo):
+        CueInfo(cue_sequence=self.cue_sequence,
+                cue_off_of=self.cue_off_of,
+                follow_spot=self.follow_spot,
+                center_spot=self.center_spot,
+                backlight=self.backlight,
+                cyc_color=self.cyc_color,
+                wash=self.wash,
+                sound_note=self.sound_note,
+                techinfo=techinfo).save()
+
     @property
     def is_complete(self):
         return bool(self.cue_off_of and self.cue_sequence and self.tech_info)
 
     def __unicode__(self):
         try:
-            return self.techinfo.act.title+' - cue '+str(self.cue_sequence)
+            return self.techinfo.act.title+' - cue ' + str(self.cue_sequence)
         except:
-            return "Cue: (deleted act) - "+self.cue_sequence
+            return "Cue: (deleted act) - " + str(self.cue_sequence)
 
     class Meta:
         verbose_name_plural = 'cue info'
@@ -746,7 +817,7 @@ class Act (Biddable, ActItem):
                                   blank=True,
                                   null=True)
     tech = models.OneToOneField(TechInfo, blank=True)
-    video_link = models.URLField (blank=True)
+    video_link = models.URLField(blank=True)
     video_choice = models.CharField(max_length=2,
                                     choices=video_options,
                                     blank=True)
@@ -760,6 +831,24 @@ class Act (Biddable, ActItem):
         (('title', 'Title'), is_not_blank),
         (('description', 'Description'), is_not_blank),
     ]
+
+    def clone(self):
+        act = Act(
+            performer=self.performer,
+            tech=self.tech.clone(),
+            video_link=self.video_link,
+            video_choice=self.video_link,
+            other_performance=self.other_performance,
+            why_you=self.why_you,
+            title=self.title,
+            description=self.description,
+            submitted=False,
+            accepted=False,
+            conference=Conference.objects.filter(
+                status="upcoming").first()
+        )
+        act.save()
+        return act
 
     def get_performer_profiles(self):
         '''
@@ -781,7 +870,7 @@ class Act (Biddable, ActItem):
                 self.accepted,
                 self.performer.contact.phone,
                 self.performer.contact.display_name,
-        )
+                )
 
     @property
     def contact_email(self):
@@ -812,7 +901,6 @@ class Act (Biddable, ActItem):
     @property
     def visible(self, current=True):
         return self.accepted == 3
-        
 
     @property
     def bids_to_review(self):
@@ -820,7 +908,6 @@ class Act (Biddable, ActItem):
             visible_bid_query,
             submitted=True,
             accepted=0)
-
 
     @property
     def bid_review_header(self):
@@ -835,7 +922,8 @@ class Act (Biddable, ActItem):
     @property
     def bid_review_summary(self):
         try:
-            casting = ResourceAllocation.objects.filter(resource__actresource___item=self.resourceitem_id)[0]
+            casting = ResourceAllocation.objects.filter(
+                resource__actresource___item=self.resourceitem_id)[0]
             show_name = casting.event
         except:
             show_name = ''
@@ -867,14 +955,18 @@ class Act (Biddable, ActItem):
         this_act_alerts = []
         if self.complete:
             if self.submitted:
-                this_act_alerts.append(act_alerts['act_complete_submitted'] % self.id)
+                this_act_alerts.append(
+                    act_alerts['act_complete_submitted'] % self.id)
             else:
-                this_act_alerts.append(act_alerts['act_complete_not_submitted'] % self.id)
+                this_act_alerts.append(
+                    act_alerts['act_complete_not_submitted'] % self.id)
         else:
             if self.submitted:
-                this_act_alerts.append(act_alerts['act_incomplete_submitted'] % self.id)
+                this_act_alerts.append(
+                    act_alerts['act_incomplete_submitted'] % self.id)
             else:
-                this_act_alerts.append(act_alerts['act_incomplete_not_submitted'] % self.id)
+                this_act_alerts.append(
+                    act_alerts['act_incomplete_not_submitted'] % self.id)
         return this_act_alerts
 
     @property
@@ -941,8 +1033,10 @@ class Event (EventItem):
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
-    conference = models.ForeignKey(Conference,
+    conference = models.ForeignKey(
+        Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
+
     def __str__(self):
         return self.title
 
@@ -952,7 +1046,7 @@ class Event (EventItem):
                 'description': self.description,
                 'duration': self.duration,
                 'details': {'type': ''}
-            }
+                }
 
     @property
     def sched_duration(self):
@@ -968,15 +1062,15 @@ class Event (EventItem):
 
     @property
     def get_tickets(self):
-        return [] #self.ticketing_item.all()
-    
+        return []  #  self.ticketing_item.all()
+
     @property
     def is_current(self):
         return self.conference.status == "upcoming"
 
-
     class Meta:
         ordering = ['title']
+
 
 class Show (Event):
     '''
@@ -997,7 +1091,7 @@ class Show (Event):
                 'description': self.description,
                 'duration': self.duration,
                 'details': {'type': 'Show'}
-            }
+                }
 
     @property
     def schedule_ready(self):
@@ -1030,7 +1124,7 @@ class GenericEvent (Event):
                             default="Special")
     volunteer_category = models.CharField(max_length=128,
                                           choices=volunteer_interests_options,
-                                          blank=True, 
+                                          blank=True,
                                           default="")
 
     def __str__(self):
@@ -1045,12 +1139,11 @@ class GenericEvent (Event):
             'description': self.description,
             'duration': self.duration,
             'details': {'type': types[self.type]},
-#            'category': self.volunteer_category,
-#            'parent_event': self.parent_event
             }
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
-            payload['details']['volunteer_category'] = dict(volunteer_interests_options).get(self.volunteer_category, None)
+            payload['details']['volunteer_category'] = dict(
+                volunteer_interests_options).get(self.volunteer_category, None)
         return payload
 
     @property
@@ -1091,6 +1184,7 @@ class GenericEvent (Event):
         return tickets
 
 
+
 class Class(Biddable, Event):
     '''
     A Class is an Event where one or a few people
@@ -1115,7 +1209,7 @@ class Class(Biddable, Event):
     other_teachers = models.CharField(max_length=128, blank=True)
     length_minutes = models.IntegerField(choices=class_length_options,
                                          default=60, blank=True)
-    history =  models.TextField(blank=True)
+    history = models.TextField(blank=True)
     run_before = models.TextField(blank=True)
     schedule_constraints = models.TextField(blank=True)
     space_needs = models.CharField(max_length=128,
@@ -1125,6 +1219,26 @@ class Class(Biddable, Event):
     physical_restrictions = models.TextField(blank=True)
     multiple_run = models.CharField(max_length=20,
                                     choices=yesno_options, default="No")
+
+    def clone(self):
+        new_class = Class(teacher=self.teacher,
+                          minimum_enrollment=self.minimum_enrollment,
+                          organization=self.organization,
+                          type=self.type,
+                          fee=self.fee,
+                          other_teachers=self.other_teachers,
+                          length_minutes=self.length_minutes,
+                          history=self.history,
+                          run_before=self.run_before,
+                          space_needs=self.space_needs,
+                          physical_restrictions=self.physical_restrictions,
+                          multiple_run=self.multiple_run,
+                          title=self.biddable_ptr.title,
+                          description=self.biddable_ptr.description,
+                          conference=Conference.objects.filter(
+                              status="upcoming").first())
+        new_class.save()
+        return new_class
 
     @property
     def get_space_needs(self):
@@ -1167,7 +1281,6 @@ class Class(Biddable, Event):
             submitted=True,
             accepted=0)
 
-        
     @property
     def get_bid_fields(self):
         '''
@@ -1367,6 +1480,23 @@ class Vendor(Biddable):
     def validation_problems_for_submit(self):
         return []
 
+    def clone(self):
+        vendor = Vendor(profile=self.profile,
+                        website=self.website,
+                        physical_address=self.physical_address,
+                        publish_physical_address=self.publish_physical_address,
+                        logo=self.logo,
+                        want_help=self.want_help,
+                        help_description=self.help_description,
+                        help_times=self.help_times,
+                        title=self.title,
+                        description=self.description,
+                        conference=Conference.objects.filter(
+                            status="upcoming").first())
+
+        vendor.save()
+        return vendor
+
     @property
     def bid_review_header(self):
         return (['Bidder',
@@ -1386,8 +1516,8 @@ class Vendor(Biddable):
     @property
     def bids_to_review(self):
         return type(self).objects.filter(
-            visible_bid_query, 
-            submitted=True, 
+            visible_bid_query,
+            submitted=True,
             accepted=0)
 
 
@@ -1431,7 +1561,8 @@ class ClassProposal(models.Model):
                             choices=class_proposal_choices,
                             default='Class')
     display = models.BooleanField(default=False)
-    conference = models.ForeignKey(Conference,
+    conference = models.ForeignKey(
+        Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
 
     def __unicode__(self):
@@ -1476,7 +1607,6 @@ class ConferenceVolunteer(models.Model):
                                      default='Any of the Above')
     qualification = models.TextField(blank='True')
     volunteering = models.BooleanField(default=True, blank='True')
-
 
     def __unicode__(self):
         return self.bid.title+": "+self.presenter.name
