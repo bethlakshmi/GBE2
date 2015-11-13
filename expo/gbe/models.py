@@ -42,9 +42,20 @@ class Conference(models.Model):
     def __unicode__(self):
         return self.conference_name
 
+    @classmethod
+    def current_conf(cls):
+        return cls.objects.filter(status__in=('upcoming', 'ongoing')).first()
+        
+    @classmethod
+    def by_slug(cls, slug):
+        try:
+            return cls.objects.get(conference_slug=slug)
+        except cls.DoesNotExist:
+            return cls.current_conf()
+
     class Meta:
-        verbose_name = "conference"
-        verbose_name_plural = "conferences"
+        verbose_name="conference"
+        verbose_name_plural="conferences"
 
 
 class Biddable(models.Model):
@@ -104,9 +115,9 @@ class Profile(WorkerItem):
     address2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=128, blank=True)
     state = models.CharField(max_length=2,
-                             choices=states_options,
+                             choices = states_options,
                              blank=True)
-    zip_code = models.CharField(max_length=10, blank=True)  # allow for ext. ZIP
+    zip_code = models.CharField(max_length=10, blank=True) # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
@@ -1062,7 +1073,8 @@ class Event (EventItem):
 
     @property
     def get_tickets(self):
-        return []  #  self.ticketing_item.all()
+        return []  # self.ticketing_item.all()
+
 
     @property
     def is_current(self):
@@ -1097,7 +1109,6 @@ class Show (Event):
     def schedule_ready(self):
         return True      # shows are always ready for scheduling
 
-    #
     # tickets that apply to shows are:
     #   - any ticket that applies to "most" ("most"= no Master Classes)
     #   - any ticket that links this event specifically
@@ -1105,12 +1116,14 @@ class Show (Event):
     #
     def get_tickets(self):
         from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(bpt_event__include_most=True,
-                                        active=True,
-                                        bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                        active=True)
-        tickets = list(chain(my_events, most_events ))
+        most_events = TicketItem.objects.filter(
+            bpt_event__include_most=True,
+            active=True,
+            bpt_event__conference=self.conference)
+        my_events = TicketItem.objects.filter(
+            bpt_event__linked_events=self,
+            active=True)
+        tickets = list(chain(my_events, most_events))
         return tickets
 
 
@@ -1161,8 +1174,7 @@ class GenericEvent (Event):
     @property
     def schedule_ready(self):
         return True
-    
-    #
+
     # tickets that apply to generic events are:
     #   - any ticket that applies to "most" iff this is not a master class
     #   - any ticket that links this event specifically
@@ -1177,10 +1189,9 @@ class GenericEvent (Event):
                                         bpt_event__conference=self.conference)
         else:
             most_events = []
-            
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
                                               active=True)
-        tickets = list(chain(my_events, most_events ))
+        tickets = list(chain(my_events, most_events))
         return tickets
 
 
@@ -1337,8 +1348,7 @@ class Class(Biddable, Event):
 
     def __str__(self):
         return self.title
-    
-    #
+
     # tickets that apply to class are:
     #   - any ticket that applies to "most"
     #   - any ticket that applies to the conference
@@ -1347,12 +1357,14 @@ class Class(Biddable, Event):
     #
     def get_tickets(self):
         from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(Q(bpt_event__include_most = True) |
-                                                Q(bpt_event__include_conference = True)) \
-                                                .filter(active=True,
-                                                        bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self, active=True)
-        tickets = list(chain(my_events, most_events ))
+        most_events = TicketItem.objects.filter(
+            Q(bpt_event__include_most=True) |
+            Q(bpt_event__include_conference=True)).filter(
+                active=True,
+                bpt_event__conference=self.conference)
+        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
+                                              active=True)
+        tickets = list(chain(my_events, most_events))
         return tickets
 
     class Meta:

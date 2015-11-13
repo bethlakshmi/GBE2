@@ -2,9 +2,13 @@ from django.http import Http404
 from django import forms
 import gbe.models as conf
 import nose.tools as nt
-from django.test import TestCase
+from django.test import (
+    TestCase,
+    Client
+)
+
 from django.test.client import RequestFactory
-from django.test import Client
+
 from scheduler.views import add_event
 from scheduler.forms import conference_days
 from scheduler.models import LocationItem
