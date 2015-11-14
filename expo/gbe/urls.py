@@ -1,4 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import (
+    patterns, 
+    url,
+    include
+)
 from django.contrib.auth.views import *
 from gbe import views
 
@@ -241,3 +245,4 @@ urlpatterns = patterns(
         views.landing_page,
         name='admin_landing_page')
 )
+
