@@ -896,7 +896,8 @@ def review_act_list(request):
                    'rows': rows, 
                    'return_link': reverse('act_review_list',
                                           urlconf='gbe.urls'),
-                   'conference_slugs': conference_slugs},
+                   'conference_slugs': conference_slugs,
+                  'conference': conference}
                   )
 
 
@@ -1275,7 +1276,8 @@ def review_class_list(request):
                                            urlconf='gbe.urls'),
                    'return_link': reverse('class_review_list',
                                           urlconf='gbe.urls'),
-                   'conference_slugs': conference_slugs}
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
                   )
 
 
@@ -1514,7 +1516,8 @@ def review_volunteer_list(request):
                                            urlconf='gbe.urls'),
                    'return_link': reverse('volunteer_review_list',
                                           urlconf='gbe.urls'),
-                   'conference_slugs':conference_slugs},
+                   'conference_slugs':conference_slugs,
+                   'conference': conference},
                   )
 
 
@@ -1705,9 +1708,10 @@ def review_vendor_list(request):
                    'action1_text': 'Review',
                    'action1_link': reverse('vendor_review',
                                            urlconf='gbe.urls'),
-                  'return_link': reverse('vendor_review_list',
-                                         urlconf='gbe.urls'),
-                  'conference_slugs': conference_slugs,}
+                   'return_link': reverse('vendor_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
                   )
 
 
@@ -2261,9 +2265,14 @@ def review_proposal_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Class Coordinator',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
 
     header = ClassProposal().bid_review_header
-    classes = ClassProposal.objects.all().order_by('type', 'title')
+    classes = ClassProposal.objects.filter(
+        conference=conference).order_by('type', 'title')
     rows = []
     for aclass in classes:
         bid_row = {}
@@ -2273,8 +2282,13 @@ def review_proposal_list(request):
                                         urlconf='gbe.urls',
                                         args=[aclass.id])
         rows.append(bid_row)
-    return render(request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows})
+    conference_slugs = Conference.all_slugs()
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
+                  {'header': header, 
+                   'rows': rows,
+                   'conference': conference,
+                   'conference_slugs': conference_slugs})
 
 
 @log_func
