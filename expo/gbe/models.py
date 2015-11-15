@@ -53,6 +53,11 @@ class Conference(models.Model):
         except cls.DoesNotExist:
             return cls.current_conf()
 
+    @classmethod
+    def all_slugs(cls):
+         return cls.objects.order_by('-accepting_bids').values_list(
+             'conference_slug', flat=True)
+
     class Meta:
         verbose_name="conference"
         verbose_name_plural="conferences"

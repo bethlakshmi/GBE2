@@ -11,7 +11,7 @@
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Bid Information</h2>
   <br>
-    <form action="{% url 'gbe:act_review' %}" method="get" enctype="multipart/form-data">
+    <form action="{{ return_link }}" method="get" enctype="multipart/form-data">
     <select name="conf_slug" id="conf_slug">
       {% for slug in conference_slugs %}
         <option value = "{{ slug }}"> {{ slug }} 

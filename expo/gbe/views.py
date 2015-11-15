@@ -890,12 +890,14 @@ def review_act_list(request):
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-    conference_slugs = Conference.objects.all().values_list(
-        'conference_slug', flat=True)
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header,
                    'rows': rows, 
-                   'conference_slugs': conference_slugs})
+                   'return_link': reverse('act_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs},
+                  )
 
 
 @login_required
@@ -1236,10 +1238,15 @@ def review_class_list(request):
     '''
 
     reviewer = validate_perms(request, ('Class Reviewers', ))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
 
     header = Class().bid_review_header
     classes = Class.objects.filter(
-        submitted=True).filter(visible_bid_query).order_by(
+        submitted=True).filter(
+            conference=conference).order_by(
             'accepted',
             'title')
     review_query = BidEvaluation.objects.filter(
@@ -1258,12 +1265,18 @@ def review_class_list(request):
                                         urlconf='gbe.urls',
                                         args=[aclass.id])
         rows.append(bid_row)
-
-    return render(request, 'gbe/bid_review_list.tmpl',
+    conference_slugs = Conference.all_slugs()
+    
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('class_review',
-                                           urlconf='gbe.urls')})
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('class_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs}
+                  )
 
 
 @login_required
@@ -1377,6 +1390,11 @@ def review_volunteer(request, volunteer_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
+
     if int(volunteer_id) == 0 and request.method == 'POST':
         volunteer_id = int(request.POST['volunteer'])
     volunteer = get_object_or_404(
@@ -1455,10 +1473,15 @@ def review_volunteer_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
+
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(
         submitted=True).filter(
-            visible_bid_query).order_by('accepted')
+            conference=conference).order_by('accepted')
     review_query = BidEvaluation.objects.filter(
         bid=volunteers).select_related(
         'evaluator'
@@ -1483,11 +1506,16 @@ def review_volunteer_list(request):
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
         rows.append(bid_row)
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('volunteer_review',
-                                           urlconf='gbe.urls')})
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('volunteer_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs':conference_slugs},
+                  )
 
 
 @login_required
@@ -1643,11 +1671,15 @@ def review_vendor_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Vendor Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
 
     header = Vendor().bid_review_header
     vendors = Vendor.objects.filter(
         submitted=True).filter(
-            visible_bid_query).order_by(
+            conference=conference).order_by(
                 'accepted',
                 'title')
     review_query = BidEvaluation.objects.filter(
@@ -1666,13 +1698,17 @@ def review_vendor_list(request):
                                         urlconf='gbe.urls',
                                         args=[vendor.id])
         rows.append(bid_row)
-
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header,
                    'rows': rows,
                    'action1_text': 'Review',
                    'action1_link': reverse('vendor_review',
-                                           urlconf='gbe.urls')})
+                                           urlconf='gbe.urls'),
+                  'return_link': reverse('vendor_review_list',
+                                         urlconf='gbe.urls'),
+                  'conference_slugs': conference_slugs,}
+                  )
 
 
 @login_required
