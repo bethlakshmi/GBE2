@@ -858,11 +858,16 @@ def review_act_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Act Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
     try:
         header = Act().bid_review_header
         acts = Act.objects.filter(
             submitted=True).filter(
-                visible_bid_query).order_by(
+                conference=conference
+            ).order_by(
                     'accepted',
                     'performer')
         review_query = BidEvaluation.objects.filter(
@@ -885,9 +890,12 @@ def review_act_list(request):
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-
+    conference_slugs = Conference.objects.all().values_list(
+        'conference_slug', flat=True)
     return render(request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows})
+                  {'header': header,
+                   'rows': rows, 
+                   'conference_slugs': conference_slugs})
 
 
 @login_required
