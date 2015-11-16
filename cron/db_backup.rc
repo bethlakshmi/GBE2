@@ -8,7 +8,7 @@ ssh_id="remoteusr@paxdraconis.org"
 # List of projects to be backed up
 db_list=( "gbelive" )
 db_user=( "gbelivedb" )
-db_pass=( "edward#3" )
+db_pass=( "@$%()%@$#_@%*&^#$+$%@*(" )
 
 backup_num=( "2" )
 
