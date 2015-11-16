@@ -1,0 +1,8 @@
+django-haystack>=2.1.0,<2.4
+postmarkup
+pygments
+django-pagination-py3==1.1.1
+django-allauth==0.19.1
+django-messages==0.5.1
+Whoosh==2.7.0
+django-nocaptcha-recaptcha==0.0.18

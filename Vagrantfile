@@ -72,9 +72,29 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y  install libjpeg8-dev
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
+  sudo apt-fast -y install gettext
   sudo pip install --requirement /vagrant/config/requirements.txt
+  sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
+  cd /vagrant/tmp
+  wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz
+  tar -zxvf stable.tar.gz
+  wget https://bitbucket.org/slav0nic/djangobb_project/get/tip.tar.gz
+  tar -xzvf tip.tar.gz
+  pip install slav0nic-djangobb-1a5c3c7fd26c/ --target /vagrant/expo
+  mkdir /vagrant/expo/expo/static
+  cd /vagrant/expo
   cp /vagrant/aliases /home/vagrant/
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
+  cat /vagrant/config/DjangoBB_settings.py >> /vagrant/expo/expo/settings.py
+
+###  Need to install basic project by hand right now, but will fix that
+
+###  The next four lines will have to be done by hand, until we get a good test DB setup 
+###  cat /vagrant/tmp/gbe2016test_data.sql | python manage.py dbshell
+###  python manage.py syncdb --all
+###  python manage.py migrate --all
+###  python manage.py collectstatic
+
 BOOTSTRAP
 
 
