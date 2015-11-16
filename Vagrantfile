@@ -85,15 +85,20 @@ $bootstrap = <<BOOTSTRAP
   cd /vagrant/expo
   cp /vagrant/aliases /home/vagrant/
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
-  cat /vagrant/config/DjangoBB_settings.py >> /vagrant/expo/expo/settings.py
+  cp -a /vagrant/tmp/slav0nic-djangobb_project\*/basic_project /vagrant/expo/djangobb_forum
 
-###  Need to install basic project by hand right now, but will fix that
+  ###  This line is needed to clear an install of Django 1.8
+  ###  Need to figure out what is installing it and kill it
+  rm -rf /vagrant/expo/django
 
 ###  The next four lines will have to be done by hand, until we get a good test DB setup 
-###  cat /vagrant/tmp/gbe2016test_data.sql | python manage.py dbshell
+###  cat /vagrant/config/gbe2016test_data.sql | python manage.py dbshell
 ###  python manage.py syncdb --all
 ###  python manage.py migrate --all
 ###  python manage.py collectstatic
+
+###  This is a good way to run the server for basic level testing
+###  python manage.py runserver 0.0.0.0:8111 > logs/runserver.log 2>&1
 
 BOOTSTRAP
 
