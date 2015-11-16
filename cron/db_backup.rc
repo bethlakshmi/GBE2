@@ -1,14 +1,14 @@
 #!/bin/bash
 
 
-backup_path='backup/db'
+backup_path='backup/gbelive/db'
 key="$HOME/.ssh/id_rsa.pub"
 ssh_id="remoteusr@paxdraconis.org"
 
 # List of projects to be backed up
 db_list=( "gbelive" )
 db_user=( "gbelivedb" )
-db_pass=( "!@#%%$#@(*#^*" )
+db_pass=( "edward#3" )
 
 backup_num=( "2" )
 
@@ -17,7 +17,10 @@ mysql_backup() {
     then
 
         db_backup_file="$1/DB_backup_$4_`/bin/date +%F-%R`.sql"
-        /usr/bin/mysqldump --single-transaction -q -X -u $2 --password=$3 $4 > $db_backup_file
+        #/usr/bin/mysqldump --single-transaction -q -X -u $2 --password=$3 $4 > $db_backup_file
+        /usr/bin/mysqldump --single-transaction -q -u $2 --password=$3 $4 > $db_backup_file
+
+
 
     else
         echo "ERROR: No Backup Directory: $1"
