@@ -1,6 +1,6 @@
 #!/usr/local/bin/python2.7
 
-upload_dir = '/home/gbeadmin/uploads'
+upload_dir = '/home/gbelive/webapps/gbelivemedia/uploads'
 image_dir = upload_dir+'/images'
 mini_dir = upload_dir+'/images/mini'
 

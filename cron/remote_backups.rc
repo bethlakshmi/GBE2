@@ -4,16 +4,16 @@
 ###       so they all need the same number of entries with the same order
 
 #  List array of local dirs or individual files (relative to $HOME) that need to be backed-up 
-local=( "/home/gbelive/webapps/gbelive/expo/expo/local_settings.py" "/home/gbelive/webapps/gbelivemedia/uploads/images" "/home/gbelive/backup/db" )
+local=( "/home/gbelive/webapps/gbelive/expo/expo/local_settings.py" "/home/gbelive/webapps/gbelivemedia/uploads/images" "/home/gbelive/backup/db" "/home/gbelive/webapps/gbelivemedia/uploads/audio")
 
 #  Master path to backup server and home directory files are stored in
-r_path=( "remoteusr@paxdraconis.org:~/backup/gbelive" "remoteusr@paxdraconis.org:~/backup/gbelive" "remoteusr@paxdraconis.org:~/backup/gbelive" )
+r_path=( "remoteusr@paxdraconis.org:~/backup/gbelive" "remoteusr@paxdraconis.org:~/backup/gbelive" "remoteusr@paxdraconis.org:~/backup/gbelive" "remoteusr@paxdraconis.org:~/backup/gbelive")
 
 #  List array (with same index as local_dirs) that backups will be placed into.
-remote=("" "images" "")
+remote=("" "images" "" "audio")
 
 #  Identity file to authenticate ssh/rsync with
-ssh_id=("id_rsa" "id_rsa" "id_rsa")
+ssh_id=("id_rsa" "id_rsa" "id_rsa" "id_rsa")
 
 let "dir_len = ${#local[@]} - 1"
 for pos in $(/usr/bin/seq 0 $dir_len)
