@@ -72,7 +72,6 @@ def test_view_list_default_view_current_conf_exists():
                 urlconf="scheduler.urls"))
     request.user = ProfileFactory.create().user_object
     request.session = {'cms_admin_site':1}
-    import pdb; pdb.set_trace()
     response = view_list(request)
     nt.assert_true(generic_event.title in response.content)
     nt.assert_true(show.title in response.content)
