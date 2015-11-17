@@ -135,6 +135,9 @@ INSTALLED_APPS = (
     'ticketing',
     'scheduler',
     'django_nose',
+    'hijack', 
+    'compat',
+
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -158,6 +161,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'hijack.middleware.HijackRemoteUserMiddleware',
+    'django.contrib.auth.middleware.RemoteUserMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # added for django-cms
     'django.middleware.doc.XViewMiddleware',
@@ -344,3 +349,6 @@ try:
     from expo.local_settings import LOG_FORMAT
 except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
+
+
+# DJANGO-HIJACK

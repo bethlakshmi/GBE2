@@ -43,7 +43,7 @@ Text-1.txt
 
 *.sqlplite3
 
-
+expo/logs/main.log
 expo/performer.json
 
 expo/profilesinherit.json
