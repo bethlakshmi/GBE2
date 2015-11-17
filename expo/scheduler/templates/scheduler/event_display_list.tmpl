@@ -11,7 +11,10 @@
      {{view_header_text | safe}}
  
    </div>
-
+   {% for conf in conferences %}
+     <a href = "{% url 'scheduler:event_list' etype %}?conference={{ conf.conference_slug }}">
+     {{conf.conference_slug}}</a>&nbsp;|&nbsp;
+   {% endfor %}
    {% for event in events %}
    <div class="listblock" id={{class.id}}>
       <h2 class="listsubheader">

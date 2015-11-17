@@ -15,5 +15,9 @@ urlpatterns = patterns('',
                        url(r'^tinymce/', include('tinymce.urls')),
                        url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
                            {'sitemaps': {'cmspages': CMSSitemap}}),
-                       url(r'^', include('cms.urls')),
+                       url(r'^hijack/', include('hijack.urls')),
+                       url(r'^', include('cms.urls'))
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# always, always leave the last two lines as the last two lines.
+# The cms.urls are grabby and must always be the last include.
