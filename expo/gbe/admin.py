@@ -5,17 +5,17 @@ from model_utils.managers import InheritanceManager
 
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ClassAdmin(BidAdmin):
-    list_display = (str,
+    list_display = ('__unicode__',
                     'teacher',
                     'submitted',
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class PerformerAdmin(admin.ModelAdmin):
@@ -80,6 +80,8 @@ class ProfilePreferencesAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'capacity', 'overbook_size')
 
+class ShowAdmin(admin.ModelAdmin):
+    list_filter = ['conference']
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'subclass')
@@ -98,7 +100,7 @@ admin.site.register(Act, ActAdmin)
 admin.site.register(Class, ClassAdmin)
 admin.site.register(Vendor, BidAdmin)
 admin.site.register(Volunteer, BidAdmin)
-admin.site.register(Show)
+admin.site.register(Show, ShowAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(ClassProposal, ClassProposalAdmin)
 admin.site.register(BidEvaluation, BidEvalAdmin)
