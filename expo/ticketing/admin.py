@@ -53,6 +53,7 @@ class TicketItemAdmin(admin.ModelAdmin):
     def conference(self, obj):
             return obj.bpt_event.conference
 
+
 class BPTEventsAdmin(admin.ModelAdmin):
     list_display = ('bpt_event_id',
                     'primary',

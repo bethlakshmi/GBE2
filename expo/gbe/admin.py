@@ -80,17 +80,20 @@ class ProfilePreferencesAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'capacity', 'overbook_size')
 
+
 class ShowAdmin(admin.ModelAdmin):
     list_filter = ['conference']
+
 
 class GenericAdmin(admin.ModelAdmin):
     list_display = ('title', 'type')
     list_filter = ['conference']
 
+
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'subclass')
     list_filter = ['conference']
-    
+
     def subclass(self, obj):
         try:
             event = Event.objects.get_subclass(event_id=obj.event_id)
