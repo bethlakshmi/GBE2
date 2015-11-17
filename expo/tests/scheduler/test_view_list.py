@@ -1,7 +1,13 @@
+from gbe.models import (
+    Conference
+)
+
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ClassFactory,
-    ProfileFactory
+    ProfileFactory,
+    ShowFactory,
+    GenericEventFactory,
 )
 from django.test import (
     TestCase,
@@ -38,20 +44,38 @@ def test_view_list_given_slug():
 def test_view_list_default_view_current_conf_exists():
     '''/scheduler/view_list/ should return all events in the current 
     conference, assuming a current conference exists'''
+    Conference.objects.all().delete()
     conf = ConferenceFactory.create()
     other_conf = ConferenceFactory.create(status='completed')
-    accepted_class = ClassFactory(conference=conf,
-                                  accepted=3)
-    previous_class = ClassFactory(conference=other_conf,
-                                  accepted=3)
-    rejected_class = ClassFactory(conference=conf,
-                                  accepted=1)
+    show = ShowFactory()
+    show.conference=conf
+    show.title = "the show"
+    show.save()
+    generic_event = GenericEventFactory.create()
+    generic_event.conference = conf
+    generic_event.title = "genericevent"
+    generic_event.save()
+    accepted_class = ClassFactory(accepted=3)
+    accepted_class.conference = conf
+    accepted_class.title='accepted'
+    accepted_class.save()
+    previous_class = ClassFactory(accepted=3)
+    previous_class.conference=other_conf
+    previous_class.title='previous'
+    previous_class.save()
+    rejected_class = ClassFactory(accepted=1)
+    rejected_class.conference=conf
+    rejected_class.title='reject'
+    rejected_class.save()
     request = RequestFactory().get(
         reverse("event_list", 
                 urlconf="scheduler.urls"))
     request.user = ProfileFactory.create().user_object
     request.session = {'cms_admin_site':1}
-    response = view_list(request, "Class")
+    import pdb; pdb.set_trace()
+    response = view_list(request)
+    nt.assert_true(generic_event.title in response.content)
+    nt.assert_true(show.title in response.content)
     nt.assert_true(accepted_class.title in response.content)
     nt.assert_false(rejected_class.title in response.content)
     nt.assert_false(previous_class.title in response.content)

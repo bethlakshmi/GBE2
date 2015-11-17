@@ -1,11 +1,21 @@
-from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import (
+    render, 
+    get_object_or_404, 
+    render_to_response,
+)
+from django.http import (
+    HttpResponse, 
+    HttpResponseRedirect, 
+    Http404,
+)
 from django.contrib.auth.forms import UserCreationForm
-from django.template import loader, RequestContext
+from django.template import (
+    loader, 
+    RequestContext,
+)
 from scheduler.models import *
 from scheduler.forms import *
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.contrib.auth import (
     login,
     logout,
@@ -19,47 +29,27 @@ from datetime import time as dttime
 import csv
 
 from table import table
-from gbe.duration import Duration
-from gbe.duration import DateTimeRange
-from scheduler.functions import (
+from gbe.duration import (
+    Duration,
+    DateTimeRange,
+)
+from functions import (
     table_prep,
     event_info,
     day_to_cal_time,
     overlap_clear,
-)
-from scheduler.functions import (
     set_time_format,
     conference_dates,
+    volunteer_shifts,
 )
-from functions import volunteer_shifts
-
-
-def validate_profile(request):
-    '''
-    Return the user profile if any
-    '''
-    from gbe.models import Profile
-    if request.user.is_authenticated():
-        try:
-            return request.user.profile
-        except Profile.DoesNotExist:
-            return False
-
-
-def validate_perms(request, perms, require=True):
-    '''
-    Validate that the requesting user has the stated permissions
-    Returns profile object if perms exist, False if not
-    '''
-    profile = validate_profile(request)
-    if not profile:
-        raise Http404
-    if any([perm in profile.privilege_groups for perm in perms]):
-        return profile
-    if require:                # error out if permission is required
-        raise Http404
-    return False               # or just return false if we're just checking
-
+from gbe.functions import (
+    get_current_conference,
+    get_conference_by_slug,
+    validate_perms,
+    validate_profile,
+    get_events_list_by_type,
+    conference_list,
+)
 
 def selfcast(sobj):
     '''
@@ -917,71 +907,24 @@ def add_event(request, eventitem_id, event_type='Class'):
 
 
 def view_list(request, event_type='All'):
-    '''
-    One function to cut down on replicating code.
-    If adding a new view-only event list, do the following;
-      - figure out whether it's a GenericEvent with a type (1st case statement)
-    or a subclass
-         NOTE: can't filter on a property.
-      - add the type of list you want to have to the list_titles dictionary
-    in gbetext
-      - add the text for the list you want to have to the list_text dicionary
-      - double check if any new label text needs to be added to event_labels
-         LATER:  I'd like to find a way to get all this ugly large text blobs
-    in *.py files and into the DB where Scratch can change them - Betty
-    '''
-    from gbe.models import Class, Show, GenericEvent, Event, Conference
-    # TO DO (urgent) get rid of this dependency - jpk 9/2015
-
+    current_conf = get_current_conference()
     conf_slug = request.GET.get('conference', None)
     if not conf_slug:
-        conference = Conference.current_conf()
+        conference = current_conf
     else:
-        conference = Conference.by_slug(conf_slug)
+        conference = get_conference_by_slug(conf_slug)
+    items = get_events_list_by_type(event_type, conference)
 
-    try:
-        items = []
-        event_types = dict(event_options)
-        class_types = dict(class_options)
+    events = [
+        {'eventitem': item,
+         'scheduled_events': item.scheduler_events.order_by('starttime'),
+         'detail': reverse('detail_view',
+                           urlconf='scheduler.urls',
+                           args=[item.eventitem_id])
+          }
+        for item in items]
 
-        if event_type in event_types:
-            items = GenericEvent.objects.filter(
-                type=event_type,
-                visible=True,
-                conference=conference).order_by('title')
-        elif event_type in class_types:
-            items = Class.objects.filter(
-                accepted='3',
-                visible=True,
-                type=event_type,
-                conference=conference).order_by('title')
-        elif event_type == 'Show':
-            items = Show.objects.filter(
-                conference=conference).order_by('title')
-        elif event_type == 'Class':
-            items = Class.objects.filter(
-                accepted='3',
-                visible=True,
-                conference=conference).exclude(
-                    type='Panel').order_by('title')
-        else:
-            items = Event.objects.filter(
-                visible=True,
-                conference=conference).select_subclasses().order_by(
-                    'title')
-            event_type = "All"
-
-        events = [
-            {'eventitem': item,
-             'scheduled_events': item.scheduler_events.order_by('starttime'),
-             'detail': reverse('detail_view',
-                               urlconf='scheduler.urls',
-                               args=[item.eventitem_id])
-             }
-            for item in items]
-    except:
-        events = None
-    conferences = Conference.objects.all()
+    conferences = conference_list()
     return render(request, 'scheduler/event_display_list.tmpl',
                   {'title': list_titles[event_type],
                    'view_header_text': list_text[event_type],

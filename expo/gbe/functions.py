@@ -4,8 +4,10 @@ from django.core.mail import send_mail
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
-
-
+from gbetext import (
+    event_options, 
+    class_options,
+)
 def validate_profile(request, require=False):
     '''
     Return the user profile if any
@@ -74,3 +76,43 @@ def get_conf(biddable):
     conference = biddable.biddable_ptr.conference
     old_bid = conference.status == 'completed'
     return conference, old_bid
+
+def get_current_conference():
+    return conf.Conference.current_conf()
+    
+def get_conference_by_slug(slug):
+    return conf.Conference.by_slug(slug)
+
+def conference_list():
+    return conf.Conference.objects.all()
+
+def get_events_list_by_type(event_type, conference):
+    items = []
+    if event_type == "All":
+        return conf.Event.get_all_events(conference)
+
+    event_types = dict(event_options)
+    class_types = dict(class_options)
+    if event_type in event_types:
+        items = conf.GenericEvent.objects.filter(
+            type=event_type,
+            visible=True,
+            conference=conference).order_by('title')
+    elif event_type in class_types:
+        items = conf.Class.objects.filter(
+            accepted='3',
+            visible=True,
+            type=event_type,
+            conference=conference).order_by('title')
+    elif event_type == 'Show':
+        items = conf.Show.objects.filter(
+            conference=conference).order_by('title')
+    elif event_type == 'Class':
+        items = conf.Class.objects.filter(
+            accepted='3',
+            visible=True,
+            conference=conference).exclude(
+                type='Panel').order_by('title')
+    else:
+        items = []
+    return items
