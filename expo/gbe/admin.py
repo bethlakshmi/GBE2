@@ -83,9 +83,14 @@ class RoomAdmin(admin.ModelAdmin):
 class ShowAdmin(admin.ModelAdmin):
     list_filter = ['conference']
 
+class GenericAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type')
+    list_filter = ['conference']
+
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'subclass')
-
+    list_filter = ['conference']
+    
     def subclass(self, obj):
         try:
             event = Event.objects.get_subclass(event_id=obj.event_id)
@@ -116,5 +121,5 @@ admin.site.register(Performer, PerformerAdmin)
 admin.site.register(Combo, PerformerAdmin)
 admin.site.register(Troupe, PerformerAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
-admin.site.register(GenericEvent)
+admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
