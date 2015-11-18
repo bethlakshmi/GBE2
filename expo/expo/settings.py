@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'gbe',
     'ticketing',
     'scheduler',
+    'pagination',
     'djangobb_forum',
     'django_nose',
     'hijack', 
@@ -173,6 +174,7 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',  # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'pagination.middleware.PaginationMiddleware',
 )
 
 TEXT_SAVE_IMAGE_FUNCTION = 'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
@@ -190,6 +192,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'sekizai.context_processors.sekizai',
     'django.core.context_processors.static',
     'cms.context_processors.cms_settings',
+    'djangobb_forum.context_processors.forum_settings',
 )
 
 MIGRATION_MODULES = {
