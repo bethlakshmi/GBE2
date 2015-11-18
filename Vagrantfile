@@ -79,7 +79,7 @@ $bootstrap = <<BOOTSTRAP
   wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz
   tar -zxvf stable.tar.gz
   cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
-  mkdir /vagrant/expo/expo/static
+  mkdir /vagrant/expo/expo/static; mkdir /vagrant/expo/logs
   cd /vagrant/expo
   cp /vagrant/aliases /home/vagrant ;chown vagrant:vagrant /home/vagrant/aliases
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
