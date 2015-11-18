@@ -78,15 +78,11 @@ $bootstrap = <<BOOTSTRAP
   mkdir /vagrant/tmp; cd /vagrant/tmp
   wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz
   tar -zxvf stable.tar.gz
-  cp -a /vagrant/tmp/slav0nic-djangobb-* /vagrant/expo
+  cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
   mkdir /vagrant/expo/expo/static
   cd /vagrant/expo
   cp /vagrant/aliases /home/vagrant ;chown vagrant:vagrant /home/vagrant/aliases
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
-
-  ###  This line is needed to clear an install of Django 1.8
-  ###  Need to figure out what is installing it and kill it
-  # rm -rf /vagrant/expo/django
 
 ###  The next four lines will have to be done by hand, until we get a good test DB setup 
 ###  cat /vagrant/config/gbe2016test_data.sql | python manage.py dbshell
