@@ -751,6 +751,7 @@ def view_act(request, act_id):
     return render(request, 'gbe/bid_view.tmpl',
                   {'readonlyform': [actform, performer]})
 
+
 def _create_action_form(act):
     actionform = BidStateChangeForm(instance=act)
     # This requires that the show be scheduled - seems reasonable in
