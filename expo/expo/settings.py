@@ -43,7 +43,6 @@ CMS_TEMPLATES = (
 
 LANGUAGES = [
     ('en-us', gettext('en-us')),
-    ('en', gettext('en')),
 
 ]
 
