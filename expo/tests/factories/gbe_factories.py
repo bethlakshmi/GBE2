@@ -146,7 +146,7 @@ class ActFactory(DjangoModelFactory):
     video_choice = ""
     shows_preferences = ""
     why_you = "why_you field for test Act"
-    conference = RelatedFactory(ConferenceFactory)
+    conference = SubFactory(ConferenceFactory)
 
 
 class RoomFactory(DjangoModelFactory):
