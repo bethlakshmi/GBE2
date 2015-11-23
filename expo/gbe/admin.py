@@ -5,17 +5,17 @@ from model_utils.managers import InheritanceManager
 
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ClassAdmin(BidAdmin):
-    list_display = (str,
+    list_display = ('__unicode__',
                     'teacher',
                     'submitted',
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class PerformerAdmin(admin.ModelAdmin):
@@ -81,8 +81,18 @@ class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'capacity', 'overbook_size')
 
 
+class ShowAdmin(admin.ModelAdmin):
+    list_filter = ['conference']
+
+
+class GenericAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type')
+    list_filter = ['conference']
+
+
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'subclass')
+    list_filter = ['conference']
 
     def subclass(self, obj):
         try:
@@ -98,7 +108,7 @@ admin.site.register(Act, ActAdmin)
 admin.site.register(Class, ClassAdmin)
 admin.site.register(Vendor, BidAdmin)
 admin.site.register(Volunteer, BidAdmin)
-admin.site.register(Show)
+admin.site.register(Show, ShowAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(ClassProposal, ClassProposalAdmin)
 admin.site.register(BidEvaluation, BidEvalAdmin)
@@ -114,5 +124,5 @@ admin.site.register(Performer, PerformerAdmin)
 admin.site.register(Combo, PerformerAdmin)
 admin.site.register(Troupe, PerformerAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
-admin.site.register(GenericEvent)
+admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
