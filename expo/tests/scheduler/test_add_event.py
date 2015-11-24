@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django import forms
 import gbe.models as conf
 import nose.tools as nt
@@ -40,14 +40,14 @@ class TestAddEvent(TestCase):
                 'description': 'New Description',
                 }
 
-    @nt.raises(Http404)
+    @nt.raises(PermissionDenied)
     def test_add_event_no_eventitem(self):
         '''Should get 404 if no valid act ID'''
         request = self.factory.get('/scheduler/create/GenericEvent/-1')
         request.user = self.profile_factory.create().user_object
         response = add_event(request, -1)
 
-    @nt.raises(Http404)
+    @nt.raises(PermissionDenied)
     def test_add_event_no_permission(self):
         '''add event attempt should fail because user is not a Schedule Maven
         '''
