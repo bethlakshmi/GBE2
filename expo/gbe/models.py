@@ -1066,6 +1066,16 @@ class Event (EventItem):
     def __str__(self):
         return self.title
 
+    @classmethod
+    def get_all_events(cls, conference):
+        events =  cls.objects.filter(
+            conference=conference,
+            visible=True).select_subclasses()
+        return [event for event in events if 
+                getattr(event, 'accepted', 3) == 3 and
+                getattr(event, 'type', 'X') not in ('Volunteer', 
+                                                    'Rehearsal Slot', 
+                                                    'Staff Area')]        
     @property
     def sched_payload(self):
         return {'title': self.title,
