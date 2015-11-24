@@ -95,28 +95,28 @@ INSTALLED_APPS = (
     'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',
-    'django.contrib.messages',    
-    'treebeard',    
-    'djangocms_text_ckeditor', # tutorial ... hmm...
+    'django.contrib.messages',
+    'treebeard',
+    'djangocms_text_ckeditor',  # tutorial ... hmm...
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.sites',
-    'django.contrib.sitemaps', # tutorial
+    'django.contrib.sitemaps',  # tutorial
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
     'tinymce',
     'filer',
     'easy_thumbnails',
-   #    'aldryn_bootstrap3',
-    'image_gallery',  #I forked this and extended a little.
+    #    'aldryn_bootstrap3',
+    'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-   #    'djangocms_file',
+    #    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -126,15 +126,15 @@ INSTALLED_APPS = (
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
     'cmsplugin_filer_video',  # 'djangocms_link',
-   #    'djangocms_picture',
-   #    'djangocms_teaser',
-   #    'djangocms_video',
-    'reversion', # for versioning in cms -- had to do easy install on new site...
+    #    'djangocms_picture',
+    #    'djangocms_teaser',
+    #    'djangocms_video',
+    'reversion',  # for versioning in cms -- use easy install
     'gbe',
     'ticketing',
     'scheduler',
     'django_nose',
-    'hijack', 
+    'hijack',
     'compat',
 
 )
@@ -161,20 +161,23 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'hijack.middleware.HijackRemoteUserMiddleware',
-    'django.contrib.auth.middleware.RemoteUserMiddleware', 
+    'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # added for django-cms
+    # added for django-cms
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',  # end of add for django-cms
+    'cms.middleware.language.LanguageCookieMiddleware',
+    # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
-TEXT_SAVE_IMAGE_FUNCTION = 'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
+TEXT_SAVE_IMAGE_FUNCTION = \
+    'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
 # all django-cms
 TEMPLATE_CONTEXT_PROCESSORS = (
