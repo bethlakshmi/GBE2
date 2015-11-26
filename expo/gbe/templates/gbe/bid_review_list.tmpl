@@ -9,9 +9,18 @@
 
 
   <p class="vanilla">{{title}} </p>
-  <h2 class="review-title">Bid Information</h2>
-
-  
+  <h2 class="review-title">Bid Information for {{conference}}</h2>
+  <br>
+    <form action="{{ return_link }}" method="get" enctype="multipart/form-data">
+    <select name="conf_slug" id="conf_slug">
+      {% for slug in conference_slugs %}
+        <option value = "{{ slug }}"> {{ slug }} 
+	</option>
+      {% endfor %}
+    </select>
+    <input type="submit" name="submit" value="Select conference">
+    </form>
+  </br>
   {% if messages %}
       <script>
     alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");

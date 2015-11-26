@@ -730,7 +730,7 @@ def view_act(request, act_id):
     '''
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != request.user.profile:
-        raise PermissionDenied
+        validate_perms(request, ('Act Reviewers',), require=True)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(
@@ -753,6 +753,31 @@ def view_act(request, act_id):
                   {'readonlyform': [actform, performer]})
 
 
+def _create_action_form(act):
+    actionform = BidStateChangeForm(instance=act)
+    # This requires that the show be scheduled - seems reasonable in
+    # current workflow and lets me order by date.  Also - assumes
+    # that shows are only scheduled once
+    try:
+        start = Show.objects.filter(
+            scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+    except:
+        start = ""
+    q = Show.objects.filter(
+        conference=act.conference,
+        scheduler_events__isnull=False).order_by(
+            'scheduler_events__starttime')
+    actionform.fields['show'] = forms.ModelChoiceField(
+        queryset=q,
+        empty_label=None,
+        label='Pick a Show',
+        initial=start)
+    actionURL = reverse('act_changestate',
+                        urlconf='gbe.urls',
+                        args=[act.id])
+    return actionform, actionURL
+
+
 @login_required
 @log_func
 def review_act(request, act_id):
@@ -768,6 +793,8 @@ def review_act(request, act_id):
         Act,
         id=act_id
     )
+    if not act.is_current:
+        return view_act(request, act_id)
     conference, old_bid = get_conf(act)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
@@ -783,26 +810,7 @@ def review_act(request, act_id):
                             prefix='The Performer(s)')
 
     if validate_perms(request, ('Act Coordinator',), require=False):
-        actionform = BidStateChangeForm(instance=act)
-        # This requires that the show be scheduled - seems reasonable in
-        # current workflow and lets me order by date.  Also - assumes
-        # that shows are only scheduled once
-        try:
-            start = Show.objects.filter(
-                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
-        except:
-            start = ""
-        q = Show.objects.filter(
-            scheduler_events__isnull=False).order_by(
-                'scheduler_events__starttime')
-        actionform.fields['show'] = forms.ModelChoiceField(
-            queryset=q,
-            empty_label=None,
-            label='Pick a Show',
-            initial=start)
-        actionURL = reverse('act_changestate',
-                            urlconf='gbe.urls',
-                            args=[act_id])
+        actionform, actionURL = _create_action_form(act)
     else:
             actionform = False
             actionURL = False
@@ -859,11 +867,16 @@ def review_act_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Act Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
     try:
         header = Act().bid_review_header
         acts = Act.objects.filter(
             submitted=True).filter(
-                visible_bid_query).order_by(
+                conference=conference
+            ).order_by(
                     'accepted',
                     'performer')
         review_query = BidEvaluation.objects.filter(
@@ -886,9 +899,15 @@ def review_act_list(request):
             rows.append(bid_row)
     except IndexError:
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows})
+                  {'header': header,
+                   'rows': rows,
+                   'return_link': reverse('act_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
+                  )
 
 
 @login_required
@@ -1129,7 +1148,7 @@ def view_class(request, class_id):
     '''
     classbid = get_object_or_404(Class, id=class_id)
     if classbid.teacher.contact != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Class Reviewers',), require=True)
     classform = ClassBidForm(instance=classbid, prefix='The Class')
     teacher = PersonaForm(instance=classbid.teacher,
                           prefix='The Teacher(s)')
@@ -1153,6 +1172,8 @@ def review_class(request, class_id):
         Class,
         id=class_id,
     )
+    if not aclass.is_current:
+        return view_class(request, class_id)
     conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
@@ -1229,10 +1250,14 @@ def review_class_list(request):
     '''
 
     reviewer = validate_perms(request, ('Class Reviewers', ))
-
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
     header = Class().bid_review_header
     classes = Class.objects.filter(
-        submitted=True).filter(visible_bid_query).order_by(
+        submitted=True).filter(
+            conference=conference).order_by(
             'accepted',
             'title')
     review_query = BidEvaluation.objects.filter(
@@ -1251,12 +1276,19 @@ def review_class_list(request):
                                         urlconf='gbe.urls',
                                         args=[aclass.id])
         rows.append(bid_row)
+    conference_slugs = Conference.all_slugs()
 
-    return render(request, 'gbe/bid_review_list.tmpl',
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('class_review',
-                                           urlconf='gbe.urls')})
+                   'action1_link': reverse('class_review_list',
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('class_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
+                  )
 
 
 @login_required
@@ -1347,7 +1379,7 @@ def view_volunteer(request, volunteer_id):
     '''
     volunteer = get_object_or_404(Volunteer, id=volunteer_id)
     if volunteer.profile != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Volunteer Reviewers',), require=True)
     volunteerform = VolunteerBidForm(instance=volunteer,
                                      prefix='Volunteer Info')
     profile = ParticipantForm(
@@ -1370,12 +1402,19 @@ def review_volunteer(request, volunteer_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
+
     if int(volunteer_id) == 0 and request.method == 'POST':
         volunteer_id = int(request.POST['volunteer'])
     volunteer = get_object_or_404(
         Volunteer,
         id=volunteer_id,
     )
+    if not volunteer.is_current:
+        return view_volunteer(request, volunteer_id)
     conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
@@ -1440,6 +1479,12 @@ def review_volunteer(request, volunteer_id):
                        })
 
 
+def show_edit(request, volunteer):
+    user = request.user
+    return ('Volunteer Coordinator' in user.profile.privilege_groups and
+            volunteer.is_current)
+
+
 @login_required
 @log_func
 def review_volunteer_list(request):
@@ -1448,10 +1493,14 @@ def review_volunteer_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Volunteer Reviewers',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(
         submitted=True).filter(
-            visible_bid_query).order_by('accepted')
+            conference=conference).order_by('accepted')
     review_query = BidEvaluation.objects.filter(
         bid=volunteers).select_related(
         'evaluator'
@@ -1471,16 +1520,22 @@ def review_volunteer_list(request):
         bid_row['review_url'] = reverse('volunteer_review',
                                         urlconf='gbe.urls',
                                         args=[volunteer.id])
-        if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
+        if show_edit(request, volunteer):
             bid_row['edit_url'] = reverse('volunteer_edit',
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
         rows.append(bid_row)
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('volunteer_review',
-                                           urlconf='gbe.urls')})
+                   'action1_link': reverse('volunteer_review_list',
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('volunteer_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference},
+                  )
 
 
 @login_required
@@ -1574,6 +1629,8 @@ def review_vendor(request, vendor_id):
         Vendor,
         id=vendor_id,
     )
+    if not vendor.is_current:
+        return view_vendor(request, vendor_id)
     conference, old_bid = get_conf(vendor)
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
@@ -1636,11 +1693,14 @@ def review_vendor_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Vendor Reviewers',))
-
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
     header = Vendor().bid_review_header
     vendors = Vendor.objects.filter(
         submitted=True).filter(
-            visible_bid_query).order_by(
+            conference=conference).order_by(
                 'accepted',
                 'title')
     review_query = BidEvaluation.objects.filter(
@@ -1659,13 +1719,18 @@ def review_vendor_list(request):
                                         urlconf='gbe.urls',
                                         args=[vendor.id])
         rows.append(bid_row)
-
+    conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header,
                    'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('vendor_review',
-                                           urlconf='gbe.urls')})
+                   'action1_link': reverse('vendor_review_list',
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('vendor_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
+                  )
 
 
 @login_required
@@ -1852,7 +1917,7 @@ def view_vendor(request, vendor_id):
 
     vendor = get_object_or_404(Vendor, id=vendor_id)
     if vendor.profile != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Vendor Reviewers',), require=True)
     vendorform = VendorBidForm(instance=vendor, prefix='The Business')
     profile = ParticipantForm(instance=vendor.profile,
                               initial={'email': request.user.email,
@@ -2218,9 +2283,14 @@ def review_proposal_list(request):
     and give a way to update the reviews
     '''
     reviewer = validate_perms(request, ('Class Coordinator',))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
 
     header = ClassProposal().bid_review_header
-    classes = ClassProposal.objects.all().order_by('type', 'title')
+    classes = ClassProposal.objects.filter(
+        conference=conference).order_by('type', 'title')
     rows = []
     for aclass in classes:
         bid_row = {}
@@ -2230,8 +2300,13 @@ def review_proposal_list(request):
                                         urlconf='gbe.urls',
                                         args=[aclass.id])
         rows.append(bid_row)
-    return render(request, 'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows})
+    conference_slugs = Conference.all_slugs()
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
+                  {'header': header,
+                   'rows': rows,
+                   'conference': conference,
+                   'conference_slugs': conference_slugs})
 
 
 @log_func

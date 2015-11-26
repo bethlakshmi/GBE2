@@ -14,7 +14,7 @@ class ConferenceFactory(DjangoModelFactory):
     conference_name = factory.Sequence(lambda n: "Test Conference %d" % n)
     conference_slug = factory.Sequence(lambda n: u"test_conf_%d" % n)
     accepting_bids = False
-
+    status = 'upcoming'
 
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
@@ -146,7 +146,7 @@ class ActFactory(DjangoModelFactory):
     video_choice = ""
     shows_preferences = ""
     why_you = "why_you field for test Act"
-    conference = RelatedFactory(ConferenceFactory)
+    conference = SubFactory(ConferenceFactory)
 
 
 class RoomFactory(DjangoModelFactory):
