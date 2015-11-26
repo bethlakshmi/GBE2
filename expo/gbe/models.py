@@ -45,7 +45,7 @@ class Conference(models.Model):
     @classmethod
     def current_conf(cls):
         return cls.objects.filter(status__in=('upcoming', 'ongoing')).first()
-        
+
     @classmethod
     def by_slug(cls, slug):
         try:
@@ -53,9 +53,14 @@ class Conference(models.Model):
         except cls.DoesNotExist:
             return cls.current_conf()
 
+    @classmethod
+    def all_slugs(cls):
+        return cls.objects.order_by('-accepting_bids').values_list(
+            'conference_slug', flat=True)
+
     class Meta:
-        verbose_name="conference"
-        verbose_name_plural="conferences"
+        verbose_name = "conference"
+        verbose_name_plural = "conferences"
 
 
 class Biddable(models.Model):
@@ -115,15 +120,16 @@ class Profile(WorkerItem):
     address2 = models.CharField(max_length=128, blank=True)
     city = models.CharField(max_length=128, blank=True)
     state = models.CharField(max_length=2,
-                             choices = states_options,
+                             choices=states_options,
                              blank=True)
     zip_code = models.CharField(max_length=10, blank=True) # allow for ext. ZIP
     country = models.CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     phone = models.CharField(max_length=50,
-                             validators=[RegexValidator(regex=phone_regex,
-                                                        message=phone_number_format_error)])
+                             validators=[RegexValidator(
+                                 regex=phone_regex,
+                                 message=phone_number_format_error)])
     best_time = models.CharField(max_length=50,
                                  choices=best_time_to_call_options,
                                  default='Any',
@@ -153,13 +159,17 @@ class Profile(WorkerItem):
         reviews = []
         missing_reviews = []
         if 'Act Reviewers' in self.privilege_groups:
-            reviews += Act().bids_to_review.exclude(bidevaluation__evaluator=self)
+            reviews += Act().bids_to_review.exclude(
+                bidevaluation__evaluator=self)
         if 'Class Reviewers' in self.privilege_groups:
-            reviews += Class().bids_to_review.exclude(bidevaluation__evaluator=self)
+            reviews += Class().bids_to_review.exclude(
+                bidevaluation__evaluator=self)
         if 'Vendor Reviewers' in self.privilege_groups:
-            reviews += Vendor().bids_to_review.exclude(bidevaluation__evaluator=self)
+            reviews += Vendor().bids_to_review.exclude(
+                bidevaluation__evaluator=self)
         if 'Volunteer Reviewers' in self.privilege_groups:
-            reviews += Volunteer().bids_to_review.exclude(bidevaluation__evaluator=self)
+            reviews += Volunteer().bids_to_review.exclude(
+                bidevaluation__evaluator=self)
         return reviews
 
     @property
@@ -172,14 +182,15 @@ class Profile(WorkerItem):
 
     @property
     def address(self):
-        address_string = str(self.address1.strip() + '\n' + self.address2.strip()).strip()
+        address_string = str(self.address1.strip() +
+                             '\n' +
+                             self.address2.strip()).strip()
         if len(address_string) == 0:
             return ''
         if (len(self.city) == 0 or
             len(self.country) == 0 or
             len(self.state) == 0 or
-            len(self.zip_code) == 0
-            ):
+            len(self.zip_code) == 0):
             return ''
         return address_string + '\n' + ' '.join((self.city + ',',
                                                  self.state,
@@ -218,11 +229,12 @@ class Profile(WorkerItem):
             if act.accepted == 3 and \
                act.is_current and \
                (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
-                profile_alerts.append(gbetext.profile_alerts['schedule_rehearsal'] %
-                                      (act.title,
-                                       reverse('act_techinfo_edit',
-                                               urlconf=gbe.urls,
-                                               args=[act.id])))
+                profile_alerts.append(
+                    gbetext.profile_alerts['schedule_rehearsal'] %
+                    (act.title,
+                     reverse('act_techinfo_edit',
+                             urlconf=gbe.urls,
+                             args=[act.id])))
         return profile_alerts
 
     def get_volunteerbids(self):
@@ -288,11 +300,14 @@ class Profile(WorkerItem):
         '''
         from scheduler.models import Event as sEvent
         acts = self.get_acts()
-        events = sum([list(sEvent.objects.filter(resources_allocated__resource__actresource___item=act))
+        events = sum([list(sEvent.objects.filter(
+            resources_allocated__resource__actresource___item=act))
                       for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
-            events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=performer)]
-        events += [e for e in sEvent.objects.filter(resources_allocated__resource__worker___item=self)]
+            events += [e for e in sEvent.objects.filter(
+               resources_allocated__resource__worker___item=performer)]
+        events += [e for e in sEvent.objects.filter(
+            resources_allocated__resource__worker___item=self)]
 
         return sorted(set(events), key=lambda event: event.start_time)
         '''
@@ -1051,6 +1066,16 @@ class Event (EventItem):
     def __str__(self):
         return self.title
 
+    @classmethod
+    def get_all_events(cls, conference):
+        events =  cls.objects.filter(
+            conference=conference,
+            visible=True).select_subclasses()
+        return [event for event in events if 
+                getattr(event, 'accepted', 3) == 3 and
+                getattr(event, 'type', 'X') not in ('Volunteer', 
+                                                    'Rehearsal Slot', 
+                                                    'Staff Area')]        
     @property
     def sched_payload(self):
         return {'title': self.title,
@@ -1074,7 +1099,6 @@ class Event (EventItem):
     @property
     def get_tickets(self):
         return []  # self.ticketing_item.all()
-
 
     @property
     def is_current(self):
@@ -1193,7 +1217,6 @@ class GenericEvent (Event):
                                               active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
-
 
 
 class Class(Biddable, Event):
