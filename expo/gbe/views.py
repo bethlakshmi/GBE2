@@ -52,6 +52,7 @@ from gbe.models import (
     Event,
     Act,
     Performer,
+    Conference,
 )
 log_import(('Event', 'Act', 'Performer'), 'gbe.models')
 
@@ -729,7 +730,7 @@ def view_act(request, act_id):
     '''
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != request.user.profile:
-        raise PermissionDenied
+        validate_perms(request, ('Act Reviewers',), require=True)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     actform = ActEditForm(
@@ -752,6 +753,31 @@ def view_act(request, act_id):
                   {'readonlyform': [actform, performer]})
 
 
+def _create_action_form(act):
+    actionform = BidStateChangeForm(instance=act)
+    # This requires that the show be scheduled - seems reasonable in
+    # current workflow and lets me order by date.  Also - assumes
+    # that shows are only scheduled once
+    try:
+        start = Show.objects.filter(
+            scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+    except:
+        start = ""
+    q = Show.objects.filter(
+        conference=act.conference,
+        scheduler_events__isnull=False).order_by(
+            'scheduler_events__starttime')
+    actionform.fields['show'] = forms.ModelChoiceField(
+        queryset=q,
+        empty_label=None,
+        label='Pick a Show',
+        initial=start)
+    actionURL = reverse('act_changestate',
+                        urlconf='gbe.urls',
+                        args=[act.id])
+    return actionform, actionURL
+
+
 @login_required
 @log_func
 def review_act(request, act_id):
@@ -767,6 +793,8 @@ def review_act(request, act_id):
         Act,
         id=act_id
     )
+    if not act.is_current:
+        return view_act(request, act_id)
     conference, old_bid = get_conf(act)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
@@ -782,26 +810,7 @@ def review_act(request, act_id):
                             prefix='The Performer(s)')
 
     if validate_perms(request, ('Act Coordinator',), require=False):
-        actionform = BidStateChangeForm(instance=act)
-        # This requires that the show be scheduled - seems reasonable in
-        # current workflow and lets me order by date.  Also - assumes
-        # that shows are only scheduled once
-        try:
-            start = Show.objects.filter(
-                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
-        except:
-            start = ""
-        q = Show.objects.filter(
-            scheduler_events__isnull=False).order_by(
-                'scheduler_events__starttime')
-        actionform.fields['show'] = forms.ModelChoiceField(
-            queryset=q,
-            empty_label=None,
-            label='Pick a Show',
-            initial=start)
-        actionURL = reverse('act_changestate',
-                            urlconf='gbe.urls',
-                            args=[act_id])
+        actionform, actionURL = _create_action_form(act)
     else:
             actionform = False
             actionURL = False
@@ -893,11 +902,11 @@ def review_act_list(request):
     conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header,
-                   'rows': rows, 
+                   'rows': rows,
                    'return_link': reverse('act_review_list',
                                           urlconf='gbe.urls'),
                    'conference_slugs': conference_slugs,
-                  'conference': conference}
+                   'conference': conference}
                   )
 
 
@@ -1139,7 +1148,7 @@ def view_class(request, class_id):
     '''
     classbid = get_object_or_404(Class, id=class_id)
     if classbid.teacher.contact != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Class Reviewers',), require=True)
     classform = ClassBidForm(instance=classbid, prefix='The Class')
     teacher = PersonaForm(instance=classbid.teacher,
                           prefix='The Teacher(s)')
@@ -1163,6 +1172,8 @@ def review_class(request, class_id):
         Class,
         id=class_id,
     )
+    if not aclass.is_current:
+        return view_class(request, class_id)
     conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
@@ -1243,7 +1254,6 @@ def review_class_list(request):
         conference = Conference.by_slug(request.GET['conf_slug'])
     else:
         conference = Conference.current_conf()
-
     header = Class().bid_review_header
     classes = Class.objects.filter(
         submitted=True).filter(
@@ -1267,12 +1277,12 @@ def review_class_list(request):
                                         args=[aclass.id])
         rows.append(bid_row)
     conference_slugs = Conference.all_slugs()
-    
+
     return render(request,
                   'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('class_review',
+                   'action1_link': reverse('class_review_list',
                                            urlconf='gbe.urls'),
                    'return_link': reverse('class_review_list',
                                           urlconf='gbe.urls'),
@@ -1369,7 +1379,7 @@ def view_volunteer(request, volunteer_id):
     '''
     volunteer = get_object_or_404(Volunteer, id=volunteer_id)
     if volunteer.profile != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Volunteer Reviewers',), require=True)
     volunteerform = VolunteerBidForm(instance=volunteer,
                                      prefix='Volunteer Info')
     profile = ParticipantForm(
@@ -1403,6 +1413,8 @@ def review_volunteer(request, volunteer_id):
         Volunteer,
         id=volunteer_id,
     )
+    if not volunteer.is_current:
+        return view_volunteer(request, volunteer_id)
     conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(instance=volunteer,
@@ -1467,6 +1479,12 @@ def review_volunteer(request, volunteer_id):
                        })
 
 
+def show_edit(request, volunteer):
+    user = request.user
+    return ('Volunteer Coordinator' in user.profile.privilege_groups and
+            volunteer.is_current)
+
+
 @login_required
 @log_func
 def review_volunteer_list(request):
@@ -1479,7 +1497,6 @@ def review_volunteer_list(request):
         conference = Conference.by_slug(request.GET['conf_slug'])
     else:
         conference = Conference.current_conf()
-
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(
         submitted=True).filter(
@@ -1503,7 +1520,7 @@ def review_volunteer_list(request):
         bid_row['review_url'] = reverse('volunteer_review',
                                         urlconf='gbe.urls',
                                         args=[volunteer.id])
-        if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
+        if show_edit(request, volunteer):
             bid_row['edit_url'] = reverse('volunteer_edit',
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
@@ -1512,11 +1529,11 @@ def review_volunteer_list(request):
     return render(request, 'gbe/bid_review_list.tmpl',
                   {'header': header, 'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('volunteer_review',
+                   'action1_link': reverse('volunteer_review_list',
                                            urlconf='gbe.urls'),
                    'return_link': reverse('volunteer_review_list',
                                           urlconf='gbe.urls'),
-                   'conference_slugs':conference_slugs,
+                   'conference_slugs': conference_slugs,
                    'conference': conference},
                   )
 
@@ -1612,6 +1629,8 @@ def review_vendor(request, vendor_id):
         Vendor,
         id=vendor_id,
     )
+    if not vendor.is_current:
+        return view_vendor(request, vendor_id)
     conference, old_bid = get_conf(vendor)
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
     if 'Vendor Coordinator' in request.user.profile.privilege_groups:
@@ -1678,7 +1697,6 @@ def review_vendor_list(request):
         conference = Conference.by_slug(request.GET['conf_slug'])
     else:
         conference = Conference.current_conf()
-
     header = Vendor().bid_review_header
     vendors = Vendor.objects.filter(
         submitted=True).filter(
@@ -1706,7 +1724,7 @@ def review_vendor_list(request):
                   {'header': header,
                    'rows': rows,
                    'action1_text': 'Review',
-                   'action1_link': reverse('vendor_review',
+                   'action1_link': reverse('vendor_review_list',
                                            urlconf='gbe.urls'),
                    'return_link': reverse('vendor_review_list',
                                           urlconf='gbe.urls'),
@@ -1899,7 +1917,7 @@ def view_vendor(request, vendor_id):
 
     vendor = get_object_or_404(Vendor, id=vendor_id)
     if vendor.profile != request.user.profile:
-        raise Http404
+        validate_perms(request, ('Vendor Reviewers',), require=True)
     vendorform = VendorBidForm(instance=vendor, prefix='The Business')
     profile = ParticipantForm(instance=vendor.profile,
                               initial={'email': request.user.email,
@@ -2285,7 +2303,7 @@ def review_proposal_list(request):
     conference_slugs = Conference.all_slugs()
     return render(request,
                   'gbe/bid_review_list.tmpl',
-                  {'header': header, 
+                  {'header': header,
                    'rows': rows,
                    'conference': conference,
                    'conference_slugs': conference_slugs})
@@ -2537,7 +2555,14 @@ def fashion_faire(request):
     '''
     The Vintage Fashion Faire.  Glorified vendor list
     '''
-    vendors = list(Vendor.objects.filter(accepted=3))
+    current_conference = Conference.current_conf()
+    if request.GET:
+        conference = Conference.by_slug(request.GET.get('conference', None))
+    else:
+        conference = current_conference
+    vendors = list(Vendor.objects.filter(
+        accepted=3,
+        conference=conference))
     vendor_rows = [vendors[i*3:i*3+3] for i in range(len(vendors)/3)]
     if len(vendors) % 3 > 0:
         vendor_rows.append(vendors[-(len(vendors) % 3):])
