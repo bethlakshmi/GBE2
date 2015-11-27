@@ -526,13 +526,14 @@ class Equipment(Resource):
 class EventItem (models.Model):
     '''
     The payload for an event (ie, a class, act, show, or generic event)
-    The EventItem MUST NOT impose any DB usage on its implementing model
+    The EventItem must not impose any DB usage on its implementing model
     classes.
-    ALL requirements must be stated as properties.
     '''
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
     visible = models.BooleanField(default=True)
+
+
 
     @property
     def bios(self):

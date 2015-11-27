@@ -63,6 +63,23 @@ class Conference(models.Model):
         verbose_name_plural="conferences"
 
 
+class ConferenceDay(models.Model):
+    day = models.DateField(blank=True)
+    conference = models.ForeignKey(Conference)
+
+    class Meta:
+        ordering = ['day']
+
+
+class VolunteerWindow(models.Model):
+    start = models.TimeField(blank=True)
+    end = models.TimeField(blank=True)
+    day = models.ForeignKey(ConferenceDay)
+
+    class Meta:
+        ordering = ['day', 'start']
+
+
 class Biddable(models.Model):
     '''
     Abstract base class for items which can be Bid
@@ -1056,6 +1073,13 @@ class Event (EventItem):
     def __str__(self):
         return self.title
 
+    def day_options(self):
+        return self.conference.day_set.all()
+
+    def volunteer_options(self):
+        return VolunteerWindow.objects.filter(
+            day__conference=self.conference)
+
     @property
     def sched_payload(self):
         return {'title': self.title,
@@ -1413,6 +1437,7 @@ class Volunteer(Biddable):
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
+    volunteer_windows = models.ManyToManyField(VolunteerWindow)
 
     def __unicode__(self):
         return self.profile.display_name

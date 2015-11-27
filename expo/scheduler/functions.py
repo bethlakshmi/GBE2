@@ -29,7 +29,8 @@ conference_datetimes = (
     datetime(2015, 02,22, tzinfo=utc),
 )
 
-monday = datetime(2015, 2, 23)
+
+
 
 time_start = 8 * 60
 time_stop = 24 * 60  
@@ -43,36 +44,6 @@ conference_dates = {"Thursday":"2015-02-19" ,
               "Sunday": "2015-02-22"}
 
 hour = Duration(seconds = 3600)
-volunteer_shifts = { 
-    'SH0': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[0], time(18,0))), 
-                         duration = 5 * hour),
-    'SH1': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[1], time(8,0))),
-                         duration = 5 * hour),
-    'SH2': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[1], time(13,0))), 
-                         duration = 5 * hour),
-    'SH3': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[1], time(17,0))), 
-                         duration = 5 * hour),
-    'SH4': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[1], time(22,0))), 
-                         duration = 5 * hour),
-    'SH5': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[2], time(8,0))), 
-                         duration = 5 * hour),
-    'SH6': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[2], time(13,0))), 
-                         duration = 5 * hour),
-    'SH7': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[2], time(17,0))), 
-                         duration = 5 * hour),
-    'SH8': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[2], time(22,0))), 
-                         duration = 5 * hour),
-    'SH9': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[3], time(8,0))), 
-                         duration = 5 * hour),
-    'SH10': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[3], time(13,0))), 
-                          duration = 5 * hour),
-    'SH11': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[3], time(17,0))), 
-                          duration = 5 * hour),
-    'SH12': DateTimeRange(starttime=utc.localize(datetime.combine(conference_datetimes[3], time(22,0))), 
-                          duration = 5 * hour),
-    'SH13': DateTimeRange(starttime=utc.localize(datetime.combine(monday, time(8,0))), 
-                          duration = 5 * hour),
-    }
 
 
 
