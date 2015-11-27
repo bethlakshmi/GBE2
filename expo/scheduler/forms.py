@@ -56,7 +56,7 @@ class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     
-
+    day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
     location = forms.ChoiceField(choices=[
                 (loc, loc.__str__()) for loc in
@@ -72,7 +72,6 @@ class EventScheduleForm(forms.ModelForm):
         required=False)
     staff_lead = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
                                         required=False)
-
     description = forms.CharField(required=False,
                                   widget=forms.Textarea,
                                   help_text=scheduling_help_texts
@@ -82,10 +81,10 @@ class EventScheduleForm(forms.ModelForm):
 
 
     def __init__(self, *args, **kwargs):
-        super
+        conference = kwargs.pop('conference')
+        super(EventScheduleForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
-            queryset=conference.day_set.all()
-
+            queryset=conference.conferenceday_set.all())
 
 
     class Meta:
@@ -105,10 +104,10 @@ class EventScheduleForm(forms.ModelForm):
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)
-        day = data.get('day')
-        time = data.get('time')
-        day = ' '.join([day.split(' ')[0], time])
-        event.starttime = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        starttime = time(*time_parts)
+        event.starttime = datetime.combine(day, starttime)
 
         if commit:
             self.save()

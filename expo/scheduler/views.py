@@ -309,7 +309,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
                                        instance=item,
-                                       prefix='event')
+                                       prefix='event',
+                                       conference=item.get_conference())
         if event_form.is_valid():
             s_event = event_form.save(commit=False)
             data = event_form.cleaned_data
@@ -423,7 +424,8 @@ def edit_event_display(request, item, errorcontext=None):
 
     context['form'] = EventScheduleForm(prefix='event',
                                         instance=item,
-                                        initial=initial)
+                                        initial=initial, 
+                                        conference=item.get_conference())
     return render(request, template, context)
 
 
@@ -851,7 +853,8 @@ def add_event(request, eventitem_id, event_type='Class'):
 
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
-                                       prefix='event')
+                                       prefix='event', 
+                                       conference=get_current_conference())
 
         if (event_form.is_valid() and True):
             s_event = event_form.save(commit=False)
@@ -898,7 +901,9 @@ def add_event(request, eventitem_id, event_type='Class'):
         if item.__class__.__name__ == 'Class':
             initial_form_info['teacher'] = item.teacher
 
-        form = EventScheduleForm(prefix='event', initial=initial_form_info)
+        form = EventScheduleForm(prefix='event', 
+                                 initial=initial_form_info,
+                                 conference=item.get_conference())
 
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,

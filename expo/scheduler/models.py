@@ -533,6 +533,11 @@ class EventItem (models.Model):
     eventitem_id = models.AutoField(primary_key=True)
     visible = models.BooleanField(default=True)
 
+    def child(self):
+        return EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+    
+    def get_conference(self):
+        return self.child().conference
 
 
     @property
@@ -574,7 +579,7 @@ class EventItem (models.Model):
         return people
 
     def set_duration(self, duration):
-        child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+        child = self.child()
         child.duration = duration
         child.save(update_fields=('duration',))
 
@@ -589,15 +594,13 @@ class EventItem (models.Model):
 
     @property
     def duration(self):
-        child = EventItem.objects.filter(
-            eventitem_id=self.eventitem_id).select_subclasses().first()
+        child = self.child()
         return child.sched_duration
 
     @property
     def describe(self):
         try:
-            child = EventItem.objects.get_subclass(
-                eventitem_id=self.eventitem_id)
+            child = self.child()
             '''
             ids = "event - " + str(child.event_id)
             try:

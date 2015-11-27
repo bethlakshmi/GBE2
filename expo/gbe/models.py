@@ -66,19 +66,27 @@ class Conference(models.Model):
 class ConferenceDay(models.Model):
     day = models.DateField(blank=True)
     conference = models.ForeignKey(Conference)
+    
+    def __unicode__(self):
+        return str(self.day)
 
     class Meta:
         ordering = ['day']
-
+        verbose_name = "Conference Day"
+        verbose_name_plural = "Conference Days"
 
 class VolunteerWindow(models.Model):
     start = models.TimeField(blank=True)
     end = models.TimeField(blank=True)
     day = models.ForeignKey(ConferenceDay)
-
+    def __unicode__(self):
+        return "%s, %s to %s" % (str(self.day), 
+                                 str(self.start), 
+                                 str(self.end))
     class Meta:
         ordering = ['day', 'start']
-
+        verbose_name = "Volunteer Window"
+        verbose_name_plural = "Volunteer Windows"
 
 class Biddable(models.Model):
     '''
