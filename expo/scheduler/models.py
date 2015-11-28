@@ -539,6 +539,12 @@ class EventItem (models.Model):
     def get_conference(self):
         return self.child().conference
 
+    def day_options(self):
+        return self.get_conference().conferenceday_set.all()
+
+    def volunteer_options(self):
+        return VolunteerWindow.objects.filter(day__in=self.day_options())
+
 
     @property
     def bios(self):

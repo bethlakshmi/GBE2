@@ -58,35 +58,13 @@ class Conference(models.Model):
         return cls.objects.order_by('-accepting_bids').values_list(
             'conference_slug', flat=True)
 
+    def windows(self):
+        return VolunteerWindow.objects.filter(day__conference=self)
+
     class Meta:
         verbose_name = "conference"
         verbose_name_plural = "conferences"
 
-
-class ConferenceDay(models.Model):
-    day = models.DateField(blank=True)
-    conference = models.ForeignKey(Conference)
-    
-    def __unicode__(self):
-        return str(self.day)
-
-    class Meta:
-        ordering = ['day']
-        verbose_name = "Conference Day"
-        verbose_name_plural = "Conference Days"
-
-class VolunteerWindow(models.Model):
-    start = models.TimeField(blank=True)
-    end = models.TimeField(blank=True)
-    day = models.ForeignKey(ConferenceDay)
-    def __unicode__(self):
-        return "%s, %s to %s" % (str(self.day), 
-                                 str(self.start), 
-                                 str(self.end))
-    class Meta:
-        ordering = ['day', 'start']
-        verbose_name = "Volunteer Window"
-        verbose_name_plural = "Volunteer Windows"
 
 class Biddable(models.Model):
     '''
@@ -1069,7 +1047,36 @@ class Room(LocationItem):
         return self.name
 
 
-class Event (EventItem):
+
+class ConferenceDay(models.Model):
+    day = models.DateField(blank=True)
+    conference = models.ForeignKey(Conference)
+    
+    def __unicode__(self):
+        return str(self.day)
+
+    class Meta:
+        ordering = ['day']
+        verbose_name = "Conference Day"
+        verbose_name_plural = "Conference Days"
+
+
+class VolunteerWindow(models.Model):
+    start = models.TimeField(blank=True)
+    end = models.TimeField(blank=True)
+    day = models.ForeignKey(ConferenceDay)
+    def __unicode__(self):
+        return "%s, %s to %s" % (str(self.day), 
+                                 str(self.start), 
+                                 str(self.end))
+    class Meta:
+        ordering = ['day', 'start']
+        verbose_name = "Volunteer Window"
+        verbose_name_plural = "Volunteer Windows"
+
+
+
+class Event(EventItem):
     '''
     Event is the base class for any scheduled happening at the expo.
     Events fall broadly into "shows" and "classes". Classes break down
@@ -1091,12 +1098,6 @@ class Event (EventItem):
     def __str__(self):
         return self.title
 
-    def day_options(self):
-        return self.conference.day_set.all()
-
-    def volunteer_options(self):
-        return VolunteerWindow.objects.filter(
-            day__conference=self.conference)
 
     @classmethod
     def get_all_events(cls, conference):
@@ -1460,11 +1461,15 @@ class Volunteer(Biddable):
                                         default=1)
     availability = models.TextField()
     unavailability = models.TextField()
+
     interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
-    volunteer_windows = models.ManyToManyField(VolunteerWindow)
+    available_windows = models.ManyToManyField(VolunteerWindow, 
+                                               related_name="availablewindow_set")
+    unavailable_windows = models.ManyToManyField(VolunteerWindow,
+                                                 related_name="unavailablewindow_set")
 
     def __unicode__(self):
         return self.profile.display_name

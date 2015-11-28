@@ -293,142 +293,6 @@ def schedule_acts(request, show_title=None):
                   {'forms': forms})
 
 
-def edit_event(request, scheduler_event_id, event_type='class'):
-    '''
-    Add an item to the conference schedule and/or set its schedule details
-    (start time, location, duration, or allocations)
-    Takes a scheduler.Event id
-    '''
-    profile = validate_perms(request, ('Scheduling Mavens',))
-
-    try:
-        item = Event.objects.get_subclass(id=scheduler_event_id)
-    except:
-        raise Exception("Error code XYZZY: Couldn't get an item for id")
-        # TO DO: log this exception
-    if request.method == 'POST':
-        event_form = EventScheduleForm(request.POST,
-                                       instance=item,
-                                       prefix='event',
-                                       conference=item.get_conference())
-        if event_form.is_valid():
-            s_event = event_form.save(commit=False)
-            data = event_form.cleaned_data
-
-            if data['duration']:
-                s_event.set_duration(data['duration'])
-            l = LocationItem.objects.get_subclass(
-                room__name=data['location'])
-            s_event.save()
-            s_event.set_location(l)
-
-            s_event.unallocate_role('Teacher')
-            if data['teacher']:
-                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()
-
-            s_event.unallocate_role('Moderator')
-            if data['moderator']:
-                s_event.allocate_worker(data['moderator'].workeritem,
-                                        'Moderator')
-
-            s_event.unallocate_role('Panelist')
-            if len(data['panelists']) > 0:
-                for panelist in data['panelists']:
-                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
-
-            s_event.unallocate_role('Staff Lead')
-            if data['staff_lead']:
-                s_event.allocate_worker(data['staff_lead'].workeritem,
-                                        'Staff Lead')
-
-            if data['description'] or data['title']:
-                c_event = s_event.as_subtype
-                c_event.description = data['description']
-                c_event.title = data['title']
-                c_event.save()
-            return HttpResponseRedirect(reverse('edit_event',
-                                                urlconf='scheduler.urls',
-                                                args=[event_type,
-                                                      scheduler_event_id]))
-        else:
-            template = 'scheduler/event_schedule.tmpl'
-            return render(request, template, {
-                'eventitem': get_event_display_info(
-                    item.eventitem.eventitem_id),
-                'form': event_form,
-                'event_type': item.event_type_name})
-
-    else:
-        return edit_event_display(request, item)
-
-
-def edit_event_display(request, item, errorcontext=None):
-    from gbe.models import Performer
-
-    template = 'scheduler/event_schedule.tmpl'
-    context = {'user_id': request.user.id,
-               'event_id': item.id,
-               'event_edit_url': reverse('edit_event',
-                                         urlconf='scheduler.urls',
-                                         args=[item.event_type_name,
-                                               item.id])}
-    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
-
-    initial = {}
-    initial['duration'] = item.duration
-    initial['day'] = item.starttime.strftime("%Y-%m-%d")
-    initial['time'] = item.starttime.strftime("%H:%M:%S")
-    initial['description'] = item.as_subtype.sched_payload['description']
-    initial['title'] = item.as_subtype.sched_payload['title']
-    initial['location'] = item.location
-
-    allocs = ResourceAllocation.objects.filter(event=item)
-    workers = [Worker.objects.get(id=a.resource.id)
-               for a in allocs if type(a.resource.item) == WorkerItem]
-    teachers = [worker for worker in workers if worker.role == 'Teacher']
-    moderators = [worker for worker in workers if worker.role == 'Moderator']
-    panelists = Performer.objects.filter(worker__role='Panelist',
-                                         worker__allocations__event=item)
-    staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
-
-    # Set initial values for specialized event roles
-    if len(teachers) > 0:
-        initial['teacher'] = teachers[0].item
-
-    elif item.event_type_name == 'Class':
-        try:
-            initial['teacher'] = item.as_subtype.teacher
-        except:
-            pass
-
-    if len(moderators) > 0:
-        initial['moderator'] = moderators[0].item
-    if len(panelists) > 0:
-        initial['panelists'] = panelists
-    if len(staff_leads) > 0:
-        initial['staff_lead'] = staff_leads[0].item
-
-    context['event_type'] = item.event_type_name
-
-    if validate_perms(request, ('Volunteer Coordinator',), require=False):
-        if (item.event_type_name == 'GenericEvent' and
-            item.as_subtype.type == 'Volunteer'):
-
-            context.update(get_worker_allocation_forms(item, errorcontext))
-            context.update(show_potential_workers(item))
-        else:
-            context.update(get_manage_opportunity_forms(item,
-                                                        initial,
-                                                        errorcontext))
-
-    context['form'] = EventScheduleForm(prefix='event',
-                                        instance=item,
-                                        initial=initial, 
-                                        conference=item.get_conference())
-    return render(request, template, context)
-
-
 def delete_schedule(request, scheduler_event_id):
     '''
     Remove the scheduled item
@@ -486,15 +350,18 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                              'day': conf_date,
                              'time': time,
                              'location': room,
-                             }
+                             },
+                    conference=opp['conf'].conference
                 )
             )
     context['actionform'] = actionform
     if errorcontext and 'createform' in errorcontext:
         createform = errorcontext['createform']
     else:
-        createform = VolunteerOpportunityForm(prefix='new_opp',
-                                              initial=initial)
+        createform = VolunteerOpportunityForm(
+            prefix='new_opp',
+            initial=initial, 
+            conference=get_current_conference())
 
     actionheaders = ['Title',
                      'Volunteer Type',
@@ -632,18 +499,22 @@ def manage_volunteer_opportunities(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():
-            form = VolunteerOpportunityForm(request.POST, prefix='new_opp')
+            form = VolunteerOpportunityForm(
+                request.POST,
+                prefix='new_opp',
+                conference=get_current_conference())
         else:
-            form = VolunteerOpportunityForm(request.POST)
+            form = VolunteerOpportunityForm(
+                request.POST,
+                conference=get_current_conference())
         if form.is_valid():
             opp = form.save(commit=False)
             opp.type = "Volunteer"
             opp.save()
             data = form.cleaned_data
-            day = data.get('day')
-            time = data.get('time')
-            day = ' '.join([day.split(' ')[0], time])
-            start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+            day = data.get('day').day
+            time_parts = map(int, data.get('time').split(":"))
+            start_time = datetime.combine(day, dttime(*time_parts))
             opp_event = Event(eventitem=opp.eventitem_ptr,
                               max_volunteer=data.get('num_volunteers', 1),
                               starttime=start_time,
@@ -667,18 +538,18 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event_container = EventContainer.objects.get(
             child_event=request.POST['opp_sched_id'])
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
-        form = VolunteerOpportunityForm(request.POST, instance=opp)
+        form = VolunteerOpportunityForm(request.POST, 
+                                        instance=opp,
+                                        conference=opp.conference)
         if not form.is_valid():
             return edit_event_display(request, event, {'error_opp_form': form})
 
         form.save()
         data = form.cleaned_data
         opp_event.max_volunteer = data['num_volunteers']
-        day = data.get('day')
-        time = data.get('time')
-        day = ' '.join([day.split(' ')[0], time])
-        start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
-
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        start_time = datetime.combine(day, dttime(*time_parts))
         opp_event.starttime = start_time
         opp_event.save()
         opp_event.set_location(data.get('location').locationitem)
@@ -909,6 +780,143 @@ def add_event(request, eventitem_id, event_type='Class'):
                                       'form': form,
                                       'user_id': request.user.id,
                                       'event_type': event_type})
+
+
+def edit_event(request, scheduler_event_id, event_type='class'):
+    '''
+    Add an item to the conference schedule and/or set its schedule details
+    (start time, location, duration, or allocations)
+    Takes a scheduler.Event id
+    '''
+    profile = validate_perms(request, ('Scheduling Mavens',))
+
+    try:
+        item = Event.objects.get_subclass(id=scheduler_event_id)
+    except:
+        raise Exception("Error code XYZZY: Couldn't get an item for id")
+        # TO DO: log this exception
+    if request.method == 'POST':
+        event_form = EventScheduleForm(request.POST,
+                                       instance=item,
+                                       prefix='event',
+                                       conference=item.get_conference())
+        if event_form.is_valid():
+            s_event = event_form.save(commit=False)
+            data = event_form.cleaned_data
+
+            if data['duration']:
+                s_event.set_duration(data['duration'])
+            l = LocationItem.objects.get_subclass(
+                room__name=data['location'])
+            s_event.save()
+            s_event.set_location(l)
+
+            s_event.unallocate_role('Teacher')
+            if data['teacher']:
+                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
+            s_event.save()
+
+            s_event.unallocate_role('Moderator')
+            if data['moderator']:
+                s_event.allocate_worker(data['moderator'].workeritem,
+                                        'Moderator')
+
+            s_event.unallocate_role('Panelist')
+            if len(data['panelists']) > 0:
+                for panelist in data['panelists']:
+                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
+
+            s_event.unallocate_role('Staff Lead')
+            if data['staff_lead']:
+                s_event.allocate_worker(data['staff_lead'].workeritem,
+                                        'Staff Lead')
+
+            if data['description'] or data['title']:
+                c_event = s_event.as_subtype
+                c_event.description = data['description']
+                c_event.title = data['title']
+                c_event.save()
+            return HttpResponseRedirect(reverse('edit_event',
+                                                urlconf='scheduler.urls',
+                                                args=[event_type,
+                                                      scheduler_event_id]))
+        else:
+            template = 'scheduler/event_schedule.tmpl'
+            return render(request, template, {
+                'eventitem': get_event_display_info(
+                    item.eventitem.eventitem_id),
+                'form': event_form,
+                'event_type': item.event_type_name})
+
+    else:
+        return edit_event_display(request, item)
+
+
+def edit_event_display(request, item, errorcontext=None):
+    from gbe.models import Performer
+
+    template = 'scheduler/event_schedule.tmpl'
+    context = {'user_id': request.user.id,
+               'event_id': item.id,
+               'event_edit_url': reverse('edit_event',
+                                         urlconf='scheduler.urls',
+                                         args=[item.event_type_name,
+                                               item.id])}
+    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
+
+    initial = {}
+    initial['duration'] = item.duration
+    initial['day'] = item.starttime.strftime("%Y-%m-%d")
+    initial['time'] = item.starttime.strftime("%H:%M:%S")
+    initial['description'] = item.as_subtype.sched_payload['description']
+    initial['title'] = item.as_subtype.sched_payload['title']
+    initial['location'] = item.location
+
+    allocs = ResourceAllocation.objects.filter(event=item)
+    workers = [Worker.objects.get(id=a.resource.id)
+               for a in allocs if type(a.resource.item) == WorkerItem]
+    teachers = [worker for worker in workers if worker.role == 'Teacher']
+    moderators = [worker for worker in workers if worker.role == 'Moderator']
+    panelists = Performer.objects.filter(worker__role='Panelist',
+                                         worker__allocations__event=item)
+    staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
+
+    # Set initial values for specialized event roles
+    if len(teachers) > 0:
+        initial['teacher'] = teachers[0].item
+
+    elif item.event_type_name == 'Class':
+        try:
+            initial['teacher'] = item.as_subtype.teacher
+        except:
+            pass
+
+    if len(moderators) > 0:
+        initial['moderator'] = moderators[0].item
+    if len(panelists) > 0:
+        initial['panelists'] = panelists
+    if len(staff_leads) > 0:
+        initial['staff_lead'] = staff_leads[0].item
+
+    context['event_type'] = item.event_type_name
+
+    if validate_perms(request, ('Volunteer Coordinator',), require=False):
+        if (item.event_type_name == 'GenericEvent' and
+            item.as_subtype.type == 'Volunteer'):
+
+            context.update(get_worker_allocation_forms(item, errorcontext))
+            context.update(show_potential_workers(item))
+        else:
+            context.update(get_manage_opportunity_forms(item,
+                                                        initial,
+                                                        errorcontext))
+
+    context['form'] = EventScheduleForm(
+        prefix='event',
+        instance=item,
+        initial=initial, 
+        conference=get_current_conference()) #can only schedule in current conf
+    return render(request, template, context)
 
 
 def view_list(request, event_type='All'):
