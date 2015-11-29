@@ -25,7 +25,11 @@
             {% endif %}
          </td>
 
-         <td class="readonlyform form_field {% if field.field.choices|length > 7 and field.value|length %}long_choice{%endif%}">
+         <td class="readonlyform 
+	            form_field 
+		    {% if field.field.choices|length > 7 and field.value|length %}
+		      long_choice
+  		    {%endif%}">
           {% if field.value %}
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>

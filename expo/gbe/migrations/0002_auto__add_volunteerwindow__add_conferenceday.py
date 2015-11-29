@@ -25,8 +25,17 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'gbe', ['ConferenceDay'])
 
-        # Adding M2M table for field volunteer_windows on 'Volunteer'
-        m2m_table_name = db.shorten_name(u'gbe_volunteer_volunteer_windows')
+        # Adding M2M table for field available_windows on 'Volunteer'
+        m2m_table_name = db.shorten_name(u'gbe_volunteer_available_windows')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('volunteer', models.ForeignKey(orm[u'gbe.volunteer'], null=False)),
+            ('volunteerwindow', models.ForeignKey(orm[u'gbe.volunteerwindow'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['volunteer_id', 'volunteerwindow_id'])
+
+        # Adding M2M table for field unavailable_windows on 'Volunteer'
+        m2m_table_name = db.shorten_name(u'gbe_volunteer_unavailable_windows')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('volunteer', models.ForeignKey(orm[u'gbe.volunteer'], null=False)),
@@ -42,8 +51,11 @@ class Migration(SchemaMigration):
         # Deleting model 'ConferenceDay'
         db.delete_table(u'gbe_conferenceday')
 
-        # Removing M2M table for field volunteer_windows on 'Volunteer'
-        db.delete_table(db.shorten_name(u'gbe_volunteer_volunteer_windows'))
+        # Removing M2M table for field available_windows on 'Volunteer'
+        db.delete_table(db.shorten_name(u'gbe_volunteer_available_windows'))
+
+        # Removing M2M table for field unavailable_windows on 'Volunteer'
+        db.delete_table(db.shorten_name(u'gbe_volunteer_unavailable_windows'))
 
 
     models = {
@@ -125,7 +137,7 @@ class Migration(SchemaMigration):
         u'gbe.biddable': {
             'Meta': {'object_name': 'Biddable'},
             'accepted': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Conference']"}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -162,7 +174,7 @@ class Migration(SchemaMigration):
         },
         u'gbe.classproposal': {
             'Meta': {'object_name': 'ClassProposal'},
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Conference']"}),
             'display': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -215,7 +227,7 @@ class Migration(SchemaMigration):
         u'gbe.event': {
             'Meta': {'ordering': "['title']", 'object_name': 'Event', '_ormbases': [u'scheduler.EventItem']},
             'blurb': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Conference']"}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'duration': ('gbe.expomodelfields.DurationField', [], {}),
             'event_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -334,6 +346,7 @@ class Migration(SchemaMigration):
         u'gbe.volunteer': {
             'Meta': {'object_name': 'Volunteer', '_ormbases': [u'gbe.Biddable']},
             'availability': ('django.db.models.fields.TextField', [], {}),
+            'available_windows': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'availablewindow_set'", 'symmetrical': 'False', 'to': u"orm['gbe.VolunteerWindow']"}),
             'background': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'interests': ('django.db.models.fields.TextField', [], {}),
@@ -342,7 +355,7 @@ class Migration(SchemaMigration):
             'pre_event': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'volunteering'", 'to': u"orm['gbe.Profile']"}),
             'unavailability': ('django.db.models.fields.TextField', [], {}),
-            'volunteer_windows': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gbe.VolunteerWindow']", 'symmetrical': 'False'})
+            'unavailable_windows': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'unavailablewindow_set'", 'symmetrical': 'False', 'to': u"orm['gbe.VolunteerWindow']"})
         },
         u'gbe.volunteerwindow': {
             'Meta': {'ordering': "['day', 'start']", 'object_name': 'VolunteerWindow'},

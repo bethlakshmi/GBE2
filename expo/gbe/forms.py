@@ -437,12 +437,19 @@ class VolunteerBidForm(forms.ModelForm):
     interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                           choices=volunteer_interests_options)
     def __init__(self, *args, **kwargs):
-        windows = kwargs.pop('windows')
+        if 'available_windows' in kwargs:
+            available_windows = kwargs.pop('available_windows')
+        else:
+            available_windows = None
+        if 'unavailable_windows' in kwargs:
+            unavailable_windows = kwargs.pop('unavailable_windows')
+        else:
+            unavailable_windows = None
         super(VolunteerBidForm, self).__init__(*args, **kwargs)
         self.fields['available_windows'] = forms.ModelMultipleChoiceField(
-            queryset=windows)
+            queryset=available_windows)
         self.fields['unavailable_windows'] = forms.ModelMultipleChoiceField(
-            queryset=windows)
+            queryset=unavailable_windows)
 
 
 

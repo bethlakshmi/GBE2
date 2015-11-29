@@ -1330,7 +1330,8 @@ def create_volunteer(request):
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VolunteerBidForm(request.POST, 
-                                windows=Conference.current_conf().windows())
+                                available_windows=Conference.current_conf().windows(),
+                                unavailable_windows=Conference.current_conf().windows())
         if form.is_valid():
             volunteer = form.save(commit=False)
             # hack TO DO: do this better
@@ -1357,11 +1358,13 @@ def create_volunteer(request):
                            'nodraft': 'Submit'})
     else:
         title = 'volunteer bid: %s' % profile.display_name
-        form = VolunteerBidForm(initial={'profile': profile,
-                                         'title': title,
-                                         'description': 'volunteer bid',
-                                         'submitted': True},
-                                windows=Conference.current_conf().windows())
+        form = VolunteerBidForm(
+            initial={'profile': profile,
+                     'title': title,
+                     'description': 'volunteer bid',
+                     'submitted': True},
+            available_windows=Conference.current_conf().windows(),
+            unavailable_windows=Conference.current_conf().windows())
         return render(request,
                       'gbe/bid.tmpl',
                       {'forms': [form],
@@ -1385,7 +1388,8 @@ def view_volunteer(request, volunteer_id):
     volunteerform = VolunteerBidForm(
         instance=volunteer,
         prefix='Volunteer Info', 
-        windows=Conference.current_conf().windows())
+        available_windows=volunteer.conference.windows(),
+        unavailable_windows=volunteer.conference.windows())
     profile = ParticipantForm(
         instance=volunteer.profile,
         initial={'email': volunteer.profile.user_object.email,
@@ -1421,9 +1425,11 @@ def review_volunteer(request, volunteer_id):
         return view_volunteer(request, volunteer_id)
     conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
-    volform = VolunteerBidForm(instance=volunteer,
-                               prefix='The Volunteer', 
-                               windows=volunteer.conference.windows())
+    volform = VolunteerBidForm(
+        instance=volunteer,
+        prefix='The Volunteer', 
+        available_windows=volunteer.conference.windows(),
+        unavailable_windows=volunteer.conference.windows())
     profile = ParticipantForm(
         instance=volunteer_prof,
         initial={'email': volunteer_prof.user_object.email,
@@ -1582,9 +1588,13 @@ def edit_volunteer(request, volunteer_id):
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
 
     if request.method == 'POST':
-        form = VolunteerBidForm(request.POST,
-                                instance=the_bid, 
-                                windows=the_bid.conference.windows())
+        form = VolunteerBidForm(
+            request.POST,
+            instance=the_bid, 
+            available_windows=the_bid.available_windows,
+            unavailable_windows=the_bid.unavailable_windows)
+
+
         if form.is_valid():
             the_bid = form.save(commit=True)
             return HttpResponseRedirect(reverse('volunteer_review',
@@ -1616,7 +1626,9 @@ def edit_volunteer(request, volunteer_id):
             initial={'availability': availability_initial,
                      'unavailability': unavailability_initial,
                      'interests': interests_initial},
-            windows=the_bid.conference.windows())
+            available_windows=the_bid.available_windows,
+            unavailable_windows=the_bid.unavailable_windows)
+
         return render(request,
                       'gbe/bid.tmpl',
                       {'forms': [form],
