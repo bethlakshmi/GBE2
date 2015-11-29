@@ -1341,6 +1341,11 @@ def create_volunteer(request):
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
                 volunteer.save()
+                for window in form.cleaned_data['available_windows']:
+                    volunteer.available_windows.add(window)
+                for window in form.cleaned_data['unavailable_windows']:
+                    volunteer.unavailable_windows.add(window)
+
                 message = loader.get_template('gbe/email/bid_submitted.tmpl')
                 c = Context({'bidder': profile.display_name,
                              'bid_type': 'volunteer',
