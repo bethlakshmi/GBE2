@@ -1053,7 +1053,7 @@ class ConferenceDay(models.Model):
     conference = models.ForeignKey(Conference)
     
     def __unicode__(self):
-        return str(self.day)
+        return self.day.strftime("%a, %b %d")
 
     class Meta:
         ordering = ['day']
@@ -1067,8 +1067,8 @@ class VolunteerWindow(models.Model):
     day = models.ForeignKey(ConferenceDay)
     def __unicode__(self):
         return "%s, %s to %s" % (str(self.day), 
-                                 str(self.start), 
-                                 str(self.end))
+                                 self.start.strftime("%I:%M %p"), 
+                                 self.end.strftime("%I:%M %p"))
     class Meta:
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
