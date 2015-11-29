@@ -2713,7 +2713,8 @@ def edit_act_techinfo(request, act_id):
                            'nodraft': submit_button,
                            'showheader': False,
                            'nodraft': submit_button,
-                           'location': location
+                           'location': location,
+                           'hide_list_details': True
                            })
     else:
         form = ActTechInfoForm(instance=act,
@@ -2750,7 +2751,8 @@ def edit_act_techinfo(request, act_id):
                        'view_title': view_title,
                        'showheader': False,
                        'nodraft': submit_button,
-                       'location': location
+                       'location': location,
+                       'hide_list_details': True
                        })
 
 
