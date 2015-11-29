@@ -1596,12 +1596,19 @@ def edit_volunteer(request, volunteer_id):
         form = VolunteerBidForm(
             request.POST,
             instance=the_bid, 
-            available_windows=the_bid.available_windows,
-            unavailable_windows=the_bid.unavailable_windows)
+            available_windows=the_bid.conference.windows(),
+            unavailable_windows=the_bid.conference.windows())
 
 
         if form.is_valid():
             the_bid = form.save(commit=True)
+            the_bid.available_windows.clear()
+            the_bid.unavailable_windows.clear()
+            for window in form.cleaned_data['available_windows']:
+                the_bid.available_windows.add(window)
+            for window in form.cleaned_data['unavailable_windows']:
+                the_bid.unavailable_windows.add(window)
+
             return HttpResponseRedirect(reverse('volunteer_review',
                                                 urlconf='gbe.urls'))
         else:
@@ -1631,8 +1638,8 @@ def edit_volunteer(request, volunteer_id):
             initial={'availability': availability_initial,
                      'unavailability': unavailability_initial,
                      'interests': interests_initial},
-            available_windows=the_bid.available_windows,
-            unavailable_windows=the_bid.unavailable_windows)
+            available_windows=the_bid.conference.windows(),
+            unavailable_windows=the_bid.conference.windows())
 
         return render(request,
                       'gbe/bid.tmpl',

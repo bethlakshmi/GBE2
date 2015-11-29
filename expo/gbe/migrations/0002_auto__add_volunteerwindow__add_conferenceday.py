@@ -346,7 +346,7 @@ class Migration(SchemaMigration):
         u'gbe.volunteer': {
             'Meta': {'object_name': 'Volunteer', '_ormbases': [u'gbe.Biddable']},
             'availability': ('django.db.models.fields.TextField', [], {}),
-            'available_windows': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'availablewindow_set'", 'symmetrical': 'False', 'to': u"orm['gbe.VolunteerWindow']"}),
+            'available_windows': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'availablewindow_set'", 'blank': 'True', 'to': u"orm['gbe.VolunteerWindow']"}),
             'background': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'interests': ('django.db.models.fields.TextField', [], {}),
@@ -355,7 +355,7 @@ class Migration(SchemaMigration):
             'pre_event': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'volunteering'", 'to': u"orm['gbe.Profile']"}),
             'unavailability': ('django.db.models.fields.TextField', [], {}),
-            'unavailable_windows': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'unavailablewindow_set'", 'symmetrical': 'False', 'to': u"orm['gbe.VolunteerWindow']"})
+            'unavailable_windows': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'unavailablewindow_set'", 'blank': 'True', 'to': u"orm['gbe.VolunteerWindow']"})
         },
         u'gbe.volunteerwindow': {
             'Meta': {'ordering': "['day', 'start']", 'object_name': 'VolunteerWindow'},

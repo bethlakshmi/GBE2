@@ -1467,9 +1467,11 @@ class Volunteer(Biddable):
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
     available_windows = models.ManyToManyField(VolunteerWindow, 
-                                               related_name="availablewindow_set")
+                                               related_name="availablewindow_set", 
+                                               blank=True)
     unavailable_windows = models.ManyToManyField(VolunteerWindow,
-                                                 related_name="unavailablewindow_set")
+                                                 related_name="unavailablewindow_set", 
+                                                 blank=True)
 
     def __unicode__(self):
         return self.profile.display_name
