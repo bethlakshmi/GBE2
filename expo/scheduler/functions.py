@@ -359,8 +359,8 @@ def table_prep(events, block_size, time_format=None, cal_start=None, cal_stop=No
 
 def event_info(confitem_type = 'Show', 
         filter_type = None,
-        cal_times = (datetime(2015, 02, 20, 18, 00, tzinfo=pytz.timezone('UTC')),
-            datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
+        cal_times = (datetime(2016, 02, 5, 18, 00, tzinfo=pytz.timezone('UTC')),
+            datetime(2016, 02, 7, 00, 00, tzinfo=pytz.timezone('UTC')))):
     '''
     Queries the database for scheduled events of type confitem_type, during time cal_times,
     and returns their important information in a dictionary format.
@@ -368,7 +368,10 @@ def event_info(confitem_type = 'Show',
 
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event', 'Volunteer Opportunity', 'Master Class', 'Drop-In Class']:
+    elif confitem_type in ['Special Event',
+                           'Volunteer Opportunity',
+                           'Master Class',
+                           'Drop-In Class']:
         filter_type, confitem_type = confitem_type, 'GenericEvent'
 
     import gbe.models as conf
@@ -377,12 +380,12 @@ def event_info(confitem_type = 'Show',
     confitem_class = eval ('conf.'+confitem_type)
     confitems_list = confitem_class.objects.all()
         
-    confitems_list = [confitem for confitem in confitems_list if \
+    confitems_list = [confitem for confitem in confitems_list if 
                       confitem.schedule_ready and confitem.visible]
 
     if filter_type != None:
-        confitems_list = [confitem for confitem in confitems_list if \
-            confitem.sched_payload['details']['type'] == filter_type]
+        confitems_list = [confitem for confitem in confitems_list if 
+                          confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():

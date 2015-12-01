@@ -959,9 +959,9 @@ def manage_rehearsals(request, event_id):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  cal_times=(datetime(2015, 02, 21, 8, 00,
+                  cal_times=(datetime(2016, 02, 6, 8, 00,
                                         tzinfo=pytz.timezone('UTC')),
-                             datetime(2015, 02, 22, 4, 00,
+                             datetime(2016, 02, 7, 4, 00,
                                       tzinfo=pytz.timezone('UTC'))),
                   time_format=None,
                   duration=Duration(minutes=60)):
@@ -977,9 +977,9 @@ def calendar_view(request=None,
     # the start of the event.  -  HH
     if day is not None:
         cal_times = day_to_cal_time(day,
-                                    week=datetime(2015,
+                                    week=datetime(2016,
                                                   02,
-                                                  19,
+                                                  4,
                                                   tzinfo=pytz.timezone('UTC')))
     if event_type == 'All':
         event_types = ['Show',
@@ -1027,9 +1027,9 @@ def calendar_view(request=None,
 def volunteer_shifts(request='None',
                      day='Saturday',
                      filter_type='None',
-                     cal_times=(datetime(2015, 02, 21, 8, 00,
+                     cal_times=(datetime(2016, 02, 6, 8, 00,
                                          tzinfo=pytz.timezone('UTC')),
-                                datetime(2015, 02, 22, 4, 00,
+                                datetime(2016, 02, 7, 4, 00,
                                          tzinfo=pytz.timezone('UTC'))),
                      time_format=None,
                      duration=Duration(minutes=30)):
@@ -1043,7 +1043,7 @@ def volunteer_shifts(request='None',
     if day is not None:
         cal_times = day_to_cal_time(
             day,
-            week=datetime(2015, 02, 19,
+            week=datetime(2016, 02, 4,
                           tzinfo=pytz.timezone('UTC')))
     shifts = volunteer_info(user_id,
                             cal_times=cal_times,
