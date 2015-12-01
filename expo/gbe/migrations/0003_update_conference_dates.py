@@ -14,8 +14,11 @@ class Migration(DataMigration):
         # Note: Don't use "from appname.models import ModelName". 
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
-        gbe2015 = orm.Conference.objects.get(conference_slug="GBE2015")
-        gbe2016 = orm.Conference.objects.get(conference_slug="GBE2016")
+        try:
+            gbe2015 = orm.Conference.objects.get(conference_slug="GBE2015")
+            gbe2016 = orm.Conference.objects.get(conference_slug="GBE2016")
+        except:
+            return  # nothing to do
         shifts = {}
         shifts [gbe2015]={}
         shifts [gbe2016]={}
