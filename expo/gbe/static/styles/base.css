@@ -747,3 +747,10 @@ td.form_field > ul > li
 {
   list-style-type: none;
 }
+
+.formtitle
+{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 20px;
+  color: black;
+}

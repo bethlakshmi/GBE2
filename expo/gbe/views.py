@@ -285,8 +285,8 @@ def edit_troupe(request, troupe_id=None):
         troupe = Troupe()
 
     if (troupe_id > 0 and
-        request.user and
-        troupe.contact != request.user.profile):
+            request.user and
+            troupe.contact != request.user.profile):
         return HttpResponseRedirect(reverse('troupe_view',
                                             urlconf='gbe.urls',
                                             args=[str(troupe_id)]))
@@ -2420,7 +2420,8 @@ def conference_volunteer(request):
             else:
                 form.fields['how_volunteer'] = forms.ChoiceField(
                     choices=conference_participation_types)
-            form.fields['how_volunteer'].widget.attrs['class'] = 'how_volunteer'
+            form.fields['how_volunteer'].widget.attrs['class'] = \
+                'how_volunteer'
             bid_row = {}
             bid_row['conf_item'] = aclass.presenter_bid_info
             bid_row['form'] = form
@@ -2713,7 +2714,8 @@ def edit_act_techinfo(request, act_id):
                            'nodraft': submit_button,
                            'showheader': False,
                            'nodraft': submit_button,
-                           'location': location
+                           'location': location,
+                           'hide_list_details': True
                            })
     else:
         form = ActTechInfoForm(instance=act,
@@ -2750,7 +2752,8 @@ def edit_act_techinfo(request, act_id):
                        'view_title': view_title,
                        'showheader': False,
                        'nodraft': submit_button,
-                       'location': location
+                       'location': location,
+                       'hide_list_details': True
                        })
 
 
