@@ -1015,7 +1015,7 @@ class Act (Biddable, ActItem):
              'video_choice',
              'description',
              'why_you'],
-            ['title', 'description', 'shows_preferences', 'performer'],
+            ['title', 'description', 'shows_preferences', 'performer', ],
         )
 
     @property
@@ -1593,23 +1593,56 @@ class Costume(Biddable):
     An offer to display a costume at the Expo's costume display
       - profile is required, persona is optional
       - debut date is a text string to allow vague descriptions
+      - "creator" is put into Biddable title as both are required
+      - act_title is optional, and therefore does not fit the rules of
+        Biddable's title
     '''
     profile = models.ForeignKey(Profile, related_name="is_displaying")
     performer = models.ForeignKey(Persona, blank=True, null=True)
-    creator = models.CharField(max_length=128)
-    debut_date = models.CharField(max_length=128)
+    act_title = models.CharField(max_length=128, blank=True, null=True)
+    debut_date = models.CharField(max_length=128, blank=True, null=True)
     active_use = models.BooleanField(choices=boolean_options, default=True)
-    pieces = models.PositiveIntegerField(validators=[MinValueValidator(1),
+    pieces = models.PositiveIntegerField(blank=True,
+                                         null=True,
+                                         validators=[MinValueValidator(1),
                                                      MaxValueValidator(20)])
     pasties = models.BooleanField(choices=boolean_options, default=False)
     dress_size = models.PositiveIntegerField(
-                            validators=[MinValueValidator(1),
-                                        MaxValueValidator(20)])
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(20)])
     more_info = models.TextField(blank=True)
     picture = models.FileField(upload_to="uploads/images", blank=True)
 
     def __unicode__(self):
         return self.title
+
+    @property
+    def bid_fields(self):
+        return (
+            ['performer',
+             'title',
+             'act_title',
+             'debut_date',
+             'active_use',
+             'pieces',
+             'description',
+             'pasties',
+             'dress_size',
+             'more_info',
+             'picture'],
+            ['title',
+             'active_use',
+             'pieces',
+             'description',
+             'pasties',
+             'dress_size',
+             'picture']
+        )
+
+    @property
+    def bid_draft_fields(self):
+        return (['title'])
 
     @property
     def bid_review_header(self):
