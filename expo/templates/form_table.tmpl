@@ -1,5 +1,4 @@
   {% load staticfiles %}
-  <font color="red">{{ form.non_field_errors }}</font>
 
     {% csrf_token %}
     
@@ -11,6 +10,8 @@
   </br>
   <span class="formtitle">{{ form.form_title }}</span>
   {% endif %}
+
+  <font color="red">{{ form.non_field_errors }}</font>
 
     <table class="gbe_table">
     {# Include the visible fields #}
