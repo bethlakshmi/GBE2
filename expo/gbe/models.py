@@ -635,6 +635,7 @@ class LightingInfo (models.Model):
     '''
     notes = models.TextField(blank=True)
     costume = models.TextField(blank=True)
+    specific_needs = models.TextField(blank=True)
 
     def clone(self):
         li = LightingInfo(notes=self.notes,
