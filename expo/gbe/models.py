@@ -1069,14 +1069,15 @@ class Event (EventItem):
 
     @classmethod
     def get_all_events(cls, conference):
-        events =  cls.objects.filter(
+        events = cls.objects.filter(
             conference=conference,
             visible=True).select_subclasses()
-        return [event for event in events if 
+        return [event for event in events if
                 getattr(event, 'accepted', 3) == 3 and
-                getattr(event, 'type', 'X') not in ('Volunteer', 
-                                                    'Rehearsal Slot', 
-                                                    'Staff Area')]        
+                getattr(event, 'type', 'X') not in ('Volunteer',
+                                                    'Rehearsal Slot',
+                                                    'Staff Area')]
+
     @property
     def sched_payload(self):
         return {'title': self.title,
@@ -1117,6 +1118,10 @@ class Show (Event):
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
     mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)
+    cue_sheet = models.CharField(max_length=128,
+                                 choices=cue_options,
+                                 blank=False,
+                                 default="Theater")
     type = "Show"
 
     def __str__(self):

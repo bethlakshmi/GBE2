@@ -35,7 +35,7 @@
        for a rehearsal slot and wish to.</font>
     {% endif %}
 
-<h3>Great Burlesque Exposition of 2016 {{location}} Tech Form </h3>    
+<h3>Great Burlesque Exposition of 2016 Tech Form </h3>    
 <b>Instructions to performers:</b>
 
 <p>
@@ -47,6 +47,8 @@ additional equipment we need.
 </p>
 
    {% include "form_table_wrapper.tmpl" %}
+
+{%if cue_type != 'None'%}
 
 <span class="formtitle">Cue Sheet Instructions</span>
 <p>
@@ -77,7 +79,7 @@ Some useful definitions:<br>
 </ul>
 
 So a completed form might look something like:<br><br>
-{%ifequal location.describe 'Theater'%}
+{%if cue_type == 'Theater'%}
 <table class="bid-table">
   <tr class="bid-table">
     <th class="bid-table">Cue #</th>
@@ -150,7 +152,7 @@ So a completed form might look something like:<br><br>
     <td class="bid-form">&nbsp;</td>
   </tr>
 </table>
-{%endifequal%}
+{%endif%}
 </br>
 </br>
 <span class="formtitle">Cue Sheet</span>
@@ -190,7 +192,7 @@ So a completed form might look something like:<br><br>
       </tr>
     {%endfor%}
   </table>
-
+{%endif%}
 <br><br>  
    {% if nodraft %}
     <input type="submit" name="submit" value="{{nodraft}}">
