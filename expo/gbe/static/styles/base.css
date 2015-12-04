@@ -721,6 +721,10 @@ td.form_label {
   width: 30%;
 }
 
+td.form_label>label {
+  font-weight: normal;
+}
+
 td.form_field {
   width: 60%;
   padding: 5px;
