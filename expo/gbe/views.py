@@ -1945,9 +1945,9 @@ def bid_costume(request):
     page_title = "Displaying a Costume"
     view_title = "Displaying a Costume"
 
-    owner = validate_profile(request, require=True)
+    owner = validate_profile(request, require=False)
 
-    if not profile:
+    if not owner:
         return HttpResponseRedirect(reverse('profile',
                                             urlconf='gbe.urls') +
                                     '?next=' +
