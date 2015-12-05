@@ -165,11 +165,12 @@ prop_labels = {
 
 lighting_labels = {
     'costume': ('Color(s) of your costume '),
+    'specific_needs': ('Please describe your specific lighting needs'),
     'notes': ('Describe the feel of your number ')}
 
 lighting_help_texts = {
-    'notes': ('Is your number happy and bouncy, humorous, dark, mysterious, etc.?  Please keep it simple, \
-                just a short description.')}
+    'notes' : ('Is your number happy and bouncy, humorous, dark, mysterious, \
+               etc.?  Please keep it simple, just a short description.')}
 
 main_cue_header = {'cue_sequence': 'Cue #',
 		   'cue_off_of': 'Cue Off of...',
@@ -185,12 +186,13 @@ starting_cues = [('MC exit', 'MC exit'),
                  ('Performer set on stage', 'Performer set on stage')] 
 
 
-bidder_info_phone_error = ''''A phone number we can use to reach you when you are at \
-the Expo, such as cell phone.'''
+bidder_info_phone_error = ''''A phone number we can use to reach you
+    when you are at the Expo, such as cell phone.'''
 
 act_length_required = ("Act Length (mm:ss) is required.")
-act_length_too_long = ("The Act Length is too long.")  # note: this refers to the data 
-                                                       # entered, not the time signified
+act_length_too_long = ("The Act Length is too long.")  # note: this refers
+                                                       # to the data entered,
+                                                       # not the time signified
 
 act_help_texts = {
     'shows_preferences':('Check as many as apply to you'),
@@ -378,8 +380,6 @@ class_schedule_options = [('0', 'Friday Afternoon'),
                            ('2', 'Saturday Afternoon'), 
                            ('3', 'Sunday Morning'), 
                            ('4', 'Sunday Afternoon')] 
-
-
 
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')

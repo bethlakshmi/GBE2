@@ -35,21 +35,33 @@
        for a rehearsal slot and wish to.</font>
     {% endif %}
 
-<h3>Great Burlesque Exposition of 2015 {{location}} Tech Form </h3>    
+<h3>Great Burlesque Exposition of 2016 Tech Form </h3>    
 <b>Instructions to performers:</b>
+
 <p>
-Please fill out the form as completely as possible.  Please try to keep color and cue descriptions
-simple.  We cannot hit a cue if we do not know what you mean, or the described event is hard to see.
-It you are requesting multiple cues please provide both a warning and an event for the lighting
-board operator to cue on.  The warning is so the lighting board operator knows that the cue is
+Please note that we are limited in what special requests we are able to
+meet.  We are not able to provide prop items, specialty equipment
+(poles, trapezes, trap doors, etc.) or unusual lighting equipment
+(video projectors, UV lights), so you must provide us with whatever
+additional equipment we need.
+</p>
+
+   {% include "form_table_wrapper.tmpl" %}
+
+{%if cue_type != 'None'%}
+
+<span class="formtitle">Cue Sheet Instructions</span>
+<p>
+Please fill out the form as completely as possible.  Please try to keep
+color and cue descriptions simple.  We cannot hit a cue if we do not know
+what you mean, or the described event is hard to see.
+Please keep cue descriptions and instruction as concise as possible, and give
+times for triggers if possible.  It you are requesting multiple cues please
+provide both a warning and an event for the lighting board operator to cue on.
+The warning is so the lighting board operator knows that the cue is
 coming up very soon, within 10 seconds.  
 </p>
-<p>
-Please note that we are limited in what special requests we are able to meet.  We are not able to
-provide prop items, specialty equipment (poles, trapezes, trap doors, etc.) or unusual lighting
-equipment (video projectors, UV lights), so you must provide us with whatever additional equipment
-we need.
-</p>
+
 <p>
 No act can have more than three lighting states, which includes the starting state.  All acts are
 preceded by a moment of darkness after the MC leaves the stage.  This allows performers to set on
@@ -67,7 +79,7 @@ Some useful definitions:<br>
 </ul>
 
 So a completed form might look something like:<br><br>
-{%ifequal location.describe 'Theater'%}
+{%if cue_type == 'Theater'%}
 <table class="bid-table">
   <tr class="bid-table">
     <th class="bid-table">Cue #</th>
@@ -140,8 +152,10 @@ So a completed form might look something like:<br><br>
     <td class="bid-form">&nbsp;</td>
   </tr>
 </table>
-{%endifequal%}
-<h4>Cue Sheet</h4>
+{%endif%}
+</br>
+</br>
+<span class="formtitle">Cue Sheet</span>
 
   <table class="bid-table">
     <tr class="bid-table">
@@ -178,9 +192,8 @@ So a completed form might look something like:<br><br>
       </tr>
     {%endfor%}
   </table>
-  
-   {% include "form_table_wrapper.tmpl" %}
-
+{%endif%}
+<br><br>  
    {% if nodraft %}
     <input type="submit" name="submit" value="{{nodraft}}">
    {% else %}
@@ -188,5 +201,5 @@ So a completed form might look something like:<br><br>
    <input type="submit" name="submit" value="Submit For Approval">
    {% endif %}
    </form>
-
+   
 {% endblock %}
