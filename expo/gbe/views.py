@@ -2091,6 +2091,35 @@ def edit_costume(request, costume_id):
         )
 
 
+@login_required
+@log_func
+def view_costume(request, costume_id):
+    '''
+    Show a costume proposal
+    '''
+    costumebid = get_object_or_404(Costume, id=costume_id)
+    if costumebid.profile != request.user.profile:
+        validate_perms(request, ('Costume Reviewers',), require=True)
+    form = CostumeSubmitForm(instance=costumebid, prefix='The Costume')
+    performer = PersonaForm(instance=costumebid.performer,
+                            prefix='The Performer')
+
+    return render(request, 'gbe/bid_view.tmpl',
+                  {'readonlyform': [form, performer, profile]})
+
+
+@login_required
+@log_func
+def review_costume(request, class_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user.
+    To show: display all information about the bid, and a standard
+    review form.
+    If user is not a reviewer, politely decline to show anything.
+    '''
+    pass
+
+
 @log_func
 def act(request, act_id):
     '''
