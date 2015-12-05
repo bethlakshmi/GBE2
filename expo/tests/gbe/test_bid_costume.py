@@ -21,7 +21,9 @@ class TestEditCostume(TestCase):
         self.performer = factories.PersonaFactory.create()
 
     def get_costume_form(self):
-        picture = SimpleUploadedFile("file.jpg", "file_content", content_type="image/jpg")
+        picture = SimpleUploadedFile("file.jpg",
+                                     "file_content",
+                                     content_type="image/jpg")
         return {'title': 'A costume',
                 'description': 'pieces are listed',
                 'active_use': True,
@@ -39,14 +41,13 @@ class TestEditCostume(TestCase):
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 302)
 
-
     def test_costume_bid_post_form_not_valid(self):
         '''costume_bid, if form not valid, should return to CostumeEditForm'''
         request = self.factory.get('/costume/create')
         request.user = self.performer.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_costume_form())
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         del(request.POST['title'])
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 200)
@@ -61,7 +62,7 @@ class TestEditCostume(TestCase):
         request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_costume_form())
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
@@ -70,7 +71,7 @@ class TestEditCostume(TestCase):
         '''act_bid, not post, should take us to bid process'''
         request = self.factory.get('/act/create')
         request.user = self.performer.performer_profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Displaying a Costume' in response.content)

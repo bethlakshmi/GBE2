@@ -36,6 +36,7 @@ time_format_error =  '''Time must be in the format ##:##.'''
 
 conf_volunteer_save_error = '''There was an error saving your presentation request, please try again.'''
 
+not_yours = "You don't own that bid."
 
 profile_alerts = {'onsite_phone':  '''We need a number to reach you at during the expo. \
 <a href=' %s '>Fix this!</a>''' ,

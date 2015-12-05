@@ -2032,12 +2032,12 @@ def edit_costume(request, costume_id):
     if the_costume.profile != owner:
         return render(request,
                       'gbe/error.tmpl',
-                      {'error': "You don't own that bid."})
+                      {'error': not_yours})
 
     performers = owner.personae.all()
     draft_fields = Costume().bid_draft_fields
 
-    if the_costume.performer not in performers:
+    if performers.count() > 0 and the_costume.performer not in performers:
         return render(request,
                       'gbe/error.tmpl',
                       {'error': "This bid is not one of your stage names."})
