@@ -1963,31 +1963,35 @@ def bid_costume(request):
         If this is a draft, only a few fields are needed, use a form with fewer
         required fields (same model)
         '''
+        new_costume = Costume()
         if 'submit' in request.POST.keys():
-            form = CostumeSubmitForm(request.POST, request.FILES)
+            form = CostumeBidSubmitForm(request.POST, instance=new_costume)
+            details = CostumeDetailsSubmitForm(request.POST,
+                                               request.FILES,
+                                               instance=new_costume)
         else:
-            form = CostumeDraftForm(request.POST, request.FILES)
+            form = CostumeBidDraftForm(request.POST, instance=new_costume)
+            details = CostumeDetailsDraftForm(request.POST,
+                                              request.FILES,
+                                              instance=new_costume)
 
-        if form.is_valid():
+        if form.is_valid() and details.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
-            new_costume = form.save(commit=False)
             new_costume.profile = owner
             new_costume.conference = conference
-            new_costume = form.save(commit=True)
             if 'submit' in request.POST.keys():
                 new_costume.submitted = True
+            new_costume = form.save()
+            new_costume = details.save()
 
-            new_costume.save()
             return HttpResponseRedirect(reverse('home',
                                                 urlconf='gbe.urls'))
-
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Costume().bid_fields
             return render(
                 request,
                 'gbe/bid.tmpl',
-                {'forms': [form],
+                {'forms': [form, details],
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
@@ -1996,8 +2000,11 @@ def bid_costume(request):
             )
 
     else:
-        form = CostumeSubmitForm(initial={'profile': owner,
-                                          'performer': performers[0]})
+        form = CostumeBidSubmitForm(initial={'profile': owner,
+                                             'performer': performers[0]})
+        details = CostumeDetailsSubmitForm(
+            initial={'profile': owner,
+                     'performer': performers[0]})
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
         form.fields['performer'] = \
             forms.ModelChoiceField(queryset=q,
@@ -2007,7 +2014,7 @@ def bid_costume(request):
         return render(
             request,
             'gbe/bid.tmpl',
-            {'forms': [form],
+            {'forms': [form, details],
              'page_title': page_title,
              'view_title': view_title,
              'draft_fields': draft_fields,
@@ -2044,17 +2051,21 @@ def edit_costume(request, costume_id):
 
     if request.method == 'POST':
         if 'submit' in request.POST.keys():
-            form = CostumeSubmitForm(request.POST,
-                                     request.FILES,
-                                     instance=the_costume)
+            form = CostumeBidSubmitForm(request.POST,
+                                        instance=the_costume)
+            details = CostumeDetailsSubmitForm(request.POST,
+                                               request.FILES,
+                                               instance=the_costume)
         else:
-            form = CostumeDraftForm(request.POST,
-                                    request.FILES,
-                                    instance=the_costume)
+            form = CostumeBidDraftForm(request.POST,
+                                       instance=the_costume)
+            details = CostumeDetailsDraftForm(request.POST,
+                                              request.FILES,
+                                              instance=the_costume)
 
-        if form.is_valid():
+        if form.is_valid() and details.is_valid():
             the_costume = form.save()
-
+            the_costume = details.save()
             if 'submit' in request.POST.keys():
                 the_costume.submitted = True
 
@@ -2065,7 +2076,7 @@ def edit_costume(request, costume_id):
             return render(
                 request,
                 'gbe/bid.tmpl',
-                {'forms': [form],
+                {'forms': [form, details],
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
@@ -2073,7 +2084,9 @@ def edit_costume(request, costume_id):
                  'view_header_text': costume_proposal_form_text}
             )
     else:
-        form = CostumeSubmitForm(instance=the_costume)
+        form = CostumeBidSubmitForm(instance=the_costume)
+        details = CostumeDetailsSubmitForm(instance=the_costume)
+
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
         form.fields['performer'] = \
             forms.ModelChoiceField(queryset=q,
@@ -2083,7 +2096,7 @@ def edit_costume(request, costume_id):
         return render(
             request,
             'gbe/bid.tmpl',
-            {'forms': [form],
+            {'forms': [form, details],
              'page_title': page_title,
              'view_title': view_title,
              'draft_fields': draft_fields,
@@ -2100,12 +2113,11 @@ def view_costume(request, costume_id):
     costumebid = get_object_or_404(Costume, id=costume_id)
     if costumebid.profile != request.user.profile:
         validate_perms(request, ('Costume Reviewers',), require=True)
-    form = CostumeSubmitForm(instance=costumebid, prefix='The Costume')
-    performer = PersonaForm(instance=costumebid.performer,
-                            prefix='The Performer')
+    form = CostumeBidSubmitForm(instance=costumebid, prefix='')
+    details = CostumeDetailsSubmitForm(instance=costumebid)
 
     return render(request, 'gbe/bid_view.tmpl',
-                  {'readonlyform': [form, performer, profile]})
+                  {'readonlyform': [form, details]})
 
 
 @login_required

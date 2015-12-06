@@ -691,5 +691,5 @@ costume_proposal_labels = {
     'dress_size': 'Dress Size',
     'more_info': 'Is there anything special about the costume you want us to \
         know?',
-    'picture':  'Please upload a picture of the costume'
+    'picture':  'Picture of the costume'
 }
