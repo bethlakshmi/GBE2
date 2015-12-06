@@ -2007,10 +2007,10 @@ def bid_costume(request):
             initial={'profile': owner,
                      'performer': performers[0]})
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
-        form.fields['performer'] = \
-            forms.ModelChoiceField(queryset=q,
-                                   label=costume_proposal_labels['performer'],
-                                   required=False)
+        form.fields['performer'] = forms.ModelChoiceField(
+            queryset=q,
+            label=costume_proposal_labels['performer'],
+            required=False)
 
         return render(
             request,
@@ -2089,10 +2089,10 @@ def edit_costume(request, costume_id):
         details = CostumeDetailsSubmitForm(instance=the_costume)
 
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
-        form.fields['performer'] = \
-            forms.ModelChoiceField(queryset=q,
-                                   label=costume_proposal_labels['performer'],
-                                   required=False)
+        form.fields['performer'] = forms.ModelChoiceField(
+            queryset=q,
+            label=costume_proposal_labels['performer'],
+            required=False)
 
         return render(
             request,

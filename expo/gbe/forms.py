@@ -804,17 +804,16 @@ class CostumeBidDraftForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    active_use = \
-        forms.TypedChoiceField(widget=forms.RadioSelect,
-                               choices=boolean_options,
-                               label=costume_proposal_labels['active_use'],
-                               required=False)
-    debut_date = \
-        forms.CharField(
-            label=costume_proposal_labels['debut_date'],
-            help_text=costume_proposal_help_texts['debut_date'],
-            widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
-            required=False)
+    active_use = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['active_use'],
+        required=False)
+    debut_date = forms.CharField(
+        label=costume_proposal_labels['debut_date'],
+        help_text=costume_proposal_help_texts['debut_date'],
+        widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
+        required=False)
 
     class Meta:
 
@@ -832,16 +831,15 @@ class CostumeBidSubmitForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    active_use = \
-        forms.TypedChoiceField(widget=forms.RadioSelect,
-                               choices=boolean_options,
-                               label=costume_proposal_labels['active_use'])
-    debut_date = \
-        forms.CharField(
-            label=costume_proposal_labels['debut_date'],
-            help_text=costume_proposal_help_texts['debut_date'],
-            widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
-            required=False)
+    active_use = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['active_use'])
+    debut_date = forms.CharField(
+        label=costume_proposal_labels['debut_date'],
+        help_text=costume_proposal_help_texts['debut_date'],
+        widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
+        required=False)
 
     class Meta:
 
@@ -860,29 +858,29 @@ class CostumeDetailsDraftForm(forms.ModelForm):
     error_css_class = 'error'
     form_title = "Costume Information"
 
-    pasties = \
-        forms.TypedChoiceField(widget=forms.RadioSelect,
-                               choices=boolean_options,
-                               label=costume_proposal_labels['pasties'],
-                               required=False)
+    pasties = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['pasties'],
+        required=False)
     pieces = forms.ChoiceField(choices=[(x, x) for x in range(1, 21)],
                                label=costume_proposal_labels['pieces'],
                                required=False)
-    dress_size = \
-        forms.ChoiceField(choices=[(x, x) for x in range(1, 21)],
-                          label=costume_proposal_labels['dress_size'],
-                          help_text=costume_proposal_help_texts['dress_size'],
-                          required=False)
-    description = \
-        forms.CharField(max_length=500,
-                        widget=forms.Textarea,
-                        label=costume_proposal_labels['description'],
-                        required=False)
-    more_info = \
-        forms.CharField(max_length=500,
-                        widget=forms.Textarea,
-                        label=costume_proposal_labels['more_info'],
-                        required=False)
+    dress_size = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['dress_size'],
+        help_text=costume_proposal_help_texts['dress_size'],
+        required=False)
+    description = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea,
+        label=costume_proposal_labels['description'],
+        required=False)
+    more_info = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea,
+        label=costume_proposal_labels['more_info'],
+        required=False)
 
     class Meta:
 
@@ -902,16 +900,17 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
     error_css_class = 'error'
     form_title = "Costume Information"
 
-    pasties = \
-        forms.TypedChoiceField(widget=forms.RadioSelect,
-                               choices=boolean_options,
-                               label=costume_proposal_labels['pasties'])
-    pieces = forms.ChoiceField(choices=[(x, x) for x in range(1, 21)],
-                               label=costume_proposal_labels['pieces'])
-    dress_size = \
-        forms.ChoiceField(choices=[(x, x) for x in range(1, 21)],
-                          label=costume_proposal_labels['dress_size'],
-                          help_text=costume_proposal_help_texts['dress_size'])
+    pasties = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['pasties'])
+    pieces = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['pieces'])
+    dress_size = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['dress_size'],
+        help_text=costume_proposal_help_texts['dress_size'])
     description = forms.CharField(max_length=500,
                                   widget=forms.Textarea,
                                   label=costume_proposal_labels['description'])
