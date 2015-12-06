@@ -244,12 +244,8 @@ class Profile(WorkerItem):
         return profile_alerts
 
     def get_costumebids(self, historical=False):
-        costumes = Costume.objects.filter(profile=self)
-        if historical:
-            f = lambda c: not c.is_current
-        else:
-            f = lambda c: c.is_current
-        return filter(f, costumes)
+        costumes = self.costumes.all()
+        return (c for c in costumes if c.is_current != historical)
 
     def get_volunteerbids(self):
         return [vbid for vbid in self.volunteering.all() if vbid.is_current]
