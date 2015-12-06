@@ -210,7 +210,8 @@ class Profile(WorkerItem):
 
     @property
     def privilege_groups(self):
-        groups = [group.name for group in self.user_object.groups.all().order_by('name')]
+        groups = [group.name for
+                  group in self.user_object.groups.all().order_by('name')]
         return groups
 
     def alerts(self, historical=False):
@@ -232,7 +233,8 @@ class Profile(WorkerItem):
         for act in self.get_acts():
             if act.accepted == 3 and \
                act.is_current and \
-               (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
+               (len(act.get_scheduled_rehearsals()) == 0 or
+                    not act.tech.is_complete):
                 profile_alerts.append(
                     gbetext.profile_alerts['schedule_rehearsal'] %
                     (act.title,
@@ -240,6 +242,14 @@ class Profile(WorkerItem):
                              urlconf=gbe.urls,
                              args=[act.id])))
         return profile_alerts
+
+    def get_costumebids(self, historical=False):
+        costumes = Costume.objects.filter(profile=self)
+        if historical:
+            f = lambda c: not c.is_current
+        else:
+            f = lambda c: c.is_current
+        return filter(f, costumes)
 
     def get_volunteerbids(self):
         return [vbid for vbid in self.volunteering.all() if vbid.is_current]
@@ -1602,7 +1612,7 @@ class Costume(Biddable):
       - act_title is optional, and therefore does not fit the rules of
         Biddable's title
     '''
-    profile = models.ForeignKey(Profile, related_name="is_displaying")
+    profile = models.ForeignKey(Profile, related_name="costumes")
     performer = models.ForeignKey(Persona, blank=True, null=True)
     act_title = models.CharField(max_length=128, blank=True, null=True)
     debut_date = models.CharField(max_length=128, blank=True, null=True)

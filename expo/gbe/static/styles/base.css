@@ -676,7 +676,7 @@ div.sidebar>div.class_section {
 }
 
 div.sidebar>div.performer_section {
-    background-color:#E3DDDF;;
+    background-color:#E3DDDF;
     padding-left:5px;
     padding-top:5px;
 }
@@ -684,7 +684,7 @@ div.sidebar>div.performer_section {
 
 div.sidebar>div.show_section {
     margin-top: 10px;
-    background-color:#E3DDDF;;
+    background-color:#E3DDDF;
     padding-left:5px;
     padding-top:5px;
 }
@@ -693,6 +693,13 @@ div.sidebar>div.show_section {
 div.sidebar>div.volunteer_section {
     margin-top: 10px;
     background-color:#C3BDBF;
+    padding-left:5px;
+    padding-top:5px;
+}
+
+div.sidebar>div.costume_section {
+    margin-top: 10px;
+    background-color:#E3DDDF;
     padding-left:5px;
     padding-top:5px;
 }

@@ -10,7 +10,9 @@ from tests.factories.gbe_factories import(
     ClassFactory,
     VendorFactory,
     PersonaFactory,
+    CostumeFactory,
 )
+
 
 class TestIndex(TestCase):
     '''Tests for index view'''
@@ -23,7 +25,7 @@ class TestIndex(TestCase):
         profile = ProfileFactory.create()
         request = self.factory.get('/')
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = landing_page(request)
         self.assertEqual(response.status_code, 200)
 
@@ -67,17 +69,29 @@ class TestIndex(TestCase):
         previous_vendor.conference = previous_conf
         previous_vendor.title = 'Previous Vendor'
         previous_vendor.save()
+        current_costume = CostumeFactory.create(profile=profile,
+                                                submitted=True)
+        current_costume.conference = current_conf
+        current_costume.title = "Current Costume"
+        current_costume.save()
+        previous_costume = CostumeFactory.create(profile=profile,
+                                                 submitted=True)
+        previous_costume.conference = previous_conf
+        previous_costume.title = 'Previous Costume'
+        previous_costume.save()
         request = self.factory.get('/')
         request.user = profile.user_object
         request.GET = {'historical': 1}
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = landing_page(request)
         content = response.content
         shows_all_previous = (previous_act.title in content and
                               previous_class.title in content and
-                              previous_vendor.title in content)
+                              previous_vendor.title in content and
+                              previous_costume.title in content)
         does_not_show_current = (current_act.title not in content and
                                  current_class.title not in content and
-                                 current_vendor.title not in content)
+                                 current_vendor.title not in content and
+                                 current_costume.title not in content)
         nt.assert_true(shows_all_previous and
                        does_not_show_current)

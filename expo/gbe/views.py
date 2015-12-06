@@ -192,6 +192,7 @@ def landing_page(request, profile_id=None, historical=False):
              'proposed_classes': viewer_profile.proposed_classes(historical),
              'vendors': viewer_profile.vendors(historical),
              'volunteering': viewer_profile.get_volunteerbids(),
+             'costumes': viewer_profile.get_costumebids(historical),
              'review_items': bids_to_review,
              'bookings': viewer_profile.get_schedule(),
              'tickets': get_purchased_tickets(viewer_profile.user_object),
