@@ -665,7 +665,7 @@ costume_proposal_form_text = '''<p>Thanks for your interest in our costume \
     Volunteer Opportunities. '''
 
 costume_proposal_help_texts = {
-    'title': '''Please put the stage name, legal name, or company name of \
+    'creator': '''Please put the stage name, legal name, or company name of \
         the creator, whichever is appropriate. If multiple creators, please \
         separate them with a comma. If unknown, just put 'unknown'.''',
     'act_title': 'The name of the act for which you use the costume, if any.',
@@ -681,7 +681,7 @@ costume_proposal_help_texts = {
 
 costume_proposal_labels = {
     'performer': 'Stage Name',
-    'title': 'Costume Creator',
+    'creator': 'Costume Creator',
     'act_title': 'Name of Act',
     'debut_date': 'Debut Date',
     'active_use': 'Is the costume still being used on-stage?',

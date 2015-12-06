@@ -818,8 +818,9 @@ class CostumeBidDraftForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['performer',
-                  'title',
+        fields = ['title',
+                  'performer',
+                  'creator',
                   'act_title',
                   'debut_date',
                   'active_use']
@@ -844,8 +845,9 @@ class CostumeBidSubmitForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['performer',
-                  'title',
+        fields = ['title',
+                  'performer',
+                  'creator',
                   'act_title',
                   'debut_date',
                   'active_use']

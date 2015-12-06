@@ -25,6 +25,7 @@ class TestEditCostume(TestCase):
                                      "file_content",
                                      content_type="image/jpg")
         return {'title': 'A costume',
+                'creator': 'A creator',
                 'description': 'pieces are listed',
                 'active_use': True,
                 'pieces': 10,

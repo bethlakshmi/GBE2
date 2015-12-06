@@ -8,8 +8,7 @@
       <div class='vendor'>
         {% if costume.submitted or historical %}
           <a href = '{% url 'gbe:costume_view' costume.id%}'> 
-            {{ costume.title }}
-	    {%if costume.act_title%}, {{costume.act_title}}{%endif%}
+            {{ costume }}
           </a>(Click to view)
           {% for value, state in acceptance_states %}
             {% if value = costume.accepted %}
