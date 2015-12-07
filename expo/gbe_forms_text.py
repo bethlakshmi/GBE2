@@ -183,7 +183,7 @@ main_cue_header = {'cue_sequence': 'Cue #',
 
 starting_cues = [('MC exit', 'MC exit'), 
                  ('Start of music', 'Start of music'), 
-                 ('Performer set on stage', 'Performer set on stage')] 
+                 ('Performer set on stage', 'Performer set on stage')]
 
 
 bidder_info_phone_error = ''''A phone number we can use to reach you
@@ -255,19 +255,19 @@ act_description_too_long =  ("The Description  is too long.")
 promo_required = ("Please provide a photo.")
 promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
 
-persona_labels = { 'name': ('Stage Name'), 
-                   'homepage': ('Web Site'),
-                   'contact': ('Agent/Contact'), 
-                   'bio': ('Bio'),
-                   'experience': ('Experience'),  
-                   'awards': ('Awards'),
-                   'promo_image': ('Promo Image'),
-                   'puffsheet': ('Press kit/one-sheet'),
-                   'festivals': ('Festival Appearances and Honors'),
-               }
+persona_labels = {'name': ('Stage Name'), 
+                  'homepage': ('Web Site'),
+                  'contact': ('Agent/Contact'), 
+                  'bio': ('Bio'),
+                  'experience': ('Experience'),  
+                  'awards': ('Awards'),
+                  'promo_image': ('Promo Image'),
+                  'puffsheet': ('Press kit/one-sheet'),
+                  'festivals': ('Festival Appearances and Honors'),
+                  }
 
 
-persona_help_texts = {  
+persona_help_texts = {
 'name': 
     ('This is the name you will be listed under when performing.'),
 'contact': 
@@ -379,7 +379,7 @@ class_schedule_options = [('0', 'Friday Afternoon'),
                            ('1', 'Saturday Morning'), 
                            ('2', 'Saturday Afternoon'), 
                            ('3', 'Sunday Morning'), 
-                           ('4', 'Sunday Afternoon')] 
+                           ('4', 'Sunday Afternoon')]
 
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
@@ -548,19 +548,19 @@ username_label = 'Login'
 username_help = 'Required. 30 characters or fewer. Letters, digits and \
 		@ . + - _ only.'
 
-conference_participation_types = [('Teacher', 'Teacher'), 
-                        ('Moderator', 'Moderator'), 
-                        ('Panelist', 'Panelist'), 
-                        ('Any of the Above', 'Any of the Above')] 
+conference_participation_types = [('Teacher', 'Teacher'),
+                                  ('Moderator', 'Moderator'),
+                                  ('Panelist', 'Panelist'),
+                                  ('Any of the Above', 'Any of the Above')]
 
-panel_participation_types = [('Moderator', 'Moderator'), 
-                        ('Panelist', 'Panelist'), 
-                        ('Any of the Above', 'Any of the Above')]
+panel_participation_types = [('Moderator', 'Moderator'),
+                             ('Panelist', 'Panelist'),
+                             ('Any of the Above', 'Any of the Above')]
 
 class_participation_types = [('Teacher', 'Teacher')]
 
-calendar_types = { 0: 'General',
-                   1: 'Conference'}
+calendar_types = {0: 'General',
+                  1: 'Conference'}
 
 list_titles = {
     'Class': '''Class Descriptions at GBE''',
@@ -575,31 +575,45 @@ list_titles = {
 
 list_text = {
     'Class': '''    <p> \
-        The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
-        class time over threee days.  It is the original Professional Development Conference for \
-        burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
+        The Conference at <b></b>The Great Burlesque Exposition</b> \
+        features more than 60 hours of \
+        class time over threee days.  It is the original Professional \
+        Development Conference for \
+        burlesque performers, founded on the philosophy that "If we don't \
+        take ourselves seriously, \
         no one else will either". \
         </p> \
         <p> \
-        Whether you're looking to boost a skill set to the next level or develop some new skills, \
-        The Conference has something for you from costuming to publicity to philosophical \
+        Whether you're looking to boost a skill set to the next level \
+        or develop some new skills, \
+        The Conference has something for you from costuming to publicity to \
+        philosophical \
         discussions.   \
         </p>''',
     'Panel': '''    <p> \
-        Panels are an opportunity for members of the burlesque community to learn from one another and \
-        share with one another in a semi-structured setting.  Less goal-oriented than our classes and \
-        workshops, panels are guided discussions between knowledgable attendees.  Led by a moderator, \
-        panels actively encourage feedback and dialogue between the "panel of experts" and the attendees.\
-        </p><p>Sitting on a panel is a great way to gain experience as a public speaker or to see if you
-        might want to teach a class some day.  You don't need to be an expert to sit on a panel; you \
+        Panels are an opportunity for members of the burlesque community to \
+        learn from one another and \
+        share with one another in a semi-structured setting.  Less \
+        goal-oriented than our classes and \
+        workshops, panels are guided discussions between knowledgable \
+        attendees.  Led by a moderator, \
+        panels actively encourage feedback and dialogue between the "panel of \
+        experts" and the attendees.\
+        </p><p>Sitting on a panel is a great way to gain experience as a \
+        public speaker or to see if you
+        might want to teach a class some day.  You don't need to be an \
+        expert to sit on a panel; you \
         just need to be excited and enthusiastic about the topic!</p><p>
-        If you're interested in being a panelist, let ust know - sign up at I want to... Be a Presenter</p> ''',
+        If you're interested in being a panelist, let ust know - sign up at I \
+        want to... Be a Presenter</p> ''',
     'Show': '''    <p> \
-        Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
+        Each year, The Great Burlesque Exposition searches the globe to bring \
+        you the finest performers.  \
         We have four big shows on three big nights! \
         </p> ''',
     'All': '''    <p> \
-        Check out the full list of all shows, classes, master classes, dropin classes and special events!\
+        Check out the full list of all shows, classes, master classes, dropin \
+        classes and special events!\
         </p> ''',
     'Volunteer': '''    <p> \
         Check out the many ways you can help to make the expo even more \
@@ -627,7 +641,7 @@ list_text = {
 }
 
 acceptance_note = '''Only accepted classes will show up in scheduling and on \
-                  the website.'''
+        the website.'''
 
 scheduling_help_texts = {
     'description': "Note, this will change the description for all bookings \
@@ -665,6 +679,11 @@ costume_proposal_form_text = '''<p>Thanks for your interest in our costume \
     Volunteer Opportunities. '''
 
 costume_proposal_help_texts = {
+    'title': '''A unique way to identify the costume so we all know which \
+        costume we're talking about.  You could use the name of the act it's \
+        from, the material and color, or really anything so you know which \
+        costume we're talking about.  We'll contact you about what you want \
+        to call it on the exhibit text, if we have questions.''',
     'creator': '''Please put the stage name, legal name, or company name of \
         the creator, whichever is appropriate. If multiple creators, please \
         separate them with a comma. If unknown, just put 'unknown'.''',
@@ -680,6 +699,7 @@ costume_proposal_help_texts = {
 }
 
 costume_proposal_labels = {
+    'title': 'Name of Costume',
     'performer': 'Stage Name',
     'creator': 'Costume Creator',
     'act_title': 'Name of Act',
