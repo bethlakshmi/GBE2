@@ -285,8 +285,8 @@ def edit_troupe(request, troupe_id=None):
         troupe = Troupe()
 
     if (troupe_id > 0 and
-        request.user and
-        troupe.contact != request.user.profile):
+            request.user and
+            troupe.contact != request.user.profile):
         return HttpResponseRedirect(reverse('troupe_view',
                                             urlconf='gbe.urls',
                                             args=[str(troupe_id)]))
@@ -2454,7 +2454,8 @@ def conference_volunteer(request):
             else:
                 form.fields['how_volunteer'] = forms.ChoiceField(
                     choices=conference_participation_types)
-            form.fields['how_volunteer'].widget.attrs['class'] = 'how_volunteer'
+            form.fields['how_volunteer'].widget.attrs['class'] = \
+                'how_volunteer'
             bid_row = {}
             bid_row['conf_item'] = aclass.presenter_bid_info
             bid_row['form'] = form
@@ -2661,6 +2662,7 @@ def edit_act_techinfo(request, act_id):
                    for i in range(3)]
 
     shows = act.get_scheduled_shows()
+    show_detail = get_object_or_404(Show, eventitem_id=shows[0].eventitem.pk)
     rehearsal_sets = {}
     for show in shows:
         re_set = show.get_open_rehearsals()
@@ -2678,7 +2680,7 @@ def edit_act_techinfo(request, act_id):
             re_set.insert(0, existing_rehearsal)
         if len(re_set) > 0:
             rehearsal_sets[show] = re_set
-    location = shows[0].location
+
     if len(rehearsal_sets) > 0:
         rehearsal_forms = [RehearsalSelectionForm(
             initial={'show': show,
@@ -2711,21 +2713,23 @@ def edit_act_techinfo(request, act_id):
         lightingform = LightingInfoForm(request.POST,
                                         prefix='lighting_info',
                                         instance=lighting_info)
-        if location.describe == 'Theater':
+        if show_detail.cue_sheet == 'Theater':
             formtype = CueInfoForm
-        else:
+        elif show_detail.cue_sheet == 'Alternate':
             formtype = VendorCueInfoForm
+        else:
+            formtype = "None"
 
-        cue_forms = [formtype(request.POST,
-                              prefix='cue%d' % i,
-                              instance=cue_objects[i])
-                     for i in range(3)]
-        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
-            choices=starting_cues,
-            initial=starting_cues[0])
-        for f in cue_forms:
-            if f.is_valid():
-                f.save()
+        if formtype != "None":
+            cue_forms = [formtype(request.POST,
+                                  prefix='cue%d' % i,
+                                  instance=cue_objects[i]) for i in range(3)]
+            cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
+                choices=starting_cues,
+                initial=starting_cues[0])
+            for f in cue_forms:
+                if f.is_valid():
+                    f.save()
 
         techforms = [lightingform,  audioform, stageform, ]
 
@@ -2736,19 +2740,22 @@ def edit_act_techinfo(request, act_id):
         if tech.is_complete:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
+            form_data = {'readonlyform': [form],
+                         'rehearsal_forms': rehearsal_forms,
+                         'forms': techforms,
+                         'page_title': page_title,
+                         'view_title': view_title,
+                         'showheader': False,
+                         'nodraft': submit_button,
+                         'hide_list_details': True,
+                         'cue_type': show_detail.cue_sheet
+                         }
+            if formtype != "None":
+                form_data['cues'] = cue_forms
+
             return render(request,
                           'gbe/act_techinfo.tmpl',
-                          {'readonlyform': [form],
-                           'rehearsal_forms': rehearsal_forms,
-                           'forms': techforms,
-                           'cues': cue_forms,
-                           'page_title': page_title,
-                           'view_title': view_title,
-                           'nodraft': submit_button,
-                           'showheader': False,
-                           'nodraft': submit_button,
-                           'location': location
-                           })
+                          form_data)
     else:
         form = ActTechInfoForm(instance=act,
                                prefix='act_tech_info')
@@ -2760,32 +2767,37 @@ def edit_act_techinfo(request, act_id):
                                         instance=lighting_info)
         techforms = [lightingform, audioform, stageform, ]
 
-        if location.describe == 'Theater':
+        if show_detail.cue_sheet == 'Theater':
             formtype = CueInfoForm
-        else:
+        elif show_detail.cue_sheet == 'Alternate':
             formtype = VendorCueInfoForm
+        else:
+            formtype = "None"
 
-        cue_forms = [formtype(prefix='cue%d' % i, instance=cue_objects[i])
-                     for i in range(3)]
-        cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
-            choices=starting_cues,
-            initial=starting_cues[0])
+        form_data = {'readonlyform': [form],
+                     'rehearsal_forms': rehearsal_forms,
+                     'forms': techforms,
+                     'page_title': page_title,
+                     'view_title': view_title,
+                     'showheader': False,
+                     'nodraft': submit_button,
+                     'hide_list_details': True,
+                     'cue_type': show_detail.cue_sheet}
+
+        if formtype != "None":
+            cue_forms = [formtype(prefix='cue%d' % i, instance=cue_objects[i])
+                         for i in range(3)]
+            cue_forms[0].fields['cue_off_of'] = forms.ChoiceField(
+                choices=starting_cues,
+                initial=starting_cues[0])
+            form_data['cues'] = cue_forms
 
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = forms.ModelChoiceField(queryset=q)
 
         return render(request,
                       'gbe/act_techinfo.tmpl',
-                      {'readonlyform': [form],
-                       'rehearsal_forms': rehearsal_forms,
-                       'forms': techforms,
-                       'cues': cue_forms,
-                       'page_title': page_title,
-                       'view_title': view_title,
-                       'showheader': False,
-                       'nodraft': submit_button,
-                       'location': location
-                       })
+                      form_data)
 
 
 @log_func

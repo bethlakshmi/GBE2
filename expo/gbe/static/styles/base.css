@@ -721,6 +721,10 @@ td.form_label {
   width: 30%;
 }
 
+td.form_label>label {
+  font-weight: normal;
+}
+
 td.form_field {
   width: 60%;
   padding: 5px;
@@ -746,4 +750,11 @@ td.form_field.long_choice > ul > li
 td.form_field > ul > li
 {
   list-style-type: none;
+}
+
+.formtitle
+{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 20px;
+  color: black;
 }

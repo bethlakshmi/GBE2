@@ -65,41 +65,56 @@ act_shows_options = [ (0, 'The Bordello (Fri. Late)'),
                     ]
 
 act_other_perf_options = [ (0, "Go-go dance during one or more of the shows \
-                                (we'll ask which one later)"), 
+                                (we'll ask which one later)"),
                            (1, 'Be part of the opening number for The Main \
                                 Event'),
                            (2, 'Model in the Fashion Show (Sunday afternoon)'),
                            (3, 'Model in the Swimsuit Show (Saturday night \
-                                late)'),
-                         ]
+                                late)')]
 
 all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 
- 
-best_time_to_call_options = [('Any', 'Any'), 
-                             ('Mornings', 'Mornings'), 
-                             ('Afternoons', 'Afternoons'), 
+cue_options = [('Theater', 'Theater'),
+               ('Alternate', 'Alternate'),
+               ('None', 'None')]
+
+best_time_to_call_options = [('Any', 'Any'),
+                             ('Mornings', 'Mornings'),
+                             ('Afternoons', 'Afternoons'),
                              ('Evenings', 'Evenings')]
 
-volunteer_shift_options = [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
-    
+volunteer_shift_options = [(1, 1),
+                           (2, 2),
+                           (3, 3),
+                           (4, 4),
+                           (5, 5),
+                           (6, 6),
+                           (7, 7),
+                           (8, 8)]
 
-states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), 
-                  ('AR', 'Arkansas'), ('CA', 'California'), ('CO', 'Colorado'), 
-                  ('CT', 'Connecticut'), ('DE', 'Delaware'), ('FL', 'Florida'), 
-                  ('GA', 'Georgia'), ('HI', 'Hawaii'), ('ID', 'Idaho'), 
-                  ('IL', 'Illinois'), ('IN', 'Indiana'), ('IA', 'Iowa'), 
-                  ('KS', 'Kansas'), ('KY', 'Kentucky'), ('LA', 'Louisiana'), 
-                  ('ME', 'Maine'), ('MD', 'Maryland'), ('MA', 'Massachusetts'), 
-                  ('MI', 'Michigan'), ('MN', 'Minnesota'), ('MS', 'Mississippi'), 
-                  ('MO', 'Missouri'), ('MT', 'Montana'), ('NE', 'Nebraska'), 
-                  ('NV', 'Nevada'), ('NH', 'New Hampshire'), ('NJ', 'New Jersey'), 
-                  ('NM', 'New Mexico'), ('NY', 'New York'), ('NC', 'North Carolina'), 
-                  ('ND', 'North Dakota'), ('OH', 'Ohio'), ('OK', 'Oklahoma'), 
-                  ('OR', 'Oregon'), ('PA', 'Pennsylvania'), ('RI', 'Rhode Island'), 
-                  ('SC', 'South Carolina'), ('SD', 'South Dakota'), ('TN', 'Tennessee'), 
-                  ('TX', 'Texas'), ('UT', 'Utah'), ('VT', 'Vermont'), ('VA', 'Virginia'), 
-                  ('WA', 'Washington'), ('WV', 'West Virginia'), ('WI', 'Wisconsin'), 
+states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'),
+                  ('AR', 'Arkansas'), ('CA', 'California'), ('CO', 'Colorado'),
+                  ('CT', 'Connecticut'), ('DE', 'Delaware'), ('FL', 'Florida'),
+                  ('GA', 'Georgia'), ('HI', 'Hawaii'), ('ID', 'Idaho'),
+                  ('IL', 'Illinois'), ('IN', 'Indiana'), ('IA', 'Iowa'),
+                  ('KS', 'Kansas'), ('KY', 'Kentucky'), ('LA', 'Louisiana'),
+                  ('ME', 'Maine'), ('MD', 'Maryland'), ('MA', 'Massachusetts'),
+                  ('MI', 'Michigan'), ('MN', 'Minnesota'),
+                  ('MS', 'Mississippi'),
+                  ('MO', 'Missouri'), ('MT', 'Montana'), ('NE', 'Nebraska'),
+                  ('NV', 'Nevada'), ('NH', 'New Hampshire'),
+                  ('NJ', 'New Jersey'),
+                  ('NM', 'New Mexico'), ('NY', 'New York'),
+                  ('NC', 'North Carolina'),
+                  ('ND', 'North Dakota'), ('OH', 'Ohio'), ('OK', 'Oklahoma'),
+                  ('OR', 'Oregon'), ('PA', 'Pennsylvania'),
+                  ('RI', 'Rhode Island'),
+                  ('SC', 'South Carolina'), ('SD', 'South Dakota'),
+                  ('TN', 'Tennessee'),
+                  ('TX', 'Texas'), ('UT', 'Utah'), ('VT', 'Vermont'),
+                  ('VA', 'Virginia'),
+                  ('WA', 'Washington'), ('WV', 'West Virginia'),
+                  ('WI', 'Wisconsin'),
                   ('WY', 'Wyoming'), ('OTHER', 'Other/Non-US')]
 
 offon_options = (("Off", "OFF"), ("ON", "ON"))

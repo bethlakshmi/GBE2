@@ -1,10 +1,12 @@
    {% load staticfiles %}
+   {% if not hide_list_details %}
    <br><br>
    In lists of choices:
    <ul>
     <li><i>Italic choices</i> - were not selected</li>
     <li><b>Bold choices</b> - have been selected</li>
    </ul>
+  {% endif %}
     <table>
       {% for info in readonlyform %}
       	 {% if info.form_title %}
