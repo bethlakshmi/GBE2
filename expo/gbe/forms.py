@@ -431,8 +431,14 @@ class VolunteerBidForm(forms.ModelForm):
         label=volunteer_labels['unavailability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
-    available_windows = forms.ModelMultipleChoiceField(queryset=VolunteerWindow.objects.none())
-    unavailable_windows = forms.ModelMultipleChoiceField(queryset=VolunteerWindow.objects.none())
+    available_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(), 
+        widget=forms.CheckboxSelectMultiple,
+        label='Available')
+    unavailable_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        label='Unavailable')
 
     interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                           choices=volunteer_interests_options)
@@ -446,10 +452,8 @@ class VolunteerBidForm(forms.ModelForm):
         else:
             unavailable_windows = None
         super(VolunteerBidForm, self).__init__(*args, **kwargs)
-        self.fields['available_windows'] = forms.ModelMultipleChoiceField(
-            queryset=available_windows)
-        self.fields['unavailable_windows'] = forms.ModelMultipleChoiceField(
-            queryset=unavailable_windows)
+        self.fields['available_windows'].queryset=available_windows
+        self.fields['unavailable_windows'].queryset=unavailable_windows
 
 
 
@@ -462,6 +466,8 @@ class VolunteerBidForm(forms.ModelForm):
                   'opt_outs',
                   'pre_event',
                   'background',
+                  'available_windows', 
+                  'unavailable_windows',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),

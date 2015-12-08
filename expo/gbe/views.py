@@ -1394,7 +1394,8 @@ def view_volunteer(request, volunteer_id):
         instance=volunteer,
         prefix='Volunteer Info', 
         available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows())
+        unavailable_windows=volunteer.conference.windows()
+    )
     profile = ParticipantForm(
         instance=volunteer.profile,
         initial={'email': volunteer.profile.user_object.email,

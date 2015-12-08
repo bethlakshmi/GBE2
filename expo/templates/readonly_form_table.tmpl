@@ -35,6 +35,17 @@
               <a href="{{field.value}}">Go to {{ field.label }}</a>
             {% elif field.field.widget.input_type == "file" %}
               <a href="{{MEDIA_URL}}{{field.value}}">Go to {{ field.label }}</a>
+            {% elif field.label == "Available" or field.label == "Unavailable" %}
+              {% for choice_id, choice_label in field.field.choices %}	
+                    <li>
+                    {% if choice_id and choice_id in field.value %}
+                      <b>{{ choice_label }}</b>
+                    {% else %}
+                      <i>{{ choice_label }}</i>
+                    {% endif %}
+                    </li>
+	        
+	      {% endfor %}
             {% elif field.field.choices %}
               <ul>
               {% if field.field.choices|length > 7 and field.value|length %}
