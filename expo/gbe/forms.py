@@ -419,18 +419,6 @@ class VolunteerBidForm(forms.ModelForm):
     error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()
-    availability = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
-        label=volunteer_labels['availability'],
-        help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=False)
-    unavailability = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
-        label=volunteer_labels['unavailability'],
-        help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=False)
     available_windows = forms.ModelMultipleChoiceField(
         queryset=VolunteerWindow.objects.none(), 
         widget=forms.CheckboxSelectMultiple,
@@ -460,14 +448,12 @@ class VolunteerBidForm(forms.ModelForm):
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
-                  'availability',
-                  'unavailability',
+                  'available_windows', 
+                  'unavailable_windows',
                   'interests',
                   'opt_outs',
                   'pre_event',
                   'background',
-                  'available_windows', 
-                  'unavailable_windows',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),
