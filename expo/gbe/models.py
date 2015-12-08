@@ -1459,8 +1459,8 @@ class Volunteer(Biddable):
     profile = models.ForeignKey(Profile, related_name="volunteering")
     number_shifts = models.IntegerField(choices=volunteer_shift_options,
                                         default=1)
-    availability = models.TextField()
-    unavailability = models.TextField()
+    availability = models.TextField(blank=True)
+    unavailability = models.TextField(blank=True)
 
     interests = models.TextField()
     opt_outs = models.TextField(blank=True)

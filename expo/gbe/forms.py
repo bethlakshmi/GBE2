@@ -424,7 +424,7 @@ class VolunteerBidForm(forms.ModelForm):
         choices=volunteer_availability_options,
         label=volunteer_labels['availability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=True)
+        required=False)
     unavailability = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=volunteer_availability_options,
