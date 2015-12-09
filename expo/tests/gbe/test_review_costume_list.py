@@ -7,6 +7,7 @@ from gbe.views import review_costume_list
 from django.contrib.auth.models import Group
 from tests.factories import gbe_factories as factories
 from tests.functions.gbe_functions import login_as
+from django.core.exceptions import PermissionDenied
 
 
 class TestReviewCostumeList(TestCase):
@@ -29,3 +30,19 @@ class TestReviewCostumeList(TestCase):
         response = review_costume_list(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
+
+    @nt.raises(PermissionDenied)
+    def test_review_costume_baduser(self):
+        request = self.factory.get('costume/review/')
+        request.user = factories.ProfileFactory.create().user_object
+        request.session = {'cms_admin_site': 1}
+        login_as(request.user, self)
+        response = review_costume_list(request)
+
+    @nt.raises(PermissionDenied)
+    def test_review_costume_no_profile(self):
+        request = self.factory.get('costume/review/')
+        request.user = factories.UserFactory.create()
+        request.session = {'cms_admin_site': 1}
+        login_as(request.user, self)
+        response = review_costume_list(request)
