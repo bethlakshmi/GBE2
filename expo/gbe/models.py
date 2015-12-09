@@ -1656,8 +1656,9 @@ class Costume(Biddable):
 
     @property
     def bid_review_header(self):
-        return (['Performer',
+        return (['Performer (Creator)',
                  'Title',
+                 'Act',
                  'Last Update',
                  'State',
                  'Reviews',
@@ -1665,8 +1666,14 @@ class Costume(Biddable):
 
     @property
     def bid_review_summary(self):
-        return (self.performer.name,
+        name = ""
+        if self.performer:
+            name += self.performer.name + " "
+
+        name += "("+self.creator+")"
+        return (name,
                 self.title,
+                self.act_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 
