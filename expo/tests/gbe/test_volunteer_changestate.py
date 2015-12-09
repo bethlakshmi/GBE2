@@ -29,7 +29,8 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
-        request = self.factory.get('volunteer/changestate/%d' % self.volunteer.pk)
+        request = self.factory.get(
+            'volunteer/changestate/%d' % self.volunteer.pk)
         request.user = self.privileged_user
         response = volunteer_changestate(request, self.volunteer.pk)
         nt.assert_equal(response.status_code, 302)
@@ -37,6 +38,7 @@ class TestVolunteerChangestate(TestCase):
     @nt.raises(PermissionDenied)
     def test_volunteer_changestate_unauthorized_user(self):
         '''A regular user is changing the state, it fails'''
-        request = self.factory.get('volunteer/changestate/%d' % self.volunteer.pk)
+        request = self.factory.get(
+            'volunteer/changestate/%d' % self.volunteer.pk)
         request.user = ProfileFactory.create().user_object
         response = volunteer_changestate(request, self.volunteer.pk)
