@@ -159,6 +159,11 @@ def landing_page(request, profile_id=None, historical=False):
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
                 bid_type = "Class"
+            elif bid.__class__ == Costume:
+                url = reverse('costume_review',
+                              urlconf='gbe.urls',
+                              args=[str(bid.id)])
+                bid_type = "Costume"
             elif bid.__class__ == Vendor:
                 url = reverse('vendor_review',
                               urlconf='gbe.urls',

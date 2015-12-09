@@ -168,6 +168,9 @@ class Profile(WorkerItem):
         if 'Class Reviewers' in self.privilege_groups:
             reviews += Class().bids_to_review.exclude(
                 bidevaluation__evaluator=self)
+        if 'Costume Reviewers' in self.privilege_groups:
+            reviews += Costume().bids_to_review.exclude(
+                bidevaluation__evaluator=self)
         if 'Vendor Reviewers' in self.privilege_groups:
             reviews += Vendor().bids_to_review.exclude(
                 bidevaluation__evaluator=self)
