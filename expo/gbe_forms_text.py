@@ -130,7 +130,7 @@ volunteer_interests_options = [('VA8', 'Art Show'),
 
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
-    'interests':'What are your particular areas of interest?',
+    'interests': 'What are your particular areas of interest?',
     'availability': 'I am Available....',
     'unavailability': 'I am Not Available....',
     'opt_outs': 'Are there events that we should make sure to not schedule you during?',
@@ -153,14 +153,14 @@ phone_error2 = ['... or here ']
 phone_error3 = ['...or choose a contact method that does not require a phone.']
 
 audioinfo_labels = {
-    'title' : ('Track Title'),
-    'artist' : ('Track Artist')}
+    'title': ('Track Title'),
+    'artist': ('Track Artist')}
 
 prop_labels = {
-    'confirm' : ('I have no props or set pieces'),
-    'set_props' : ('I have props I will need set before my number'),
-    'cue_props' : ('I have props I will need a stage kitten to hand me during my number'),
-    'clear_props' : ('I will leave props on-stage that will need to be cleared')
+    'confirm': ('I have no props or set pieces'),
+    'set_props': ('I have props I will need set before my number'),
+    'cue_props': ('I have props I will need a stage kitten to hand me during my number'),
+    'clear_props': ('I will leave props on-stage that will need to be cleared')
 }
 
 lighting_labels = {
@@ -172,18 +172,18 @@ lighting_help_texts = {
     'notes' : ('Is your number happy and bouncy, humorous, dark, mysterious, \
                etc.?  Please keep it simple, just a short description.')}
 
-main_cue_header = {'cue_sequence':'Cue #',
-		   'cue_off_of':'Cue Off of...',
-		   'follow_spot':'Follow spot',
-		   'backlight':'Backlight',
-		   'center_spot':'Center Spot',
-		   'cyc_color':'Cyc Light',
-		   'wash':'Wash',
-		   'sound_note':'Sound'}
+main_cue_header = {'cue_sequence': 'Cue #',
+		   'cue_off_of': 'Cue Off of...',
+		   'follow_spot': 'Follow spot',
+		   'backlight': 'Backlight',
+		   'center_spot': 'Center Spot',
+		   'cyc_color': 'Cyc Light',
+		   'wash': 'Wash',
+		   'sound_note': 'Sound'}
 
 starting_cues = [('MC exit', 'MC exit'), 
                  ('Start of music', 'Start of music'), 
-                 ('Performer set on stage', 'Performer set on stage')] 
+                 ('Performer set on stage', 'Performer set on stage')]
 
 
 bidder_info_phone_error = ''''A phone number we can use to reach you
@@ -211,7 +211,7 @@ act_help_texts = {
     'performer': ('Select the stage persona, combo, or troupe who will be \
                   performing. Hit "create" to create a new persona, troupe, \
                   or combo.'),
-    'video_link' : ('Link to some video of your performance, or a similar \
+    'video_link': ('Link to some video of your performance, or a similar \
                     act. This will be used for evaluating your bid, and will \
                     not appear on your performer page.'),
     'other_performance': ("Don't feel badly if you're not accepted to perform \
@@ -232,7 +232,7 @@ act_bid_labels = {
     'title': 'Name of Act',
     'shows_preferences': 'I am interested in:',
     'other_performance': 'Other performance opportunities',
-    'song_title':' Name of Song',
+    'song_title': ' Name of Song',
     'song_artist': 'Song Artist',
     'track_duration': 'Duration of Song',
     'act_duration': 'Duration of Act',
@@ -255,40 +255,40 @@ act_description_too_long =  ("The Description  is too long.")
 promo_required = ("Please provide a photo.")
 promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
 
-persona_labels = { 'name'       : ('Stage Name'), 
-                   'homepage'   : ('Web Site'),
-                   'contact'    : ('Agent/Contact'), 
-                   'bio'        : ('Bio'),
-                   'experience' : ('Experience'),  
-                   'awards'     : ('Awards'),
-                   'promo_image': ('Promo Image'),
-                   'puffsheet'  : ('Press kit/one-sheet'),
-                   'festivals'  : ('Festival Appearances and Honors'),
-               }
+persona_labels = {'name': ('Stage Name'), 
+                  'homepage': ('Web Site'),
+                  'contact': ('Agent/Contact'), 
+                  'bio': ('Bio'),
+                  'experience': ('Experience'),  
+                  'awards': ('Awards'),
+                  'promo_image': ('Promo Image'),
+                  'puffsheet': ('Press kit/one-sheet'),
+                  'festivals': ('Festival Appearances and Honors'),
+                  }
 
 
-persona_help_texts = {  
-'name' : 
+persona_help_texts = {
+'name': 
     ('This is the name you will be listed under when performing.'),
-'contact' : 
+'contact': 
     ('''The person GBE should contact about Expo \
     performances. Usually, this will be you.'''),
-'homepage' : 
+'homepage': 
     ('This will be listed on your performer page.'),
-'bio' : 
+'bio': 
     ('This will be listed on your performer page.'),
-'promo_image' : 
+'promo_image': 
     ('''This may be used by GBE for promotional purposes, and \
     will appear on your performer page.'''),
-'puffsheet' : 
+'puffsheet': 
     ('''If you have a one-sheet or other prepared presskit, \
     you may upload it, and we'll include it in your promo page. '''),
-'experience' : 
+'experience': 
     ('''Number of years performing burlesque'''),
-'awards' : 
+'awards': 
     ('''Other awards and recognition of your work in burlesque, \
     including festival appearances not listed above.'''),
-'festivals' : 
+'festivals': 
     ('''If you have appeared in any of these festivals, let \
     us know how you did. This information will appear on your performer page.'''),
 }
@@ -296,11 +296,11 @@ persona_help_texts = {
 bid_review_options = ( 'Accepted', 'Declined', 'Waitlist')
 
 acceptance_labels = {
-    'accepted' : ('Change Bid State')
+    'accepted': ('Change Bid State')
 }
 
 acceptance_help_texts = {
-    'accepted' : ('Accept - will show the item on public pages as part of GBE, \
+    'accepted': ('Accept - will show the item on public pages as part of GBE, \
                      Accept or Reject - will show up on the bidder\'s home page')
 }
 
@@ -379,9 +379,7 @@ class_schedule_options = [('0', 'Friday Afternoon'),
                            ('1', 'Saturday Morning'), 
                            ('2', 'Saturday Afternoon'), 
                            ('3', 'Sunday Morning'), 
-                           ('4', 'Sunday Afternoon')] 
-
-
+                           ('4', 'Sunday Afternoon')]
 
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
@@ -414,14 +412,14 @@ or less. We will publish this text on the website.'''
 
 vendor_labels = {
     'description': 'Description of Goods or Services',
-    'title':'Company or business name',
+    'title': 'Company or business name',
     'vend_time':  ('I\'d like to vend...'),
     'want_help': ('Help Wanted'),
     'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
     'help_description': ('Tell Us About the Person You\'d Like to Hire '),
-    'website':'Company website',
-    'physical_address':'Business Address',
-    'publish_physical_address':'Publish my business address'
+    'website': 'Company website',
+    'physical_address': 'Business Address',
+    'publish_physical_address': 'Publish my business address'
 
 }
 vendor_help_texts = {
@@ -474,7 +472,7 @@ class_proposal_form_text = {
 }
 
 class_proposal_help_texts = {
-    'name' : 'If you\'d like to get updates about classes and panels at the Expo, \
+    'name': 'If you\'d like to get updates about classes and panels at the Expo, \
     fill in your email address.',
     'title': 'Your suggested title for this class or panel',
     'proposal': 'What does this class look like in your mind? Consider telling us about material to \
@@ -483,14 +481,14 @@ class_proposal_help_texts = {
 }
 
 class_proposal_labels = {
-    'title' : 'Name of Class',
-    'name' : 'Your Contact Info',
+    'title': 'Name of Class',
+    'name': 'Your Contact Info',
     'proposal': 'Class Description',
     'type': 'Type of Class'
 }
 
 proposal_edit_help_texts = {
-    'name' : 'Name or email of submitter',
+    'name': 'Name or email of submitter',
     'title': 'This will be published in the presenter opportunity page',
     'proposal': 'Description for what the Expo would like to offer.',
     'type': 'Class, panel or either one would be OK.  If "either" - volunteers will be able to choose to be a teacher, moderator, or presenter',
@@ -499,8 +497,8 @@ proposal_edit_help_texts = {
 }
 
 proposal_edit_labels = {
-    'title' : 'Name of Class',
-    'name' : 'Submitter Info',
+    'title': 'Name of Class',
+    'name': 'Submitter Info',
     'proposal': 'Description',
     'type': 'Type of Class/Panel',
     'display': 'Solicit Presenters?'
@@ -550,19 +548,19 @@ username_label = 'Login'
 username_help = 'Required. 30 characters or fewer. Letters, digits and \
 		@ . + - _ only.'
 
-conference_participation_types = [('Teacher', 'Teacher'), 
-                        ('Moderator', 'Moderator'), 
-                        ('Panelist', 'Panelist'), 
-                        ('Any of the Above', 'Any of the Above')] 
+conference_participation_types = [('Teacher', 'Teacher'),
+                                  ('Moderator', 'Moderator'),
+                                  ('Panelist', 'Panelist'),
+                                  ('Any of the Above', 'Any of the Above')]
 
-panel_participation_types = [('Moderator', 'Moderator'), 
-                        ('Panelist', 'Panelist'), 
-                        ('Any of the Above', 'Any of the Above')]
+panel_participation_types = [('Moderator', 'Moderator'),
+                             ('Panelist', 'Panelist'),
+                             ('Any of the Above', 'Any of the Above')]
 
 class_participation_types = [('Teacher', 'Teacher')]
 
-calendar_types = { 0:'General',
-                   1:'Conference'}
+calendar_types = {0: 'General',
+                  1: 'Conference'}
 
 list_titles = {
     'Class': '''Class Descriptions at GBE''',
@@ -577,31 +575,45 @@ list_titles = {
 
 list_text = {
     'Class': '''    <p> \
-        The Conference at <b></b>The Great Burlesque Exposition</b> features more than 60 hours of \
-        class time over threee days.  It is the original Professional Development Conference for \
-        burlesque performers, founded on the philosophy that "If we don't take ourselves seriously, \
+        The Conference at <b></b>The Great Burlesque Exposition</b> \
+        features more than 60 hours of \
+        class time over threee days.  It is the original Professional \
+        Development Conference for \
+        burlesque performers, founded on the philosophy that "If we don't \
+        take ourselves seriously, \
         no one else will either". \
         </p> \
         <p> \
-        Whether you're looking to boost a skill set to the next level or develop some new skills, \
-        The Conference has something for you from costuming to publicity to philosophical \
+        Whether you're looking to boost a skill set to the next level \
+        or develop some new skills, \
+        The Conference has something for you from costuming to publicity to \
+        philosophical \
         discussions.   \
         </p>''',
     'Panel': '''    <p> \
-        Panels are an opportunity for members of the burlesque community to learn from one another and \
-        share with one another in a semi-structured setting.  Less goal-oriented than our classes and \
-        workshops, panels are guided discussions between knowledgable attendees.  Led by a moderator, \
-        panels actively encourage feedback and dialogue between the "panel of experts" and the attendees.\
-        </p><p>Sitting on a panel is a great way to gain experience as a public speaker or to see if you
-        might want to teach a class some day.  You don't need to be an expert to sit on a panel; you \
+        Panels are an opportunity for members of the burlesque community to \
+        learn from one another and \
+        share with one another in a semi-structured setting.  Less \
+        goal-oriented than our classes and \
+        workshops, panels are guided discussions between knowledgable \
+        attendees.  Led by a moderator, \
+        panels actively encourage feedback and dialogue between the "panel of \
+        experts" and the attendees.\
+        </p><p>Sitting on a panel is a great way to gain experience as a \
+        public speaker or to see if you
+        might want to teach a class some day.  You don't need to be an \
+        expert to sit on a panel; you \
         just need to be excited and enthusiastic about the topic!</p><p>
-        If you're interested in being a panelist, let ust know - sign up at I want to... Be a Presenter</p> ''',
+        If you're interested in being a panelist, let ust know - sign up at I \
+        want to... Be a Presenter</p> ''',
     'Show': '''    <p> \
-        Each year, The Great Burlesque Exposition searches the globe to bring you the finest performers.  \
+        Each year, The Great Burlesque Exposition searches the globe to bring \
+        you the finest performers.  \
         We have four big shows on three big nights! \
         </p> ''',
     'All': '''    <p> \
-        Check out the full list of all shows, classes, master classes, dropin classes and special events!\
+        Check out the full list of all shows, classes, master classes, dropin \
+        classes and special events!\
         </p> ''',
     'Volunteer': '''    <p> \
         Check out the many ways you can help to make the expo even more \
@@ -629,11 +641,75 @@ list_text = {
 }
 
 acceptance_note = '''Only accepted classes will show up in scheduling and on \
-                  the website.'''
+        the website.'''
 
 scheduling_help_texts = {
     'description': "Note, this will change the description for all bookings \
         of this event",
     'title': "Note, this will change the title for all bookings of this event",
     'duration': "Enter duration as HH:MM:SS"
+}
+
+costume_proposal_form_text = '''<p>Thanks for your interest in our costume \
+    display. Each year a team of creative volunteers puts together a \
+    remarkable collection of burlesque costumes in our Exhibit Hall. The core \
+    of the team are BettySioux Tailor and Blitzen vonSchtupp, with the \
+    curatorial assistance of Miss Mina Murray.</p>\
+    <p>Costumes are selected for their historical significance, their 'wow' \
+    factor, their individuality (that is, we're not likely to take two \
+    similar costumes or more than one costume from the same person), and \
+    their craftsmanship. Not all costumes that are offered are accepted. \
+    You can check on the status of your submission on your personal \
+    homepage.</p>\
+    <p>If you are offering a costume for display, it is your responsibility \
+    to make sure that the costume is on-site before 9:00am on Saturday
+    morning. Dropping it off on Friday is fine. If you drop it off before \
+    6:00pm on Friday, it is likely it will be on display during The \
+    Bordello. Costumes will be available for pick-up after 9:00pm on \
+    Sunday evening. It is your responsibility to pick up your costume \
+    and make sure all pieces are retrieved when you do so. In rare cases \
+    and with previous arrangements, a costume can be picked up earlier on \
+    Sunday or shipped to you after The Expo.</p>\
+    <p>If you have questions about The Costume Display, please drop a \
+    note to BettySioux Tailor at \
+    <a href="mailto:Costumes@Burlesque-Expo.com">\
+    Costumes@Burlesque-Expo.com</a>. If you'd like to be one of the \
+    volunteers who puts up the display or one of the docents who helps \
+    educate people about the costumes over the weekend, please check our \
+    Volunteer Opportunities. '''
+
+costume_proposal_help_texts = {
+    'title': '''A unique way to identify the costume so we all know which \
+        costume we're talking about.  You could use the name of the act it's \
+        from, the material and color, or really anything so you know which \
+        costume we're talking about.  We'll contact you about what you want \
+        to call it on the exhibit text, if we have questions.''',
+    'creator': '''Please put the stage name, legal name, or company name of \
+        the creator, whichever is appropriate. If multiple creators, please \
+        separate them with a comma. If unknown, just put 'unknown'.''',
+    'act_title': 'The name of the act for which you use the costume, if any.',
+    'debut_date': '''Please enter the month and year the costume first \
+        appeared on-stage as "MM/YYYY" if known. If unknown, just put \
+        'unknown'.''',
+    'dress_size': 'Measurements are in USA dress sizes. A close approximation \
+        is fine. This is to help us select which mannequin to use.',
+    'picture': 'Please upload a portrait-oriented (taller than wide) image of \
+        the costume that shows it to best advantage. This can either be in \
+        performance or displayed on a mannequin or model.'
+}
+
+costume_proposal_labels = {
+    'title': 'Name of Costume',
+    'performer': 'Stage Name',
+    'creator': 'Costume Creator',
+    'act_title': 'Name of Act',
+    'debut_date': 'Debut Date',
+    'active_use': 'Is the costume still being used on-stage?',
+    'pieces': 'How many pieces are there?',
+    'description': 'Please list all pieces',
+    'pasties': 'Will you be bringing pasties?',
+    'dress_size': 'Dress Size',
+    'more_info': 'Is there anything special about the costume you want us to \
+        know?',
+    'picture':  'Picture of the costume'
 }

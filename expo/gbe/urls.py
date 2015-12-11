@@ -1,5 +1,5 @@
 from django.conf.urls import (
-    patterns, 
+    patterns,
     url,
     include
 )
@@ -179,6 +179,23 @@ urlpatterns = patterns(
         views.vendor_changestate,
         name='vendor_changestate'),
 
+    #  costumes
+    url(r'^costume/create/?$',
+        views.bid_costume, name='costume_create'),
+    url(r'costume/edit/(\d+)/?$',
+        views.edit_costume, name='costume_edit'),
+    url(r'^costume/view/(\d+)/?$',
+        views.view_costume, name='costume_view'),
+    url(r'^costume/review/(\d+)/?$',
+        views.review_costume, name='costume_review'),
+    # url(r'^costume/review/?$',
+    #    views.review_costume_list, name='costume_review'),
+    # url(r'^costume/reviewlist/?$',
+    #    views.review_costume_list, name='costume_review_list'),
+    # url(r'^costume/changestate/(\d+)/?$',
+    #    views.costume_changestate,
+    #    name='costume_changestate'),
+
     url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',
         views.clone_bid,
         name='clone_bid'),
@@ -245,4 +262,3 @@ urlpatterns = patterns(
         views.landing_page,
         name='admin_landing_page')
 )
-

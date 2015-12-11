@@ -192,6 +192,7 @@ def landing_page(request, profile_id=None, historical=False):
              'proposed_classes': viewer_profile.proposed_classes(historical),
              'vendors': viewer_profile.vendors(historical),
              'volunteering': viewer_profile.get_volunteerbids(),
+             'costumes': viewer_profile.get_costumebids(historical),
              'review_items': bids_to_review,
              'bookings': viewer_profile.get_schedule(),
              'tickets': get_purchased_tickets(viewer_profile.user_object),
@@ -1183,8 +1184,10 @@ def review_class(request, class_id):
         prefix='Teacher Contact Info',
         initial={
             'email': aclass.teacher.performer_profile.user_object.email,
-            'first_name': aclass.teacher.performer_profile.user_object.first_name,
-            'last_name': aclass.teacher.performer_profile.user_object.last_name})
+            'first_name':
+                aclass.teacher.performer_profile.user_object.first_name,
+            'last_name':
+                aclass.teacher.performer_profile.user_object.last_name})
 
     if validate_perms(request, ('Class Coordinator',), require=False):
         actionform = BidStateChangeForm(instance=aclass)
@@ -1927,6 +1930,207 @@ def view_vendor(request, vendor_id):
 
     return render(request, 'gbe/bid_view.tmpl',
                   {'readonlyform': [vendorform, profile]})
+
+
+@login_required
+@log_func
+def bid_costume(request):
+    '''
+    Propose to display a costume at the costume exhibit.
+    Bidder is volunteering to bring the costume, expo staff will organize
+    displaying it.
+        owner = profile of the submitter who is presumed to be in posession
+              of the costume
+        performer(s) = the performer who wore the costume (optional)
+    '''
+    page_title = "Displaying a Costume"
+    view_title = "Displaying a Costume"
+
+    owner = validate_profile(request, require=False)
+
+    if not owner:
+        return HttpResponseRedirect(reverse('profile',
+                                            urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('costume_create',
+                                            urlconf='gbe.urls'))
+
+    performers = owner.personae.all()
+    draft_fields = Costume().bid_draft_fields
+
+    if request.method == 'POST':
+        '''
+        If this is a formal submit request, then do all the checking.
+        If this is a draft, only a few fields are needed, use a form with fewer
+        required fields (same model)
+        '''
+        new_costume = Costume()
+        if 'submit' in request.POST.keys():
+            form = CostumeBidSubmitForm(request.POST, instance=new_costume)
+            details = CostumeDetailsSubmitForm(request.POST,
+                                               request.FILES,
+                                               instance=new_costume)
+        else:
+            form = CostumeBidDraftForm(request.POST, instance=new_costume)
+            details = CostumeDetailsDraftForm(request.POST,
+                                              request.FILES,
+                                              instance=new_costume)
+
+        if form.is_valid() and details.is_valid():
+            conference = Conference.objects.filter(accepting_bids=True).first()
+            new_costume.profile = owner
+            new_costume.conference = conference
+            if 'submit' in request.POST.keys():
+                new_costume.submitted = True
+            new_costume = form.save()
+            new_costume = details.save()
+
+            return HttpResponseRedirect(reverse('home',
+                                                urlconf='gbe.urls'))
+        else:
+            fields, requiredsub = Costume().bid_fields
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form, details],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'submit_fields': requiredsub,
+                 'view_header_text': costume_proposal_form_text}
+            )
+
+    else:
+        form = CostumeBidSubmitForm(initial={'profile': owner,
+                                             'performer': performers[0]})
+        details = CostumeDetailsSubmitForm(
+            initial={'profile': owner,
+                     'performer': performers[0]})
+        q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
+        form.fields['performer'] = forms.ModelChoiceField(
+            queryset=q,
+            label=costume_proposal_labels['performer'],
+            required=False)
+
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form, details],
+             'page_title': page_title,
+             'view_title': view_title,
+             'draft_fields': draft_fields,
+             'view_header_text': costume_proposal_form_text}
+        )
+
+
+@log_func
+def edit_costume(request, costume_id):
+    '''
+    Edit an existing costume display proposal.
+    '''
+    page_title = "Displaying a Costume"
+    view_title = "Displaying a Costume"
+
+    owner = validate_profile(request, require=True)
+    if not owner:
+        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
+
+    the_costume = get_object_or_404(Costume, id=costume_id)
+
+    if the_costume.profile != owner:
+        return render(request,
+                      'gbe/error.tmpl',
+                      {'error': not_yours})
+
+    performers = owner.personae.all()
+    draft_fields = Costume().bid_draft_fields
+
+    if performers.count() > 0 and the_costume.performer not in performers:
+        return render(request,
+                      'gbe/error.tmpl',
+                      {'error': "This bid is not one of your stage names."})
+
+    if request.method == 'POST':
+        if 'submit' in request.POST.keys():
+            form = CostumeBidSubmitForm(request.POST,
+                                        instance=the_costume)
+            details = CostumeDetailsSubmitForm(request.POST,
+                                               request.FILES,
+                                               instance=the_costume)
+        else:
+            form = CostumeBidDraftForm(request.POST,
+                                       instance=the_costume)
+            details = CostumeDetailsDraftForm(request.POST,
+                                              request.FILES,
+                                              instance=the_costume)
+
+        if form.is_valid() and details.is_valid():
+            the_costume = form.save()
+            the_costume = details.save()
+            if 'submit' in request.POST.keys():
+                the_costume.submitted = True
+
+            the_costume.save()
+            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        else:
+            fields, requiredsub = Costume().bid_fields
+            return render(
+                request,
+                'gbe/bid.tmpl',
+                {'forms': [form, details],
+                 'page_title': page_title,
+                 'view_title': view_title,
+                 'draft_fields': draft_fields,
+                 'submit_fields': requiredsub,
+                 'view_header_text': costume_proposal_form_text}
+            )
+    else:
+        form = CostumeBidSubmitForm(instance=the_costume)
+        details = CostumeDetailsSubmitForm(instance=the_costume)
+
+        q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
+        form.fields['performer'] = forms.ModelChoiceField(
+            queryset=q,
+            label=costume_proposal_labels['performer'],
+            required=False)
+
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            {'forms': [form, details],
+             'page_title': page_title,
+             'view_title': view_title,
+             'draft_fields': draft_fields,
+             'view_header_text': costume_proposal_form_text}
+        )
+
+
+@login_required
+@log_func
+def view_costume(request, costume_id):
+    '''
+    Show a costume proposal
+    '''
+    costumebid = get_object_or_404(Costume, id=costume_id)
+    if costumebid.profile != request.user.profile:
+        validate_perms(request, ('Costume Reviewers',), require=True)
+    form = CostumeBidSubmitForm(instance=costumebid, prefix='')
+    details = CostumeDetailsSubmitForm(instance=costumebid)
+
+    return render(request, 'gbe/bid_view.tmpl',
+                  {'readonlyform': [form, details]})
+
+
+@login_required
+@log_func
+def review_costume(request, class_id):
+    '''
+    Show a bid  which needs to be reviewed by the current user.
+    To show: display all information about the bid, and a standard
+    review form.
+    If user is not a reviewer, politely decline to show anything.
+    '''
+    pass
 
 
 @log_func
