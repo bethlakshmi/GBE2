@@ -18,7 +18,9 @@ def performer_act_submittal_link(user_id):
     user_id - the integer User ID of the user.  
     returns - the URL string described above.  
     '''
-    act_sub_events = BrownPaperEvents.objects.filter(act_submission_event=True)
+    act_sub_events = BrownPaperEvents.objects.filter(
+        act_submission_event=True,
+        conference=Conference.objects.filter(status="upcoming").first())
     if (act_sub_events.count() > 0):
         return ('http://www.brownpapertickets.com/event/ID-' +
                 unicode(user_id) +
@@ -34,7 +36,9 @@ def vendor_submittal_link(user_id):
     user_id - the integer User ID of the user.  
     returns - the URL string described above.  
     '''    
-    vendor_events = BrownPaperEvents.objects.filter(vendor_submission_event=True)
+    vendor_events = BrownPaperEvents.objects.filter(
+        vendor_submission_event=True,
+        conference=Conference.objects.filter(status="upcoming").first())
     if (vendor_events.count() > 0):
         return ('http://www.brownpapertickets.com/event/ID-' +
                 unicode(user_id) +
