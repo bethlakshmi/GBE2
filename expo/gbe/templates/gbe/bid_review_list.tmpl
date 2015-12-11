@@ -10,7 +10,7 @@
 
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Bid Information for {{conference}}</h2>
-  <br>
+  <br/>
     <form action="{{ return_link }}" method="get" enctype="multipart/form-data">
     <select name="conf_slug" id="conf_slug">
       {% for slug in conference_slugs %}
@@ -20,20 +20,39 @@
     </select>
     <input type="submit" name="submit" value="Select conference">
     </form>
-  </br>
+  <br/>
   {% if messages %}
       <script>
     alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
       </script>
   {% endif %}
-
-
-  <table class="bid-table">
-    <tr class="bid-table">
+  <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
+  press "Shift" to sort a secondary column.</div>
+  <br/>
+  <div>
+    Toggle column(s):
+    {% for header_item in header %}
+      <a class="toggle-vis" data-column="{{ forloop.counter0 }}">
+	{{ header_item }}</a> -
+    {% endfor %}
+  </div>
+  <br/>
+  <table id="bid_review" class="order-column" cellspacing="0" width="100%">
+    <thead>
+      <tr class="bid-table">
       {% for header_item in header %}
-      <th class="bid-table">{{ header_item }}</th>
+        <th class="bid-table">{{ header_item }}</th>
       {% endfor %}
-    </tr>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr class="bid-table">
+      {% for header_item in header %}
+        <th class="bid-table">{{ header_item }}</th>
+      {% endfor %}
+      </tr>
+    </tfoot>
+    <tbody>
     {% for row in rows %}
       <tr class="bid-table">
               {% for value in row.bid %}
@@ -66,6 +85,25 @@
         
       </tr>
     {% endfor %}
+    </tbody>
   </table>
+  
+  <script>
+  $(document).ready(function() {
+    var table = $('#bid_review').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+    } );
+ 
+    $('a.toggle-vis').on( 'click', function (e) {
+        e.preventDefault();
+ 
+        // Get the column API object
+        var column = table.column( $(this).attr('data-column') );
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+    } );
+} );
+  </script>
 {% endblock %}
 
