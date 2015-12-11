@@ -361,17 +361,26 @@ def room_setup(request):
                   {'room_date': room_set})
 
 
-def export_badge_report(request):
+def export_badge_report(request, conference_choice=None):
     '''
-    Export a csv of all act tech info details
-    - includes only accepted acts
-    - includes incomplete details
-    - music sold separately
+    Export a csv of all badge printing details.
     '''
     reviewer = validate_perms(request, ('Registrar',))
 
     people = conf.Profile.objects.all()
-    badges = tix.Transaction.objects.filter(ticket_item__bpt_event__badgeable=True).order_by('ticket_item')
+    
+    if conference_choice:
+        badges = tix.Transaction.objects.filter(
+            ticket_item__bpt_event__badgeable=True,
+            ticket_item__bpt_event__conference__conference_slug= \
+                conference_choice).order_by('ticket_item')
+       
+    else:
+        badges = tix.Transaction.objects.filter(
+            ticket_item__bpt_event__badgeable=True).exclude(
+                ticket_item__bpt_event__conference__status='completed'). \
+                    order_by('ticket_item')
+
 
     # build header, segmented in same structure as subclasses
     header =  ['First',
@@ -394,7 +403,7 @@ def export_badge_report(request):
                                    person.user_object.username,
                                    person.get_badge_name(),
                                    badge.ticket_item.title,
-                                   badge.import_date,
+                                   badge.import_date, 
                                    'In GBE'])
             if len(people.filter(user_object=badge.purchaser.matched_to_user)) == 0:
                 badge_info.append([badge.purchaser.first_name,
