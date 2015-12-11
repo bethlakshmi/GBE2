@@ -1,6 +1,10 @@
 from django.db import models
 from django.db.models import Q
-from django.core.validators import RegexValidator
+from django.core.validators import (
+    RegexValidator,
+    MinValueValidator,
+    MaxValueValidator
+)
 from django.contrib.auth.models import User
 from itertools import chain
 from django.db.models import Q
@@ -122,7 +126,7 @@ class Profile(WorkerItem):
     state = models.CharField(max_length=2,
                              choices=states_options,
                              blank=True)
-    zip_code = models.CharField(max_length=10, blank=True) # allow for ext. ZIP
+    zip_code = models.CharField(max_length=10, blank=True)  # allow for ext ZIP
     country = models.CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
@@ -188,9 +192,9 @@ class Profile(WorkerItem):
         if len(address_string) == 0:
             return ''
         if (len(self.city) == 0 or
-            len(self.country) == 0 or
-            len(self.state) == 0 or
-            len(self.zip_code) == 0):
+                len(self.country) == 0 or
+                len(self.state) == 0 or
+                len(self.zip_code) == 0):
             return ''
         return address_string + '\n' + ' '.join((self.city + ',',
                                                  self.state,
@@ -206,7 +210,8 @@ class Profile(WorkerItem):
 
     @property
     def privilege_groups(self):
-        groups = [group.name for group in self.user_object.groups.all().order_by('name')]
+        groups = [group.name for
+                  group in self.user_object.groups.all().order_by('name')]
         return groups
 
     def alerts(self, historical=False):
@@ -214,7 +219,7 @@ class Profile(WorkerItem):
             return []
         profile_alerts = []
         if (len(self.display_name.strip()) == 0 or
-            len(self.purchase_email.strip()) == 0):
+                len(self.purchase_email.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['empty_profile'] %
                                   reverse('profile_update',
                                           urlconf=gbe.urls))
@@ -228,7 +233,8 @@ class Profile(WorkerItem):
         for act in self.get_acts():
             if act.accepted == 3 and \
                act.is_current and \
-               (len(act.get_scheduled_rehearsals()) == 0 or not act.tech.is_complete):
+               (len(act.get_scheduled_rehearsals()) == 0 or
+                    not act.tech.is_complete):
                 profile_alerts.append(
                     gbetext.profile_alerts['schedule_rehearsal'] %
                     (act.title,
@@ -236,6 +242,10 @@ class Profile(WorkerItem):
                              urlconf=gbe.urls,
                              args=[act.id])))
         return profile_alerts
+
+    def get_costumebids(self, historical=False):
+        costumes = self.costumes.all()
+        return (c for c in costumes if c.is_current != historical)
 
     def get_volunteerbids(self):
         return [vbid for vbid in self.volunteering.all() if vbid.is_current]
@@ -958,7 +968,8 @@ class Act (Biddable, ActItem):
         return (self.performer.name,
                 self.title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
-                acceptance_states[self.accepted][1], show_name)
+                acceptance_states[self.accepted][1],
+                show_name)
 
     @property
     def complete(self):
@@ -1011,7 +1022,7 @@ class Act (Biddable, ActItem):
              'video_choice',
              'description',
              'why_you'],
-            ['title', 'description', 'shows_preferences', 'performer'],
+            ['title', 'description', 'shows_preferences', 'performer', ],
         )
 
     @property
@@ -1586,6 +1597,85 @@ class ArtBid(Biddable):
 
     def __unicode__(self):
         return self.bidder.display_name
+
+
+class Costume(Biddable):
+    '''
+    An offer to display a costume at the Expo's costume display
+      - profile is required, persona is optional
+      - debut date is a text string to allow vague descriptions
+      - act_title is optional, and therefore does not fit the rules of
+        Biddable's title
+    '''
+    profile = models.ForeignKey(Profile, related_name="costumes")
+    performer = models.ForeignKey(Persona, blank=True, null=True)
+    creator = models.CharField(max_length=128)
+    act_title = models.CharField(max_length=128, blank=True, null=True)
+    debut_date = models.CharField(max_length=128, blank=True, null=True)
+    active_use = models.BooleanField(choices=boolean_options, default=True)
+    pieces = models.PositiveIntegerField(blank=True,
+                                         null=True,
+                                         validators=[MinValueValidator(1),
+                                                     MaxValueValidator(20)])
+    pasties = models.BooleanField(choices=boolean_options, default=False)
+    dress_size = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(20)])
+    more_info = models.TextField(blank=True)
+    picture = models.FileField(upload_to="uploads/images", blank=True)
+
+    @property
+    def bid_fields(self):
+        return (
+            ['title',
+             'performer',
+             'creator',
+             'act_title',
+             'debut_date',
+             'active_use',
+             'pieces',
+             'description',
+             'pasties',
+             'dress_size',
+             'more_info',
+             'picture'],
+            ['title',
+             'creator',
+             'active_use',
+             'pieces',
+             'description',
+             'pasties',
+             'dress_size',
+             'picture']
+        )
+
+    @property
+    def bid_draft_fields(self):
+        return (['title'])
+
+    @property
+    def bid_review_header(self):
+        return (['Performer',
+                 'Title',
+                 'Last Update',
+                 'State',
+                 'Reviews',
+                 'Action'])
+
+    @property
+    def bid_review_summary(self):
+        return (self.performer.name,
+                self.title,
+                self.updated_at.astimezone(pytz.timezone('America/New_York')),
+                acceptance_states[self.accepted][1])
+
+    @property
+    def bids_to_review(self):
+        return type(self).objects.filter(
+            visible_bid_query,
+            submitted=True,
+            accepted=0)
 
 
 class ClassProposal(models.Model):

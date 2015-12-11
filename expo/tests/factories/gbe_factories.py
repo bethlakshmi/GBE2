@@ -5,6 +5,7 @@ import gbe.models as conf
 import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class ConferenceFactory(DjangoModelFactory):
@@ -15,6 +16,7 @@ class ConferenceFactory(DjangoModelFactory):
     conference_slug = factory.Sequence(lambda n: u"test_conf_%d" % n)
     accepting_bids = False
     status = 'upcoming'
+
 
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
@@ -290,3 +292,19 @@ class ProfilePreferencesFactory(DjangoModelFactory):
     in_hotel = "No"
     inform_about = True
     show_hotel_infobox = True
+
+
+class CostumeFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.Costume
+    title = factory.Sequence(lambda x: "Test Costume #%d" % x)
+    profile = SubFactory(ProfileFactory)
+    conference = SubFactory(ConferenceFactory)
+    description = 'Test Description'
+    active_use = True
+    pieces = 10
+    pasties = False
+    dress_size = 10
+    picture = SimpleUploadedFile("file.jpg",
+                                 "file_content",
+                                 content_type="image/jpg")
