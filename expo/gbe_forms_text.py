@@ -441,12 +441,12 @@ vendor_help_texts = {
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
-                           ('VSH4', 'Sunday, 9am to noon'), 
                            ('VSH1', 'Saturday, 12pm to 4pm'), 
-                           ('VSH5', 'Sunday, 12pm to 4pm'), 
                            ('VSH2', 'Saturday, 4pm to 8pm'), 
-                           ('VSH6', 'Sunday, 4pm to 8pm'), 
                            ('VSH3', 'Saturday after 8pm'), 
+                           ('VSH4', 'Sunday, 9am to noon'), 
+                           ('VSH5', 'Sunday, 12pm to 4pm'), 
+                           ('VSH6', 'Sunday, 4pm to 8pm'), 
                            ('VSH7', 'Sunday after 8pm')]
 
 
