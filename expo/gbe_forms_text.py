@@ -118,7 +118,8 @@ volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH6', 'Saturday afternoon (12PM-6PM)'),
                                   ('SH7', 'Saturday night (5PM-10PM)')]
 
-volunteer_interests_options = [('VA8', 'Art Show'),
+volunteer_interests_options = [('VA9', 'Photography/Media'),
+                               ('VA8', 'Art Show'),
                                ('VA2', 'Stage crew'),
                                ('VA4', 'Conference Staff'),
                                ('VA3', 'Stage Management'), 
