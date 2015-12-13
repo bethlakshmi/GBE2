@@ -1,16 +1,16 @@
 from django.shortcuts import (
-    render, 
-    get_object_or_404, 
+    render,
+    get_object_or_404,
     render_to_response,
 )
 from django.http import (
     HttpResponse, 
-    HttpResponseRedirect, 
+    HttpResponseRedirect,
     Http404,
 )
 from django.contrib.auth.forms import UserCreationForm
 from django.template import (
-    loader, 
+    loader,
     RequestContext,
 )
 from scheduler.models import *
@@ -40,7 +40,6 @@ from functions import (
     overlap_clear,
     set_time_format,
     conference_dates,
-    volunteer_shifts,
 )
 from gbe.functions import (
     get_current_conference,
@@ -51,6 +50,7 @@ from gbe.functions import (
     conference_list,
     available_volunteers,
 )
+
 
 def selfcast(sobj):
     '''
@@ -77,17 +77,18 @@ def get_events_display_info(event_type='Class', time_format=None):
         time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
-    confitems = event_class.objects.filter(visible=True, 
+    confitems = event_class.objects.filter(visible=True,
                                            conference=conference)
-    if event_type=='Event':
+    if event_type == 'Event':
         confitems = confitems.select_subclasses()
     else:
         confitems = confitems.all()
     confitems = [item for item in confitems if item.schedule_ready]
     eventitems = []
     for ci in confitems:
-        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(),
-                                  key=lambda sched_event: sched_event.starttime):
+        for sched_event in sorted(
+                ci.eventitem_ptr.scheduler_events.all(),
+                key=lambda sched_event: sched_event.starttime):
             eventitems += [{'eventitem': ci.eventitem_ptr,
                             'confitem': ci,
                             'schedule_event': sched_event}]
@@ -116,7 +117,8 @@ def get_events_display_info(event_type='Class', time_format=None):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(time_format)
+            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
+                time_format)
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo['delete'] = reverse('delete_schedule',
@@ -208,11 +210,13 @@ def detail_view(request, eventitem_id):
     eventitem_view = get_event_display_info(eventitem_id)
 
     template = 'scheduler/event_detail.tmpl'
-    return render(request, template, {'eventitem': eventitem_view,
-                                      'show_tickets': True,
-                                      'tickets': eventitem_view['event'].get_tickets,
-                                      'user_id': request.user.id,
-                                      })
+    return render(request,
+                  template,
+                  {'eventitem': eventitem_view,
+                   'show_tickets': True,
+                   'tickets': eventitem_view['event'].get_tickets,
+                   'user_id': request.user.id}
+                  )
 
 
 def schedule_acts(request, show_title=None):
@@ -361,7 +365,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
     else:
         createform = VolunteerOpportunityForm(
             prefix='new_opp',
-            initial=initial, 
+            initial=initial,
             conference=get_current_conference())
 
     actionheaders = ['Title',
@@ -422,8 +426,6 @@ def show_potential_workers(opp):
     interested = list(conf.Volunteer.objects.filter(
         interests__contains=opp.as_subtype.volunteer_category))
     all_volunteers = list(conf.Volunteer.objects.all())
-
-    
     available = available_volunteers(opp.start_time)
     return {'interested_volunteers': interested,
             'all_volunteers': all_volunteers,
@@ -537,7 +539,7 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event_container = EventContainer.objects.get(
             child_event=request.POST['opp_sched_id'])
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
-        form = VolunteerOpportunityForm(request.POST, 
+        form = VolunteerOpportunityForm(request.POST,
                                         instance=opp,
                                         conference=opp.conference)
         if not form.is_valid():
@@ -667,7 +669,8 @@ def contact_by_role(request, participant_type):
             contact_info.append([profile.display_name,
                                  profile.phone,
                                  profile.contact_email,
-                                 volunteer_categories.get(event.as_subtype.volunteer_category, ''),
+                                 volunteer_categories.get(
+                                     event.as_subtype.volunteer_category, ''),
                                  str(event),
                                  str(event.container_event.parent_event)])
         from gbe.models import Volunteer
@@ -677,7 +680,8 @@ def contact_by_role(request, participant_type):
             contact_info.append([v.profile.display_name,
                                  v.profile.phone,
                                  v.profile.contact_email,
-                                 ','.join([volunteer_categories[i] for i in interests]),
+                                 ','.join([volunteer_categories[i] 
+                                           for i in interests]),
                                  'Application',
                                  'Application']
                                 )
@@ -723,7 +727,7 @@ def add_event(request, eventitem_id, event_type='Class'):
 
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
-                                       prefix='event', 
+                                       prefix='event',
                                        conference=get_current_conference())
 
         if (event_form.is_valid() and True):
@@ -771,7 +775,7 @@ def add_event(request, eventitem_id, event_type='Class'):
         if item.__class__.__name__ == 'Class':
             initial_form_info['teacher'] = item.teacher
 
-        form = EventScheduleForm(prefix='event', 
+        form = EventScheduleForm(prefix='event',
                                  initial=initial_form_info,
                                  conference=item.get_conference())
 
@@ -931,7 +935,7 @@ def view_list(request, event_type='All'):
          'detail': reverse('detail_view',
                            urlconf='scheduler.urls',
                            args=[item.eventitem_id])
-          }
+         }
         for item in items]
 
     conferences = conference_list()
@@ -957,7 +961,7 @@ def calendar_view(request=None,
                   event_type='Show',
                   day=None,
                   cal_times=(datetime(2016, 02, 6, 8, 00,
-                                        tzinfo=pytz.timezone('UTC')),
+                                      tzinfo=pytz.timezone('UTC')),
                              datetime(2016, 02, 7, 4, 00,
                                       tzinfo=pytz.timezone('UTC'))),
                   time_format=None,
@@ -1003,7 +1007,7 @@ def calendar_view(request=None,
     if time_format is None:
         time_format = set_time_format()
 
-    ###  Changing function to get table labels from the request
+    # Changing function to get table labels from the request
     table = {}
     table['rows'] = table_prep(events,
                                duration,
@@ -1013,7 +1017,8 @@ def calendar_view(request=None,
     table['link'] = 'http://burlesque-expo.com'
     table['x_name'] = {}
     table['x_name']['html'] = 'Rooms'
-    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
+    # TO DO: Get rid of hard-coded links
 
     template = 'scheduler/Sched_Display.tmpl'
 
