@@ -797,8 +797,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
                                        instance=item,
-                                       prefix='event',
-                                       conference=item.get_conference())
+                                       prefix='event')
         if event_form.is_valid():
             s_event = event_form.save(commit=False)
             data = event_form.cleaned_data
@@ -913,8 +912,7 @@ def edit_event_display(request, item, errorcontext=None):
     context['form'] = EventScheduleForm(
         prefix='event',
         instance=item,
-        initial=initial, 
-        conference=get_current_conference()) #can only schedule in current conf
+        initial=initial)
     return render(request, template, context)
 
 

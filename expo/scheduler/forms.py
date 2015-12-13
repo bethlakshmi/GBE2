@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 import gbe.models as conf
+from gbe.functions import get_current_conference
 
 conference_days = (
     (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
@@ -81,7 +82,7 @@ class EventScheduleForm(forms.ModelForm):
 
 
     def __init__(self, *args, **kwargs):
-        conference = kwargs.pop('conference')
+        conference = get_current_conference()
         super(EventScheduleForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all())
