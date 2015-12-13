@@ -62,6 +62,7 @@ class Conference(models.Model):
         return cls.objects.order_by('-accepting_bids').values_list(
             'conference_slug', flat=True)
 
+
     def windows(self):
         return VolunteerWindow.objects.filter(day__conference=self)
 

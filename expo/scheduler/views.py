@@ -49,6 +49,7 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
+    available_volunteers,
 )
 
 def selfcast(sobj):
@@ -422,13 +423,11 @@ def show_potential_workers(opp):
         interests__contains=opp.as_subtype.volunteer_category))
     all_volunteers = list(conf.Volunteer.objects.all())
 
-    r = DateTimeRange(starttime=opp.start_time, duration=opp.duration)
-    available_volunteers = [v for v in all_volunteers
-                            if any([r in volunteer_shifts[available] for
-                                    available in eval(v.availability)])]
+    
+    available = available_volunteers(opp.start_time)
     return {'interested_volunteers': interested,
             'all_volunteers': all_volunteers,
-            'available_volunteers': available_volunteers}
+            'available_volunteers': available}
 
 
 def allocate_workers(request, opp_id):
