@@ -23,7 +23,7 @@ profile_preferences_labels = {
     'show_hotel_infobox': ('Show hotel booking info on your landing page?'),
 }
 
-inform_about_options = [('Exhibiting Art or Costumes', 
+inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
                         ('Pre-event Organizing', 'Pre-event Organizing'),
@@ -105,28 +105,29 @@ event_help_texts = {'type': '''Special Events, Master Classes, and Drop In class
 
 volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH8', 'Saturday late night (10PM-1AM)'),
-                                  ('SH1', 'Friday morning (9AM-12PM)'), 
-                                  ('SH9', 'Sunday morning (8AM-12PM)'), 
+                                  ('SH1', 'Friday morning (9AM-12PM)'),
+                                  ('SH9', 'Sunday morning (8AM-12PM)'),
                                   ('SH2', 'Friday afternoon (12PM-6PM)'),
                                   ('SH10', 'Sunday afternoon (12PM-6PM)'),
-                                  ('SH3', 'Friday night (5PM-10PM)'), 
-                                  ('SH11', 'Sunday night (5PM-10PM)'), 
+                                  ('SH3', 'Friday night (5PM-10PM)'),
+                                  ('SH11', 'Sunday night (5PM-10PM)'),
                                   ('SH4', 'Friday late night (10PM-1AM)'),
                                   ('SH12', 'Strike Crew (10PM-1AM)'),
-                                  ('SH5', 'Saturday morning (8AM-12PM)'), 
+                                  ('SH5', 'Saturday morning (8AM-12PM)'),
                                   ('SH13', 'Monday morning (9AM-12PM)'),
                                   ('SH6', 'Saturday afternoon (12PM-6PM)'),
                                   ('SH7', 'Saturday night (5PM-10PM)')]
 
 volunteer_interests_options = [('VA8', 'Art Show'),
-                               ('VA2', 'Stage crew'),
+                               ('VA1', 'Security/usher'),
                                ('VA4', 'Conference Staff'),
-                               ('VA3', 'Stage Management'), 
+                               ('VA2', 'Stage crew'),
                                ('VA7', 'Costume Exhibit'),
-                               ('VA5', 'Tech crew'), 
+                               ('VA3', 'Stage Management'),
                                ('VA0', 'Registration'),
-                               ('VA6', 'Vendor room'),
-                               ('VA1', 'Security/usher')]
+                               ('VA5', 'Tech crew'),
+                               ('VA9', 'Photography/Media'),
+                               ('VA6', 'Vendor room'),]
 
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
@@ -169,62 +170,60 @@ lighting_labels = {
     'notes': ('Describe the feel of your number ')}
 
 lighting_help_texts = {
-    'notes' : ('Is your number happy and bouncy, humorous, dark, mysterious, \
-               etc.?  Please keep it simple, just a short description.')}
+    'notes': ('Is your number happy and bouncy, humorous, dark, mysterious, '
+              'etc.?  Please keep it simple, just a short description.')
+}
 
 main_cue_header = {'cue_sequence': 'Cue #',
-		   'cue_off_of': 'Cue Off of...',
-		   'follow_spot': 'Follow spot',
-		   'backlight': 'Backlight',
-		   'center_spot': 'Center Spot',
-		   'cyc_color': 'Cyc Light',
-		   'wash': 'Wash',
-		   'sound_note': 'Sound'}
+                   'cue_off_of': 'Cue Off of...',
+                   'follow_spot': 'Follow spot',
+                   'backlight': 'Backlight',
+                   'center_spot': 'Center Spot',
+                   'cyc_color': 'Cyc Light',
+                   'wash': 'Wash',
+                   'sound_note': 'Sound'}
 
 starting_cues = [('MC exit', 'MC exit'), 
                  ('Start of music', 'Start of music'), 
                  ('Performer set on stage', 'Performer set on stage')]
 
-
-bidder_info_phone_error = ''''A phone number we can use to reach you
-    when you are at the Expo, such as cell phone.'''
+bidder_info_phone_error = ('A phone number we can use to reach you '
+                           ' when you are at the Expo, such as cell phone.')
 
 act_length_required = ("Act Length (mm:ss) is required.")
-act_length_too_long = ("The Act Length is too long.")  # note: this refers
-                                                       # to the data entered,
-                                                       # not the time signified
+act_length_too_long = ("The Act Length is too long.")  
 
 act_help_texts = {
-    'shows_preferences':('Check as many as apply to you'),
-    'act_duration': ('Length of entire act in mm:ss - please include any time \
-                     you are performing before or after your song.'), 
-    'track_duration': ('Please enter the duration of your music or backing \
-                       track in minutes and seconds. Something that was four \
-                       minutes and twenty seconds would be entered as "04:20". \
-                       Remember, the maximum duration for an act in \
-                       competition in The Main Event is 5 minutes for a \
-                       soloist, 7 minutes for a group'),
-    'description': ('Please give a brief description of your act. Stage \
-                    kittens will retrieve costumes and props, but we cannot \
-                    clean the stage after your act. Please do not leave \
-                    anything on the stage (water, glitter, confetti, etc.)'), 
-    'performer': ('Select the stage persona, combo, or troupe who will be \
-                  performing. Hit "create" to create a new persona, troupe, \
-                  or combo.'),
-    'video_link': ('Link to some video of your performance, or a similar \
-                    act. This will be used for evaluating your bid, and will \
-                    not appear on your performer page.'),
-    'other_performance': ("Don't feel badly if you're not accepted to perform \
-                          in one of the formal shows. We have a ton of other \
-                          ways to get your performance fix! Indicating that you \
-                          are interested in doing one or more of these \
-                          activities has no effect on whether or not you are \
-                          accepted to perform in a show. You may be accepted to \
-                          perform and still do these activities."),
-    'video_link':('Make sure to include \'http://\' '),
-    'intro_text':('This text will be used by the MC to introduce your act.'),
-    'notes': ('Please clarify any instructions with respect to prop setting, \
-              clearing, or cueing' )
+    'shows_preferences': 'Check as many as apply to you',
+    'act_duration': ('Length of entire act in mm:ss - please include any time '
+                     'you are performing before or after your song.'),
+    'track_duration': ('Please enter the duration of your music or backing '
+                       'track in minutes and seconds. Something that was four '
+                       'minutes and twenty seconds would be entered as '
+                       '"04:20". Remember, the maximum duration for an act in '
+                       'competition in The Main Event is 5 minutes for a '
+                       'soloist, 7 minutes for a group'),
+    'description': ('Please give a brief description of your act. Stage '
+                    'kittens will retrieve costumes and props, but we cannot '
+                    'clean the stage after your act. Please do not leave '
+                    'anything on the stage (water, glitter, confetti, etc.)'),
+    'performer': ('Select the stage persona, combo, or troupe who will be '
+                  'performing. Hit "create" to create a new persona, troupe, '
+                  'or combo.'),
+    'video_link': ('Link to some video of your performance, or a similar '
+                   'act. This will be used for evaluating your bid, and will '
+                   'not appear on your performer page.'),
+    'other_performance': ("Don't feel badly if you're not accepted to perform "
+                          "in one of the formal shows. We have a ton of other "
+                          "ways to get your performance fix! Indicating that "
+                          "you are interested in doing one or more of these "
+                          "activities has no effect on whether or not you are "
+                          "accepted to perform in a show. You may be accepted "
+                          "to perform and still do these activities."),
+    'video_link': 'Make sure to include \'http://\' ',
+    'intro_text': 'This text will be used by the MC to introduce your act.',
+    'notes': ('Please clarify any instructions with respect to prop setting, '
+              'clearing, or cueing')
 }
 
 act_bid_labels = {
@@ -238,28 +237,27 @@ act_bid_labels = {
     'act_duration': 'Duration of Act',
     'description': 'Description of Act',
     'video_choice': 'Video Notes',
-    'why_you': 'Why Would You Like to Perform at The Great Burlesque \
-                Exposition?',
+    'why_you': ('Why Would You Like to Perform at The Great Burlesque '
+                'Exposition?'),
     'video_link': 'URL of Video'
 }
 
-
-
-bio_required = ("Performer/Troupe history is required.")
-bio_too_long = ("The History is too long.")
+bio_required = "Performer/Troupe history is required."
+bio_too_long = "The History is too long."
 bio_help_text = 'Please give a brief performer/troupe history.'
 
-act_description_required =  ("Description of the Act is required.")
-act_description_too_long =  ("The Description  is too long.")
+act_description_required = "Description of the Act is required."
+act_description_too_long = "The Description  is too long."
 
-promo_required = ("Please provide a photo.")
-promo_help_text = '''Please_upload a photograph of yourself (photo must be under 10 MB).'''
+promo_required = "Please provide a photo."
+promo_help_text = ('Please_upload a photograph of yourself (photo must '
+                   'be under 10 MB).')
 
-persona_labels = {'name': ('Stage Name'), 
+persona_labels = {'name': ('Stage Name'),
                   'homepage': ('Web Site'),
-                  'contact': ('Agent/Contact'), 
+                  'contact': ('Agent/Contact'),
                   'bio': ('Bio'),
-                  'experience': ('Experience'),  
+                  'experience': ('Experience'),
                   'awards': ('Awards'),
                   'promo_image': ('Promo Image'),
                   'puffsheet': ('Press kit/one-sheet'),
@@ -268,32 +266,24 @@ persona_labels = {'name': ('Stage Name'),
 
 
 persona_help_texts = {
-'name': 
-    ('This is the name you will be listed under when performing.'),
-'contact': 
-    ('''The person GBE should contact about Expo \
-    performances. Usually, this will be you.'''),
-'homepage': 
-    ('This will be listed on your performer page.'),
-'bio': 
-    ('This will be listed on your performer page.'),
-'promo_image': 
-    ('''This may be used by GBE for promotional purposes, and \
-    will appear on your performer page.'''),
-'puffsheet': 
-    ('''If you have a one-sheet or other prepared presskit, \
-    you may upload it, and we'll include it in your promo page. '''),
-'experience': 
-    ('''Number of years performing burlesque'''),
-'awards': 
-    ('''Other awards and recognition of your work in burlesque, \
-    including festival appearances not listed above.'''),
-'festivals': 
-    ('''If you have appeared in any of these festivals, let \
-    us know how you did. This information will appear on your performer page.'''),
+    'name': 'This is the name you will be listed under when performing.',
+    'contact': ('The person GBE should contact about Expo  performances. '
+            'Usually, this will be you.'),
+    'homepage': 'This will be listed on your performer page.',
+    'bio': 'This will be listed on your performer page.',
+    'promo_image': ('This may be used by GBE for promotional purposes, and '
+                    'will appear on your performer page.'),
+    'puffsheet': ("If you have a one-sheet or other prepared presskit, you "
+                  "may upload it, and we'll include it in your promo page. "),
+    'experience': 'Number of years performing burlesque',
+    'awards': ('Other awards and recognition of your work in burlesque, '
+               'including festival appearances not listed above.'),
+    'festivals': ('If you have appeared in any of these festivals, let '
+                  'us know how you did. This information will appear on '
+                  'your performer page.'),
 }
 
-bid_review_options = ( 'Accepted', 'Declined', 'Waitlist')
+bid_review_options = ('Accepted', 'Declined', 'Waitlist')
 
 acceptance_labels = {
     'accepted': ('Change Bid State')
@@ -328,58 +318,60 @@ description_help_text = '''For use on the The Great Burlesque Expo website, in \
 advertising and in any schedule of events. The description should be 1-2 paragraphs.'''
 
 classbid_labels = {
-	'min_size': ('Minimum Size'),
-	'maximum_enrollment': ('Maximum Students'),
-	'history': ('Have You Taught This Class Before?'),
-	'other_teachers': ('Fellow Teachers'),
-	'run_before': 'Has the Class been run Before?',
-	'fee': 'Materials Fee',
-	'space_needs': 'Room Preferences',
-	'schedule_constraints': 'Preferred Teaching Times',
-	'multiple_run': 'Are you willing to run the class more than once?',
-	'length_minutes': ('Length in Minutes'),
+    'min_size': ('Minimum Size'),
+    'maximum_enrollment': ('Maximum Students'),
+    'history': ('Have You Taught This Class Before?'),
+    'other_teachers': ('Fellow Teachers'),
+    'run_before': 'Has the Class been run Before?',
+    'fee': 'Materials Fee',
+    'space_needs': 'Room Preferences',
+    'schedule_constraints': 'Preferred Teaching Times',
+    'multiple_run': 'Are you willing to run the class more than once?',
+    'length_minutes': ('Length in Minutes'),
 }
 
 classdisplay_labels = {
-	'type': ('Class Type'),
-	'fee': ('Materials Fee (paid to teacher)'),
-	'history': ('Have You Taught This Class Before?'),
-	'other_teachers': ('Fellow Teachers'),
-	'run_before': 'Has the Class been run Before?',
-	'fee': 'Materials Fee',
-	'space_needs': 'Room Preferences',
-	'schedule_constraints': 'Preferred Teaching Times',
-	'multiple_run': 'Are you willing to run the class more than once?',
-	'length_minutes': ('Length in Minutes'),
+    'type': ('Class Type'),
+    'fee': ('Materials Fee (paid to teacher)'),
+    'history': ('Have You Taught This Class Before?'),
+    'other_teachers': ('Fellow Teachers'),
+    'run_before': 'Has the Class been run Before?',
+    'fee': 'Materials Fee',
+    'space_needs': 'Room Preferences',
+    'schedule_constraints': 'Preferred Teaching Times',
+    'multiple_run': 'Are you willing to run the class more than once?',
+    'length_minutes': ('Length in Minutes'),
 }
 
 classbid_help_texts = {
-	'min_size': ('''The minimum number of people required for your class. This guideline \
-	helps the convention meet both teacher expectations and class size needs. If \
-	you\'re not sure, make the minimum 1'''),
-	'max_size': ('The maximum number of people that the class can accomodate.'),
-	'history': ('Have you taught this class before? Where and when?'),
-	'run_before': ('If the class has been run before, please let us know where and when.'),
-	'fee': ('We strongly suggest that your materials fee not exceed $10'), 
-	'space_needs': ('Room Preferences'),
-	'physical_restrictions': ('Physical Restrictions'),
-	'schedule_constraints': ('Scheduling Constraints'),
-	'multiple_run': ('Are you willing to run the class more than once?'),
-	'length_minutes': ('''Please note that classes are \
-        asked to end 10 minutes shorter than the full slot length, \
-        so a 60 minute class is really 50 minutes.'''),
-}
+    'min_size': ("The minimum number of people required for your class. "
+                 "This guideline helps the convention meet both teacher "
+                 "expectations and class size needs. If you're not sure, "
+                 "make the minimum 1"),
+    'max_size': ('The maximum number of people that the class can accomodate.'),
+    'history': ('Have you taught this class before? Where and when?'),
+    'run_before': ('If the class has been run before, please let us know '
+                   'where and when.'),
+    'fee': ('We strongly suggest that your materials fee not exceed $10'),
+    'space_needs': ('Room Preferences'),
+    'physical_restrictions': ('Physical Restrictions'),
+    'schedule_constraints': ('Scheduling Constraints'),
+    'multiple_run': ('Are you willing to run the class more than once?'),
+    'length_minutes': ('Please note that classes are asked to end 10 '
+                       'minutes shorter than the full slot length, '
+                       'so a 60 minute class is really 50 minutes.'),
+        }
 classbid_error_messages = {
-        'length_minutes': {
+    'length_minutes': {
         'required': ("Class Length (in minutes) is required."),
         'max_length': ("The Class Length is too long."),
     }}
 
-class_schedule_options = [('0', 'Friday Afternoon'), 
-                           ('1', 'Saturday Morning'), 
-                           ('2', 'Saturday Afternoon'), 
-                           ('3', 'Sunday Morning'), 
-                           ('4', 'Sunday Afternoon')]
+class_schedule_options = [('0', 'Friday Afternoon'),
+                          ('1', 'Saturday Morning'),
+                          ('2', 'Saturday Afternoon'),
+                          ('3', 'Sunday Morning'),
+                          ('4', 'Sunday Afternoon')]
 
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
@@ -393,36 +385,39 @@ space_type_error3 = ('''A lecture class may have room preferences listed for lec
 classes, but the chosen movement style arrangement is not an option.''')
 
 panel_labels = {
-	'other_teachers': ('Recommended Panelists'),
-	'run_before': 'Has the Panel been run Before?',
+    'other_teachers': ('Recommended Panelists'),
+    'run_before': 'Has the Panel been run Before?',
 }
 
 panel_help_texts = {
-	'other_teachers': ('''It is far more likely that your panel may be run at The \
-	Great Burlesque Expo 2014if we can find qualified panelists and a moderator - \
-	let us know any recommendations.'''),
-	'run_before': ('''The Great Burlesque Expo 2014 is looking for convention \
-	content that is new and that have successfully presented before, either at \
-	a convention, or elsewhere. If this content has run before, please describe \
-	where and when.'''),
+    'other_teachers': ('It is far more likely that your panel may be '
+                       'run at The Great Burlesque Expo if we can find '
+                       'qualified panelists and a moderator - let us '
+                       'know if you have any recommendations.'),
+    'run_before': ('The Great Burlesque Expo 2014 is looking for convention '
+                   'content that is new and that have successfully presented '
+                   'before, either at a convention, or elsewhere. If this '
+                   'content has run before, please describe where and when.'),
 }
 
-vendor_description_help_text = '''Please describe your good or services in 250 words \
-or less. We will publish this text on the website.'''
+vendor_description_help_text = ('Please describe your good or services in 250 '
+                                'words or less. We will publish this text on the '
+                                'website.')
 
 vendor_labels = {
     'description': 'Description of Goods or Services',
     'title': 'Company or business name',
-    'vend_time':  ('I\'d like to vend...'),
+    'vend_time': ("I'd like to vend..."),
     'want_help': ('Help Wanted'),
-    'help_times': ('I\'d like someone to help me... (Check All That Apply)'),
-    'help_description': ('Tell Us About the Person You\'d Like to Hire '),
+    'help_times': ("I'd like someone to help me... (Check All That Apply)"),
+    'help_description': ("Tell Us About the Person You'd Like to Hire "),
     'website': 'Company website',
     'physical_address': 'Business Address',
     'publish_physical_address': 'Publish my business address'
-
 }
+
 vendor_help_texts = {
+<<<<<<< HEAD
     'vend_time':  ('I\'d like to vend...'),
     'want_help': ('''Would you like us to help you find someone to work at your \
     booth or table with you?'''),
@@ -440,18 +435,18 @@ vendor_help_texts = {
     about corsets", "must be able to drive a standard").'''),
 }
 
-vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'), 
-                           ('VSH1', 'Saturday, 12pm to 4pm'), 
-                           ('VSH2', 'Saturday, 4pm to 8pm'), 
-                           ('VSH3', 'Saturday after 8pm'), 
-                           ('VSH4', 'Sunday, 9am to noon'), 
-                           ('VSH5', 'Sunday, 12pm to 4pm'), 
-                           ('VSH6', 'Sunday, 4pm to 8pm'), 
+vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'),
+                           ('VSH4', 'Sunday, 9am to noon'),
+                           ('VSH1', 'Saturday, 12pm to 4pm'),
+                           ('VSH5', 'Sunday, 12pm to 4pm'),
+                           ('VSH2', 'Saturday, 4pm to 8pm'),
+                           ('VSH6', 'Sunday, 4pm to 8pm'),
+                           ('VSH3', 'Saturday after 8pm'),
                            ('VSH7', 'Sunday after 8pm')]
 
 
 help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
-                     ('Saturday, 12pm to 4pm','Saturday, 12p to 4pm'),
+                     ('Saturday, 12pm to 4pm', 'Saturday, 12p to 4pm'),
                      ('Saturday, 4pm to 8pm', 'Saturday, 4pm to 8pm'),
                      ('Saturday after 8pm', 'Saturday after 8pm'),
                      ('Sunday, 9am to noon', 'Sunday, 9am to noon'),
@@ -459,25 +454,25 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
                      ('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
                      ('Sunday after 8pm', 'Sunday after 8pm'))
 
-
-
-
-# Would like to be able to insert this into the class proposal form from upstream
+#  Would like to be able to insert this into the class proposal form 
+#  from upstream
 
 class_proposal_form_text = {
-    'header': '''Thanks for your interest in the Great Burlesque Expo. Suggestions \
-    are welcome for classes you\'d like to see offered. 
-    Name and email address are optional: fill in if you\'d like updates about \
-    classes and panels at the next Expo. '''
+    'header': ("Thanks for your interest in the Great Burlesque Expo. "
+               "Suggestions are welcome for classes you'd like to see "
+               "offered. Name and email address are optional: fill in if "
+               "you'd like updates about classes and panels at the next Expo.")
 }
 
 class_proposal_help_texts = {
-    'name': 'If you\'d like to get updates about classes and panels at the Expo, \
-    fill in your email address.',
+    'name': ("If you'd like to get updates about classes and panels at the "
+             "Expo, fill in your email address."),
     'title': 'Your suggested title for this class or panel',
-    'proposal': 'What does this class look like in your mind? Consider telling us about material to \
-    cover, target audience, etc.',
-    'type': 'Is this a class (a lecture or workshop with a single teacher) or a panel (a less formal discussion with multiple participants)?'
+    'proposal': ('What does this class look like in your mind? Consider '
+                 'telling us about material to cover, target audience, etc.'),
+    'type': ('Is this a class (a lecture or workshop with a single teacher) '
+             'or a panel (a less formal discussion with multiple '
+             'participants)?')
 }
 
 class_proposal_labels = {
@@ -491,8 +486,11 @@ proposal_edit_help_texts = {
     'name': 'Name or email of submitter',
     'title': 'This will be published in the presenter opportunity page',
     'proposal': 'Description for what the Expo would like to offer.',
-    'type': 'Class, panel or either one would be OK.  If "either" - volunteers will be able to choose to be a teacher, moderator, or presenter',
-    'display': 'When this is checked, the item will appear on the "Volunteer to Present" page.'
+    'type': ('Class, panel or either one would be OK.  If "either" '
+             '- volunteers will be able to choose to be a teacher, '
+             'moderator, or presenter'),
+    'display': ('When this is checked, the item will appear on '
+                'the "Volunteer to Present" page.')
 
 }
 
@@ -535,18 +533,18 @@ bpt_event_labels = {
 bpt_event_help_text = {
     'act_submission_event': 'Used to submit Act Applications',
     'vendor_submission_event': 'Used to submit Vendor Applications',
-    'linked_events': 'Conference Items and Volunteer Opportunties are not in \
-                      this list.',
+    'linked_events': ('Conference Items and Volunteer Opportunties are not in '
+                      'this list.'),
     'include_conference': 'All Classes, Panels and Workshops are included.',
-    'include_most': 'Everything except Master Classes and Volunteer \
-                     Opportunities',
+    'include_most': ('Everything except Master Classes and Volunteer '
+                     'Opportunities'),
     'badgeable': 'The Reg Desk will print a name badge if this is true',
     'ticket_style': 'Special instructions for Reg Desk'
 }
 
 username_label = 'Login'
-username_help = 'Required. 30 characters or fewer. Letters, digits and \
-		@ . + - _ only.'
+username_help = ("Required. 30 characters or fewer. Letters, digits and "
+                 "@ . + - _ only.")
 
 conference_participation_types = [('Teacher', 'Teacher'),
                                   ('Moderator', 'Moderator'),
