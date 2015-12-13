@@ -18,7 +18,17 @@ def list_reports(request):
       Shows listing of all reports in this area
     '''
     viewer_profile = validate_perms(request, 'any', require=True)
-    return render(request, 'gbe/report/report_list.tmpl')
+    conference_slugs = conf.Conference.all_slugs()
+    if request.GET and request.GET.get('conf_slug'):
+        conference = conf.Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = conf.Conference.current_conf()
+    return render(request,
+                  'gbe/report/report_list.tmpl',{
+                      'conference_slugs': conference_slugs,
+                      'conference': conference,
+                      'return_link': reverse('report_list',
+                                          urlconf='gbe.report_urls'),})
 
 
 def review_staff_area(request):
