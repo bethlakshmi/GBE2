@@ -1173,7 +1173,6 @@ def review_class(request, class_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Class Reviewers',))
-
     aclass = get_object_or_404(
         Class,
         id=class_id,
@@ -1308,19 +1307,12 @@ def class_changestate(request, bid_id):
     removed from the class.
     '''
     reviewer = validate_perms(request, ('Class Coordinator', ))
-
     if request.method == 'POST':
         thisclass = get_object_or_404(Class, id=bid_id)
 
         # if the class has been rejected/no decision, clear any schedule items.
         if request.POST['accepted'] in ('0', '1'):
-            try:
-                sched_classes = Event.objects.filter(
-                    eventitem__event=thisclass.event_id).delete()
-            except:
-                return HttpResponseRedirect(reverse('home',
-                                                    urlconf='gbe.urls'))
-                # TO DO: better redirect please
+            thisclass.scheduler_events.all().delete()
     return bid_changestate(request, bid_id, 'class_review_list')
 
 
