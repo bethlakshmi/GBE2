@@ -5,7 +5,7 @@ from django.test import Client
 from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     PersonaFactory, 
-    ClassFactory, 
+    ClassFactory,
     ProfileFactory,
 )
 from tests.factories.scheduler_factories import SchedEventFactory
@@ -46,8 +46,8 @@ class TestReviewClass(TestCase):
         klass = ClassFactory.create()
         s_event = SchedEventFactory(eventitem=klass.eventitem_ptr)
         request = self.factory.post(
-            '/class/changestate/', 
-            data = {'accepted':1})
+            '/class/changestate/',
+            data={'accepted': 1})
         request.session = {'cms_admin_site': 1}
         request.user = self.privileged_user
         login_as(request.user, self)
