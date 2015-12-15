@@ -417,7 +417,6 @@ vendor_labels = {
 }
 
 vendor_help_texts = {
-<<<<<<< HEAD
     'vend_time':  ('I\'d like to vend...'),
     'want_help': ('''Would you like us to help you find someone to work at your \
     booth or table with you?'''),
