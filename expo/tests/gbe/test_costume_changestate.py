@@ -4,37 +4,37 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import vendor_changestate
-from tests.factories import gbe_factories as factories
+from gbe.views import costume_changestate
+import mock
+from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
-    VendorFactory,
+    CostumeFactory,
     ProfileFactory
 )
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.models import Group
 
 
-class TestVendorChangestate(TestCase):
-    '''Tests for vendor_changestate view'''
+class TestCostumeChangestate(TestCase):
+    '''Tests for costume_changestate view'''
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.vendor = VendorFactory.create()
+        self.costume = CostumeFactory.create()
         self.privileged_user = ProfileFactory.create().user_object
-        group, nil = Group.objects.get_or_create(name='Vendor Coordinator')
+        group, nil = Group.objects.get_or_create(name='Costume Coordinator')
         self.privileged_user.groups.add(group)
 
-    def test_vendor_changestate_authorized_user(self):
+    def test_costume_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
-        request = self.factory.get('vendor/changestate/%d' % self.vendor.pk)
+        request = self.factory.get('costume/changestate/%d' % self.costume.pk)
         request.user = self.privileged_user
-        response = vendor_changestate(request, self.vendor.pk)
+        response = costume_changestate(request, self.costume.pk)
         nt.assert_equal(response.status_code, 302)
 
     @nt.raises(PermissionDenied)
-    def test_vendor_changestate_unauthorized_user(self):
+    def test_costume_changestate_unauthorized_user(self):
         '''A regular user is changing the state, it fails'''
-        request = self.factory.get('vendor/changestate/%d' % self.vendor.pk)
+        request = self.factory.get('costume/changestate/%d' % self.costume.pk)
         request.user = ProfileFactory.create().user_object
-        response = vendor_changestate(request, self.vendor.pk)
+        response = costume_changestate(request, self.costume.pk)
