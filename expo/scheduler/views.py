@@ -338,8 +338,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         else:
             sevent = opp['sched']
             num_volunteers = sevent.max_volunteer
-            day = sevent.start_time.strftime("%A")
-            conf_date = conference_dates[day]
+            day = sevent.start_time.strftime("%Y-%m-%d")
             time = sevent.start_time.time
             location = sevent.location
             if sevent.location:
@@ -352,7 +351,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                     initial={'opp_event_id': opp['conf'].event_id,
                              'opp_sched_id': opp['sched'].id,
                              'num_volunteers': num_volunteers,
-                             'day': conf_date,
+                             'day': day,
                              'time': time,
                              'location': room,
                              },
