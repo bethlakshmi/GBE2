@@ -24,11 +24,11 @@ def list_reports(request):
     else:
         conference = conf.Conference.current_conf()
     return render(request,
-                  'gbe/report/report_list.tmpl',{
+                  'gbe/report/report_list.tmpl', {
                       'conference_slugs': conference_slugs,
                       'conference': conference,
                       'return_link': reverse('report_list',
-                                          urlconf='gbe.report_urls'),})
+                                             urlconf='gbe.report_urls')})
 
 
 def review_staff_area(request):
@@ -37,9 +37,9 @@ def review_staff_area(request):
     '''
     viewer_profile = validate_perms(request, 'any', require=True)
 
-    header = ['Area','Leaders','Check Staffing']
+    header = ['Area', 'Leaders', 'Check Staffing']
     try:
-        areas = conf.GenericEvent.objects.filter(type='Staff Area', 
+        areas = conf.GenericEvent.objects.filter(type='Staff Area',
                                                  visible=True)
         shows = conf.Show.objects.all()
     except:
@@ -56,10 +56,11 @@ def staff_area(request, area_id):
     volunteers scheduled, sorted by time/day
     See ticket #250
     '''
-    viewer_profile = validate_perms(request, 'any', require = True)
+    viewer_profile = validate_perms(request, 'any', require=True)
 
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
-    sched_event = sched.Event.objects.filter(eventitem=area).order_by('starttime')
+    sched_event = sched.Event.objects.filter(
+        eventitem=area).order_by('starttime')
     opps = []
     for event in sched_event:
         opps += event.get_volunteer_opps('Volunteer')
@@ -67,18 +68,28 @@ def staff_area(request, area_id):
                   {'opps': opps, 'area': area})
 
 
-def env_stuff(request):
+def env_stuff(request, conference_choice=None):
     '''
     Generates an envelope-stuffing report.
-    See ticket #251 for details.
     '''
     reviewer = validate_perms(request, ('Registrar',))
 
+    if conference_choice:
+        conference = get_object_or_404(
+            conf.Conference,
+            conference_slug=conference_choice)
+    else:
+        conference = conf.Conference.objects.exclude(
+            status='completed').first()
+
     people = conf.Profile.objects.all()
-    acts = conf.Act.objects.filter(accepted=3)
-    tickets = tix.Transaction.objects
-    roles = sched.Worker.objects.all()
-    commits = sched.ResourceAllocation.objects.all()
+    acts = conf.Act.objects.filter(accepted=3, conference=conference)
+    tickets = tix.Transaction.objects.filter(
+        ticket_item__bpt_event__conference=conference)
+    roles = sched.Worker.objects.filter(
+        Q(allocations__event__eventitem__event__conference=conference))
+    commits = sched.ResourceAllocation.objects.filter(
+        Q(event__eventitem__event__conference=conference))
 
     header = ['Badge Name',
               'First',
@@ -101,7 +112,8 @@ def env_stuff(request):
         show_list = ""
         ticket_names = ""
 
-        for ticket in tickets.filter(purchaser__matched_to_user=person.user_object):
+        for ticket in tickets.filter(
+                purchaser__matched_to_user=person.user_object):
             ticket_list += str(ticket.ticket_item.bpt_event.ticket_style)+", "
             ticket_names += ticket.ticket_item.title+", "
 
@@ -112,34 +124,35 @@ def env_stuff(request):
         for volunteer in roles.filter(role="Volunteer", _item=person):
             for commit in commits.filter(resource=volunteer):
                 volunteer_list += str(commit.event.eventitem)+', '
-                
+
         for performer in person.get_performers():
             personae_list += str(performer) + ', '
             for teacher in roles.filter((Q(role="Teacher") |
                                          Q(role="Moderator") |
-                                         Q(role="Panelist"))
-                                        & Q(_item=performer)):
+                                         Q(role="Panelist")) &
+                                        Q(_item=performer)):
                 for commit in commits.filter(resource=teacher):
                     class_list += (teacher.role +
-                                   ': '
-                                   + str(commit.event.eventitem)
-                                   + ', ')
+                                   ': ' +
+                                   str(commit.event.eventitem) +
+                                   ', ')
             for act in acts.filter(performer=performer):
                 for commit in commits.filter(resource__actresource___item=act):
                     show_list += str(commit.event.eventitem)+', '
 
-        person_details.append([person.get_badge_name(),
-                               person.user_object.first_name,
-                               person.user_object.last_name,
-                               ticket_names, ticket_list,
-                               personae_list,
-                               staff_lead_list,
-                               volunteer_list,
-                               class_list,
-                               show_list])
+        person_details.append(
+            [person.get_badge_name().encode('utf-8').strip(),
+             person.user_object.first_name.encode('utf-8').strip(),
+             person.user_object.last_name.encode('utf-8').strip(),
+             ticket_names, ticket_list,
+             personae_list,
+             staff_lead_list,
+             volunteer_list,
+             class_list,
+             show_list])
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=print_badges.csv'
+    response['Content-Disposition'] = 'attachment; filename=env_stuff.csv'
     writer = csv.writer(response)
     writer.writerow(header)
     for row in person_details:
@@ -153,11 +166,11 @@ def personal_schedule(request, profile_id='All'):
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
     else:
-        people =[]
+        people = []
 
-    return render (request,
-                   'gbe/report/printable_schedules.tmpl',
-                   {'people': people})
+    return render(request,
+                  'gbe/report/printable_schedules.tmpl',
+                  {'people': people})
 
 
 def review_act_techinfo(request, show_id=1):
@@ -178,11 +191,11 @@ def review_act_techinfo(request, show_id=1):
         acts = []
 
     return render(request,
-                   'gbe/report/act_tech_review.tmpl',
-                   {'this_show': show,
-                    'acts': acts, 
-                    'all_shows': conf.Show.objects.all()})
-                    
+                  'gbe/report/act_tech_review.tmpl',
+                  {'this_show': show,
+                   'acts': acts,
+                   'all_shows': conf.Show.objects.all()})
+
 
 def export_act_techinfo(request, show_id):
     '''
@@ -200,13 +213,13 @@ def export_act_techinfo(request, show_id):
     acts = show_booking.get_acts(3)
 
     # build header, segmented in same structure as subclasses
-    header =  ['Sort Order',
-               'Order',
-               'Act',
-               'Performer',
-               'Contact Email',
-               'Complete?',
-               'Rehearsal Time']
+    header = ['Sort Order',
+              'Order',
+              'Act',
+              'Performer',
+              'Contact Email',
+              'Complete?',
+              'Rehearsal Time']
     header += ['Act Length',
                'Intro Text',
                'No Props',
@@ -222,8 +235,8 @@ def export_act_techinfo(request, show_id):
                'Need Mic',
                'Use Own Mic',
                'Audio Notes']
-    header +=['Act Description',
-              'Costume Description']
+    header += ['Act Description',
+               'Costume Description']
 
     if location.describe == 'Theater':
         header += ['Cue #',
@@ -283,11 +296,12 @@ def export_act_techinfo(request, show_id):
             techinfo.append(start)
 
     # end for loop through acts
-    cuesequenceindex = 24 #  magic number, obtained by counting headers
+    cuesequenceindex = 24  # magic number, obtained by counting headers
 
     techinfo = sorted(techinfo, key=lambda row: row[0])
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' % show.title.replace(' ','_')
+    response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' \
+        % show.title.replace(' ', '_')
     writer = csv.writer(response)
     writer.writerow(header)
     for row in techinfo:
@@ -322,16 +336,16 @@ def room_schedule(request, room_id=None):
                 current_day = booking.start_time.date()
             if current_day != booking.start_time.date():
                 room_set += [{'room': room,
-                             'date': current_day,
-                             'bookings': day_events}]
+                              'date': current_day,
+                              'bookings': day_events}]
                 current_day = booking.start_time.date()
                 day_events = []
             day_events += [booking]
         room_set += [{'room': room,
                       'date': current_day,
                       'bookings': day_events}]
-    return render (request, 'gbe/report/room_schedule.tmpl',
-                   {'room_date': room_set})
+    return render(request, 'gbe/report/room_schedule.tmpl',
+                  {'room_date': room_set})
 
 
 def room_setup(request):
@@ -351,7 +365,8 @@ def room_setup(request):
         day_events = []
         current_day = None
         for booking in room.get_bookings:
-            booking_class = sched.EventItem.objects.get_subclass(eventitem_id=booking.eventitem.eventitem_id)
+            booking_class = sched.EventItem.objects.get_subclass(
+                eventitem_id=booking.eventitem.eventitem_id)
 
             if not current_day:
                 current_day = booking.start_time.date()
@@ -366,7 +381,7 @@ def room_setup(request):
                 day_events += [{'event': booking,
                                 'class': booking_class}]
 
-    return render(request, 
+    return render(request,
                   'gbe/report/room_setup.tmpl',
                   {'room_date': room_set})
 
@@ -378,28 +393,27 @@ def export_badge_report(request, conference_choice=None):
     reviewer = validate_perms(request, ('Registrar',))
 
     people = conf.Profile.objects.all()
-    
+
     if conference_choice:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True,
-            ticket_item__bpt_event__conference__conference_slug= \
-                conference_choice).order_by('ticket_item')
-       
+            ticket_item__bpt_event__conference__conference_slug=
+            conference_choice).order_by('ticket_item')
+
     else:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True).exclude(
                 ticket_item__bpt_event__conference__status='completed'). \
                     order_by('ticket_item')
 
-
     # build header, segmented in same structure as subclasses
-    header =  ['First',
-               'Last',
-               'username',
-               'Badge Name',
-               'Badge Type',
-               'Date',
-               'State' ]
+    header = ['First',
+              'Last',
+              'username',
+              'Badge Name',
+              'Badge Type',
+              'Date',
+              'State']
 
     badge_info = []
     # now build content - the order of loops is specific here,
@@ -407,32 +421,37 @@ def export_badge_report(request, conference_choice=None):
     # should have a BPT first/last name
     for badge in badges:
         try:
-            for person in people.filter(user_object=badge.purchaser.matched_to_user):
-                badge_info.append([badge.purchaser.first_name,
-                                   badge.purchaser.last_name,
-                                   person.user_object.username,
-                                   person.get_badge_name(),
-                                   badge.ticket_item.title,
-                                   badge.import_date, 
-                                   'In GBE'])
-            if len(people.filter(user_object=badge.purchaser.matched_to_user)) == 0:
-                badge_info.append([badge.purchaser.first_name,
-                                   badge.purchaser.last_name,
-                                   badge.purchaser.matched_to_user,
-                                   badge.purchaser.first_name,
-                                   badge.ticket_item.title,
-                                   badge.import_date,
-                                   'No Profile'])
+            for person in people.filter(
+                    user_object=badge.purchaser.matched_to_user):
+                badge_info.append(
+                    [badge.purchaser.first_name.encode('utf-8').strip(),
+                     badge.purchaser.last_name.encode('utf-8').strip(),
+                     person.user_object.username,
+                     person.get_badge_name().encode('utf-8').strip(),
+                     badge.ticket_item.title,
+                     badge.import_date,
+                     'In GBE'])
+            if len(people.filter(
+                    user_object=badge.purchaser.matched_to_user)) == 0:
+                badge_info.append(
+                    [badge.purchaser.first_name.encode('utf-8').strip(),
+                     badge.purchaser.last_name.encode('utf-8').strip(),
+                     badge.purchaser.matched_to_user,
+                     badge.purchaser.first_name.encode('utf-8').strip(),
+                     badge.ticket_item.title,
+                     badge.import_date,
+                     'No Profile'])
         except:
 
             # if no profile, use purchase info from BPT
-            badge_info.append([badge.purchaser.first_name,
-                               badge.purchaser.last_name,
-                               badge.purchaser.email,
-                               badge.purchaser.first_name,
-                               badge.ticket_item.title,
-                               badge.import_date,
-                               'No User'])
+            badge_info.append(
+                [badge.purchaser.first_name.encode('utf-8').strip(),
+                 badge.purchaser.last_name.encode('utf-8').strip(),
+                 badge.purchaser.email,
+                 badge.purchaser.first_name.encode('utf-8').strip(),
+                 badge.ticket_item.title,
+                 badge.import_date,
+                 'No User'])
 
     # end for loop through acts
     response = HttpResponse(content_type='text/csv')

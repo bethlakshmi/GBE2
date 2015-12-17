@@ -102,7 +102,11 @@
 	  <li>Head of Staff?</li>
 	  </ul>
         <td class="bid-table">
-          <a href="{%url 'reporting:env_stuff' %}">Big List of Everything</a><br>
+	  {% if conference %}
+            <a href="{%url 'reporting:env_stuff' conference.conference_slug %}">Big List of Everything</a><br>
+	  {%else%}
+            <a href="{%url 'reporting:env_stuff' %}">Big List of Everything</a><br>
+          {%endif%}
 	  <i>downloads a CSV</i>
         </td>
       </tr>    

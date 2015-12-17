@@ -1,7 +1,9 @@
     <form action="{{ return_link }}" method="get" enctype="multipart/form-data">
     <select name="conf_slug" id="conf_slug">
       {% for slug in conference_slugs %}
-        <option value = "{{ slug }}"> {{ slug }} 
+        <option value = "{{ slug }}"
+	  {%if slug == conference.conference_slug%}selected{%endif%}
+	  > {{ slug }} 
 	</option>
       {% endfor %}
     </select>
