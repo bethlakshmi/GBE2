@@ -509,8 +509,9 @@ class VolunteerOpportunityForm(forms.ModelForm):
         starttime = time(*time_parts)
         event.starttime = datetime.combine(day, starttime)
 
-        if commit:
-            self.save()
+
+        super(VolunteerOpportunityForm, self).save(commit=commit)
+
         return event
 
 
