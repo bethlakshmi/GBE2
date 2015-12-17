@@ -16,6 +16,11 @@ from gbe.report_views import (list_reports,
                               export_badge_report,
                               )
 from tests.factories import gbe_factories as factories
+from tests.factories.ticketing_factories import (
+    TransactionFactory,
+    )
+import ticketing.models as tix
+
 import tests.functions.gbe_functions as functions
 
 
@@ -48,7 +53,7 @@ class TestReports(TestCase):
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = list_reports(request)
         self.assertEqual(response.status_code, 200)
 
@@ -67,7 +72,7 @@ class TestReports(TestCase):
         request = self.factory.get('reports/review_staff_area')
         functions.login_as(profile, self)
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Act Reviewers')
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
@@ -80,7 +85,7 @@ class TestReports(TestCase):
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
         functions.login_as(profile, self)
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Act Reviewers')
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
@@ -162,7 +167,7 @@ class TestReports(TestCase):
         functions.login_as(profile, self)
         request = self.factory.get('reports/review_act_techinfo')
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
@@ -206,16 +211,16 @@ class TestReports(TestCase):
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
 
     @nt.raises(PermissionDenied)
-    def test_export_badge_report_succeed(self):
-        '''export_badge_report view should load for Registrars
-           and fail for other users
+    def test_export_badge_report_fail(self):
+        '''export_badge_report view should fail for users w/out
+        Registrar role
         '''
         profile = self.profile_factory.create()
         request = self.factory.get('reports/badges/print_run')
@@ -223,11 +228,44 @@ class TestReports(TestCase):
         request.user = profile.user_object
         response = export_badge_report(request)
 
-    def test_export_badge_report_fail(self):
-        '''export_badge_report view should load for Registrars
-           and fail for other users
+    def test_export_badge_report_succeed_w_conf(self):
+        '''get badges w a specific conference
         '''
         profile = self.profile_factory.create()
+        transaction = TransactionFactory.create()
+        transaction.ticket_item.bpt_event.badgeable = True
+        transaction.save()
+        transaction.ticket_item.bpt_event.save()
+        functions.grant_privilege(profile, 'Registrar')
+        request = self.factory.get(
+            'reports/badges/print_run/%s'
+            % transaction.ticket_item.bpt_event.conference.conference_slug)
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+        response = export_badge_report(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=print_badges.csv")
+        self.assertIn(
+            "First,Last,username,Badge Name,Badge Type,Date,State",
+            response.content)
+        self.assertIn(
+            transaction.purchaser.matched_to_user.username,
+            response.content)
+        self.assertIn(
+            transaction.ticket_item.title,
+            response.content)
+
+    def test_export_badge_report_succeed(self):
+        '''loads with the default conference selection.
+        '''
+        profile = self.profile_factory.create()
+        transaction = TransactionFactory.create()
+        transaction.ticket_item.bpt_event.badgeable = True
+        transaction.save()
+        transaction.ticket_item.bpt_event.save()
+
         request = self.factory.get('reports/badges/print_run')
         functions.login_as(profile, self)
         request.user = profile.user_object
@@ -237,3 +275,14 @@ class TestReports(TestCase):
         request.user = profile.user_object
         response = export_badge_report(request)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=print_badges.csv")
+        self.assertIn(
+            "First,Last,username,Badge Name,Badge Type,Date,State",
+            response.content)
+        self.assertIn(
+            transaction.purchaser.matched_to_user.username,
+            response.content)
+        self.assertIn(
+            transaction.ticket_item.title,
+            response.content)
