@@ -31,6 +31,17 @@ class TestReports(TestCase):
         self.profile_factory = factories.ProfileFactory
         self.client = Client()
 
+    def create_transaction(self):
+        transaction = TransactionFactory.create()
+        transaction.ticket_item.bpt_event.badgeable = True
+        transaction.save()
+        transaction.ticket_item.bpt_event.save()
+        profile_buyer = self.profile_factory.create()
+        profile_buyer.user_object = transaction.purchaser.matched_to_user
+        profile_buyer.save()
+
+        return transaction
+
     @nt.raises(PermissionDenied)
     def test_list_reports_fail(self):
         '''list_reports view should fail because user
@@ -113,16 +124,58 @@ class TestReports(TestCase):
         response = env_stuff(request)
 
     def test_env_stuff_succeed(self):
-        '''env_stuff view should load for privileged users
-           and fail for others
+        '''env_stuff view should load with no conf choice
         '''
         profile = self.profile_factory.create()
+        transaction = self.create_transaction()
         request = self.factory.get('reports/stuffing')
         functions.login_as(profile, self)
         request.user = profile.user_object
         functions.grant_privilege(profile, 'Registrar')
         response = env_stuff(request)
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=env_stuff.csv")
+        self.assertIn(
+            "Badge Name,First,Last,Tickets,Ticket format,Personae," +
+            "Staff Lead,Volunteering,Presenter,Show",
+            response.content)
+        self.assertIn(
+            transaction.purchaser.matched_to_user.first_name,
+            response.content)
+        self.assertIn(
+            transaction.ticket_item.title,
+            response.content)
+
+    def test_env_stuff_succeed_w_conf(self):
+        '''env_stuff view should load for a selected conference slug
+        '''
+        profile = self.profile_factory.create()
+        transaction = self.create_transaction()
+        request = self.factory.get(
+            'reports/stuffing/%s/'
+            % transaction.ticket_item.bpt_event.conference.conference_slug)
+
+        functions.login_as(profile, self)
+        request.user = profile.user_object
+        functions.grant_privilege(profile, 'Registrar')
+        response = env_stuff(
+            request,
+            transaction.ticket_item.bpt_event.conference.conference_slug)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=env_stuff.csv")
+        self.assertIn(
+            "Badge Name,First,Last,Tickets,Ticket format,Personae," +
+            "Staff Lead,Volunteering,Presenter,Show",
+            response.content)
+        self.assertIn(
+            transaction.purchaser.matched_to_user.first_name,
+            response.content)
+        self.assertIn(
+            transaction.ticket_item.title,
+            response.content)
 
     @nt.raises(PermissionDenied)
     def test_personal_schedule_fail(self):
@@ -232,10 +285,7 @@ class TestReports(TestCase):
         '''get badges w a specific conference
         '''
         profile = self.profile_factory.create()
-        transaction = TransactionFactory.create()
-        transaction.ticket_item.bpt_event.badgeable = True
-        transaction.save()
-        transaction.ticket_item.bpt_event.save()
+        transaction = self.create_transaction()
         functions.grant_privilege(profile, 'Registrar')
         request = self.factory.get(
             'reports/badges/print_run/%s'
@@ -261,10 +311,7 @@ class TestReports(TestCase):
         '''loads with the default conference selection.
         '''
         profile = self.profile_factory.create()
-        transaction = TransactionFactory.create()
-        transaction.ticket_item.bpt_event.badgeable = True
-        transaction.save()
-        transaction.ticket_item.bpt_event.save()
+        transaction = self.create_transaction()
 
         request = self.factory.get('reports/badges/print_run')
         functions.login_as(profile, self)
@@ -273,7 +320,9 @@ class TestReports(TestCase):
         functions.grant_privilege(profile, 'Registrar')
         request = self.factory.get('reports/badges/print_run')
         request.user = profile.user_object
-        response = export_badge_report(request)
+        response = export_badge_report(
+            request,
+            transaction.ticket_item.bpt_event.conference.conference_slug)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
                          "attachment; filename=print_badges.csv")
