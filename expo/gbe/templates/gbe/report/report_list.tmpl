@@ -16,7 +16,8 @@
     <li>Verify that the link does not say "Just Teasing" - we have some work in progress.</li>
    </ul>
 
-  
+  {% include "conference_picker.tmpl" %}
+
 
   <table class="bid-table">
     <tr class="bid-table">
@@ -101,7 +102,11 @@
 	  <li>Head of Staff?</li>
 	  </ul>
         <td class="bid-table">
-          <a href="{%url 'reporting:env_stuff' %}">Big List of Everything</a><br>
+	  {% if conference %}
+            <a href="{%url 'reporting:env_stuff' conference.conference_slug %}">Big List of Everything</a><br>
+	  {%else%}
+            <a href="{%url 'reporting:env_stuff' %}">Big List of Everything</a><br>
+          {%endif%}
 	  <i>downloads a CSV</i>
         </td>
       </tr>    
@@ -115,7 +120,12 @@
 	  <li>One row per ticket</li>
 	  </ul>
         <td class="bid-table">
-          <a href="{%url 'reporting:badge_report' %}">Badge Print Run</a><br>
+	  {% if conference %}
+            <a href="{%url 'reporting:badge_report' conference.conference_slug%}">
+	  {%else%}
+            <a href="{%url 'reporting:badge_report' %}">
+	  {%endif%}  
+	    Badge Print Run</a><br>
 	  <i>downloads a CSV</i>
         </td>
       </tr>    

@@ -122,7 +122,6 @@ def get_events_list_by_type(event_type, conference):
     return items
 
 def available_volunteers(event_start_time):
-    import pdb; pdb.set_trace()
     one_minute = timedelta(0,60)
     tz = pytz.utc
     event_start_time = event_start_time + one_minute

@@ -40,6 +40,6 @@ class TestListTickets(TestCase):
         '''
         request = self.factory.get('/ticketing/ticket_items')
         request.user = self.privileged_user
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
