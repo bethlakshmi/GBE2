@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 import gbe.models as conf
+from gbe.functions import get_current_conference
 
 conference_days = (
     (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
@@ -51,11 +52,12 @@ class WorkerAllocationForm (forms.Form):
     label = forms.CharField(max_length=100, required=False)
     alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
+
 class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     
-    day = forms.ChoiceField(choices=conference_days)
+    day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
     location = forms.ChoiceField(choices=[
                 (loc, loc.__str__()) for loc in
@@ -71,13 +73,20 @@ class EventScheduleForm(forms.ModelForm):
         required=False)
     staff_lead = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
                                         required=False)
-
     description = forms.CharField(required=False,
                                   widget=forms.Textarea,
                                   help_text=scheduling_help_texts
                                   ['description'])
     title = forms.CharField(required=False,
                             help_text=scheduling_help_texts['title'])
+
+
+    def __init__(self, *args, **kwargs):
+        conference = get_current_conference()
+        super(EventScheduleForm, self).__init__(*args, **kwargs)
+        self.fields['day'] = forms.ModelChoiceField(
+            queryset=conference.conferenceday_set.all())
+
 
     class Meta:
         model = Event
@@ -96,10 +105,10 @@ class EventScheduleForm(forms.ModelForm):
     def save(self, commit=True):
         data = self.cleaned_data
         event = super(EventScheduleForm, self).save(commit=False)
-        day = data.get('day')
-        time = data.get('time')
-        day = ' '.join([day.split(' ')[0], time])
-        event.starttime = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        starttime = time(*time_parts)
+        event.starttime = datetime.combine(day, starttime)
 
         if commit:
             self.save()

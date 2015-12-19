@@ -142,7 +142,9 @@ class ActItem(ResourceItem):
         allocs = sum([list(res.allocations.all()) for res in resources], [])
 
         for a in allocs:
-            if a.event.as_subtype.type == 'Rehearsal Slot' and a.event.container_event.parent_event == show:
+            if (a.event.as_subtype.type == 'Rehearsal Slot' and
+                a.event.container_event.parent_event == show):
+
                 a.delete()
                 a.resource.delete()
         resource = ActResource(_item=self)
@@ -279,6 +281,7 @@ class ActResource(Resource):
             return self.item.describe
         except:
             return "No Act Item"
+
 
 class LocationItem(ResourceItem):
     '''
@@ -506,7 +509,6 @@ class EquipmentItem(ResourceItem):
         return unicode(self.describe)
 
 
-
 class Equipment(Resource):
     '''
     An allocatable thing
@@ -532,6 +534,18 @@ class EventItem (models.Model):
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
     visible = models.BooleanField(default=True)
+
+    def child(self):
+        return EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+
+    def get_conference(self):
+        return self.child().conference
+
+    def day_options(self):
+        return self.get_conference().conferenceday_set.all()
+
+    def volunteer_options(self):
+        return VolunteerWindow.objects.filter(day__in=self.day_options())
 
     @property
     def bios(self):
@@ -572,7 +586,7 @@ class EventItem (models.Model):
         return people
 
     def set_duration(self, duration):
-        child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+        child = self.child()
         child.duration = duration
         child.save(update_fields=('duration',))
 
@@ -587,15 +601,13 @@ class EventItem (models.Model):
 
     @property
     def duration(self):
-        child = EventItem.objects.filter(
-            eventitem_id=self.eventitem_id).select_subclasses().first()
+        child = self.child()
         return child.sched_duration
 
     @property
     def describe(self):
         try:
-            child = EventItem.objects.get_subclass(
-                eventitem_id=self.eventitem_id)
+            child = self.child()
             '''
             ids = "event - " + str(child.event_id)
             try:
@@ -627,8 +639,8 @@ class Event(Schedulable):
         rehearsals = [
             ec.child_event
             for ec in EventContainer.objects.filter(parent_event=self)
-            if (ec.child_event.confitem.type == 'Rehearsal Slot'
-                and ec.child_event.has_act_opening())
+            if (ec.child_event.confitem.type == 'Rehearsal Slot' and
+                ec.child_event.has_act_opening())
         ]
         return sorted(rehearsals,
                       key=lambda sched_event: sched_event.starttime)
@@ -746,8 +758,8 @@ class Event(Schedulable):
         elif resource_type == 'Act':
             return self.act_contact_info(status=status)
         else:
-            return self.worker_contact_info(worker_type=worker_type) + self.act_contact_info(status=status)
-
+            return (self.worker_contact_info(worker_type=worker_type) + 
+                    self.act_contact_info(status=status))
 
     @property
     def volunteer_count(self):
@@ -980,20 +992,15 @@ class ResourceAllocation(Schedulable):
         l.save()
 
     def __str__(self):
-        try:
-            return str(self.start_time.astimezone(pytz.timezone('UTC'))) + \
-                   " :: Event: " + str(self.event) + " == " + \
-                   str(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
-                   ": " + str(Resource.objects.get_subclass(id=self.resource.id))
-        except:
-            return "Missing an Item"
+        return self.__unicode__()
 
     def __unicode__(self):
         try:
-            return unicode(self.start_time.astimezone(pytz.timezone('UTC'))) + \
-                   " :: Event: " + unicode(self.event) + " == " + \
-                   unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
-                   ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
+            return "%s :: Event: %s == %s : %s" %(
+                unicode(self.start_time.astimezone(pytz.timezone('UTC'))), 
+                unicode(self.event),
+                unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__),
+                unicode(Resource.objects.get_subclass(id=self.resource.id)))
         except:
             return "Missing an Item"
 

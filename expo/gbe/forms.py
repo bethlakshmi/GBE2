@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-import datetime
+from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
@@ -419,26 +419,41 @@ class VolunteerBidForm(forms.ModelForm):
     error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()
-    availability = forms.MultipleChoiceField(
+    available_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(), 
         widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
-        label=volunteer_labels['availability'],
+        label=volunteer_labels['availability'], 
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=True)
-    unavailability = forms.MultipleChoiceField(
+    unavailable_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
-        label=volunteer_labels['unavailability'],
+        label=volunteer_labels['unavailability'], 
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
+
     interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                           choices=volunteer_interests_options)
+    def __init__(self, *args, **kwargs):
+        if 'available_windows' in kwargs:
+            available_windows = kwargs.pop('available_windows')
+        else:
+            available_windows = None
+        if 'unavailable_windows' in kwargs:
+            unavailable_windows = kwargs.pop('unavailable_windows')
+        else:
+            unavailable_windows = None
+        super(VolunteerBidForm, self).__init__(*args, **kwargs)
+        self.fields['available_windows'].queryset=available_windows
+        self.fields['unavailable_windows'].queryset=unavailable_windows
+
+
 
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
-                  'availability',
-                  'unavailability',
+                  'available_windows', 
+                  'unavailable_windows',
                   'interests',
                   'opt_outs',
                   'pre_event',
@@ -455,7 +470,7 @@ class VolunteerBidForm(forms.ModelForm):
 
 
 class VolunteerOpportunityForm(forms.ModelForm):
-    day = forms.ChoiceField(choices=conference_days)
+    day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
@@ -466,6 +481,13 @@ class VolunteerOpportunityForm(forms.ModelForm):
                                            required=False)
     location = forms.ModelChoiceField(queryset=Room.objects.all())
     duration = DurationFormField()
+
+    def __init__(self, *args, **kwargs):
+        conference = kwargs.pop('conference')
+        super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
+        self.fields['day'] = forms.ModelChoiceField(
+            queryset=conference.conferenceday_set.all())
+
 
     class Meta:
         model = GenericEvent
@@ -478,6 +500,20 @@ class VolunteerOpportunityForm(forms.ModelForm):
                   'location',
                   ]
         hidden_fields = ['opp_event_id']
+
+    def save(self, commit=True):
+        data = self.cleaned_data
+        event = super(VolunteerOpportunityForm, self).save(commit=False)
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        starttime = time(*time_parts)
+        event.starttime = datetime.combine(day, starttime)
+
+
+        super(VolunteerOpportunityForm, self).save(commit=commit)
+
+        return event
+
 
 
 class RehearsalSelectionForm(forms.Form):

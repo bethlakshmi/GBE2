@@ -10,9 +10,21 @@
     <table>
       {% for info in readonlyform %}
       	 {% if info.form_title %}
-        <tr><td colspan=2><br><span class="readonlyform formtitle">{{info.form_title}}</span></td></tr>
+        <tr>
+	  <td colspan=2>
+	    <br>
+   	    <span class="readonlyform formtitle">{{info.form_title}}
+	    </span>
+	  </td>
+	</tr>
 	{% else %}
-        <tr><td colspan=2><br><h3 class="readonlyform">{{info.prefix}}</h3></td></tr>
+        <tr>
+	  <td colspan=2>
+	    <br>
+ 	    <h3 class="readonlyform">{{info.prefix}}
+	    </h3>
+	  </td>
+	</tr>
 	{% endif %}
         {% for field in info.visible_fields %}
         <tr>
@@ -27,7 +39,11 @@
             {% endif %}
          </td>
 
-         <td class="readonlyform form_field {% if field.field.choices|length > 7 and field.value|length %}long_choice{%endif%}">
+         <td class="readonlyform 
+	            form_field 
+		    {% if field.field.choices|length > 7 and field.value|length %}
+		      long_choice
+  		    {%endif%}">
           {% if field.value %}
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>
@@ -74,7 +90,17 @@
             {% else %}
               {{ field.value }}
             {% endif %}
+          {% else %}
+               <ul class="long_choice">
+              {% for choice_id, choice_label in field.field.choices %}	
+                    <li>
+                      <i>{{ choice_label }}</i>
+                    </li>
+	        
+	      {% endfor %}
+               </ul>
           {% endif %} 
+	 
          </td>
         </tr>
         {% endfor %}

@@ -740,6 +740,17 @@ td.form_field {
 td.form_field.long_choice > ul 
 {
   border-top: 1px solid black;
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */
+  -moz-column-count: 2; /* Firefox */
+  column-count: 2;
+}
+
+ul.long_choice
+{
+  border-top: 1px solid black;
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */
+  -moz-column-count: 2; /* Firefox */
+  column-count: 2;
 }
 
 td.form_field > ul 
@@ -749,7 +760,6 @@ td.form_field > ul
 
 td.form_field.long_choice > ul > li
 {
-  float: left;
   width: 250px;
   height: 20px;
 }

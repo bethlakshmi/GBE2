@@ -417,26 +417,21 @@ vendor_labels = {
 }
 
 vendor_help_texts = {
-    'vend_time': ("I'd like to vend..."),
-    'want_help': ('Would you like us to help you find someone to work at your '
-                  'booth or table with you?'),
-    'logo': ('Please provide any logo you would like displayed on our website '
-             'and advertising'),
-    'description': ('The information you enter here will be displayed on the '
-                   'website exactly as you enter it, so please double-check '
-                   'it before hitting submit'),
-    'physical_address': ('If your business address is different from the '
-                         'address you used when you registered for the '
-                         'website, please enter your business address here.'),
+    'vend_time':  ('I\'d like to vend...'),
+    'want_help': ('''Would you like us to help you find someone to work at your \
+    booth or table with you?'''),
+    'logo': ('''Please provide any logo you would like displayed on our website \
+    and advertising'''),
+    'description':('''The information you enter here will be displayed on the website \
+    exactly as you enter it, so please double-check it before hitting submit'''),
+    'physical_address':('''If your business address is different from the address \
+    you used when you registered for the website, please enter your business address here.'''),
 
-    'help_description': ('The Great Burlesque Exposition can help you find '
-                         'people to work for you. Please use this field to '
-                         'describe what sort of work you want done (booth '
-                         'staff, models, hand out flyers, set-up or teardown '
-                         'staff) and any requirements (for example, "must be '
-                         'able to lift 40 pounds", "must be knowledgeable '
-                         'about corsets", "must be able to drive a '
-                         'standard").'),
+    'help_description':('''The Great Burlesque Exposition can help you find people \
+    to work for you. Please use this field to describe what sort of work you want done \
+    (booth staff, models, hand out flyers, set-up or teardown staff) and any \
+    requirements (for example, "must be able to lift 40 pounds", "must be knowledgeable \
+    about corsets", "must be able to drive a standard").'''),
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'),
