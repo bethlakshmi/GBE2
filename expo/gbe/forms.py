@@ -424,7 +424,7 @@ class VolunteerBidForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         label=volunteer_labels['availability'], 
         help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=False)
+        required=True)
     unavailable_windows = forms.ModelMultipleChoiceField(
         queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
