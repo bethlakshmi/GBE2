@@ -94,5 +94,4 @@ class TestEditCostume(TestCase):
         request.session = {'cms_admin_site': 1}
         response = edit_costume(request, costume.pk)
         nt.assert_equal(response.status_code, 200)
-        print(response.content)
         nt.assert_true('Displaying a Costume' in response.content)
