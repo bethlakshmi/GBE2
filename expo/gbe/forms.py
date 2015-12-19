@@ -18,6 +18,7 @@ from scheduler.functions import (
     conference_days,
     conference_times,
 )
+from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
@@ -303,7 +304,11 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    qset = Event.objects.filter(max_volunteer__gt=0).order_by('starttime')
+    conference = get_current_conference()
+    qset = Event.objects.filter(
+        max_volunteer__gt=0,
+        eventitem__event__conference=conference).order_by('starttime')
+    
     events = EventCheckBox(queryset=qset,
                            widget=forms.CheckboxSelectMultiple(),
                            required=False,

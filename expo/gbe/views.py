@@ -1446,7 +1446,8 @@ def review_volunteer(request, volunteer_id):
         events = volunteer_prof.get_bookings('Volunteer')
         actionform = VolunteerBidStateChangeForm(instance=volunteer,
                                                  request=request,
-                                                 initial={'events': events})
+                                                 initial={'events': events}
+        )
 
         actionURL = reverse('volunteer_changestate',
                             urlconf='gbe.urls',
