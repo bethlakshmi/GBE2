@@ -67,7 +67,6 @@ class TestEditVendor(TestCase):
 #        request.user = self.privileged_user
 #        request.POST = {}
 #        request.POST.update(self.get_vendor_form())
-#        nt.set_trace()
 #        response = edit_vendor(request, vendor.pk)
 #        nt.assert_equal(response.status_code, 302)
 

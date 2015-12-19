@@ -73,7 +73,6 @@ class TestEditVolunteer(TestCase):
 #        request.user = self.privileged_user
 #        request.POST = {}
 #        request.POST.update(self.get_volunteer_form())
-#        nt.set_trace()
 #        response = edit_volunteer(request, volunteer.pk)
 #        nt.assert_equal(response.status_code, 302)
 

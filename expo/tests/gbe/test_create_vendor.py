@@ -39,7 +39,6 @@ class TestCreateVendor(TestCase):
         request.method = 'POST'
         request.user = factories.ProfileFactory.create().user_object
         request.POST = self.get_vendor_form()
-        nt.set_trace()
         response = create_vendor(request)
         # form ends up invalid - why?
         nt.assert_equal(response.status_code, 302)
