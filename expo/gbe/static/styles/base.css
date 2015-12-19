@@ -745,6 +745,14 @@ td.form_field.long_choice > ul
   column-count: 2;
 }
 
+ul.long_choice
+{
+  border-top: 1px solid black;
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */
+  -moz-column-count: 2; /* Firefox */
+  column-count: 2;
+}
+
 td.form_field > ul 
 {
   padding: 5px 0px;

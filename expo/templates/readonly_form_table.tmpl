@@ -91,14 +91,14 @@
               {{ field.value }}
             {% endif %}
           {% else %}
-
+               <ul class="long_choice">
               {% for choice_id, choice_label in field.field.choices %}	
                     <li>
                       <i>{{ choice_label }}</i>
                     </li>
 	        
 	      {% endfor %}
-
+               </ul>
           {% endif %} 
 	 
          </td>
