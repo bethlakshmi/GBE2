@@ -159,6 +159,11 @@ def landing_page(request, profile_id=None, historical=False):
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
                 bid_type = "Class"
+            elif bid.__class__ == Costume:
+                url = reverse('costume_review',
+                              urlconf='gbe.urls',
+                              args=[str(bid.id)])
+                bid_type = "Costume"
             elif bid.__class__ == Vendor:
                 url = reverse('vendor_review',
                               urlconf='gbe.urls',
@@ -1168,7 +1173,6 @@ def review_class(request, class_id):
     If user is not a reviewer, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Class Reviewers',))
-
     aclass = get_object_or_404(
         Class,
         id=class_id,
@@ -1222,7 +1226,7 @@ def review_class(request, class_id):
         else:
             return render(request,
                           'gbe/bid_review.tmpl',
-                          {'readonlyform': [classform, teacher],
+                          {'readonlyform': [classform, teacher, contact],
                            'reviewer': reviewer,
                            'form': form,
                            'actionform': actionform,
@@ -1303,19 +1307,12 @@ def class_changestate(request, bid_id):
     removed from the class.
     '''
     reviewer = validate_perms(request, ('Class Coordinator', ))
-
     if request.method == 'POST':
         thisclass = get_object_or_404(Class, id=bid_id)
 
         # if the class has been rejected/no decision, clear any schedule items.
         if request.POST['accepted'] in ('0', '1'):
-            try:
-                sched_classes = Event.objects.filter(
-                    eventitem__event=thisclass.event_id).delete()
-            except:
-                return HttpResponseRedirect(reverse('home',
-                                                    urlconf='gbe.urls'))
-                # TO DO: better redirect please
+            thisclass.scheduler_events.all().delete()
     return bid_changestate(request, bid_id, 'class_review_list')
 
 
@@ -2157,14 +2154,202 @@ def view_costume(request, costume_id):
 
 @login_required
 @log_func
-def review_costume(request, class_id):
+def review_class_list(request):
+    '''
+    Show the list of class bids, review results,
+    and give a way to update the reviews
+    '''
+
+    reviewer = validate_perms(request, ('Class Reviewers', ))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
+    header = Class().bid_review_header
+    classes = Class.objects.filter(
+        submitted=True).filter(
+            conference=conference).order_by(
+            'accepted',
+            'title')
+    review_query = BidEvaluation.objects.filter(
+        bid=classes).select_related(
+            'evaluator').order_by('bid',
+                                  'evaluator')
+    rows = []
+    for aclass in classes:
+        bid_row = {}
+        bid_row['bid'] = aclass.bid_review_summary
+        bid_row['reviews'] = review_query.filter(
+            bid=aclass.id).select_related(
+                'evaluator').order_by('evaluator')
+        bid_row['id'] = aclass.id
+        bid_row['review_url'] = reverse('class_review',
+                                        urlconf='gbe.urls',
+                                        args=[aclass.id])
+        rows.append(bid_row)
+    conference_slugs = Conference.all_slugs()
+
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
+                  {'header': header, 'rows': rows,
+                   'action1_text': 'Review',
+                   'action1_link': reverse('class_review_list',
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('class_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
+                  )
+
+
+@login_required
+@log_func
+def review_costume(request, costume_id):
     '''
     Show a bid  which needs to be reviewed by the current user.
     To show: display all information about the bid, and a standard
     review form.
     If user is not a reviewer, politely decline to show anything.
     '''
-    pass
+    reviewer = validate_perms(request, ('Costume Reviewers', ))
+    costume = get_object_or_404(
+        Costume,
+        id=costume_id
+    )
+    if not costume.is_current:
+        return view_costume(request, costume_id)
+    conference, old_bid = get_conf(costume)
+    costume_form = CostumeBidSubmitForm(instance=costume,
+                                        prefix='Costume Proposal')
+    details = CostumeDetailsSubmitForm(instance=costume)
+
+    performer = PersonaForm(instance=costume.performer,
+                            prefix='The Performer')
+
+    profile = ParticipantForm(
+        instance=costume.profile,
+        prefix='The Owner',
+        initial={
+            'email': costume.profile.user_object.email,
+            'first_name': costume.profile.user_object.first_name,
+            'last_name': costume.profile.user_object.last_name})
+
+    if validate_perms(request, ('Costume Coordinator',), require=False):
+        actionform = BidStateChangeForm(instance=costume)
+        actionURL = reverse('costume_changestate',
+                            urlconf='gbe.urls',
+                            args=[costume_id])
+    else:
+            actionform = False
+            actionURL = False
+
+    '''
+    if user has previously reviewed the act, provide their review for update
+    '''
+    try:
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=costume_id,
+            evaluator_id=reviewer.resourceitem_id)[0]
+    except:
+        bid_eval = BidEvaluation(evaluator=reviewer, bid=costume)
+
+    # show costume info and inputs for review
+    if request.method == 'POST':
+        form = BidEvaluationForm(request.POST, instance=bid_eval)
+        if form.is_valid():
+            evaluation = form.save(commit=False)
+            evaluation.evaluator = reviewer
+            evaluation.bid = costume
+            evaluation.save()
+            return HttpResponseRedirect(reverse('costume_review_list',
+                                                urlconf='gbe.urls'))
+        else:
+            return render(request, 'gbe/bid_review.tmpl',
+                          {'readonlyform': [
+                                costume_form,
+                                details,
+                                performer,
+                                profile],
+                           'reviewer': reviewer,
+                           'form': form,
+                           'actionform': actionform,
+                           'actionURL': actionURL,
+                           'conference': conference,
+                           'old_bid': old_bid,
+                           })
+    else:
+        form = BidEvaluationForm(instance=bid_eval)
+        return render(request,
+                      'gbe/bid_review.tmpl',
+                      {'readonlyform': [
+                            costume_form,
+                            details,
+                            performer,
+                            profile],
+                       'reviewer': reviewer,
+                       'form': form,
+                       'actionform': actionform,
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,
+                       })
+
+
+@login_required
+@log_func
+def review_costume_list(request):
+    '''
+    Show the list of costume bids, review results,
+    and give a way to update the reviews
+    '''
+
+    reviewer = validate_perms(request, ('Costume Reviewers', ))
+    if request.GET and request.GET.get('conf_slug'):
+        conference = Conference.by_slug(request.GET['conf_slug'])
+    else:
+        conference = Conference.current_conf()
+    header = Costume().bid_review_header
+    costumes = Costume.objects.filter(
+        submitted=True).filter(
+            conference=conference).order_by(
+            'accepted',
+            'title')
+    review_query = BidEvaluation.objects.filter(
+        bid=costumes).select_related(
+            'evaluator').order_by('bid',
+                                  'evaluator')
+    rows = []
+    for acostume in costumes:
+        bid_row = {}
+        bid_row['bid'] = acostume.bid_review_summary
+        bid_row['reviews'] = review_query.filter(
+            bid=acostume.id).select_related(
+                'evaluator').order_by('evaluator')
+        bid_row['id'] = acostume.id
+        bid_row['review_url'] = reverse('costume_review',
+                                        urlconf='gbe.urls',
+                                        args=[acostume.id])
+        rows.append(bid_row)
+    conference_slugs = Conference.all_slugs()
+
+    return render(request,
+                  'gbe/bid_review_list.tmpl',
+                  {'header': header, 'rows': rows,
+                   'action1_text': 'Review',
+                   'action1_link': reverse('costume_review_list',
+                                           urlconf='gbe.urls'),
+                   'return_link': reverse('costume_review_list',
+                                          urlconf='gbe.urls'),
+                   'conference_slugs': conference_slugs,
+                   'conference': conference}
+                  )
+
+
+@login_required
+@log_func
+def costume_changestate(request, bid_id):
+    reviewer = validate_perms(request, ('Costume Coordinator',))
+    return bid_changestate(request, bid_id, 'costume_review_list')
 
 
 @log_func

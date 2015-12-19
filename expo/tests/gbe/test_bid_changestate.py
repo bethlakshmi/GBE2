@@ -17,12 +17,6 @@ class TestReviewProposalList(TestCase):
         self.client = Client()
         self.performer = factories.PersonaFactory.create()
 
-    def get_class_form(self):
-        return {'name': 'someone@host.com',
-                'title': 'some class name',
-                'proposal': 'some class description'
-                }
-
     def test_bid_changestate_authorized_user(self):
         act = factories.ActFactory.create()
         request = self.factory.get('act/changestate/%d' % act.pk)
