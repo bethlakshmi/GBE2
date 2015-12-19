@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime, timedelta
 import gbe.models as conf
 from django.http import Http404
 from django.core.mail import send_mail
@@ -8,6 +10,8 @@ from gbetext import (
     event_options, 
     class_options,
 )
+from gbe.duration import DateTimeRange
+
 def validate_profile(request, require=False):
     '''
     Return the user profile if any
@@ -116,3 +120,20 @@ def get_events_list_by_type(event_type, conference):
     else:
         items = []
     return items
+
+def available_volunteers(event_start_time):
+    import pdb; pdb.set_trace()
+    one_minute = timedelta(0,60)
+    tz = pytz.utc
+    event_start_time = event_start_time + one_minute
+    windows = []
+    conference = get_current_conference()
+    for window in conference.windows():
+        starttime = tz.localize(datetime.combine(window.day.day, window.start))
+        endtime = tz.localize(datetime.combine(window.day.day, window.end))
+        window_range =  DateTimeRange(starttime=starttime, 
+                                      endtime=endtime) 
+        if event_start_time in window_range:
+            windows.append(window)
+    return conf.Volunteer.objects.filter(available_windows__in=windows)
+    

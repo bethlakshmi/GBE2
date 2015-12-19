@@ -1,16 +1,16 @@
 from django.shortcuts import (
-    render, 
-    get_object_or_404, 
+    render,
+    get_object_or_404,
     render_to_response,
 )
 from django.http import (
     HttpResponse, 
-    HttpResponseRedirect, 
+    HttpResponseRedirect,
     Http404,
 )
 from django.contrib.auth.forms import UserCreationForm
 from django.template import (
-    loader, 
+    loader,
     RequestContext,
 )
 from scheduler.models import *
@@ -40,7 +40,6 @@ from functions import (
     overlap_clear,
     set_time_format,
     conference_dates,
-    volunteer_shifts,
 )
 from gbe.functions import (
     get_current_conference,
@@ -49,7 +48,9 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
+    available_volunteers,
 )
+
 
 def selfcast(sobj):
     '''
@@ -76,17 +77,18 @@ def get_events_display_info(event_type='Class', time_format=None):
         time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
-    confitems = event_class.objects.filter(visible=True, 
+    confitems = event_class.objects.filter(visible=True,
                                            conference=conference)
-    if event_type=='Event':
+    if event_type == 'Event':
         confitems = confitems.select_subclasses()
     else:
         confitems = confitems.all()
     confitems = [item for item in confitems if item.schedule_ready]
     eventitems = []
     for ci in confitems:
-        for sched_event in sorted(ci.eventitem_ptr.scheduler_events.all(),
-                                  key=lambda sched_event: sched_event.starttime):
+        for sched_event in sorted(
+                ci.eventitem_ptr.scheduler_events.all(),
+                key=lambda sched_event: sched_event.starttime):
             eventitems += [{'eventitem': ci.eventitem_ptr,
                             'confitem': ci,
                             'schedule_event': sched_event}]
@@ -115,7 +117,8 @@ def get_events_display_info(event_type='Class', time_format=None):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(time_format)
+            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
+                time_format)
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry['schedule_event'].volunteer_count
             eventinfo['delete'] = reverse('delete_schedule',
@@ -207,11 +210,13 @@ def detail_view(request, eventitem_id):
     eventitem_view = get_event_display_info(eventitem_id)
 
     template = 'scheduler/event_detail.tmpl'
-    return render(request, template, {'eventitem': eventitem_view,
-                                      'show_tickets': True,
-                                      'tickets': eventitem_view['event'].get_tickets,
-                                      'user_id': request.user.id,
-                                      })
+    return render(request,
+                  template,
+                  {'eventitem': eventitem_view,
+                   'show_tickets': True,
+                   'tickets': eventitem_view['event'].get_tickets,
+                   'user_id': request.user.id}
+                  )
 
 
 def schedule_acts(request, show_title=None):
@@ -291,6 +296,490 @@ def schedule_acts(request, show_title=None):
     return render(request,
                   template,
                   {'forms': forms})
+
+
+def delete_schedule(request, scheduler_event_id):
+    '''
+    Remove the scheduled item
+    '''
+    event = get_object_or_404(Event, id=scheduler_event_id)
+    type = event.event_type_name
+    event.delete()
+    return HttpResponseRedirect(reverse('event_schedule',
+                                        urlconf='scheduler.urls',
+                                        args=[type]))
+
+
+def delete_event(request, eventitem_id, event_type):
+    '''
+    Remove any scheduled items, make basic event item invisible
+    '''
+    event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
+    event.remove()
+    return HttpResponseRedirect(reverse('event_schedule',
+                                        urlconf='scheduler.urls',
+                                        args=[event_type]))
+
+
+def get_manage_opportunity_forms(item, initial, errorcontext=None):
+    '''
+    Generate the forms to allocate, edit, or delete volunteer
+    opportunities associated with a scheduler event.
+    '''
+    from gbe.forms import VolunteerOpportunityForm
+    actionform = []
+    context = {}
+    for opp in item.get_volunteer_opps():
+        if (errorcontext and
+            'error_opp_form' in errorcontext and
+            errorcontext['error_opp_form'].instance == opp['conf']):
+
+            actionform.append(errorcontext['error_opp_form'])
+        else:
+            sevent = opp['sched']
+            num_volunteers = sevent.max_volunteer
+            day = sevent.start_time.strftime("%Y-%m-%d")
+            time = sevent.start_time.time
+            location = sevent.location
+            if sevent.location:
+                room = location.room
+            else:
+                room = item.location.room
+            actionform.append(
+                VolunteerOpportunityForm(
+                    instance=opp['conf'],
+                    initial={'opp_event_id': opp['conf'].event_id,
+                             'opp_sched_id': opp['sched'].id,
+                             'num_volunteers': num_volunteers,
+                             'day': day,
+                             'time': time,
+                             'location': room,
+                             },
+                    conference=opp['conf'].conference
+                )
+            )
+    context['actionform'] = actionform
+    if errorcontext and 'createform' in errorcontext:
+        createform = errorcontext['createform']
+    else:
+        createform = VolunteerOpportunityForm(
+            prefix='new_opp',
+            initial=initial,
+            conference=get_current_conference())
+
+    actionheaders = ['Title',
+                     'Volunteer Type',
+                     'Volunteers Needed',
+                     'Duration',
+                     'Day',
+                     'Time',
+                     'Location']
+    context.update({'createform': createform,
+                    'actionheaders': actionheaders})
+    return context
+
+
+def get_worker_allocation_forms(opp, errorcontext=None):
+    '''
+    Returns a list of allocation forms for a volunteer opportunity
+    Each form can be used to schedule one worker. Initially, must
+    allocate one at a time.
+    '''
+    allocations = ResourceAllocation.objects.filter(event=opp)
+    allocs = (alloc for alloc in allocations if
+              type(alloc.resource.item).__name__ == 'WorkerItem' and
+              type(alloc.resource.item.as_subtype).__name__ == 'Profile')
+    forms = []
+    for alloc in allocs:
+        if (errorcontext and
+            worker_alloc_forms in errorcontext and
+            errorcontext['worker_alloc_forms'].cleaned_data['alloc_id'])==alloc.id:
+
+            forms.append(errorcontext['worker_alloc_forms'])
+        else:
+            forms.append(WorkerAllocationForm(
+                initial={'worker': alloc.resource.item.as_subtype,
+                         'role': Worker.objects.get(
+                             id=alloc.resource.id).role,
+                         'label': alloc.get_label,
+                         'alloc_id': alloc.id}
+                )
+            )
+    if errorcontext and 'new_worker_alloc_form' in errorcontext:
+        forms.append(errorcontext['new_worker_alloc_form'])
+    forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
+                                               'alloc_id': -1}))
+    return {'worker_alloc_forms': forms,
+            'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
+            'opp_id': opp.id}
+
+
+def show_potential_workers(opp):
+    '''
+    Get lists of potential workers for this opportunity. These will be
+    inserted into the edit_event template directly.
+    Returns a dictionary, we'll update the context dictionary on return
+    Opp is a sched.Event
+    '''
+    import gbe.models as conf
+    interested = list(conf.Volunteer.objects.filter(
+        interests__contains=opp.as_subtype.volunteer_category))
+    all_volunteers = list(conf.Volunteer.objects.all())
+    available = available_volunteers(opp.start_time)
+    return {'interested_volunteers': interested,
+            'all_volunteers': all_volunteers,
+            'available_volunteers': available}
+
+
+def allocate_workers(request, opp_id):
+    '''
+    Process a worker allocation form
+    Needs a scheduler_event id
+    '''
+    if request.method != "POST":
+        raise Http404
+    opp = Event.objects.get(id=opp_id)
+    form = WorkerAllocationForm(request.POST)
+
+    if not form.is_valid():
+        try:
+            ResourceAllocation.objects.get(id=data['alloc_id'])
+            return edit_event_display(request,
+                                      opp,
+                                      {'worker_alloc_forms': form})
+        except:
+            form.alloc_id = -1
+            return edit_event_display(request,
+                                      opp,
+                                      {'new_worker_alloc_form': form})
+    data = form.cleaned_data
+    # if no worker, the volunteer that was there originally is deallocated.
+    if 'delete' in request.POST.keys():
+        alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
+        res = alloc.resource
+        alloc.delete()
+        res.delete()
+    elif data.get('worker', None):
+        worker = Worker(_item=data['worker'].workeritem,
+                        role=data['role'])
+        worker.save()
+        if data['alloc_id'] < 0:
+            allocation = ResourceAllocation(event=opp,
+                                            resource=worker)
+        else:
+            allocation = ResourceAllocation.objects.get(id=data['alloc_id'])
+            allocation.resource = worker
+        allocation.save()
+        allocation.set_label(data['label'])
+
+    return HttpResponseRedirect(reverse('edit_event',
+                                        urlconf='scheduler.urls',
+                                        args=[opp.event_type_name, opp_id]))
+
+
+def manage_volunteer_opportunities(request, event_id):
+    '''
+    Create or edit volunteer opportunities for an event.
+    Volunteer opportunities are GenericEvents linked to Events by
+    EventContainers, with a label of "Volunteer Shift". A volunteer
+    opportunity may schedule one person ("Follow spot operator") or
+    many ("Stage kittens"), but for clarity it should comprise a single
+    role, which should be the "title" of the GenericEvent
+    '''
+    coordinator = validate_perms(request, ('Volunteer Coordinator',))
+    from gbe.forms import VolunteerOpportunityForm
+    from gbe.models import GenericEvent
+    set_time_format()
+    template = 'scheduler/event_schedule.tmpl'
+
+    if request.method != 'POST':
+        # TO DO: review this
+        return HttpResponseRedirect(reverse('event_schedule',
+                                            urlconf='scheduler.urls'))
+    event = get_object_or_404(Event, id=event_id)
+    if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
+        if 'create' in request.POST.keys():
+            form = VolunteerOpportunityForm(
+                request.POST,
+                prefix='new_opp',
+                conference=get_current_conference())
+        else:
+            form = VolunteerOpportunityForm(
+                request.POST,
+                conference=get_current_conference())
+        if form.is_valid():
+            opp = form.save(commit=False)
+            opp.type = "Volunteer"
+            opp.save()
+            data = form.cleaned_data
+            day = data.get('day').day
+            time_parts = map(int, data.get('time').split(":"))
+            start_time = datetime.combine(day, dttime(*time_parts))
+            opp_event = Event(eventitem=opp.eventitem_ptr,
+                              max_volunteer=data.get('num_volunteers', 1),
+                              starttime=start_time,
+                              duration=data.get('duration'))
+            opp_event.save()
+            opp_event.set_location(data.get('location').locationitem)
+            opp_event.save()
+            container = EventContainer(parent_event=event,
+                                       child_event=opp_event)
+            container.save()
+        else:
+            errors = form.errors
+            return edit_event_display(request, event, {'createform': form})
+    elif 'delete' in request.POST.keys():
+        opp = get_object_or_404(GenericEvent,
+                                event_id=request.POST['opp_event_id'])
+        opp.delete()
+    elif 'edit' in request.POST.keys():
+        opp = get_object_or_404(GenericEvent,
+                                event_id=request.POST['opp_event_id'])
+        opp_event_container = EventContainer.objects.get(
+            child_event=request.POST['opp_sched_id'])
+        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
+        form = VolunteerOpportunityForm(request.POST,
+                                        instance=opp,
+                                        conference=opp.conference)
+        if not form.is_valid():
+            return edit_event_display(request, event, {'error_opp_form': form})
+
+        form.save()
+        data = form.cleaned_data
+        opp_event.max_volunteer = data['num_volunteers']
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        start_time = datetime.combine(day, dttime(*time_parts))
+        opp_event.starttime = start_time
+        opp_event.save()
+        opp_event.set_location(data.get('location').locationitem)
+        opp_event.save()
+    elif 'allocate' in request.POST.keys():
+        return HttpResponseRedirect(reverse('edit_event',
+                                            urlconf='scheduler.urls',
+                                    args=['GenericEvent',
+                                            request.POST['opp_sched_id']]))
+    return HttpResponseRedirect(reverse('edit_event',
+                                        urlconf='scheduler.urls',
+                                        args=[event.event_type_name,
+                                                event_id]))
+
+
+def contact_info(request,
+                 event_id=None,
+                 resource_type='All',
+                 status=None,
+                 worker_type=None):
+    '''
+    Return contact info (email addresses) for a scheduler.Event.
+    Currently configured for shows only
+    '''
+    validate_perms(request, ('Act Coordinator',
+                             'Class Coordinator',
+                             'Volunteer Coordinator',
+                             'Scheduling Mavens',
+                             'Vendor Coordinator'),
+                   require=True)
+    event = Event.objects.get(schedulable_ptr_id=event_id)
+    data = event.contact_info(resource_type, status, worker_type)
+    response = HttpResponse(content_type='text/csv')
+    cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
+    response['Content-Disposition'] = cd
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'email'])
+    for row in data:
+        writer.writerow(row)
+    return response
+
+
+def contact_by_role(request, participant_type):
+    from django.db.models import Q
+    if participant_type == 'Teachers':
+        contacts = Worker.objects.filter(Q(role='Teacher') |
+                                         Q(role='Moderator') |
+                                         Q(role='Panelist'))
+        contacts = [w for w in contacts if w.allocations.count() > 0]
+        header = ['email',
+                  'Class',
+                  'Role',
+                  'Performer Name',
+                  'Display Name',
+                  'Phone']
+        contact_info = []
+        for c in contacts:
+            performer = c.item.performer
+            contact_info .append([performer.contact_email,
+                                  str(c.allocations.first().event),
+                                  c.role,
+                                  str(performer),
+                                  str(performer.contact),
+                                  performer.contact.phone]
+                                 )
+        from gbe.models import Class
+        classes = Class.objects.all()
+        for c in classes:
+            contact_info.append(
+                [c.teacher.contact_email,
+                 c.title,
+                 'Bidder',
+                 c.teacher.name,
+                 c.teacher.contact.display_name,
+                 c.teacher.contact.phone]
+            )
+    elif participant_type == 'Performers':
+        contacts = ActItem.objects.all()
+        header = ['Act',
+                  'Performer',
+                  'Profile',
+                  'email',
+                  'Phone',
+                  'status',
+                  'Show(s)',
+                  'Rehearsal(s)']
+        contact_info = []
+        for c in contacts:
+            act = c.as_subtype
+            performer = act.performer
+            contact_info.append(
+                [act.title,
+                 str(performer),
+                 str(performer.contact),
+                 act.contact_email,
+                 act.performer.contact.phone,
+                 act.accepted,
+                 ",".join(map(str, act.get_scheduled_shows())),
+                 ",".join(map(str, act.get_scheduled_rehearsals()))]
+            )
+    elif participant_type == 'Volunteers':
+        contacts = Worker.objects.filter(role='Volunteer')
+        contacts = [w for w in contacts if w.allocations.count() > 0]
+        header = ['Name',
+                  'Phone',
+                  'Email',
+                  'Volunteer Category',
+                  'Volunteer Role',
+                  'Event']
+        from gbe_forms_text import volunteer_interests_options
+        volunteer_categories = dict(volunteer_interests_options)
+        contact_info = []
+        for c in contacts:
+            profile = c.item.profile
+            event = c.allocations.first().event
+            contact_info.append([profile.display_name,
+                                 profile.phone,
+                                 profile.contact_email,
+                                 volunteer_categories.get(
+                                     event.as_subtype.volunteer_category, ''),
+                                 str(event),
+                                 str(event.container_event.parent_event)])
+        from gbe.models import Volunteer
+        volunteers = Volunteer.objects.all()
+        for v in volunteers:
+            interests = eval(v.interests)
+            contact_info.append([v.profile.display_name,
+                                 v.profile.phone,
+                                 v.profile.contact_email,
+                                 ','.join([volunteer_categories[i] 
+                                           for i in interests]),
+                                 'Application',
+                                 'Application']
+                                )
+
+    elif participant_type == 'Vendors':
+        from gbe.models import Vendor
+        from gbetext import acceptance_states
+        acceptance_dict = dict(acceptance_states)
+        contacts = Vendor.objects.all()
+        header = ['Business Name', 'Personal Name', 'Email', 'Status']
+        contact_info = [[v.title,
+                         v.profile.display_name,
+                         v.profile.contact_email,
+                         acceptance_dict[v.accepted]] for v in contacts]
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = \
+        'attachment; filename=%s_contacts.csv' % participant_type
+    writer = csv.writer(response)
+    writer.writerow(header)
+    for row in contact_info:
+        writer.writerow(row)
+    return response
+
+
+def add_event(request, eventitem_id, event_type='Class'):
+    '''
+    Add an item to the conference schedule and/or set its schedule details
+    (start time, location, duration, or allocations)
+    Takes a scheduler.EventItem id - BB - separating new event from editing
+    existing, so that edit can identify particular schedule items, while this
+    identifies the event item.
+    '''
+    profile = validate_perms(request, ('Scheduling Mavens',))
+
+    try:
+        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
+    except:
+        raise Exception("Error code XYZZY: Couldn't get an item for id")
+
+    template = 'scheduler/event_schedule.tmpl'
+    eventitem_view = get_event_display_info(eventitem_id)
+
+    if request.method == 'POST':
+        event_form = EventScheduleForm(request.POST,
+                                       prefix='event')
+
+        if (event_form.is_valid() and True):
+            s_event = event_form.save(commit=False)
+            s_event.eventitem = item
+            data = event_form.cleaned_data
+
+            if data['duration']:
+                s_event.set_duration(data['duration'])
+
+            l = LocationItem.objects.get_subclass(room__name=data['location'])
+            s_event.save()
+            s_event.set_location(l)
+            if data['teacher']:
+                s_event.unallocate_role('Teacher')
+                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
+            s_event.save()
+            if data['moderator']:
+                s_event.unallocate_role('Moderator')
+                s_event.allocate_worker(data['moderator'].workeritem,
+                                        'Moderator')
+            if len(data['panelists']) > 0:
+                s_event.unallocate_role('Panelist')
+                for panelist in data['panelists']:
+                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
+
+            if data['description'] or data['title']:
+                c_event = s_event.as_subtype
+                c_event.description = data['description']
+                c_event.title = data['title']
+                c_event.save()
+
+            return HttpResponseRedirect(reverse('event_schedule',
+                                                urlconf='scheduler.urls',
+                                                args=[event_type]))
+        else:
+            return render(request, template, {'eventitem': eventitem_view,
+                                              'form': event_form,
+                                              'user_id': request.user.id,
+                                              'event_type': event_type})
+    else:
+        initial_form_info = {'duration': item.duration,
+                             'description': item.sched_payload['description'],
+                             'title': item.sched_payload['title']}
+        if item.__class__.__name__ == 'Class':
+            initial_form_info['teacher'] = item.teacher
+
+        form = EventScheduleForm(prefix='event',
+                                 initial=initial_form_info)
+
+    return render(request, template, {'eventitem': eventitem_view,
+                                      'form': form,
+                                      'user_id': request.user.id,
+                                      'event_type': event_type})
 
 
 def edit_event(request, scheduler_event_id, event_type='class'):
@@ -421,489 +910,11 @@ def edit_event_display(request, item, errorcontext=None):
                                                         initial,
                                                         errorcontext))
 
-    context['form'] = EventScheduleForm(prefix='event',
-                                        instance=item,
-                                        initial=initial)
+    context['form'] = EventScheduleForm(
+        prefix='event',
+        instance=item,
+        initial=initial)
     return render(request, template, context)
-
-
-def delete_schedule(request, scheduler_event_id):
-    '''
-    Remove the scheduled item
-    '''
-    event = get_object_or_404(Event, id=scheduler_event_id)
-    type = event.event_type_name
-    event.delete()
-    return HttpResponseRedirect(reverse('event_schedule',
-                                        urlconf='scheduler.urls',
-                                        args=[type]))
-
-
-def delete_event(request, eventitem_id, event_type):
-    '''
-    Remove any scheduled items, make basic event item invisible
-    '''
-    event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
-    event.remove()
-    return HttpResponseRedirect(reverse('event_schedule',
-                                        urlconf='scheduler.urls',
-                                        args=[event_type]))
-
-
-def get_manage_opportunity_forms(item, initial, errorcontext=None):
-    '''
-    Generate the forms to allocate, edit, or delete volunteer
-    opportunities associated with a scheduler event.
-    '''
-    from gbe.forms import VolunteerOpportunityForm
-    actionform = []
-    context = {}
-    for opp in item.get_volunteer_opps():
-        if (errorcontext and
-            'error_opp_form' in errorcontext and
-            errorcontext['error_opp_form'].instance == opp['conf']):
-
-            actionform.append(errorcontext['error_opp_form'])
-        else:
-            sevent = opp['sched']
-            num_volunteers = sevent.max_volunteer
-            day = sevent.start_time.strftime("%A")
-            conf_date = conference_dates[day]
-            time = sevent.start_time.time
-            location = sevent.location
-            if sevent.location:
-                room = location.room
-            else:
-                room = item.location.room
-            actionform.append(
-                VolunteerOpportunityForm(
-                    instance=opp['conf'],
-                    initial={'opp_event_id': opp['conf'].event_id,
-                             'opp_sched_id': opp['sched'].id,
-                             'num_volunteers': num_volunteers,
-                             'day': conf_date,
-                             'time': time,
-                             'location': room,
-                             }
-                )
-            )
-    context['actionform'] = actionform
-    if errorcontext and 'createform' in errorcontext:
-        createform = errorcontext['createform']
-    else:
-        createform = VolunteerOpportunityForm(prefix='new_opp',
-                                              initial=initial)
-
-    actionheaders = ['Title',
-                     'Volunteer Type',
-                     'Volunteers Needed',
-                     'Duration',
-                     'Day',
-                     'Time',
-                     'Location']
-    context.update({'createform': createform,
-                    'actionheaders': actionheaders})
-    return context
-
-
-def get_worker_allocation_forms(opp, errorcontext=None):
-    '''
-    Returns a list of allocation forms for a volunteer opportunity
-    Each form can be used to schedule one worker. Initially, must
-    allocate one at a time.
-    '''
-    allocations = ResourceAllocation.objects.filter(event=opp)
-    allocs = (alloc for alloc in allocations if
-              type(alloc.resource.item).__name__ == 'WorkerItem' and
-              type(alloc.resource.item.as_subtype).__name__ == 'Profile')
-    forms = []
-    for alloc in allocs:
-        if (errorcontext and
-            worker_alloc_forms in errorcontext and
-            errorcontext['worker_alloc_forms'].cleaned_data['alloc_id'])==alloc.id:
-
-            forms.append(errorcontext['worker_alloc_forms'])
-        else:
-            forms.append(WorkerAllocationForm(
-                initial={'worker': alloc.resource.item.as_subtype,
-                         'role': Worker.objects.get(
-                             id=alloc.resource.id).role,
-                         'label': alloc.get_label,
-                         'alloc_id': alloc.id}
-                )
-            )
-    if errorcontext and 'new_worker_alloc_form' in errorcontext:
-        forms.append(errorcontext['new_worker_alloc_form'])
-    forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
-                                               'alloc_id': -1}))
-    return {'worker_alloc_forms': forms,
-            'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
-            'opp_id': opp.id}
-
-
-def show_potential_workers(opp):
-    '''
-    Get lists of potential workers for this opportunity. These will be
-    inserted into the edit_event template directly.
-    Returns a dictionary, we'll update the context dictionary on return
-    Opp is a sched.Event
-    '''
-    import gbe.models as conf
-    interested = list(conf.Volunteer.objects.filter(
-        interests__contains=opp.as_subtype.volunteer_category))
-    all_volunteers = list(conf.Volunteer.objects.all())
-
-    r = DateTimeRange(starttime=opp.start_time, duration=opp.duration)
-    available_volunteers = [v for v in all_volunteers
-                            if any([r in volunteer_shifts[available] for
-                                    available in eval(v.availability)])]
-    return {'interested_volunteers': interested,
-            'all_volunteers': all_volunteers,
-            'available_volunteers': available_volunteers}
-
-
-def allocate_workers(request, opp_id):
-    '''
-    Process a worker allocation form
-    Needs a scheduler_event id
-    '''
-    if request.method != "POST":
-        raise Http404
-    opp = Event.objects.get(id=opp_id)
-    form = WorkerAllocationForm(request.POST)
-
-    if not form.is_valid():
-        try:
-            ResourceAllocation.objects.get(id=data['alloc_id'])
-            return edit_event_display(request,
-                                      opp,
-                                      {'worker_alloc_forms': form})
-        except:
-            form.alloc_id = -1
-            return edit_event_display(request,
-                                      opp,
-                                      {'new_worker_alloc_form': form})
-    data = form.cleaned_data
-    # if no worker, the volunteer that was there originally is deallocated.
-    if 'delete' in request.POST.keys():
-        alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
-        res = alloc.resource
-        alloc.delete()
-        res.delete()
-    elif data.get('worker', None):
-        worker = Worker(_item=data['worker'].workeritem,
-                        role=data['role'])
-        worker.save()
-        if data['alloc_id'] < 0:
-            allocation = ResourceAllocation(event=opp,
-                                            resource=worker)
-        else:
-            allocation = ResourceAllocation.objects.get(id=data['alloc_id'])
-            allocation.resource = worker
-        allocation.save()
-        allocation.set_label(data['label'])
-
-    return HttpResponseRedirect(reverse('edit_event',
-                                        urlconf='scheduler.urls',
-                                        args=[opp.event_type_name, opp_id]))
-
-
-def manage_volunteer_opportunities(request, event_id):
-    '''
-    Create or edit volunteer opportunities for an event.
-    Volunteer opportunities are GenericEvents linked to Events by
-    EventContainers, with a label of "Volunteer Shift". A volunteer
-    opportunity may schedule one person ("Follow spot operator") or
-    many ("Stage kittens"), but for clarity it should comprise a single
-    role, which should be the "title" of the GenericEvent
-    '''
-    coordinator = validate_perms(request, ('Volunteer Coordinator',))
-    from gbe.forms import VolunteerOpportunityForm
-    from gbe.models import GenericEvent
-    set_time_format()
-    template = 'scheduler/event_schedule.tmpl'
-
-    if request.method != 'POST':
-        # TO DO: review this
-        return HttpResponseRedirect(reverse('edit_schedule',
-                                            urlconf='scheduler.urls'))
-    event = get_object_or_404(Event, id=event_id)
-    if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
-        if 'create' in request.POST.keys():
-            form = VolunteerOpportunityForm(request.POST, prefix='new_opp')
-        else:
-            form = VolunteerOpportunityForm(request.POST)
-        if form.is_valid():
-            opp = form.save(commit=False)
-            opp.type = "Volunteer"
-            opp.save()
-            data = form.cleaned_data
-            day = data.get('day')
-            time = data.get('time')
-            day = ' '.join([day.split(' ')[0], time])
-            start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
-            opp_event = Event(eventitem=opp.eventitem_ptr,
-                              max_volunteer=data.get('num_volunteers', 1),
-                              starttime=start_time,
-                              duration=data.get('duration'))
-            opp_event.save()
-            opp_event.set_location(data.get('location').locationitem)
-            opp_event.save()
-            container = EventContainer(parent_event=event,
-                                       child_event=opp_event)
-            container.save()
-        else:
-            errors = form.errors
-            return edit_event_display(request, event, {'createform': form})
-    elif 'delete' in request.POST.keys():
-        opp = get_object_or_404(GenericEvent,
-                                event_id=request.POST['opp_event_id'])
-        opp.delete()
-    elif 'edit' in request.POST.keys():
-        opp = get_object_or_404(GenericEvent,
-                                event_id=request.POST['opp_event_id'])
-        opp_event_container = EventContainer.objects.get(
-            child_event=request.POST['opp_sched_id'])
-        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
-        form = VolunteerOpportunityForm(request.POST, instance=opp)
-        if not form.is_valid():
-            return edit_event_display(request, event, {'error_opp_form': form})
-
-        form.save()
-        data = form.cleaned_data
-        opp_event.max_volunteer = data['num_volunteers']
-        day = data.get('day')
-        time = data.get('time')
-        day = ' '.join([day.split(' ')[0], time])
-        start_time = datetime.strptime(day, "%Y-%m-%d %H:%M:%S")
-
-        opp_event.starttime = start_time
-        opp_event.save()
-        opp_event.set_location(data.get('location').locationitem)
-        opp_event.save()
-    elif 'allocate' in request.POST.keys():
-        return HttpResponseRedirect(reverse('edit_event',
-                                            urlconf='scheduler.urls',
-                                    args=['GenericEvent',
-                                            request.POST['opp_sched_id']]))
-    return HttpResponseRedirect(reverse('edit_event',
-                                        urlconf='scheduler.urls',
-                                        args=[event.event_type_name,
-                                                event_id]))
-
-
-def contact_info(request,
-                 event_id=None,
-                 resource_type='All',
-                 status=None,
-                 worker_type=None):
-    '''
-    Return contact info (email addresses) for a scheduler.Event.
-    Currently configured for shows only
-    '''
-    validate_perms(request, ('Act Coordinator',
-                             'Class Coordinator',
-                             'Volunteer Coordinator',
-                             'Scheduling Mavens',
-                             'Vendor Coordinator'),
-                   require=True)
-    event = Event.objects.get(schedulable_ptr_id=event_id)
-    data = event.contact_info(resource_type, status, worker_type)
-    response = HttpResponse(content_type='text/csv')
-    cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
-    response['Content-Disposition'] = cd
-    writer = csv.writer(response)
-    writer.writerow(['Name', 'email'])
-    for row in data:
-        writer.writerow(row)
-    return response
-
-
-def contact_by_role(request, participant_type):
-    from django.db.models import Q
-    if participant_type == 'Teachers':
-        contacts = Worker.objects.filter(Q(role='Teacher') |
-                                         Q(role='Moderator') |
-                                         Q(role='Panelist'))
-        contacts = [w for w in contacts if w.allocations.count() > 0]
-        header = ['email',
-                  'Class',
-                  'Role',
-                  'Performer Name',
-                  'Display Name',
-                  'Phone']
-        contact_info = []
-        for c in contacts:
-            performer = c.item.performer
-            contact_info .append([performer.contact_email,
-                                  str(c.allocations.first().event),
-                                  c.role,
-                                  str(performer),
-                                  str(performer.contact),
-                                  performer.contact.phone]
-                                 )
-        from gbe.models import Class
-        classes = Class.objects.all()
-        for c in classes:
-            contact_info.append(
-                [c.teacher.contact_email,
-                 c.title,
-                 'Bidder',
-                 c.teacher.name,
-                 c.teacher.contact.display_name,
-                 c.teacher.contact.phone]
-            )
-    elif participant_type == 'Performers':
-        contacts = ActItem.objects.all()
-        header = ['Act',
-                  'Performer',
-                  'Profile',
-                  'email',
-                  'Phone',
-                  'status',
-                  'Show(s)',
-                  'Rehearsal(s)']
-        contact_info = []
-        for c in contacts:
-            act = c.as_subtype
-            performer = act.performer
-            contact_info.append(
-                [act.title,
-                 str(performer),
-                 str(performer.contact),
-                 act.contact_email,
-                 act.performer.contact.phone,
-                 act.accepted,
-                 ",".join(map(str, act.get_scheduled_shows())),
-                 ",".join(map(str, act.get_scheduled_rehearsals()))]
-            )
-    elif participant_type == 'Volunteers':
-        contacts = Worker.objects.filter(role='Volunteer')
-        contacts = [w for w in contacts if w.allocations.count() > 0]
-        header = ['Name',
-                  'Phone',
-                  'Email',
-                  'Volunteer Category',
-                  'Volunteer Role',
-                  'Event']
-        from gbe_forms_text import volunteer_interests_options
-        volunteer_categories = dict(volunteer_interests_options)
-        contact_info = []
-        for c in contacts:
-            profile = c.item.profile
-            event = c.allocations.first().event
-            contact_info.append([profile.display_name,
-                                 profile.phone,
-                                 profile.contact_email,
-                                 volunteer_categories.get(event.as_subtype.volunteer_category, ''),
-                                 str(event),
-                                 str(event.container_event.parent_event)])
-        from gbe.models import Volunteer
-        volunteers = Volunteer.objects.all()
-        for v in volunteers:
-            interests = eval(v.interests)
-            contact_info.append([v.profile.display_name,
-                                 v.profile.phone,
-                                 v.profile.contact_email,
-                                 ','.join([volunteer_categories[i] for i in interests]),
-                                 'Application',
-                                 'Application']
-                                )
-
-    elif participant_type == 'Vendors':
-        from gbe.models import Vendor
-        from gbetext import acceptance_states
-        acceptance_dict = dict(acceptance_states)
-        contacts = Vendor.objects.all()
-        header = ['Business Name', 'Personal Name', 'Email', 'Status']
-        contact_info = [[v.title,
-                         v.profile.display_name,
-                         v.profile.contact_email,
-                         acceptance_dict[v.accepted]] for v in contacts]
-
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = \
-        'attachment; filename=%s_contacts.csv' % participant_type
-    writer = csv.writer(response)
-    writer.writerow(header)
-    for row in contact_info:
-        writer.writerow(row)
-    return response
-
-
-def add_event(request, eventitem_id, event_type='Class'):
-    '''
-    Add an item to the conference schedule and/or set its schedule details
-    (start time, location, duration, or allocations)
-    Takes a scheduler.EventItem id - BB - separating new event from editing
-    existing, so that edit can identify particular schedule items, while this
-    identifies the event item.
-    '''
-    profile = validate_perms(request, ('Scheduling Mavens',))
-
-    try:
-        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
-    except:
-        raise Exception("Error code XYZZY: Couldn't get an item for id")
-
-    template = 'scheduler/event_schedule.tmpl'
-    eventitem_view = get_event_display_info(eventitem_id)
-
-    if request.method == 'POST':
-        event_form = EventScheduleForm(request.POST,
-                                       prefix='event')
-
-        if (event_form.is_valid() and True):
-            s_event = event_form.save(commit=False)
-            s_event.eventitem = item
-            data = event_form.cleaned_data
-
-            if data['duration']:
-                s_event.set_duration(data['duration'])
-
-            l = LocationItem.objects.get_subclass(room__name=data['location'])
-            s_event.save()
-            s_event.set_location(l)
-            if data['teacher']:
-                s_event.unallocate_role('Teacher')
-                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()
-            if data['moderator']:
-                s_event.unallocate_role('Moderator')
-                s_event.allocate_worker(data['moderator'].workeritem,
-                                        'Moderator')
-            if len(data['panelists']) > 0:
-                s_event.unallocate_role('Panelist')
-                for panelist in data['panelists']:
-                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
-
-            if data['description'] or data['title']:
-                c_event = s_event.as_subtype
-                c_event.description = data['description']
-                c_event.title = data['title']
-                c_event.save()
-
-            return HttpResponseRedirect(reverse('event_schedule',
-                                                urlconf='scheduler.urls',
-                                                args=[event_type]))
-        else:
-            return render(request, template, {'eventitem': eventitem_view,
-                                              'form': event_form,
-                                              'user_id': request.user.id,
-                                              'event_type': event_type})
-    else:
-        initial_form_info = {'duration': item.duration,
-                             'description': item.sched_payload['description'],
-                             'title': item.sched_payload['title']}
-        if item.__class__.__name__ == 'Class':
-            initial_form_info['teacher'] = item.teacher
-
-        form = EventScheduleForm(prefix='event', initial=initial_form_info)
-
-    return render(request, template, {'eventitem': eventitem_view,
-                                      'form': form,
-                                      'user_id': request.user.id,
-                                      'event_type': event_type})
 
 
 def view_list(request, event_type='All'):
@@ -921,7 +932,7 @@ def view_list(request, event_type='All'):
          'detail': reverse('detail_view',
                            urlconf='scheduler.urls',
                            args=[item.eventitem_id])
-          }
+         }
         for item in items]
 
     conferences = conference_list()
@@ -946,9 +957,9 @@ def manage_rehearsals(request, event_id):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  cal_times=(datetime(2015, 02, 21, 8, 00,
-                                        tzinfo=pytz.timezone('UTC')),
-                             datetime(2015, 02, 22, 4, 00,
+                  cal_times=(datetime(2016, 02, 6, 8, 00,
+                                      tzinfo=pytz.timezone('UTC')),
+                             datetime(2016, 02, 7, 4, 00,
                                       tzinfo=pytz.timezone('UTC'))),
                   time_format=None,
                   duration=Duration(minutes=60)):
@@ -964,9 +975,9 @@ def calendar_view(request=None,
     # the start of the event.  -  HH
     if day is not None:
         cal_times = day_to_cal_time(day,
-                                    week=datetime(2015,
+                                    week=datetime(2016,
                                                   02,
-                                                  19,
+                                                  4,
                                                   tzinfo=pytz.timezone('UTC')))
     if event_type == 'All':
         event_types = ['Show',
@@ -993,7 +1004,7 @@ def calendar_view(request=None,
     if time_format is None:
         time_format = set_time_format()
 
-    ###  Changing function to get table labels from the request
+    # Changing function to get table labels from the request
     table = {}
     table['rows'] = table_prep(events,
                                duration,
@@ -1003,7 +1014,8 @@ def calendar_view(request=None,
     table['link'] = 'http://burlesque-expo.com'
     table['x_name'] = {}
     table['x_name']['html'] = 'Rooms'
-    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'   ## Fix This!!!
+    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
+    # TO DO: Get rid of hard-coded links
 
     template = 'scheduler/Sched_Display.tmpl'
 
@@ -1014,9 +1026,9 @@ def calendar_view(request=None,
 def volunteer_shifts(request='None',
                      day='Saturday',
                      filter_type='None',
-                     cal_times=(datetime(2015, 02, 21, 8, 00,
+                     cal_times=(datetime(2016, 02, 6, 8, 00,
                                          tzinfo=pytz.timezone('UTC')),
-                                datetime(2015, 02, 22, 4, 00,
+                                datetime(2016, 02, 7, 4, 00,
                                          tzinfo=pytz.timezone('UTC'))),
                      time_format=None,
                      duration=Duration(minutes=30)):
@@ -1030,7 +1042,7 @@ def volunteer_shifts(request='None',
     if day is not None:
         cal_times = day_to_cal_time(
             day,
-            week=datetime(2015, 02, 19,
+            week=datetime(2016, 02, 4,
                           tzinfo=pytz.timezone('UTC')))
     shifts = volunteer_info(user_id,
                             cal_times=cal_times,

@@ -102,6 +102,8 @@ class EventAdmin(admin.ModelAdmin):
             return "Event"
 
 admin.site.register(Conference)
+admin.site.register(ConferenceDay)
+admin.site.register(VolunteerWindow)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Biddable, BidAdmin)
 admin.site.register(Act, ActAdmin)
