@@ -308,7 +308,6 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
     qset = Event.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__conference=conference).order_by('starttime')
-    
     events = EventCheckBox(queryset=qset,
                            widget=forms.CheckboxSelectMultiple(),
                            required=False,
@@ -425,20 +424,21 @@ class VolunteerBidForm(forms.ModelForm):
     title = forms.HiddenInput()
     description = forms.HiddenInput()
     available_windows = forms.ModelMultipleChoiceField(
-        queryset=VolunteerWindow.objects.none(), 
+        queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
-        label=volunteer_labels['availability'], 
+        label=volunteer_labels['availability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=True)
     unavailable_windows = forms.ModelMultipleChoiceField(
         queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
-        label=volunteer_labels['unavailability'], 
+        label=volunteer_labels['unavailability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
 
     interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                           choices=volunteer_interests_options)
+
     def __init__(self, *args, **kwargs):
         if 'available_windows' in kwargs:
             available_windows = kwargs.pop('available_windows')
@@ -449,15 +449,14 @@ class VolunteerBidForm(forms.ModelForm):
         else:
             unavailable_windows = None
         super(VolunteerBidForm, self).__init__(*args, **kwargs)
-        self.fields['available_windows'].queryset=available_windows
-        self.fields['unavailable_windows'].queryset=unavailable_windows
-
+        self.fields['available_windows'].queryset = available_windows
+        self.fields['unavailable_windows'].queryset = unavailable_windows
 
 
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
-                  'available_windows', 
+                  'available_windows',
                   'unavailable_windows',
                   'interests',
                   'opt_outs',
@@ -493,7 +492,6 @@ class VolunteerOpportunityForm(forms.ModelForm):
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all())
 
-
     class Meta:
         model = GenericEvent
         fields = ['title',
@@ -513,12 +511,9 @@ class VolunteerOpportunityForm(forms.ModelForm):
         time_parts = map(int, data.get('time').split(":"))
         starttime = time(*time_parts)
         event.starttime = datetime.combine(day, starttime)
-
-
         super(VolunteerOpportunityForm, self).save(commit=commit)
 
         return event
-
 
 
 class RehearsalSelectionForm(forms.Form):

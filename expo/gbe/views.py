@@ -1329,9 +1329,10 @@ def create_volunteer(request):
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
-        form = VolunteerBidForm(request.POST, 
-                                available_windows=Conference.current_conf().windows(),
-                                unavailable_windows=Conference.current_conf().windows())
+        form = VolunteerBidForm(
+            request.POST, 
+            available_windows=Conference.current_conf().windows(),
+            unavailable_windows=Conference.current_conf().windows())
         if form.is_valid():
             volunteer = form.save(commit=False)
             # hack TO DO: do this better
@@ -1392,7 +1393,7 @@ def view_volunteer(request, volunteer_id):
         validate_perms(request, ('Volunteer Reviewers',), require=True)
     volunteerform = VolunteerBidForm(
         instance=volunteer,
-        prefix='Volunteer Info', 
+        prefix='Volunteer Info',
         available_windows=volunteer.conference.windows(),
         unavailable_windows=volunteer.conference.windows()
     )
@@ -1447,7 +1448,7 @@ def review_volunteer(request, volunteer_id):
         actionform = VolunteerBidStateChangeForm(instance=volunteer,
                                                  request=request,
                                                  initial={'events': events}
-        )
+                                             )
 
         actionURL = reverse('volunteer_changestate',
                             urlconf='gbe.urls',
@@ -1597,10 +1598,9 @@ def edit_volunteer(request, volunteer_id):
     if request.method == 'POST':
         form = VolunteerBidForm(
             request.POST,
-            instance=the_bid, 
+            instance=the_bid,
             available_windows=the_bid.conference.windows(),
             unavailable_windows=the_bid.conference.windows())
-
 
         if form.is_valid():
             the_bid = form.save(commit=True)
