@@ -37,6 +37,7 @@ from functions import (
     table_prep,
     event_info,
     day_to_cal_time,
+    cal_times_for_conf,
     overlap_clear,
     set_time_format,
     conference_dates,
@@ -957,10 +958,6 @@ def manage_rehearsals(request, event_id):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  cal_times=(datetime(2016, 02, 6, 8, 00,
-                                      tzinfo=pytz.timezone('UTC')),
-                             datetime(2016, 02, 7, 4, 00,
-                                      tzinfo=pytz.timezone('UTC'))),
                   time_format=None,
                   duration=Duration(minutes=60)):
     '''
@@ -973,12 +970,16 @@ def calendar_view(request=None,
     # I want to rewrite this to get the first day of the event from the
     # DB or conf, and then calculate the date based on the next day after
     # the start of the event.  -  HH
-    if day is not None:
-        cal_times = day_to_cal_time(day,
-                                    week=datetime(2016,
-                                                  02,
-                                                  4,
-                                                  tzinfo=pytz.timezone('UTC')))
+    conf_slug = request.GET.get('conf', None)
+    if conf_slug:
+        conf = get_conference_by_slug(conf_slug)
+    else:        
+        conf = get_current_conference()
+    
+    # ignore day parameter for now, day_to_cal_time ignores it
+
+    cal_times = cal_times_for_conf(conf)
+    
     if event_type == 'All':
         event_types = ['Show',
                        'Class',

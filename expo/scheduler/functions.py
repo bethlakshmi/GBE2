@@ -1,11 +1,17 @@
 from table import table
-from datetime import timedelta
-from datetime import time
-from datetime import datetime
+from datetime import (
+    timedelta,
+    time, 
+    datetime
+)
 from calendar import timegm
-from gbe.duration import Duration, DateTimeRange
-from gbe.duration import timedelta_to_duration
+from gbe.duration import (
+    Duration, 
+    DateTimeRange,
+    timedelta_to_duration
+)
 from random import choice
+
 import math
 try: 
     from expo.settings import DATETIME_FORMAT
@@ -149,14 +155,13 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     earliest block containing the event's start time, and rowspan is the number
     of blocks it occupies block_size should be a Duration
     '''
-    from gbe.duration import timedelta_to_duration
 
     if event['start_time'] < schedule_start:
         relative_start = Duration(seconds=0)
     else:
         relative_start = event['start_time'] - schedule_start
     if event['stop_time'] > schedule_stop:
-        working_stop_time = schedule_stop
+        working_stop_time = timedelta_to_duration(schedule_stop - schedule_start)
     else:
         working_stop_time = timedelta_to_duration(event['stop_time'] - schedule_start)
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
@@ -366,7 +371,7 @@ def event_info(confitem_type='Show',
     return events
 
 
-def day_to_cal_time(day='Saturday', week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
+def day_to_cal_time(day='Saturday', week=datetime(2016, 02, 4, tzinfo=pytz.timezone('UTC'))):
     '''
     Accepts a day of the week, and returns the hours for that day as a
     datetime tuple.
@@ -390,6 +395,14 @@ def day_to_cal_time(day='Saturday', week=datetime(2015, 02, 19, tzinfo=pytz.time
                  return_day + Duration(hours=28))
     return cal_times
 
+
+def cal_times_for_conf(conference):
+    from gbe.functions import get_conference_days
+    days = get_conference_days(conference)
+    first_day = days[0].day
+    zero = time(0,0,0, tzinfo=pytz.timezone('UTC'))
+    return day_to_cal_time(week=datetime.combine(first_day, zero))
+    
 
 def volunteer_shift_info(profile_id,
                          filter_type=None,
