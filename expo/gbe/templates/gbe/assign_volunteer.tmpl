@@ -1,0 +1,113 @@
+{% extends 'base.tmpl' %}
+{% load staticfiles %}
+
+{% block title %}
+   Review Bids
+{% endblock %}
+
+{% block content %}
+<form action="{{ actionURL }}" method="post">
+  
+  <div>
+    <h2>Assign Volunteer to Opportunities</h2>
+    <b>Volunteer:  </b> {{volunteer}}
+
+  <div>
+    Toggle column(s):
+    <a class="toggle-vis" data-column="1">
+	Window</a> -
+      <a class="toggle-vis" data-column="2">
+	Pref</a> -
+      <a class="toggle-vis" data-column="3">
+	Event</a> -
+      <a class="toggle-vis" data-column="4">
+	Start</a> -
+      <a class="toggle-vis" data-column="5">
+	End</a> -
+      <a class="toggle-vis" data-column="6">
+	Parent</a> -
+      <a class="toggle-vis" data-column="7">
+	Current</a> -
+      <a class="toggle-vis" data-column="8">
+	Needs</a> -
+      <a class="toggle-vis" data-column="9">
+	Full</a> -
+  </div>
+  <div>
+    {% csrf_token %}
+    <table id="assign_volunteer" class="order-column" cellspacing="0" width="100%">
+      <thead>
+        <tr class="bid-table">
+            <th class="bid-table">&nbsp;</th>
+            <th class="bid-table">Window</th>
+            <th class="bid-table">Pref</th>
+            <th class="bid-table">Event</th>
+            <th class="bid-table">Start</th>
+            <th class="bid-table">End</th>
+            <th class="bid-table">Parent</th>
+            <th class="bid-table">Have</th>
+            <th class="bid-table">Need</th>
+            <th class="bid-table">Full</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr class="bid-table">
+            <th class="bid-table">&nbsp;</th>
+            <th class="bid-table">Window</th>
+            <th class="bid-table">Pref</th>
+            <th class="bid-table">Event</th>
+            <th class="bid-table">Start</th>
+            <th class="bid-table">End</th>
+            <th class="bid-table">Parent</th>
+            <th class="bid-table">Have</th>
+            <th class="bid-table">Need</th>
+            <th class="bid-table">Full</th>
+        </tr>
+      </tfoot>
+      <tbody>
+        {% for event in events %}
+        <tr class="bid-table">
+            <td class="bid-table"><input id="id_events_{{ forloop.counter0 }}"
+                name="events" type="checkbox" value="{{event.pk}}" /></td>
+            <td class="bid-table">window</td>
+            <td class="bid-table">preference</td>
+            <td class="bid-table">{{event}}</td>
+            <td class="bid-table">{{event.start_time}}</td>
+            <td class="bid-table">{{event.end_time}}</td>
+            <td class="bid-table">{{event.parent_event}}</td>
+            <td class="bid-table">{{event.volunteer_count}}</td>
+            <td class="bid-table">{{event.max_volunteer}}</td>
+            <td class="bid-table">{% if event.max_volunteer = event.volunteer_count %}
+              Y
+              {%else%}
+              N
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor%}
+      </tbody>
+    </table>
+    <br><br>
+    <input type="submit" value="Submit Form"> 
+  </div>
+  
+<script>
+  $(document).ready(function() {
+    var table = $('#assign_volunteer').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+    } );
+ 
+    $('a.toggle-vis').on( 'click', function (e) {
+        e.preventDefault();
+ 
+        // Get the column API object
+        var column = table.column( $(this).attr('data-column') );
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+    } );
+} );
+  </script>
+</form>
+
+{% endblock %}

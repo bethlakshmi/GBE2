@@ -1498,6 +1498,50 @@ def review_volunteer(request, volunteer_id):
                        'old_bid': old_bid,
                        })
 
+@login_required
+@log_func
+def assign_volunteer(request, volunteer_id):
+    '''
+    Show a bid  which needs to be assigned to shifts by the coordinator.
+    To show: display useful information about the bid, 
+    If user is not a coordinator, politely decline to show anything.
+    '''
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+
+    if int(volunteer_id) == 0 and request.method == 'POST':
+        volunteer_id = int(request.POST['volunteer'])
+    volunteer = get_object_or_404(
+        Volunteer,
+        id=volunteer_id,
+    )
+    if not volunteer.is_current:
+        return view_volunteer(request, volunteer_id)
+    conference, old_bid = get_conf(volunteer)
+
+    events = volunteer.profile.get_bookings('Volunteer')
+    actionform = VolunteerBidStateChangeForm(instance=volunteer,
+                                             request=request,
+                                             initial={'events': events}
+                                            )
+
+    actionURL = reverse('volunteer_changestate',
+                        urlconf='gbe.urls',
+                        args=[volunteer_id])
+
+    return render(request,
+                  'gbe/assign_volunteer.tmpl',
+                  {'volunteer': volunteer,
+                   'windows': conference.windows(),
+                   'bookings': volunteer.profile.get_bookings('Volunteer'),
+                   'events': sEvent.objects.filter(
+                        max_volunteer__gt=0,
+                        eventitem__event__conference=conference
+                            ).order_by('starttime'),
+                   'actionform': actionform,
+                   'actionURL': actionURL,
+                   'conference': conference,
+                   'old_bid': old_bid,
+                  })
 
 def show_edit(request, volunteer):
     user = request.user
