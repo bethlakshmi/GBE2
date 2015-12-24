@@ -8,10 +8,16 @@
 {% block content %}
 <form action="{{ actionURL }}" method="post">
   
+<div>
   <div>
     <h2>Assign Volunteer to Opportunities</h2>
-    <b>Volunteer:  </b> {{volunteer}}
-
+    <b>Volunteer:  </b> {{volunteer}}<br>
+    <p>
+    <font color='red'>*</font> Using this form to assign the volunteer to
+    opportunities will cause their bid state to change to 'Accepted'.  To
+    remove the volunteer from scheduling and reject the bid, use the "Review"
+    page and reject the bid there.</p>
+  </div>
   <div>
     Toggle column(s):
     <a class="toggle-vis" data-column="1">
@@ -27,9 +33,9 @@
       <a class="toggle-vis" data-column="6">
 	Parent</a> -
       <a class="toggle-vis" data-column="7">
-	Current</a> -
+	Have</a> -
       <a class="toggle-vis" data-column="8">
-	Needs</a> -
+	Need</a> -
       <a class="toggle-vis" data-column="9">
 	Full</a> -
   </div>
@@ -45,8 +51,8 @@
             <th class="bid-table">Start</th>
             <th class="bid-table">End</th>
             <th class="bid-table">Parent</th>
-            <th class="bid-table">Have</th>
-            <th class="bid-table">Need</th>
+            <th class="bid-table">H</th>
+            <th class="bid-table">N</th>
             <th class="bid-table">Full</th>
         </tr>
       </thead>
@@ -59,23 +65,35 @@
             <th class="bid-table">Start</th>
             <th class="bid-table">End</th>
             <th class="bid-table">Parent</th>
-            <th class="bid-table">Have</th>
-            <th class="bid-table">Need</th>
+            <th class="bid-table">H</th>
+            <th class="bid-table">N</th>
             <th class="bid-table">Full</th>
         </tr>
       </tfoot>
       <tbody>
         {% for event in events %}
         <tr class="bid-table">
-            <td class="bid-table"><input id="id_events_{{ forloop.counter0 }}"
-                name="events" type="checkbox" value="{{event.pk}}" /></td>
+            <td class="bid-table">
+              <input id="id_events_{{ forloop.counter0 }}"
+                name="events" type="checkbox" value="{{event.pk}}"
+                {% if event in bookings %}checked="checked"{% endif %}/>
+            </td>
             <td class="bid-table">window</td>
             <td class="bid-table">preference</td>
-            <td class="bid-table">{{event}}</td>
+            <td class="bid-table">
+<a href="{% url 'scheduler:detail_view' event.eventitem.eventitem_id%}">
+                {{event}}
+              </a></td>
             <td class="bid-table">{{event.start_time|date:"D, f A" }}</td>
             <td class="bid-table">{{event.end_time|date:"D, f A" }}</td>
-            <td class="bid-table">{{event.parent_event}}</td>
-            <td class="bid-table">{{event.volunteer_count}}</td>
+            <td class="bid-table">
+              {% if event.container_event.parent_event %}
+<a href="{% url 'scheduler:detail_view' event.container_event.parent_event.eventitem.eventitem_id%}">
+                {{event.container_event.parent_event}}
+              </a>
+              {% endif %}
+            </td>
+            <td class="bid-table">{{event.volunteer_count|cut:" volunteers"}}</td>
             <td class="bid-table">{{event.max_volunteer}}</td>
             <td class="bid-table">{% if event.max_volunteer = event.volunteer_count %}
               Y
@@ -90,7 +108,7 @@
     <br><br>
     <input type="submit" value="Submit Form"> 
   </div>
-  
+</div>
 <script>
   $(document).ready(function() {
     var table = $('#assign_volunteer').DataTable( {
