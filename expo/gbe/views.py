@@ -1536,6 +1536,9 @@ def assign_volunteer(request, volunteer_id):
                    'events': sEvent.objects.filter(
                         max_volunteer__gt=0,
                         eventitem__event__conference=conference
+                        ).exclude(
+                            eventitem__event__genericevent__type=
+                                'Rehearsal Slot'
                             ).order_by('starttime'),
                    'actionform': actionform,
                    'actionURL': actionURL,
