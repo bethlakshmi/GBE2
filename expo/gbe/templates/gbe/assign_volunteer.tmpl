@@ -72,8 +72,8 @@
             <td class="bid-table">window</td>
             <td class="bid-table">preference</td>
             <td class="bid-table">{{event}}</td>
-            <td class="bid-table">{{event.start_time}}</td>
-            <td class="bid-table">{{event.end_time}}</td>
+            <td class="bid-table">{{event.start_time|date:"D, f A" }}</td>
+            <td class="bid-table">{{event.end_time|date:"D, f A" }}</td>
             <td class="bid-table">{{event.parent_event}}</td>
             <td class="bid-table">{{event.volunteer_count}}</td>
             <td class="bid-table">{{event.max_volunteer}}</td>
