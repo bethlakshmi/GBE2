@@ -113,6 +113,7 @@ def init_time_blocks(events, block_size,
     be removed from the start or end of the calendar, or both. Valuea
     in ("start", "stop", "both") do the right things.
     '''
+    
     if not cal_start:
         cal_start = sorted([event['start_time'] for event in events])[0]
     elif isinstance(cal_start, time):

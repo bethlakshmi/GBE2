@@ -7,7 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from gbetext import (
-    event_options, 
+    event_options,
     class_options,
 )
 from gbe.duration import DateTimeRange
@@ -57,7 +57,7 @@ def validate_perms(request, perms, require=True):
 '''
 def mail_to_group(subject, message, group_name):
 
-    to_list = [user.email for user in 
+    to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     if not settings.DEBUG:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
@@ -67,14 +67,14 @@ def mail_to_group(subject, message, group_name):
 def send_user_contact_email(name, from_address, message):
     subject = "EMAIL FROM GBE SITE USER %s" %name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
-    send_mail(subject, 
-              message, 
-              from_address, 
+    send_mail(subject,
+              message,
+              from_address,
               to_addresses)
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
-    # TO DO: close the spam hole that this opens up. 
-              
+    # TO DO: close the spam hole that this opens up.
+
 
 def get_conf(biddable):
     conference = biddable.biddable_ptr.conference
@@ -83,12 +83,13 @@ def get_conf(biddable):
 
 def get_current_conference():
     return conf.Conference.current_conf()
-    
+
 def get_conference_by_slug(slug):
     return conf.Conference.by_slug(slug)
 
 def get_conference_days(conference):
     return conference.conferenceday_set.all()
+
 def conference_list():
     return conf.Conference.objects.all()
 
@@ -132,9 +133,8 @@ def available_volunteers(event_start_time):
     for window in conference.windows():
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
-        window_range =  DateTimeRange(starttime=starttime, 
-                                      endtime=endtime) 
+        window_range =  DateTimeRange(starttime=starttime,
+                                      endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)
-    
