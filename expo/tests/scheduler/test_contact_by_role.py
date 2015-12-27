@@ -59,3 +59,4 @@ def test_contact_volunteers_success():
     response = contact_by_role(request, "Volunteers")
     nt.assert_true(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
+
