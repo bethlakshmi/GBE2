@@ -397,14 +397,14 @@ def export_badge_report(request, conference_choice=None):
     if conference_choice:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True,
-            ticket_item__bpt_event__conference__conference_slug=
-            conference_choice).order_by('ticket_item')
+            ticket_item__bpt_event__conference__conference_slug=conference_choice).order_by(
+                'ticket_item')
 
     else:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True).exclude(
-                ticket_item__bpt_event__conference__status='completed'). \
-                    order_by('ticket_item')
+                ticket_item__bpt_event__conference__status='completed').order_by(
+                    'ticket_item')
 
     # build header, segmented in same structure as subclasses
     header = ['First',

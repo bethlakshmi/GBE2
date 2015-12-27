@@ -3,6 +3,7 @@ from django.conf import settings
 
 register = template.Library()
 
+
 @register.inclusion_tag('gbe/tag_templates/mailchimp.tmpl')
 def mailchimp():
     if settings.MC_API_KEY == 'TEST':
@@ -12,6 +13,7 @@ def mailchimp():
             'mc_api_id': settings.MC_API_ID,
             'have_mc': True,
             }
+
 
 @register.filter
 def display_track_title(title, truncated_length):
