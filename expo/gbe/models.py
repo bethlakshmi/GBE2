@@ -1517,12 +1517,11 @@ class Volunteer(Biddable):
                 interest_string += option_value + ', \n'
         availability_string = ''
         unavailability_string = ''
-        for option_id, option_value in volunteer_availability_options:
-            test = "u'"+option_id+"'"
-            if test in self.availability:
-                availability_string += option_value + ', \n'
-            if test in self.unavailability:
-                unavailability_string += option_value + ', \n'
+        for window in self.available_windows.all():
+            availability_string += unicode(window)+ ', \n'
+        for window in self.unavailable_windows.all():
+            unavailability_string += unicode(window) + ', \n'
+            
         commitments = ''
         time_format = set_time_format(days=2)
         for event in self.profile.get_schedule():
