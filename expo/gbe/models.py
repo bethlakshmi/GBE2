@@ -314,21 +314,7 @@ class Profile(WorkerItem):
         Returns schedule as a list of Scheduler.Events
         NOTE:  Things that haven't been booked with start times won't be here.
         '''
-        '''
-        from scheduler.models import Event as sEvent
-        acts = self.get_acts()
-        events = sum([list(sEvent.objects.filter(
-            resources_allocated__resource__actresource___item=act))
-                      for act in acts if act.accepted == 3], [])
-        for performer in self.get_performers():
-            events += [e for e in sEvent.objects.filter(
-               resources_allocated__resource__worker___item=performer)]
-        events += [e for e in sEvent.objects.filter(
-            resources_allocated__resource__worker___item=self)]
-
-        return sorted(set(events), key=lambda event: event.start_time)
-        '''
-        return []
+        return self.schedule
 
     @property
     def schedule(self):
