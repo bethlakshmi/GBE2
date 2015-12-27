@@ -19,6 +19,7 @@ from tests.factories.scheduler_factories import(
 )
 from scheduler.views import contact_by_role
 
+
 def test_contact_performers_success():
     user = UserFactory()
     group, _ = Group.objects.get_or_create(name='Class Coordinator')
@@ -26,7 +27,7 @@ def test_contact_performers_success():
     acts = ActFactory.create_batch(5)
     request = RequestFactory().get(reverse('contact_by_role',
                                            urlconf="scheduler.urls",
-                                           args = ['Performer']))
+                                           args=['Performer']))
     request.user = user
     response = contact_by_role(request, "Performers")
     nt.assert_true(all([str(act.performer) in response.content
@@ -44,16 +45,16 @@ def test_contact_volunteers_success():
         role="Volunteer")
                for volunteer in volunteers]
     for volunteer in volunteers:
-        VolunteerFactory.create(profile = volunteer,
+        VolunteerFactory.create(profile=volunteer,
                                 interests="['VA1']")
     event = SchedEventFactory()
     for worker in workers:
         ResourceAllocationFactory.create(
-            event = event,
-            resource = worker)
+            event=event,
+            resource=worker)
     request = RequestFactory().get(reverse('contact_by_role',
                                            urlconf="scheduler.urls",
-                                           args = ['Performer']))
+                                           args=['Performer']))
     request.user = user
     response = contact_by_role(request, "Volunteers")
     nt.assert_true(all([volunteer.display_name in response.content
