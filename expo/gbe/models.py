@@ -1506,6 +1506,12 @@ class Volunteer(Biddable):
         return self.profile.display_name
 
     @property
+    def interest_list(self):
+        return [interest for code, interest in volunteer_interests_options if
+                code in self.interests]
+
+    
+    @property
     def bid_review_header(self):
         return (['Name',
                  'Email',

@@ -6,17 +6,56 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{ actionURL }}" method="post">
   
 <div>
   <div>
     <h2>Assign Volunteer to Opportunities</h2>
     <h3><b>Volunteer:  </b> {{volunteer}}<br></h3>
+    <table>
+      <tr>
+        <td># Shifts</td>
+        <td>{{volunteer.number_shifts}}</td>
+      </tr>
+      <tr>
+        <td>Interests:</td>
+        <td>
+          {% for interest in volunteer.interest_list %}
+            {{interest}}{% if not forloop.last %}, <br>{% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td>Don't Schedule During:</td>
+        <td>{{volunteer.opt_outs}}</td>
+      </tr>
+      <tr>
+        <td>Pre Event Prep?:</td>
+        <td>{{volunteer.pre_event}}</td>
+      </tr>
+      <tr>
+        <td>Background:</td>
+        <td>{{volunteer.background}}</td>
+      </tr>
+    </table>
+    <br/>
     <p>
     <font color='red'>*</font> Using this form to assign the volunteer to
     opportunities will cause their bid state to change to 'Accepted'.  To
     remove the volunteer from scheduling and reject the bid, use the "Review"
     page and reject the bid there.</p>
+    <ul>
+      <li><b>Prefer</b> = relates to volunteer preferences.  Measured by start of the event vs.
+          volunteer windows provided in the volunteer form.</li>
+      <ul>
+        <li><b>Free</b> = volunteer is listed as available</li>
+        <li><b>Not</b> = volunteer is listed as not available</li>
+        <li><b>Interest</b> = this event volunteer category matches the volunteer's interests</li>
+      </ul>
+      <li><b>H</b> = how many volunteers does this event <b>have</b>?</li>
+      <li><b>N</b> = how many volunteers does this event <b>need</b>?</li>
+      <li><b>Full</b> = are the volunteer positions <b>full</b> (have >= need)?</li>
+    </ul>
+    <br/>
   </div>
   <div>
     Toggle column(s):
@@ -37,9 +76,10 @@
       <a class="toggle-vis" data-column="8">
 	Need</a> -
       <a class="toggle-vis" data-column="9">
-	Full</a> -
+	Full</a>
   </div>
   <div>
+  <form action="{{ actionURL }}" method="post">
     {% csrf_token %}
     <table id="assign_volunteer" class="order-column" cellspacing="0" width="100%">
       <thead>
@@ -88,6 +128,9 @@
               {% if event_window.window in volunteer.unavailable_windows.all%}
                 Not Free<br>
               {% endif %}
+{% if event_window.event.eventitem.child.sched_payload.details.volunteer_category in volunteer.interest_list %}
+                Interested<br>
+              {% endif %}
             </td>
             <td class="bid-table">
 <a href="{% url 'scheduler:detail_view' event_window.event.eventitem.eventitem_id%}">
@@ -104,7 +147,7 @@
             </td>
             <td class="bid-table">{{event_window.event.volunteer_count|cut:" volunteers"}}</td>
             <td class="bid-table">{{event_window.event.max_volunteer}}</td>
-            <td class="bid-table">{% if event_window.event.max_volunteer = event.event.volunteer_count %}
+            <td class="bid-table">{% if event_window.event.max_volunteer <= event.event.volunteer_count %}
               Y
               {%else%}
               N
