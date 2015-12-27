@@ -593,6 +593,8 @@ def contact_info(request,
 
 
 def contact_by_role(request, participant_type):
+    validate_perms(request, "any", require=True)
+
     from django.db.models import Q
     if participant_type == 'Teachers':
         contacts = Worker.objects.filter(Q(role='Teacher') |
@@ -608,7 +610,7 @@ def contact_by_role(request, participant_type):
         contact_info = []
         for c in contacts:
             performer = c.item.performer
-            contact_info .append(
+            contact_info.append(
                 [performer.contact_email,
                  str(c.allocations.first().event).encode('utf-8').strip(),
                  c.role,
@@ -666,13 +668,17 @@ def contact_by_role(request, participant_type):
         for c in contacts:
             profile = c.item.profile
             event = c.allocations.first().event
+            try:
+                parent_event = event.container_event.parent_event
+            except:
+                parent_event = event
             contact_info.append([profile.display_name,
                                  profile.phone,
                                  profile.contact_email,
                                  volunteer_categories.get(
                                      event.as_subtype.volunteer_category, ''),
                                  str(event),
-                                 str(event.container_event.parent_event)])
+                                 str(parent_event)])
         from gbe.models import Volunteer
         volunteers = Volunteer.objects.all()
         for v in volunteers:
