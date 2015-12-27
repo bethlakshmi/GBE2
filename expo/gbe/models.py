@@ -326,8 +326,6 @@ class Profile(WorkerItem):
         - via performing in acts
         Returns schedule as a list of Scheduler.Events
         NOTE:  Things that haven't been booked with start times won't be here.
-        *BB - needs review after expo.  Code duplication is bad, but
-        changing to a property above was too risky
         '''
         from scheduler.models import Event
         acts = self.get_acts()

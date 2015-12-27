@@ -1444,12 +1444,7 @@ def review_volunteer(request, volunteer_id):
                  'last_name': volunteer_prof.user_object.last_name},
         prefix='Contact Info')
     if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
-        events = volunteer_prof.get_bookings('Volunteer')
-        actionform = VolunteerBidStateChangeForm(instance=volunteer,
-                                                 request=request,
-                                                 initial={'events': events}
-                                             )
-
+        actionform = BidStateChangeForm(instance=volunteer)
         actionURL = reverse('volunteer_changestate',
                             urlconf='gbe.urls',
                             args=[volunteer_id])
@@ -1577,6 +1572,10 @@ def review_volunteer_list(request):
             bid_row['edit_url'] = reverse('volunteer_edit',
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
+            bid_row['assign_url'] = reverse('volunteer_assign',
+                                          urlconf='gbe.urls',
+                                          args=[volunteer.id])
+
         rows.append(bid_row)
     conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',

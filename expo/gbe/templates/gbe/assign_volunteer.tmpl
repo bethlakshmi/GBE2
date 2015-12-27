@@ -2,11 +2,15 @@
 {% load staticfiles %}
 
 {% block title %}
-   Review Bids
+  Assign Volunteer Slots
 {% endblock %}
 
 {% block content %}
-  
+<div class="special_functions">
+  <a href="{% url 'gbe:volunteer_review_list' %}">Review All Volunteers</a> <br/>
+  --> <a href="{% url 'gbe:volunteer_review' volunteer.id %}">Review Volunteer Details</a> <br/>
+  --> <a href="{% url 'gbe:volunteer_edit' volunteer.id %}">Edit Volunteer Bid</a>
+</div>
 <div>
   <div>
     <h2>Assign Volunteer to Opportunities</h2>
@@ -17,7 +21,7 @@
         <td>{{volunteer.number_shifts}}</td>
       </tr>
       <tr>
-        <td>Interests:</td>
+        <td class="form_label">Interests:</td>
         <td>
           {% for interest in volunteer.interest_list %}
             {{interest}}{% if not forloop.last %}, <br>{% endif %}
@@ -38,11 +42,6 @@
       </tr>
     </table>
     <br/>
-    <p>
-    <font color='red'>*</font> Using this form to assign the volunteer to
-    opportunities will cause their bid state to change to 'Accepted'.  To
-    remove the volunteer from scheduling and reject the bid, use the "Review"
-    page and reject the bid there.</p>
     <ul>
       <li><b>Prefer</b> = relates to volunteer preferences.  Measured by start of the event vs.
           volunteer windows provided in the volunteer form.</li>
@@ -55,6 +54,11 @@
       <li><b>N</b> = how many volunteers does this event <b>need</b>?</li>
       <li><b>Full</b> = are the volunteer positions <b>full</b> (have >= need)?</li>
     </ul>
+    <p>
+    <font color='red'>*</font> Using this form to assign the volunteer to
+    opportunities will cause their bid state to change to 'Accepted'.  To
+    remove the volunteer from scheduling and reject the bid, use the "Review"
+    page and reject the bid there.</p>
     <br/>
   </div>
   <div>
