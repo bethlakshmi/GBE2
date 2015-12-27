@@ -99,3 +99,8 @@ expo/db.sqlite3.current
 =======
 .vagrant/machines/default/virtualbox/*
 >>>>>>> Stashed changes
+htmlcov
+.mysql
+*.mysql
+*.png
+*.emacs*
