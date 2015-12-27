@@ -668,13 +668,17 @@ def contact_by_role(request, participant_type):
         for c in contacts:
             profile = c.item.profile
             event = c.allocations.first().event
+            try:
+                parent_event = event.container_event.parent_event
+            except:
+                parent_event = event
             contact_info.append([profile.display_name,
                                  profile.phone,
                                  profile.contact_email,
                                  volunteer_categories.get(
                                      event.as_subtype.volunteer_category, ''),
                                  str(event),
-                                 str(event.container_event.parent_event)])
+                                 str(parent_event)])
         from gbe.models import Volunteer
         volunteers = Volunteer.objects.all()
         for v in volunteers:
