@@ -8,7 +8,6 @@ import nose.tools as nt
 from tests.factories.gbe_factories import(
     ActFactory,
     ProfileFactory,
-    UserFactory,
     VolunteerFactory,
     )
 
@@ -19,9 +18,17 @@ from tests.factories.scheduler_factories import(
 )
 from scheduler.views import contact_by_role
 
-
+@nt.raises(PermissionDenied)
+def test_contact_performers_permissions_required():
+    user = ProfileFactory.create().user_object
+    request = RequestFactory().get(reverse('contact_by_role',
+                                           urlconf="scheduler.urls",
+                                           args = ['Performer']))
+    request.user = user
+    response = contact_by_role(request, "Performers")
+    
 def test_contact_performers_success():
-    user = UserFactory()
+    user = ProfileFactory.create().user_object
     group, _ = Group.objects.get_or_create(name='Class Coordinator')
     user.groups.add(group)
     acts = ActFactory.create_batch(5)
@@ -35,8 +42,8 @@ def test_contact_performers_success():
 
 
 def test_contact_volunteers_success():
-    user = UserFactory()
-    group, _ = Group.objects.get_or_create(name='Class Coordinator')
+    user = ProfileFactory.create().user_object
+    group, _ = Group.objects.get_or_create(name='Volunteer Coordinator')
     user.groups.add(group)
     volunteers = ProfileFactory.create_batch(5)
 
@@ -59,4 +66,3 @@ def test_contact_volunteers_success():
     response = contact_by_role(request, "Volunteers")
     nt.assert_true(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
-
