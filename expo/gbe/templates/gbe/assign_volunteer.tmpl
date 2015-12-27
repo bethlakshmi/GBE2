@@ -11,7 +11,7 @@
 <div>
   <div>
     <h2>Assign Volunteer to Opportunities</h2>
-    <b>Volunteer:  </b> {{volunteer}}<br>
+    <h3><b>Volunteer:  </b> {{volunteer}}<br></h3>
     <p>
     <font color='red'>*</font> Using this form to assign the volunteer to
     opportunities will cause their bid state to change to 'Accepted'.  To
@@ -46,7 +46,7 @@
         <tr class="bid-table">
             <th class="bid-table">&nbsp;</th>
             <th class="bid-table">Window</th>
-            <th class="bid-table">Pref</th>
+            <th class="bid-table">Prefer</th>
             <th class="bid-table">Event</th>
             <th class="bid-table">Start</th>
             <th class="bid-table">End</th>
@@ -60,7 +60,7 @@
         <tr class="bid-table">
             <th class="bid-table">&nbsp;</th>
             <th class="bid-table">Window</th>
-            <th class="bid-table">Pref</th>
+            <th class="bid-table">Prefer</th>
             <th class="bid-table">Event</th>
             <th class="bid-table">Start</th>
             <th class="bid-table">End</th>
@@ -71,31 +71,40 @@
         </tr>
       </tfoot>
       <tbody>
-        {% for event in events %}
+        {% for event_window in volunteer_event_windows %}
         <tr class="bid-table">
             <td class="bid-table">
               <input id="id_events_{{ forloop.counter0 }}"
-                name="events" type="checkbox" value="{{event.pk}}"
-                {% if event in bookings %}checked="checked"{% endif %}/>
+                name="events" type="checkbox" value="{{event_window.event.pk}}"
+                {% if event_window.event in bookings %}checked="checked"{% endif %}/>
             </td>
-            <td class="bid-table">window</td>
-            <td class="bid-table">preference</td>
             <td class="bid-table">
-<a href="{% url 'scheduler:detail_view' event.eventitem.eventitem_id%}">
-                {{event}}
+              {{event_window.window.start_datetime}} - {{event_window.window.end_datetime}}
+            </td>
+            <td class="bid-table">
+              {% if event_window.window in volunteer.available_windows.all%}
+                Free<br>
+              {% endif %}
+              {% if event_window.window in volunteer.unavailable_windows.all%}
+                Not Free<br>
+              {% endif %}
+            </td>
+            <td class="bid-table">
+<a href="{% url 'scheduler:detail_view' event_window.event.eventitem.eventitem_id%}">
+                {{event_window.event}}
               </a></td>
-            <td class="bid-table">{{event.start_time|date:"D, f A" }}</td>
-            <td class="bid-table">{{event.end_time|date:"D, f A" }}</td>
+            <td class="bid-table">{{event_window.event.start_time|date:"D, f A" }}</td>
+            <td class="bid-table">{{event_window.event.end_time|date:"D, f A" }}</td>
             <td class="bid-table">
-              {% if event.container_event.parent_event %}
-<a href="{% url 'scheduler:detail_view' event.container_event.parent_event.eventitem.eventitem_id%}">
-                {{event.container_event.parent_event}}
+              {% if event_window.event.container_event.parent_event %}
+<a href="{% url 'scheduler:detail_view' event_window.event.container_event.parent_event.eventitem.eventitem_id%}">
+                {{event_window.event.container_event.parent_event}}
               </a>
               {% endif %}
             </td>
-            <td class="bid-table">{{event.volunteer_count|cut:" volunteers"}}</td>
-            <td class="bid-table">{{event.max_volunteer}}</td>
-            <td class="bid-table">{% if event.max_volunteer = event.volunteer_count %}
+            <td class="bid-table">{{event_window.event.volunteer_count|cut:" volunteers"}}</td>
+            <td class="bid-table">{{event_window.event.max_volunteer}}</td>
+            <td class="bid-table">{% if event_window.event.max_volunteer = event.event.volunteer_count %}
               Y
               {%else%}
               N

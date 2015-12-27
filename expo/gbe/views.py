@@ -1518,12 +1518,6 @@ def assign_volunteer(request, volunteer_id):
         return view_volunteer(request, volunteer_id)
     conference, old_bid = get_conf(volunteer)
 
-    events = volunteer.profile.get_bookings('Volunteer')
-    actionform = VolunteerBidStateChangeForm(instance=volunteer,
-                                             request=request,
-                                             initial={'events': events}
-                                            )
-
     actionURL = reverse('volunteer_changestate',
                         urlconf='gbe.urls',
                         args=[volunteer_id])
@@ -1531,16 +1525,8 @@ def assign_volunteer(request, volunteer_id):
     return render(request,
                   'gbe/assign_volunteer.tmpl',
                   {'volunteer': volunteer,
-                   'windows': conference.windows(),
                    'bookings': volunteer.profile.get_bookings('Volunteer'),
-                   'events': sEvent.objects.filter(
-                        max_volunteer__gt=0,
-                        eventitem__event__conference=conference
-                        ).exclude(
-                            eventitem__event__genericevent__type=
-                                'Rehearsal Slot'
-                            ).order_by('starttime'),
-                   'actionform': actionform,
+                   'volunteer_event_windows': get_events_and_windows(conference),
                    'actionURL': actionURL,
                    'conference': conference,
                    'old_bid': old_bid,
