@@ -300,7 +300,7 @@ def export_act_techinfo(request, show_id):
 
     techinfo = sorted(techinfo, key=lambda row: row[0])
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s_acttect.csv' \
+    response['Content-Disposition'] = 'attachment; filename=%s_acttech.csv' \
         % show.title.replace(' ', '_')
     writer = csv.writer(response)
     writer.writerow(header)

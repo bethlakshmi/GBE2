@@ -12,3 +12,11 @@ def mailchimp():
             'mc_api_id': settings.MC_API_ID,
             'have_mc': True,
             }
+
+@register.filter
+def display_track_title(title, truncated_length):
+    title = title.split('/')[-1]
+    if len(title) <= truncated_length:
+        return title
+    else:
+        return title[:truncated_length] + "..."
