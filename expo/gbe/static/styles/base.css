@@ -74,14 +74,14 @@ div#middle {
 
 .special_functions
 {
-  width:27%;
-  align: right;
-  display: inline-block;
-  border-style: double;
-  background: white;
-  border-radius: 8px;
-  padding: 8px;
-  float: right;
+    width:27%;
+    align: right;
+    display: inline-block;
+    border-style: double;
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+    float: right;
 }
 
 div.left_col {

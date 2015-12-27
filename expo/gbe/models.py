@@ -62,7 +62,6 @@ class Conference(models.Model):
         return cls.objects.order_by('-accepting_bids').values_list(
             'conference_slug', flat=True)
 
-
     def windows(self):
         return VolunteerWindow.objects.filter(day__conference=self)
 
@@ -1047,11 +1046,10 @@ class Room(LocationItem):
         return self.name
 
 
-
 class ConferenceDay(models.Model):
     day = models.DateField(blank=True)
     conference = models.ForeignKey(Conference)
-    
+
     def __unicode__(self):
         return self.day.strftime("%a, %b %d")
 
@@ -1065,23 +1063,24 @@ class VolunteerWindow(models.Model):
     start = models.TimeField(blank=True)
     end = models.TimeField(blank=True)
     day = models.ForeignKey(ConferenceDay)
+
     def __unicode__(self):
-        return "%s, %s to %s" % (str(self.day), 
-                                 self.start.strftime("%I:%M %p"), 
+        return "%s, %s to %s" % (str(self.day),
+                                 self.start.strftime("%I:%M %p"),
                                  self.end.strftime("%I:%M %p"))
+
     @property
     def start_datetime(self):
         return datetime.combine(self.day.day, self.start)
-        
+
     @property
     def end_datetime(self):
         return datetime.combine(self.day.day, self.end)
-    
+
     class Meta:
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
         verbose_name_plural = "Volunteer Windows"
-
 
 
 class Event(EventItem):
@@ -1106,7 +1105,6 @@ class Event(EventItem):
     def __str__(self):
         return self.title
 
-
     @classmethod
     def get_all_events(cls, conference):
         events = cls.objects.filter(
@@ -1117,7 +1115,6 @@ class Event(EventItem):
                 getattr(event, 'type', 'X') not in ('Volunteer',
                                                     'Rehearsal Slot',
                                                     'Staff Area')]
-
 
     @property
     def sched_payload(self):
@@ -1479,12 +1476,14 @@ class Volunteer(Biddable):
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
-    available_windows = models.ManyToManyField(VolunteerWindow, 
-                                               related_name="availablewindow_set", 
-                                               blank=True)
-    unavailable_windows = models.ManyToManyField(VolunteerWindow,
-                                                 related_name="unavailablewindow_set", 
-                                                 blank=True)
+    available_windows = models.ManyToManyField(
+        VolunteerWindow,
+        related_name="availablewindow_set",
+        blank=True)
+    unavailable_windows = models.ManyToManyField(
+        VolunteerWindow,
+        related_name="unavailablewindow_set",
+        blank=True)
 
     def __unicode__(self):
         return self.profile.display_name
@@ -1494,7 +1493,6 @@ class Volunteer(Biddable):
         return [interest for code, interest in volunteer_interests_options if
                 code in self.interests]
 
-    
     @property
     def bid_review_header(self):
         return (['Name',
@@ -1518,10 +1516,10 @@ class Volunteer(Biddable):
         availability_string = ''
         unavailability_string = ''
         for window in self.available_windows.all():
-            availability_string += unicode(window)+ ', \n'
+            availability_string += unicode(window) + ', \n'
         for window in self.unavailable_windows.all():
             unavailability_string += unicode(window) + ', \n'
-            
+
         commitments = ''
         time_format = set_time_format(days=2)
         for event in self.profile.get_schedule():

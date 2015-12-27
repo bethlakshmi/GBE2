@@ -1330,7 +1330,7 @@ def create_volunteer(request):
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VolunteerBidForm(
-            request.POST, 
+            request.POST,
             available_windows=Conference.current_conf().windows(),
             unavailable_windows=Conference.current_conf().windows())
         if form.is_valid():
@@ -1434,7 +1434,7 @@ def review_volunteer(request, volunteer_id):
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(
         instance=volunteer,
-        prefix='The Volunteer', 
+        prefix='The Volunteer',
         available_windows=volunteer.conference.windows(),
         unavailable_windows=volunteer.conference.windows())
     profile = ParticipantForm(
@@ -1493,12 +1493,13 @@ def review_volunteer(request, volunteer_id):
                        'old_bid': old_bid,
                        })
 
+
 @login_required
 @log_func
 def assign_volunteer(request, volunteer_id):
     '''
     Show a bid  which needs to be assigned to shifts by the coordinator.
-    To show: display useful information about the bid, 
+    To show: display useful information about the bid,
     If user is not a coordinator, politely decline to show anything.
     '''
     reviewer = validate_perms(request, ('Volunteer Coordinator',))
@@ -1521,11 +1522,12 @@ def assign_volunteer(request, volunteer_id):
                   'gbe/assign_volunteer.tmpl',
                   {'volunteer': volunteer,
                    'bookings': volunteer.profile.get_bookings('Volunteer'),
-                   'volunteer_event_windows': get_events_and_windows(conference),
+                   'volunteer_event_windows': get_events_and_windows(
+                    conference),
                    'actionURL': actionURL,
                    'conference': conference,
-                   'old_bid': old_bid,
-                  })
+                   'old_bid': old_bid})
+
 
 def show_edit(request, volunteer):
     user = request.user
@@ -1573,8 +1575,8 @@ def review_volunteer_list(request):
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
             bid_row['assign_url'] = reverse('volunteer_assign',
-                                          urlconf='gbe.urls',
-                                          args=[volunteer.id])
+                                            urlconf='gbe.urls',
+                                            args=[volunteer.id])
 
         rows.append(bid_row)
     conference_slugs = Conference.all_slugs()

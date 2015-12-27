@@ -7,11 +7,12 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from gbetext import (
-    event_options, 
+    event_options,
     class_options,
 )
 from gbe.duration import DateTimeRange
 from scheduler.models import Event as sEvent
+
 
 def validate_profile(request, require=False):
     '''
@@ -52,13 +53,13 @@ def validate_perms(request, perms, require=True):
         raise PermissionDenied
     return False               # or just return false if we're just checking
 
-'''
+
+def mail_to_group(subject, message, group_name):
+    '''
     Sends mail to a privilege group, designed for use by bid functions
     Will always send using default_from_email
-'''
-def mail_to_group(subject, message, group_name):
-
-    to_list = [user.email for user in 
+    '''
+    to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     if not settings.DEBUG:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
@@ -66,30 +67,34 @@ def mail_to_group(subject, message, group_name):
 
 
 def send_user_contact_email(name, from_address, message):
-    subject = "EMAIL FROM GBE SITE USER %s" %name
+    subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
-    send_mail(subject, 
-              message, 
-              from_address, 
+    send_mail(subject,
+              message,
+              from_address,
               to_addresses)
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
-    # TO DO: close the spam hole that this opens up. 
-              
+    # TO DO: close the spam hole that this opens up.
+
 
 def get_conf(biddable):
     conference = biddable.biddable_ptr.conference
     old_bid = conference.status == 'completed'
     return conference, old_bid
 
+
 def get_current_conference():
     return conf.Conference.current_conf()
-    
+
+
 def get_conference_by_slug(slug):
     return conf.Conference.by_slug(slug)
 
+
 def conference_list():
     return conf.Conference.objects.all()
+
 
 def get_events_list_by_type(event_type, conference):
     items = []
@@ -122,8 +127,9 @@ def get_events_list_by_type(event_type, conference):
         items = []
     return items
 
+
 def available_volunteers(event_start_time):
-    one_minute = timedelta(0,60)
+    one_minute = timedelta(0, 60)
     tz = pytz.utc
     event_start_time = event_start_time + one_minute
     windows = []
@@ -131,23 +137,24 @@ def available_volunteers(event_start_time):
     for window in conference.windows():
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
-        window_range =  DateTimeRange(starttime=starttime, 
-                                      endtime=endtime) 
+        window_range = DateTimeRange(starttime=starttime,
+                                     endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)
-    
+
+
 def get_events_and_windows(conference):
     events = sEvent.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__conference=conference
         ).exclude(
-            eventitem__event__genericevent__type=
-            'Rehearsal Slot').order_by('starttime')
+            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
+                'starttime')
     conf_windows = conference.windows()
     volunteer_event_windows = []
 
-    for event in events:        
+    for event in events:
         volunteer_event_windows += [{
             'event': event,
             'window': conf_windows.filter(
@@ -155,6 +162,4 @@ def get_events_and_windows(conference):
                 start__lte=event.starttime.time(),
                 end__gt=event.starttime.time()).first()
             }]
-
     return volunteer_event_windows
-
