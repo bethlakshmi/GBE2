@@ -5,7 +5,7 @@ import scheduler.models as sched
 from datetime import datetime
 from django.utils import timezone
 from tests.factories.gbe_factories import GenericEventFactory
-
+from gbe.duration import Duration
 
 class WorkerItemFactory(DjangoModelFactory):
     class Meta:
@@ -17,5 +17,6 @@ class SchedEventFactory(DjangoModelFactory):
         model = sched.Event
 
     eventitem = SubFactory(GenericEventFactory)
-    starttime = timezone.make_aware(datetime(2016, 02, 4),
+    starttime = timezone.make_aware(datetime(2015, 02, 4),
                                     timezone.get_current_timezone())
+    duration = Duration(hours=1)

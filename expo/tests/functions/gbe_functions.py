@@ -1,11 +1,13 @@
-import gbe.models as conf
+from  gbe.models import (
+    Profile,
+    User,
+)
 from django.contrib.auth.models import Group
 
-
 def user_for(user_or_profile):
-    if type(user_or_profile) == conf.Profile:
+    if type(user_or_profile) == Profile:
         user = user_or_profile.user_object
-    elif type(user_or_profile) == conf.User:
+    elif type(user_or_profile) == User:
         user = user_or_profile
     else:
         raise ValueError("login_as requires a Profile or User")
@@ -24,7 +26,7 @@ def grant_privilege(user_or_profile, privilege):
     '''
     user = user_for(user_or_profile)
     try:
-        g, nil = Group.objects.get_or_create(name=privilege)
+        g, _ = Group.objects.get_or_create(name=privilege)
     except:
         g = Group(name=privilege)
         g.save()
