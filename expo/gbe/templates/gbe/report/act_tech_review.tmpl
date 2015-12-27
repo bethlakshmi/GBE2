@@ -10,22 +10,18 @@
 
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Act Tech Info for {{this_show}}</h2>
-<<<<<<< Updated upstream
-  
-=======
   <br/>
       {% include "conference_picker.tmpl" %}
   <br/>
 
->>>>>>> Stashed changes
   Also view:
   {% for show in all_shows %}
-    <a href="{% url 'reporting:act_techinfo_review' show.eventitem_id%}">{{show}}</a> 
+    <a href="{% url 'reporting:act_techinfo_review' show.eventitem_id%}">{{show}}</a>
     {% if not forloop.last %} | {% endif %}
   {% endfor %}
 <br><br>
 <span class="error_row">Highlighted text</span> reflects incomplete acts.<br>
-  
+
   {% if messages %}
       <script>
     alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
@@ -45,18 +41,18 @@
     </tr>
     {% for act in acts %}
 
-      
+
       <tr  {% if not act.tech.is_complete  %}class="error_row"{%else%} class="bid-table"{% endif %} >
           <td class="bid-table">{{ act.order }}
-	  <td class="bid-table">{{ act.title }}</td>	
-	  <td class="bid-table">{{ act.performer }}</td>	
+	  <td class="bid-table">{{ act.title }}</td>
+	  <td class="bid-table">{{ act.performer }}</td>
 	  <td class="bid-table"><a href='mailto:{{act.performer.contact.user_object.email}}'>
-            {{act.performer.contact.user_object.email}}</a></td>	
+            {{act.performer.contact.user_object.email}}</a></td>
 	  <td class="bid-table">{% for rehearsal in act.get_scheduled_rehearsals %}
             {{rehearsal.start_time}}<br>
             {%endfor%}
           </td>
- 
+
 	  <td class="bid-table">
             {% if act.tech.audio.track %}
             <a href="{{act.tech.audio.track.url}}">{{act.tech.audio.track.name}}</a>
@@ -88,4 +84,3 @@
 
 
 {% endblock %}
-
