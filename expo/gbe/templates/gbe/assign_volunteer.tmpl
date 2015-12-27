@@ -81,6 +81,7 @@
   <div>
   <form action="{{ actionURL }}" method="post">
     {% csrf_token %}
+    <input type='hidden' id="id_accepted" name="accepted" value="3">
     <table id="assign_volunteer" class="order-column" cellspacing="0" width="100%">
       <thead>
         <tr class="bid-table">
