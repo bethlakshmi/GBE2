@@ -203,7 +203,8 @@ def review_act_techinfo(request, show_id=None):
                    'acts': acts,
                    'all_shows': conf.Show.objects.filter(
                        conference=conference),
-                   'conference_slugs': conference_slugs()},
+                   'conference_slugs': conference_slugs(),
+                   'conference': conference},
                   )
 
 
