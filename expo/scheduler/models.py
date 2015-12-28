@@ -443,7 +443,7 @@ class WorkerItem(ResourceItem):
         return conflicts
 
 
-class Worker (Resource):
+class Worker(Resource):
     '''
     objects = InheritanceManager()
     An allocatable person
@@ -758,7 +758,7 @@ class Event(Schedulable):
         elif resource_type == 'Act':
             return self.act_contact_info(status=status)
         else:
-            return (self.worker_contact_info(worker_type=worker_type) + 
+            return (self.worker_contact_info(worker_type=worker_type) +
                     self.act_contact_info(status=status))
 
     @property
@@ -997,7 +997,7 @@ class ResourceAllocation(Schedulable):
     def __unicode__(self):
         try:
             return "%s :: Event: %s == %s : %s" %(
-                unicode(self.start_time.astimezone(pytz.timezone('UTC'))), 
+                unicode(self.start_time.astimezone(pytz.timezone('UTC'))),
                 unicode(self.event),
                 unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__),
                 unicode(Resource.objects.get_subclass(id=self.resource.id)))
