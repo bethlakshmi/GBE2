@@ -9,7 +9,6 @@ from datetime import datetime
 from django.utils import timezone
 from tests.factories.gbe_factories import GenericEventFactory
 
-
 class SchedulableFactory(DjangoModelFactory):
     class Meta:
         model = sched.Schedulable
@@ -83,7 +82,7 @@ class EventItemFactory(DjangoModelFactory):
 
 class SchedEventFactory(DjangoModelFactory):
     eventitem = SubFactory(GenericEventFactory)
-    starttime = timezone.make_aware(datetime(2016, 02, 4),
+    starttime = timezone.make_aware(datetime(2015, 02, 4),
                                     timezone.get_current_timezone())
     max_volunteer = 0
 

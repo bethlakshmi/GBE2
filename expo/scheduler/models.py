@@ -574,7 +574,7 @@ class EventItem (models.Model):
                  Q(role__in=['Teacher',
                              'Panelist',
                              'Moderator',
-                             'Staff Lead']))).distinct().order_by('role')
+                             'Staff Lead']))).distinct().order_by('role', '_item')
         except:
             people = Worker.objects.filter(
                 allocations__event__eventitem=self.eventitem_id,
@@ -582,7 +582,7 @@ class EventItem (models.Model):
                           'Panelist',
                           'Moderator',
                           'Staff Lead']
-            ).distinct().order_by('role')
+            ).distinct().order_by('role', '_item')
         return people
 
     def set_duration(self, duration):
