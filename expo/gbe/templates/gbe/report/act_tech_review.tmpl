@@ -1,4 +1,5 @@
 {% extends 'base.tmpl' %}
+{% load gbe_tags %}
 {% load staticfiles %}
 
 {% block title %}
@@ -13,6 +14,7 @@
   <br/>
       {% include "conference_picker.tmpl" %}
   <br/>
+
 
   Also view:
   {% for show in all_shows %}
@@ -55,7 +57,7 @@
 
 	  <td class="bid-table">
             {% if act.tech.audio.track %}
-            <a href="{{act.tech.audio.track.url}}">{{act.tech.audio.track.name}}</a>
+            <a href="{{act.tech.audio.track.url}}">{{act.tech.audio.track.name | display_track_title:20 }}</a>
             {% elif act.tech.audio.confirm_no_music %}
             No audio track needed
             {% else %}
