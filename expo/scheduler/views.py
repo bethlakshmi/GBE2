@@ -4,7 +4,7 @@ from django.shortcuts import (
     render_to_response,
 )
 from django.http import (
-    HttpResponse, 
+    HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
@@ -121,7 +121,8 @@ def get_events_display_info(event_type='Class', time_format=None):
             eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
                 time_format)
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
-            eventinfo['volunteer_count'] = entry['schedule_event'].volunteer_count
+            eventinfo['volunteer_count'] = entry[
+                'schedule_event'].volunteer_count
             eventinfo['delete'] = reverse('delete_schedule',
                                           urlconf='scheduler.urls',
                                           args=[entry['schedule_event'].id])
@@ -332,9 +333,8 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
     context = {}
     for opp in item.get_volunteer_opps():
         if (errorcontext and
-            'error_opp_form' in errorcontext and
-            errorcontext['error_opp_form'].instance == opp['conf']):
-
+                'error_opp_form' in errorcontext and
+                errorcontext['error_opp_form'].instance == opp['conf']):
             actionform.append(errorcontext['error_opp_form'])
         else:
             sevent = opp['sched']
@@ -393,9 +393,9 @@ def get_worker_allocation_forms(opp, errorcontext=None):
     forms = []
     for alloc in allocs:
         if (errorcontext and
-            worker_alloc_forms in errorcontext and
-            errorcontext['worker_alloc_forms'].cleaned_data['alloc_id'])==alloc.id:
-
+                worker_alloc_forms in errorcontext and
+                errorcontext['worker_alloc_forms'].cleaned_data[
+                    'alloc_id']) == alloc.id:
             forms.append(errorcontext['worker_alloc_forms'])
         else:
             forms.append(WorkerAllocationForm(
@@ -594,6 +594,8 @@ def contact_info(request,
 
 
 def contact_by_role(request, participant_type):
+    validate_perms(request, "any", require=True)
+
     from django.db.models import Q
     if participant_type == 'Teachers':
         contacts = Worker.objects.filter(Q(role='Teacher') |
@@ -609,22 +611,23 @@ def contact_by_role(request, participant_type):
         contact_info = []
         for c in contacts:
             performer = c.item.performer
-            contact_info .append([performer.contact_email,
-                                  str(c.allocations.first().event),
-                                  c.role,
-                                  str(performer),
-                                  str(performer.contact),
-                                  performer.contact.phone]
-                                 )
+            contact_info.append(
+                [performer.contact_email,
+                 str(c.allocations.first().event).encode('utf-8').strip(),
+                 c.role,
+                 str(performer).encode('utf-8').strip(),
+                 str(performer.contact).encode('utf-8').strip(),
+                 performer.contact.phone]
+                )
         from gbe.models import Class
         classes = Class.objects.all()
         for c in classes:
             contact_info.append(
                 [c.teacher.contact_email,
-                 c.title,
+                 c.title.encode('utf-8').strip(),
                  'Bidder',
-                 c.teacher.name,
-                 c.teacher.contact.display_name,
+                 c.teacher.name.encode('utf-8').strip(),
+                 c.teacher.contact.display_name.encode('utf-8').strip(),
                  c.teacher.contact.phone]
             )
     elif participant_type == 'Performers':
@@ -666,13 +669,17 @@ def contact_by_role(request, participant_type):
         for c in contacts:
             profile = c.item.profile
             event = c.allocations.first().event
+            try:
+                parent_event = event.container_event.parent_event
+            except:
+                parent_event = event
             contact_info.append([profile.display_name,
                                  profile.phone,
                                  profile.contact_email,
                                  volunteer_categories.get(
                                      event.as_subtype.volunteer_category, ''),
                                  str(event),
-                                 str(event.container_event.parent_event)])
+                                 str(parent_event)])
         from gbe.models import Volunteer
         volunteers = Volunteer.objects.all()
         for v in volunteers:
@@ -680,7 +687,7 @@ def contact_by_role(request, participant_type):
             contact_info.append([v.profile.display_name,
                                  v.profile.phone,
                                  v.profile.contact_email,
-                                 ','.join([volunteer_categories[i] 
+                                 ','.join([volunteer_categories[i]
                                            for i in interests]),
                                  'Application',
                                  'Application']
@@ -902,7 +909,7 @@ def edit_event_display(request, item, errorcontext=None):
 
     if validate_perms(request, ('Volunteer Coordinator',), require=False):
         if (item.event_type_name == 'GenericEvent' and
-            item.as_subtype.type == 'Volunteer'):
+                item.as_subtype.type == 'Volunteer'):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
             context.update(show_potential_workers(item))
