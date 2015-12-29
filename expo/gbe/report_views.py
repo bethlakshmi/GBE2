@@ -180,8 +180,6 @@ def review_act_techinfo(request, show_id=None):
     Show the list of act tech info for all acts in a given show
     '''
     validate_perms(request, ('Tech Crew',))
-    conf_slug = request.GET.get('conf_slug', None)
-    conference = get_conference_by_slug(conf_slug)
     # using try not get_or_404 to cover the case where the show is there
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
@@ -196,7 +194,11 @@ def review_act_techinfo(request, show_id=None):
         except:
             logger.error("review_act_techinfo: Invalid show id")
             pass
-
+    if show:
+        conference = show.conference
+    else:
+        conf_slug = request.GET.get('conf_slug', None)
+        conference = get_conference_by_slug(conf_slug)
     return render(request,
                   'gbe/report/act_tech_review.tmpl',
                   {'this_show': show,
@@ -204,8 +206,10 @@ def review_act_techinfo(request, show_id=None):
                    'all_shows': conf.Show.objects.filter(
                        conference=conference),
                    'conference_slugs': conference_slugs(),
-                   'conference': conference},
-                  )
+                   'conference': conference,
+                   'return_link': reverse('act_techinfo_review',
+                                          urlconf='gbe.report_urls')},
+              )
 
 
 def export_act_techinfo(request, show_id):
