@@ -189,7 +189,6 @@ def review_act_techinfo(request, show_id=1):
     except:
         show = None
         acts = []
-
     return render(request,
                   'gbe/report/act_tech_review.tmpl',
                   {'this_show': show,

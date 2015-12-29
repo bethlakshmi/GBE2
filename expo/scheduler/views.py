@@ -980,13 +980,13 @@ def calendar_view(request=None,
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
         conf = get_conference_by_slug(conf_slug)
-    else:        
+    else:
         conf = get_current_conference()
-    
+
     # ignore day parameter for now, day_to_cal_time ignores it
 
     cal_times = cal_times_for_conf(conf)
-    
+
     if event_type == 'All':
         event_types = ['Show',
                        'Class',
@@ -996,18 +996,24 @@ def calendar_view(request=None,
         events = []
         for e_type in event_types:
             events = events + event_info(confitem_type=e_type,
-                                         cal_times=cal_times)
+                                         cal_times=cal_times,
+                                         conference=conf)
     elif event_type == 'Show':
         events = event_info(confitem_type='Show',
-                            cal_times=cal_times)
+                            cal_times=cal_times,
+                            conference=conf)
         events += event_info(confitem_type='Special Event',
-                             cal_times=cal_times)
+                             cal_times=cal_times,
+                             conference=conf)
         events += event_info(confitem_type='Master Class',
-                             cal_times=cal_times)
+                             cal_times=cal_times,
+                             conference=conf)
         events += event_info(confitem_type='Drop-In Class',
-                             cal_times=cal_times)
+                             cal_times=cal_times,
+                             conference=conf)
     else:
-        events = event_info(confitem_type=event_type, cal_times=cal_times)
+        events = event_info(confitem_type=event_type, cal_times=cal_times,
+                            conference=conf)
     events = overlap_clear(events)
     if time_format is None:
         time_format = set_time_format()

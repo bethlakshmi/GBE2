@@ -1,4 +1,9 @@
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
+from datetime import (
+    datetime,
+    time,
+)
 import gbe.models as conf
 import nose.tools as nt
 from django.test import TestCase, Client
@@ -16,12 +21,41 @@ from gbe.report_views import (list_reports,
                               export_badge_report,
                               )
 from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    ConferenceDayFactory,
+    ConferenceFactory,
+    ShowFactory,
+
+)
+from tests.factories.scheduler_factories import (
+    ActResourceFactory,
+    ResourceAllocationFactory,
+    SchedEventFactory,
+)
 from tests.factories.ticketing_factories import (
     TransactionFactory,
     )
 import ticketing.models as tix
 
 import tests.functions.gbe_functions as functions
+
+def _create_scheduled_show_with_acts(conference=None, qty=6):
+    if not conference:
+        conference = ConferenceFactory.create()
+    conf_day = ConferenceDayFactory.create(
+        conference=conference)
+
+    show = ShowFactory.create(conference=conference)
+    sEvent = SchedEventFactory.create(
+        eventitem=show.eventitem_ptr,
+        starttime=datetime.combine(conf_day.day, time(20,0)))
+    acts = [ActFactory.create() for i in range(qty)]
+    for act in acts:
+        ar = ActResourceFactory.create(_item=act.actitem_ptr)
+        ResourceAllocationFactory.create(
+            event=sEvent,
+            resource=ar)
+    return show, sEvent, acts
 
 
 class TestReports(TestCase):
@@ -208,7 +242,9 @@ class TestReports(TestCase):
         '''
         profile = self.profile_factory.create()
         functions.login_as(profile, self)
-        request = self.factory.get('reports/review_act_techinfo')
+        request = self.factory.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.report_urls'))
         request.user = profile.user_object
         response = review_act_techinfo(request)
 
@@ -218,12 +254,37 @@ class TestReports(TestCase):
         '''
         profile = self.profile_factory.create()
         functions.login_as(profile, self)
-        request = self.factory.get('reports/review_act_techinfo')
+        request = self.factory.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.report_urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
+
+
+    def test_review_act_techinfo_with_conference_slug(self):
+        '''review_act_techinfo view show correct events for slug
+        '''
+        curr_conf = ConferenceFactory.create()
+        curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
+        old_conf = ConferenceFactory.create(status='completed')
+        old_show, _, old_acts = _create_scheduled_show_with_acts(old_conf)
+
+        profile = self.profile_factory.create()
+        functions.login_as(profile, self)
+        request = self.factory.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.report_urls'))
+        request.user = profile.user_object
+        request.session = {'cms_admin_site': 1}
+        request.GET = {'conf_slug':curr_conf.conference_slug}
+        functions.grant_privilege(profile, 'Tech Crew')
+        response = review_act_techinfo(request)
+        self.assertEqual(response.status_code, 200)
+        nt.assert_true(curr_show.title in response.content)
+
 
     @nt.raises(PermissionDenied)
     def test_room_schedule_fail(self):

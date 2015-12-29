@@ -1,21 +1,21 @@
 from table import table
 from datetime import (
     timedelta,
-    time, 
+    time,
     datetime
 )
 from calendar import timegm
 from gbe.duration import (
-    Duration, 
+    Duration,
     DateTimeRange,
     timedelta_to_duration
 )
 from random import choice
 
 import math
-try: 
+try:
     from expo.settings import DATETIME_FORMAT
-except: 
+except:
     DATETIME_FORMAT = None
 
 from django.core.urlresolvers import reverse
@@ -113,7 +113,7 @@ def init_time_blocks(events, block_size,
     be removed from the start or end of the calendar, or both. Valuea
     in ("start", "stop", "both") do the right things.
     '''
-    
+
     if not cal_start:
         cal_start = sorted([event['start_time'] for event in events])[0]
     elif isinstance(cal_start, time):
@@ -121,7 +121,7 @@ def init_time_blocks(events, block_size,
 
     if not cal_stop:
         cal_stop = sorted([event['stop_time'] for event in events])[-1]
-    elif isinstance(cal_stop, time): 
+    elif isinstance(cal_stop, time):
         cal_stop = datetime.combine(datetime.min, cal_stop)
 
     if cal_stop < cal_start:    # assume that we've gone past midnight
@@ -234,8 +234,8 @@ def add_to_table(event, table, block_labels):
     '''
     table[event['location'], block_labels[event['startblock']]] = '<td rowspan=%d class=\'%s\'>%s</td>' % (
         event['rowspan'], " ".join([event.get('css_class', ''),
-                                    event['location'].replace(' ', '_'), 
-                                    event['type']]), 
+                                    event['location'].replace(' ', '_'),
+                                    event['type']]),
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
@@ -312,12 +312,12 @@ def table_prep(events,
 def event_info(confitem_type='Show',
                filter_type=None,
                cal_times=(datetime(2016, 02, 5, 18, 00, tzinfo=pytz.timezone('UTC')),
-                          datetime(2016, 02, 7, 00, 00, tzinfo=pytz.timezone('UTC')))):
+                          datetime(2016, 02, 7, 00, 00, tzinfo=pytz.timezone('UTC'))),
+               conference=None):
     '''
     Queries the database for scheduled events of type confitem_type, during time cal_times,
     and returns their important information in a dictionary format.
     '''
-
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
     elif confitem_type in ['Special Event',
@@ -328,9 +328,10 @@ def event_info(confitem_type='Show',
 
     import gbe.models as conf
     from scheduler.models import Location
-
+    if not conference:
+        conference = conf.Conference.current_conf()
     confitem_class = eval('conf.'+confitem_type)
-    confitems_list = confitem_class.objects.all()
+    confitems_list = confitem_class.objects.filter(conference=conference)
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
 
@@ -384,10 +385,10 @@ def day_to_cal_time(day='Saturday', week=datetime(2016, 02, 4, tzinfo=pytz.timez
     # on Monday at 0, so Thursday is 3
     if week.weekday() < 3:
         shift = 3 - week.weekday()
-        week = week + duration(shift * 60 * 60 * 24)
+        week = week + Duration(0, shift * 60 * 60 * 24)
     elif week.weekday() > 3:
         shift = week.weekday() - 3
-        week = week - duration(shift * 60 * 60 * 24)
+        week = week - Duration(0, shift * 60 * 60 * 24)
 
     return_day = week + Duration(days=[i for i, x in
                                        enumerate(conference_days) if x == day][0])
@@ -403,7 +404,7 @@ def cal_times_for_conf(conference):
     first_day = days[0].day
     zero = time(0,0,0, tzinfo=pytz.timezone('UTC'))
     return day_to_cal_time(week=datetime.combine(first_day, zero))
-    
+
 
 def volunteer_shift_info(profile_id,
                          filter_type=None,

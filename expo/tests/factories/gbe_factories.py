@@ -10,7 +10,12 @@ import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
 from django.core.files.uploadedfile import SimpleUploadedFile
-
+from datetime import (
+    date,
+    time,
+    timedelta,
+)
+from pytz import utc
 
 class ConferenceFactory(DjangoModelFactory):
     class Meta:
@@ -20,6 +25,22 @@ class ConferenceFactory(DjangoModelFactory):
     conference_slug = Sequence(lambda n: u"test_conf_%d" % n)
     accepting_bids = False
     status = 'upcoming'
+
+
+class ConferenceDayFactory(DjangoModelFactory):
+    day = date.today() + timedelta(7)
+    conference = SubFactory(ConferenceFactory)
+    class Meta:
+        model = conf.ConferenceDay
+
+
+class VolunteerWindowFactory(DjangoModelFactory):
+    start = time(8, 0, 0)
+    end = time(12, 0, 0)
+    day = SubFactory(ConferenceDayFactory)
+
+    class Meta:
+        model = conf.VolunteerWindow
 
 
 class WorkerItemFactory(DjangoModelFactory):
