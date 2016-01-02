@@ -94,7 +94,7 @@ class TestReviewVolunteerList(TestCase):
         nt.assert_true("No Decision" in response.content)
         nt.assert_true("Review" in response.content)
 
-    def test_review_volunteer_w_conf(self):
+    def test_review_volunteer_as_coordinator(self):
         ''' volunteer coordinators get special privileges'''
         coord_profile = ProfileFactory.create()
         group, nil = Group.objects.get_or_create(name='Volunteer Reviewers')
