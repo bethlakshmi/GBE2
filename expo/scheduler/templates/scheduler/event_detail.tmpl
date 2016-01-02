@@ -95,6 +95,7 @@
     {% elif eventitem.event.roles %}
     <div class="bio_block font_regular">
       {% for worker in eventitem.event.roles %}
+      {% ifchanged worker.workeritem %}
       <div class="bio_words">
 	{%if worker.role == "Staff Lead"%}
 	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
@@ -109,6 +110,7 @@
           <img src="{{MEDIA_URL}}{{worker.workeritem.promo_small}}" class="sched_bio_image">
           </div>
         {% endif %}
+      {%endifchanged%}
       {% endfor %}
     </div>
     {% elif eventitem.event.bios %}
