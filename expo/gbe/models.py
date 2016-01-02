@@ -1069,14 +1069,6 @@ class VolunteerWindow(models.Model):
                                  self.start.strftime("%I:%M %p"),
                                  self.end.strftime("%I:%M %p"))
 
-    @property
-    def start_datetime(self):
-        return datetime.combine(self.day.day, self.start)
-
-    @property
-    def end_datetime(self):
-        return datetime.combine(self.day.day, self.end)
-
     class Meta:
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
