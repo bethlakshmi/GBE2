@@ -31,7 +31,6 @@ class TestGetEventsAndWindows(TestCase):
         '''should get 1 event, and 1 window
         '''
         results = get_events_and_windows(self.window.day.conference)
-        events = sEvent.objects.all()
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['event'].pk, self.s_event.pk)
@@ -54,8 +53,6 @@ class TestGetEventsAndWindows(TestCase):
         s_event2.save()
 
         results = get_events_and_windows(self.window.day.conference)
-
-        events = sEvent.objects.all()
 
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0]['event'].pk, s_event2.pk)
