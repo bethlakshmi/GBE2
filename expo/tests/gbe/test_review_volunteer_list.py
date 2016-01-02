@@ -28,6 +28,23 @@ class TestReviewVolunteerList(TestCase):
         group, nil = Group.objects.get_or_create(name='Volunteer Reviewers')
         self.privileged_user.groups.add(group)
 
+        self.volunteer = VolunteerFactory.create()
+        self.avail_window = VolunteerWindowFactory.create()
+        self.unavail_window = VolunteerWindowFactory.create()
+        self.volunteer.available_windows.add(self.avail_window)
+        self.volunteer.unavailable_windows.add(self.unavail_window)
+        self.volunteer.submitted = True
+        self.volunteer.save()
+        self.volunteer.profile.user_object.email = "review_vol@testemail.com"
+        self.volunteer.profile.user_object.save()
+        self.prefs = ProfilePreferences()
+        self.prefs.profile = self.volunteer.profile
+        self.prefs.in_hotel = "Maybe"
+        self.prefs.inform_about = True
+        self.prefs.show_hotel_infobox = True
+        self.prefs.save()
+
+
     def test_review_volunteer_all_well(self):
         '''default conference selected, make sure it returns the right page'''
         request = self.factory.get('volunteer/review/')
@@ -58,7 +75,7 @@ class TestReviewVolunteerList(TestCase):
         prefs.save()
 
         request = self.factory.get('volunteer/review/?conf_slug=%s' %
-                                   volunteer.conference.conference_slug)
+                                   self.volunteer.conference.conference_slug)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
@@ -66,14 +83,46 @@ class TestReviewVolunteerList(TestCase):
         
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
-        nt.assert_true(str(volunteer.number_shifts) in response.content)
-        nt.assert_true(volunteer.background in response.content)
-        nt.assert_true(volunteer.profile.display_name in response.content)
-        nt.assert_true(volunteer.profile.user_object.email in response.content)
-        nt.assert_true(prefs.in_hotel in response.content)
-        nt.assert_true(unicode(avail_window) in response.content)
-        nt.assert_true(unicode(unavail_window) in response.content)
+        nt.assert_true(str(self.volunteer.number_shifts) in response.content)
+        nt.assert_true(self.volunteer.background in response.content)
+        nt.assert_true(self.volunteer.profile.display_name in response.content)
+        nt.assert_true(
+            self.volunteer.profile.user_object.email in response.content)
+        nt.assert_true(self.prefs.in_hotel in response.content)
+        nt.assert_true(unicode(self.avail_window) in response.content)
+        nt.assert_true(unicode(self.unavail_window) in response.content)
         nt.assert_true("No Decision" in response.content)
+        nt.assert_true("Review" in response.content)
+
+    def test_review_volunteer_w_conf(self):
+        ''' volunteer coordinators get special privileges'''
+        coord_profile = ProfileFactory.create()
+        group, nil = Group.objects.get_or_create(name='Volunteer Reviewers')
+        group2, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
+        coord_profile.user_object.groups.add(group)
+        coord_profile.user_object.groups.add(group2)
+
+        request = self.factory.get('volunteer/review/?conf_slug=%s' %
+                                   self.volunteer.conference.conference_slug)
+        request.user = coord_profile.user_object
+        request.session = {'cms_admin_site': 1}
+        login_as(request.user, self)
+        response = review_volunteer_list(request)
+        
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Bid Information' in response.content)
+        nt.assert_true(str(self.volunteer.number_shifts) in response.content)
+        nt.assert_true(self.volunteer.background in response.content)
+        nt.assert_true(self.volunteer.profile.display_name in response.content)
+        nt.assert_true(
+            self.volunteer.profile.user_object.email in response.content)
+        nt.assert_true(self.prefs.in_hotel in response.content)
+        nt.assert_true(unicode(self.avail_window) in response.content)
+        nt.assert_true(unicode(self.unavail_window) in response.content)
+        nt.assert_true("No Decision" in response.content)
+        nt.assert_true("Review" in response.content)
+        nt.assert_true("Assign" in response.content)
+        nt.assert_true("Edit" in response.content)
 
     @nt.raises(PermissionDenied)
     def test_review_volunteer_bad_user(self):
