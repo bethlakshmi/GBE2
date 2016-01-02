@@ -181,6 +181,8 @@ class GenericEventFactory(DjangoModelFactory):
     class Meta:
         model = conf.GenericEvent
 
+    title = Sequence(lambda n: 'Test Generic Event %d' % n)
+    duration = Duration(hours=1)
     type = 'Special'
     volunteer_category = 'VA0'
     conference = SubFactory(ConferenceFactory)
