@@ -10,6 +10,7 @@ import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
 from django.core.files.uploadedfile import SimpleUploadedFile
+from datetime import date, time
 
 
 class ConferenceFactory(DjangoModelFactory):
@@ -310,3 +311,18 @@ class CostumeFactory(DjangoModelFactory):
     picture = SimpleUploadedFile("file.jpg",
                                  "file_content",
                                  content_type="image/jpg")
+
+
+class ConferenceDayFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.ConferenceDay
+    conference = SubFactory(ConferenceFactory)
+    day = date(2016, 2, 5)
+    
+
+class VolunteerWindowFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.VolunteerWindow
+    day = SubFactory(ConferenceDayFactory)
+    start = time(10)
+    end = time(14)
