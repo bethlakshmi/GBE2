@@ -124,8 +124,11 @@
                 {% if event_window.event in bookings %}checked="checked"{% endif %}/>
             </td>
             <td class="bid-table">
-              {{event_window.window.day.day|date:"D"}},
-              {{event_window.window.start|date:"f A"}} - {{event_window.window.end|date:"f A"}}
+              {% if event_window.window %}
+                {{event_window.window.day.day|date:"D"}},
+                {{event_window.window.start|date:"f A"}} -
+                {{event_window.window.end|date:"f A"}}
+              {% endif %}
             </td>
             <td class="bid-table">
               {% if event_window.window in volunteer.available_windows.all%}
@@ -153,11 +156,12 @@
             </td>
             <td class="bid-table">{{event_window.event.volunteer_count|cut:" volunteers"}}</td>
             <td class="bid-table">{{event_window.event.max_volunteer}}</td>
-            <td class="bid-table">{% if event_window.event.max_volunteer <= event.event.volunteer_count %}
+            <td class="bid-table">
+              {% if event_window.event.max_volunteer <= event_window.event.volunteer_count|cut:" volunteers"|add:"0" %}
               Y
               {%else%}
               N
-            {% endif %}
+              {% endif %}
             </td>
         </tr>
         {% endfor%}

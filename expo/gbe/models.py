@@ -1204,6 +1204,11 @@ class GenericEvent (Event):
         return self.title
 
     @property
+    def volunteer_category_description(self):
+        return dict(
+            volunteer_interests_options).get(self.volunteer_category, None)
+
+    @property
     def sched_payload(self):
         types = dict(event_options)
         payload = {
