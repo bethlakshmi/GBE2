@@ -10,7 +10,13 @@ import ticketing.models as tix
 
 import csv
 from reportlab.pdfgen import canvas
-from gbe.functions import *
+from gbe.functions import (
+    conference_slugs,
+    get_current_conference,
+    get_conference_by_slug,
+    validate_perms,
+)
+from expo.gbe_logging import logger
 
 
 def list_reports(request):
@@ -18,14 +24,13 @@ def list_reports(request):
       Shows listing of all reports in this area
     '''
     viewer_profile = validate_perms(request, 'any', require=True)
-    conference_slugs = conf.Conference.all_slugs()
     if request.GET and request.GET.get('conf_slug'):
-        conference = conf.Conference.by_slug(request.GET['conf_slug'])
+        conference = get_conference_by_slug(request.GET['conf_slug'])
     else:
-        conference = conf.Conference.current_conf()
+        conference = get_current_conference()
     return render(request,
                   'gbe/report/report_list.tmpl', {
-                      'conference_slugs': conference_slugs,
+                      'conference_slugs': conference_slugs(),
                       'conference': conference,
                       'return_link': reverse('report_list',
                                              urlconf='gbe.report_urls')})
@@ -75,12 +80,9 @@ def env_stuff(request, conference_choice=None):
     reviewer = validate_perms(request, ('Registrar',))
 
     if conference_choice:
-        conference = get_object_or_404(
-            conf.Conference,
-            conference_slug=conference_choice)
+        conference = get_conference_by_slug(conference_choice)
     else:
-        conference = conf.Conference.objects.exclude(
-            status='completed').first()
+        conference = get_current_conference()
 
     people = conf.Profile.objects.all()
     acts = conf.Act.objects.filter(accepted=3, conference=conference)
@@ -173,28 +175,41 @@ def personal_schedule(request, profile_id='All'):
                   {'people': people})
 
 
-def review_act_techinfo(request, show_id=1):
+def review_act_techinfo(request, show_id=None):
     '''
     Show the list of act tech info for all acts in a given show
     '''
-    reviewer = validate_perms(request, ('Tech Crew',))
-
+    validate_perms(request, ('Tech Crew',))
     # using try not get_or_404 to cover the case where the show is there
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
-    try:
-        show = conf.Show.objects.get(eventitem_id=show_id)
-        acts = show.scheduler_events.first().get_acts(status=3)
-        acts = sorted(acts, key=lambda act: act.order)
-    except:
-        show = None
-        acts = []
+    show = None
+    acts = []
 
+    if show_id:
+        try:
+            show = conf.Show.objects.get(eventitem_id=show_id)
+            acts = show.scheduler_events.first().get_acts(status=3)
+            acts = sorted(acts, key=lambda act: act.order)
+        except:
+            logger.error("review_act_techinfo: Invalid show id")
+            pass
+    if show:
+        conference = show.conference
+    else:
+        conf_slug = request.GET.get('conf_slug', None)
+        conference = get_conference_by_slug(conf_slug)
     return render(request,
                   'gbe/report/act_tech_review.tmpl',
                   {'this_show': show,
                    'acts': acts,
-                   'all_shows': conf.Show.objects.all()})
+                   'all_shows': conf.Show.objects.filter(
+                       conference=conference),
+                   'conference_slugs': conference_slugs(),
+                   'conference': conference,
+                   'return_link': reverse('act_techinfo_review',
+                                          urlconf='gbe.report_urls')},
+              )
 
 
 def export_act_techinfo(request, show_id):
