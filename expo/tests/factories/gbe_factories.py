@@ -48,9 +48,9 @@ class ProfileFactory(DjangoModelFactory):
     zip_code = '12345'
     country = 'USA'
     phone = '617-282-9268'
-    display_name = LazyAttribute(lambda a:
-                                         "%s_%s" % (a.user_object.first_name,
-                                                    a.user_object.last_name))
+    display_name = LazyAttribute(
+        lambda a: "%s_%s" % (a.user_object.first_name,
+                             a.user_object.last_name))
 
 
 class ShowFactory(DjangoModelFactory):
@@ -170,8 +170,8 @@ class EventFactory(DjangoModelFactory):
         model = conf.Event
 
     title = Sequence(lambda x: "Test Event #%d" % x)
-    description = LazyAttribute(lambda a:
-                                        "Description for %s" % a.title)
+    description = LazyAttribute(
+        lambda a: "Description for %s" % a.title)
     blurb = LazyAttribute("Blurb for %s" % title)
     duration = Duration(hours=2)
     conference = SubFactory(ConferenceFactory)
@@ -259,8 +259,8 @@ class VendorFactory(DjangoModelFactory):
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = LazyAttribute(lambda a:
-                                       "Help times for test Volunteer")
+    help_times = LazyAttribute(
+        lambda a: "Help times for test Volunteer")
     conference = SubFactory(ConferenceFactory)
 
 
@@ -269,8 +269,8 @@ class ClassProposalFactory(DjangoModelFactory):
         model = conf.ClassProposal
 
     title = Sequence(lambda x: "Class Proposal %d: Title" % x)
-    name = Sequence(lambda x:
-                            "Class Proposal %d: Name of Proposer" % x)
+    name = Sequence(
+        lambda x: "Class Proposal %d: Name of Proposer" % x)
     email = Sequence(lambda x: "john%d@gmail.com" % x)
     proposal = LazyAttribute(lambda a: "Proposal titled %s" % a.title)
     type = 'Class'
@@ -320,7 +320,7 @@ class ConferenceDayFactory(DjangoModelFactory):
         model = conf.ConferenceDay
     conference = SubFactory(ConferenceFactory)
     day = date(2016, 2, 5)
-    
+
 
 class VolunteerWindowFactory(DjangoModelFactory):
     class Meta:
