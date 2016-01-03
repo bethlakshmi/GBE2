@@ -12,6 +12,7 @@ from gbetext import (
 )
 from gbe.duration import DateTimeRange
 
+
 def validate_profile(request, require=False):
     '''
     Return the user profile if any
@@ -51,12 +52,13 @@ def validate_perms(request, perms, require=True):
         raise PermissionDenied
     return False               # or just return false if we're just checking
 
-'''
+
+def mail_to_group(subject, message, group_name):
+    '''
     Sends mail to a privilege group, designed for use by bid functions
     Will always send using default_from_email
-'''
-def mail_to_group(subject, message, group_name):
 
+    '''
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     if not settings.DEBUG:
@@ -65,7 +67,7 @@ def mail_to_group(subject, message, group_name):
 
 
 def send_user_contact_email(name, from_address, message):
-    subject = "EMAIL FROM GBE SITE USER %s" %name
+    subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
     send_mail(subject,
               message,
@@ -81,17 +83,26 @@ def get_conf(biddable):
     old_bid = conference.status == 'completed'
     return conference, old_bid
 
+
 def get_current_conference():
     return conf.Conference.current_conf()
+
 
 def get_conference_by_slug(slug):
     return conf.Conference.by_slug(slug)
 
+
 def get_conference_days(conference):
     return conference.conferenceday_set.all()
 
+
 def conference_list():
     return conf.Conference.objects.all()
+
+
+def conference_slugs():
+    return conf.Conference.all_slugs()
+
 
 def get_events_list_by_type(event_type, conference):
     items = []
@@ -124,8 +135,9 @@ def get_events_list_by_type(event_type, conference):
         items = []
     return items
 
+
 def available_volunteers(event_start_time):
-    one_minute = timedelta(0,60)
+    one_minute = timedelta(0, 60)
     tz = pytz.utc
     event_start_time = event_start_time + one_minute
     windows = []
@@ -133,7 +145,7 @@ def available_volunteers(event_start_time):
     for window in conference.windows():
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
-        window_range =  DateTimeRange(starttime=starttime,
+        window_range = DateTimeRange(starttime=starttime,
                                       endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
