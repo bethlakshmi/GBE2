@@ -8,15 +8,17 @@
        Schedule
   </h3>	
     {% for booking in profile.schedule %}
-      <div class='event'>
       {% if booking.eventitem.child.conference.status != "completed" %}
+      <div class='event'>
         {{booking.starttime}}, 
         <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
           {{ booking }}
 	</a> 
+      </div>
       {%endif%}
-      </div> <br>
+    {% empty %}
+      {{ profile.display_name }} is not scheduled for anything at this time.
     {% endfor %}
- 
+
 </div>
 
