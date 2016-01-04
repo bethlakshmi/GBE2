@@ -7,6 +7,8 @@
 
 {% block content %}
 
+{% include "conference_picker.tmpl" %}
+
 {% for person in people %}
 {% if person.get_schedule %}
 
