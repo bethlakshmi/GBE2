@@ -9,10 +9,12 @@
   </h3>	
     {% for booking in profile.schedule %}
       <div class='event'>
-        {{booking.starttime}} 
+      {% if booking.eventitem.child.conference.status != "completed" %}
+        {{booking.starttime}}, 
         <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
           {{ booking }}
 	</a> 
+      {%endif%}
       </div> <br>
     {% endfor %}
  
