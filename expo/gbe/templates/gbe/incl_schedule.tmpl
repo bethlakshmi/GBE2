@@ -9,6 +9,9 @@
   </h3>	
     {% for booking in profile.schedule %}
       {% if booking.eventitem.child.conference.status != "completed" %}
+        {% ifchanged booking.eventitem.child.conference %}
+	   <h4>{{booking.eventitem.child.conference}}</h4>
+        {% endifchanged%}
       <div class='event'>
         {{booking.starttime}}, 
         <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
