@@ -118,11 +118,12 @@ class TestIndex(TestCase):
         self.current_class_sched = Event(
             eventitem=self.current_class,
             starttime=datetime(2016, 2, 5, 2, 0, 0, 0, pytz.utc),
+            starttime=datetime(2016, 2, 5, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.current_class_sched.save()
         self.previous_class_sched = Event(
             eventitem=self.previous_class,
-            starttime=datetime(2015, 2, 25, 2, 0, 0, 0, pytz.utc),
+            starttime=datetime(2015, 2, 25, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.previous_class_sched.save()
         
@@ -149,14 +150,6 @@ class TestIndex(TestCase):
 
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
-        print(content)
-        print ("event:"+unicode(event))
-        print("time:"+event.start_time.strftime(
-                    "%b. %-d, %Y, %-I:%M") )
-        print("link:"+reverse('detail_view',
-                        urlconf="scheduler.urls",
-                        args=[event.eventitem.eventitem_id]))
-
         return (unicode(event) in content and
                 event.start_time.strftime(
                     "%b. %-d, %Y, %-I:%M") in content and
