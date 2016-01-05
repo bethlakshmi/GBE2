@@ -18,80 +18,94 @@ class TestIndex(TestCase):
     '''Tests for index view'''
     def setUp(self):
         self.factory = RequestFactory()
+        self.current_conf = ConferenceFactory.create(accepting_bids=True)
+        self.current_conf.status = 'upcoming'
+        self.current_conf.save()
+        self.previous_conf = ConferenceFactory.create(accepting_bids=False)
+        self.previous_conf.status = 'completed'
+        self.previous_conf.save()
+
+        self.profile = ProfileFactory.create()
+        self.performer = PersonaFactory.create(performer_profile=self.profile,
+                                               contact=self.profile)
+        self.current_act = ActFactory.create(performer=self.performer,
+                                             submitted=True)
+        self.current_act.conference = self.current_conf
+        self.current_act.title = "Current Act"
+        self.current_act.save()
+        self.previous_act = ActFactory.create(performer=self.performer,
+                                              submitted=True)
+        self.previous_act.title = 'Previous Act'
+        self.previous_act.conference = self.previous_conf
+        self.previous_act.save()
+        self.current_class = ClassFactory.create(teacher=self.performer,
+                                                 submitted=True)
+        self.current_class.title = "Current Class"
+        self.current_class.conference = self.current_conf
+        self.current_class.save()
+        self.previous_class = ClassFactory.create(teacher=self.performer,
+                                                  submitted=True)
+        self.previous_class.conference = self.previous_conf
+        self.previous_class.title = 'Previous Class'
+        self.previous_class.save()
+        self.current_vendor = VendorFactory.create(profile=self.profile,
+                                                   submitted=True)
+        self.current_vendor.conference = self.current_conf
+        self.current_vendor.title = "Current Vendor"
+        self.current_vendor.save()
+        self.previous_vendor = VendorFactory.create(profile=self.profile,
+                                                    submitted=True)
+        self.previous_vendor.conference = self.previous_conf
+        self.previous_vendor.title = 'Previous Vendor'
+        self.previous_vendor.save()
+        self.current_costume = CostumeFactory.create(profile=self.profile,
+                                                     submitted=True)
+        self.current_costume.conference = self.current_conf
+        self.current_costume.title = "Current Costume"
+        self.current_costume.save()
+        self.previous_costume = CostumeFactory.create(profile=self.profile,
+                                                      submitted=True)
+        self.previous_costume.conference = self.previous_conf
+        self.previous_costume.title = 'Previous Costume'
+        self.previous_costume.save()
 
     def test_landing_page_path(self):
         '''Basic test of landing_page view
         '''
-        profile = ProfileFactory.create()
         request = self.factory.get('/')
-        request.user = profile.user_object
+        request.user = self.profile.user_object
         request.session = {'cms_admin_site': 1}
         response = landing_page(request)
         self.assertEqual(response.status_code, 200)
+        content = response.content
+        does_not_show_previous = (
+            self.previous_act.title not in content and
+            self.previous_class.title not in content and
+            self.previous_vendor.title not in content and
+            self.previous_costume.title not in content)
+        shows_all_current = (
+            self.current_act.title in content and
+            self.current_class.title in content and
+            self.current_vendor.title in content and
+            self.current_costume.title in content)
+        nt.assert_true(does_not_show_previous and
+                       shows_all_current)
 
     def test_historical_view(self):
-        current_conf = ConferenceFactory.create(accepting_bids=True)
-        current_conf.status = 'upcoming'
-        current_conf.save()
-        previous_conf = ConferenceFactory.create(accepting_bids=False)
-        previous_conf.status = 'completed'
-        previous_conf.save()
-        profile = ProfileFactory.create()
-        performer = PersonaFactory.create(performer_profile=profile,
-                                          contact=profile)
-        current_act = ActFactory.create(performer=performer,
-                                        submitted=True)
-        current_act.conference = current_conf
-        current_act.title = "Current Act"
-        current_act.save()
-        previous_act = ActFactory.create(performer=performer,
-                                         submitted=True)
-        previous_act.title = 'Previous Act'
-        previous_act.conference = previous_conf
-        previous_act.save()
-        current_class = ClassFactory.create(teacher=performer,
-                                            submitted=True)
-        current_class.title = "Current Class"
-        current_class.conference = current_conf
-        current_class.save()
-        previous_class = ClassFactory.create(teacher=performer,
-                                             submitted=True)
-        previous_class.conference = previous_conf
-        previous_class.title = 'Previous Class'
-        previous_class.save()
-        current_vendor = VendorFactory.create(profile=profile,
-                                              submitted=True)
-        current_vendor.conference = current_conf
-        current_vendor.title = "Current Vendor"
-        current_vendor.save()
-        previous_vendor = VendorFactory.create(profile=profile,
-                                               submitted=True)
-        previous_vendor.conference = previous_conf
-        previous_vendor.title = 'Previous Vendor'
-        previous_vendor.save()
-        current_costume = CostumeFactory.create(profile=profile,
-                                                submitted=True)
-        current_costume.conference = current_conf
-        current_costume.title = "Current Costume"
-        current_costume.save()
-        previous_costume = CostumeFactory.create(profile=profile,
-                                                 submitted=True)
-        previous_costume.conference = previous_conf
-        previous_costume.title = 'Previous Costume'
-        previous_costume.save()
         request = self.factory.get('/')
-        request.user = profile.user_object
+        request.user = self.profile.user_object
         request.GET = {'historical': 1}
         request.session = {'cms_admin_site': 1}
         response = landing_page(request)
         content = response.content
-        shows_all_previous = (previous_act.title in content and
-                              previous_class.title in content and
-                              previous_vendor.title in content and
-                              previous_costume.title in content)
-        does_not_show_current = (current_act.title not in content and
-                                 current_class.title not in content and
-                                 current_vendor.title not in content and
-                                 current_costume.title not in content)
+        self.assertEqual(response.status_code, 200)
+        shows_all_previous = (self.previous_act.title in content and
+                              self.previous_class.title in content and
+                              self.previous_vendor.title in content and
+                              self.previous_costume.title in content)
+        does_not_show_current = (self.current_act.title not in content and
+                                 self.current_class.title not in content and
+                                 self.current_vendor.title not in content and
+                                 self.current_costume.title not in content)
         nt.assert_true(shows_all_previous and
                        does_not_show_current)
