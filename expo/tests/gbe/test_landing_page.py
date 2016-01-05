@@ -1,7 +1,9 @@
 import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
+from datetime import datetime
 from django.test.client import RequestFactory
+from django.core.urlresolvers import reverse
 from gbe.views import landing_page
 from tests.factories.gbe_factories import(
     ConferenceFactory,
@@ -11,6 +13,7 @@ from tests.factories.gbe_factories import(
     VendorFactory,
     PersonaFactory,
     CostumeFactory,
+    VolunteerFactory
 )
 
 
@@ -68,6 +71,14 @@ class TestIndex(TestCase):
         self.previous_costume.conference = self.previous_conf
         self.previous_costume.title = 'Previous Costume'
         self.previous_costume.save()
+        self.current_volunteer = VolunteerFactory.create(profile=self.profile,
+                                                         submitted=True)
+        self.current_volunteer.conference = self.current_conf
+        self.current_volunteer.save()
+        self.previous_volunteer = VolunteerFactory.create(profile=self.profile,
+                                                          submitted=True)
+        self.previous_volunteer.conference = self.previous_conf
+        self.previous_volunteer.save()
 
     def test_landing_page_path(self):
         '''Basic test of landing_page view
@@ -82,12 +93,18 @@ class TestIndex(TestCase):
             self.previous_act.title not in content and
             self.previous_class.title not in content and
             self.previous_vendor.title not in content and
-            self.previous_costume.title not in content)
+            self.previous_costume.title not in content and
+            reverse('volunteer_view',
+                    urlconf='gbe.urls',
+                    args=[self.previous_volunteer.id]) not in content)
         shows_all_current = (
             self.current_act.title in content and
             self.current_class.title in content and
             self.current_vendor.title in content and
-            self.current_costume.title in content)
+            self.current_costume.title in content and
+            reverse('volunteer_view',
+                    urlconf='gbe.urls',
+                    args=[self.current_volunteer.id]) in content)
         nt.assert_true(does_not_show_previous and
                        shows_all_current)
 
@@ -99,13 +116,15 @@ class TestIndex(TestCase):
         response = landing_page(request)
         content = response.content
         self.assertEqual(response.status_code, 200)
-        shows_all_previous = (self.previous_act.title in content and
-                              self.previous_class.title in content and
-                              self.previous_vendor.title in content and
-                              self.previous_costume.title in content)
-        does_not_show_current = (self.current_act.title not in content and
-                                 self.current_class.title not in content and
-                                 self.current_vendor.title not in content and
-                                 self.current_costume.title not in content)
+        shows_all_previous = (
+            self.previous_act.title in content and
+            self.previous_class.title in content and
+            self.previous_vendor.title in content and
+            self.previous_costume.title in content in content)
+        does_not_show_current = (
+            self.current_act.title not in content and
+            self.current_class.title not in content and
+            self.current_vendor.title not in content and
+            self.current_costume.title not in content)
         nt.assert_true(shows_all_previous and
                        does_not_show_current)
