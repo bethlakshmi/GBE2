@@ -96,6 +96,10 @@ def conference_list():
     return conf.Conference.objects.all()
 
 
+def conference_slugs():
+    return conf.Conference.all_slugs()
+
+
 def get_events_list_by_type(event_type, conference):
     items = []
     if event_type == "All":
