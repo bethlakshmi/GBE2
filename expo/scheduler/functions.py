@@ -397,13 +397,32 @@ def day_to_cal_time(day='Saturday', week=datetime(2016, 02, 4, tzinfo=pytz.timez
                  return_day + Duration(hours=28))
     return cal_times
 
+def select_day(days, day_name):
+    '''
+    Take a list of conference_days, return the one whose name is day_name
+    Behavior is undefined if conference has more than one instance of a
+    given day of week. This is a bug.
+    '''
+    return {d.day.strftime("%A"): d for d in days}[day_name]
 
-def cal_times_for_conf(conference):
-    from gbe.functions import get_conference_days
+def date_to_datetime(the_date):
+    zero_hour = time(0)
+    return utc.localize(datetime.combine(the_date, zero_hour))
+
+def cal_times_for_conf(conference, day_name):
+    from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
-    first_day = days[0].day
-    zero = time(0,0,0, tzinfo=pytz.timezone('UTC'))
-    return day_to_cal_time(week=datetime.combine(first_day, zero))
+
+    if day_name:
+        day = date_to_datetime(select_day(days, day_name).day)
+        if day:
+            return day + Duration(hours=8), day + Duration(hours=28)
+
+        #  else, fall through
+
+    first_day = date_to_datetime(days.first().day)
+    last_day = date_to_datetime(days.last().day)
+    return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
 def volunteer_shift_info(profile_id,

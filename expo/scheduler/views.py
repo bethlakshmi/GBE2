@@ -967,25 +967,14 @@ def calendar_view(request=None,
                   day=None,
                   time_format=None,
                   duration=Duration(minutes=60)):
-    '''
-    A view to query the database for events of type cal_type over the period
-    of time cal_times, and turn the information into a calendar in block
-    format for display. Or it will be, eventually.  Right now it is using
-    dummy event information for testing purposes.
-    Will add in database queries once basic funcationality is completed.
-    '''
-    # I want to rewrite this to get the first day of the event from the
-    # DB or conf, and then calculate the date based on the next day after
-    # the start of the event.  -  HH
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
         conf = get_conference_by_slug(conf_slug)
     else:
         conf = get_current_conference()
 
-    # ignore day parameter for now, day_to_cal_time ignores it
 
-    cal_times = cal_times_for_conf(conf)
+    cal_times = cal_times_for_conf(conf, day)
 
     if event_type == 'All':
         event_types = ['Show',
