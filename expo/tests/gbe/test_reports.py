@@ -1,3 +1,4 @@
+from pytz import utc
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from datetime import (
@@ -22,6 +23,7 @@ from gbe.report_views import (list_reports,
                               )
 from tests.factories import gbe_factories as factories
 from tests.factories.gbe_factories import (
+    ActFactory,
     ConferenceDayFactory,
     ConferenceFactory,
     ShowFactory,
@@ -48,7 +50,7 @@ def _create_scheduled_show_with_acts(conference=None, qty=6):
     show = ShowFactory.create(conference=conference)
     sEvent = SchedEventFactory.create(
         eventitem=show.eventitem_ptr,
-        starttime=datetime.combine(conf_day.day, time(20,0)))
+        starttime=utc.localize(datetime.combine(conf_day.day, time(20,0))))
     acts = [ActFactory.create() for i in range(qty)]
     for act in acts:
         ar = ActResourceFactory.create(_item=act.actitem_ptr)
