@@ -143,6 +143,8 @@ urlpatterns = patterns(
         views.view_volunteer, name='volunteer_view'),
     url(r'^volunteer/edit/(\d+)/?$',
         views.edit_volunteer, name='volunteer_edit'),
+    url(r'^volunteer/assign/(\d+)/?$',
+        views.assign_volunteer, name='volunteer_assign'),
     url(r'^volunteer/review/(\d+)/?$',
         views.review_volunteer, name='volunteer_review'),
     url(r'^volunteer/review/?$',

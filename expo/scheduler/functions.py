@@ -65,8 +65,10 @@ def set_time_format(events=None, days=0):
     of the day to be prepended to the format.  Will add similar for
     months later.
     '''
-    try: from expo.settings import DATETIME_FORMAT
-    except: DATETIME_FORMAT = None
+    try:
+        from expo.settings import DATETIME_FORMAT
+    except:
+        DATETIME_FORMAT = None
 
     if type(events) == type({}) and days == 0:
         for event in events:
@@ -83,7 +85,8 @@ def set_time_format(events=None, days=0):
             DATETIME_FORMAT = "%a, %I:%M %p"
         else:
             testValue = False
-            for dayValue in ('%a', '%A', '%w', '%d', '%j'): # Test for formats that print the day
+            for dayValue in ('%a', '%A', '%w', '%d', '%j'):
+                # Test for formats that print the day
                 if dayValue in DATETIME_FORMAT:
                     testValue = True
             if not testValue:
@@ -91,9 +94,10 @@ def set_time_format(events=None, days=0):
     return DATETIME_FORMAT
 
 
-def init_time_blocks(events, block_size,
+def init_time_blocks(events,
+                     block_size,
                      time_format,
-                     cal_start= None,
+                     cal_start=None,
                      cal_stop=None,
                      trim_to_block_size=True,
                      offset=None,
@@ -117,7 +121,7 @@ def init_time_blocks(events, block_size,
     if not cal_start:
         cal_start = sorted([event['start_time'] for event in events])[0]
     elif isinstance(cal_start, time):
-        cal_start = datetime.combine(datetime.min,cal_start)
+        cal_start = datetime.combine(datetime.min, cal_start)
 
     if not cal_stop:
         cal_stop = sorted([event['stop_time'] for event in events])[-1]
@@ -164,16 +168,19 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     if event['stop_time'] > schedule_stop:
         working_stop_time = timedelta_to_duration(schedule_stop - schedule_start)
     else:
-        working_stop_time = timedelta_to_duration(event['stop_time'] - schedule_start)
+        working_stop_time = timedelta_to_duration(
+            event['stop_time'] - schedule_start)
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
-    event['rowspan'] = int(math.ceil(working_stop_time / block_size))-event['startblock']
+    event['rowspan'] = int(
+        math.ceil(working_stop_time / block_size))-event['startblock']
 
 
 def overlap_check(events):
     '''
-    Return a list of event tuples such that all members of a tuple are in the same room
-    and stop time of one event overlaps with at least one other member of the tuple
+    Return a list of event tuples such that all members of a
+    tuple are in the same room and stop time of one event overlaps
+    with at least one other member of the tuple
     '''
     overlaps = []
     for location in set([e['location'] for e in events]):
@@ -292,7 +299,9 @@ def table_prep(events,
                                                          cal_stop)
     if not col_heads:
         col_heads = init_column_heads(events)
-    cal_table = table(rows=block_labels, columns=col_heads, default='<td></td>')
+    cal_table = table(rows=block_labels,
+                      columns=col_heads,
+                      default='<td></td>')
     events = filter(lambda e: ((cal_start <= e['start_time'] < cal_stop)) or
                     ((cal_start < e['stop_time'] <= cal_stop)), events)
 
@@ -311,11 +320,14 @@ def table_prep(events,
 
 def event_info(confitem_type='Show',
                filter_type=None,
-               cal_times=(datetime(2016, 02, 5, 18, 00, tzinfo=pytz.timezone('UTC')),
-                          datetime(2016, 02, 7, 00, 00, tzinfo=pytz.timezone('UTC'))),
+               cal_times=(datetime(2016, 02, 5, 18, 00,
+                                   tzinfo=pytz.timezone('UTC')),
+                          datetime(2016, 02, 7, 00, 00,
+                                   tzinfo=pytz.timezone('UTC'))),
                conference=None):
     '''
-    Queries the database for scheduled events of type confitem_type, during time cal_times,
+    Queries the database for scheduled events of type confitem_type,
+    during time cal_times,
     and returns their important information in a dictionary format.
     '''
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
@@ -336,8 +348,9 @@ def event_info(confitem_type='Show',
                       confitem.schedule_ready and confitem.visible]
 
     if filter_type is not None:
-        confitems_list = [confitem for confitem in confitems_list if
-                          confitem.sched_payload['details']['type'] == filter_type]
+        confitems_list = [
+            confitem for confitem in confitems_list if
+            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():
@@ -351,7 +364,8 @@ def event_info(confitem_type='Show',
         if start_t > cal_times[1] or stop_t < cal_times[0]:
             scheduled_events.remove(event)
 
-    scheduled_event_ids = [alloc.event.eventitem_id for alloc in scheduled_events]
+    scheduled_event_ids = [
+        alloc.event.eventitem_id for alloc in scheduled_events]
     events_dict = {}
     for index in range(len(scheduled_event_ids)):
         for confitem in confitems_list:
@@ -367,13 +381,14 @@ def event_info(confitem_type='Show',
                'location': event.location.room.name,
                'type': "%s.%s" % (
                    event.event_type_name,
-                   event.confitem.sched_payload['details']['type']),
-                }
+                   event.confitem.sched_payload['details']['type'])}
               for (event, confitem) in events_dict.items()]
     return events
 
 
-def day_to_cal_time(day='Saturday', week=datetime(2016, 02, 4, tzinfo=pytz.timezone('UTC'))):
+
+def day_to_cal_time(day='Saturday',
+                    week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
     '''
     Accepts a day of the week, and returns the hours for that day as a
     datetime tuple.
@@ -390,8 +405,8 @@ def day_to_cal_time(day='Saturday', week=datetime(2016, 02, 4, tzinfo=pytz.timez
         shift = week.weekday() - 3
         week = week - Duration(0, shift * 60 * 60 * 24)
 
-    return_day = week + Duration(days=[i for i, x in
-                                       enumerate(conference_days) if x == day][0])
+    return_day = week + Duration(
+        days=[i for i, x in enumerate(conference_days) if x == day][0])
 
     cal_times = (return_day + Duration(hours=8),
                  return_day + Duration(hours=28))
@@ -425,12 +440,12 @@ def cal_times_for_conf(conference, day_name):
     return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
-def volunteer_shift_info(profile_id,
-                         filter_type=None,
-                         cal_times=(
-                             datetime(2015, 02, 20, 18, 00,
-                                      tzinfo=pytz.timezone('UTC')),
-                             datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
+def volunteer_shift_info(
+    profile_id,
+    filter_type=None,
+    cal_times=(datetime(2015, 02, 20, 18, 00,
+               tzinfo=pytz.timezone('UTC')),
+               datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
     '''
     Accepts a username or profile id number, a filter type, and a set of
     times.  Prepares a schedule of commitments that user has, filtered
@@ -452,3 +467,26 @@ def volunteer_shift_info(profile_id,
             scheduled_shift.remove(shift)
 
     return scheduled_shifts
+
+
+def get_events_and_windows(conference):
+    from scheduler.models import Event
+
+    events = Event.objects.filter(
+        max_volunteer__gt=0,
+        eventitem__event__conference=conference
+        ).exclude(
+            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
+                'starttime')
+    conf_windows = conference.windows()
+    volunteer_event_windows = []
+
+    for event in events:
+        volunteer_event_windows += [{
+            'event': event,
+            'window': conf_windows.filter(
+                day__day=event.starttime.date(),
+                start__lte=event.starttime.time(),
+                end__gt=event.starttime.time()).first()
+            }]
+    return volunteer_event_windows
