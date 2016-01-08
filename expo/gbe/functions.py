@@ -11,6 +11,7 @@ from gbetext import (
     class_options,
 )
 from gbe.duration import DateTimeRange
+from scheduler.models import Event as sEvent
 
 
 def validate_profile(request, require=False):

@@ -771,7 +771,7 @@ class Event(Schedulable):
         elif volunteers:
             return str(volunteers)+' volunteers'
         else:
-            return ''
+            return 0
 
     def get_workers(self, worker_type=None):
         '''

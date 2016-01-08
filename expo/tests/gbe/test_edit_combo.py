@@ -16,7 +16,7 @@ class TestCreateCombo(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.troupe_string = 'a one-off group of performers working together'
+        self.troupe_string = 'a one-off group of performers working     together'
 
     def test_create_troupe(self):
         '''edit_troupe view, create flow
@@ -29,7 +29,7 @@ class TestCreateCombo(TestCase):
         user = factories.UserFactory.create()
         login_as(user, self)
         request.user = user
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = create_combo(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response),

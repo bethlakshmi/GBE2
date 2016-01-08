@@ -71,37 +71,40 @@ combo_form_help_texts = {
     'membership': ('Select the performers who will be on stage with you. If '
                    'they have not created a persona on the site, you can '
                    'either create one for them, or just fill in their name '
-                   'in the notes and we\'ll sort it out.'
-               ),
+                   'in the notes and we\'ll sort it out.'),
 }
 
 
-combo_header_text = '''A combo is a one-off group of performers working together. If \
-you want to put together an act with someone you don't usually work with, a combo \
-is probably what you're doing. If you have a group that performs together regularly, \
-it's probably a <a href='{% url 'gbe:troupe_create' %}'>troupe</a>. '''
+combo_header_text = '''A combo is a one-off group of performers working \
+    together. If you want to put together an act with someone you don't \
+    usually work with, a combo is probably what you're doing. If you have a \
+    group that performs together regularly, it's probably a \
+    <a href='{% url 'gbe:troupe_create' %}'>troupe</a>. '''
 
 
-troupe_header_text = '''A troupe is an established group of performers who work \
-together regularly under a collective name. If you are performing with a group of \
-performers that has a website, mailing list, or engagements as that group, then \
-you are probably a troupe. If you want to put something special together just for \
-the Expo, it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
+troupe_header_text = '''A troupe is an established group of performers \
+    who work together regularly under a collective name. If you are \
+    performing with a group of performers that has a website, mailing \
+    list, or engagements as that group, then you are probably a troupe. \
+    If you want to put something special together just for the Expo, \
+    it's probably a <a href='{% url 'gbe:combo_create' %}'>combo</a>.'''
 
-event_create_text = {'GenericEvent': '''Enter the details for a new event.  A generic event \
-                      can be event that is not a show or a conference class.  Be sure to set the \
-                      type of event properly as each type is displayed differently in the public \
-                      website.''',
-                     'Show': '''Enter the details for a new show.  Shows are displayed on show \
-                      listings, but if you are adding a show and want specialized menu items, please \
-                      contact the web web team.  REMINDER:  For linking to show tickets, you must also \
-                      use the ticketing section to link tickets.''',
-                     'Class': '''Enter the details for a new class.  This is specifically for \
-                      conference classes.  For Master Classes and Drop-In classes, please use \
-                      Generic Events.'''}
+event_create_text = {
+    'GenericEvent': '''Enter the details for a new event.  A generic event \
+    can be event that is not a show or a conference class.  Be sure to set \
+    the type of event properly as each type is displayed differently in \
+    the public website.''',
+    'Show': '''Enter the details for a new show.  Shows are displayed on show \
+    listings, but if you are adding a show and want specialized menu items, \
+    please contact the web web team.  REMINDER:  For linking to show tickets, \
+    you must also use the ticketing section to link tickets.''',
+    'Class': '''Enter the details for a new class.  This is specifically for \
+    conference classes.  For Master Classes and Drop-In classes, please use \
+    Generic Events.'''}
 
-event_help_texts = {'type': '''Special Events, Master Classes, and Drop In classes are shown in \
-                     event lists, Staff Areas do not..'''}
+event_help_texts = {
+    'type': '''Special Events, Master Classes, and Drop In classes are shown in \
+    event lists, Staff Areas do not..'''}
 
 volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH8', 'Saturday late night (10PM-1AM)'),
@@ -119,24 +122,27 @@ volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH7', 'Saturday night (5PM-10PM)')]
 
 volunteer_interests_options = [('VA8', 'Art Show'),
-                               ('VA1', 'Security/usher'),
                                ('VA4', 'Conference Staff'),
-                               ('VA2', 'Stage crew'),
                                ('VA7', 'Costume Exhibit'),
-                               ('VA3', 'Stage Management'),
-                               ('VA0', 'Registration'),
-                               ('VA5', 'Tech crew'),
+                               ('VA10', 'Model/Performer'),
                                ('VA9', 'Photography/Media'),
-                               ('VA6', 'Vendor room'),]
+                               ('VA0', 'Registration'),
+                               ('VA1', 'Security/usher'),
+                               ('VA2', 'Stage crew'),
+                               ('VA3', 'Stage Management'),
+                               ('VA5', 'Tech crew'),
+                               ('VA6', 'Vendor room')]
 
 volunteer_labels = {
     'number_shifts': 'How many shifts would you like to work?',
     'interests': 'What are your particular areas of interest?',
     'availability': 'I am Available....',
     'unavailability': 'I am Not Available....',
-    'opt_outs': 'Are there events that we should make sure to not schedule you during?',
+    'opt_outs': 'Are there events that we should make sure to not schedule \
+        you during?',
     'pre_event': 'Are you interested in helping with pre-event tasks?',
-    'background': 'Tell us about your background, including relevant skills and experience'
+    'background': 'Tell us about your background, including relevant skills \
+        and experience'
 
 }
 
@@ -145,8 +151,8 @@ volunteer_help_texts = {
     to logistics to advertising sales to data entry. In short, \
     anything we need done before the BurlExpo starts'),
     'volunteer_availability_options': ('These times are general guidelines.  \
-    If there are specific times that you cannot work, please let us know in the \
-    box below.')
+    If there are specific times that you cannot work, please let us know \
+    in the box below.')
 }
 
 phone_error1 = ['Phone number needed here']
@@ -160,7 +166,8 @@ audioinfo_labels = {
 prop_labels = {
     'confirm': ('I have no props or set pieces'),
     'set_props': ('I have props I will need set before my number'),
-    'cue_props': ('I have props I will need a stage kitten to hand me during my number'),
+    'cue_props': ('I have props I will need a stage kitten to hand me during \
+                  my number'),
     'clear_props': ('I will leave props on-stage that will need to be cleared')
 }
 
@@ -183,15 +190,15 @@ main_cue_header = {'cue_sequence': 'Cue #',
                    'wash': 'Wash',
                    'sound_note': 'Sound'}
 
-starting_cues = [('MC exit', 'MC exit'), 
-                 ('Start of music', 'Start of music'), 
+starting_cues = [('MC exit', 'MC exit'),
+                 ('Start of music', 'Start of music'),
                  ('Performer set on stage', 'Performer set on stage')]
 
 bidder_info_phone_error = ('A phone number we can use to reach you '
                            ' when you are at the Expo, such as cell phone.')
 
 act_length_required = ("Act Length (mm:ss) is required.")
-act_length_too_long = ("The Act Length is too long.")  
+act_length_too_long = ("The Act Length is too long.")
 
 act_help_texts = {
     'shows_preferences': 'Check as many as apply to you',
@@ -267,8 +274,8 @@ persona_labels = {'name': ('Stage Name'),
 
 persona_help_texts = {
     'name': 'This is the name you will be listed under when performing.',
-    'contact': ('The person GBE should contact about Expo  performances. '
-            'Usually, this will be you.'),
+    'contact': ('The person GBE should contact about Expo  performances. \
+        Usually, this will be you.'),
     'homepage': 'This will be listed on your performer page.',
     'bio': 'This will be listed on your performer page.',
     'promo_image': ('This may be used by GBE for promotional purposes, and '
@@ -291,7 +298,7 @@ acceptance_labels = {
 
 acceptance_help_texts = {
     'accepted': ('Accept - will show the item on public pages as part of GBE, \
-                     Accept or Reject - will show up on the bidder\'s home page')
+        Accept or Reject - will show up on the bidder\'s home page')
 }
 
 
@@ -314,8 +321,9 @@ but none was provided.'''
 
 description_required = ("Description is required.")
 description_too_long = ("The Description is too long.")
-description_help_text = '''For use on the The Great Burlesque Expo website, in \
-advertising and in any schedule of events. The description should be 1-2 paragraphs.'''
+description_help_text = '''For use on the The Great Burlesque Expo website, \
+    in advertising and in any schedule of events. The description should be \
+    1-2 paragraphs.'''
 
 classbid_labels = {
     'min_size': ('Minimum Size'),
@@ -348,7 +356,8 @@ classbid_help_texts = {
                  "This guideline helps the convention meet both teacher "
                  "expectations and class size needs. If you're not sure, "
                  "make the minimum 1"),
-    'max_size': ('The maximum number of people that the class can accomodate.'),
+    'max_size': ('The maximum number of people that the class can \
+                 accomodate.'),
     'history': ('Have you taught this class before? Where and when?'),
     'run_before': ('If the class has been run before, please let us know '
                    'where and when.'),
@@ -375,14 +384,18 @@ class_schedule_options = [('0', 'Friday Afternoon'),
 
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
-space_type_error1 = ('''A workshop has seating in a ring around the room, other options are not \
-available.''')
-space_error2 = ('''A class of movement type cannot have lecture space choices.''')
-space_type_error2 = ('''A movement class may have room preferences listed for movement \
-classes, but the chosen lecture style arrangement is not an option.''')
-space_error3 = ('''A class of lecture type cannot have movement space choices.''')
-space_type_error3 = ('''A lecture class may have room preferences listed for lecture \
-classes, but the chosen movement style arrangement is not an option.''')
+space_type_error1 = ('''A workshop has seating in a ring around the room, \
+    other options are not available.''')
+space_error2 = ('''A class of movement type cannot have lecture space \
+    choices.''')
+space_type_error2 = ('''A movement class may have room preferences \
+    listed for movement classes, but the chosen lecture style arrangement \
+    is not an option.''')
+space_error3 = ('''A class of lecture type cannot have movement space \
+    choices.''')
+space_type_error3 = ('''A lecture class may have room preferences listed \
+    for lecture classes, but the chosen movement style arrangement is not an \
+    option.''')
 
 panel_labels = {
     'other_teachers': ('Recommended Panelists'),
@@ -401,8 +414,8 @@ panel_help_texts = {
 }
 
 vendor_description_help_text = ('Please describe your good or services in 250 '
-                                'words or less. We will publish this text on the '
-                                'website.')
+                                'words or less. We will publish this text on '
+                                'the website.')
 
 vendor_labels = {
     'description': 'Description of Goods or Services',
@@ -418,20 +431,23 @@ vendor_labels = {
 
 vendor_help_texts = {
     'vend_time':  ('I\'d like to vend...'),
-    'want_help': ('''Would you like us to help you find someone to work at your \
-    booth or table with you?'''),
-    'logo': ('''Please provide any logo you would like displayed on our website \
-    and advertising'''),
-    'description':('''The information you enter here will be displayed on the website \
-    exactly as you enter it, so please double-check it before hitting submit'''),
-    'physical_address':('''If your business address is different from the address \
-    you used when you registered for the website, please enter your business address here.'''),
+    'want_help': ('''Would you like us to help you find someone to work at \
+    your booth or table with you?'''),
+    'logo': ('''Please provide any logo you would like displayed on our \
+    website and advertising'''),
+    'description': ('''The information you enter here will be displayed \
+    on the website exactly as you enter it, so please double-check it before \
+    hitting submit'''),
+    'physical_address': ('''If your business address is different from \
+    the address you used when you registered for the website, please enter \
+    your business address here.'''),
 
-    'help_description':('''The Great Burlesque Exposition can help you find people \
-    to work for you. Please use this field to describe what sort of work you want done \
-    (booth staff, models, hand out flyers, set-up or teardown staff) and any \
-    requirements (for example, "must be able to lift 40 pounds", "must be knowledgeable \
-    about corsets", "must be able to drive a standard").'''),
+    'help_description': ('''The Great Burlesque Exposition can help you \
+    find people to work for you. Please use this field to describe what sort \
+    of work you want done (booth staff, models, hand out flyers, set-up or \
+    teardown staff) and any requirements (for example, "must be able to lift \
+    40 pounds", "must be knowledgeable about corsets", "must be able to drive \
+    a standard").'''),
 }
 
 vendor_schedule_options = [('VSH0', 'Saturday, 9am to noon'),
@@ -453,7 +469,7 @@ help_time_choices = (('Saturday, 9am to noon', 'Saturday, 9am to noon'),
                      ('Sunday, 4pm to 8pm', 'Sunday, 4pm to 8pm'),
                      ('Sunday after 8pm', 'Sunday after 8pm'))
 
-#  Would like to be able to insert this into the class proposal form 
+#  Would like to be able to insert this into the class proposal form
 #  from upstream
 
 class_proposal_form_text = {

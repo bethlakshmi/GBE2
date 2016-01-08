@@ -335,7 +335,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                 Worker.objects.filter(_item=volform.profile,
                                       role='Volunteer').delete()
 
-            # if the act has been accepted, set the show.
+            # if the volunteer has been accepted, set the events.
             if self.cleaned_data['accepted'] == 3:
                 worker = Worker(_item=volform.profile, role='Volunteer')
                 worker.save()
