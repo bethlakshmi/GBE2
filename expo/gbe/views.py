@@ -201,7 +201,8 @@ def landing_page(request, profile_id=None, historical=False):
              'review_items': bids_to_review,
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
-             'admin_message': admin_message
+             'admin_message': admin_message,
+             'bookings': viewer_profile.schedule
              })
     else:
         context = RequestContext(request,

@@ -7,7 +7,7 @@
      {% endif %} 
        Schedule
   </h3>	
-    {% for booking in profile.schedule %}
+    {% for booking in bookings %}
       {% with cs=booking.eventitem.child.conference.status %}
         {% if cs != "completed" and not historical or cs == "completed" and historical %}
           {% ifchanged booking.eventitem.child.conference %}
