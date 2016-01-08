@@ -146,24 +146,3 @@ def available_volunteers(event_start_time):
         if event_start_time in window_range:
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)
-
-
-def get_events_and_windows(conference):
-    events = sEvent.objects.filter(
-        max_volunteer__gt=0,
-        eventitem__event__conference=conference
-        ).exclude(
-            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
-                'starttime')
-    conf_windows = conference.windows()
-    volunteer_event_windows = []
-
-    for event in events:
-        volunteer_event_windows += [{
-            'event': event,
-            'window': conf_windows.filter(
-                day__day=event.starttime.date(),
-                start__lte=event.starttime.time(),
-                end__gt=event.starttime.time()).first()
-            }]
-    return volunteer_event_windows

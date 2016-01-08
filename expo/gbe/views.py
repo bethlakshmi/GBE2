@@ -75,8 +75,11 @@ log_import(('compute_submission'), 'ticketingfuncs')
 from duration import Duration
 log_import(('Duration',), 'duration')
 
-from scheduler.functions import set_time_format
+from scheduler.functions import (
+    set_time_format,
+    get_events_and_windows)
 log_import(('set_time_format'), 'scheduler.functions')
+log_import(('get_events_and_windows'), 'scheduler.functions')
 
 from scheduler.models import (
     Event as sEvent,

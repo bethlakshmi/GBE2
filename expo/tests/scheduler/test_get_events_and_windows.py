@@ -3,7 +3,7 @@ import pytz
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.functions import get_events_and_windows
+from scheduler.functions import get_events_and_windows
 from datetime import datetime
 from tests.factories.gbe_factories import (
     ConferenceFactory,
