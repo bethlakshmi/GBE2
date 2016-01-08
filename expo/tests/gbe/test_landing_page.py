@@ -117,7 +117,6 @@ class TestIndex(TestCase):
         
         self.current_class_sched = Event(
             eventitem=self.current_class,
-            starttime=datetime(2016, 2, 5, 2, 0, 0, 0, pytz.utc),
             starttime=datetime(2016, 2, 5, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.current_class_sched.save()
