@@ -1,11 +1,17 @@
 from table import table
-from datetime import timedelta
-from datetime import time
-from datetime import datetime
+from datetime import (
+    timedelta,
+    time,
+    datetime
+)
 from calendar import timegm
-from gbe.duration import Duration, DateTimeRange
-from gbe.duration import timedelta_to_duration
+from gbe.duration import (
+    Duration,
+    DateTimeRange,
+    timedelta_to_duration
+)
 from random import choice
+
 import math
 try:
     from expo.settings import DATETIME_FORMAT
@@ -111,6 +117,7 @@ def init_time_blocks(events,
     be removed from the start or end of the calendar, or both. Valuea
     in ("start", "stop", "both") do the right things.
     '''
+
     if not cal_start:
         cal_start = sorted([event['start_time'] for event in events])[0]
     elif isinstance(cal_start, time):
@@ -153,14 +160,13 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     earliest block containing the event's start time, and rowspan is the number
     of blocks it occupies block_size should be a Duration
     '''
-    from gbe.duration import timedelta_to_duration
 
     if event['start_time'] < schedule_start:
         relative_start = Duration(seconds=0)
     else:
         relative_start = event['start_time'] - schedule_start
     if event['stop_time'] > schedule_stop:
-        working_stop_time = schedule_stop
+        working_stop_time = timedelta_to_duration(schedule_stop - schedule_start)
     else:
         working_stop_time = timedelta_to_duration(
             event['stop_time'] - schedule_start)
@@ -235,8 +241,8 @@ def add_to_table(event, table, block_labels):
     '''
     table[event['location'], block_labels[event['startblock']]] = '<td rowspan=%d class=\'%s\'>%s</td>' % (
         event['rowspan'], " ".join([event.get('css_class', ''),
-                                    event['location'].replace(' ', '_'), 
-                                    event['type']]), 
+                                    event['location'].replace(' ', '_'),
+                                    event['type']]),
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
@@ -317,13 +323,13 @@ def event_info(confitem_type='Show',
                cal_times=(datetime(2016, 02, 5, 18, 00,
                                    tzinfo=pytz.timezone('UTC')),
                           datetime(2016, 02, 7, 00, 00,
-                                   tzinfo=pytz.timezone('UTC')))):
+                                   tzinfo=pytz.timezone('UTC'))),
+               conference=None):
     '''
     Queries the database for scheduled events of type confitem_type,
     during time cal_times,
     and returns their important information in a dictionary format.
     '''
-
     if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
         filter_type, confitem_type = confitem_type, 'Class'
     elif confitem_type in ['Special Event',
@@ -334,9 +340,10 @@ def event_info(confitem_type='Show',
 
     import gbe.models as conf
     from scheduler.models import Location
-
+    if not conference:
+        conference = conf.Conference.current_conf()
     confitem_class = eval('conf.'+confitem_type)
-    confitems_list = confitem_class.objects.all()
+    confitems_list = confitem_class.objects.filter(conference=conference)
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
 
@@ -379,6 +386,7 @@ def event_info(confitem_type='Show',
     return events
 
 
+
 def day_to_cal_time(day='Saturday',
                     week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
     '''
@@ -392,10 +400,10 @@ def day_to_cal_time(day='Saturday',
     # on Monday at 0, so Thursday is 3
     if week.weekday() < 3:
         shift = 3 - week.weekday()
-        week = week + duration(shift * 60 * 60 * 24)
+        week = week + Duration(0, shift * 60 * 60 * 24)
     elif week.weekday() > 3:
         shift = week.weekday() - 3
-        week = week - duration(shift * 60 * 60 * 24)
+        week = week - Duration(0, shift * 60 * 60 * 24)
 
     return_day = week + Duration(
         days=[i for i, x in enumerate(conference_days) if x == day][0])
@@ -403,6 +411,33 @@ def day_to_cal_time(day='Saturday',
     cal_times = (return_day + Duration(hours=8),
                  return_day + Duration(hours=28))
     return cal_times
+
+def select_day(days, day_name):
+    '''
+    Take a list of conference_days, return the one whose name is day_name
+    Behavior is undefined if conference has more than one instance of a
+    given day of week. This is a bug.
+    '''
+    return {d.day.strftime("%A"): d for d in days}[day_name]
+
+def date_to_datetime(the_date):
+    zero_hour = time(0)
+    return utc.localize(datetime.combine(the_date, zero_hour))
+
+def cal_times_for_conf(conference, day_name):
+    from gbe.functions import get_conference_days  # late import, circularity
+    days = get_conference_days(conference)
+
+    if day_name:
+        day = date_to_datetime(select_day(days, day_name).day)
+        if day:
+            return day + Duration(hours=8), day + Duration(hours=28)
+
+        #  else, fall through
+
+    first_day = date_to_datetime(days.first().day)
+    last_day = date_to_datetime(days.last().day)
+    return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
 def volunteer_shift_info(

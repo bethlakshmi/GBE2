@@ -183,6 +183,7 @@ def review_act_techinfo(request, show_id=None):
     # using try not get_or_404 to cover the case where the show is there
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
+
     show = None
     acts = []
 
@@ -208,8 +209,7 @@ def review_act_techinfo(request, show_id=None):
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
                    'return_link': reverse('act_techinfo_review',
-                                          urlconf='gbe.report_urls')},
-              )
+                                          urlconf='gbe.report_urls')})
 
 
 def export_act_techinfo(request, show_id):

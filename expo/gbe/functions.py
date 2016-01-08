@@ -58,6 +58,7 @@ def mail_to_group(subject, message, group_name):
     '''
     Sends mail to a privilege group, designed for use by bid functions
     Will always send using default_from_email
+
     '''
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
@@ -90,6 +91,10 @@ def get_current_conference():
 
 def get_conference_by_slug(slug):
     return conf.Conference.by_slug(slug)
+
+
+def get_conference_days(conference):
+    return conference.conferenceday_set.all()
 
 
 def conference_list():
@@ -142,7 +147,7 @@ def available_volunteers(event_start_time):
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
         window_range = DateTimeRange(starttime=starttime,
-                                     endtime=endtime)
+                                      endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)
