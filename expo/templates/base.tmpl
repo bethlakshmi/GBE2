@@ -57,7 +57,7 @@
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                {% show_menu 0 1 100 100 "menu.tmpl" %}
+                {% show_menu 0 100 100 100 "menu.tmpl" %}
               </ul>
             </div>
       </div>
@@ -72,3 +72,13 @@
 
   </body>
 </html>
+
+<script>
+$(document).ready(function(){
+  $('.dropdown a.dropdown-toggle').on("click", function(e){
+    $(this).next('ul').toggle();
+    e.stopPropagation();
+    e.preventDefault();
+  });
+});
+</script>
