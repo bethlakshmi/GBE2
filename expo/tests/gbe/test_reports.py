@@ -41,6 +41,7 @@ import ticketing.models as tix
 
 import tests.functions.gbe_functions as functions
 
+
 def _create_scheduled_show_with_acts(conference=None, qty=6):
     if not conference:
         conference = ConferenceFactory.create()
@@ -50,8 +51,8 @@ def _create_scheduled_show_with_acts(conference=None, qty=6):
     show = ShowFactory.create(conference=conference)
     sEvent = SchedEventFactory.create(
         eventitem=show.eventitem_ptr,
-        starttime=utc.localize(datetime.combine(conf_day.day, time(20,0))))
-    acts = [ActFactory.create() for i in range(qty)]
+        starttime=utc.localize(datetime.combine(conf_day.day, time(20, 0))))
+    acts = [ActFactory.create(accepted=3) for i in range(qty)]
     for act in acts:
         ar = ActResourceFactory.create(_item=act.actitem_ptr)
         ResourceAllocationFactory.create(
@@ -265,6 +266,30 @@ class TestReports(TestCase):
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
 
+    def test_review_act_techinfo_has_datatable(self):
+        '''review_act_techinfo view should load for Tech Crew
+           and fail for others
+        '''
+        curr_conf = ConferenceFactory.create()
+        curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
+        profile = self.profile_factory.create()
+        functions.login_as(profile, self)
+        request = self.factory.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.report_urls',
+                    args=[curr_show.eventitem_id]))
+        request.user = profile.user_object
+        request.session = {'cms_admin_site': 1}
+        request.GET = {'conf_slug': curr_conf.conference_slug}
+        functions.grant_privilege(profile, 'Tech Crew')
+        response = review_act_techinfo(request, curr_show.eventitem_id)
+        nt.assert_true(
+            "var table = $('#bid_review').DataTable({" in response.content,
+            msg="Can't find script for table")
+        nt.assert_true(
+            '<table id="bid_review" class="order-column"'
+            in response.content,
+            msg="Can't find table header")
 
     def test_review_act_techinfo_with_conference_slug(self):
         '''review_act_techinfo view show correct events for slug
@@ -281,12 +306,11 @@ class TestReports(TestCase):
                     urlconf='gbe.report_urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        request.GET = {'conf_slug':curr_conf.conference_slug}
+        request.GET = {'conf_slug': curr_conf.conference_slug}
         functions.grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
         nt.assert_true(curr_show.title in response.content)
-
 
     @nt.raises(PermissionDenied)
     def test_room_schedule_fail(self):
