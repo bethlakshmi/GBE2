@@ -37,7 +37,7 @@
   <div>
     Toggle column(s):
     <a class="toggle-vis" data-column="0">
-	Order</a> -
+	# (Order)</a> -
     <a class="toggle-vis" data-column="1">
 	Act</a> -
       <a class="toggle-vis" data-column="2">
@@ -55,7 +55,7 @@
   <table id="bid_review" class="order-column" cellspacing="0" width="100%">
     <thead>
       <tr class="bid-table">
-        <th class="bid-table" >Order</th>
+        <th class="bid-table" >#</th>
         <th class="bid-table" >Act</th>
         <th class="bid-table" >Performer</th>
         <th class="bid-table" >Contact Email</th>
@@ -66,7 +66,7 @@
     </thead>
     <tfoot>
       <tr class="bid-table">
-        <th class="bid-table" >Order</th>
+        <th class="bid-table" >#</th>
         <th class="bid-table" >Act</th>
         <th class="bid-table" >Performer</th>
         <th class="bid-table" >Contact Email</th>
@@ -120,7 +120,11 @@
 
   <script>
   $(document).ready(function() {
-    var table = $('#bid_review').DataTable();
+    var table = $('#bid_review').DataTable({
+      "columnDefs": [
+        { "width": "5%", "targets": 0 }
+      ]
+    } );
  
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
