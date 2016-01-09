@@ -1519,12 +1519,10 @@ class Volunteer(Biddable):
             unavailability_string += unicode(window) + ', \n'
 
         commitments = ''
-        start_time_format = set_time_format(days=2)
-        end_time_format = set_time_format()
 
         for event in self.profile.get_schedule(self.conference):
-            start_time = event.start_time.strftime(start_time_format)
-            end_time = event.end_time.strftime(end_time_format)
+            start_time = event.start_time.strftime("%a, %b %d, %-I:%M %p")
+            end_time = event.end_time.strftime("%-I:%M %p")
 
             commitment_string = "%s - %s to %s, \n " % (
                 str(event),
