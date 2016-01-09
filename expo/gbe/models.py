@@ -309,7 +309,7 @@ class Profile(WorkerItem):
         Otherwise, it's the same logic as schedule() below.
         '''
         events = self.schedule
-        if conference:  
+        if conference:
             conf_events = filter(
                 lambda x: x.eventitem.get_conference() == conference, events)
         else:
