@@ -31,19 +31,52 @@
   {% endif %}
 
   {% if acts %}
-  <table class="bid-table">
-    <tr class="bid-table">
-      <th class="bid-table" >Order</th>
-      <th class="bid-table" >Act</th>
-      <th class="bid-table" >Performer</th>
-      <th class="bid-table" >Contact Email</th>
-      <th class="bid-table" >Rehearsal Time</th>
-      <th class="bid-table" >Music</th>
-      <th class="bid-table" >Action</th>
-    </tr>
+  <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
+  press "Shift" to sort a secondary column.</div>
+  <br/>
+  <div>
+    Toggle column(s):
+    <a class="toggle-vis" data-column="0">
+	Order</a> -
+    <a class="toggle-vis" data-column="1">
+	Act</a> -
+      <a class="toggle-vis" data-column="2">
+	Performer</a> -
+      <a class="toggle-vis" data-column="3">
+	Contact Email</a> -
+      <a class="toggle-vis" data-column="4">
+	Rehearsal</a> -
+      <a class="toggle-vis" data-column="5">
+	Music</a> -
+      <a class="toggle-vis" data-column="6">
+	Action</a>
+  </div>
+  <br/>
+  <table id="bid_review" class="order-column" cellspacing="0" width="100%">
+    <thead>
+      <tr class="bid-table">
+        <th class="bid-table" >Order</th>
+        <th class="bid-table" >Act</th>
+        <th class="bid-table" >Performer</th>
+        <th class="bid-table" >Contact Email</th>
+        <th class="bid-table" >Rehearsal</th>
+        <th class="bid-table" >Music</th>
+        <th class="bid-table" >Action</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr class="bid-table">
+        <th class="bid-table" >Order</th>
+        <th class="bid-table" >Act</th>
+        <th class="bid-table" >Performer</th>
+        <th class="bid-table" >Contact Email</th>
+        <th class="bid-table" >Rehearsal</th>
+        <th class="bid-table" >Music</th>
+        <th class="bid-table" >Action</th>
+      </tr>
+    </tfoot>
+    <tbody>
     {% for act in acts %}
-
-
       <tr  {% if not act.tech.is_complete  %}class="error_row"{%else%} class="bid-table"{% endif %} >
           <td class="bid-table">{{ act.order }}
 	  <td class="bid-table">{{ act.title }}</td>
@@ -70,6 +103,7 @@
       </tr>
 
     {% endfor %}
+    </tbody>
   </table>
   <br><br>
   Download <a href='{% url 'reporting:act_techinfo_download' this_show.eventitem_id %}'>All Details</a>
@@ -84,5 +118,21 @@
     </ul>
 {% endif %}
 
-
+  <script>
+  $(document).ready(function() {
+    var table = $('#bid_review').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+    } );
+ 
+    $('a.toggle-vis').on( 'click', function (e) {
+        e.preventDefault();
+ 
+        // Get the column API object
+        var column = table.column( $(this).attr('data-column') );
+ 
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+    } );
+  } );
+  </script>
 {% endblock %}
