@@ -452,7 +452,6 @@ class VolunteerBidForm(forms.ModelForm):
         self.fields['available_windows'].queryset = available_windows
         self.fields['unavailable_windows'].queryset = unavailable_windows
 
-
     class Meta:
         model = Volunteer
         fields = ['number_shifts',

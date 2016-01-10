@@ -973,7 +973,6 @@ def calendar_view(request=None,
     else:
         conf = get_current_conference()
 
-
     cal_times = cal_times_for_conf(conf, day)
 
     if event_type == 'All':
