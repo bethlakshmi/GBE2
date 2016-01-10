@@ -797,3 +797,14 @@ input#id_duration, input#id_new_opp-duration
 {
   width: 70px
 }
+
+span.opps-errors > ul > li
+{
+  list-style-type: none;
+  color: red;
+}
+
+span.opps-errors > ul 
+{
+  padding: 0px;
+}

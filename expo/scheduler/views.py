@@ -370,7 +370,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
 
     actionheaders = ['Title',
                      'Volunteer Type',
-                     'Volunteers Needed',
+                     '#',
                      'Duration',
                      'Day',
                      'Time',
