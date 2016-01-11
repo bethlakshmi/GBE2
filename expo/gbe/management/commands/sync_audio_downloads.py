@@ -3,6 +3,7 @@ from django.conf import settings
 import optparse
 import tarfile
 import os
+import shutil
 from gbe.models import (
     Show,
     Act,
@@ -26,13 +27,20 @@ def add_acts_for_show(show_name, conf_slug, tar):
     for acts in show, add track for act to tar
     '''
     conference = get_conference_by_slug(conf_slug)
-    acts = Show.objects.get(conference=conference,
+    acts = Show.objects.get(conference__conference_slug=conf_slug,
                             title=show_name).get_acts()
+    workdir = make_safe_filename("%s_%s" % (conf_slug, show_name))
+    os.mkdir(workdir)
+
+
     for act in acts:
         if act.audio and act.audio.track:
-            tar.add(act.audio.track.path)
+            fname = os.path.basename(act.audio.track.path)
+            workname = os.path.join(workdir, fname)
+            shutil.copyfile(fname, workname)
+            tar.add(workname)
     tar.close()
-
+    shutil.rmtree(workdir)
 
 class Command(BaseCommand):
     help = 'Synchronize the per-show audio download'
@@ -43,9 +51,11 @@ class Command(BaseCommand):
     ) + (
         optparse.make_option("--conference", dest="conf_slug"),
     )
-    downloads_directory = os.path.join(settings.MEDIA_ROOT,
+    audio_directory = os.path.join(settings.MEDIA_ROOT,
                                        'uploads',
-                                       'audio',
+                                       'audio',)
+
+    downloads_directory = os.path.join(audio_directory,
                                        'downloads')
 
     def create_downloads_directory(self):
@@ -78,12 +88,15 @@ class Command(BaseCommand):
 
 
     def sync(self, show_name, conf_slug):
+        curr_dir = os.path.realpath(".")
+
+        os.chdir(self.audio_directory)
         if self.is_synced(show_name, conf_slug):
             print "Show archive is up to date. Nothing to do"
             return
         tar = self.tarfile_for(show_name, conf_slug)
         add_acts_for_show(show_name, conf_slug, tar)
-        tar.close()
+        os.chdir(curr_dir)
 
     def unsync(self, show_name, conf_slug):
         if not self.is_synced(show_name, conf_slug):
@@ -97,6 +110,7 @@ class Command(BaseCommand):
         os.rename(oldpath, newpath)
 
     def handle(self, *args, **options):
+        self.create_downloads_directory()
         show_name = options['show_name']
         conf_slug = options['conf_slug']
         if options['unsync']:
