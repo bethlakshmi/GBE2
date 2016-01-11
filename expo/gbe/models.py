@@ -891,6 +891,12 @@ class Act (Biddable, ActItem):
         return self.__class__
 
     @property
+    def audio(self):
+        if self.tech and self.tech.audio:
+            return self.tech.audio
+        return None
+
+    @property
     def contact_info(self):
         return (self.title,
                 self.contact_email,
@@ -1186,6 +1192,8 @@ class Show (Event):
         tickets = list(chain(my_events, most_events))
         return tickets
 
+    def get_acts(self):
+        return self.scheduler_events.first().get_acts()
 
 class GenericEvent (Event):
     '''

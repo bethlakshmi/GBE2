@@ -1,0 +1,105 @@
+from django.core.management.base import BaseCommand
+from django.conf import settings
+import optparse
+import tarfile
+import os
+from gbe.models import (
+    Show,
+    Act,
+)
+from gbe.functions import get_conference_by_slug
+
+
+def make_safe_filename(unsafe_string):
+    '''This is probably wheel reinvention, but I haven't found the wheel
+    If we keep it, it should be improved and turned into a utility function
+    '''
+    return unsafe_string.replace(' ', '_').replace('/', '_')
+
+
+def tarfile_name(show_name, conf_slug):
+    return make_safe_filename("%s_%s.tar.gz" % (conf_slug, show_name))
+
+
+def add_acts_for_show(show_name, conf_slug, tar):
+    '''
+    for acts in show, add track for act to tar
+    '''
+    conference = get_conference_by_slug(conf_slug)
+    acts = Show.objects.get(conference=conference,
+                            title=show_name).get_acts()
+    for act in acts:
+        if act.audio and act.audio.track:
+            tar.add(act.audio.track.path)
+    tar.close()
+
+
+class Command(BaseCommand):
+    help = 'Synchronize the per-show audio download'
+    option_list = BaseCommand.option_list + (
+        optparse.make_option("--unsync", action="store_true", dest="unsync"),
+    ) + (
+        optparse.make_option("--show", dest="show_name"),
+    ) + (
+        optparse.make_option("--conference", dest="conf_slug"),
+    )
+    downloads_directory = os.path.join(settings.MEDIA_ROOT,
+                                       'uploads',
+                                       'audio',
+                                       'downloads')
+
+    def create_downloads_directory(self):
+        path_parts = ['uploads', 'audio', 'downloads', 'stale_downloads']
+        path = settings.MEDIA_ROOT
+        for part in path_parts:
+            path = os.path.join(path, part)
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+
+    def is_synced(self, show_name, conf_slug):
+        '''
+        return True if the download archive for this show exists
+        and is current
+        '''
+        filename = tarfile_name(show_name, conf_slug)
+
+        filepath = os.path.join(self.downloads_directory, filename)
+        return os.path.exists(filepath)
+
+
+    def tarfile_for(self, show_name, conf_slug):
+        '''
+        return a handle to a suitable tarfile object for this show
+        '''
+        filename = tarfile_name(show_name, conf_slug)
+        path = os.path.join(self.downloads_directory, filename)
+        return tarfile.open(path, "w:gz")
+
+
+    def sync(self, show_name, conf_slug):
+        if self.is_synced(show_name, conf_slug):
+            print "Show archive is up to date. Nothing to do"
+            return
+        tar = self.tarfile_for(show_name, conf_slug)
+        add_acts_for_show(show_name, conf_slug, tar)
+        tar.close()
+
+    def unsync(self, show_name, conf_slug):
+        if not self.is_synced(show_name, conf_slug):
+            print "Download file not found, nothing to do"
+            return
+        filename = tarfile_name(show_name, conf_slug)
+        oldpath = os.path.join(self.downloads_directory, filename)
+        newpath = os.path.join(self.downloads_directory,
+                               "stale_downloads",
+                               filename)
+        os.rename(oldpath, newpath)
+
+    def handle(self, *args, **options):
+        show_name = options['show_name']
+        conf_slug = options['conf_slug']
+        if options['unsync']:
+            self.unsync (show_name, conf_slug)
+        else:
+            self.sync (show_name, conf_slug)
