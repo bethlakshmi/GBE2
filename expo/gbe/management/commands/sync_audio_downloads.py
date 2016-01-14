@@ -93,6 +93,7 @@ class Command(BaseCommand):
         os.chdir(self.audio_directory)
         if self.is_synced(show_name, conf_slug):
             print "Show archive is up to date. Nothing to do"
+            os.chdir(curr_dir)
             return
         tar = self.tarfile_for(show_name, conf_slug)
         add_acts_for_show(show_name, conf_slug, tar)

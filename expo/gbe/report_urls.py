@@ -31,6 +31,8 @@ urlpatterns = patterns(
         reporting.room_schedule, name='room_schedule'),
     url(r'^reports/setup/room/?$',
         reporting.room_setup, name='room_setup'),
+    url(r'^reports/refresh_tracks/(\d+)/?$',
+        reporting.refresh_tracks, name='refresh_tracks'),
 
     url(r'^reports/acttechinfo/view_summary/(\d+)/?$',
         reporting.review_act_techinfo,

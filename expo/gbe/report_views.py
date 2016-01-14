@@ -3,11 +3,13 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.core.management import call_command
 
 import gbe.models as conf
 import scheduler.models as sched
 import ticketing.models as tix
 
+import os
 import csv
 from reportlab.pdfgen import canvas
 from gbe.functions import (
@@ -210,6 +212,24 @@ def review_act_techinfo(request, show_id=None):
                    'conference': conference,
                    'return_link': reverse('act_techinfo_review',
                                           urlconf='gbe.report_urls')})
+
+
+
+def refresh_tracks(request, show_id):
+    '''
+    Refresh the zipped tar of the tracks for this show.
+    '''
+    show = conf.Show.objects.get(pk=show_id)
+    call_command('sync_audio_downloads',
+                 show=show.title,
+                 conference=show.conference.conference_slug)
+    path = show.download_path()
+    f = open(path)
+    fname = os.path.basename(path)
+    response = HttpResponse(f, content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % fname
+    return response
+
 
 
 def export_act_techinfo(request, show_id):

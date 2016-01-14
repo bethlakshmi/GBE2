@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.core.validators import (
@@ -1194,6 +1196,17 @@ class Show (Event):
 
     def get_acts(self):
         return self.scheduler_events.first().get_acts()
+
+    def download_path(self):
+        path = os.path.join(settings.MEDIA_ROOT,
+                            "uploads",
+                            "audio",
+                            "downloads",
+                            ("%s_%s.tar.gz" %
+                             (self.conference.conference_slug,
+                              self.title.replace(" ", "_").replace("/", "_"))))
+        return path
+
 
 class GenericEvent (Event):
     '''
