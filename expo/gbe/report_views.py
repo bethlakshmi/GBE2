@@ -221,8 +221,8 @@ def refresh_tracks(request, show_id):
     '''
     show = conf.Show.objects.get(pk=show_id)
     call_command('sync_audio_downloads',
-                 show=show.title,
-                 conference=show.conference.conference_slug)
+                 show_name=show.title,
+                 conf_slug=show.conference.conference_slug)
     path = show.download_path()
     f = open(path)
     fname = os.path.basename(path)

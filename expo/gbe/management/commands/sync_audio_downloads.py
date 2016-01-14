@@ -47,6 +47,10 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         optparse.make_option("--unsync", action="store_true", dest="unsync"),
     ) + (
+        optparse.make_option("--unsync_all",
+                             action="store_true",
+                             dest="unsync_all"),
+    ) + (
         optparse.make_option("--show", dest="show_name"),
     ) + (
         optparse.make_option("--conference", dest="conf_slug"),
@@ -110,11 +114,26 @@ class Command(BaseCommand):
                                filename)
         os.rename(oldpath, newpath)
 
+
+    def unsync_all(self):
+        workdir = self.downloads_directory
+        destdir = os.path.join(workdir, "stale_downloads")
+        for file in os.listdir(workdir):
+            if os.path.isfile(os.path.join(workdir, file)):
+                os.rename(os.path.join(workdir, file),
+                          os.path.join(destdir, file))
+
+
+
     def handle(self, *args, **options):
         self.create_downloads_directory()
         show_name = options['show_name']
         conf_slug = options['conf_slug']
-        if options['unsync']:
+        if options['unsync_all']:
+            self.unsync_all()
+        elif options['unsync']:
             self.unsync (show_name, conf_slug)
         else:
             self.sync (show_name, conf_slug)
+
+from gbe.receivers import *

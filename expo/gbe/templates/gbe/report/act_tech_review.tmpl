@@ -75,8 +75,7 @@
   Download <a href='{% url 'reporting:act_techinfo_download' this_show.eventitem_id %}'>All Details</a>
   as a .csv file.
   <br>
-  Download <a href="{{ this_show.download_link }}"> all tracks for this show </a> as a zipped tarball<br>
-  <a href="{% url 'reporting:refresh_tracks' this_show.pk %}">Refresh</a> audio download</br>
+  Download <a href="{% url 'reporting:refresh_tracks' this_show.pk %}">all audio tracks</a> for this show as a zipped tar archive</br>
   {% else %}
     <br>
     There are no available acts.  That may mean that:
