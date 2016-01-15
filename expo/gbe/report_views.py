@@ -11,7 +11,7 @@ import ticketing.models as tix
 import csv
 from reportlab.pdfgen import canvas
 from gbe.functions import *
-
+from expo.gbe_logging import *
 
 def list_reports(request):
     '''
@@ -186,7 +186,7 @@ def personal_schedule(request, profile_id='All'):
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
     else:
-        people = []
+        people = []  #  Set it to be self, in list format
 
     tmp_peeps = []
     for peep in range(0,len(people)):
@@ -196,7 +196,7 @@ def personal_schedule(request, profile_id='All'):
                 break  #  Yes, I know this is bad form, refactor later
     people = tmp_peeps
     del tmp_peeps
-            
+
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
                   {'people': people,
