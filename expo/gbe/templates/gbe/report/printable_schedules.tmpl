@@ -10,7 +10,7 @@
 {% include "conference_picker.tmpl" %}
 
 {% for person in people %}
-{% if person.get_schedule %}
+{% if person.schedule %}
 
   <h3>{{ person.get_badge_name }}'s Schedule</h3>
   
