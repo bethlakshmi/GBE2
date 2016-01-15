@@ -188,6 +188,15 @@ def personal_schedule(request, profile_id='All'):
     else:
         people = []
 
+    tmp_peeps = []
+    for peep in range(0,len(people)):
+        for vent in range(0, len(people[peep].schedule)):
+            if conference.conference_slug == people[peep].schedule[vent].eventitem.get_conference().conference_slug:
+                tmp_peeps.append(people[peep])
+                break  #  Yes, I know this is bad form, refactor later
+    people = tmp_peeps
+    del tmp_peeps
+            
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
                   {'people': people,
