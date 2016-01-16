@@ -215,7 +215,7 @@ def review_act_techinfo(request, show_id=None):
 
 
 
-def refresh_tracks(request, show_id):
+def download_tracks_for_show(request, show_id):
     '''
     Refresh the zipped tar of the tracks for this show.
     '''
