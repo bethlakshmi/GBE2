@@ -31,7 +31,7 @@ class TestReviewProposalList(TestCase):
     def test_review_proposal_list_authorized_user(self):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/reviewlist/')
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         request.user = self.privileged_user
         response = review_proposal_list(request)
         nt.assert_equal(response.status_code, 200)
@@ -41,7 +41,7 @@ class TestReviewProposalList(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/reviewlist/')
         request.user = factories.ProfileFactory.create().user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = review_proposal_list(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -50,7 +50,7 @@ class TestReviewProposalList(TestCase):
         proposal = factories.ClassProposalFactory.create()
         request = self.factory.get('classpropose/reviewlist/')
         request.user = factories.UserFactory.create()
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = review_proposal_list(request)
         nt.assert_equal(response.status_code, 302)
