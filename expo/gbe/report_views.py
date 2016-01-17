@@ -412,7 +412,20 @@ def room_setup(request):
     viewer_profile = validate_perms(request, 'any', require=True)
 
     try:
-        rooms = sched.LocationItem.objects.filter(conference=conference)
+        ###  Totally bogus way to do this, could speed up code by amalgamating this loop with
+        ###  the 'for room in rooms' loop below.  After GBE10.
+        rooms = sched.LocationItem.objects.all()
+        tmp_rooms = []
+        for rm_pos in range(0, len(rooms)):
+            bookings = rooms[rm_pos].get_bookings
+            for bk_pos in range(0, len(bookings)):
+                booking = rooms[rm_pos].get_bookings[bk_pos]
+                tmp_conf = booking.confitem.get_conference().conference_slug
+                if tmp_conf == conference.conference_slug:
+                    tmp_rooms.append(rooms[rm_pos])
+                    break  #  Bad practice, refactor later
+        rooms = tmp_rooms
+        del tmp_rooms
     except:
         rooms = []
         
@@ -420,26 +433,26 @@ def room_setup(request):
     #  - room & date of booking
     #       - list of bookings
     # this lets us have 1 table per day per room
-    room_set = []
-    for room in rooms:
-        day_events = []
-        current_day = None
-        for booking in room.get_bookings:
-            booking_class = sched.EventItem.objects.get_subclass(
-                eventitem_id=booking.eventitem.eventitem_id)
+#    room_set = []
+#    for room in rooms:
+#        day_events = []
+#        current_day = None
+#        for booking in room.get_bookings:
+#            booking_class = sched.EventItem.objects.get_subclass(
+#                eventitem_id=booking.eventitem.eventitem_id)
 
-            if not current_day:
-                current_day = booking.start_time.date()
-            if current_day != booking.start_time.date() and current_day in conf_days:
-                if len(day_events) > 0:
-                    room_set += [{'room': room,
-                                  'date': current_day,
-                                  'bookings': day_events}]
-                current_day = booking.start_time.date()
-                day_events = []
-            if booking_class.__class__.__name__ == 'Class' and current_day in conf_days:
-                day_events += [{'event': booking,
-                                'class': booking_class}]
+#            if not current_day:
+#                current_day = booking.start_time.date()
+#            if current_day != booking.start_time.date() and current_day in conf_days:
+#                if len(day_events) > 0:
+#                    room_set += [{'room': room,
+#                                  'date': current_day,
+#                                  'bookings': day_events}]
+#                current_day = booking.start_time.date()
+#                day_events = []
+#            if booking_class.__class__.__name__ == 'Class' and current_day in conf_days:
+#                day_events += [{'event': booking,
+#                                'class': booking_class}]
 
     return render(request,
                   'gbe/report/room_setup.tmpl',
