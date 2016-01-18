@@ -492,6 +492,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all())
 
+
     class Meta:
         model = GenericEvent
         fields = ['title',
