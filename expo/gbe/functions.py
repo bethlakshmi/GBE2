@@ -96,6 +96,8 @@ def get_conference_by_slug(slug):
 def get_conference_days(conference):
     return conference.conferenceday_set.all()
 
+def get_conference_day(conference, date):
+    return conf.ConferenceDay.objects.get(conference=conference, day=date)
 
 def conference_list():
     return conf.Conference.objects.all()
