@@ -74,6 +74,8 @@ class TestReports(TestCase):
         request = self.factory.get('reports/review_staff_area')
         functions.login_as(profile, self)
         request.user = profile.user_object
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = review_staff_area(request)
 
     def test_review_staff_area_path(self):
@@ -85,6 +87,8 @@ class TestReports(TestCase):
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Act Reviewers')
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
 
@@ -93,6 +97,9 @@ class TestReports(TestCase):
         '''
         profile = self.profile_factory.create()
         show = factories.ShowFactory.create()
+        current_conference = show.conference
+        current_conference.save()
+        show.eventitem_id.conference = show.conference
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
         functions.login_as(profile, self)
         request.user = profile.user_object
@@ -110,6 +117,8 @@ class TestReports(TestCase):
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
         functions.login_as(profile, self)
         request.user = profile.user_object
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = staff_area(request, show.eventitem_id)
 
     @nt.raises(PermissionDenied)
