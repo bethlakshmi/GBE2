@@ -375,7 +375,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
 
     actionheaders = ['Title',
                      'Volunteer Type',
-                     'Volunteers Needed',
+                     '#',
                      'Duration',
                      'Day',
                      'Time',
@@ -977,7 +977,6 @@ def calendar_view(request=None,
         conf = get_conference_by_slug(conf_slug)
     else:
         conf = get_current_conference()
-
 
     cal_times = cal_times_for_conf(conf, day)
 
