@@ -345,7 +345,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
 
             time = sevent.start_time.time
             day = get_conference_day(conference=conference,
-                                     date = date)
+                                     date=date)
             location = sevent.location
             if location:
                 room = location.room

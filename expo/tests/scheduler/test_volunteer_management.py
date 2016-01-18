@@ -1,7 +1,3 @@
-from gbe.models import (
-    Conference
-)
-
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
@@ -31,6 +27,7 @@ from django.core.urlresolvers import reverse
 from scheduler.views import edit_event
 import nose.tools as nt
 
+
 def test_scheduled_volunteer_opportunity_shows_day():
     show = ShowFactory()
     show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
@@ -54,7 +51,7 @@ def test_scheduled_volunteer_opportunity_shows_day():
     grant_privilege(staff_profile, "Volunteer Coordinator")
     request = RequestFactory().get(reverse('edit_event',
                                            urlconf="scheduler.urls",
-                                           args = ['Show', show_sevent.pk]))
+                                           args=['Show', show_sevent.pk]))
     request.user = staff_profile.user_object
     request.session = {'cms_admin_site': 1}
     response = edit_event(request, show_sevent.pk, event_type='Show')

@@ -498,7 +498,6 @@ class VolunteerOpportunityForm(forms.ModelForm):
             queryset=conference.conferenceday_set.all(),
             error_messages={'required': 'required'})
 
-
     class Meta:
         model = GenericEvent
         fields = ['title',
