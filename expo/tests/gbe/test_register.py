@@ -25,6 +25,6 @@ class TestRegister(TestCase):
     def test_register_not_post(self):
         request = self.factory.get('accounts/register')
         request.user = factories.UserFactory.create()
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = register(request)
         nt.assert_equal(response.status_code, 200)

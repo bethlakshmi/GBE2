@@ -173,9 +173,7 @@
 </div>
 <script>
   $(document).ready(function() {
-    var table = $('#assign_volunteer').DataTable( {
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-    } );
+    var table = $('#assign_volunteer').DataTable();
  
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
