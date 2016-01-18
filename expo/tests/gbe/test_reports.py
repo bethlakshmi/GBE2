@@ -233,6 +233,8 @@ class TestReports(TestCase):
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_schedule')
         request.user = profile.user_object
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = room_schedule(request)
 
     def test_room_schedule_succeed(self):
@@ -244,6 +246,8 @@ class TestReports(TestCase):
         request.user = profile.user_object
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = room_schedule(request)
         self.assertEqual(response.status_code, 200)
 
@@ -255,6 +259,8 @@ class TestReports(TestCase):
         profile = self.profile_factory.create()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = room_setup(request)
 
     def test_room_setup_visible_with_permission(self):
@@ -267,6 +273,8 @@ class TestReports(TestCase):
         request.session = {'cms_admin_site': 1}
         functions.grant_privilege(profile, 'Act Reviewers')
         functions.login_as(profile, self)
+        current_conference = factories.ConferenceFactory.create()
+        current_conference.save()
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
 
