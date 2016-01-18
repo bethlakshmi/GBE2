@@ -787,3 +787,24 @@ td.form_field > ul > li
   font-size: 20px;
   color: black;
 }
+
+input#id_num_volunteers, input#id_new_opp-num_volunteers
+{
+  width: 40px
+}
+
+input#id_duration, input#id_new_opp-duration
+{
+  width: 70px
+}
+
+span.opps-errors > ul > li
+{
+  list-style-type: none;
+  color: red;
+}
+
+span.opps-errors > ul 
+{
+  padding: 0px;
+}
