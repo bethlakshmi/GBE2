@@ -4,11 +4,14 @@ from gbe.models import (
 
 from tests.factories.gbe_factories import (
     ConferenceFactory,
-    ProfileFactory,
-    ShowFactory,
+    ConferenceDayFactory,
     GenericEventFactory,
+    ProfileFactory,
+    RoomFactory,
+    ShowFactory,
 )
 from tests.factories.scheduler_factories import (
+    LocationFactory,
     WorkerFactory,
     SchedEventFactory,
     EventContainerFactory,
@@ -31,8 +34,10 @@ import nose.tools as nt
 def test_scheduled_volunteer_opportunity_shows_day():
     show = ShowFactory()
     show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-
-    opp = GenericEventFactory(type="Volunteer")
+    ConferenceDayFactory(conference=show.conference,
+                         day=show_sevent.start_time.date())
+    opp = GenericEventFactory(type="Volunteer",
+                              conference=show.conference)
     opp_sevent = SchedEventFactory(eventitem=opp.eventitem_ptr)
     opp_container = EventContainerFactory(parent_event=show_sevent,
                                           child_event=opp_sevent)
@@ -40,16 +45,20 @@ def test_scheduled_volunteer_opportunity_shows_day():
     worker = WorkerFactory(_item=volunteer.workeritem_ptr)
     ResourceAllocationFactory(resource=worker,
                               event=opp_sevent)
-
+    room = RoomFactory()
+    location = LocationFactory(_item=room.locationitem_ptr)
+    ResourceAllocationFactory(resource=location,
+                              event=opp_sevent)
     staff_profile = ProfileFactory()
     grant_privilege(staff_profile, "Scheduling Mavens")
+    grant_privilege(staff_profile, "Volunteer Coordinator")
     request = RequestFactory().get(reverse('edit_event',
                                            urlconf="scheduler.urls",
-                                           args = [show_sevent.pk,
-                                                   'Show']))
-    request.user = staff_profile.user
+                                           args = ['Show', show_sevent.pk]))
+    request.user = staff_profile.user_object
+    request.session = {'cms_admin_site': 1}
     response = edit_event(request, show_sevent.pk, event_type='Show')
-    ne.assert_true(opp.name in response.content)
+    nt.assert_true(opp.title in response.content)
     show_date = show_sevent.start_time.strftime("%Y-%m-%d")
     expected_string = 'selected="selected">%s</option>' % show_date
-    ne.assert_true(expected_string in response.content)
+    nt.assert_true(expected_string in response.content)
