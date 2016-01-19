@@ -10,13 +10,8 @@ import ticketing.models as tix
 
 import csv
 from reportlab.pdfgen import canvas
-<<<<<<< HEAD
-from gbe.functions import *
-from expo.gbe_logging import *
-||||||| merged common ancestors
 from gbe.functions import *
 
-=======
 from gbe.functions import (
     conference_slugs,
     get_current_conference,
@@ -25,7 +20,6 @@ from gbe.functions import (
 )
 from expo.gbe_logging import logger
 
->>>>>>> master
 
 def list_reports(request):
     '''
@@ -83,7 +77,7 @@ def staff_area(request, area_id):
         conference = conf.Conference.by_slug(request.GET['conf_slug'])
     else:
         conference = conf.Conference.current_conf()
-    
+
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(
         eventitem=area).order_by('starttime').filter(conference=conference)
@@ -366,7 +360,7 @@ def room_schedule(request, room_id=None):
     viewer_profile = validate_perms(request,
                                     'any',
                                     require=True)
-    
+
     conference_slugs = conf.Conference.all_slugs()
     if request.GET and request.GET.get('conf_slug'):
         conference = conf.Conference.by_slug(request.GET['conf_slug'])
@@ -388,7 +382,7 @@ def room_schedule(request, room_id=None):
         tmp_days.append(conf_days[position].day)
     conf_days = tmp_days
     del tmp_days
-        
+
     # rearrange the data into the format of:
     #  - room & date of booking
     #       - list of bookings
@@ -418,7 +412,7 @@ def room_schedule(request, room_id=None):
 
 
 def room_setup(request):
-    
+
     conference_slugs = conf.Conference.all_slugs()
     if request.GET and request.GET.get('conf_slug'):
         conference = conf.Conference.by_slug(request.GET['conf_slug'])
@@ -438,7 +432,7 @@ def room_setup(request):
         rooms = sched.LocationItem.objects.all()
     except:
         rooms = []
-        
+
     # rearrange the data into the format of:
     #  - room & date of booking
     #       - list of bookings
