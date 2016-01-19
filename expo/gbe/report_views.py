@@ -10,7 +10,6 @@ import ticketing.models as tix
 
 import csv
 from reportlab.pdfgen import canvas
-from gbe.functions import *
 
 from gbe.functions import (
     conference_slugs,
@@ -61,7 +60,8 @@ def review_staff_area(request):
 
     return render(request, 'gbe/report/staff_areas.tmpl',
                   {'header': header, 'areas': areas, 'shows': shows,
-                   'conference_slugs': conference_slugs,  'conference': conference})
+                   'conference_slugs': conference_slugs,
+                   'conference': conference})
 
 
 def staff_area(request, area_id):
@@ -86,7 +86,8 @@ def staff_area(request, area_id):
         opps += event.get_volunteer_opps('Volunteer').filter(conference=conference)
     return render(request, 'gbe/report/staff_area_schedule.tmpl',
                   {'opps': opps, 'area': area,
-                   'conference_slugs': conference_slugs,  'conference': conference})
+                   'conference_slugs': conference_slugs,
+                   'conference': conference})
 
 
 def env_stuff(request, conference_choice=None):
@@ -190,21 +191,22 @@ def personal_schedule(request, profile_id='All'):
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
     else:
-        people = []  #  Set it to be self, in list format
+        people = []  # Set it to be self, in list format
 
     tmp_peeps = []
-    for peep in range(0,len(people)):
+    for peep in range(0, len(people)):
         for vent in range(0, len(people[peep].schedule)):
             if conference.conference_slug == people[peep].schedule[vent].eventitem.get_conference().conference_slug:
                 tmp_peeps.append(people[peep])
-                break  #  Yes, I know this is bad form, refactor later
+                break  # Yes, I know this is bad form, refactor later
     people = tmp_peeps
     del tmp_peeps
 
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
                   {'people': people,
-                   'conference_slugs': conference_slugs,  'conference': conference})
+                   'conference_slugs': conference_slugs,
+                   'conference': conference})
 
 
 def review_act_techinfo(request, show_id=None):
@@ -394,7 +396,8 @@ def room_schedule(request, room_id=None):
         for booking in room.get_bookings:
             if not current_day:
                 current_day = booking.start_time.date()
-            if current_day != booking.start_time.date() and current_day in conf_days:
+            if (current_day != booking.start_time.date() and
+                current_day in conf_days):
                 room_set += [{'room': room,
                               'date': current_day,
                               'bookings': day_events}]
@@ -404,11 +407,12 @@ def room_schedule(request, room_id=None):
                 day_events += [booking]
         if current_day in conf_days:
             room_set += [{'room': room,
-                      'date': current_day,
-                      'bookings': day_events}]
+                          'date': current_day,
+                          'bookings': day_events}]
     return render(request, 'gbe/report/room_schedule.tmpl',
                   {'room_date': room_set,
-                   'conference_slugs': conference_slugs,  'conference': conference})
+                   'conference_slugs': conference_slugs,
+                   'conference': conference})
 
 
 def room_setup(request):
@@ -448,21 +452,24 @@ def room_setup(request):
 
                 if not current_day:
                     current_day = booking.start_time.date()
-                if current_day != booking.start_time.date() and current_day in conf_days:
+                if (current_day != booking.start_time.date() and
+                    current_day in conf_days):
                     if len(day_events) > 0:
                         room_set += [{'room': room,
                                       'date': current_day,
                                       'bookings': day_events}]
                     current_day = booking.start_time.date()
                     day_events = []
-                if booking_class.__class__.__name__ == 'Class' and current_day in conf_days:
+                if (booking_class.__class__.__name__ == 'Class' and
+                    current_day in conf_days):
                     day_events += [{'event': booking,
                                     'class': booking_class}]
 
     return render(request,
                   'gbe/report/room_setup.tmpl',
                   {'room_date': room_set,
-                   'conference_slugs': conference_slugs,  'conference': conference})
+                   'conference_slugs': conference_slugs,
+                   'conference': conference})
 
 
 def export_badge_report(request, conference_choice=None):
