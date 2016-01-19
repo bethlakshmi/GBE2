@@ -4,7 +4,7 @@
 
 
 <li class="{% if child.ancestor %}ancestor{% endif %} {% if child.selected %}active{% endif %} {% if child.children %}dropdown{% endif %}">
-    {% if child.children %}<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+    {% if child.children %}<a class="dropdown-toggle trigger" data-toggle="dropdown" href="#">
       {{ child.get_menu_title }} <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
