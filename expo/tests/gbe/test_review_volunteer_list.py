@@ -14,6 +14,7 @@ from tests.factories.gbe_factories import (
     UserFactory,
     VolunteerFactory,
     VolunteerWindowFactory)
+from tests.factories.scheduler_factories import ResourceAllocationFactory
 from tests.functions.gbe_functions import login_as
 from django.core.exceptions import PermissionDenied
 from gbe.models import ProfilePreferences
@@ -22,7 +23,6 @@ from datetime import datetime, date, time
 import pytz
 from scheduler.models import (
     Worker,
-    ResourceAllocation,
     EventContainer
 )
 
@@ -149,11 +149,10 @@ class TestReviewVolunteerList(TestCase):
         booked_sched.save()
         worker = Worker(_item=self.volunteer.profile, role='Volunteer')
         worker.save()
-        volunteer_assignment = ResourceAllocation(
+        volunteer_assignment = ResourceAllocationFactory.create(
             event=booked_sched,
             resource=worker
         )
-        volunteer_assignment.save()
 
         request = self.factory.get('volunteer/review/?conf_slug=%s' %
                                    self.volunteer.conference.conference_slug)
@@ -199,11 +198,10 @@ class TestReviewVolunteerList(TestCase):
         booked_sched.save()
         worker = Worker(_item=self.volunteer.profile, role='Volunteer')
         worker.save()
-        volunteer_assignment = ResourceAllocation(
+        volunteer_assignment = ResourceAllocationFactory.create(
             event=booked_sched,
             resource=worker
         )
-        volunteer_assignment.save()
 
         request = self.factory.get('volunteer/review/?conf_slug=%s' %
                                    self.volunteer.conference.conference_slug)
