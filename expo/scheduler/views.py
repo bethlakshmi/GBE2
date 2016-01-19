@@ -878,7 +878,9 @@ def edit_event_display(request, item, errorcontext=None):
 
     initial = {}
     initial['duration'] = item.duration
-    initial['day'] = item.starttime.strftime("%Y-%m-%d")
+    initial['day'] = get_conference_day(
+        conference=item.eventitem.get_conference(),
+        date=item.starttime.date())
     initial['time'] = item.starttime.strftime("%H:%M:%S")
     initial['description'] = item.as_subtype.sched_payload['description']
     initial['title'] = item.as_subtype.sched_payload['title']
