@@ -335,7 +335,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                 Worker.objects.filter(_item=volform.profile,
                                       role='Volunteer').delete()
 
-            # if the act has been accepted, set the show.
+            # if the volunteer has been accepted, set the events.
             if self.cleaned_data['accepted'] == 3:
                 worker = Worker(_item=volform.profile, role='Volunteer')
                 worker.save()
@@ -452,7 +452,6 @@ class VolunteerBidForm(forms.ModelForm):
         self.fields['available_windows'].queryset = available_windows
         self.fields['unavailable_windows'].queryset = unavailable_windows
 
-
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
@@ -474,23 +473,30 @@ class VolunteerBidForm(forms.ModelForm):
 
 
 class VolunteerOpportunityForm(forms.ModelForm):
-    day = forms.ChoiceField(choices=['No Days Specified'])
+    day = forms.ChoiceField(
+        choices=['No Days Specified'],
+        error_messages={'required': 'required'})
     time = forms.ChoiceField(choices=conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
     opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
-    num_volunteers = forms.IntegerField()
+    num_volunteers = forms.IntegerField(
+        error_messages={'required': 'required'})
     volunteer_category = forms.ChoiceField(choices=volunteer_interests_options,
                                            required=False)
-    location = forms.ModelChoiceField(queryset=Room.objects.all())
-    duration = DurationFormField()
+    location = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        error_messages={'required': 'required'})
+    duration = DurationFormField(
+        error_messages={'null': 'required'})
 
     def __init__(self, *args, **kwargs):
         conference = kwargs.pop('conference')
         super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
-            queryset=conference.conferenceday_set.all())
+            queryset=conference.conferenceday_set.all(),
+            error_messages={'required': 'required'})
 
     class Meta:
         model = GenericEvent

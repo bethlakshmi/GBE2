@@ -36,29 +36,3 @@ class TestReviewVolunteer(TestCase):
         response = review_volunteer(request, volunteer.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
-
-    def only_show_relevant_events(self):
-        volunteer = VolunteerFactory.create()
-        # horrible setup process. Need to fix
-        current_conference = ConferenceFactory.create(
-            accepting_bids=True)
-        past_conference = ConferenceFactory.create(
-            status='completed')
-        current_opportunity = GenericEventFactory.create(
-            conference=current_conf)
-        past_opportunity = GenericEventFactory.create(
-            conference=past_conference)
-        current_opportunity.max_volunteers = 20
-        past_opportunity.max_volunteers = 20
-        current_opportunity.save()
-        past_opportunity.save()
-
-        request = self.factory.get('volunteer/review/%d' % volunteer.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer(request, volunteer.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Bid Information' in response.content)
-        nt.assert_true(current_opportunity.description in response.content)
-        nt.assert_false(past_opportunity.description in response.content)

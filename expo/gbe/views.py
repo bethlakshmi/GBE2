@@ -75,8 +75,11 @@ log_import(('compute_submission'), 'ticketingfuncs')
 from duration import Duration
 log_import(('Duration',), 'duration')
 
-from scheduler.functions import set_time_format
+from scheduler.functions import (
+    set_time_format,
+    get_events_and_windows)
 log_import(('set_time_format'), 'scheduler.functions')
+log_import(('get_events_and_windows'), 'scheduler.functions')
 
 from scheduler.models import (
     Event as sEvent,
@@ -199,10 +202,10 @@ def landing_page(request, profile_id=None, historical=False):
              'volunteering': viewer_profile.get_volunteerbids(),
              'costumes': viewer_profile.get_costumebids(historical),
              'review_items': bids_to_review,
-             'bookings': viewer_profile.get_schedule(),
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
-             'admin_message': admin_message
+             'admin_message': admin_message,
+             'bookings': viewer_profile.schedule
              })
     else:
         context = RequestContext(request,
@@ -1330,7 +1333,7 @@ def create_volunteer(request):
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
         form = VolunteerBidForm(
-            request.POST, 
+            request.POST,
             available_windows=Conference.current_conf().windows(),
             unavailable_windows=Conference.current_conf().windows())
         if form.is_valid():
@@ -1434,7 +1437,7 @@ def review_volunteer(request, volunteer_id):
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(
         instance=volunteer,
-        prefix='The Volunteer', 
+        prefix='The Volunteer',
         available_windows=volunteer.conference.windows(),
         unavailable_windows=volunteer.conference.windows())
     profile = ParticipantForm(
@@ -1444,12 +1447,7 @@ def review_volunteer(request, volunteer_id):
                  'last_name': volunteer_prof.user_object.last_name},
         prefix='Contact Info')
     if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
-        events = volunteer_prof.get_bookings('Volunteer')
-        actionform = VolunteerBidStateChangeForm(instance=volunteer,
-                                                 request=request,
-                                                 initial={'events': events}
-                                             )
-
+        actionform = BidStateChangeForm(instance=volunteer)
         actionURL = reverse('volunteer_changestate',
                             urlconf='gbe.urls',
                             args=[volunteer_id])
@@ -1499,6 +1497,41 @@ def review_volunteer(request, volunteer_id):
                        })
 
 
+@login_required
+@log_func
+def assign_volunteer(request, volunteer_id):
+    '''
+    Show a bid  which needs to be assigned to shifts by the coordinator.
+    To show: display useful information about the bid,
+    If user is not a coordinator, politely decline to show anything.
+    '''
+    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+
+    if int(volunteer_id) == 0 and request.method == 'POST':
+        volunteer_id = int(request.POST['volunteer'])
+    volunteer = get_object_or_404(
+        Volunteer,
+        id=volunteer_id,
+    )
+    if not volunteer.is_current:
+        return view_volunteer(request, volunteer_id)
+    conference, old_bid = get_conf(volunteer)
+
+    actionURL = reverse('volunteer_changestate',
+                        urlconf='gbe.urls',
+                        args=[volunteer_id])
+
+    return render(request,
+                  'gbe/assign_volunteer.tmpl',
+                  {'volunteer': volunteer,
+                   'bookings': volunteer.profile.get_bookings('Volunteer'),
+                   'volunteer_event_windows': get_events_and_windows(
+                    conference),
+                   'actionURL': actionURL,
+                   'conference': conference,
+                   'old_bid': old_bid})
+
+
 def show_edit(request, volunteer):
     user = request.user
     return ('Volunteer Coordinator' in user.profile.privilege_groups and
@@ -1544,6 +1577,10 @@ def review_volunteer_list(request):
             bid_row['edit_url'] = reverse('volunteer_edit',
                                           urlconf='gbe.urls',
                                           args=[volunteer.id])
+            bid_row['assign_url'] = reverse('volunteer_assign',
+                                            urlconf='gbe.urls',
+                                            args=[volunteer.id])
+
         rows.append(bid_row)
     conference_slugs = Conference.all_slugs()
     return render(request, 'gbe/bid_review_list.tmpl',

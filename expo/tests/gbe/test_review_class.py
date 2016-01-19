@@ -4,7 +4,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
-    PersonaFactory, 
+    PersonaFactory,
     ClassFactory,
     ProfileFactory,
 )

@@ -23,7 +23,7 @@ class TestUpdateProfile(TestCase):
 
     def test_update_profile_no_such_profile(self):
         request = self.factory.get('update_profile/')
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         user = factories.UserFactory.create()
         request.user = user
         response = update_profile(request)

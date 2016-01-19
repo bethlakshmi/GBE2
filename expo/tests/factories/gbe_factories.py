@@ -10,6 +10,12 @@ import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
 from django.core.files.uploadedfile import SimpleUploadedFile
+from datetime import (
+    date,
+    time,
+    timedelta,
+)
+from pytz import utc
 
 
 class ConferenceFactory(DjangoModelFactory):
@@ -20,6 +26,22 @@ class ConferenceFactory(DjangoModelFactory):
     conference_slug = Sequence(lambda n: u"test_conf_%d" % n)
     accepting_bids = False
     status = 'upcoming'
+
+
+class ConferenceDayFactory(DjangoModelFactory):
+    day = date.today() + timedelta(7)
+    conference = SubFactory(ConferenceFactory)
+    class Meta:
+        model = conf.ConferenceDay
+
+
+class VolunteerWindowFactory(DjangoModelFactory):
+    start = time(8, 0, 0)
+    end = time(12, 0, 0)
+    day = SubFactory(ConferenceDayFactory)
+
+    class Meta:
+        model = conf.VolunteerWindow
 
 
 class WorkerItemFactory(DjangoModelFactory):
@@ -47,9 +69,9 @@ class ProfileFactory(DjangoModelFactory):
     zip_code = '12345'
     country = 'USA'
     phone = '617-282-9268'
-    display_name = LazyAttribute(lambda a:
-                                         "%s_%s" % (a.user_object.first_name,
-                                                    a.user_object.last_name))
+    display_name = LazyAttribute(
+        lambda a: "%s_%s" % (a.user_object.first_name,
+                             a.user_object.last_name))
 
 
 class ShowFactory(DjangoModelFactory):
@@ -169,8 +191,8 @@ class EventFactory(DjangoModelFactory):
         model = conf.Event
 
     title = Sequence(lambda x: "Test Event #%d" % x)
-    description = LazyAttribute(lambda a:
-                                        "Description for %s" % a.title)
+    description = LazyAttribute(
+        lambda a: "Description for %s" % a.title)
     blurb = LazyAttribute("Blurb for %s" % title)
     duration = Duration(hours=2)
     conference = SubFactory(ConferenceFactory)
@@ -180,6 +202,8 @@ class GenericEventFactory(DjangoModelFactory):
     class Meta:
         model = conf.GenericEvent
 
+    title = Sequence(lambda n: 'Test Generic Event %d' % n)
+    duration = Duration(hours=1)
     type = 'Special'
     volunteer_category = 'VA0'
     conference = SubFactory(ConferenceFactory)
@@ -256,8 +280,8 @@ class VendorFactory(DjangoModelFactory):
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = LazyAttribute(lambda a:
-                                       "Help times for test Volunteer")
+    help_times = LazyAttribute(
+        lambda a: "Help times for test Volunteer")
     conference = SubFactory(ConferenceFactory)
 
 
@@ -266,8 +290,8 @@ class ClassProposalFactory(DjangoModelFactory):
         model = conf.ClassProposal
 
     title = Sequence(lambda x: "Class Proposal %d: Title" % x)
-    name = Sequence(lambda x:
-                            "Class Proposal %d: Name of Proposer" % x)
+    name = Sequence(
+        lambda x: "Class Proposal %d: Name of Proposer" % x)
     email = Sequence(lambda x: "john%d@gmail.com" % x)
     proposal = LazyAttribute(lambda a: "Proposal titled %s" % a.title)
     type = 'Class'
@@ -310,3 +334,18 @@ class CostumeFactory(DjangoModelFactory):
     picture = SimpleUploadedFile("file.jpg",
                                  "file_content",
                                  content_type="image/jpg")
+
+
+class ConferenceDayFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.ConferenceDay
+    conference = SubFactory(ConferenceFactory)
+    day = date(2016, 2, 5)
+
+
+class VolunteerWindowFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.VolunteerWindow
+    day = SubFactory(ConferenceDayFactory)
+    start = time(10)
+    end = time(14)

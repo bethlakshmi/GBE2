@@ -25,7 +25,7 @@
     Toggle column(s):
     {% for header_item in header %}
       <a class="toggle-vis" data-column="{{ forloop.counter0 }}">
-	{{ header_item }}</a> -
+	{{ header_item }}</a>{% if not forloop.last %} - {% endif %}
     {% endfor %}
   </div>
   <br/>
@@ -70,7 +70,11 @@
               {% endif %}
               {%if row.delete_url%}
                 <br>
-                <a href="{{ row.delete_url }}">{% if row.action2 %}{{ row.action3 }}{% else %}Delete{% endif %}</a>
+                <a href="{{ row.delete_url }}">{% if row.action3 %}{{ row.action3 }}{% else %}Delete{% endif %}</a>
+              {% endif %}
+              {%if row.assign_url%}
+                <br>
+                <a href="{{ row.assign_url }}">{% if row.action4 %}{{ row.action4 }}{% else %}Assign{% endif %}</a>
               {% endif %}
           </td>
 
@@ -82,9 +86,7 @@
   
   <script>
   $(document).ready(function() {
-    var table = $('#bid_review').DataTable( {
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-    } );
+    var table = $('#bid_review').DataTable();
  
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
