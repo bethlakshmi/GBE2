@@ -12,6 +12,7 @@ from gbetext import (
 )
 from gbe.duration import DateTimeRange
 from scheduler.models import Event as sEvent
+from django.shortcuts import render
 
 
 def validate_profile(request, require=False):
@@ -64,6 +65,23 @@ def mail_to_group(subject, message, group_name):
                User.objects.filter(groups__name=group_name)]
     if not settings.DEBUG:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
+    return None
+
+
+def mail_schedule_to_user(subject, user, start_message, end_message):
+    '''
+    Sends mail to a user with the user's schedule in it.
+        - user = a User object, requires that the user have an email and
+            a profile
+        - start_message - email text before the schedule
+        - end_message - email text after the schedule
+    '''
+    tmpl = loader.get_template('gbe/email/mail_schedule.tmpl')
+    c = Context({'user': profile.display_name,
+                 'start': start_message,
+                 'end': end_message,
+                 'sched_url': reverse('landing_page',urlconf='gbe.urls')})
+    send_mail(subject, tmpl.render(c), settings.DEFAULT_FROM_EMAIL, user.email)
     return None
 
 
