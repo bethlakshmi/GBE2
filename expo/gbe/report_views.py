@@ -60,7 +60,9 @@ def review_staff_area(request):
         shows = []
 
     return render(request, 'gbe/report/staff_areas.tmpl',
-                  {'header': header, 'areas': areas, 'shows': shows,
+                  {'header': header,
+                   'areas': areas,
+                   'shows': shows,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
@@ -86,7 +88,8 @@ def staff_area(request, area_id):
     for event in sched_event:
         opps += event.get_volunteer_opps('Volunteer').filter(conference=conference)
     return render(request, 'gbe/report/staff_area_schedule.tmpl',
-                  {'opps': opps, 'area': area,
+                  {'opps': opps,
+                   'area': area,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
@@ -194,18 +197,16 @@ def personal_schedule(request, profile_id='All'):
     else:
         people = []  # Set it to be self, in list format
 
-    tmp_peeps = []
-    for peep in range(0, len(people)):
-        for vent in range(0, len(people[peep].schedule)):
-            if conference.conference_slug == people[peep].schedule[vent].eventitem.get_conference().conference_slug:
-                tmp_peeps.append(people[peep])
+    tmp_people = []
+    for person in people:
+        for tmp_event in person.schedule:
+            if conference.conference_slug == tmp_event.eventitem.get_conference().conference_slug:
+                tmp_people.append(person)
                 break  # Yes, I know this is bad form, refactor later
-    people = tmp_peeps
-    del tmp_peeps
 
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
-                  {'people': people,
+                  {'people': tmp_people,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
@@ -384,7 +385,6 @@ def room_schedule(request, room_id=None):
     for position in range(0, len(conf_days)):
         tmp_days.append(conf_days[position].day)
     conf_days = tmp_days
-    del tmp_days
 
     # rearrange the data into the format of:
     #  - room & date of booking
@@ -429,7 +429,6 @@ def room_setup(request):
     for position in range(0, len(conf_days)):
         tmp_days.append(conf_days[position].day)
     conf_days = tmp_days
-    del tmp_days
 
     viewer_profile = validate_perms(request, 'any', require=True)
 
