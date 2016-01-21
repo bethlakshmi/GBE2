@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.core.validators import (
@@ -892,6 +894,12 @@ class Act (Biddable, ActItem):
         return self.__class__
 
     @property
+    def audio(self):
+        if self.tech and self.tech.audio:
+            return self.tech.audio
+        return None
+
+    @property
     def contact_info(self):
         return (self.title,
                 self.contact_email,
@@ -1186,6 +1194,19 @@ class Show (Event):
             active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
+
+    def get_acts(self):
+        return self.scheduler_events.first().get_acts()
+
+    def download_path(self):
+        path = os.path.join(settings.MEDIA_ROOT,
+                            "uploads",
+                            "audio",
+                            "downloads",
+                            ("%s_%s.tar.gz" %
+                             (self.conference.conference_slug,
+                              self.title.replace(" ", "_").replace("/", "_"))))
+        return path
 
 
 class GenericEvent (Event):
