@@ -8,6 +8,7 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
 )
+from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.template import (
     loader,
@@ -22,13 +23,14 @@ from django.contrib.auth import (
     authenticate,
 )
 from django.forms.models import inlineformset_factory
-import gbe_forms_text
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from datetime import time as dttime
 import csv
 
 from table import table
+from gbe_forms_text import volunteer_interests_options
+from gbetext import acceptance_states
 from gbe.duration import (
     Duration,
     DateTimeRange,
@@ -595,8 +597,7 @@ def contact_info(request,
 
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
-
-    from django.db.models import Q
+    conference = get_current_conference()
     if participant_type == 'Teachers':
         contacts = Worker.objects.filter(Q(role='Teacher') |
                                          Q(role='Moderator') |
@@ -620,7 +621,7 @@ def contact_by_role(request, participant_type):
                  performer.contact.phone]
                 )
         from gbe.models import Class
-        classes = Class.objects.all()
+        classes = Class.objects.filter(conference=conference)
         for c in classes:
             contact_info.append(
                 [c.teacher.contact_email,
@@ -631,7 +632,8 @@ def contact_by_role(request, participant_type):
                  c.teacher.contact.phone]
             )
     elif participant_type == 'Performers':
-        contacts = ActItem.objects.all()
+        from gbe.models import Act
+        contacts = [act.actitem_ptr for act in Act.objects.filter(conference=conference)]
         header = ['Act',
                   'Performer',
                   'Profile',
@@ -655,15 +657,16 @@ def contact_by_role(request, participant_type):
                  ",".join(map(str, act.get_scheduled_rehearsals()))]
             )
     elif participant_type == 'Volunteers':
-        contacts = Worker.objects.filter(role='Volunteer')
-        contacts = [w for w in contacts if w.allocations.count() > 0]
+        from gbe.models import Volunteer
+        contacts = filter(lambda worker: worker.allocations.count() > 0,
+                   [vol.profile.workeritem_ptr.worker_set.first() for vol in
+                    Volunteer.objects.filter(conference=conference)])
         header = ['Name',
                   'Phone',
                   'Email',
                   'Volunteer Category',
                   'Volunteer Role',
                   'Event']
-        from gbe_forms_text import volunteer_interests_options
         volunteer_categories = dict(volunteer_interests_options)
         contact_info = []
         for c in contacts:
@@ -681,7 +684,7 @@ def contact_by_role(request, participant_type):
                                  str(event),
                                  str(parent_event)])
         from gbe.models import Volunteer
-        volunteers = Volunteer.objects.all()
+        volunteers = Volunteer.objects.filter(conference=conference)
         for v in volunteers:
             interests = eval(v.interests)
             contact_info.append([v.profile.display_name,
@@ -695,9 +698,8 @@ def contact_by_role(request, participant_type):
 
     elif participant_type == 'Vendors':
         from gbe.models import Vendor
-        from gbetext import acceptance_states
         acceptance_dict = dict(acceptance_states)
-        contacts = Vendor.objects.all()
+        contacts = Vendor.objects.filter(conference=conference)
         header = ['Business Name', 'Personal Name', 'Email', 'Status']
         contact_info = [[v.title,
                          v.profile.display_name,

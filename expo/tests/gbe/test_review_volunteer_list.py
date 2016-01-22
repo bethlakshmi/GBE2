@@ -160,7 +160,6 @@ class TestReviewVolunteerList(TestCase):
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = review_volunteer_list(request)
-        print(response)
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
