@@ -397,15 +397,15 @@ def room_schedule(request, room_id=None):
         for booking in room.get_bookings:
             if not current_day:
                 current_day = booking.start_time.date()
-            if (current_day != booking.start_time.date() and
-                current_day in conf_days):
-                room_set += [{'room': room,
-                              'date': current_day,
-                              'bookings': day_events}]
+            if current_day != booking.start_time.date():
+                
+                if current_day in conf_days:
+                    room_set += [{'room': room,
+                                  'date': current_day,
+                                  'bookings': day_events}]
                 current_day = booking.start_time.date()
                 day_events = []
-            if current_day in conf_days:
-                day_events += [booking]
+            day_events += [booking]
         if current_day in conf_days:
             room_set += [{'room': room,
                           'date': current_day,
