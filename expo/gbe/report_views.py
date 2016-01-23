@@ -446,24 +446,25 @@ def room_setup(request):
         day_events = []
         current_day = None
         for booking in room.get_bookings:
-            if booking.confitem.get_conference().conference_slug == conference.conference_slug:
-                booking_class = sched.EventItem.objects.get_subclass(
-                    eventitem_id=booking.eventitem.eventitem_id)
+            booking_class = sched.EventItem.objects.get_subclass(
+                eventitem_id=booking.eventitem.eventitem_id)
 
-                if not current_day:
-                    current_day = booking.start_time.date()
-                if (current_day != booking.start_time.date() and
-                    current_day in conf_days):
-                    if len(day_events) > 0:
-                        room_set += [{'room': room,
-                                      'date': current_day,
-                                      'bookings': day_events}]
-                    current_day = booking.start_time.date()
-                    day_events = []
-                if (booking_class.__class__.__name__ == 'Class' and
-                    current_day in conf_days):
-                    day_events += [{'event': booking,
-                                    'class': booking_class}]
+            if not current_day:
+                current_day = booking.start_time.date()
+            if current_day != booking.start_time.date():
+                if (current_day in conf_days and len(day_events) > 0):
+                    room_set += [{'room': room,
+                                  'date': current_day,
+                                  'bookings': day_events}]
+                current_day = booking.start_time.date()
+                day_events = []
+            if booking_class.__class__.__name__ == 'Class':
+                day_events += [{'event': booking,
+                                'class': booking_class}]
+        if (current_day in conf_days and len(day_events) > 0):
+            room_set += [{'room': room,
+                          'date': current_day,
+                          'bookings': day_events}]
 
     return render(request,
                   'gbe/report/room_setup.tmpl',
