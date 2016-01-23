@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.core.validators import (
@@ -303,17 +305,18 @@ class Profile(WorkerItem):
                  for act in acts if act.accepted == 3 and act.is_current]
         return sum([list(s) for s in shows], [])
 
-    def get_schedule(self):
+    def get_schedule(self, conference=None):
         '''
-        Gets all of a person's schedule.  Every way the actual human could
-        be committed:
-        - via profile
-        - via performer(s)
-        - via performing in acts
-        Returns schedule as a list of Scheduler.Events
-        NOTE:  Things that haven't been booked with start times won't be here.
+        Gets all schedule items for a conference, if a conference is provided
+        Otherwise, it's the same logic as schedule() below.
         '''
-        return self.schedule
+        events = self.schedule
+        if conference:
+            conf_events = filter(
+                lambda x: x.eventitem.get_conference() == conference, events)
+        else:
+            conf_events = events
+        return conf_events
 
     @property
     def schedule(self):
@@ -326,15 +329,15 @@ class Profile(WorkerItem):
         Returns schedule as a list of Scheduler.Events
         NOTE:  Things that haven't been booked with start times won't be here.
         '''
-        from scheduler.models import Event
+        from scheduler.models import Event as sEvent
         acts = self.get_acts()
-        events = sum([list(Event.objects.filter(
+        events = sum([list(sEvent.objects.filter(
             resources_allocated__resource__actresource___item=act))
                       for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
-            events += [e for e in Event.objects.filter(
+            events += [e for e in sEvent.objects.filter(
                 resources_allocated__resource__worker___item=performer)]
-        events += [e for e in Event.objects.filter(
+        events += [e for e in sEvent.objects.filter(
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
@@ -891,6 +894,12 @@ class Act (Biddable, ActItem):
         return self.__class__
 
     @property
+    def audio(self):
+        if self.tech and self.tech.audio:
+            return self.tech.audio
+        return None
+
+    @property
     def contact_info(self):
         return (self.title,
                 self.contact_email,
@@ -1185,6 +1194,19 @@ class Show (Event):
             active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
+
+    def get_acts(self):
+        return self.scheduler_events.first().get_acts()
+
+    def download_path(self):
+        path = os.path.join(settings.MEDIA_ROOT,
+                            "uploads",
+                            "audio",
+                            "downloads",
+                            ("%s_%s.tar.gz" %
+                             (self.conference.conference_slug,
+                              self.title.replace(" ", "_").replace("/", "_"))))
+        return path
 
 
 class GenericEvent (Event):
@@ -1518,11 +1540,15 @@ class Volunteer(Biddable):
             unavailability_string += unicode(window) + ', \n'
 
         commitments = ''
-        time_format = set_time_format(days=2)
-        for event in self.profile.get_schedule():
-            start_time = event.starttime.strftime(time_format)
-            commitment_string = "%s - %s, \n " % (str(event),
-                                                  start_time)
+
+        for event in self.profile.get_schedule(self.conference):
+            start_time = event.start_time.strftime("%a, %b %d, %-I:%M %p")
+            end_time = event.end_time.strftime("%-I:%M %p")
+
+            commitment_string = "%s - %s to %s, \n " % (
+                str(event),
+                start_time,
+                end_time)
             commitments += commitment_string
         format_string = "Availability: %s\n Conflicts: %s\n Commitments: %s"
         scheduling = format_string % (availability_string,
