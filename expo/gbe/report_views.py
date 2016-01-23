@@ -56,7 +56,7 @@ def review_staff_area(request):
         areas = conf.GenericEvent.objects.filter(type='Staff Area',
                                                  visible=True).filter(
                                                      conference=conference)
-        shows = conf.Show.objects.all()
+        shows = conf.Show.objects.filter(conference=conference)
     except:
         areas = []
         shows = []
