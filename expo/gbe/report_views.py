@@ -88,7 +88,8 @@ def staff_area(request, area_id):
         eventitem=area).order_by('starttime').filter(conference=conference)
     opps = []
     for event in sched_event:
-        opps += event.get_volunteer_opps('Volunteer').filter(conference=conference)
+        opps += event.get_volunteer_opps(
+            'Volunteer').filter(conference=conference)
     return render(request, 'gbe/report/staff_area_schedule.tmpl',
                   {'opps': opps,
                    'area': area,
@@ -199,16 +200,16 @@ def personal_schedule(request, profile_id='All'):
     else:
         people = []  # Set it to be self, in list format
 
-    tmp_people = []
+    schedules = []
     for person in people:
-        for tmp_event in person.schedule:
-            if conference.conference_slug == tmp_event.eventitem.get_conference().conference_slug:
-                tmp_people.append(person)
-                break  # Yes, I know this is bad form, refactor later
+        bookings = person.get_schedule(conference)
+        if len(bookings) > 0:
+            schedules += [{'person': person,
+                           'bookings': bookings}]
 
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
-                  {'people': tmp_people,
+                  {'schedules': schedules,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
@@ -250,7 +251,6 @@ def review_act_techinfo(request, show_id=None):
                                           urlconf='gbe.report_urls')})
 
 
-
 def download_tracks_for_show(request, show_id):
     '''
     Refresh the zipped tar of the tracks for this show.
@@ -265,7 +265,6 @@ def download_tracks_for_show(request, show_id):
     response = HttpResponse(f, content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment; filename="%s"' % fname
     return response
-
 
 
 def export_act_techinfo(request, show_id):
@@ -418,7 +417,7 @@ def room_schedule(request, room_id=None):
             if not current_day:
                 current_day = booking.start_time.date()
             if current_day != booking.start_time.date():
-                
+
                 if current_day in conf_days:
                     room_set += [{'room': room,
                                   'date': current_day,
