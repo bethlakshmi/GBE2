@@ -7,10 +7,11 @@
 
 {% block content %}
 
-{% for person in people %}
-{% if person.get_schedule %}
+{% include "conference_picker.tmpl" %}
 
-  <h3>{{ person.get_badge_name }}'s Schedule</h3>
+{% for schedule in schedules %}
+
+  <h3>{{ schedule.person.get_badge_name }}'s Schedule</h3>
   
   <i>Welcome!  Here's a schedule for your participation in the expo!
   Keep in mind that some times (like rehearsals) are generalities and that late
@@ -22,7 +23,7 @@
     <th class='sched-header'>Location</th>
     <th class='sched-header'>Day</th>
     <th class='sched-header'>Time</th>
-  {% for booking in person.schedule %}
+  {% for booking in schedule.bookings %}
   <tr class='sched-table'>
     <td class='sched-table'>{{ booking }}</td>
     <td class='sched-table'>{{booking.location}} </td>    
@@ -35,7 +36,6 @@
 <br>
 
 -----BREAK-----
-{%endif%}
 {% endfor %}
 {% endblock %}
 
