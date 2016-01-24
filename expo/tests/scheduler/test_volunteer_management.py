@@ -56,6 +56,6 @@ def test_scheduled_volunteer_opportunity_shows_day():
     request.session = {'cms_admin_site': 1}
     response = edit_event(request, show_sevent.pk, event_type='Show')
     nt.assert_true(opp.title in response.content)
-    show_date = show_sevent.start_time.strftime("%Y-%m-%d")
+    show_date = show_sevent.start_time.strftime("%a, %b %d")
     expected_string = 'selected="selected">%s</option>' % show_date
     nt.assert_true(expected_string in response.content)
