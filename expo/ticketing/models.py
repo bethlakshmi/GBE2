@@ -6,6 +6,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from gbe.models import Conference
+from gbetext import role_options
 
 # Create your models here.
     
@@ -38,9 +39,13 @@ class BrownPaperEvents(models.Model):
     '''
     bpt_event_id = models.CharField(max_length=10)
     primary = models.BooleanField(default=False)  
-    act_submission_event = models.BooleanField(default=False, verbose_name='Act Fee')
-    vendor_submission_event = models.BooleanField(default=False, verbose_name='Vendor Fee')
-    linked_events = models.ManyToManyField('gbe.Event', related_name='ticketing_item', blank=True)
+    act_submission_event = models.BooleanField(default=False,
+                                               verbose_name='Act Fee')
+    vendor_submission_event = models.BooleanField(default=False,
+                                                  verbose_name='Vendor Fee')
+    linked_events = models.ManyToManyField('gbe.Event',
+                                           related_name='ticketing_item',
+                                           blank=True)
     include_conference = models.BooleanField(default=False)
     include_most = models.BooleanField(default=False)
     badgeable = models.BooleanField(default=False)
@@ -76,7 +81,8 @@ class TicketItem(models.Model):
    
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
-        
+
+
 class Purchaser(models.Model):
     '''
     This class is used to hold the information for a given person who has purchased 
@@ -128,7 +134,7 @@ class Purchaser(models.Model):
         if not isinstance(other, Purchaser):
             return True
         return not self.__eq__(other)
-        
+
     
 class Transaction(models.Model):
     ''' 
@@ -150,3 +156,107 @@ class Transaction(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (self.reference, self.purchaser)
     
+class CheckListItem(models.Model):
+    '''
+    This is a physical item that we can give away at the registration desk
+    Examples:  a badge, a wristband, a goodie bag, a guidebook, a release
+    form, etc.  It may or may not be labeled for a specific users (for example,
+    a badge has a name on it)
+    '''
+    description = models.CharField(max_length=50, unique=True)
+
+class EligibilityCondition(models.Model):
+    '''
+    This is the paremt class connecting the conditions under which a
+    CheckListItem can be given to the conditions themselves.
+    
+    Conditions are logically additive unless eliminated by exclusions.
+    So if 3 conditions give an item with no exclusion, then the individual
+    gets 3 items.
+    
+    TO Discuss (post expo) - consider making this abstract and using content 
+    types to link the exclusion foreign key to abstract cases of this class.
+    '''
+    checklist_item = models.ForeignKey(
+        CheckListItem,
+        related_name="%(app_label)s_%(class)s")
+
+
+class TicketingEligibilityCondition(EligibilityCondition):
+    '''
+    This is the implementation of the condition under which we give a
+    checklist item to a purchaser because they have purchased a ticket
+    Tickets are realized as BPT Events, the various tickets within an
+    event do not qualify a user for anything more.
+    
+    Ticket conditions are additive.  X purchases = X items given to the
+    buyer
+    '''
+    bpt_event = models.ForeignKey(BrownPaperEvents,
+                                  blank=False) 
+
+    class Meta:
+        abstract = True
+
+
+class RoleEligibilityCondition(EligibilityCondition):
+    '''
+    This is the implementation of the condition under which we give a
+    checklist item to a person because they fulfill an assigned role.
+    
+    Roles are given once per person per conference - being a role
+    gets exactly 1 of the item.
+    '''
+    role = models.CharField(max_length=25,
+                            choices=role_options)
+
+    class Meta:
+        abstract = True
+
+class Exclusion(models.Model):
+    '''
+    This is the abstract class connecting the cases under which a
+    CheckListItem should be assigned, even when it meets the current
+    condition.  Exclusions are combined in many to 1 conditions as
+    logical OR cases - any case being true negates the condition.
+    '''
+    condition = models.ForeignKey(
+        EligibilityCondition,
+        related_name="%(app_label)s_%(class)s")
+
+    class Meta:
+        abstract = True
+
+
+class TicketingExclusion(Exclusion):
+    '''
+    This is the implementation of the case when the presence of a ticket
+    purchase eliminates the eligibility of the individual for getting the
+    checklist item under the given condition.  The usual case is that a
+    person purchased a ticket that includes an equivalent to the current
+    item and maybe more.
+    '''
+    bpt_event = models.ForeignKey(BrownPaperEvents,
+                                  blank=False) 
+
+    class Meta:
+        abstract = True
+
+
+class RoleExclusion(Exclusion):
+    '''
+    This is the implementation of the case under which we don't give a ticket
+    because of the event that the person is participating in.  This is largely
+    because we know the person will not be able to participate in an event
+    they are contributing to - for example a performer in a show.
+    
+    If no event, then the implication is that being this role for ANY event
+    means the exclusion takes effect
+    '''
+    role = models.CharField(max_length=25,
+                            choices=role_options)
+    event = models.ForeignKey('gbe.Event', blank=True)
+
+    class Meta:
+        abstract = True
+
