@@ -303,5 +303,5 @@ class RoleExclusion(Exclusion):
     def __unicode__(self):
         describe = self.role
         if self.event:
-            describe += ", " + self.event
+            describe += ", " + str(self.event)
         return unicode(describe)
