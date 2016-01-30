@@ -165,6 +165,10 @@ class CheckListItem(models.Model):
     '''
     description = models.CharField(max_length=50, unique=True)
 
+    def __unicode__(self):
+        return unicode(self.description)
+
+
 class EligibilityCondition(models.Model):
     '''
     This is the paremt class connecting the conditions under which a
@@ -177,7 +181,7 @@ class EligibilityCondition(models.Model):
     TO Discuss (post expo) - consider making this abstract and using content 
     types to link the exclusion foreign key to abstract cases of this class.
     '''
-    checklist_item = models.ForeignKey(
+    checklistitem = models.ForeignKey(
         CheckListItem,
         related_name="%(app_label)s_%(class)s")
 
@@ -192,12 +196,20 @@ class TicketingEligibilityCondition(EligibilityCondition):
     Ticket conditions are additive.  X purchases = X items given to the
     buyer
     '''
-    bpt_event = models.ForeignKey(BrownPaperEvents,
-                                  blank=False) 
+    tickets = models.ManyToManyField(TicketItem,
+                               blank=False)
 
-    class Meta:
-        abstract = True
-
+    def __unicode__(self):
+        unicode_string = ""
+        first = True
+        for ticket in self.tickets.all():
+            if first:
+                unicode_string = unicode(ticket)
+                first = False
+            else:
+                unicode_string += ", " + unicode(ticket)
+        
+        return unicode_string
 
 class RoleEligibilityCondition(EligibilityCondition):
     '''
@@ -210,8 +222,9 @@ class RoleEligibilityCondition(EligibilityCondition):
     role = models.CharField(max_length=25,
                             choices=role_options)
 
-    class Meta:
-        abstract = True
+    def __unicode__(self):
+        return unicode(self.role)
+
 
 class Exclusion(models.Model):
     '''
@@ -236,12 +249,20 @@ class TicketingExclusion(Exclusion):
     person purchased a ticket that includes an equivalent to the current
     item and maybe more.
     '''
-    bpt_event = models.ForeignKey(BrownPaperEvents,
-                                  blank=False) 
+    tickets = models.ManyToManyField(TicketItem,
+                               blank=False) 
 
-    class Meta:
-        abstract = True
-
+    def __unicode__(self):
+        unicode_string = ""
+        first = True
+        for ticket in self.tickets.all():
+            if first:
+                unicode_string = unicode(ticket)
+                first = False
+            else:
+                unicode_string += ", " + unicode(ticket)
+        
+        return unicode_string
 
 class RoleExclusion(Exclusion):
     '''
@@ -257,6 +278,5 @@ class RoleExclusion(Exclusion):
                             choices=role_options)
     event = models.ForeignKey('gbe.Event', blank=True)
 
-    class Meta:
-        abstract = True
-
+    def __unicode__(self):
+        return unicode(self.role + ", " + self.event)

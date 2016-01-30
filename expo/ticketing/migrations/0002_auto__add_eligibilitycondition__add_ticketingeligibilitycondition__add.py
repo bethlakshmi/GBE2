@@ -11,9 +11,40 @@ class Migration(SchemaMigration):
         # Adding model 'EligibilityCondition'
         db.create_table(u'ticketing_eligibilitycondition', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('checklist_item', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'ticketing_eligibilitycondition', to=orm['ticketing.CheckListItem'])),
+            ('checklistitem', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'ticketing_eligibilitycondition', to=orm['ticketing.CheckListItem'])),
         ))
         db.send_create_signal(u'ticketing', ['EligibilityCondition'])
+
+        # Adding model 'TicketingEligibilityCondition'
+        db.create_table(u'ticketing_ticketingeligibilitycondition', (
+            (u'eligibilitycondition_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['ticketing.EligibilityCondition'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal(u'ticketing', ['TicketingEligibilityCondition'])
+
+        # Adding M2M table for field tickets on 'TicketingEligibilityCondition'
+        m2m_table_name = db.shorten_name(u'ticketing_ticketingeligibilitycondition_tickets')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('ticketingeligibilitycondition', models.ForeignKey(orm[u'ticketing.ticketingeligibilitycondition'], null=False)),
+            ('ticketitem', models.ForeignKey(orm[u'ticketing.ticketitem'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['ticketingeligibilitycondition_id', 'ticketitem_id'])
+
+        # Adding model 'RoleEligibilityCondition'
+        db.create_table(u'ticketing_roleeligibilitycondition', (
+            (u'eligibilitycondition_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['ticketing.EligibilityCondition'], unique=True, primary_key=True)),
+            ('role', self.gf('django.db.models.fields.CharField')(max_length=25)),
+        ))
+        db.send_create_signal(u'ticketing', ['RoleEligibilityCondition'])
+
+        # Adding model 'RoleExclusion'
+        db.create_table(u'ticketing_roleexclusion', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('condition', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'ticketing_roleexclusion', to=orm['ticketing.EligibilityCondition'])),
+            ('role', self.gf('django.db.models.fields.CharField')(max_length=25)),
+            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Event'], blank=True)),
+        ))
+        db.send_create_signal(u'ticketing', ['RoleExclusion'])
 
         # Adding model 'CheckListItem'
         db.create_table(u'ticketing_checklistitem', (
@@ -22,13 +53,47 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'ticketing', ['CheckListItem'])
 
+        # Adding model 'TicketingExclusion'
+        db.create_table(u'ticketing_ticketingexclusion', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('condition', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'ticketing_ticketingexclusion', to=orm['ticketing.EligibilityCondition'])),
+        ))
+        db.send_create_signal(u'ticketing', ['TicketingExclusion'])
+
+        # Adding M2M table for field tickets on 'TicketingExclusion'
+        m2m_table_name = db.shorten_name(u'ticketing_ticketingexclusion_tickets')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('ticketingexclusion', models.ForeignKey(orm[u'ticketing.ticketingexclusion'], null=False)),
+            ('ticketitem', models.ForeignKey(orm[u'ticketing.ticketitem'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['ticketingexclusion_id', 'ticketitem_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'EligibilityCondition'
         db.delete_table(u'ticketing_eligibilitycondition')
 
+        # Deleting model 'TicketingEligibilityCondition'
+        db.delete_table(u'ticketing_ticketingeligibilitycondition')
+
+        # Removing M2M table for field tickets on 'TicketingEligibilityCondition'
+        db.delete_table(db.shorten_name(u'ticketing_ticketingeligibilitycondition_tickets'))
+
+        # Deleting model 'RoleEligibilityCondition'
+        db.delete_table(u'ticketing_roleeligibilitycondition')
+
+        # Deleting model 'RoleExclusion'
+        db.delete_table(u'ticketing_roleexclusion')
+
         # Deleting model 'CheckListItem'
         db.delete_table(u'ticketing_checklistitem')
+
+        # Deleting model 'TicketingExclusion'
+        db.delete_table(u'ticketing_ticketingexclusion')
+
+        # Removing M2M table for field tickets on 'TicketingExclusion'
+        db.delete_table(db.shorten_name(u'ticketing_ticketingexclusion_tickets'))
 
 
     models = {
@@ -119,7 +184,7 @@ class Migration(SchemaMigration):
         },
         u'ticketing.eligibilitycondition': {
             'Meta': {'object_name': 'EligibilityCondition'},
-            'checklist_item': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'ticketing_eligibilitycondition'", 'to': u"orm['ticketing.CheckListItem']"}),
+            'checklistitem': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'ticketing_eligibilitycondition'", 'to': u"orm['ticketing.CheckListItem']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'ticketing.purchaser': {
@@ -135,6 +200,29 @@ class Migration(SchemaMigration):
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'state': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'zip': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'ticketing.roleeligibilitycondition': {
+            'Meta': {'object_name': 'RoleEligibilityCondition', '_ormbases': [u'ticketing.EligibilityCondition']},
+            u'eligibilitycondition_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['ticketing.EligibilityCondition']", 'unique': 'True', 'primary_key': 'True'}),
+            'role': ('django.db.models.fields.CharField', [], {'max_length': '25'})
+        },
+        u'ticketing.roleexclusion': {
+            'Meta': {'object_name': 'RoleExclusion'},
+            'condition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'ticketing_roleexclusion'", 'to': u"orm['ticketing.EligibilityCondition']"}),
+            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Event']", 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'role': ('django.db.models.fields.CharField', [], {'max_length': '25'})
+        },
+        u'ticketing.ticketingeligibilitycondition': {
+            'Meta': {'object_name': 'TicketingEligibilityCondition', '_ormbases': [u'ticketing.EligibilityCondition']},
+            u'eligibilitycondition_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['ticketing.EligibilityCondition']", 'unique': 'True', 'primary_key': 'True'}),
+            'tickets': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['ticketing.TicketItem']", 'symmetrical': 'False'})
+        },
+        u'ticketing.ticketingexclusion': {
+            'Meta': {'object_name': 'TicketingExclusion'},
+            'condition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'ticketing_ticketingexclusion'", 'to': u"orm['ticketing.EligibilityCondition']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'tickets': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['ticketing.TicketItem']", 'symmetrical': 'False'})
         },
         u'ticketing.ticketitem': {
             'Meta': {'object_name': 'TicketItem'},
