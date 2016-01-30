@@ -191,12 +191,13 @@ class EligibilityCondition(models.Model):
         CheckListItem,
         related_name="%(app_label)s_%(class)s")
 
-    def has_ticket_exclusion(self, held_tickets):
+    def no_ticket_exclusion(self, held_tickets):
         no_exclusion = True
         for exclusion in TicketingExclusion.objects.filter(condition=self):
-            no_exclusion = (no_exclusion and exclusion.is_excluded(held_tickets))
+            no_exclusion = (no_exclusion and exclusion.is_excluded(
+                held_tickets))
         return no_exclusion
-    
+
 
 class TicketingEligibilityCondition(EligibilityCondition):
     '''
@@ -280,11 +281,11 @@ class TicketingExclusion(Exclusion):
     def is_excluded(self, held_tickets):
         no_exclusion = True
         for ticket in held_tickets:
-            if ticket in self.tickets:
+            if ticket in self.tickets.all():
                 no_exclusion = False
 
         return no_exclusion
-    
+
 
 class RoleExclusion(Exclusion):
     '''

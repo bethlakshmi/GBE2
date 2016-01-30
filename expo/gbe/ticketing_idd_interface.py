@@ -169,7 +169,7 @@ def get_checklist_items_for_tickets(purchaser, conference, tickets=None):
     get the checklist items for a purchaser in the BTP
     '''
     checklist_items = []
-    
+
     if not tickets:
         tickets = TicketItem.objects.filter(
             bpt_event__conference=conference,
@@ -177,15 +177,17 @@ def get_checklist_items_for_tickets(purchaser, conference, tickets=None):
 
     for ticket in tickets:
         items = []
-        for condition in TicketingEligibilityCondition.objects.filter(
-                tickets=ticket):
-            #if condition.no_ticket_exclusion(tickets):
-            items += [condition.checklistitem]
-        if len(items) > 0:
-            checklist_items += [{'ticket': ticket.title,
-                                 'count': purchaser.transaction_set.filter(
-                                    ticket_item=ticket).count(),
-                                 'items': items}]
+        count = purchaser.transaction_set.filter(ticket_item=ticket).count()
+        if count > 0:
+            for condition in TicketingEligibilityCondition.objects.filter(
+                    tickets=ticket):
+
+                if condition.no_ticket_exclusion(tickets):
+                    items += [condition.checklistitem]
+            if len(items) > 0:
+                checklist_items += [{'ticket': ticket.title,
+                                     'count': count,
+                                     'items': items}]
 
     return checklist_items
 
@@ -199,8 +201,8 @@ def get_checklist_items_for_roles(profile, conference, tickets):
     for role in profile.get_roles(conference):
         items = []
         for condition in RoleEligibilityCondition.objects.filter(role=role):
-            #if condition.no_ticket_exclusion(tickets):
-            items += [condition.checklistitem]
+            if condition.no_ticket_exclusion(tickets):
+                items += [condition.checklistitem]
         if len(items) > 0:
             checklist_items += [{'role': role,
                                  'items': items}]
