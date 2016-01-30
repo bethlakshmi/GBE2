@@ -70,15 +70,15 @@ class BPTEventsAdmin(admin.ModelAdmin):
                    'badgeable',
                    'conference']
 
-    
+
 class TicketingExclusionInline(admin.TabularInline):
     model = TicketingExclusion
     filter_horizontal = ("tickets",)
- 
- 
+
+
 class RoleExclusionInline(admin.TabularInline):
     model = RoleExclusion
-    
+
 
 class EligibilityConditionAdmin(admin.ModelAdmin):
     list_display = ('__unicode__',
@@ -88,7 +88,8 @@ class EligibilityConditionAdmin(admin.ModelAdmin):
         TicketingExclusionInline,
         RoleExclusionInline
     ]
-    
+
+
 class TicketEligibilityConditionAdmin(admin.ModelAdmin):
     filter_horizontal = ("tickets",)
     list_display = ('__unicode__',
@@ -98,6 +99,7 @@ class TicketEligibilityConditionAdmin(admin.ModelAdmin):
         TicketingExclusionInline,
         RoleExclusionInline
     ]
+
 
 admin.site.register(BrownPaperSettings)
 admin.site.register(BrownPaperEvents, BPTEventsAdmin)

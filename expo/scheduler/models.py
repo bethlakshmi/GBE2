@@ -117,6 +117,11 @@ class Resource(models.Model):
         child = Resource.objects.get_subclass(id=self.id)
         return child._item
 
+    @property
+    def as_subtype(self):
+        child = Resource.objects.get_subclass(id=self.id)
+        return child
+
     def __str__(self):
         allocated_resource = Resource.objects.get_subclass(id=self.id)
         if allocated_resource:
@@ -143,8 +148,7 @@ class ActItem(ResourceItem):
 
         for a in allocs:
             if (a.event.as_subtype.type == 'Rehearsal Slot' and
-                a.event.container_event.parent_event == show):
-
+                    a.event.container_event.parent_event == show):
                 a.delete()
                 a.resource.delete()
         resource = ActResource(_item=self)
@@ -574,7 +578,8 @@ class EventItem (models.Model):
                  Q(role__in=['Teacher',
                              'Panelist',
                              'Moderator',
-                             'Staff Lead']))).distinct().order_by('role', '_item')
+                             'Staff Lead']))).distinct().order_by(
+                'role', '_item')
         except:
             people = Worker.objects.filter(
                 allocations__event__eventitem=self.eventitem_id,
@@ -996,7 +1001,7 @@ class ResourceAllocation(Schedulable):
 
     def __unicode__(self):
         try:
-            return "%s :: Event: %s == %s : %s" %(
+            return "%s :: Event: %s == %s : %s" % (
                 unicode(self.start_time.astimezone(pytz.timezone('UTC'))),
                 unicode(self.event),
                 unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__),

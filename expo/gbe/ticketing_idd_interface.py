@@ -166,23 +166,41 @@ def get_purchased_tickets(user):
 
 def get_checklist_items_for_tickets(purchaser, conference):
     '''
-    get the checklist items for a purchaser in the BTP 
+    get the checklist items for a purchaser in the BTP
     '''
     checklist_items = []
     tickets = TicketItem.objects.filter(
         bpt_event__conference=conference,
         transaction__purchaser=purchaser).distinct()
- 
+
     for ticket in tickets:
         items = []
-        for condition in TicketingEligibilityCondition.objects.filter(tickets=ticket):
+        for condition in TicketingEligibilityCondition.objects.filter(
+                tickets=ticket):
             items += [condition.checklistitem]
         if len(items) > 0:
             checklist_items += [{'ticket': ticket.title,
                                  'count': purchaser.transaction_set.filter(
                                     ticket_item=ticket).count(),
                                  'items': items}]
-    
+
+    return checklist_items
+
+
+def get_checklist_items_for_roles(profile, conference):
+    '''
+    get the checklist items for the roles a person does in this conference
+    '''
+    checklist_items = []
+
+    for role in profile.get_roles(conference):
+        items = []
+        for condition in RoleEligibilityCondition.objects.filter(role=role):
+            items += [condition.checklistitem]
+        if len(items) > 0:
+            checklist_items += [{'role': role,
+                                 'items': items}]
+
     return checklist_items
 
 
@@ -194,6 +212,9 @@ def get_checklist_items(profile, conference):
 
     purchasers = Purchaser.objects.filter(matched_to_user=profile.user_object)
     for purchaser in purchasers:
-        checklist_items += get_checklist_items_for_tickets(purchaser, conference)
-    
+        checklist_items += get_checklist_items_for_tickets(purchaser,
+                                                           conference)
+
+    checklist_items += get_checklist_items_for_roles(profile, conference)
+
     return checklist_items

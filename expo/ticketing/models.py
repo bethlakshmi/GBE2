@@ -85,14 +85,15 @@ class TicketItem(models.Model):
 
 class Purchaser(models.Model):
     '''
-    This class is used to hold the information for a given person who has purchased 
-    a ticket at BPT.  It has all the information we can gather from BPT about the
-    user.  It is meant to be mapped to a given User in our system, if we can.
-    
-    These are pretty much all char fields since we don't know the format of what 
-    BPT (or another system) will hand back.
+    This class is used to hold the information for a given person who has
+    purchased a ticket at BPT.  It has all the information we can gather
+    from BPT about the user.  It is meant to be mapped to a given User in
+    our system, if we can.
+
+    These are pretty much all char fields since we don't know the format of
+    what BPT (or another system) will hand back.
     '''
-    
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     address = models.TextField()
@@ -102,47 +103,47 @@ class Purchaser(models.Model):
     country = models.CharField(max_length=50)
     email = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
-    
-    # Note - if this is none, then we don't know who to match this purchase to in our
-    # system.  This scenario will be pretty common. 
-    
+
+    # Note - if this is none, then we don't know who to match this purchase to
+    # in our system.  This scenario will be pretty common.
+
     matched_to_user = models.ForeignKey(User, default=None)
-    
+
     def __unicode__(self):
         try:
             return str(self.matched_to_user)
         except:
             return "USER ERROR: "+self.email+' - id: '+str(self.id)
-        
+
     def __eq__(self, other):
         if not isinstance(other, Purchaser):
             return False
-        
-        if ((self.first_name != other.first_name) or 
-            (self.last_name != other.last_name) or 
-            (self.address != other.address) or 
-            (self.city != other.city) or 
-            (self.state != other.state) or 
-            (self.zip != other.zip) or 
-            (self.country != other.country) or 
-            (self.email != other.email) or 
-            (self.phone != other.phone)):
+
+        if ((self.first_name != other.first_name) or
+                (self.last_name != other.last_name) or
+                (self.address != other.address) or
+                (self.city != other.city) or
+                (self.state != other.state) or
+                (self.zip != other.zip) or
+                (self.country != other.country) or
+                (self.email != other.email) or
+                (self.phone != other.phone)):
             return False
         return True
-    
+
     def __ne__(self, other):
         if not isinstance(other, Purchaser):
             return True
         return not self.__eq__(other)
 
-    
+
 class Transaction(models.Model):
-    ''' 
-    This class holds transaction records from an external source - in this case,
-    Brown Paper Tickets.  Transactions are associated to a purchaser and a specific
-    ticket item.
     '''
-    
+    This class holds transaction records from an external source - in this
+    case, Brown Paper Tickets.  Transactions are associated to a purchaser
+    and a specific ticket item.
+    '''
+
     ticket_item = models.ForeignKey(TicketItem)
     purchaser = models.ForeignKey(Purchaser)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
@@ -152,10 +153,11 @@ class Transaction(models.Model):
     reference = models.CharField(max_length=30)
     payment_source = models.CharField(max_length=30)
     import_date = models.DateTimeField(auto_now=True)
-    
+
     def __unicode__(self):
         return '%s (%s)' % (self.reference, self.purchaser)
-    
+
+
 class CheckListItem(models.Model):
     '''
     This is a physical item that we can give away at the registration desk
@@ -173,12 +175,12 @@ class EligibilityCondition(models.Model):
     '''
     This is the paremt class connecting the conditions under which a
     CheckListItem can be given to the conditions themselves.
-    
+
     Conditions are logically additive unless eliminated by exclusions.
     So if 3 conditions give an item with no exclusion, then the individual
     gets 3 items.
-    
-    TO Discuss (post expo) - consider making this abstract and using content 
+
+    TO Discuss (post expo) - consider making this abstract and using content
     types to link the exclusion foreign key to abstract cases of this class.
     '''
     checklistitem = models.ForeignKey(
@@ -192,12 +194,12 @@ class TicketingEligibilityCondition(EligibilityCondition):
     checklist item to a purchaser because they have purchased a ticket
     Tickets are realized as BPT Events, the various tickets within an
     event do not qualify a user for anything more.
-    
+
     Ticket conditions are additive.  X purchases = X items given to the
     buyer
     '''
     tickets = models.ManyToManyField(TicketItem,
-                               blank=False)
+                                     blank=False)
 
     def __unicode__(self):
         unicode_string = ""
@@ -208,14 +210,15 @@ class TicketingEligibilityCondition(EligibilityCondition):
                 first = False
             else:
                 unicode_string += ", " + unicode(ticket)
-        
+
         return unicode_string
+
 
 class RoleEligibilityCondition(EligibilityCondition):
     '''
     This is the implementation of the condition under which we give a
     checklist item to a person because they fulfill an assigned role.
-    
+
     Roles are given once per person per conference - being a role
     gets exactly 1 of the item.
     '''
@@ -250,7 +253,7 @@ class TicketingExclusion(Exclusion):
     item and maybe more.
     '''
     tickets = models.ManyToManyField(TicketItem,
-                               blank=False) 
+                                     blank=False)
 
     def __unicode__(self):
         unicode_string = ""
@@ -261,8 +264,9 @@ class TicketingExclusion(Exclusion):
                 first = False
             else:
                 unicode_string += ", " + unicode(ticket)
-        
+
         return unicode_string
+
 
 class RoleExclusion(Exclusion):
     '''
@@ -270,13 +274,16 @@ class RoleExclusion(Exclusion):
     because of the event that the person is participating in.  This is largely
     because we know the person will not be able to participate in an event
     they are contributing to - for example a performer in a show.
-    
+
     If no event, then the implication is that being this role for ANY event
     means the exclusion takes effect
     '''
     role = models.CharField(max_length=25,
                             choices=role_options)
-    event = models.ForeignKey('gbe.Event', blank=True)
+    event = models.ForeignKey('gbe.Event', blank=True, null=True)
 
     def __unicode__(self):
-        return unicode(self.role + ", " + self.event)
+        describe = self.role
+        if self.event:
+            describe += ", " + self.event
+        return unicode(describe)

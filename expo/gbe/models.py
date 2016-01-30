@@ -24,7 +24,10 @@ from datetime import datetime
 from datetime import timedelta
 from expomodelfields import DurationField
 from django.core.urlresolvers import reverse
-from scheduler.functions import set_time_format
+from scheduler.functions import (
+    set_time_format,
+    get_roles_from_scheduler
+)
 from model_utils.managers import InheritanceManager
 from duration import Duration
 import gbetext
@@ -340,6 +343,17 @@ class Profile(WorkerItem):
         events += [e for e in sEvent.objects.filter(
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
+
+    def get_roles(self, conference):
+        '''
+        Gets all of a person's roles for a conference
+        '''
+        roles = get_roles_from_scheduler(
+            self.get_performers()+[self],
+            conference)
+        if self.get_shows():
+            roles += ["Performer"]
+        return roles
 
     def get_badge_name(self):
         badge_name = self.display_name

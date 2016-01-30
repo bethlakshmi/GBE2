@@ -147,7 +147,7 @@ def available_volunteers(event_start_time):
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
         window_range = DateTimeRange(starttime=starttime,
-                                      endtime=endtime)
+                                     endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)

@@ -203,7 +203,6 @@ def personal_schedule(request, profile_id='All'):
 
     schedules = []
 
-
     for person in people:
         bookings = person.get_schedule(conference)
         items = get_checklist_items(person, conference)
@@ -514,7 +513,8 @@ def export_badge_report(request, conference_choice=None):
     else:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True).exclude(
-                ticket_item__bpt_event__conference__status='completed').order_by(
+                ticket_item__bpt_event__conference__status='completed'
+                ).order_by(
                     'ticket_item')
 
     # build header, segmented in same structure as subclasses
