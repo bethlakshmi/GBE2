@@ -1,44 +1,41 @@
-# 
-# models.py - Contains Django Database Models for Ticketing - Defines Database Schema
-# edited by mdb 8/18/2014
-#
-
 from django.db import models
 from django.contrib.auth.models import User
 from gbe.models import Conference
 from gbetext import role_options
 
-# Create your models here.
-    
+
 class BrownPaperSettings(models.Model):
     '''
-    This class is used to hold basic settings for the interface with BPT.  It should
-    contain only one row and almost never changes.
+    This class is used to hold basic settings for the interface with BPT.
+    It should contain only one row and almost never changes.
     '''
     developer_token = models.CharField(max_length=15, primary_key=True)
     client_username = models.CharField(max_length=30)
     last_poll_time = models.DateTimeField()
-    
+
     def __unicode__(self):
-        return 'Settings:  %s (%s) - %s' % (self.developer_token, self.client_username, self.last_poll_time)
+        return 'Settings:  %s (%s) - %s' % (self.developer_token,
+                                            self.client_username,
+                                            self.last_poll_time)
+
     class Meta:
-        verbose_name_plural='Brown Paper Settings'
-    
+        verbose_name_plural = 'Brown Paper Settings'
+
+
 class BrownPaperEvents(models.Model):
     '''
     This class is used to hold the BPT event list.  It defines with Brown Paper
     Ticket Events should be queried to obtain information on the Ticket Items
     above.  This information mainly remains static - it is set up info for the
     interface with BPT.
-    
+
       - include_conferece = if True this event provides tickets for all parts
             of the conference - Classes, Panels, Workshops - but not Master
             Classes
       - include_most = includes everything EXCEPT Master Classes
-      
     '''
     bpt_event_id = models.CharField(max_length=10)
-    primary = models.BooleanField(default=False)  
+    primary = models.BooleanField(default=False)
     act_submission_event = models.BooleanField(default=False,
                                                verbose_name='Act Fee')
     vendor_submission_event = models.BooleanField(default=False,
@@ -52,22 +49,25 @@ class BrownPaperEvents(models.Model):
     ticket_style = models.CharField(max_length=50, blank=True)
     conference = models.ForeignKey('gbe.Conference',
                                    related_name='ticketing_item',
-                                   default=lambda: Conference.objects.filter(status="upcoming").first())
-    
+                                   default=lambda: Conference.objects.filter(
+                                    status="upcoming").first())
+
     def __unicode__(self):
         return self.bpt_event_id
+
     class Meta:
-        verbose_name_plural='Brown Paper Events'
-        
+        verbose_name_plural = 'Brown Paper Events'
+
+
 class TicketItem(models.Model):
     '''
-    This class represents a type of ticket.  There is one ticket per price point,
-    so an event like the Whole Shebang can have 10 or so different ticket - early bird,
-    various discount codes, full price, etc.
-      - active = whether the ticket should be actively displayed on the website.  Manually
-          set
-      - ticket_id = is calculated to conjoin event and ticket identifiers from BPT
-    '''    
+    This class represents a type of ticket.  There is one ticket per price
+    point, so an event like the Whole Shebang can have 10 or so different
+    ticket - early bird, various discount codes, full price, etc.
+      - active = whether the ticket should be actively displayed on the
+          website.  Manually set
+      - ticket_id = is calculated to conjoin event & ticket identifiers
+    '''
     ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
     description = models.TextField()
@@ -77,8 +77,8 @@ class TicketItem(models.Model):
     modified_by = models.CharField(max_length=30)
     bpt_event = models.ForeignKey(BrownPaperEvents,
                                   related_name="ticketitems",
-                                  blank=True) 
-   
+                                  blank=True)
+
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
 
@@ -136,6 +136,10 @@ class Purchaser(models.Model):
             return True
         return not self.__eq__(other)
 
+    def get_badge_name(self):
+        return unicode(
+            self.first_name.capitalize() + " " + self.last_name.capitalize())
+
 
 class Transaction(models.Model):
     '''
@@ -187,6 +191,12 @@ class EligibilityCondition(models.Model):
         CheckListItem,
         related_name="%(app_label)s_%(class)s")
 
+    def has_ticket_exclusion(self, held_tickets):
+        no_exclusion = True
+        for exclusion in TicketingExclusion.objects.filter(condition=self):
+            no_exclusion = (no_exclusion and exclusion.is_excluded(held_tickets))
+        return no_exclusion
+    
 
 class TicketingEligibilityCondition(EligibilityCondition):
     '''
@@ -267,6 +277,14 @@ class TicketingExclusion(Exclusion):
 
         return unicode_string
 
+    def is_excluded(self, held_tickets):
+        no_exclusion = True
+        for ticket in held_tickets:
+            if ticket in self.tickets:
+                no_exclusion = False
+
+        return no_exclusion
+    
 
 class RoleExclusion(Exclusion):
     '''

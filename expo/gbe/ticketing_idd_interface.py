@@ -164,19 +164,22 @@ def get_purchased_tickets(user):
     return ticket_by_conf
 
 
-def get_checklist_items_for_tickets(purchaser, conference):
+def get_checklist_items_for_tickets(purchaser, conference, tickets=None):
     '''
     get the checklist items for a purchaser in the BTP
     '''
     checklist_items = []
-    tickets = TicketItem.objects.filter(
-        bpt_event__conference=conference,
-        transaction__purchaser=purchaser).distinct()
+    
+    if not tickets:
+        tickets = TicketItem.objects.filter(
+            bpt_event__conference=conference,
+            transaction__purchaser=purchaser).distinct()
 
     for ticket in tickets:
         items = []
         for condition in TicketingEligibilityCondition.objects.filter(
                 tickets=ticket):
+            #if condition.no_ticket_exclusion(tickets):
             items += [condition.checklistitem]
         if len(items) > 0:
             checklist_items += [{'ticket': ticket.title,
@@ -187,7 +190,7 @@ def get_checklist_items_for_tickets(purchaser, conference):
     return checklist_items
 
 
-def get_checklist_items_for_roles(profile, conference):
+def get_checklist_items_for_roles(profile, conference, tickets):
     '''
     get the checklist items for the roles a person does in this conference
     '''
@@ -196,6 +199,7 @@ def get_checklist_items_for_roles(profile, conference):
     for role in profile.get_roles(conference):
         items = []
         for condition in RoleEligibilityCondition.objects.filter(role=role):
+            #if condition.no_ticket_exclusion(tickets):
             items += [condition.checklistitem]
         if len(items) > 0:
             checklist_items += [{'role': role,
@@ -210,11 +214,18 @@ def get_checklist_items(profile, conference):
     '''
     checklist_items = []
 
+    tickets = TicketItem.objects.filter(
+        bpt_event__conference=conference,
+        transaction__purchaser__matched_to_user=profile.user_object).distinct()
+
     purchasers = Purchaser.objects.filter(matched_to_user=profile.user_object)
     for purchaser in purchasers:
         checklist_items += get_checklist_items_for_tickets(purchaser,
-                                                           conference)
+                                                           conference,
+                                                           tickets)
 
-    checklist_items += get_checklist_items_for_roles(profile, conference)
+    checklist_items += get_checklist_items_for_roles(profile,
+                                                     conference,
+                                                     tickets)
 
     return checklist_items
