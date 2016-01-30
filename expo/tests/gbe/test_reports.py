@@ -136,12 +136,9 @@ class TestReports(TestCase):
         '''
         nt.assert_true(date.today() < date (2016, 3, 1),
                        msg="Time to fix test_staff_area!")
-        """
+        
         profile = self.profile_factory.create()
         show = factories.ShowFactory.create()
-        current_conference = show.conference
-        current_conference.save()
-        show.eventitem_id.conference = show.conference
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
         functions.login_as(profile, self)
         request.user = profile.user_object
@@ -149,7 +146,6 @@ class TestReports(TestCase):
         functions.grant_privilege(profile, 'Act Reviewers')
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
-        """
 
     @nt.raises(PermissionDenied)
     def test_staff_area_path_fail(self):
