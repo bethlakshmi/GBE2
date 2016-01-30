@@ -206,8 +206,8 @@ def personal_schedule(request, profile_id='All'):
 
     for person in people:
         bookings = person.get_schedule(conference)
-        items = get_checklist_items(person)
-        if len(bookings) > 0 or len(tickets) > 0:
+        items = get_checklist_items(person, conference)
+        if len(bookings) > 0 or len(items) > 0:
             schedules += [{'person': person,
                            'bookings': bookings,
                            'checklist_items': items}]

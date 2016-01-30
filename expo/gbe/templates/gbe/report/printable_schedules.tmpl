@@ -37,7 +37,12 @@
   
   <ul>
   {% for criteria in schedule.checklist_items %}
-    <li></li>
+    <li>Purchased {{criteria.count}} items of {{criteria.ticket}}, for each item include:</li>
+    <lu>
+      {% for item in criteria.items%}
+        <li>{{item}}</li>
+      {%endfor%}
+    </lu>
   {% endfor %}
   </ul>
 
