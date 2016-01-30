@@ -85,11 +85,11 @@ def staff_area(request, area_id):
 
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(
-        eventitem=area).order_by('starttime').filter(conference=conference)
+        eventitem=area).order_by('starttime')
     opps = []
     for event in sched_event:
         opps += event.get_volunteer_opps(
-            'Volunteer').filter(conference=conference)
+            'Volunteer')
     return render(request, 'gbe/report/staff_area_schedule.tmpl',
                   {'opps': opps,
                    'area': area,
