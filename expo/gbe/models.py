@@ -699,12 +699,12 @@ class StageInfo(models.Model):
     @property
     def dump_data(self):
         return [self.act_duration,
-                self.intro_text,
+                self.intro_text.encode('utf-8').strip(),
                 self.confirm,
                 self.set_props,
                 self.cue_props,
                 self.clear_props,
-                self.notes,
+                self.notes.encode('utf-8').strip(),
                 ]
 
     @property
