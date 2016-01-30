@@ -162,3 +162,37 @@ def get_purchased_tickets(user):
         if tickets:
             ticket_by_conf.append({'conference': conf, 'tickets': tickets})
     return ticket_by_conf
+
+
+def get_checklist_items_for_tickets(purchaser, conference):
+    '''
+    get the checklist items for a purchaser in the BTP 
+    '''
+    checklist_items = []
+    tickets = TicketItem.objects.filter(
+        bpt_event__conference=conf,
+        transaction__purchaser__matched_to_user=user).distinct()
+ 
+    for ticket in tickets:
+        items = []
+        for condition in tickets.ticketing_ticketingeligibilitycondition.all():
+            items += [condition.checklistitem]
+        checklist_item += [{'ticket': ticket.title,
+                            'count': purchaser.transaction_set.filter(
+                                ticket_item=ticket).count(),
+                            'items': items}]
+    
+    return checklist_items
+
+
+def get_checklist_items(profile, conference):
+    '''
+    get the checklist items for a person with a profile
+    '''
+    checklist_items = []
+
+    purchasers = Purchaser.objects.filter(matched_to_user=profile.user)
+    for purchaser in purchasers:
+        checklist_items += get_checklist_items_for_tickets(purchaser, conference)
+    
+    return checklist_items
