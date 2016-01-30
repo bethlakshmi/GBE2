@@ -45,6 +45,7 @@ from functions import (
 from gbe.functions import (
     get_current_conference,
     get_conference_by_slug,
+    get_conference_day,
     validate_perms,
     validate_profile,
     get_events_list_by_type,
@@ -339,10 +340,14 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         else:
             sevent = opp['sched']
             num_volunteers = sevent.max_volunteer
-            day = sevent.start_time.strftime("%Y-%m-%d")
+            date = sevent.start_time.date()
+            conference = opp['conf'].conference
+
             time = sevent.start_time.time
+            day = get_conference_day(conference=conference,
+                                     date=date)
             location = sevent.location
-            if sevent.location:
+            if location:
                 room = location.room
             else:
                 room = item.location.room
@@ -356,7 +361,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                              'time': time,
                              'location': room,
                              },
-                    conference=opp['conf'].conference
+                    conference=conference
                 )
             )
     context['actionform'] = actionform
@@ -873,7 +878,9 @@ def edit_event_display(request, item, errorcontext=None):
 
     initial = {}
     initial['duration'] = item.duration
-    initial['day'] = item.starttime.strftime("%Y-%m-%d")
+    initial['day'] = get_conference_day(
+        conference=item.eventitem.get_conference(),
+        date=item.starttime.date())
     initial['time'] = item.starttime.strftime("%H:%M:%S")
     initial['description'] = item.as_subtype.sched_payload['description']
     initial['title'] = item.as_subtype.sched_payload['title']
