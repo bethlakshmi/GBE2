@@ -77,24 +77,16 @@ def staff_area(request, area_id):
     '''
     viewer_profile = validate_perms(request, 'any', require=True)
 
-    conference_slugs = conf.Conference.all_slugs()
-    if request.GET and request.GET.get('conf_slug'):
-        conference = conf.Conference.by_slug(request.GET['conf_slug'])
-    else:
-        conference = conf.Conference.current_conf()
-
     area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
     sched_event = sched.Event.objects.filter(
-        eventitem=area).order_by('starttime').filter(conference=conference)
+        eventitem=area).order_by('starttime')
     opps = []
     for event in sched_event:
         opps += event.get_volunteer_opps(
-            'Volunteer').filter(conference=conference)
+            'Volunteer')
     return render(request, 'gbe/report/staff_area_schedule.tmpl',
                   {'opps': opps,
-                   'area': area,
-                   'conference_slugs': conference_slugs,
-                   'conference': conference})
+                   'area': area})
 
 
 def env_stuff(request, conference_choice=None):
