@@ -191,11 +191,17 @@ class EligibilityCondition(models.Model):
         CheckListItem,
         related_name="%(app_label)s_%(class)s")
 
-    def no_ticket_exclusion(self, held_tickets):
+    def no_exclusion(self, held_tickets, profile, conference):
         no_exclusion = True
-        for exclusion in TicketingExclusion.objects.filter(condition=self):
-            no_exclusion = (no_exclusion and exclusion.is_excluded(
-                held_tickets))
+        if held_tickets:
+            for exclusion in TicketingExclusion.objects.filter(condition=self):
+                no_exclusion = (no_exclusion and exclusion.is_excluded(
+                    held_tickets))
+        if profile:
+            for exclusion in RoleExclusion.objects.filter(condition=self):
+                no_exclusion = (no_exclusion and exclusion.is_excluded(
+                    profile,
+                    conference))
         return no_exclusion
 
 
@@ -306,3 +312,12 @@ class RoleExclusion(Exclusion):
         if self.event:
             describe += ", " + str(self.event)
         return unicode(describe)
+
+    def is_excluded(self, profile, conference):
+        no_exclusion = True
+        if not self.event:
+            no_exclusion = not (self.role in profile.get_roles(conference))
+        else:
+            no_exclusion = not profile.has_role_in_event(self.role,
+                                                         self.event)
+        return no_exclusion

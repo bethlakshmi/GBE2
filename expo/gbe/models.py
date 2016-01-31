@@ -393,6 +393,25 @@ class Profile(WorkerItem):
     def sched_payload(self):
         return {'name': self.display_name}
 
+    def has_role_in_event(self, role, event):
+        '''
+        Gets all of a person's roles for a conference
+        '''
+        doing_it = False
+        if role == "Performer":
+            for show in self.get_shows():
+                if show.pk == event.pk:
+                    doing_it = (doing_it or True)
+        else:
+            event_workers = event.roles(role)
+            if self in event_workers:
+                doing_it = True
+            else:
+                for perf in self.performers():
+                    doing_it = doing_it or (perf in event_workers)
+
+        return doing_it
+
     def __str__(self):
         return self.display_name
 
