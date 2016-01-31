@@ -214,10 +214,12 @@ def personal_schedule(request, profile_id='All'):
         if len(items) > 0:
             schedules += [{'person': purchaser,
                            'checklist_items': items}]
-
+    sorted_sched = sorted(
+        schedules,
+        key=lambda schedule: schedule['person'].get_badge_name())
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
-                  {'schedules': schedules,
+                  {'schedules': sorted_sched,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
