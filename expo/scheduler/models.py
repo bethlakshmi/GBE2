@@ -565,9 +565,9 @@ class EventItem (models.Model):
 
     @property
     def roles(self, roles=['Teacher',
-                             'Panelist',
-                             'Moderator',
-                             'Staff Lead']):
+                           'Panelist',
+                           'Moderator',
+                           'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
                 child_event__eventitem=self.eventitem_id).first()
