@@ -2027,7 +2027,7 @@ def bid_costume(request):
     performers = owner.personae.all()
     if not performers.exists():
         return HttpResponseRedirect(reverse('persona_create',
-                                            urlconf='gbe.urls')+
+                                            urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('costume_create',
                                             urlconf='gbe.urls'))
