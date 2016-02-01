@@ -8,7 +8,10 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
 )
-from django.db.models import Q
+from django.db.models import (
+    Q,
+    Count,
+)
 from django.contrib.auth.forms import UserCreationForm
 from django.template import (
     loader,
@@ -626,10 +629,6 @@ def contact_performers(conference=None):
 
 
 def contact_volunteers(conference=None):
-    from gbe.models import Volunteer
-    contacts = filter(lambda worker: worker.allocations.count() > 0,
-                      [vol.profile.workeritem_ptr.worker_set.first() for vol in
-                       Volunteer.objects.filter(conference=conference)])
     header = ['Name',
               'Phone',
               'Email',
@@ -637,27 +636,39 @@ def contact_volunteers(conference=None):
               'Volunteer Role',
               'Event']
     volunteer_categories = dict(volunteer_interests_options)
+    if not conference:
+        conference = get_current_conference()
+    from gbe.models import Volunteer
+    contacts = filter(lambda worker: worker.allocations.count() > 0,
+                      [vol.profile.workeritem_ptr.worker_set.first() for vol in
+                       Volunteer.objects.filter(conference=conference)
+                       if vol.profile.workeritem_ptr.worker_set.exists()])
+
+    volunteers = Volunteer.objects.filter(conference=conference).annotate(
+        Count('profile__workeritem_ptr__worker')).order_by(
+            '-profile__workeritem_ptr__worker__count')
+
     contact_info = []
-    for c in contacts:
-        profile = c.item.profile
-        event = c.allocations.first().event
-        try:
-            parent_event = event.container_event.parent_event
-        except:
-            parent_event = event
-        contact_info.append([profile.display_name,
-                             profile.phone,
-                             profile.contact_email,
-                             volunteer_categories.get(
-                                 event.as_subtype.volunteer_category, ''),
-                             str(event),
-                             str(parent_event)])
-        volunteers = Volunteer.objects.filter(conference=conference)
-        for v in volunteers:
+    for v in volunteers:
+        profile = v.profile
+        for worker in profile.workeritem_ptr.worker_set.all():
+            for allocation in worker.allocations.all():
+                try:
+                    parent_event = allocation.event.container_event.parent_event
+                except:
+                    parent_event = allocation.event
+                contact_info.append([profile.display_name,
+                                     profile.phone,
+                                     profile.contact_email,
+                                     volunteer_categories.get(
+                                         allocation.event.as_subtype.volunteer_category, ''),
+                                     str(allocation.event),
+                                     str(parent_event)])
+        else:
             interests = eval(v.interests)
-            contact_info.append([v.profile.display_name,
-                                 v.profile.phone,
-                                 v.profile.contact_email,
+            contact_info.append([profile.display_name,
+                                 profile.phone,
+                                 profile.contact_email,
                                  ','.join([volunteer_categories[i]
                                            for i in interests]),
                                  'Application',
