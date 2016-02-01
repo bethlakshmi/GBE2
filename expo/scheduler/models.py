@@ -142,9 +142,11 @@ class ActItem(ResourceItem):
         allocs = sum([list(res.allocations.all()) for res in resources], [])
 
         for a in allocs:
-            if (a.event.as_subtype.type == 'Rehearsal Slot' and
-                a.event.container_event.parent_event == show):
+            is_rehearsal_for_this_show = (
+                a.event.as_subtype.type == 'Rehearsal Slot' and
+                a.event.container_event.parent_event == show)
 
+            if is_rehearsal_for_this_show:
                 a.delete()
                 a.resource.delete()
         resource = ActResource(_item=self)
@@ -574,7 +576,8 @@ class EventItem (models.Model):
                  Q(role__in=['Teacher',
                              'Panelist',
                              'Moderator',
-                             'Staff Lead']))).distinct().order_by('role', '_item')
+                             'Staff Lead']))).distinct().order_by('role',
+                                                                  '_item')
         except:
             people = Worker.objects.filter(
                 allocations__event__eventitem=self.eventitem_id,
@@ -845,10 +848,9 @@ class Event(Schedulable):
             )
         return info
 
-
     def class_contacts2(self):
         '''
-        To do: reconcile the two class_contacts
+        To do: reconcile the two class_contacts functions
         '''
         allocations = self.resources_allocated.filter(
             resource__in=Worker.objects.all())
@@ -1028,10 +1030,11 @@ class ResourceAllocation(Schedulable):
 
     def __unicode__(self):
         try:
-            return "%s :: Event: %s == %s : %s" %(
+            return "%s :: Event: %s == %s : %s" % (
                 unicode(self.start_time.astimezone(pytz.timezone('UTC'))),
                 unicode(self.event),
-                unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__),
+                unicode(Resource.objects.get_subclass(
+                    id=self.resource.id).__class__.__name__),
                 unicode(Resource.objects.get_subclass(id=self.resource.id)))
         except:
             return "Missing an Item"
