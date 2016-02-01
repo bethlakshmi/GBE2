@@ -31,6 +31,11 @@ class PerformerAdmin(admin.ModelAdmin):
     list_display = ('name', 'contact')
 
 
+class TroupeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact')
+    filter_horizontal = ("membership",)
+
+
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'user_object', 'phone', 'purchase_email')
 
@@ -125,7 +130,7 @@ admin.site.register(ProfilePreferences, ProfilePreferencesAdmin)
 admin.site.register(Persona, PerformerAdmin)
 admin.site.register(Performer, PerformerAdmin)
 admin.site.register(Combo, PerformerAdmin)
-admin.site.register(Troupe, PerformerAdmin)
+admin.site.register(Troupe, TroupeAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
 admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
