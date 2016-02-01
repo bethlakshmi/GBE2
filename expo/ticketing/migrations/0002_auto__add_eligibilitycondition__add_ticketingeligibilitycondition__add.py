@@ -42,7 +42,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('condition', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'ticketing_roleexclusion', to=orm['ticketing.EligibilityCondition'])),
             ('role', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Event'], blank=True)),
+            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Event'], null=True, blank=True)),
         ))
         db.send_create_signal(u'ticketing', ['RoleExclusion'])
 
@@ -209,7 +209,7 @@ class Migration(SchemaMigration):
         u'ticketing.roleexclusion': {
             'Meta': {'object_name': 'RoleExclusion'},
             'condition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'ticketing_roleexclusion'", 'to': u"orm['ticketing.EligibilityCondition']"}),
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Event']", 'blank': 'True'}),
+            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Event']", 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'role': ('django.db.models.fields.CharField', [], {'max_length': '25'})
         },
