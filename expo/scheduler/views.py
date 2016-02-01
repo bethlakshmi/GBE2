@@ -595,95 +595,63 @@ def contact_info(request,
     return response
 
 
-def contact_by_role(request, participant_type):
-    validate_perms(request, "any", require=True)
-    conference = get_current_conference()
-    if participant_type == 'Teachers':
-        contacts = Worker.objects.filter(Q(role='Teacher') |
-                                         Q(role='Moderator') |
-                                         Q(role='Panelist'))
-        contacts = [w for w in contacts if w.allocations.count() > 0]
-        header = ['email',
-                  'Class',
-                  'Role',
-                  'Performer Name',
-                  'Display Name',
-                  'Phone']
-        contact_info = []
-        for c in contacts:
-            performer = c.item.performer
-            contact_info.append(
-                [performer.contact_email,
-                 str(c.allocations.first().event).encode('utf-8').strip(),
-                 c.role,
-                 str(performer).encode('utf-8').strip(),
-                 str(performer.contact).encode('utf-8').strip(),
-                 performer.contact.phone]
-                )
-        from gbe.models import Class
-        classes = Class.objects.filter(conference=conference)
-        for c in classes:
-            contact_info.append(
-                [c.teacher.contact_email,
-                 c.title.encode('utf-8').strip(),
-                 'Bidder',
-                 c.teacher.name.encode('utf-8').strip(),
-                 c.teacher.contact.display_name.encode('utf-8').strip(),
-                 c.teacher.contact.phone]
-            )
-    elif participant_type == 'Performers':
-        from gbe.models import Act
-        contacts = [act.actitem_ptr for act in Act.objects.filter(conference=conference)]
-        header = ['Act',
-                  'Performer',
-                  'Profile',
-                  'email',
-                  'Phone',
-                  'status',
-                  'Show(s)',
-                  'Rehearsal(s)']
-        contact_info = []
-        for c in contacts:
-            act = c.as_subtype
-            performer = act.performer
-            contact_info.append(
-                [act.title,
-                 str(performer),
-                 str(performer.contact),
-                 act.contact_email,
-                 act.performer.contact.phone,
-                 act.accepted,
-                 ",".join(map(str, act.get_scheduled_shows())),
-                 ",".join(map(str, act.get_scheduled_rehearsals()))]
-            )
-    elif participant_type == 'Volunteers':
-        from gbe.models import Volunteer
-        contacts = filter(lambda worker: worker.allocations.count() > 0,
-                   [vol.profile.workeritem_ptr.worker_set.first() for vol in
-                    Volunteer.objects.filter(conference=conference)])
-        header = ['Name',
-                  'Phone',
-                  'Email',
-                  'Volunteer Category',
-                  'Volunteer Role',
-                  'Event']
-        volunteer_categories = dict(volunteer_interests_options)
-        contact_info = []
-        for c in contacts:
-            profile = c.item.profile
-            event = c.allocations.first().event
-            try:
-                parent_event = event.container_event.parent_event
-            except:
-                parent_event = event
-            contact_info.append([profile.display_name,
-                                 profile.phone,
-                                 profile.contact_email,
-                                 volunteer_categories.get(
-                                     event.as_subtype.volunteer_category, ''),
-                                 str(event),
-                                 str(parent_event)])
-        from gbe.models import Volunteer
+def contact_performers(conference=None):
+    if not conference:
+        conference = get_current_conference()
+    from gbe.models import Act
+    contacts = [act.actitem_ptr for act in Act.objects.filter(conference=conference)]
+    header = ['Act',
+              'Performer',
+              'Profile',
+              'email',
+              'Phone',
+              'status',
+              'Show(s)',
+              'Rehearsal(s)']
+    contact_info = []
+    for c in contacts:
+        act = c.as_subtype
+        performer = act.performer
+        contact_info.append(
+            [act.title,
+             str(performer),
+             str(performer.contact),
+             act.contact_email,
+             act.performer.contact.phone,
+             act.accepted,
+             ",".join(map(str, act.get_scheduled_shows())),
+             ",".join(map(str, act.get_scheduled_rehearsals()))]
+        )
+    return header, contact_info
+
+
+def contact_volunteers(conference=None):
+    from gbe.models import Volunteer
+    contacts = filter(lambda worker: worker.allocations.count() > 0,
+                      [vol.profile.workeritem_ptr.worker_set.first() for vol in
+                       Volunteer.objects.filter(conference=conference)])
+    header = ['Name',
+              'Phone',
+              'Email',
+              'Volunteer Category',
+              'Volunteer Role',
+              'Event']
+    volunteer_categories = dict(volunteer_interests_options)
+    contact_info = []
+    for c in contacts:
+        profile = c.item.profile
+        event = c.allocations.first().event
+        try:
+            parent_event = event.container_event.parent_event
+        except:
+            parent_event = event
+        contact_info.append([profile.display_name,
+                             profile.phone,
+                             profile.contact_email,
+                             volunteer_categories.get(
+                                 event.as_subtype.volunteer_category, ''),
+                             str(event),
+                             str(parent_event)])
         volunteers = Volunteer.objects.filter(conference=conference)
         for v in volunteers:
             interests = eval(v.interests)
@@ -695,17 +663,62 @@ def contact_by_role(request, participant_type):
                                  'Application',
                                  'Application']
                                 )
+    return header, contact_info
 
+
+def contact_teachers(conference=None):
+    if not conference:
+        conference = get_current_conference()
+
+    header = ['email',
+              'Class',
+              'Role',
+              'Performer Name',
+              'Display Name',
+              'Phone']
+    from gbe.models import Class
+    classes = Class.objects.filter(conference=conference)
+    contact_info = []
+
+    for c in classes:
+        for se in c.scheduler_events.all():
+            contact_info += se.class_contacts2()
+
+        contact_info.append(
+            [c.teacher.contact_email,
+             c.title.encode('utf-8').strip(),
+             'Bidder',
+             c.teacher.name.encode('utf-8').strip(),
+             c.teacher.contact.display_name.encode('utf-8').strip(),
+             c.teacher.contact.phone]
+        )
+    return header, contact_info
+
+def contact_vendors(conference=None):
+    from gbe.models import Vendor
+    acceptance_dict = dict(acceptance_states)
+    contacts = Vendor.objects.filter(conference=conference)
+    header = ['Business Name', 'Personal Name', 'Email', 'Status']
+    contact_info = [[v.title,
+                     v.profile.display_name,
+                     v.profile.contact_email,
+                     acceptance_dict[v.accepted]] for v in contacts]
+    return header, contact_info
+
+def contact_by_role(request, participant_type):
+    validate_perms(request, "any", require=True)
+    conference = get_current_conference()
+    if participant_type == 'Teachers':
+        header, contact_info = contact_teachers(conference)
+    elif participant_type == 'Performers':
+        header, contact_info = contact_performers(conference)
+    elif participant_type == 'Volunteers':
+        header, contact_info = contact_volunteers(conference)
     elif participant_type == 'Vendors':
-        from gbe.models import Vendor
-        acceptance_dict = dict(acceptance_states)
-        contacts = Vendor.objects.filter(conference=conference)
-        header = ['Business Name', 'Personal Name', 'Email', 'Status']
-        contact_info = [[v.title,
-                         v.profile.display_name,
-                         v.profile.contact_email,
-                         acceptance_dict[v.accepted]] for v in contacts]
-
+        header, contact_info = contact_vendors(conference)
+    else:
+        header = []
+        contact_info=[]
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
         'attachment; filename=%s_contacts.csv' % participant_type

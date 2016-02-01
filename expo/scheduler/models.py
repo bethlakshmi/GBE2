@@ -845,6 +845,38 @@ class Event(Schedulable):
             )
         return info
 
+
+    def class_contacts2(self):
+        '''
+        To do: reconcile the two class_contacts
+        '''
+        allocations = self.resources_allocated.filter(
+            resource__in=Worker.objects.all())
+        info = []
+        for allocation in allocations:
+            try:
+                persona = allocation.resource.item.persona
+                info.append(
+                    (persona.contact_email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     persona.name,
+                     persona.contact.display_name,
+                     persona.contact_phone)
+                )
+            except:
+                profile = allocation.resource.item.profile
+
+                info.append(
+                    (profile.user_object.email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     "No Performer Name",
+                     profile.display_name,
+                     profile.phone)
+                )
+        return info
+
     def act_contact_info(self, status=None):
         return [(act.contact_info for act in self.get_acts(status))]
 
