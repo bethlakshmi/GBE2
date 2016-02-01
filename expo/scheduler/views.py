@@ -602,7 +602,8 @@ def contact_performers(conference=None):
     if not conference:
         conference = get_current_conference()
     from gbe.models import Act
-    contacts = [act.actitem_ptr for act in Act.objects.filter(conference=conference)]
+    contacts = [act.actitem_ptr for act in Act.objects.filter(
+        conference=conference)]
     header = ['Act',
               'Performer',
               'Profile',
@@ -654,16 +655,18 @@ def contact_volunteers(conference=None):
         for worker in profile.workeritem_ptr.worker_set.all():
             for allocation in worker.allocations.all():
                 try:
-                    parent_event = allocation.event.container_event.parent_event
+                    container = allocation.event.container_event
+                    parent_event = container.parent_event
                 except:
                     parent_event = allocation.event
-                contact_info.append([profile.display_name,
-                                     profile.phone,
-                                     profile.contact_email,
-                                     volunteer_categories.get(
-                                         allocation.event.as_subtype.volunteer_category, ''),
-                                     str(allocation.event),
-                                     str(parent_event)])
+                contact_info.append(
+                    [profile.display_name,
+                     profile.phone,
+                     profile.contact_email,
+                     volunteer_categories.get(
+                         allocation.event.as_subtype.volunteer_category, ''),
+                     str(allocation.event),
+                     str(parent_event)])
         else:
             interests = eval(v.interests)
             contact_info.append([profile.display_name,
@@ -705,6 +708,7 @@ def contact_teachers(conference=None):
         )
     return header, contact_info
 
+
 def contact_vendors(conference=None):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
@@ -715,6 +719,7 @@ def contact_vendors(conference=None):
                      v.profile.contact_email,
                      acceptance_dict[v.accepted]] for v in contacts]
     return header, contact_info
+
 
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
@@ -729,7 +734,7 @@ def contact_by_role(request, participant_type):
         header, contact_info = contact_vendors(conference)
     else:
         header = []
-        contact_info=[]
+        contact_info = []
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
         'attachment; filename=%s_contacts.csv' % participant_type

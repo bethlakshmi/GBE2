@@ -27,14 +27,16 @@ from gbe.models import (
     Conference,
 )
 
+
 @nt.raises(PermissionDenied)
 def test_contact_performers_permissions_required():
     user = ProfileFactory.create().user_object
     request = RequestFactory().get(reverse('contact_by_role',
                                            urlconf="scheduler.urls",
-                                           args = ['Performer']))
+                                           args=['Performer']))
     request.user = user
     response = contact_by_role(request, "Performers")
+
 
 def test_contact_performers_current_performers_visible():
     Conference.objects.all().delete()
@@ -98,6 +100,7 @@ def test_contact_volunteers_current_volunteers_visible():
     nt.assert_true(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
 
+
 def test_contact_volunteers_former_volunteers_not_visible():
     Conference.objects.all().delete()
     previous_conf = ConferenceFactory(status="finished")
@@ -153,7 +156,7 @@ def test_contact_teachers():
     current_conf = ConferenceFactory(status="upcoming")
     previous_class = ClassFactory(conference=previous_conf)
     current_class = ClassFactory(conference=current_conf)
-    previous_class.conference=previous_conf
+    previous_class.conference = previous_conf
     previous_class.save()
     # something broken about the factory here.
     previous_teacher = ProfileFactory()
@@ -168,7 +171,7 @@ def test_contact_teachers():
         _item=previous_teacher.workeritem_ptr)
     previous_sEvent.allocate_worker(previous_worker, 'Teacher')
     current_worker = WorkerFactory(
-        _item = current_teacher)
+        _item=current_teacher)
     current_sEvent.allocate_worker(current_worker, 'Teacher')
 
     user = ProfileFactory.create().user_object
