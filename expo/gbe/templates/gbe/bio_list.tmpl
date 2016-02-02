@@ -11,6 +11,10 @@
      {{view_header_text | safe}}
  
    </div>
+   {% for conf in conferences %}
+     <a href = "{{ bio_url }}?conference={{ conf.conference_slug }}">
+     {{conf.conference_slug}}</a>&nbsp;|&nbsp;
+   {% endfor %}
 
    {% for teacher in bios %}
       <div class="bio_words">

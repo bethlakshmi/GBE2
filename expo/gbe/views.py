@@ -2027,7 +2027,7 @@ def bid_costume(request):
     performers = owner.personae.all()
     if not performers.exists():
         return HttpResponseRedirect(reverse('persona_create',
-                                            urlconf='gbe.urls')+
+                                            urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('costume_create',
                                             urlconf='gbe.urls'))
@@ -2960,6 +2960,14 @@ def bios_teachers(request):
     Display the teachers bios.  Teachers are anyone teaching,
     moderating or being a panelist.
     '''
+    current_conf = get_current_conference()
+    conf_slug = request.GET.get('conference', None)
+    if not conf_slug:
+        conference = current_conf
+    else:
+        conference = get_conference_by_slug(conf_slug)
+    conferences = conference_list()
+
     try:
         performers = Performer.objects.all()
         commits = ResourceAllocation.objects.all()
@@ -2974,12 +2982,17 @@ def bios_teachers(request):
         classes = []
         for worker in workers.filter(_item=performer):
             for commit in commits.filter(resource=worker):
-                classes += [{'role': worker.role, 'event': commit.event}]
+                if commit.event.eventitem.get_conference() == conference:
+                    classes += [{'role': worker.role, 'event': commit.event}]
         if len(classes) > 0:
             bios += [{'bio': performer, 'classes': classes}]
 
     template = 'gbe/bio_list.tmpl'
-    context = {'bios': bios, 'title': 'Conference Bios'}
+    context = {'bios': bios,
+               'bio_url': reverse('bios_teacher',
+                                  urlconf='gbe.urls'),
+               'title': 'Conference Bios',
+               'conferences': conferences}
 
     return render(request, template, context)
 
