@@ -177,7 +177,7 @@ class CheckListItem(models.Model):
 
 class EligibilityCondition(models.Model):
     '''
-    This is the paremt class connecting the conditions under which a
+    This is the parent class connecting the conditions under which a
     CheckListItem can be given to the conditions themselves.
 
     Conditions are logically additive unless eliminated by exclusions.
@@ -220,15 +220,7 @@ class TicketingEligibilityCondition(EligibilityCondition):
 
     def __unicode__(self):
         unicode_string = ""
-        first = True
-        for ticket in self.tickets.all():
-            if first:
-                unicode_string = unicode(ticket)
-                first = False
-            else:
-                unicode_string += ", " + unicode(ticket)
-
-        return unicode_string
+        return ", ".join(unicode(tic) for tic in self.tickets.all())
 
 
 class RoleEligibilityCondition(EligibilityCondition):
@@ -274,15 +266,7 @@ class TicketingExclusion(Exclusion):
 
     def __unicode__(self):
         unicode_string = ""
-        first = True
-        for ticket in self.tickets.all():
-            if first:
-                unicode_string = unicode(ticket)
-                first = False
-            else:
-                unicode_string += ", " + unicode(ticket)
-
-        return unicode_string
+        return ", ".join(unicode(tic) for tic in self.tickets.all())
 
     def is_excluded(self, held_tickets):
         no_exclusion = True
