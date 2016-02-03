@@ -448,7 +448,7 @@ class Performer (WorkerItem):
 
     @property
     def contact_phone(self):
-        return self.contact.user_object.phone
+        return self.contact.phone
 
     @property
     def complete(self):
@@ -1286,9 +1286,7 @@ class Class(Biddable, Event):
     '''
     A Class is an Event where one or a few people
     teach/instruct/guide/mediate and a number of participants
-    spectate/participate.  Participation *may* be limited for workshops,
-    but is rarely limited for anything else.  Occupancy information is
-    requested to give us a general sense of the teacher's expectations.
+    spectate/participate.
     '''
     teacher = models.ForeignKey(Persona,
                                 related_name='is_teaching')
