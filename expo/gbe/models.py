@@ -446,7 +446,7 @@ class Performer (WorkerItem):
 
     @property
     def contact_phone(self):
-        return self.contact.user_object.phone
+        return self.contact.phone
 
     @property
     def complete(self):

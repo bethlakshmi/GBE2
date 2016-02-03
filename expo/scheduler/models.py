@@ -857,7 +857,8 @@ class Event(Schedulable):
         info = []
         for allocation in allocations:
             try:
-                persona = allocation.resource.item.persona
+                persona = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
                 info.append(
                     (persona.contact_email,
                      str(self),
@@ -867,7 +868,8 @@ class Event(Schedulable):
                      persona.contact_phone)
                 )
             except:
-                profile = allocation.resource.item.profile
+                profile = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
 
                 info.append(
                     (profile.user_object.email,
