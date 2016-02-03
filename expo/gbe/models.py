@@ -407,7 +407,7 @@ class Profile(WorkerItem):
             if self in event_workers:
                 doing_it = True
             else:
-                for perf in self.performers():
+                for perf in self.get_performers():
                     doing_it = doing_it or (perf in event_workers)
 
         return doing_it
