@@ -184,8 +184,7 @@ def get_checklist_items_for_tickets(purchaser,
         if count > 0:
             for condition in TicketingEligibilityCondition.objects.filter(
                     tickets=ticket):
-
-                if condition.no_exclusion(tickets, profile, conference):
+                if not condition.is_excluded(tickets, profile, conference):
                     items += [condition.checklistitem]
             if len(items) > 0:
                 checklist_items += [{'ticket': ticket.title,
@@ -204,7 +203,7 @@ def get_checklist_items_for_roles(profile, conference, tickets):
     for role in profile.get_roles(conference):
         items = []
         for condition in RoleEligibilityCondition.objects.filter(role=role):
-            if condition.no_exclusion(tickets, profile, conference):
+            if not condition.is_excluded(tickets, profile, conference):
                 items += [condition.checklistitem]
 
         if len(items) > 0:

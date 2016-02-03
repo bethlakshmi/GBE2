@@ -191,18 +191,18 @@ class EligibilityCondition(models.Model):
         CheckListItem,
         related_name="%(app_label)s_%(class)s")
 
-    def no_exclusion(self, held_tickets, profile, conference):
-        no_exclusion = True
+    def is_excluded(self, held_tickets, profile, conference):
+        is_excluded = False
         if held_tickets:
-            for exclusion in TicketingExclusion.objects.filter(condition=self):
-                no_exclusion = (no_exclusion and exclusion.is_excluded(
-                    held_tickets))
-        if profile:
-            for exclusion in RoleExclusion.objects.filter(condition=self):
-                no_exclusion = (no_exclusion and exclusion.is_excluded(
-                    profile,
-                    conference))
-        return no_exclusion
+            for exclusion in self.ticketing_ticketexclusion.all():
+                if exclusion.is_excluded(held_tickets):
+                    is_excluded = True
+
+        if profile and not is_excluded:
+            for exclusion in self.ticketing_roleexclusion.all():
+                if exclusion.is_excluded(profile, conference):
+                    is_excluded = True
+        return is_excluded
 
 
 class TicketingEligibilityCondition(EligibilityCondition):
@@ -269,12 +269,17 @@ class TicketingExclusion(Exclusion):
         return ", ".join(unicode(tic) for tic in self.tickets.all())
 
     def is_excluded(self, held_tickets):
-        no_exclusion = True
+        '''
+        Return True if the referenced condition should be excluded from the
+        participant's package.  This is true when there is a match between the
+        held tickets and the tickets for the exclusion
+        '''
+        is_excluded = False
         for ticket in held_tickets:
             if ticket in self.tickets.all():
-                no_exclusion = False
+                is_excluded = True
 
-        return no_exclusion
+        return is_excluded
 
 
 class RoleExclusion(Exclusion):
@@ -298,10 +303,14 @@ class RoleExclusion(Exclusion):
         return unicode(describe)
 
     def is_excluded(self, profile, conference):
-        no_exclusion = True
+        '''
+        Return True if the referenced condition should be excluded from the
+        participant's package.  This is true when there is a match between the
+        user's profile and the referenced event
+        '''
+        is_excluded = False
         if not self.event:
-            no_exclusion = not (self.role in profile.get_roles(conference))
+            is_excluded = self.role in profile.get_roles(conference)
         else:
-            no_exclusion = not profile.has_role_in_event(self.role,
-                                                         self.event)
-        return no_exclusion
+            is_excluded = profile.has_role_in_event(self.role, self.event)
+        return is_excluded
