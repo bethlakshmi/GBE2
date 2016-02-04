@@ -194,7 +194,7 @@ class EligibilityCondition(models.Model):
     def is_excluded(self, held_tickets, profile, conference):
         is_excluded = False
         if held_tickets:
-            for exclusion in self.ticketing_ticketexclusion.all():
+            for exclusion in self.ticketing_ticketingexclusion.all():
                 if exclusion.is_excluded(held_tickets):
                     is_excluded = True
 
