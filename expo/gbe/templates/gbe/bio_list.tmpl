@@ -11,11 +11,12 @@
      {{view_header_text | safe}}
  
    </div>
+   <div>
    {% for conf in conferences %}
      <a href = "{{ bio_url }}?conference={{ conf.conference_slug }}">
      {{conf.conference_slug}}</a>&nbsp;|&nbsp;
    {% endfor %}
-
+   </div>
    {% for teacher in bios %}
       <div class="bio_words">
         <h2>About {{teacher.bio.name}}</h2>
@@ -30,7 +31,7 @@
       </div>
         {% if teacher.bio.promo_image %}
         <div class="bio_image_block">
-        <img src="/{{teacher.bio.promo_small}}" class="sched_bio_image">
+        <img src="{{MEDIA_URL}}{{teacher.bio.promo_small}}" class="sched_bio_image">
         </div>
         {% endif %}
     {% endfor %}

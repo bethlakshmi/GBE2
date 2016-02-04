@@ -117,6 +117,11 @@ class Resource(models.Model):
         child = Resource.objects.get_subclass(id=self.id)
         return child._item
 
+    @property
+    def as_subtype(self):
+        child = Resource.objects.get_subclass(id=self.id)
+        return child
+
     def __str__(self):
         allocated_resource = Resource.objects.get_subclass(id=self.id)
         if allocated_resource:
@@ -562,30 +567,30 @@ class EventItem (models.Model):
         return people
 
     @property
-    def roles(self):
+    def roles(self, roles=['Teacher',
+                           'Panelist',
+                           'Moderator',
+                           'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
                 child_event__eventitem=self.eventitem_id).first()
             people = Worker.objects.filter(
                 (Q(allocations__event__eventitem=self.eventitem_id) &
-                 Q(role__in=['Teacher',
-                             'Panelist',
-                             'Moderator',
-                             'Staff Lead'])) |
+                 Q(role__in=roles)) |
                 (Q(allocations__event=container.parent_event) &
-                 Q(role__in=['Teacher',
-                             'Panelist',
-                             'Moderator',
-                             'Staff Lead']))).distinct().order_by('role',
-                                                                  '_item')
+                 Q(role__in=roles))).distinct().order_by(
+                'role', '_item')
         except:
             people = Worker.objects.filter(
                 allocations__event__eventitem=self.eventitem_id,
-                role__in=['Teacher',
-                          'Panelist',
-                          'Moderator',
-                          'Staff Lead']
+                role__in=roles
             ).distinct().order_by('role', '_item')
+        return people
+
+    def get_worker_items(self, role):
+        people = WorkerItem.objects.filter(
+            worker__allocations__event__eventitem=self.eventitem_id,
+            worker__role=role)
         return people
 
     def set_duration(self, duration):

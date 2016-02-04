@@ -8,6 +8,10 @@ from django.core.management import call_command
 import gbe.models as conf
 import scheduler.models as sched
 import ticketing.models as tix
+from gbe.ticketing_idd_interface import (
+    get_checklist_items,
+    get_checklist_items_for_tickets
+    )
 
 import os
 import csv
@@ -189,19 +193,33 @@ def personal_schedule(request, profile_id='All'):
 
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
+        purchasers = tix.Purchaser.objects.filter(
+            matched_to_user__username="limbo").order_by('first_name',
+                                                        'last_name')
     else:
         people = []  # Set it to be self, in list format
 
     schedules = []
+
     for person in people:
         bookings = person.get_schedule(conference)
-        if len(bookings) > 0:
+        items = get_checklist_items(person, conference)
+        if len(bookings) > 0 or len(items) > 0:
             schedules += [{'person': person,
-                           'bookings': bookings}]
+                           'bookings': bookings,
+                           'checklist_items': items}]
 
+    for purchaser in purchasers:
+        items = get_checklist_items_for_tickets(purchaser, conference)
+        if len(items) > 0:
+            schedules += [{'person': purchaser,
+                           'checklist_items': items}]
+    sorted_sched = sorted(
+        schedules,
+        key=lambda schedule: schedule['person'].get_badge_name())
     return render(request,
                   'gbe/report/printable_schedules.tmpl',
-                  {'schedules': schedules,
+                  {'schedules': sorted_sched,
                    'conference_slugs': conference_slugs,
                    'conference': conference})
 
