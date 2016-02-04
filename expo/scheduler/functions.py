@@ -143,7 +143,8 @@ def init_time_blocks(events,
         cal_stop = min(cal_stop, events[-1]['stop_time'])
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = int(math.ceil(schedule_duration/block_size))
-    block_labels = [(cal_start + block_size * b).strftime(time_format) for b in range(blocks_count)]
+    block_labels = [(cal_start + block_size * b).strftime(time_format)
+                    for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
 
 
@@ -166,7 +167,8 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     else:
         relative_start = event['start_time'] - schedule_start
     if event['stop_time'] > schedule_stop:
-        working_stop_time = timedelta_to_duration(schedule_stop - schedule_start)
+        working_stop_time = timedelta_to_duration(
+            schedule_stop - schedule_start)
     else:
         working_stop_time = timedelta_to_duration(
             event['stop_time'] - schedule_start)
@@ -239,13 +241,17 @@ def add_to_table(event, table, block_labels):
     If event occupies multiple blocks, insert "placeholder" in
     subsequent table cells (nonbreaking space)
     '''
-    table[event['location'], block_labels[event['startblock']]] = '<td rowspan=%d class=\'%s\'>%s</td>' % (
+    table[event['location'],
+          block_labels[event['startblock']]
+          ] = '<td rowspan=%d class=\'%s\'>%s</td>' % (
         event['rowspan'], " ".join([event.get('css_class', ''),
                                     event['location'].replace(' ', '_'),
                                     event['type']]),
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
-        table[event['location'], block_labels[event['startblock']+i]] = '&nbsp;'
+        table[event['location'],
+              block_labels[event['startblock']+i]
+              ] = '&nbsp;'
 
 
 def html_prep(event):
@@ -386,7 +392,6 @@ def event_info(confitem_type='Show',
     return events
 
 
-
 def day_to_cal_time(day='Saturday',
                     week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
     '''
@@ -412,6 +417,7 @@ def day_to_cal_time(day='Saturday',
                  return_day + Duration(hours=28))
     return cal_times
 
+
 def select_day(days, day_name):
     '''
     Take a list of conference_days, return the one whose name is day_name
@@ -420,9 +426,11 @@ def select_day(days, day_name):
     '''
     return {d.day.strftime("%A"): d for d in days}[day_name]
 
+
 def date_to_datetime(the_date):
     zero_hour = time(0)
     return utc.localize(datetime.combine(the_date, zero_hour))
+
 
 def cal_times_for_conf(conference, day_name):
     from gbe.functions import get_conference_days  # late import, circularity
@@ -490,3 +498,19 @@ def get_events_and_windows(conference):
                 end__gt=event.starttime.time()).first()
             }]
     return volunteer_event_windows
+
+
+def get_roles_from_scheduler(workeritems, conference):
+    '''
+    get the list roles for this set of worker items and this conference
+    Based on the idea that 1 person is actually represented by multiple
+    worker items
+    '''
+    roles = []
+    from scheduler.models import ResourceAllocation
+    for allocation in ResourceAllocation.objects.filter(
+            resource__worker___item__in=workeritems):
+        if allocation.event.eventitem.get_conference() == conference:
+            roles += [allocation.resource.as_subtype.role]
+
+    return list(set(roles))

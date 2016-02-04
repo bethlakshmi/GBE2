@@ -24,7 +24,10 @@ from datetime import datetime
 from datetime import timedelta
 from expomodelfields import DurationField
 from django.core.urlresolvers import reverse
-from scheduler.functions import set_time_format
+from scheduler.functions import (
+    set_time_format,
+    get_roles_from_scheduler
+)
 from model_utils.managers import InheritanceManager
 from duration import Duration
 import gbetext
@@ -341,6 +344,17 @@ class Profile(WorkerItem):
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
+    def get_roles(self, conference):
+        '''
+        Gets all of a person's roles for a conference
+        '''
+        roles = get_roles_from_scheduler(
+            self.get_performers()+[self],
+            conference)
+        if self.get_shows():
+            roles += ["Performer"]
+        return roles
+
     def get_badge_name(self):
         badge_name = self.display_name
         if len(badge_name) == 0:
@@ -378,6 +392,25 @@ class Profile(WorkerItem):
 
     def sched_payload(self):
         return {'name': self.display_name}
+
+    def has_role_in_event(self, role, event):
+        '''
+        Gets all of a person's roles for a conference
+        '''
+        doing_it = False
+        if role == "Performer":
+            for show in self.get_shows():
+                if show.pk == event.pk:
+                    doing_it = (doing_it or True)
+        else:
+            event_workers = event.roles(role)
+            if self in event_workers:
+                doing_it = True
+            else:
+                for perf in self.get_performers():
+                    doing_it = doing_it or (perf in event_workers)
+
+        return doing_it
 
     def __str__(self):
         return self.display_name
