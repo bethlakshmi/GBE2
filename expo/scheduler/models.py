@@ -147,8 +147,11 @@ class ActItem(ResourceItem):
         allocs = sum([list(res.allocations.all()) for res in resources], [])
 
         for a in allocs:
-            if (a.event.as_subtype.type == 'Rehearsal Slot' and
-                    a.event.container_event.parent_event == show):
+            is_rehearsal_for_this_show = (
+                a.event.as_subtype.type == 'Rehearsal Slot' and
+                a.event.container_event.parent_event == show)
+
+            if is_rehearsal_for_this_show:
                 a.delete()
                 a.resource.delete()
         resource = ActResource(_item=self)
@@ -850,6 +853,39 @@ class Event(Schedulable):
             )
         return info
 
+    def class_contacts2(self):
+        '''
+        To do: reconcile the two class_contacts functions
+        '''
+        allocations = self.resources_allocated.filter(
+            resource__in=Worker.objects.all())
+        info = []
+        for allocation in allocations:
+            try:
+                persona = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
+                info.append(
+                    (persona.contact_email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     persona.name,
+                     persona.contact.display_name,
+                     persona.contact_phone)
+                )
+            except:
+                profile = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
+
+                info.append(
+                    (profile.user_object.email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     "No Performer Name",
+                     profile.display_name,
+                     profile.phone)
+                )
+        return info
+
     def act_contact_info(self, status=None):
         return [(act.contact_info for act in self.get_acts(status))]
 
@@ -1004,7 +1040,8 @@ class ResourceAllocation(Schedulable):
             return "%s :: Event: %s == %s : %s" % (
                 unicode(self.start_time.astimezone(pytz.timezone('UTC'))),
                 unicode(self.event),
-                unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__),
+                unicode(Resource.objects.get_subclass(
+                    id=self.resource.id).__class__.__name__),
                 unicode(Resource.objects.get_subclass(id=self.resource.id)))
         except:
             return "Missing an Item"
