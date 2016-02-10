@@ -49,7 +49,6 @@ class TestIsExcluded(TestCase):
         self.roleexclusion.event = self.this_class
         self.roleexclusion.save()
 
-
     def test_no_ticket_excluded(self):
         '''
             the ticket is not in the excluded set
@@ -78,7 +77,6 @@ class TestIsExcluded(TestCase):
     def test_role_not_event(self):
         '''
            role matches but event does not, not excluded
-           Fix after Expo
         '''
         new_exclude = RoleExclusionFactory.create()
         nt.assert_false(new_exclude.is_excluded(
@@ -97,10 +95,42 @@ class TestIsExcluded(TestCase):
     def test_role_and_event_match(self):
         '''
             role and event match the exclusion
-            
-            Fix after expo
         '''
 
         nt.assert_true(self.roleexclusion.is_excluded(
+            self.this_class.teacher.performer_profile,
+            self.this_class.conference))
+
+    def test_condition_ticket_exclusion(self):
+        '''
+            condition has a ticketing exclusion, which is triggered
+        '''
+        problem_ticket = TicketItemFactory.create()
+        self.ticketingexclusion.tickets.add(problem_ticket)
+        nt.assert_true(
+            self.ticketingexclusion.condition.is_excluded(
+                [problem_ticket],
+                self.this_class.teacher.performer_profile,
+                self.this_class.conference
+                ))
+
+    def test_condition_role_exclusion(self):
+        '''
+            condition has a role exclusion, and no tickets are provided
+        '''
+        problem_ticket = TicketItemFactory.create()
+        self.ticketingexclusion.tickets.add(problem_ticket)
+        nt.assert_true(self.roleexclusion.condition.is_excluded(
+            [],
+            self.this_class.teacher.performer_profile,
+            self.this_class.conference))
+
+    def test_condition_role_exclusion(self):
+        '''
+            condition does not have any exclusions for this particular case
+        '''
+        no_event = NoEventRoleExclusionFactory.create(role="Vendor")
+        nt.assert_false(no_event.condition.is_excluded(
+            [],
             self.this_class.teacher.performer_profile,
             self.this_class.conference))
