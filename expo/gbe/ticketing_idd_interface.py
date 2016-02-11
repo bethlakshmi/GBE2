@@ -178,7 +178,7 @@ def get_checklist_items_for_tickets(purchaser,
             bpt_event__conference=conference,
             transaction__purchaser=purchaser).distinct()
 
-    for ticket in tickets:
+    for ticket in set(tickets):
         items = []
         count = purchaser.transaction_set.filter(ticket_item=ticket).count()
         if count > 0:
