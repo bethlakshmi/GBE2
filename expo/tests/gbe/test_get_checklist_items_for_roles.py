@@ -7,6 +7,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.ticketing_factories import (
     RoleEligibilityConditionFactory,
+    RoleExclusionFactory,
     NoEventRoleExclusionFactory
 )
 from tests.factories.gbe_factories import (
@@ -121,7 +122,7 @@ class TestGetCheckListForRoles(TestCase):
                                 [another_role.checklistitem])
         another_role.delete()
 
-    def test_ticket_match_two_conditions(self):
+    def test_role_match_two_conditions(self):
         '''
             two conditions match this circumstance
         '''
@@ -139,6 +140,35 @@ class TestGetCheckListForRoles(TestCase):
                         [self.role_condition.checklistitem,
                          another_match.checklistitem])
         another_match.delete()
+
+    def test_role_exclusion(self):
+        '''
+            a condition matches this circumstance, but is excluded
+        '''
+
+        exclusion = RoleExclusionFactory.create(
+            condition=self.role_condition,
+            role="Staff Lead",
+            event=None)
+
+        self.generic_event = GenericEventFactory.create(
+            conference=self.conference)
+        current_sched = SchedEventFactory.create(
+            eventitem=self.generic_event)
+        worker = WorkerFactory.create(
+            _item=self.teacher.performer_profile,
+            role="Staff Lead")
+        teacher_assignment = ResourceAllocationFactory.create(
+            event=current_sched,
+            resource=worker
+        )
+
+        checklist_items = get_checklist_items_for_roles(
+            self.teacher.performer_profile,
+            self.conference,
+            [])
+
+        nt.assert_equal(len(checklist_items), 0)
 
     def tearDown(self):
         self.role_condition.delete()
