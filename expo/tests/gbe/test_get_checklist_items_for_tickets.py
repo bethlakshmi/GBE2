@@ -7,6 +7,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.ticketing_factories import (
     TicketingEligibilityConditionFactory,
+    TicketingExclusionFactory,
     TransactionFactory
 )
 from tests.factories.gbe_factories import (
@@ -17,7 +18,7 @@ import pytz
 from gbe.ticketing_idd_interface import get_checklist_items_for_tickets
 
 
-class TestIsExcluded(TestCase):
+class TestGetCheckListForTickets(TestCase):
     '''Tests for exclusions in all Exclusion subclasses'''
 
     def setUp(self):
@@ -152,3 +153,18 @@ class TestIsExcluded(TestCase):
         nt.assert_equal(checklist_items[0]['items'],
                         [match_condition.checklistitem,
                          another_match.checklistitem])
+    def test_ticket_is_excluded(self):
+        '''
+            there's a match, but also an exclusion
+        '''
+        match_condition = TicketingEligibilityConditionFactory.create(
+            tickets=[self.transaction.ticket_item])
+        exclusion = TicketingExclusionFactory.create(
+            condition=match_condition,
+            tickets=[self.transaction.ticket_item])
+
+        checklist_items = get_checklist_items_for_tickets(
+            self.purchaser,
+            self.conference)
+        nt.assert_equal(len(checklist_items), 0)
+
