@@ -16,14 +16,8 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory
 )
-from tests.factories.scheduler_factories import (
-    ResourceAllocationFactory,
-    SchedEventFactory,
-    WorkerFactory
-)
 
-from datetime import datetime
-import pytz
+from tests.functions.scheduler_functions import book_worker_item_for_role
 from gbe.ticketing_idd_interface import get_checklist_items_for_roles
 
 
@@ -35,17 +29,9 @@ class TestGetCheckListForRoles(TestCase):
         self.client = Client()
 
         self.role_condition = RoleEligibilityConditionFactory.create()
-
         self.teacher = PersonaFactory.create()
-        worker = WorkerFactory.create(
-            _item=self.teacher,
-            role=self.role_condition.role)
-        booking = ResourceAllocationFactory.create(
-            event=SchedEventFactory.create(),
-            resource=worker
-        )
-        booking.resource._item = self.teacher
-        booking.resource._item.save()
+        booking = book_worker_item_for_role(self.teacher,
+                                            self.role_condition.role)
         self.conference = booking.event.eventitem.get_conference()
 
     def test_no_role(self):
@@ -94,17 +80,12 @@ class TestGetCheckListForRoles(TestCase):
         another_role = RoleEligibilityConditionFactory.create(
             role="Staff Lead")
 
-        self.generic_event = GenericEventFactory.create(
-            conference=self.conference)
-        current_sched = SchedEventFactory.create(
-            eventitem=self.generic_event)
-        worker = WorkerFactory.create(
-            _item=self.teacher.performer_profile,
-            role=another_role.role)
-        teacher_assignment = ResourceAllocationFactory.create(
-            event=current_sched,
-            resource=worker
-        )
+        booking = book_worker_item_for_role(
+            self.teacher.performer_profile,
+            another_role.role,
+            GenericEventFactory.create(
+                conference=self.conference)
+            )
 
         checklist_items = get_checklist_items_for_roles(
             self.teacher.performer_profile,
@@ -151,17 +132,12 @@ class TestGetCheckListForRoles(TestCase):
             role="Staff Lead",
             event=None)
 
-        self.generic_event = GenericEventFactory.create(
-            conference=self.conference)
-        current_sched = SchedEventFactory.create(
-            eventitem=self.generic_event)
-        worker = WorkerFactory.create(
-            _item=self.teacher.performer_profile,
-            role="Staff Lead")
-        teacher_assignment = ResourceAllocationFactory.create(
-            event=current_sched,
-            resource=worker
-        )
+        booking = book_worker_item_for_role(
+            self.teacher.performer_profile,
+            exclusion.role,
+            GenericEventFactory.create(
+                conference=self.conference)
+            )
 
         checklist_items = get_checklist_items_for_roles(
             self.teacher.performer_profile,

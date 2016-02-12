@@ -1,8 +1,9 @@
-from  gbe.models import (
+from gbe.models import (
     Profile,
     User,
 )
 from django.contrib.auth.models import Group
+
 
 def user_for(user_or_profile):
     if type(user_or_profile) == Profile:

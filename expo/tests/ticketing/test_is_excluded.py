@@ -12,16 +12,9 @@ from tests.factories.ticketing_factories import (
     NoEventRoleExclusionFactory
 )
 from tests.factories.gbe_factories import (
-    ClassFactory
+    PersonaFactory
 )
-from gbe.models import Class
-from scheduler.models import(
-    Worker,
-    Event as sEvent,
-    ResourceAllocation
-)
-from datetime import datetime
-import pytz
+from tests.functions.scheduler_functions import book_worker_item_for_role
 
 
 class TestIsExcluded(TestCase):
@@ -32,22 +25,15 @@ class TestIsExcluded(TestCase):
         self.client = Client()
         self.ticketingexclusion = TicketingExclusionFactory.create()
         self.roleexclusion = RoleExclusionFactory.create()
-        # Class Factory not working here - event not created and attached
-        self.this_class = Class.objects.all().first()
-        self.this_class.save()
-        current_sched = sEvent(
-            eventitem=self.this_class,
-            starttime=datetime(2016, 2, 5, 12, 0, 0, 0, pytz.utc))
-        current_sched.save()
-        worker = Worker(_item=self.this_class.teacher, role='Teacher')
-        worker.save()
-        teacher_assignment = ResourceAllocation(
-            event=current_sched,
-            resource=worker
-        )
-        teacher_assignment.save()
-        self.roleexclusion.event = self.this_class
+
+        self.teacher = PersonaFactory.create()
+        booking = book_worker_item_for_role(
+            self.teacher,
+            self.roleexclusion.role,
+            )
+        self.roleexclusion.event = booking.event.eventitem
         self.roleexclusion.save()
+        self.conference = booking.event.eventitem.get_conference()
 
     def test_no_ticket_excluded(self):
         '''
@@ -71,8 +57,8 @@ class TestIsExcluded(TestCase):
         '''
         no_event = NoEventRoleExclusionFactory.create()
         nt.assert_true(no_event.is_excluded(
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
 
     def test_role_not_event(self):
         '''
@@ -80,8 +66,8 @@ class TestIsExcluded(TestCase):
         '''
         new_exclude = RoleExclusionFactory.create()
         nt.assert_false(new_exclude.is_excluded(
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
 
     def test_no_role_match(self):
         '''
@@ -89,8 +75,8 @@ class TestIsExcluded(TestCase):
         '''
         no_event = NoEventRoleExclusionFactory.create(role="Vendor")
         nt.assert_false(no_event.is_excluded(
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
 
     def test_role_and_event_match(self):
         '''
@@ -98,8 +84,8 @@ class TestIsExcluded(TestCase):
         '''
 
         nt.assert_true(self.roleexclusion.is_excluded(
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
 
     def test_condition_ticket_exclusion(self):
         '''
@@ -110,8 +96,8 @@ class TestIsExcluded(TestCase):
         nt.assert_true(
             self.ticketingexclusion.condition.is_excluded(
                 [problem_ticket],
-                self.this_class.teacher.performer_profile,
-                self.this_class.conference
+                self.teacher.performer_profile,
+                self.conference
                 ))
 
     def test_condition_role_exclusion(self):
@@ -122,8 +108,8 @@ class TestIsExcluded(TestCase):
         self.ticketingexclusion.tickets.add(problem_ticket)
         nt.assert_true(self.roleexclusion.condition.is_excluded(
             [],
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
 
     def test_condition_role_exclusion(self):
         '''
@@ -132,5 +118,5 @@ class TestIsExcluded(TestCase):
         no_event = NoEventRoleExclusionFactory.create(role="Vendor")
         nt.assert_false(no_event.condition.is_excluded(
             [],
-            self.this_class.teacher.performer_profile,
-            self.this_class.conference))
+            self.teacher.performer_profile,
+            self.conference))
