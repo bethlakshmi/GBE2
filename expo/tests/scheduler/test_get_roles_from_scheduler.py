@@ -16,7 +16,7 @@ from tests.factories.gbe_factories import (
 from tests.functions.scheduler_functions import (
     book_act_item_for_show,
     book_worker_item_for_role)
-
+from scheduler.functions import get_roles_from_scheduler
 
 class TestGetRoles(TestCase):
     '''Tests that a profile will return all the possible roles'''
@@ -29,7 +29,7 @@ class TestGetRoles(TestCase):
            Simplest user - just has a profile, doesn't have any role
         '''
         profile = ProfileFactory.create()
-        result = profile.get_roles(self.conference)
+        result = get_roles_from_scheduler([profile], self.conference)
         nt.assert_equal(len(result), 0)
 
     def test_basic_persona(self):
@@ -37,21 +37,14 @@ class TestGetRoles(TestCase):
            Has a performer/teacher identity, but no commitment so no role
         '''
         persona = PersonaFactory.create()
-        result = persona.performer_profile.get_roles(self.conference)
-        nt.assert_equal(len(result), 0)
-
-    def test_unbooked_performer(self):
-        '''
-            Submitted an act, didn't make it to a show
-        '''
-        act = ActFactory.create(conference=self.conference)
-        profile = act.performer.performer_profile
-        result = profile.get_roles(self.conference)
+        result = get_roles_from_scheduler(
+            [persona, persona.performer_profile],
+            self.conference)
         nt.assert_equal(len(result), 0)
 
     def test_booked_performer(self):
         '''
-           has the role of performer from being booked in a show
+           does not have a performer role, because this is an act
         '''
         act = ActFactory.create(conference=self.conference,
                                 accepted=3)
@@ -60,8 +53,10 @@ class TestGetRoles(TestCase):
             act,
             show)
         profile = act.performer.performer_profile
-        result = profile.get_roles(self.conference)
-        nt.assert_equal(result, ["Performer"])
+        result = get_roles_from_scheduler(
+            [act.performer, profile],
+            self.conference)
+        nt.assert_equal(len(result), 0)
 
     def test_teacher(self):
         '''
@@ -71,7 +66,8 @@ class TestGetRoles(TestCase):
         booking = book_worker_item_for_role(
             persona,
             "Teacher")
-        result = persona.performer_profile.get_roles(
+        result = get_roles_from_scheduler(
+            [persona, persona.performer_profile],
             booking.event.eventitem.conference)
         nt.assert_equal(result, ["Teacher"])
 
@@ -98,7 +94,8 @@ class TestGetRoles(TestCase):
         show = ShowFactory.create(conference=self.conference)
         booking = book_act_item_for_show(act, show)
 
-        result = persona.performer_profile.get_roles(
+        result = get_roles_from_scheduler(
+            [persona, persona.performer_profile],
             self.conference)
         nt.assert_equal(sorted(result),
-                        ["Performer", "Staff Lead", "Teacher"])
+                        ["Staff Lead", "Teacher"])
