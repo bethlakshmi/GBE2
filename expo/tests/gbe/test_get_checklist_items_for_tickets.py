@@ -1,10 +1,7 @@
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from ticketing.models import *
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
-from django.test import Client
 from tests.factories.ticketing_factories import (
     TicketingEligibilityConditionFactory,
     TicketingExclusionFactory,
@@ -14,17 +11,14 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     ProfileFactory
 )
-from datetime import datetime
-import pytz
+
 from gbe.ticketing_idd_interface import get_checklist_items_for_tickets
 
 
 class TestGetCheckListForTickets(TestCase):
-    '''Tests for exclusions in all Exclusion subclasses'''
+    '''Tests that checklists are built based on ticket purchases'''
 
     def setUp(self):
-        self.factory = RequestFactory()
-        self.client = Client()
         self.ticketingcondition = TicketingEligibilityConditionFactory.create()
         self.transaction = TransactionFactory.create()
         self.purchaser = ProfileFactory.create(
@@ -41,7 +35,7 @@ class TestGetCheckListForTickets(TestCase):
             [])
         nt.assert_equal(len(checklist_items), 0)
 
-    def test_no_tickets__this_conference(self):
+    def test_no_tickets_this_conference(self):
         '''
             list of tickets is empty, so there should be no match
         '''

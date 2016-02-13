@@ -1,13 +1,9 @@
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from ticketing.models import *
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
-from django.test import Client
 from tests.factories.ticketing_factories import (
     RoleEligibilityConditionFactory,
-    RoleExclusionFactory,
     NoEventRoleExclusionFactory
 )
 from tests.factories.gbe_factories import (
@@ -22,12 +18,9 @@ from gbe.ticketing_idd_interface import get_checklist_items_for_roles
 
 
 class TestGetCheckListForRoles(TestCase):
-    '''Tests for exclusions in all Exclusion subclasses'''
+    '''Tests that checklists are built based on roles'''
 
     def setUp(self):
-        self.factory = RequestFactory()
-        self.client = Client()
-
         self.role_condition = RoleEligibilityConditionFactory.create()
         self.teacher = PersonaFactory.create()
         booking = book_worker_item_for_role(self.teacher,
@@ -127,10 +120,9 @@ class TestGetCheckListForRoles(TestCase):
             a condition matches this circumstance, but is excluded
         '''
 
-        exclusion = RoleExclusionFactory.create(
+        exclusion = NoEventRoleExclusionFactory.create(
             condition=self.role_condition,
-            role="Staff Lead",
-            event=None)
+            role="Staff Lead")
 
         booking = book_worker_item_for_role(
             self.teacher.performer_profile,
