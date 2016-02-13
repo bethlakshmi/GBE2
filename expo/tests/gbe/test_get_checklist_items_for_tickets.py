@@ -121,4 +121,3 @@ class TestGetCheckListForTickets(TestCase):
             self.conference,
             [])
         nt.assert_equal(len(checklist_items), 0)
-
