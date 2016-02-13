@@ -94,7 +94,6 @@ class TestGetCheckListItems(TestCase):
         checklist_items = get_checklist_items(
             teacher.performer_profile,
             conference)
-        print(checklist_items)
         nt.assert_equal(len(checklist_items), 2)
         for item in checklist_items:
             if item['items'] == [self.ticket_condition.checklistitem]:
