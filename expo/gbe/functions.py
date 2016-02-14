@@ -110,27 +110,28 @@ def conference_slugs():
 
 
 def get_events_list_by_type(event_type, conference):
+    event_type = event_type.lower()
     items = []
-    if event_type == "All":
+    if event_type == "all":
         return conf.Event.get_all_events(conference)
 
     event_types = dict(event_options)
     class_types = dict(class_options)
-    if event_type in event_types:
+    if event_type in map(lambda x:x.lower(), event_types.keys()):
         items = conf.GenericEvent.objects.filter(
-            type=event_type,
+            type__iexact=event_type,
             visible=True,
             conference=conference).order_by('title')
-    elif event_type in class_types:
+    elif event_type in map(lambda x:x.lower, class_types.keys()):
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,
-            type=event_type,
+            type__iexact=event_type,
             conference=conference).order_by('title')
-    elif event_type == 'Show':
+    elif event_type == 'show':
         items = conf.Show.objects.filter(
             conference=conference).order_by('title')
-    elif event_type == 'Class':
+    elif event_type == 'class':
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,

@@ -105,7 +105,6 @@ class TestIsExcluded(TestCase):
             Fix after expo
         '''
         '''
-
         nt.assert_true(self.roleexclusion.is_excluded(
             self.this_class.teacher.performer_profile,
             self.this_class.conference))

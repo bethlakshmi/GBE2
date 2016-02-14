@@ -964,6 +964,11 @@ def edit_event_display(request, item, errorcontext=None):
 
 
 def view_list(request, event_type='All'):
+    if not event_type.lower() in list_titles:
+        event_type="All"
+    if not event_type.lower() in list_text:
+        event_type="All"
+
     current_conf = get_current_conference()
     conf_slug = request.GET.get('conference', None)
     if not conf_slug:
@@ -971,7 +976,6 @@ def view_list(request, event_type='All'):
     else:
         conference = get_conference_by_slug(conf_slug)
     items = get_events_list_by_type(event_type, conference)
-
     events = [
         {'eventitem': item,
          'scheduled_events': item.scheduler_events.order_by('starttime'),
@@ -983,8 +987,8 @@ def view_list(request, event_type='All'):
 
     conferences = conference_list()
     return render(request, 'scheduler/event_display_list.tmpl',
-                  {'title': list_titles[event_type],
-                   'view_header_text': list_text[event_type],
+                  {'title': list_titles.get(event_type.lower(), ""),
+                   'view_header_text': list_text.get(event_type.lower(), ""),
                    'labels': event_labels,
                    'events': events,
                    'conferences': conferences,
