@@ -40,7 +40,7 @@ class TestIsExcluded(TestCase):
             starttime=datetime(2016, 2, 5, 12, 0, 0, 0, pytz.utc))
         current_sched.save()
         worker = Worker(_item=self.this_class.teacher,
-                              role='Teacher')
+                        role='Teacher')
         worker.save()
         teacher_assignment = ResourceAllocation(
             event=current_sched,
@@ -49,7 +49,6 @@ class TestIsExcluded(TestCase):
         teacher_assignment.save()
         self.roleexclusion.event = self.this_class
         self.roleexclusion.event.save()
-
 
     def test_no_ticket_excluded(self):
         '''

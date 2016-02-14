@@ -965,9 +965,9 @@ def edit_event_display(request, item, errorcontext=None):
 
 def view_list(request, event_type='All'):
     if not event_type.lower() in list_titles:
-        event_type="All"
+        event_type = "All"
     if not event_type.lower() in list_text:
-        event_type="All"
+        event_type = "All"
 
     current_conf = get_current_conference()
     conf_slug = request.GET.get('conference', None)
