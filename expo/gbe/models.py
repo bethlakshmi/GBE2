@@ -395,7 +395,8 @@ class Profile(WorkerItem):
 
     def has_role_in_event(self, role, event):
         '''
-        Gets all of a person's roles for a conference
+        Returns True if this person has the
+        given role in the given event
         '''
         doing_it = False
         if role == "Performer":

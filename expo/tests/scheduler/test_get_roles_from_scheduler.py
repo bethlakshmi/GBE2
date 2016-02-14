@@ -18,7 +18,7 @@ from tests.functions.scheduler_functions import (
     book_worker_item_for_role)
 from scheduler.functions import get_roles_from_scheduler
 
-class TestGetRoles(TestCase):
+class TestGetRolesFromScheduler(TestCase):
     '''Tests that a profile will return all the possible roles'''
 
     def setUp(self):
