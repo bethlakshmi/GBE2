@@ -119,10 +119,10 @@ class Duration(timedelta):
         Use set_format to change representation
         '''
         return self.format_str.format(self.days,
-                             self.hours(),
-                             self.minutes(),
-                             self.seconds % 60,
-                             self.total_seconds())
+                                      self.hours() % 24,
+                                      self.minutes(),
+                                      self.seconds % 60,
+                                      self.total_seconds())
 
 
 class DateTimeRange:
@@ -157,7 +157,7 @@ class DateTimeRange:
             return self.starttime < t < self.endtime
         elif isinstance(t, datetime.date):
 
-            return (self.starttime < datetime.datetime.combine(t, time.min)
-                    and datetime.datetime.combine(t, time.max) < self.endtime)
+            return (self.starttime < datetime.datetime.combine(t, time.min) and
+                    datetime.datetime.combine(t, time.max) < self.endtime)
         elif isinstance(t, DateTimeRange):
             return self.starttime < t.starttime and t.endtime < self.endtime
