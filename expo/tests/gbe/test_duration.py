@@ -1,4 +1,4 @@
-from gbe.duration import DateTimeRange
+from gbe.duration import Duration
 import nose.tools as nt
 from unittest import TestCase
 
