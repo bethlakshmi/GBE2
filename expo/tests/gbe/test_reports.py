@@ -43,12 +43,16 @@ from tests.factories.ticketing_factories import (
 from tests.contexts import VolunteerContext
 import ticketing.models as tix
 
-import tests.functions.gbe_functions as functions
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
+
 
 
 def _create_scheduled_show_with_acts(conference=None, qty=6):
     if not conference:
-        conference = ConferenceFactory.create()
+        conference = ConferenceFactory()
     conf_day = ConferenceDayFactory.create(
         conference=conference)
 
@@ -69,15 +73,14 @@ class TestReports(TestCase):
     '''Tests for index view'''
     def setUp(self):
         self.factory = RequestFactory()
-        self.profile_factory = ProfileFactory
         self.client = Client()
 
     def create_transaction(self):
-        transaction = TransactionFactory.create()
+        transaction = TransactionFactory()
         transaction.ticket_item.bpt_event.badgeable = True
         transaction.save()
         transaction.ticket_item.bpt_event.save()
-        profile_buyer = self.profile_factory.create()
+        profile_buyer = ProfileFactory()
         profile_buyer.user_object = transaction.purchaser.matched_to_user
         profile_buyer.save()
 
@@ -86,14 +89,14 @@ class TestReports(TestCase):
     def test_list_reports_by_conference(self):
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get(
             'reports/',
             data={"conf_slug":conf.conference_slug})
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         response = list_reports(request)
@@ -105,9 +108,9 @@ class TestReports(TestCase):
         '''list_reports view should fail because user
            is not in one of the privileged groups
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         response = list_reports(request)
 
@@ -115,12 +118,12 @@ class TestReports(TestCase):
         '''list_reports view should load, user has proper
            privileges
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         response = list_reports(request)
@@ -128,24 +131,24 @@ class TestReports(TestCase):
 
     @nt.raises(PermissionDenied)
     def test_review_staff_area_not_visible_without_permission(self):
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/review_staff_area')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
-        current_conference = ConferenceFactory.create()
+        current_conference = ConferenceFactory()
         current_conference.save()
         response = review_staff_area(request)
 
     def test_review_staff_area_path(self):
         '''review_staff_area view should load
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/review_staff_area')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Act Reviewers')
-        current_conference = ConferenceFactory.create()
+        grant_privilege(profile, 'Act Reviewers')
+        current_conference = ConferenceFactory()
         current_conference.save()
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
@@ -156,15 +159,15 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get(
             'reports/review_staff_area',
             data={'conf_slug':conf.conference_slug})
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Act Reviewers')
-        current_conference = ConferenceFactory.create()
+        grant_privilege(profile, 'Act Reviewers')
+        current_conference = ConferenceFactory()
         current_conference.save()
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
@@ -175,14 +178,14 @@ class TestReports(TestCase):
         nt.assert_true(date.today() < date (2016, 3, 1),
                        msg="Time to fix test_staff_area!")
 
-        profile = self.profile_factory.create()
-        show = ShowFactory.create()
+        profile = ProfileFactory()
+        show = ShowFactory()
         context = VolunteerContext(event=show)
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Act Reviewers')
+        grant_privilege(profile, 'Act Reviewers')
         response = staff_area(request, show.eventitem_id)
         self.assertEqual(response.status_code, 200)
 
@@ -190,10 +193,10 @@ class TestReports(TestCase):
     def test_staff_area_path_fail(self):
         '''staff_area view should fail for non-authenticated users
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         show = ShowFactory()
         request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         current_conference = ConferenceFactory()
         current_conference.save()
@@ -204,21 +207,21 @@ class TestReports(TestCase):
         '''env_stuff view should load for privileged users
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/stuffing')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         response = env_stuff(request)
 
     def test_env_stuff_succeed(self):
         '''env_stuff view should load with no conf choice
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         transaction = self.create_transaction()
         request = self.factory.get('reports/stuffing')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Registrar')
+        grant_privilege(profile, 'Registrar')
         response = env_stuff(request)
 
         self.assertEqual(response.status_code, 200)
@@ -238,15 +241,15 @@ class TestReports(TestCase):
     def test_env_stuff_succeed_w_conf(self):
         '''env_stuff view should load for a selected conference slug
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         transaction = self.create_transaction()
         request = self.factory.get(
             'reports/stuffing/%s/'
             % transaction.ticket_item.bpt_event.conference.conference_slug)
 
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Registrar')
+        grant_privilege(profile, 'Registrar')
         response = env_stuff(
             request,
             transaction.ticket_item.bpt_event.conference.conference_slug)
@@ -269,9 +272,9 @@ class TestReports(TestCase):
         '''personal_schedule view should load for privileged users
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/schedule_all')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         response = personal_schedule(request)
 
@@ -279,12 +282,12 @@ class TestReports(TestCase):
         '''personal_schedule view should load for privileged users
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/schedule_all')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
 
-        functions.grant_privilege(profile, 'Act Reviewers')
+        grant_privilege(profile, 'Act Reviewers')
         response = personal_schedule(request)
         self.assertEqual(response.status_code, 200)
 
@@ -295,13 +298,13 @@ class TestReports(TestCase):
         Conference.objects.all().delete()
         conf = ConferenceFactory()
 
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/schedule_all',
                                    data={'conf_slug':conf.conference_slug})
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
 
-        functions.grant_privilege(profile, 'Act Reviewers')
+        grant_privilege(profile, 'Act Reviewers')
         response = personal_schedule(request)
         self.assertEqual(response.status_code, 200)
 
@@ -310,8 +313,8 @@ class TestReports(TestCase):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
-        profile = self.profile_factory.create()
-        functions.login_as(profile, self)
+        profile = ProfileFactory()
+        login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.report_urls'))
@@ -322,14 +325,14 @@ class TestReports(TestCase):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
-        profile = self.profile_factory.create()
-        functions.login_as(profile, self)
+        profile = ProfileFactory()
+        login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.report_urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Tech Crew')
+        grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
 
@@ -337,10 +340,10 @@ class TestReports(TestCase):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
-        curr_conf = ConferenceFactory.create()
+        curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
-        profile = self.profile_factory.create()
-        functions.login_as(profile, self)
+        profile = ProfileFactory()
+        login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.report_urls',
@@ -348,7 +351,7 @@ class TestReports(TestCase):
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         request.GET = {'conf_slug': curr_conf.conference_slug}
-        functions.grant_privilege(profile, 'Tech Crew')
+        grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request, curr_show.eventitem_id)
         nt.assert_true(
             "var table = $('#bid_review').DataTable({" in response.content,
@@ -361,20 +364,20 @@ class TestReports(TestCase):
     def test_review_act_techinfo_with_conference_slug(self):
         '''review_act_techinfo view show correct events for slug
         '''
-        curr_conf = ConferenceFactory.create()
+        curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
         old_conf = ConferenceFactory.create(status='completed')
         old_show, _, old_acts = _create_scheduled_show_with_acts(old_conf)
 
-        profile = self.profile_factory.create()
-        functions.login_as(profile, self)
+        profile = ProfileFactory()
+        login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.report_urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         request.GET = {'conf_slug': curr_conf.conference_slug}
-        functions.grant_privilege(profile, 'Tech Crew')
+        grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
         nt.assert_true(curr_show.title in response.content)
@@ -384,7 +387,7 @@ class TestReports(TestCase):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/room_schedule')
         request.user = profile.user_object
         current_conference = ConferenceFactory()
@@ -395,11 +398,11 @@ class TestReports(TestCase):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/room_schedule')
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         current_conference = ConferenceFactory()
         current_conference.save()
         response = room_schedule(request)
@@ -412,13 +415,13 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get(
             'reports/room_schedule',
             data={'conf_slug':conf.conference_slug})
         request.user = profile.user_object
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         current_conference = ConferenceFactory()
         current_conference.save()
         response = room_schedule(request)
@@ -429,7 +432,7 @@ class TestReports(TestCase):
         '''room_setup view should load for privileged users,
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
         current_conference = ConferenceFactory()
@@ -440,12 +443,12 @@ class TestReports(TestCase):
         '''room_setup view should load for privileged users,
            and fail for others
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         current_conference = ConferenceFactory()
         current_conference.save()
         response = room_setup(request)
@@ -457,14 +460,14 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get(
             'reports/room_setup',
             data={'conf_slug':conf.conference_slug})
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
-        functions.grant_privilege(profile, 'Act Reviewers')
-        functions.login_as(profile, self)
+        grant_privilege(profile, 'Act Reviewers')
+        login_as(profile, self)
         current_conference = ConferenceFactory()
         current_conference.save()
         response = room_setup(request)
@@ -475,22 +478,22 @@ class TestReports(TestCase):
         '''export_badge_report view should fail for users w/out
         Registrar role
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/badges/print_run')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         response = export_badge_report(request)
 
     def test_export_badge_report_succeed_w_conf(self):
         '''get badges w a specific conference
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         transaction = self.create_transaction()
-        functions.grant_privilege(profile, 'Registrar')
+        grant_privilege(profile, 'Registrar')
         request = self.factory.get(
             'reports/badges/print_run/%s'
             % transaction.ticket_item.bpt_event.conference.conference_slug)
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
         response = export_badge_report(request)
 
@@ -510,14 +513,14 @@ class TestReports(TestCase):
     def test_export_badge_report_succeed(self):
         '''loads with the default conference selection.
         '''
-        profile = self.profile_factory.create()
+        profile = ProfileFactory()
         transaction = self.create_transaction()
 
         request = self.factory.get('reports/badges/print_run')
-        functions.login_as(profile, self)
+        login_as(profile, self)
         request.user = profile.user_object
 
-        functions.grant_privilege(profile, 'Registrar')
+        grant_privilege(profile, 'Registrar')
         request = self.factory.get('reports/badges/print_run')
         request.user = profile.user_object
         response = export_badge_report(
@@ -535,3 +538,13 @@ class TestReports(TestCase):
         self.assertIn(
             transaction.ticket_item.title,
             response.content)
+
+    def test_export_act_techinfo(self):
+        context = ActTechInfoContext()
+        reviewer = ProfileFactory()
+        grant_privilege(reviewer, "Tech Crew")
+        login_as_user(reviewer, self)
+        request = self.factory.get(reverse(
+            'act_techinfo_download',
+            urlconf='reporting',
+            kwargs={'show_id'}: context.))
