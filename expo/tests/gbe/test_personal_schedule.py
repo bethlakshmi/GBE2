@@ -1,11 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 
-import gbe.models as conf
 import nose.tools as nt
 from django.test import TestCase, Client
 from django.test.client import RequestFactory
-from django.http import Http404
 from gbe.report_views import personal_schedule
 from tests.factories.gbe_factories import (
     PersonaFactory,
