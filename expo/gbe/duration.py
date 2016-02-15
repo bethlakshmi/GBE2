@@ -1,5 +1,9 @@
-from datetime import timedelta
-import datetime
+from datetime import (
+    date,
+    datetime,
+    time,
+    timedelta,
+)
 
 
 def timedelta_to_duration(td):
@@ -153,11 +157,10 @@ class DateTimeRange:
         within this range to get a True.
         '''
 
-        if isinstance(t, datetime.datetime):
+        if isinstance(t, datetime):
             return self.starttime < t < self.endtime
-        elif isinstance(t, datetime.date):
-
-            return (self.starttime < datetime.datetime.combine(t, time.min) and
-                    datetime.datetime.combine(t, time.max) < self.endtime)
+        elif isinstance(t, date):
+            return (self.starttime < datetime.combine(t, time.min) and
+                    datetime.combine(t, time.max) < self.endtime)
         elif isinstance(t, DateTimeRange):
             return self.starttime < t.starttime and t.endtime < self.endtime
