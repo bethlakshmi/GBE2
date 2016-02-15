@@ -156,7 +156,10 @@ def get_event_display_info(eventitem_id):
     get_events_display_info - but for
     only one eventitem.
     '''
-    item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
+    try:
+        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
+    except EventItem.DoesNotExist:
+        raise Http404
     bio_grid_list = []
     for sched_event in item.scheduler_events.all():
         bio_grid_list += sched_event.bio_list
