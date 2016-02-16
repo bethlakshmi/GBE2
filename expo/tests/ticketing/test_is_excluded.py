@@ -40,7 +40,7 @@ class TestIsExcluded(TestCase):
             starttime=datetime(2016, 2, 5, 12, 0, 0, 0, pytz.utc))
         current_sched.save()
         worker = Worker(_item=self.this_class.teacher,
-                              role='Teacher')
+                        role='Teacher')
         worker.save()
         teacher_assignment = ResourceAllocation(
             event=current_sched,
@@ -49,7 +49,6 @@ class TestIsExcluded(TestCase):
         teacher_assignment.save()
         self.roleexclusion.event = self.this_class
         self.roleexclusion.event.save()
-
 
     def test_no_ticket_excluded(self):
         '''
@@ -84,10 +83,6 @@ class TestIsExcluded(TestCase):
         new_exclude = RoleExclusionFactory.create()
 
         '''
-        print "exclude - "+str(new_exclude)
-        print "event - "+str(new_exclude.event.title)
-        print "role - "+str(new_exclude.role)
-        print "roles"+ ", ".join(new_exclude.event.roles("Teacher"))
         nt.assert_false(new_exclude.is_excluded(
             self.this_class.teacher.performer_profile,
             self.this_class.conference))
@@ -105,16 +100,10 @@ class TestIsExcluded(TestCase):
     def test_role_and_event_match(self):
         '''
             role and event match the exclusion
-            
+
             Fix after expo
         '''
         '''
-        print "exclude - "+str(self.roleexclusion)
-        print "event - "+str(self.roleexclusion.event.title)
-        print "role - "+str(self.roleexclusion.role)
-        print "roles "+ ", ".join(self.this_class.roles("Teacher"))
-        print "roles "+ ", ".join(self.roleexclusion.event.roles("Teacher"))
-
         nt.assert_true(self.roleexclusion.is_excluded(
             self.this_class.teacher.performer_profile,
             self.this_class.conference))
