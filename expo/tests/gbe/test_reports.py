@@ -5,6 +5,7 @@ from datetime import (
     datetime,
     time,
     date,
+    timedelta,
 )
 
 import gbe.models as conf
@@ -30,6 +31,7 @@ from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     ConferenceFactory,
     ProfileFactory,
+    RoomFactory,
     ShowFactory,
 )
 from tests.factories.scheduler_factories import (
@@ -40,14 +42,17 @@ from tests.factories.scheduler_factories import (
 from tests.factories.ticketing_factories import (
     TransactionFactory,
 )
-from tests.contexts import VolunteerContext
+from tests.contexts import (
+    ActTechInfoContext,
+    ClassContext,
+    VolunteerContext,
+)
 import ticketing.models as tix
 
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-
 
 
 def _create_scheduled_show_with_acts(conference=None, qty=6):
@@ -92,7 +97,7 @@ class TestReports(TestCase):
         profile = ProfileFactory()
         request = self.factory.get(
             'reports/',
-            data={"conf_slug":conf.conference_slug})
+            data={"conf_slug": conf.conference_slug})
         login_as(profile, self)
         request.user = profile.user_object
         grant_privilege(profile, 'Act Reviewers')
@@ -101,7 +106,6 @@ class TestReports(TestCase):
         request.session = {'cms_admin_site': 1}
         response = list_reports(request)
         self.assertEqual(response.status_code, 200)
-
 
     @nt.raises(PermissionDenied)
     def test_list_reports_fail(self):
@@ -136,7 +140,6 @@ class TestReports(TestCase):
         login_as(profile, self)
         request.user = profile.user_object
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = review_staff_area(request)
 
     def test_review_staff_area_path(self):
@@ -149,10 +152,8 @@ class TestReports(TestCase):
         request.session = {'cms_admin_site': 1}
         grant_privilege(profile, 'Act Reviewers')
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
-
 
     def test_review_staff_area_by_conference(self):
         '''review_staff_area view should load
@@ -162,20 +163,19 @@ class TestReports(TestCase):
         profile = ProfileFactory()
         request = self.factory.get(
             'reports/review_staff_area',
-            data={'conf_slug':conf.conference_slug})
+            data={'conf_slug': conf.conference_slug})
         login_as(profile, self)
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         grant_privilege(profile, 'Act Reviewers')
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
 
     def test_staff_area_path(self):
         '''staff_area view should load
         '''
-        nt.assert_true(date.today() < date (2016, 3, 1),
+        nt.assert_true(date.today() < date(2016, 3, 1),
                        msg="Time to fix test_staff_area!")
 
         profile = ProfileFactory()
@@ -199,7 +199,6 @@ class TestReports(TestCase):
         login_as(profile, self)
         request.user = profile.user_object
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = staff_area(request, show.eventitem_id)
 
     @nt.raises(PermissionDenied)
@@ -300,7 +299,7 @@ class TestReports(TestCase):
 
         profile = ProfileFactory()
         request = self.factory.get('reports/schedule_all',
-                                   data={'conf_slug':conf.conference_slug})
+                                   data={'conf_slug': conf.conference_slug})
         login_as(profile, self)
         request.user = profile.user_object
 
@@ -391,23 +390,31 @@ class TestReports(TestCase):
         request = self.factory.get('reports/room_schedule')
         request.user = profile.user_object
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = room_schedule(request)
 
     def test_room_schedule_succeed(self):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
+        Conference.objects.all().delete()
         profile = ProfileFactory()
-        request = self.factory.get('reports/room_schedule')
+        context = ClassContext()
+        one_day = timedelta(1)
+        ConferenceDayFactory(conference=context.conference,
+                             day=context.sched_event.starttime.date())
+        ConferenceDayFactory(
+            conference=context.conference,
+            day=context.sched_event.starttime.date()+one_day)
+        context.schedule_instance(
+            starttime=context.sched_event.starttime + one_day)
+        request = self.factory.get('reports/room_schedule',
+                                   args=[context.room.pk])
         request.user = profile.user_object
         grant_privilege(profile, 'Act Reviewers')
         login_as(profile, self)
-        current_conference = ConferenceFactory()
-        current_conference.save()
-        response = room_schedule(request)
+        current_conference = context.conference
+        response = room_schedule(request, context.room.pk)
         self.assertEqual(response.status_code, 200)
-
 
     def test_room_schedule_by_conference(self):
         '''room_schedule view should load for privileged users,
@@ -418,12 +425,10 @@ class TestReports(TestCase):
         profile = ProfileFactory()
         request = self.factory.get(
             'reports/room_schedule',
-            data={'conf_slug':conf.conference_slug})
+            data={'conf_slug': conf.conference_slug})
         request.user = profile.user_object
         grant_privilege(profile, 'Act Reviewers')
         login_as(profile, self)
-        current_conference = ConferenceFactory()
-        current_conference.save()
         response = room_schedule(request)
         self.assertEqual(response.status_code, 200)
 
@@ -436,7 +441,6 @@ class TestReports(TestCase):
         request = self.factory.get('reports/room_setup')
         request.user = profile.user_object
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = room_setup(request)
 
     def test_room_setup_visible_with_permission(self):
@@ -450,7 +454,6 @@ class TestReports(TestCase):
         grant_privilege(profile, 'Act Reviewers')
         login_as(profile, self)
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
 
@@ -459,17 +462,18 @@ class TestReports(TestCase):
            and fail for others
         '''
         Conference.objects.all().delete()
-        conf = ConferenceFactory()
+        context = ClassContext()
+        ConferenceDayFactory(conference=context.conference,
+                             day=context.sched_event.starttime.date())
         profile = ProfileFactory()
         request = self.factory.get(
             'reports/room_setup',
-            data={'conf_slug':conf.conference_slug})
+            data={'conf_slug': context.conference.conference_slug})
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         grant_privilege(profile, 'Act Reviewers')
         login_as(profile, self)
         current_conference = ConferenceFactory()
-        current_conference.save()
         response = room_setup(request)
         self.assertEqual(response.status_code, 200)
 
@@ -543,8 +547,27 @@ class TestReports(TestCase):
         context = ActTechInfoContext()
         reviewer = ProfileFactory()
         grant_privilege(reviewer, "Tech Crew")
-        login_as_user(reviewer, self)
+        login_as(reviewer, self)
         request = self.factory.get(reverse(
             'act_techinfo_download',
-            urlconf='reporting',
-            kwargs={'show_id'}: context.))
+            urlconf='gbe.report_urls',
+            args=[context.show.eventitem_id]))
+        request.user = reviewer.user_object
+        response = export_act_techinfo(request, context.show.eventitem_id)
+        nt.assert_true(context.audio.notes in response.content)
+        nt.assert_false('Center Spot' in response.content)
+
+    def test_export_act_techinfo_theater(self):
+        context = ActTechInfoContext(room_name="Theater")
+        context.show.scheduler_events.first()
+        reviewer = ProfileFactory()
+        grant_privilege(reviewer, "Tech Crew")
+        login_as(reviewer, self)
+        request = self.factory.get(reverse(
+            'act_techinfo_download',
+            urlconf='gbe.report_urls',
+            args=[context.show.eventitem_id]))
+        request.user = reviewer.user_object
+        response = export_act_techinfo(request, context.show.eventitem_id)
+        nt.assert_true(context.audio.notes in response.content)
+        nt.assert_true('Center Spot' in response.content)

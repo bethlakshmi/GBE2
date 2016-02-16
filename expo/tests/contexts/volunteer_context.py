@@ -10,6 +10,8 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+
+
 class VolunteerContext():
     def __init__(self,
                  profile=None,
@@ -30,8 +32,10 @@ class VolunteerContext():
         self.opportunity = opportunity or GenericEventFactory()
         self.event = event or ShowFactory()
         self.role = role or "Volunteer"
-        self.sched_event = SchedEventFactory(eventitem=self.event.eventitem_ptr)
-        self.opp_event = SchedEventFactory(eventitem=self.opportunity.eventitem_ptr)
+        self.sched_event = SchedEventFactory(
+            eventitem=self.event.eventitem_ptr)
+        self.opp_event = SchedEventFactory(
+            eventitem=self.opportunity.eventitem_ptr)
         self.worker = WorkerFactory(_item=self.profile.workeritem,
                                     role=self.role)
         self.allocation = ResourceAllocationFactory(resource=self.worker,
