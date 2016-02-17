@@ -25,7 +25,6 @@ class TestIsExcluded(TestCase):
         self.client = Client()
         self.ticketingexclusion = TicketingExclusionFactory.create()
         self.roleexclusion = RoleExclusionFactory.create()
-
         self.teacher = PersonaFactory.create()
         booking = book_worker_item_for_role(
             self.teacher,
@@ -82,7 +81,6 @@ class TestIsExcluded(TestCase):
         '''
             role and event match the exclusion
         '''
-
         nt.assert_true(self.roleexclusion.is_excluded(
             self.teacher.performer_profile,
             self.conference))

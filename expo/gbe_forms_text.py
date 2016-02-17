@@ -576,18 +576,18 @@ calendar_types = {0: 'General',
                   1: 'Conference'}
 
 list_titles = {
-    'Class': '''Class Descriptions at GBE''',
-    'Panel': '''Panel Descriptions at GBE''',
-    'Show': '''Shows at GBE''',
-    'All': '''All Events''',
-    'Volunteer': '''Volunteer Opportunities''',
-    'Master': '''Master Classes''',
-    'Drop-In': '''Dropin Classes''',
-    'Special': '''Special Events'''
+    'class': '''Class Descriptions at GBE''',
+    'panel': '''Panel Descriptions at GBE''',
+    'show': '''Shows at GBE''',
+    'all': '''All Events''',
+    'volunteer': '''Volunteer Opportunities''',
+    'master': '''Master Classes''',
+    'drop-in': '''Dropin Classes''',
+    'special': '''Special Events'''
 }
 
 list_text = {
-    'Class': '''    <p> \
+    'class': '''    <p> \
         The Conference at <b></b>The Great Burlesque Exposition</b> \
         features more than 60 hours of \
         class time over threee days.  It is the original Professional \
@@ -603,7 +603,7 @@ list_text = {
         philosophical \
         discussions.   \
         </p>''',
-    'Panel': '''    <p> \
+    'panel': '''    <p> \
         Panels are an opportunity for members of the burlesque community to \
         learn from one another and \
         share with one another in a semi-structured setting.  Less \
@@ -619,20 +619,20 @@ list_text = {
         just need to be excited and enthusiastic about the topic!</p><p>
         If you're interested in being a panelist, let ust know - sign up at I \
         want to... Be a Presenter</p> ''',
-    'Show': '''    <p> \
+    'show': '''    <p> \
         Each year, The Great Burlesque Exposition searches the globe to bring \
         you the finest performers.  \
         We have four big shows on three big nights! \
         </p> ''',
-    'All': '''    <p> \
+    'all': '''    <p> \
         Check out the full list of all shows, classes, master classes, dropin \
         classes and special events!\
         </p> ''',
-    'Volunteer': '''    <p> \
+    'volunteer': '''    <p> \
         Check out the many ways you can help to make the expo even more \
         awesome!  We're always adding new ways to help, so check here often! \
         </p>''',
-    'Master': '''    <p> For the student of burlesque who wants to get even \
+    'master': '''    <p> For the student of burlesque who wants to get even \
         more out of the conference, The Great Burlesque Exposition offers \
         Master Classes.  These are intensive, double-length classes \
         taught by world-renowned experts in burlesque.  If you want to take \
@@ -645,11 +645,11 @@ list_text = {
         <li>Master Classes are not included in the Whole Shebang package.  \
         If you wish to attend a master \
         class, an additional fee applies.</li>''',
-    'Drop-In': '''    <p> Brought to you by the \
+    'drop-in': '''    <p> Brought to you by the \
         <a href="http://www.studyburlesque.com">Boston Academy of Burlesque \
         Education (B.A.B.E.)</a> these classes are a great "tease" into the \
         art of Burlesque.</p> ''',
-    'Special': '''    <p> A collection of events so special that we had no \
+    'special': '''    <p> A collection of events so special that we had no \
         choice but to call them "Special Events".</p> '''
 }
 
