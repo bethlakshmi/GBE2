@@ -189,9 +189,6 @@ def personal_schedule(request, profile_id='All'):
 
     if profile_id == 'All':
         people = conf.Profile.objects.all().select_related()
-        purchasers = tix.Purchaser.objects.filter(
-            matched_to_user__username="limbo").order_by('first_name',
-                                                        'last_name')
     else:
         people = []  # Set it to be self, in list format
 
@@ -205,11 +202,6 @@ def personal_schedule(request, profile_id='All'):
                            'bookings': bookings,
                            'checklist_items': items}]
 
-    for purchaser in purchasers:
-        items = get_checklist_items_for_tickets(purchaser, conference)
-        if len(items) > 0:
-            schedules += [{'person': purchaser,
-                           'checklist_items': items}]
     sorted_sched = sorted(
         schedules,
         key=lambda schedule: schedule['person'].get_badge_name())

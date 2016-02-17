@@ -13,6 +13,7 @@ import nose.tools as nt
 from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.http import Http404
+
 from gbe.report_views import (
     list_reports,
     review_staff_area,
@@ -265,47 +266,6 @@ class TestReports(TestCase):
         self.assertIn(
             transaction.ticket_item.title,
             response.content)
-
-    @nt.raises(PermissionDenied)
-    def test_personal_schedule_fail(self):
-        '''personal_schedule view should load for privileged users
-           and fail for others
-        '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/schedule_all')
-        login_as(profile, self)
-        request.user = profile.user_object
-        response = personal_schedule(request)
-
-    def test_personal_schedule_succeed(self):
-        '''personal_schedule view should load for privileged users
-           and fail for others
-        '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/schedule_all')
-        login_as(profile, self)
-        request.user = profile.user_object
-
-        grant_privilege(profile, 'Act Reviewers')
-        response = personal_schedule(request)
-        self.assertEqual(response.status_code, 200)
-
-    def test_personal_schedule_by_conference(self):
-        '''personal_schedule view should load for privileged users
-           and fail for others
-        '''
-        Conference.objects.all().delete()
-        conf = ConferenceFactory()
-
-        profile = ProfileFactory()
-        request = self.factory.get('reports/schedule_all',
-                                   data={'conf_slug': conf.conference_slug})
-        login_as(profile, self)
-        request.user = profile.user_object
-
-        grant_privilege(profile, 'Act Reviewers')
-        response = personal_schedule(request)
-        self.assertEqual(response.status_code, 200)
 
     @nt.raises(PermissionDenied)
     def test_review_act_techinfo_fail(self):

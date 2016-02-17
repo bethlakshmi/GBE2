@@ -93,7 +93,6 @@ def test_view_teachers_given_slug():
     request.user = ProfileFactory.create().user_object
     request.session = {'cms_admin_site': 1}
     response = bios_teachers(request)
-    print(response.content)
     nt.assert_true(this_class.title in response.content)
     nt.assert_false(that_class.title in response.content)
 
@@ -147,7 +146,6 @@ def test_view_teachers_default_view_current_conf_exists():
     request.user = ProfileFactory.create().user_object
     request.session = {'cms_admin_site': 1}
     response = bios_teachers(request)
-    print(response.content)
     nt.assert_true(accepted_class.title in response.content)
     nt.assert_false(rejected_class.title in response.content)
     nt.assert_false(previous_class.title in response.content)

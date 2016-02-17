@@ -395,21 +395,23 @@ class Profile(WorkerItem):
 
     def has_role_in_event(self, role, event):
         '''
-        Gets all of a person's roles for a conference
+        Returns True if this person has the
+        given role in the given event
         '''
         doing_it = False
         if role == "Performer":
             for show in self.get_shows():
                 if show.pk == event.pk:
-                    doing_it = (doing_it or True)
-        else:
-            event_workers = event.roles(role)
-            if self in event_workers:
-                doing_it = True
-            else:
-                for perf in self.get_performers():
-                    doing_it = doing_it or (perf in event_workers)
-
+                    doing_it = True
+        elif not doing_it:
+            performers = self.get_performers()
+            for person in event.roles([role]):
+                if self.pk == person._item.pk:
+                    doing_it = True
+                else:
+                    for perf in performers:
+                        if perf.pk == person._item.pk:
+                            doing_it = True
         return doing_it
 
     def __str__(self):
