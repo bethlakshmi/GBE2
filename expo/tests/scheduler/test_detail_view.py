@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django import forms
 import nose.tools as nt
@@ -33,12 +34,22 @@ def test_no_permission_required():
     nt.assert_equal(200, response.status_code)
     nt.assert_true(show.title in response.content)
 
+
+@nt.raises(Http404)
+def test_bad_id_raises_404():
+    request = RequestFactory().get(
+        '/scheduler/details/%d' % -1)
+    request.user = ProfileFactory.create().user_object
+    request.session = {'cms_admin_site': 1}
+    response = detail_view(request, -1)
+
+
 def test_repeated_lead_shows_once():
     show = ShowFactory()
     sched_events = [schedule_show(show) for i in range(2)]
     staff_lead = ProfileFactory.create()
     lead_worker = WorkerFactory.create(_item=staff_lead.workeritem_ptr,
-                         role = "Staff Lead")
+                                       role="Staff Lead")
     for se in sched_events:
         ResourceAllocationFactory.create(event=se,
                                          resource=lead_worker)
