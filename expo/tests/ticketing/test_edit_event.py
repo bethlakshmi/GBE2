@@ -81,7 +81,7 @@ class TestEditBPTEvent(TestCase):
                                     self.bpt_event.pk,
                                     error_form)
         request.user = self.privileged_user
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = bptevent_edit(request, self.bpt_event.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Ticketing' in response.content)

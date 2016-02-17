@@ -566,7 +566,6 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
-    @property
     def roles(self, roles=['Teacher',
                            'Panelist',
                            'Moderator',

@@ -16,7 +16,6 @@ from gbe.report_views import (list_reports,
                               review_staff_area,
                               staff_area,
                               env_stuff,
-                              personal_schedule,
                               review_act_techinfo,
                               export_act_techinfo,
                               room_schedule,
@@ -224,30 +223,6 @@ class TestReports(TestCase):
         self.assertIn(
             transaction.ticket_item.title,
             response.content)
-
-    @nt.raises(PermissionDenied)
-    def test_personal_schedule_fail(self):
-        '''personal_schedule view should load for privileged users
-           and fail for others
-        '''
-        profile = self.profile_factory.create()
-        request = self.factory.get('reports/schedule_all')
-        functions.login_as(profile, self)
-        request.user = profile.user_object
-        response = personal_schedule(request)
-
-    def test_personal_schedule_succeed(self):
-        '''personal_schedule view should load for privileged users
-           and fail for others
-        '''
-        profile = self.profile_factory.create()
-        request = self.factory.get('reports/schedule_all')
-        functions.login_as(profile, self)
-        request.user = profile.user_object
-
-        functions.grant_privilege(profile, 'Act Reviewers')
-        response = personal_schedule(request)
-        self.assertEqual(response.status_code, 200)
 
     @nt.raises(PermissionDenied)
     def test_review_act_techinfo_fail(self):
