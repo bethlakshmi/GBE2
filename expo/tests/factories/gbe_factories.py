@@ -273,6 +273,8 @@ class VendorFactory(DjangoModelFactory):
     class Meta:
         model = conf.Vendor
 
+
+    title = Sequence(lambda x: "Vendor # %d" %x)
     profile = SubFactory(ProfileFactory)
     website = "http://www.foo.com"
     physical_address = "123 Main Street"

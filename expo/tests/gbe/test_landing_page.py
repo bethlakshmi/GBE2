@@ -58,34 +58,26 @@ class TestIndex(TestCase):
         self.previous_class.conference = self.previous_conf
         self.previous_class.title = 'Previous Class'
         self.previous_class.save()
+
         self.current_vendor = VendorFactory(profile=self.profile,
-                                                   submitted=True)
-        self.current_vendor.conference = self.current_conf
-        self.current_vendor.title = "Current Vendor"
-        self.current_vendor.save()
+                                            submitted=True,
+                                            conference=self.current_conf)
         self.previous_vendor = VendorFactory(profile=self.profile,
-                                                    submitted=True)
-        self.previous_vendor.conference = self.previous_conf
-        self.previous_vendor.title = 'Previous Vendor'
-        self.previous_vendor.save()
+                                                    submitted=True,
+                                             conference=self.previous_conf)
+
         self.current_costume = CostumeFactory(profile=self.profile,
-                                                     submitted=True)
-        self.current_costume.conference = self.current_conf
-        self.current_costume.title = "Current Costume"
-        self.current_costume.save()
+                                                     submitted=True,
+                                              conference=self.current_conf)
         self.previous_costume = CostumeFactory(profile=self.profile,
-                                                      submitted=True)
-        self.previous_costume.conference = self.previous_conf
-        self.previous_costume.title = 'Previous Costume'
-        self.previous_costume.save()
+                                                      submitted=True,
+                                               conference=self.previous_conf)
         self.current_volunteer = VolunteerFactory(profile=self.profile,
-                                                         submitted=True)
-        self.current_volunteer.conference = self.current_conf
-        self.current_volunteer.save()
+                                                         submitted=True,
+                                                  conference=self.current_conf)
         self.previous_volunteer = VolunteerFactory(profile=self.profile,
-                                                          submitted=True)
-        self.previous_volunteer.conference = self.previous_conf
-        self.previous_volunteer.save()
+                                                          submitted=True,
+                                                   conference=self.previous_conf)
 
         # Event assignments, previous and current
         current_opportunity = GenericEventFactory(
