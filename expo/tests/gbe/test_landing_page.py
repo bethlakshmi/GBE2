@@ -3,6 +3,7 @@ import nose.tools as nt
 from unittest import TestCase
 from datetime import datetime
 import pytz
+from django.test import Client
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
 from gbe.views import landing_page
@@ -22,11 +23,15 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     WorkerFactory,
 )
-
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 class TestIndex(TestCase):
     '''Tests for index view'''
     def setUp(self):
+        self.client = Client()
         # Conference Setup
         self.factory = RequestFactory()
         self.current_conf = ConferenceFactory(accepting_bids=True,
@@ -59,25 +64,31 @@ class TestIndex(TestCase):
         self.previous_class.title = 'Previous Class'
         self.previous_class.save()
 
-        self.current_vendor = VendorFactory(profile=self.profile,
-                                            submitted=True,
-                                            conference=self.current_conf)
-        self.previous_vendor = VendorFactory(profile=self.profile,
-                                                    submitted=True,
-                                             conference=self.previous_conf)
+        self.current_vendor = VendorFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.current_conf)
+        self.previous_vendor = VendorFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.previous_conf)
 
-        self.current_costume = CostumeFactory(profile=self.profile,
-                                                     submitted=True,
-                                              conference=self.current_conf)
-        self.previous_costume = CostumeFactory(profile=self.profile,
-                                                      submitted=True,
-                                               conference=self.previous_conf)
-        self.current_volunteer = VolunteerFactory(profile=self.profile,
-                                                         submitted=True,
-                                                  conference=self.current_conf)
-        self.previous_volunteer = VolunteerFactory(profile=self.profile,
-                                                          submitted=True,
-                                                   conference=self.previous_conf)
+        self.current_costume = CostumeFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.current_conf)
+        self.previous_costume = CostumeFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.previous_conf)
+        self.current_volunteer = VolunteerFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.current_conf)
+        self.previous_volunteer = VolunteerFactory(
+            profile=self.profile,
+            submitted=True,
+            conference=self.previous_conf)
 
         # Event assignments, previous and current
         current_opportunity = GenericEventFactory(
@@ -90,7 +101,7 @@ class TestIndex(TestCase):
 
         self.current_sched = SchedEventFactory(
             eventitem=current_opportunity,
-            starttime=datetime(2016, 2, 5, 12, 30, 0, 0, tzinfo=pytz.utc),
+            starttime=datetime(2016, 2, 5, 12, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.previous_sched = SchedEventFactory(
             eventitem=previous_opportunity,
@@ -190,3 +201,17 @@ class TestIndex(TestCase):
         nt.assert_true(self.is_event_present(self.previous_sched, content))
         nt.assert_false(self.is_event_present(self.current_class_sched, content))
         nt.assert_true(self.is_event_present(self.previous_class_sched, content))
+
+    def test_as_privileged_user(self):
+        '''Basic test of landing_page view
+        '''
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory()
+        grant_privilege(staff_profile, "Ticketing - Admin")
+        login_as(staff_profile, self)
+        request.user = staff_profile.user_object
+        request.session = {'cms_admin_site': 1}
+        response = landing_page(request, staff_profile.pk)
+        self.assertEqual(response.status_code, 200)
+        content = response.content
+        nt.assert_true("You are viewing a" in content)

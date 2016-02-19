@@ -225,6 +225,7 @@ class Profile(WorkerItem):
                   group in self.user_object.groups.all().order_by('name')]
         return groups
 
+
     def alerts(self, historical=False):
         if historical:
             return []
@@ -233,14 +234,14 @@ class Profile(WorkerItem):
                 len(self.purchase_email.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['empty_profile'] %
                                   reverse('profile_update',
-                                          urlconf=gbe.urls))
+                                          urlconf='gbe.urls'))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and len(self.phone.strip()) == 0):
             profile_alerts.append(gbetext.profile_alerts['onsite_phone'] %
                                   reverse('profile_update',
-                                          urlconf=gbe.urls))
+                                          urlconf='gbe.urls'))
         for act in self.get_acts():
             if act.accepted == 3 and \
                act.is_current and \
@@ -250,9 +251,10 @@ class Profile(WorkerItem):
                     gbetext.profile_alerts['schedule_rehearsal'] %
                     (act.title,
                      reverse('act_techinfo_edit',
-                             urlconf=gbe.urls,
+                             urlconf='gbe.urls',
                              args=[act.id])))
         return profile_alerts
+
 
     def get_costumebids(self, historical=False):
         costumes = self.costumes.all()
