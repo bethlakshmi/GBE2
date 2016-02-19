@@ -105,28 +105,6 @@ def down(request):
     return HttpResponse(template.render(context))
 
 
-@log_func
-def index(request):
-    '''
-    one of two cases:
-      - unknown user (sign in or register/browse expo)
-      - registered user (show objects/browse expo)
-    '''
-    if request.user.is_authenticated():
-        try:
-            profile = request.user.profile
-        except Profile.DoesNotExist:
-            context_dict['alerts'] = landing_page_no_profile_alert
-            return render_to_response('gbe/index_unregistered_user.tmpl',
-                                      context_dict)
-        template = loader.get_template('gbe/index_registered_user.tmpl')
-        context_dict['profile'] = profile
-    else:
-        pass
-    context = RequestContext(request, context_dict)
-    return HttpResponse(template.render(context))
-
-
 @login_required
 @log_func
 def landing_page(request, profile_id=None, historical=False):
