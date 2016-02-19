@@ -41,15 +41,11 @@ class TestIndex(TestCase):
 
         #Bid types previous and current
         self.current_act = ActFactory(performer=self.performer,
-                                             submitted=True)
-        self.current_act.conference = self.current_conf
-        self.current_act.title = "Current Act"
-        self.current_act.save()
+                                             submitted=True,
+                                      conference=self.current_conf)
         self.previous_act = ActFactory(performer=self.performer,
-                                              submitted=True)
-        self.previous_act.title = 'Previous Act'
-        self.previous_act.conference = self.previous_conf
-        self.previous_act.save()
+                                              submitted=True,
+                                       conference=self.previous_conf)
         self.current_class = ClassFactory(teacher=self.performer,
                                                  submitted=True,
                                                  accepted=3)
