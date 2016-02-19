@@ -18,8 +18,6 @@ urlpatterns = patterns(
     url(r'^gbe/?',
         views.landing_page,
         name='home'),
-    url(r'index.html/?',
-        views.landing_page),
 
     #  profile
     url(r'^profile/?$',
