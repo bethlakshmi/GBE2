@@ -17,10 +17,10 @@ from tests.factories.gbe_factories import(
     VendorFactory,
     VolunteerFactory,
 )
-from scheduler.models import (
-    Event,
-    ResourceAllocation,
-    Worker
+from tests.factories.scheduler_factories import (
+    SchedEventFactory,
+    ResourceAllocationFactory,
+    WorkerFactory,
 )
 
 
@@ -84,53 +84,45 @@ class TestIndex(TestCase):
             conference=self.current_conf,
             title="Current Volunteering",
             type='Volunteer')
-        current_opportunity.save()
         previous_opportunity = GenericEventFactory(
             title="Previous Volunteering",
             conference=self.previous_conf)
-        previous_opportunity.save()
 
-        self.current_sched = Event(
+        self.current_sched = SchedEventFactory(
             eventitem=current_opportunity,
             starttime=datetime(2016, 2, 5, 12, 30, 0, 0, tzinfo=pytz.utc),
             max_volunteer=10)
-        self.current_sched.save()
-        self.previous_sched = Event(
+        self.previous_sched = SchedEventFactory(
             eventitem=previous_opportunity,
             starttime=datetime(2015, 2, 25, 12, 30, 0, 0, pytz.utc),
             max_volunteer=10)
-        self.previous_sched.save()
 
-        self.current_class_sched = Event(
+
+        self.current_class_sched = SchedEventFactory(
             eventitem=self.current_class,
             starttime=datetime(2016, 2, 5, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
-        self.current_class_sched.save()
-        self.previous_class_sched = Event(
+        self.previous_class_sched = SchedEventFactory(
             eventitem=self.previous_class,
             starttime=datetime(2015, 2, 25, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
-        self.previous_class_sched.save()
 
-        worker = Worker(_item=self.profile, role='Volunteer')
-        worker.save()
+        worker = WorkerFactory(_item=self.profile, role='Volunteer')
         for schedule_item in [self.current_sched,
                               self.previous_sched]:
-            volunteer_assignment = ResourceAllocation(
+            volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
                 )
-            volunteer_assignment.save()
 
-        persona_worker = Worker(_item=self.performer, role='Teacher')
-        persona_worker.save()
+
+        persona_worker = WorkerFactory(_item=self.performer, role='Teacher')
         for schedule_item in [self.current_class_sched,
                               self.previous_class_sched]:
-            volunteer_assignment = ResourceAllocation(
+            volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
                 )
-            volunteer_assignment.save()
 
 
     def is_event_present(self, event, content):
