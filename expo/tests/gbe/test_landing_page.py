@@ -29,77 +29,75 @@ class TestIndex(TestCase):
     def setUp(self):
         # Conference Setup
         self.factory = RequestFactory()
-        self.current_conf = ConferenceFactory.create(accepting_bids=True)
-        self.current_conf.status = 'upcoming'
-        self.current_conf.save()
-        self.previous_conf = ConferenceFactory.create(accepting_bids=False)
-        self.previous_conf.status = 'completed'
-        self.previous_conf.save()
+        self.current_conf = ConferenceFactory(accepting_bids=True,
+                                              status='upcoming')
+        self.previous_conf = ConferenceFactory(accepting_bids=False,
+                                               status='completed')
 
         # User/Human setup
-        self.profile = ProfileFactory.create()
-        self.performer = PersonaFactory.create(performer_profile=self.profile,
+        self.profile = ProfileFactory()
+        self.performer = PersonaFactory(performer_profile=self.profile,
                                                contact=self.profile)
-        
+
         #Bid types previous and current
-        self.current_act = ActFactory.create(performer=self.performer,
+        self.current_act = ActFactory(performer=self.performer,
                                              submitted=True)
         self.current_act.conference = self.current_conf
         self.current_act.title = "Current Act"
         self.current_act.save()
-        self.previous_act = ActFactory.create(performer=self.performer,
+        self.previous_act = ActFactory(performer=self.performer,
                                               submitted=True)
         self.previous_act.title = 'Previous Act'
         self.previous_act.conference = self.previous_conf
         self.previous_act.save()
-        self.current_class = ClassFactory.create(teacher=self.performer,
+        self.current_class = ClassFactory(teacher=self.performer,
                                                  submitted=True,
                                                  accepted=3)
         self.current_class.title = "Current Class"
         self.current_class.conference = self.current_conf
         self.current_class.save()
-        self.previous_class = ClassFactory.create(teacher=self.performer,
+        self.previous_class = ClassFactory(teacher=self.performer,
                                                   submitted=True,
                                                   accepted=3)
         self.previous_class.conference = self.previous_conf
         self.previous_class.title = 'Previous Class'
         self.previous_class.save()
-        self.current_vendor = VendorFactory.create(profile=self.profile,
+        self.current_vendor = VendorFactory(profile=self.profile,
                                                    submitted=True)
         self.current_vendor.conference = self.current_conf
         self.current_vendor.title = "Current Vendor"
         self.current_vendor.save()
-        self.previous_vendor = VendorFactory.create(profile=self.profile,
+        self.previous_vendor = VendorFactory(profile=self.profile,
                                                     submitted=True)
         self.previous_vendor.conference = self.previous_conf
         self.previous_vendor.title = 'Previous Vendor'
         self.previous_vendor.save()
-        self.current_costume = CostumeFactory.create(profile=self.profile,
+        self.current_costume = CostumeFactory(profile=self.profile,
                                                      submitted=True)
         self.current_costume.conference = self.current_conf
         self.current_costume.title = "Current Costume"
         self.current_costume.save()
-        self.previous_costume = CostumeFactory.create(profile=self.profile,
+        self.previous_costume = CostumeFactory(profile=self.profile,
                                                       submitted=True)
         self.previous_costume.conference = self.previous_conf
         self.previous_costume.title = 'Previous Costume'
         self.previous_costume.save()
-        self.current_volunteer = VolunteerFactory.create(profile=self.profile,
+        self.current_volunteer = VolunteerFactory(profile=self.profile,
                                                          submitted=True)
         self.current_volunteer.conference = self.current_conf
         self.current_volunteer.save()
-        self.previous_volunteer = VolunteerFactory.create(profile=self.profile,
+        self.previous_volunteer = VolunteerFactory(profile=self.profile,
                                                           submitted=True)
         self.previous_volunteer.conference = self.previous_conf
         self.previous_volunteer.save()
-        
+
         # Event assignments, previous and current
-        current_opportunity = GenericEventFactory.create(
+        current_opportunity = GenericEventFactory(
             conference=self.current_conf,
             title="Current Volunteering",
             type='Volunteer')
         current_opportunity.save()
-        previous_opportunity = GenericEventFactory.create(
+        previous_opportunity = GenericEventFactory(
             title="Previous Volunteering",
             conference=self.previous_conf)
         previous_opportunity.save()
@@ -114,7 +112,7 @@ class TestIndex(TestCase):
             starttime=datetime(2015, 2, 25, 12, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.previous_sched.save()
-        
+
         self.current_class_sched = Event(
             eventitem=self.current_class,
             starttime=datetime(2016, 2, 5, 2, 30, 0, 0, pytz.utc),
@@ -125,7 +123,7 @@ class TestIndex(TestCase):
             starttime=datetime(2015, 2, 25, 2, 30, 0, 0, pytz.utc),
             max_volunteer=10)
         self.previous_class_sched.save()
-        
+
         worker = Worker(_item=self.profile, role='Volunteer')
         worker.save()
         for schedule_item in [self.current_sched,
