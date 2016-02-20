@@ -31,6 +31,7 @@ class ConferenceFactory(DjangoModelFactory):
 class ConferenceDayFactory(DjangoModelFactory):
     day = date.today() + timedelta(7)
     conference = SubFactory(ConferenceFactory)
+
     class Meta:
         model = conf.ConferenceDay
 
@@ -155,10 +156,11 @@ class CueInfoFactory(DjangoModelFactory):
     class Meta:
         model = conf.CueInfo
 
-    cue_sequence = 1
+    techinfo = SubFactory(TechInfoFactory)
+    cue_sequence = Sequence(lambda n: n)
     cue_off_of = "cue_off_of field for test CueInfo object"
     follow_spot = "follow_spot"
-    center_sport = "center_spot"
+    center_spot = "center_spot"
     backlight = "backlight"
     cyc_color = "WHITE"
     wash = "WHITE"
