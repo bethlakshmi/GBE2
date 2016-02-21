@@ -28,12 +28,8 @@ urlpatterns = patterns(
         views.profile, name='profile_view'),
 
     #  bios
-    url(r'^bios/staff/?$',
-        views.bios_staff, name='bios_staff'),
     url(r'^bios/teachers/?$',
         views.bios_teachers, name='bios_teacher'),
-    url(r'^/bios/volunteers/?$',
-        views.bios_volunteer, name='bios_volunteer'),
 
     #  acts
     url(r'^act/create/?$',
@@ -93,32 +89,10 @@ urlpatterns = patterns(
         views.review_proposal_list,
         name='proposal_review_list'),
 
-    #  panel
-    url(r'^panel/?$',
-        views.panel_view, name='panel_view'),
-    url(r'^panel/create/?$',
-        views.panel_create, name='panel_create'),
-    url(r'^panel/edit/(\d+)/?$',
-        views.panel_edit, name='panel_edit'),
-    url(r'^panel/delete/(\d+)/?$',
-        views.panel_delete, name='panel_delete'),
-
     #  conference
     url(r'^conference/volunteer/?$',
         views.conference_volunteer,
         name='conference_volunteer'),
-
-    #  ads
-    url(r'^ad/list/?$',
-        views.ad_list, name='ad_list'),
-    url(r'^ad/create/?$',
-        views.ad_create, name='ad_create'),
-    url(r'^ad/view/(\d+)/?$',
-        views.ad_view, name='ad_view'),
-    url(r'^ad/edit/(\d+)/?$',
-        views.ad_edit, name='ad_edit'),
-    url(r'^ad/delete/(\d+)/?$',
-        views.ad_delete, name='ad_delete'),
 
     #  personae
     url(r'^performer/create/?$',
@@ -154,10 +128,6 @@ urlpatterns = patterns(
     url(r'^volunteer/changestate/(\d+)/?$',
         views.volunteer_changestate,
         name='volunteer_changestate'),
-    url(r'^volunteer/?$',
-        views.volunteer, name='volunteer'),
-    #  plain volunteer is for users to use to volunteer
-    #  to help with tech, classes, panels, etc.
 
 
     #  vendors
@@ -201,8 +171,6 @@ urlpatterns = patterns(
         name='clone_bid'),
 
     #  miscellaneous URLs
-    url(r'^costume_display/?$',
-        views.costume_display, name='costume_display'),
     url(r'^fashion_faire/$',
         views.fashion_faire, name='fashion_faire'),
 
@@ -223,8 +191,6 @@ urlpatterns = patterns(
         views.register, name='register'),
     url(r'update_profile/?$',
         views.update_profile, name='profile_update'),
-    url(r'^special/?$',
-        views.special, name='special'),
 
     #  password reset
     url(r'^accounts/password/reset/?$',

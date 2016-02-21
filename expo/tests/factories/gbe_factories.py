@@ -171,6 +171,7 @@ class ActFactory(DjangoModelFactory):
     class Meta:
         model = conf.Act
 
+    submitted=False
     title = Sequence(lambda x: "Act #%d" %x)
     performer = SubFactory(PersonaFactory)
     tech = SubFactory(TechInfoFactory)

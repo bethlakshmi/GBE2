@@ -43,7 +43,6 @@ class TestIndex(TestCase):
         self.profile = ProfileFactory()
         self.performer = PersonaFactory(performer_profile=self.profile,
                                                contact=self.profile)
-
         #Bid types previous and current
         self.current_act = ActFactory(performer=self.performer,
                                              submitted=True,
@@ -215,3 +214,63 @@ class TestIndex(TestCase):
         self.assertEqual(response.status_code, 200)
         content = response.content
         nt.assert_true("You are viewing a" in content)
+
+    def test_acts_to_review(self):
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory (user_object__is_staff=True)
+        grant_privilege(staff_profile, "Act Reviewers")
+        login_as(staff_profile, self)
+        act = ActFactory(submitted=True,
+                         conference=self.current_conf)
+        request.session = {'cms_admin_site': 1}
+        request.user = staff_profile.user_object
+        response = landing_page(request)
+        nt.assert_true(act.title in response.content)
+
+    def test_classes_to_review(self):
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory (user_object__is_staff=True)
+        grant_privilege(staff_profile, "Class Reviewers")
+        login_as(staff_profile, self)
+        klass = ClassFactory(submitted=True,
+                         conference=self.current_conf)
+        request.session = {'cms_admin_site': 1}
+        request.user = staff_profile.user_object
+        response = landing_page(request)
+        nt.assert_true(klass.title in response.content)
+
+    def test_volunteers_to_review(self):
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory (user_object__is_staff=True)
+        grant_privilege(staff_profile, "Volunteer Reviewers")
+        login_as(staff_profile, self)
+        volunteer = VolunteerFactory(submitted=True,
+                         conference=self.current_conf)
+        request.session = {'cms_admin_site': 1}
+        request.user = staff_profile.user_object
+        response = landing_page(request)
+        nt.assert_true(volunteer.title in response.content)
+
+    def test_vendors_to_review(self):
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory (user_object__is_staff=True)
+        grant_privilege(staff_profile, "Vendor Reviewers")
+        login_as(staff_profile, self)
+        vendor = VendorFactory(submitted=True,
+                         conference=self.current_conf)
+        request.session = {'cms_admin_site': 1}
+        request.user = staff_profile.user_object
+        response = landing_page(request)
+        nt.assert_true(vendor.title in response.content)
+
+    def test_costumes_to_review(self):
+        request = self.factory.get('/')
+        staff_profile = ProfileFactory (user_object__is_staff=True)
+        grant_privilege(staff_profile, "Costume Reviewers")
+        login_as(staff_profile, self)
+        costume = CostumeFactory(submitted=True,
+                         conference=self.current_conf)
+        request.session = {'cms_admin_site': 1}
+        request.user = staff_profile.user_object
+        response = landing_page(request)
+        nt.assert_true(costume.title in response.content)

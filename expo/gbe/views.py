@@ -191,22 +191,6 @@ def landing_page(request, profile_id=None, historical=False):
     return HttpResponse(template.render(context))
 
 
-@log_func
-def event(request, event_id):
-    '''Not listed in urlconf - can delete?
-    '''
-    event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.html', {'event': event})
-
-
-@log_func
-def techinfo(request):
-    form = TechInfoForm()
-    return render(request,
-                  'gbe/techinfo.html',
-                  {'form': form})
-
-
 @login_required
 @log_func
 def register_persona(request, **kwargs):
@@ -2755,41 +2739,6 @@ def review_proposal_list(request):
                    'conference_slugs': conference_slugs})
 
 
-@log_func
-def panel_create(request):
-    '''
-    View for creating a panel.  Boilerplate for now, more later.
-    '''
-    pass
-
-
-@log_func
-def panel_view(request, panel_id):
-    '''
-    View for viewing a panel.
-    Boilerplate.
-    '''
-    pass
-
-
-@log_func
-def panel_edit(request, panel_id):
-    '''
-    View for editing a panel.
-    Boilerplate.
-    '''
-    pass
-
-
-@log_func
-def panel_delete(request, panel_id):
-    '''
-    View to delete a panel.  Deleting only marks panel as deleted, does not
-    actually remove the data from the DB.
-    Boilerplate.
-    '''
-    pass
-
 
 @login_required
 @log_func
@@ -2878,59 +2827,6 @@ def conference_volunteer(request):
                    'header': header, 'rows': rows})
 
 
-@log_func
-def ad_create(request):
-    '''
-    View to create an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_list(request):
-    '''
-    View to get a list of advertisements.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_edit(request, ad_id):
-    '''
-    View to edit or alter an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_view(request, ad_id):
-    '''
-    View an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_delete(request, ad_id):
-    '''
-    Delete an advertisement.  Deletion does not remove the ad from
-    the database, but marks it as deleted.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def bios_staff(request):
-    '''
-    Display the staff bios, pulled from their profiles.
-    '''
-    pass
-
 
 @log_func
 def bios_teachers(request):
@@ -2946,14 +2842,11 @@ def bios_teachers(request):
         conference = get_conference_by_slug(conf_slug)
     conferences = conference_list()
 
-    try:
-        performers = Performer.objects.all()
-        commits = ResourceAllocation.objects.all()
-        workers = Worker.objects.filter(Q(role="Teacher") |
-                                        Q(role="Moderator") |
-                                        Q(role="Panelist"))
-    except:
-        performers = []
+    performers = Performer.objects.all()
+    commits = ResourceAllocation.objects.all()
+    workers = Worker.objects.filter(Q(role="Teacher") |
+                                    Q(role="Moderator") |
+                                    Q(role="Panelist"))
     bios = []
 
     for performer in performers:
@@ -2973,41 +2866,6 @@ def bios_teachers(request):
                'conferences': conferences}
 
     return render(request, template, context)
-
-
-@log_func
-def bios_volunteer(request):
-    '''
-    Display the volunteer bios, pulled from their profiles.
-    '''
-    pass
-
-
-@log_func
-def special(request):
-    '''
-    Edit special privledges.
-    '''
-    pass
-
-
-@log_func
-def volunteer(request):
-    '''
-    Gateway to volunteering pages for users.  Either places
-    links to individual pages for panel, class, tech, etc
-    volunteering, or a more flexible widget to
-    deal with all type of volunteering.
-    '''
-    pass
-
-
-@log_func
-def costume_display(request):
-    '''
-    Costume Display.  May move this and a few other things into a separate app?
-    '''
-    pass
 
 
 @log_func
