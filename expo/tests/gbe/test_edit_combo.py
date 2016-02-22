@@ -11,14 +11,14 @@ from tests.functions.gbe_functions import (
 )
 
 
-class TestCreateCombo(TestCase):
+class TestEditCombo(TestCase):
     '''Tests for create_combo view'''
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.troupe_string = 'a one-off group of performers working     together'
+        self.combo_string = 'a one-off group of performers working'
 
-    def test_create_troupe(self):
+    def test_edit_combo(self):
         '''edit_troupe view, create flow
         '''
         contact = factories.PersonaFactory.create()
@@ -33,9 +33,9 @@ class TestCreateCombo(TestCase):
         response = create_combo(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response),
-                        '/update_profile?next=/troupe/create')
+                        '/update_profile?next=/combo/create')
         request.user = contact.performer_profile.user_object
         login_as(contact.performer_profile, self)
         response = create_combo(request)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.troupe_string in response.content)
+        self.assertTrue(self.combo_string in response.content)

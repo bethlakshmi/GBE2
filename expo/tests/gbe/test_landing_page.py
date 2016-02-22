@@ -15,6 +15,7 @@ from tests.factories.gbe_factories import(
     GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
+    UserFactory,
     VendorFactory,
     VolunteerFactory,
 )
@@ -143,6 +144,14 @@ class TestIndex(TestCase):
                 reverse('detail_view',
                         urlconf="scheduler.urls",
                         args=[event.eventitem.eventitem_id]) in content)
+
+    def test_no_profile(self):
+        request = self.factory.get(reverse('home', urlconf="gbe.urls"))
+        request.user = UserFactory()
+        login_as(request.user, self)
+        request.session = {'cms_admin_site': 1}
+        response = landing_page(request)
+        nt.assert_true("Your Expo" in response.content)
 
     def test_landing_page_path(self):
         '''Basic test of landing_page view

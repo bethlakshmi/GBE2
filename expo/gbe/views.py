@@ -335,14 +335,13 @@ def create_combo(request):
         return HttpResponseRedirect(reverse('profile_update',
                                             urlconf='gbe.urls') +
                                     '?next=' +
-                                    reverse('troupe_create',
+                                    reverse('combo_create',
                                             urlconf='gbe.urls'))
-    personae = profile.personae.all()
-    if len(personae) == 0:
+    if not profile.personae.exists():
         return HttpResponseRedirect(reverse('persona_create',
                                             urlconf='gbe.urls') +
                                     '?next=' +
-                                    reverse('troupe_create',
+                                    reverse('combo_create',
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
         form = ComboForm(request.POST, request.FILES)
