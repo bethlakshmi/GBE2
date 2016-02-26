@@ -20,6 +20,12 @@ class BrownPaperEventsFactory(DjangoModelFactory):
     bpt_event_id = "111111"
     conference = SubFactory(ConferenceFactory)
 
+class BrownPaperSettingsFactory(DjangoModelFactory):
+    class Meta:
+        model = tickets.BrownPaperSettings
+    developer_token = "devtoken"
+    client_username = "clientusername"
+    last_poll_time = timezone.now()
 
 class TicketItemFactory(DjangoModelFactory):
     class Meta:

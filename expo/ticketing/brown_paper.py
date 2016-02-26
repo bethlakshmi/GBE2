@@ -31,8 +31,10 @@ def perform_bpt_api_call(api_call):
     except urllib2.URLError as io_error:
         logger.error('Could not perform BPT call:  %s' % io_error.reason)
         return None
-    except:
-        logger.error('Could not perform BPT call.  Reason unknown.')
+    except Exception as e:
+        logger.error(
+            'Could not perform BPT call.  Reason: %s (%s)' % (e.message,
+            type(e)))
         return None
     return xml_tree
 

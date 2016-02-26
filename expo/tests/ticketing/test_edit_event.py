@@ -1,7 +1,5 @@
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-import gbe.models as conf
-import ticketing.models as tickets
 import nose.tools as nt
 from django.contrib.auth.models import Group
 from unittest import TestCase
@@ -10,7 +8,6 @@ from django.test import Client
 from ticketing.views import bptevent_edit
 from tests.factories import gbe_factories, ticketing_factories
 from tests.functions.gbe_functions import location
-import mock
 
 
 class TestEditBPTEvent(TestCase):

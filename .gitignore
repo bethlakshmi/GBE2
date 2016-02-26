@@ -104,3 +104,5 @@ htmlcov
 *.mysql
 *.png
 *.emacs*
+
+expo/.coverage
