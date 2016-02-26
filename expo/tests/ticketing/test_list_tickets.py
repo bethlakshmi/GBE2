@@ -2,7 +2,8 @@ from django.http import Http404
 from django.core.files import File
 from django.core.exceptions import PermissionDenied
 from ticketing.models import (
-    BrownPaperEvents
+    BrownPaperEvents,
+    BrownPaperSettings
 )
 import nose.tools as nt
 from django.contrib.auth.models import Group
@@ -57,6 +58,7 @@ class TestListTickets(TestCase):
            privileged user gets the inventory of tickets from (fake) BPT
         '''
         BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
         event = BrownPaperEventsFactory()
         BrownPaperSettingsFactory()
 
@@ -82,6 +84,27 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
 
+        request = self.factory.post('/ticketing/ticket_items',
+                                    {'Import': 'Import'})
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_no_event_list(self, m_urlopen):
+        '''
+           not event list comes when getting inventory
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+
+        a = Mock()
+        a.read.side_effect = []
+        m_urlopen.return_value = a
+        
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user

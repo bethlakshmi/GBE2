@@ -12,7 +12,7 @@ from ticketing.models import *
 import HTMLParser
 from django.utils import timezone
 from gbe.models import Profile
-
+import sys
 
 def perform_bpt_api_call(api_call):
     '''
@@ -31,10 +31,9 @@ def perform_bpt_api_call(api_call):
     except urllib2.URLError as io_error:
         logger.error('Could not perform BPT call:  %s' % io_error.reason)
         return None
-    except Exception as e:
+    except:
         logger.error(
-            'Could not perform BPT call.  Reason: %s (%s)' % (e.message,
-            type(e)))
+            'Could not perform BPT call.  Reason: %s ' % (sys.exc_info()[0]))
         return None
     return xml_tree
 
@@ -103,7 +102,7 @@ def get_bpt_event_description(event_id):
     event_xml = perform_bpt_api_call(event_call)
 
     if event_xml is None:
-        return "None Found"
+        return None
 
     h = HTMLParser.HTMLParser()
     descr = h.unescape(event_xml.find('.//e_description').text)
@@ -147,19 +146,21 @@ def get_bpt_price_list():
 
     for event in BrownPaperEvents.objects.all():
         event_text = get_bpt_event_description(event.bpt_event_id)
+        
+        if event_text:
+            for date in get_bpt_event_date_list(event.bpt_event_id):
+                url = "?".join(
+                    ['http://www.brownpapertickets.com/api2/pricelist',
+                     'id=%s&event_id=%s&date_id=%s'])
+                price_call = url % (get_bpt_developer_id(),
+                                    event.bpt_event_id,
+                                    date)
+                price_xml = perform_bpt_api_call(price_call)
 
-        for date in get_bpt_event_date_list(event.bpt_event_id):
-            url = "?".join(['http://www.brownpapertickets.com/api2/pricelist',
-                            'id=%s&event_id=%s&date_id=%s'])
-            price_call = url % (get_bpt_developer_id(),
-                                event.bpt_event_id,
-                                date)
-            price_xml = perform_bpt_api_call(price_call)
-
-            for price in price_xml.findall('.//price'):
-                ti_list.append(bpt_price_to_ticketitem(event,
-                                                       price,
-                                                       event_text))
+                for price in price_xml.findall('.//price'):
+                        ti_list.append(bpt_price_to_ticketitem(event,
+                                                               price,
+                                                               event_text))
 
     return ti_list
 
