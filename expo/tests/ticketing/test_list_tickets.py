@@ -76,13 +76,11 @@ class TestListTickets(TestCase):
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
-    def test_get_no_inventory(self, m_urlopen):
+    def test_get_no_inventory(self):
         '''
-           privileged user gets the inventory of tickets from (fake) BPT
+           privileged user gets the inventory of tickets with no tickets
         '''
         BrownPaperEvents.objects.all().delete()
-        event = BrownPaperEventsFactory()
-        BrownPaperSettingsFactory()
 
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
