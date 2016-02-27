@@ -111,3 +111,25 @@ class TestListTickets(TestCase):
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_no_date_list(self, m_urlopen):
+        '''
+           not date list comes when getting inventory
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml",'r')
+        a.read.side_effect = [File(event_filename).read()]
+        m_urlopen.return_value = a
+        
+        request = self.factory.post('/ticketing/ticket_items',
+                                    {'Import': 'Import'})
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)

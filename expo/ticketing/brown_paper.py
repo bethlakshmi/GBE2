@@ -123,7 +123,7 @@ def get_bpt_event_date_list(event_id):
     date_xml = perform_bpt_api_call(date_call)
 
     if date_xml is None:
-        return None
+        return []
 
     date_list = []
     for date in date_xml.findall('.//date_id'):
