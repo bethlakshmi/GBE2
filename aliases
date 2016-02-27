@@ -2,3 +2,4 @@
 alias pepdiff='git diff --name-only master | grep ".py" | xargs pep8'
 alias rmpyc='find . -name "*.pyc" | xargs rm'
 alias runcoverage='cd /vagrant/expo;coverage run --source="." ./manage.py test tests -s;coverage html --omit="*/migrations/*,tests/*"'
+alias runserver='/usr/bin/python /vagrant/expo/manage.py runserver 0.0.0.0:8111 &> /vagrant/expo/logs/runserver.log'
