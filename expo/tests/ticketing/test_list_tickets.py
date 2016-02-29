@@ -3,7 +3,12 @@ from django.core.files import File
 from django.core.exceptions import PermissionDenied
 from ticketing.models import (
     BrownPaperEvents,
-    BrownPaperSettings
+    BrownPaperSettings,
+    TicketItem
+)
+from tests.factories.ticketing_factories import (
+    BrownPaperEventsFactory,
+    BrownPaperSettingsFactory
 )
 import nose.tools as nt
 from django.contrib.auth.models import Group
@@ -14,13 +19,11 @@ from ticketing.views import ticket_items
 from tests.factories.gbe_factories import (
     ProfileFactory
 )
-from tests.factories.ticketing_factories import (
-    BrownPaperEventsFactory,
-    BrownPaperSettingsFactory
-)
 from tests.functions.gbe_functions import location
 from mock import patch, Mock
 import urllib2
+from django.shortcuts import get_object_or_404
+from decimal import Decimal
 
 
 class TestListTickets(TestCase):
@@ -53,7 +56,7 @@ class TestListTickets(TestCase):
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
-        
+
     @patch('urllib2.urlopen', autospec=True)
     def test_get_inventory(self, m_urlopen):
         '''
@@ -65,20 +68,28 @@ class TestListTickets(TestCase):
         BrownPaperSettingsFactory()
 
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml",'r')
-        date_filename = open("tests/ticketing/datelist.xml",'r')
-        price_filename = open("tests/ticketing/pricelist.xml",'r')
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
+        price_filename = open("tests/ticketing/pricelist.xml", 'r')
         a.read.side_effect = [File(event_filename).read(),
                               File(date_filename).read(),
                               File(price_filename).read()]
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
+        ticket = get_object_or_404(
+            TicketItem,
+            ticket_id='%s-4513068' % (event.bpt_event_id))
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_equal(ticket.cost, Decimal('125.00'))
+        nt.assert_in(
+            "The Great Burlesque Exposition of 2016 takes place Feb. 5-7",
+            ticket.description)
 
     def test_get_no_inventory(self):
         '''
@@ -106,7 +117,7 @@ class TestListTickets(TestCase):
         a = Mock()
         a.read.side_effect = []
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
@@ -125,10 +136,10 @@ class TestListTickets(TestCase):
         BrownPaperSettingsFactory()
 
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml",'r')
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
@@ -147,12 +158,12 @@ class TestListTickets(TestCase):
         BrownPaperSettingsFactory()
 
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml",'r')
-        date_filename = open("tests/ticketing/datelist.xml",'r')
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
         a.read.side_effect = [File(event_filename).read(),
                               File(date_filename).read()]
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
@@ -173,7 +184,7 @@ class TestListTickets(TestCase):
         a = Mock()
         a.read.side_effect = urllib2.URLError("test url error")
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
@@ -191,10 +202,10 @@ class TestListTickets(TestCase):
         event = BrownPaperEventsFactory()
 
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml",'r')
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
-        
+
         request = self.factory.post('/ticketing/ticket_items',
                                     {'Import': 'Import'})
         request.user = self.privileged_user
