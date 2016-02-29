@@ -157,7 +157,8 @@ def get_bpt_price_list():
                                     date)
                 price_xml = perform_bpt_api_call(price_call)
 
-                for price in price_xml.findall('.//price'):
+                if price_xml is not None:
+                    for price in price_xml.findall('.//price'):
                         ti_list.append(bpt_price_to_ticketitem(event,
                                                                price,
                                                                event_text))

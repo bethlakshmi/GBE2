@@ -31,6 +31,7 @@ class ConferenceFactory(DjangoModelFactory):
 class ConferenceDayFactory(DjangoModelFactory):
     day = date.today() + timedelta(7)
     conference = SubFactory(ConferenceFactory)
+
     class Meta:
         model = conf.ConferenceDay
 

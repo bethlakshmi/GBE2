@@ -20,6 +20,8 @@ from tests.factories.ticketing_factories import (
 )
 from tests.functions.gbe_functions import location
 from mock import patch, Mock
+import urllib2
+
 
 class TestListTickets(TestCase):
     '''Tests for ticket_items view'''
@@ -121,6 +123,72 @@ class TestListTickets(TestCase):
         BrownPaperSettings.objects.all().delete()
         event = BrownPaperEventsFactory()
         BrownPaperSettingsFactory()
+
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml",'r')
+        a.read.side_effect = [File(event_filename).read()]
+        m_urlopen.return_value = a
+        
+        request = self.factory.post('/ticketing/ticket_items',
+                                    {'Import': 'Import'})
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_no_price_list(self, m_urlopen):
+        '''
+           not price list comes when getting inventory
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml",'r')
+        date_filename = open("tests/ticketing/datelist.xml",'r')
+        a.read.side_effect = [File(event_filename).read(),
+                              File(date_filename).read()]
+        m_urlopen.return_value = a
+        
+        request = self.factory.post('/ticketing/ticket_items',
+                                    {'Import': 'Import'})
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_urlerror(self, m_urlopen):
+        '''
+           first read from BPT has a URL read error
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+
+        a = Mock()
+        a.read.side_effect = urllib2.URLError("test url error")
+        m_urlopen.return_value = a
+        
+        request = self.factory.post('/ticketing/ticket_items',
+                                    {'Import': 'Import'})
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_no_settings(self, m_urlopen):
+        '''
+           not date list comes when getting inventory
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
 
         a = Mock()
         event_filename = open("tests/ticketing/eventlist.xml",'r')

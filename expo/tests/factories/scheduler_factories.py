@@ -9,6 +9,7 @@ from datetime import datetime
 from django.utils import timezone
 from tests.factories.gbe_factories import GenericEventFactory
 
+
 class SchedulableFactory(DjangoModelFactory):
     class Meta:
         model = sched.Schedulable
