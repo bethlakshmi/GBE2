@@ -766,7 +766,9 @@ def add_event(request, eventitem_id, event_type='Class'):
     try:
         item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
     except:
-        raise Exception("Error code XYZZY: Couldn't get an item for id")
+        logger.warn(("add_event tried to get an EventItem for id %d and failed. "
+                     "user saw Http404.") % eventitem_id)
+        raise Http404
 
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)

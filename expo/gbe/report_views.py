@@ -56,14 +56,10 @@ def review_staff_area(request):
         conference = conf.Conference.current_conf()
 
     header = ['Area', 'Leaders', 'Check Staffing']
-    try:
-        areas = conf.GenericEvent.objects.filter(type='Staff Area',
-                                                 visible=True).filter(
-                                                     conference=conference)
-        shows = conf.Show.objects.filter(conference=conference)
-    except:
-        areas = []
-        shows = []
+    areas = conf.GenericEvent.objects.filter(type='Staff Area',
+                                             visible=True).filter(
+                                                 conference=conference)
+    shows = conf.Show.objects.filter(conference=conference)
 
     return render(request, 'gbe/report/staff_areas.tmpl',
                   {'header': header,
@@ -396,10 +392,7 @@ def room_schedule(request, room_id=None):
         rooms = [get_object_or_404(sched.LocationItem,
                                    resourceitem_id=room_id)]
     else:
-        try:
-            rooms = sched.LocationItem.objects.all()
-        except:
-            rooms = []
+        rooms = sched.LocationItem.objects.all()
 
     conf_days = conference.conferenceday_set.all()
     tmp_days = []
@@ -452,11 +445,7 @@ def room_setup(request):
     conf_days = tmp_days
 
     viewer_profile = validate_perms(request, 'any', require=True)
-
-    try:
-        rooms = sched.LocationItem.objects.all()
-    except:
-        rooms = []
+    rooms = sched.LocationItem.objects.all()
 
     # rearrange the data into the format of:
     #  - room & date of booking
