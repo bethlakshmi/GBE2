@@ -8,7 +8,8 @@ from ticketing.models import (
 )
 from tests.factories.ticketing_factories import (
     BrownPaperEventsFactory,
-    BrownPaperSettingsFactory
+    BrownPaperSettingsFactory,
+    TicketItemFactory
 )
 import nose.tools as nt
 from django.contrib.auth.models import Group
@@ -24,6 +25,7 @@ from mock import patch, Mock
 import urllib2
 from django.shortcuts import get_object_or_404
 from decimal import Decimal
+from django.core.urlresolvers import reverse
 
 
 class TestListTickets(TestCase):
@@ -43,7 +45,9 @@ class TestListTickets(TestCase):
             The user does not have the right privileges.  Send PermissionDenied
         '''
         user = ProfileFactory.create().user_object
-        request = self.factory.get('/ticketing/ticket_items/')
+        request = self.factory.get(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+        )
         request.user = user
         response = ticket_items(request)
 
@@ -51,7 +55,8 @@ class TestListTickets(TestCase):
         '''
            privileged user gets the list
         '''
-        request = self.factory.get('/ticketing/ticket_items')
+        request = self.factory.get(
+            reverse('ticket_items', urlconf='ticketing.urls'),)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -76,8 +81,9 @@ class TestListTickets(TestCase):
                               File(price_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -97,8 +103,9 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -118,8 +125,9 @@ class TestListTickets(TestCase):
         a.read.side_effect = []
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -140,8 +148,9 @@ class TestListTickets(TestCase):
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -164,8 +173,9 @@ class TestListTickets(TestCase):
                               File(date_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -185,8 +195,9 @@ class TestListTickets(TestCase):
         a.read.side_effect = urllib2.URLError("test url error")
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
@@ -206,9 +217,26 @@ class TestListTickets(TestCase):
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/ticket_items',
-                                    {'Import': 'Import'})
+        request = self.factory.post(
+            reverse('ticket_items', urlconf='ticketing.urls'),
+            {'Import': 'Import'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
+        nt.assert_equal(response.status_code, 200)
+
+    def test_list_tickets_for_conf(self):
+        '''
+           privileged user gets the list for a conference
+        '''
+        ticket = TicketItemFactory()
+        request = self.factory.get(
+            reverse('ticket_items',
+                    urlconf='ticketing.urls',
+                    args=[str(ticket.bpt_event.conference.conference_slug)]))
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(
+            request,
+            ticket.bpt_event.conference.conference_slug)
         nt.assert_equal(response.status_code, 200)
