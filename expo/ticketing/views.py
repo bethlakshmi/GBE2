@@ -67,11 +67,7 @@ def transactions(request):
     error = ''
 
     if ('Sync' in request.POST):
-        try:
-            count = process_bpt_order_list()
-        except Exception as e:
-            error = 'Error processing transactions:  ' + str(e)
-            logger.error(error)
+        count = process_bpt_order_list()
 
     transactions = Transaction.objects.all()
     purchasers = Purchaser.objects.all()

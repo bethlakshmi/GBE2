@@ -121,7 +121,7 @@ class TestProcessBPTOrderList(TestCase):
 
         a = Mock()
         order_filename = open("tests/ticketing/orderlist.xml", 'r')
-        
+
         a.read.side_effect = [
             File(order_filename).read().replace(
                 'tracker12345',

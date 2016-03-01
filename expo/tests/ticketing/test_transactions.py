@@ -16,7 +16,9 @@ from django.contrib.auth.models import Group, User
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from ticketing.views import transactions
+from ticketing.views import (
+    transactions
+)
 from tests.factories.gbe_factories import (
     ProfileFactory
 )
