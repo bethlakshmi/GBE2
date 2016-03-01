@@ -37,8 +37,7 @@ def ticket_items(request, conference_choice=None):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     if 'Import' in request.POST:
         import_ticket_items()
@@ -104,8 +103,7 @@ def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     error = ''
 

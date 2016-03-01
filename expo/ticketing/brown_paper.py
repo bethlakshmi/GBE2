@@ -327,19 +327,10 @@ def attempt_match_purchaser_to_user(purchaser, tracker_id='None'):
 
     try:
         user_id = int(tracker_id[3:])
-        user_found = True
-    except ValueError:
-        user_found = False
-
-    if (user_found):
-        try:
-            User.objects.get(id=user_id)
-            user_found = True
-        except:
-            user_found = False
-
-    if (user_found):
+        User.objects.get(id=user_id)
         return user_id
+    except:
+        user_found = False
 
     # Next try to match to a purchase email address from the Profile
     # (Manual Override Mechanism)
