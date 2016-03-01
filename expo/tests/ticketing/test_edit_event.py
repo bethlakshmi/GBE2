@@ -8,6 +8,7 @@ from django.test import Client
 from ticketing.views import bptevent_edit
 from tests.factories import gbe_factories, ticketing_factories
 from tests.functions.gbe_functions import location
+from django.core.urlresolvers import reverse
 
 
 class TestEditBPTEvent(TestCase):
@@ -41,8 +42,10 @@ class TestEditBPTEvent(TestCase):
             The user does not have the right privileges.  Send PermissionDenied
         '''
         user = gbe_factories.ProfileFactory.create().user_object
-        request = self.factory.get('/ticketing/bptevent_edit/%d' %
-                                   self.bpt_event.pk)
+        request = self.factory.get(
+            reverse('bptevent_edit',
+                    urlconf='ticketing.urls',
+                    args=[self.bpt_event.pk]))
         request.user = user
         response = bptevent_edit(request, self.bpt_event.pk)
 
@@ -52,18 +55,38 @@ class TestEditBPTEvent(TestCase):
            Unknown event submitted by valid user, should have an error
            and resend same form (status 200)
         '''
-        request = self.factory.get('/ticketing/bptevent_edit/200')
+        request = self.factory.get(
+            reverse('bptevent_edit',
+                    urlconf='ticketing.urls',
+                    args=['200']))
         request.user = self.privileged_user
         response = bptevent_edit(request, 200)
+
+    def test_edit_event_good_with_get(self):
+        '''
+           Good form, good user, get request
+        '''
+        request = self.factory.get(
+            reverse('bptevent_edit',
+                    urlconf='ticketing.urls',
+                    args=[self.bpt_event.pk]))
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = bptevent_edit(request, self.bpt_event.pk)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Edit Ticketing' in response.content)
 
     def test_event_edit_post_form_all_good(self):
         '''
             Good form, good user, return the main edit page
         '''
-        request = self.factory.post('/ticketing/bptevent_edit/%d' %
-                                    self.bpt_event.pk,
-                                    self.get_bptevent_form())
+        request = self.factory.post(
+            reverse('bptevent_edit',
+                    urlconf='ticketing.urls',
+                    args=[self.bpt_event.pk]),
+            self.get_bptevent_form())
         request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
         response = bptevent_edit(request, self.bpt_event.pk)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/ticketing/ticket_items')
@@ -74,9 +97,11 @@ class TestEditBPTEvent(TestCase):
         '''
         error_form = self.get_bptevent_form()
         error_form['linked_events'] = -1
-        request = self.factory.post('/ticketing/bptevent_edit/%d' %
-                                    self.bpt_event.pk,
-                                    error_form)
+        request = self.factory.post(
+            reverse('bptevent_edit',
+                    urlconf='ticketing.urls',
+                    args=[self.bpt_event.pk]),
+            error_form)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = bptevent_edit(request, self.bpt_event.pk)

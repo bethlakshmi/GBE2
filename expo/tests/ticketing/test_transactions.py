@@ -4,7 +4,6 @@ from django.core.exceptions import PermissionDenied
 from ticketing.models import (
     BrownPaperEvents,
     BrownPaperSettings,
-    TicketItem,
     Transaction
 )
 from tests.factories.ticketing_factories import (
@@ -21,11 +20,9 @@ from ticketing.views import transactions
 from tests.factories.gbe_factories import (
     ProfileFactory
 )
-from tests.functions.gbe_functions import location
 from mock import patch, Mock
 import urllib2
 from django.shortcuts import get_object_or_404
-from decimal import Decimal
 from django.core.urlresolvers import reverse
 
 

@@ -20,7 +20,6 @@ from ticketing.views import ticket_items
 from tests.factories.gbe_factories import (
     ProfileFactory
 )
-from tests.functions.gbe_functions import location
 from mock import patch, Mock
 import urllib2
 from django.shortcuts import get_object_or_404
