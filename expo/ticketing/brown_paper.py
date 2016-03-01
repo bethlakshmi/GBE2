@@ -13,6 +13,9 @@ import HTMLParser
 from django.utils import timezone
 from gbe.models import Profile
 import sys
+from datetime import datetime
+import pytz
+
 
 def perform_bpt_api_call(api_call):
     '''
@@ -146,7 +149,7 @@ def get_bpt_price_list():
 
     for event in BrownPaperEvents.objects.all():
         event_text = get_bpt_event_description(event.bpt_event_id)
-        
+
         if event_text:
             for date in get_bpt_event_date_list(event.bpt_event_id):
                 url = "?".join(
@@ -298,7 +301,10 @@ def bpt_save_order_to_database(event_id, bpt_order):
 
     # Build out the remainder of the transaction.
 
-    trans.order_date = bpt_order.find('order_time').text
+    trans.order_date = pytz.utc.localize(
+        datetime.strptime(
+            bpt_order.find('order_time').text,
+            "%Y-%m-%d %H:%M:%S"))
     trans.shipping_method = unicode(bpt_order.find('shipping_method').text)
     trans.order_notes = unicode(bpt_order.find('order_notes').text)
     trans.reference = unicode(bpt_order.find('ticket_number').text)
