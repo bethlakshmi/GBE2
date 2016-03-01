@@ -26,6 +26,7 @@ from mock import patch, Mock
 import urllib2
 from django.shortcuts import get_object_or_404
 from decimal import Decimal
+from django.core.urlresolvers import reverse
 
 
 class TestTransactions(TestCase):
@@ -46,7 +47,9 @@ class TestTransactions(TestCase):
             The user does not have the right privileges.  Send PermissionDenied
         '''
         user = ProfileFactory.create().user_object
-        request = self.factory.get('/ticketing/transactions/')
+        request = self.factory.get(
+            reverse('transactions', urlconf='ticketing.urls'),
+        )
         request.user = user
         response = transactions(request)
 
@@ -61,7 +64,9 @@ class TestTransactions(TestCase):
             bpt_event=event,
             ticket_id='%s-%s' % (event.bpt_event_id, '3255985'))
         BrownPaperSettingsFactory()
-        request = self.factory.get('/ticketing/transactions/')
+        request = self.factory.get(
+            reverse('transactions', urlconf='ticketing.urls'),
+        )
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = transactions(request)
@@ -73,7 +78,9 @@ class TestTransactions(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        request = self.factory.get('/ticketing/transactions/')
+        request = self.factory.get(
+            reverse('transactions', urlconf='ticketing.urls'),
+        )
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = transactions(request)
@@ -98,8 +105,9 @@ class TestTransactions(TestCase):
         a.read.side_effect = [File(order_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post('/ticketing/transactions/',
-                                    {'Sync': 'Sync'})
+        request = self.factory.post(
+            reverse('transactions', urlconf='ticketing.urls'),
+            {'Sync': 'Sync'})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         response = transactions(request)
