@@ -31,7 +31,7 @@ class TestEditClass(TestCase):
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
-                'schedule_constraints': ['0'],            
+                'schedule_constraints': ['0'],
                 }
 
     @nt.raises(Http404)
@@ -57,7 +57,7 @@ class TestEditClass(TestCase):
         request.user = klass.teacher.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         del(request.POST['title'])
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)

@@ -4,12 +4,19 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import edit_troupe
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    PersonaFactory,
+    ProfileFactory,
+    TroupeFactory,
+    UserFactory,
+)
 from tests.functions.gbe_functions import (
     login_as,
     location
     )
 
+# oddly, we can edit troupes even though we can't create them, and we can
+# create combos but we can't edit them. This will have to be looked at.
 
 class TestEditTroupe(TestCase):
     '''Tests for edit_troupe view'''
@@ -21,13 +28,13 @@ class TestEditTroupe(TestCase):
     def test_create_troupe(self):
         '''edit_troupe view, create flow
         '''
-        contact = factories.PersonaFactory.create()
+        contact = PersonaFactory.create()
         request = self.factory.get('/troupe/create/')
-        request.user = factories.UserFactory.create()
+        request.user = UserFactory.create()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 302)
 
-        user = factories.UserFactory.create()
+        user = UserFactory.create()
         login_as(user, self)
         request.user = user
         response = edit_troupe(request)
@@ -44,12 +51,37 @@ class TestEditTroupe(TestCase):
     def test_edit_troupe(self):
         '''edit_troupe view, edit flow success
         '''
-        persona = factories.PersonaFactory.create()
+        persona = PersonaFactory.create()
         contact = persona.performer_profile
-        troupe = factories.TroupeFactory.create(contact=contact)
+        troupe = TroupeFactory.create(contact=contact)
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = contact.profile.user_object
         request.session = {'cms_admin_site':1}
         self.client.logout()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_no_persona(self):
+        profile = ProfileFactory.create()
+        troupe = TroupeFactory()
+        request = self.factory.get('/troupe/edit/%d' % troupe.pk)
+        request.user = profile.user_object
+        login_as(profile, self)
+        request.session = {'cms_admin_site': 1}
+        response = edit_troupe(request)
+        nt.assert_equal('/performer/create?next=/troupe/create',
+                        location(response))
+        self.assertEqual(response.status_code, 302)
+
+
+    def test_no_persona(self):
+        profile = ProfileFactory.create()
+        troupe = TroupeFactory()
+        request = self.factory.get('/troupe/edit/%d' % troupe.pk)
+        request.user = profile.user_object
+        login_as(profile, self)
+        request.session = {'cms_admin_site': 1}
+        response = edit_troupe(request)
+        nt.assert_equal('/performer/create?next=/troupe/create',
+                        location(response))
+        self.assertEqual(response.status_code, 302)
