@@ -28,7 +28,7 @@ from scheduler.views import edit_event
 import nose.tools as nt
 
 
-def test_scheduled_volunteer_opportunity_shows_day():
+def _test_scheduled_volunteer_opportunity_shows_day():
     show = ShowFactory()
     show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
     ConferenceDayFactory(conference=show.conference,
