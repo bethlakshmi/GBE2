@@ -2446,33 +2446,6 @@ def review_profiles(request):
                   {'header': header, 'rows': rows})
 
 
-@login_required
-@log_func
-def review_user_commitments(request, profile_id):
-    # note: this function is broken. (header is not defined)
-    admin_profile = validate_perms(request, ('Registrar',
-                                             'Volunteer Coordinator',
-                                             'Act Coordinator',
-                                             'Conference Coordinator',
-                                             'Vendor Coordinator',
-                                             'Ticketing - Admin'))
-
-    user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
-    return render(request, 'gbe/profile_review.tmpl',
-                  {'header': header, 'rows': rows})
-
-
-@login_required
-@log_func
-def manage_user_tickets(request, profile_id):
-    # note: this function is broken. (header is not defined)
-    admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
-
-    user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
-
-    return render(request, 'gbe/profile_review.tmpl',
-                  {'header': header, 'rows': rows})
-
 
 @login_required
 @log_func
