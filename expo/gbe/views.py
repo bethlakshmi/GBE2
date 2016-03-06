@@ -125,39 +125,27 @@ def landing_page(request, profile_id=None, historical=False):
         admin_message = None
 
     template = loader.get_template('gbe/landing_page.tmpl')
+    class_to_class_name = {Act:"Act",
+                           Class: "Class",
+                           Costume: "Costume",
+                           Volunteer: "Volunteer"}
+    class_to_view_name = {Act:'act_review',
+                          Class: 'class_review',
+                          Costume: 'costume_review',
+                          Volunteer: 'volunteer_review'}
+
     if viewer_profile:
         bids_to_review = []
         for bid in viewer_profile.bids_to_review():
-            bid_type = ""
-            if bid.__class__ == Act:
-                url = reverse('act_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)]
-                              )
-                bid_type = "Act"
-            elif bid.__class__ == Class:
-                url = reverse('class_review',
+            bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
+            view_name = class_to_view_name.get(bid.__class__, None)
+            if view_name:
+                url = reverse(view_name,
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
-                bid_type = "Class"
-            elif bid.__class__ == Costume:
-                url = reverse('costume_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Costume"
-            elif bid.__class__ == Vendor:
-                url = reverse('vendor_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Vendor"
-            elif bid.__class__ == Volunteer:
-                url = reverse('volunteer_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Volunteer"
             else:
                 url = ""
-                bid_type = "UNKNOWN"
+
             bids_to_review += [{'bid': bid,
                                 'url': url,
                                 'action': "Review",
