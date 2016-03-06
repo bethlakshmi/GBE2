@@ -63,7 +63,13 @@ log_import(('*',), 'gbe.forms')
 from gbe.functions import *
 log_import(('*',), 'gbe.functions')
 
-from gbe.ticketing_idd_interface import *
+from gbe.ticketing_idd_interface import (
+    verify_performer_app_paid,
+    get_purchased_tickets,
+    vendor_submittal_link,
+    performer_act_submittal_link,
+)
+
 log_import(('*',), 'gbe.ticketing_idd_interface')
 
 import gbe_forms_text
@@ -469,37 +475,23 @@ def bid_act(request):
             )
 
         if 'submit' in request.POST.keys():
-            problems = act.validation_problems_for_submit()
-            if problems:
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_performer_app_paid(request.user.username):
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect(reverse('home',
+                                                    urlconf='gbe.urls'))
+            else:
+                page_title = 'Act Payment'
                 return render(
                     request,
-                    'gbe/bid.tmpl',
-                    {'forms': [form],
-                     'page_title': page_title,
-                     'view_title': view_title,
-                     'draft_fields': draft_fields,
-                     'fee_link': fee_link,
-                     'errors': problems}
+                    'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
                 )
-
-            else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if (verify_performer_app_paid(request.user.username)):
-                    act.submitted = True
-                    act.save()
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Act Payment'
-                    return render(
-                        request,
-                        'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
@@ -633,7 +625,7 @@ def edit_act(request, act_id):
                 If this is a formal submit request, did they pay?
                 They can't submit w/out paying
                 '''
-                if (verify_performer_app_paid(request.user.username)):
+                if verify_performer_app_paid(request.user.username):
                     act.submitted = True
                     act.save()
                     return HttpResponseRedirect(reverse('home',
@@ -1802,7 +1794,7 @@ def create_vendor(request):
                 If this is a formal submit request, did they pay?
                 They can't submit w/out paying
                 '''
-                if (verify_vendor_app_paid(request.user.username)):
+                if verify_vendor_app_paid(request.user.username):
                     vendor.submitted = True
                     conference = Conference.objects.filter(
                         accepting_bids=True).first()
@@ -1886,7 +1878,7 @@ def edit_vendor(request, vendor_id):
                 If this is a formal submit request, did they pay?
                 They can't submit w/out paying
                 '''
-                if (verify_vendor_app_paid(request.user.username)):
+                if verify_vendor_app_paid(request.user.username):
                     vendor.submitted = True
                     vendor.save()
                     return HttpResponseRedirect(reverse('home',
