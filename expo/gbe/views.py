@@ -609,35 +609,23 @@ def edit_act(request, act_id):
             )
 
         if 'submit' in request.POST.keys():
-            problems = act.validation_problems_for_submit()
-            if problems:
-                return render(request,
-                              'gbe/bid.tmpl',
-                              {'forms': [form],
-                               'page_title': page_title,
-                               'view_title': view_title,
-                               'draft_fields': draft_fields,
-                               'fee_link': fee_link,
-                               'errors': problems
-                               })
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_performer_app_paid(request.user.username):
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect(reverse('home',
+                                                    urlconf='gbe.urls'))
             else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if verify_performer_app_paid(request.user.username):
-                    act.submitted = True
-                    act.save()
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Act Payment'
-                    return render(
-                        request,
-                        'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
+                page_title = 'Act Payment'
+                return render(
+                    request,
+                    'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
+                )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:

@@ -20,14 +20,18 @@ class TestBidAct(TestCase):
         current_conference.accepting_bids = True
         current_conference.save()
 
-    def get_act_form(self):
-        return {'theact-shows_preferences': [1],
-                'theact-title': 'An act',
-                'theact-track_title': 'a track',
-                'theact-track_artist': 'an artist',
-                'theact-description': 'a description',
-                'theact-performer': self.performer.resourceitem_id,
-                }
+    def get_act_form(self, submit=False):
+
+        form_dict= {'theact-shows_preferences': [1],
+                    'theact-title': 'An act',
+                    'theact-track_title': 'a track',
+                    'theact-track_artist': 'an artist',
+                    'theact-description': 'a description',
+                    'theact-performer': self.performer.resourceitem_id,
+                    }
+        if submit:
+            form_dict['submit'] = 1
+        return form_dict
 
     def test_bid_act_no_profile(self):
         '''act_bid, when user has no profile, should bounce out to /profile'''
@@ -56,17 +60,15 @@ class TestBidAct(TestCase):
         nt.assert_equal(response.status_code, 302)
 
     def test_act_bid_post_form_not_valid(self):
-        '''act_bid, if form not valid, should return to ActEditForm'''
-        request = self.factory.get('/act/create')
+        request = self.factory.post('/act/create')
         request.user = self.performer.performer_profile.user_object
         request.POST = {}
-        request.POST.update(self.get_act_form())
+        request.POST.update(self.get_act_form(submit=True))
         request.session = {'cms_admin_site':1}
-        del(request.POST['theact-title'])
+        del(request.POST['theact-description'])
         response = bid_act(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
-
 
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
@@ -104,9 +106,8 @@ class TestBidAct(TestCase):
         with mock.patch(
                 'gbe.ticketing_idd_interface.verify_performer_app_paid', true):
             response = bid_act(request)
-
-#        nt.assert_equal(response.status_code, 302)
-#        nt.assert_equal(location(response), '/gbe')
+        # nt.assert_equal(response.status_code, 302)
+        # nt.assert_equal(location(response), '/gbe')
 
         # this test is not working. To do: Fix it.
 
