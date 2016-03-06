@@ -454,13 +454,6 @@ def bid_act(request):
             act.submitted = False
             act.accepted = False
             act.save()
-            if not act.performer:
-                return HttpResponseRedirect(reverse('persona_create',
-                                                    urlconf='gbe.urls') +
-                                            '?next=' +
-                                            reverse('act_edit',
-                                                    urlconf='gbe.urls',
-                                                    args=[str(act.id)]))
 
         else:
             fields, requiredsub = Act().bid_fields

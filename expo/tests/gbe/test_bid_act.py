@@ -67,6 +67,7 @@ class TestBidAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
 
+
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
         factories.ConferenceFactory.create(accepting_bids=True)
