@@ -5,7 +5,11 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from gbe.views import bid_costume
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import(
+    PersonaFactory,
+    UserFactory,
+    ProfileFactory,
+)
 from tests.functions.gbe_functions import (
     location,
     login_as
@@ -18,7 +22,7 @@ class TestEditCostume(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.performer = PersonaFactory.create()
 
     def get_costume_form(self):
         picture = SimpleUploadedFile("file.jpg",
@@ -38,7 +42,7 @@ class TestEditCostume(TestCase):
         '''costume_bid, when profile has no personae,
         should redirect to persona_create'''
         request = self.factory.get('costume/create/')
-        request.user = factories.UserFactory.create()
+        request.user = UserFactory.create()
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 302)
 
@@ -68,6 +72,20 @@ class TestEditCostume(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
 
+
+    def test_costume_bid_post_with_submit(self):
+        '''costume_bid, not submitting and no other problems,
+        should redirect to home'''
+        request = self.factory.post('/costume/create')
+        request.user = self.performer.performer_profile.user_object
+        login_as(request.user, self)
+        request.POST = self.get_costume_form()
+        request.POST['submit'] = 1
+        request.session = {'cms_admin_site': 1}
+        response = bid_costume(request)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true("Displaying a Costume" in response.content)
+
     def test_costume_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
         request = self.factory.get('/act/create')
@@ -76,3 +94,10 @@ class TestEditCostume(TestCase):
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Displaying a Costume' in response.content)
+
+    def test_costume_bid_no_persona(self):
+        request = self.factory.get('/act/create')
+        request.user = ProfileFactory().user_object
+        request.session = {'cms_admin_site': 1}
+        response = bid_costume(request)
+        nt.assert_equal(response.status_code, 302)

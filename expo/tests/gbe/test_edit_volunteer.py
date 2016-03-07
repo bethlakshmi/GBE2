@@ -8,7 +8,10 @@ from django.test import Client
 from django.contrib.auth.models import Group
 from gbe.views import edit_volunteer
 from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from tests.functions.gbe_functions import (
+    login_as,
+    grant_privilege,
+)
 
 
 class TestEditVolunteer(TestCase):
@@ -23,8 +26,7 @@ class TestEditVolunteer(TestCase):
         self.performer = factories.PersonaFactory.create()
         self.privileged_profile = factories.ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
     def get_volunteer_form(self, submit=False, invalid=False):
         form = {'profile': 1,
