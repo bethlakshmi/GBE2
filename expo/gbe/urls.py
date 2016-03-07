@@ -45,8 +45,6 @@ urlpatterns = patterns(
     url(r'^act/reviewlist/?$',
         views.review_act_list,
         name='act_review_list'),
-    url(r'^act/(?P<act_id>\d+)/?$',
-        views.act, name='act'),
     url(r'^act/submit/(\d+)/?$',
         views.submit_act, name='act_submit'),
     url(r'^act/changestate/(\d+)/?$',

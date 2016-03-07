@@ -12,7 +12,6 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     SchedEventFactory,
 )
-
 class ActTechInfoContext():
     def __init__(self,
                  performer=None,
@@ -35,13 +34,13 @@ class ActTechInfoContext():
                                   cue_sequence=i)
         self.show = show or ShowFactory(conference=self.conference)
                 # schedule the show
-        sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
+        self.sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
         room_name = room_name or "Dining Room"
         self.room = RoomFactory(name=room_name)
         ResourceAllocationFactory(
-            event=sched_event,
+            event=self.sched_event,
             resource=LocationFactory(_item=self.room.locationitem_ptr))
                 # schedule the act into the show
         ResourceAllocationFactory(
-            event=sched_event,
+            event=self.sched_event,
             resource=ActResourceFactory(_item=self.act.actitem_ptr))

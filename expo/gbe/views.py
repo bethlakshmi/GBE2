@@ -672,11 +672,12 @@ def view_act(request, act_id):
                  'track_duration': audio_info.track_duration,
                  'act_duration': stage_info.act_duration}
     )
-    try:
-        instance = Troupe.objects.get(pk=act.performer.id)
+
+    if Troupe.objects.filter(pk=act.performer.pk).exists():
+        instance = Troupe.objects.get(pk=act.performer.pk)
         performer = TroupeForm(instance=instance,
                                prefix='The Troupe')
-    except:
+    else:
         performer = PersonaForm(instance=act.performer,
                                 prefix='The Performer(s)')
 
@@ -864,7 +865,10 @@ def act_changestate(request, bid_id):
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
+
         ActResource.objects.filter(_item=act).delete()
+
+
 
         # if the act has been accepted, set the show.
         if act_accepted(request):
@@ -2318,15 +2322,6 @@ def costume_changestate(request, bid_id):
     reviewer = validate_perms(request, ('Costume Coordinator',))
     return bid_changestate(request, bid_id, 'costume_review_list')
 
-
-@log_func
-def act(request, act_id):
-    '''
-    Act detail view. Display depends on state of act and identity of viewer.
-    Not used. Remove?
-    '''
-    act = get_object_or_404(Act, pk=act_id)
-    return render(request, 'gbe/act.html', {'act': act})
 
 
 @log_func
