@@ -806,11 +806,10 @@ def review_act_list(request):
     try:
         header = Act().bid_review_header
         acts = Act.objects.filter(
-            submitted=True).filter(
-                conference=conference
-            ).order_by(
-                    'accepted',
-                    'performer')
+            submitted=True,
+            conference=conference).order_by(
+                'accepted',
+                'performer')
         review_query = BidEvaluation.objects.filter(
             bid=acts).select_related(
                 'evaluator').order_by(
