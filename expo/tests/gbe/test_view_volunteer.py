@@ -9,6 +9,7 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     VolunteerFactory
 )
+from tests.functions.gbe_functions import current_conference
 import mock
 
 
@@ -19,6 +20,7 @@ class TestViewVolunteer(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory.create()
+        self.conference = current_conference()
 
     def test_view_act_all_well(self):
         volunteer = VolunteerFactory.create()

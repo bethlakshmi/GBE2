@@ -1,9 +1,10 @@
 from gbe.models import (
+    Conference,
     Profile,
     User,
 )
 from django.contrib.auth.models import Group
-
+from tests.factories.gbe_factories import ConferenceFactory
 
 def user_for(user_or_profile):
     if type(user_or_profile) == Profile:
@@ -48,3 +49,12 @@ def is_profile_update_page(response):
 def location(response):
     response_dict = dict(response.items())
     return response_dict['Location']
+
+def current_conference():
+    current_confs = Conference.objects.filter(
+        status__in=('upcoming', 'ongoing'),
+        accepting_bids=True)
+    if current_confs.exists():
+        return current_confs.first()
+    return ConferenceFactory(status='upcoming',
+                             accepting_bids=True)
