@@ -18,6 +18,7 @@ from tests.functions.gbe_functions import (
 # oddly, we can edit troupes even though we can't create them, and we can
 # create combos but we can't edit them. This will have to be looked at.
 
+
 class TestEditTroupe(TestCase):
     '''Tests for edit_troupe view'''
     def setUp(self):
@@ -28,13 +29,13 @@ class TestEditTroupe(TestCase):
     def test_create_troupe(self):
         '''edit_troupe view, create flow
         '''
-        contact = PersonaFactory.create()
+        contact = PersonaFactory()
         request = self.factory.get('/troupe/create/')
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 302)
 
-        user = UserFactory.create()
+        user = UserFactory()
         login_as(user, self)
         request.user = user
         response = edit_troupe(request)
@@ -42,7 +43,7 @@ class TestEditTroupe(TestCase):
         nt.assert_equal(location(response),
                         '/update_profile?next=/troupe/create')
         request.user = contact.performer_profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         login_as(contact.performer_profile, self)
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)
@@ -51,18 +52,18 @@ class TestEditTroupe(TestCase):
     def test_edit_troupe(self):
         '''edit_troupe view, edit flow success
         '''
-        persona = PersonaFactory.create()
+        persona = PersonaFactory()
         contact = persona.performer_profile
         troupe = TroupeFactory.create(contact=contact)
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = contact.profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         self.client.logout()
         response = edit_troupe(request)
         self.assertEqual(response.status_code, 200)
 
     def test_no_persona(self):
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         troupe = TroupeFactory()
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = profile.user_object
@@ -73,9 +74,8 @@ class TestEditTroupe(TestCase):
                         location(response))
         self.assertEqual(response.status_code, 302)
 
-
     def test_no_persona(self):
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         troupe = TroupeFactory()
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = profile.user_object

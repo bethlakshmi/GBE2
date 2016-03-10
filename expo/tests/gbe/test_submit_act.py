@@ -12,6 +12,7 @@ from tests.factories.gbe_factories import (
 )
 from gbe.models import Act
 
+
 class TestSubmitAct(TestCase):
     '''Tests for submit_act view'''
 
@@ -20,7 +21,7 @@ class TestSubmitAct(TestCase):
         self.client = Client()
 
     def test_submit_act(self):
-        act = ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/submit/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
         response = submit_act(request, act.pk)
@@ -34,7 +35,7 @@ class TestSubmitAct(TestCase):
         response = submit_act(request, 1)
 
     def test_submit_act_not_owner(self):
-        act = ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/submit/%d' % act.pk)
         request.session = {'cms_admin_site': 1}
         request.user = ProfileFactory().user_object

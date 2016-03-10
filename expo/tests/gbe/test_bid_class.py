@@ -21,8 +21,8 @@ class TestEditClass(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.teacher = PersonaFactory.create()
+        self.performer = PersonaFactory()
+        self.teacher = PersonaFactory()
         self.conference = ConferenceFactory(accepting_bids=True)
 
     def get_class_form(self):
@@ -39,7 +39,7 @@ class TestEditClass(TestCase):
     def test_bid_class_no_personae(self):
         '''class_bid, when profile has no personae,
         should redirect to persona_create'''
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.get('/class/create')
         request.user = profile.user_object
         response = bid_class(request)
@@ -51,7 +51,7 @@ class TestEditClass(TestCase):
         request.user = self.performer.performer_profile.user_object
         request.POST = {}
         request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         del(request.POST['title'])
         response = bid_class(request)
         nt.assert_equal(response.status_code, 200)
@@ -64,9 +64,8 @@ class TestEditClass(TestCase):
         request.user = self.performer.performer_profile.user_object
         login_as(request.user, self)
         request.method = 'POST'
-        request.POST = {}
-        request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
+        request.POST = self.get_class_form()
+        request.session = {'cms_admin_site': 1}
         response = bid_class(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
@@ -80,14 +79,12 @@ class TestEditClass(TestCase):
         request.user = self.performer.performer_profile.user_object
         login_as(request.user, self)
         request.method = 'POST'
-        request.POST = {}
-        request.POST.update(self.get_class_form())
-        request.POST.update({'submit':1})
-        request.session = {'cms_admin_site':1}
+        request.POST = self.get_class_form()
+        request.POST.update({'submit': 1})
+        request.session = {'cms_admin_site': 1}
         response = bid_class(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
-
 
     def test_class_bid_post_invalid(self):
         '''class_bid, not submitting and no other problems,
@@ -99,18 +96,15 @@ class TestEditClass(TestCase):
         request.method = 'POST'
         request.POST = {}
         request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = bid_class(request)
-
         nt.assert_true(True)
-
-
 
     def test_class_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
         request = self.factory.get('/act/create')
         request.user = self.performer.performer_profile.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = bid_class(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Submit a Class' in response.content)

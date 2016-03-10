@@ -16,6 +16,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
 )
 
+
 class TestCreateEvent(TestCase):
     '''Tests for create_event view'''
 
@@ -45,7 +46,6 @@ class TestCreateEvent(TestCase):
         request.POST['duration'] = duration
         create_event(request, 'Show')
         nt.assert_true(conf.Show.objects.filter(title=title).count() > 0)
-
 
     def test_invalid_form(self):
         request = self.factory.post('create_event/Show')

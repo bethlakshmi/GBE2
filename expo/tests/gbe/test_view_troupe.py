@@ -44,7 +44,7 @@ class TestViewTroupe(TestCase):
             urlconf="gbe.urls"),
                                follow=True)
         request.session = {'cms_admin_site': 1}
-        request.user=user
+        request.user = user
         response = view_troupe(request,
                                troupe.resourceitem_id)
         nt.assert_equal(302, response.status_code)

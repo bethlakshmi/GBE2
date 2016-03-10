@@ -12,6 +12,7 @@ from tests.functions.gbe_functions import (
     location,
 )
 
+
 class TestRegisterPersona(TestCase):
     '''Tests for index view'''
     def setUp(self):
@@ -26,18 +27,18 @@ class TestRegisterPersona(TestCase):
         '''
         request = self.factory.get('/')
         request.session = {'cms_admin_site': 1}
-        user = UserFactory.create()
+        user = UserFactory()
         request.user = user
         response = register_persona(request)
         self.assertEqual(response.status_code, 302)
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         request.user = profile.user_object
         request.method = 'POST'
         response = register_persona(request)
         self.assertEqual(response.status_code, 200)
 
     def test_register_persona_friendly_urls(self):
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         persona_count = profile.personae.count()
         request = self.factory.post(
             reverse('persona_create', urlconf='gbe.urls'),
@@ -56,7 +57,7 @@ class TestRegisterPersona(TestCase):
         nt.assert_equal(1, profile.personae.count()-persona_count)
 
     def test_redirect(self):
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.post(
             'performer/create?next=/combo/create',
             data={'performer_profile': profile.pk,
@@ -74,9 +75,8 @@ class TestRegisterPersona(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/combo/create')
 
-
     def test_get(self):
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.get(
             reverse('persona_create', urlconf='gbe.urls'),
         )

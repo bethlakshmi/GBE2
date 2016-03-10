@@ -58,7 +58,6 @@ class TestEditAct(TestCase):
         request.user = user
         response = edit_act(request, act.pk)
 
-
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''
         act = factories.ActFactory.create()
@@ -98,7 +97,7 @@ class TestEditAct(TestCase):
         act = factories.ActFactory.create()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = act.performer.contact.user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = edit_act(request, act.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Act Proposal' in response.content)

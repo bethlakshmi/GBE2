@@ -74,14 +74,13 @@ class TestEditPersona(TestCase):
                   'homepage': persona.homepage,
                   'bio': "bio",
                   'experience': 1,
-                  'awards': "many",}
+                  'awards': "many"}
         )
         request.session = {'cms_admin_site': 1}
         request.user = persona.performer_profile.user_object
         response = edit_persona(request, persona.resourceitem_id)
         persona_reloaded = Persona.objects.get(pk=persona.pk)
         nt.assert_equal(persona_reloaded.name, new_name)
-
 
     def test_edit_persona_invalid_post(self):
         persona = PersonaFactory()
@@ -97,7 +96,7 @@ class TestEditPersona(TestCase):
                   'homepage': persona.homepage,
                   'bio': "bio",
                   'experience': 1,
-                  'awards': "many",}
+                  'awards': "many"}
         )
         request.session = {'cms_admin_site': 1}
         request.user = persona.performer_profile.user_object

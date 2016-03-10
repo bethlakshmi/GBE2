@@ -33,8 +33,8 @@ class TestCreateVolunteer(TestCase):
         form = {'profile': 1,
                 'number_shifts': 2,
                 'interests': ['VA0'],
-                'available_windows':self.conference.windows().values_list('pk', flat=True)
-
+                'available_windows': self.conference.windows().values_list(
+                    'pk', flat=True)
                 }
         if submit:
             form['submit'] = True
@@ -75,6 +75,6 @@ class TestCreateVolunteer(TestCase):
     def test_create_volunteer_no_post(self):
         request = self.factory.get('volunteer/bid/')
         request.user = ProfileFactory.create().user_object
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 200)

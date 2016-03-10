@@ -29,6 +29,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+
 class TestIndex(TestCase):
     '''Tests for index view'''
     def setUp(self):
@@ -43,23 +44,23 @@ class TestIndex(TestCase):
         # User/Human setup
         self.profile = ProfileFactory()
         self.performer = PersonaFactory(performer_profile=self.profile,
-                                               contact=self.profile)
-        #Bid types previous and current
+                                        contact=self.profile)
+        # Bid types previous and current
         self.current_act = ActFactory(performer=self.performer,
-                                             submitted=True,
+                                      submitted=True,
                                       conference=self.current_conf)
         self.previous_act = ActFactory(performer=self.performer,
-                                              submitted=True,
+                                       submitted=True,
                                        conference=self.previous_conf)
         self.current_class = ClassFactory(teacher=self.performer,
-                                                 submitted=True,
-                                                 accepted=3)
+                                          submitted=True,
+                                          accepted=3)
         self.current_class.title = "Current Class"
         self.current_class.conference = self.current_conf
         self.current_class.save()
         self.previous_class = ClassFactory(teacher=self.performer,
-                                                  submitted=True,
-                                                  accepted=3)
+                                           submitted=True,
+                                           accepted=3)
         self.previous_class.conference = self.previous_conf
         self.previous_class.title = 'Previous Class'
         self.previous_class.save()
@@ -108,7 +109,6 @@ class TestIndex(TestCase):
             starttime=datetime(2015, 2, 25, 12, 30, 0, 0, pytz.utc),
             max_volunteer=10)
 
-
         self.current_class_sched = SchedEventFactory(
             eventitem=self.current_class,
             starttime=datetime(2016, 2, 5, 2, 30, 0, 0, pytz.utc),
@@ -126,15 +126,14 @@ class TestIndex(TestCase):
                 resource=worker
                 )
 
-
-        persona_worker = WorkerFactory(_item=self.performer, role='Teacher')
+        persona_worker = WorkerFactory(_item=self.performer,
+                                       role='Teacher')
         for schedule_item in [self.current_class_sched,
                               self.previous_class_sched]:
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
                 )
-
 
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
@@ -182,8 +181,10 @@ class TestIndex(TestCase):
                        shows_all_current)
         nt.assert_true(self.is_event_present(self.current_sched, content))
         nt.assert_false(self.is_event_present(self.previous_sched, content))
-        nt.assert_true(self.is_event_present(self.current_class_sched, content))
-        nt.assert_false(self.is_event_present(self.previous_class_sched, content))
+        nt.assert_true(self.is_event_present(
+            self.current_class_sched, content))
+        nt.assert_false(self.is_event_present(
+            self.previous_class_sched, content))
 
     def test_historical_view(self):
         request = self.factory.get('/')
@@ -207,8 +208,10 @@ class TestIndex(TestCase):
                        does_not_show_current)
         nt.assert_false(self.is_event_present(self.current_sched, content))
         nt.assert_true(self.is_event_present(self.previous_sched, content))
-        nt.assert_false(self.is_event_present(self.current_class_sched, content))
-        nt.assert_true(self.is_event_present(self.previous_class_sched, content))
+        nt.assert_false(self.is_event_present(
+            self.current_class_sched, content))
+        nt.assert_true(self.is_event_present(
+            self.previous_class_sched, content))
 
     def test_as_privileged_user(self):
         '''Basic test of landing_page view
@@ -226,7 +229,7 @@ class TestIndex(TestCase):
 
     def test_acts_to_review(self):
         request = self.factory.get('/')
-        staff_profile = ProfileFactory (user_object__is_staff=True)
+        staff_profile = ProfileFactory(user_object__is_staff=True)
         grant_privilege(staff_profile, "Act Reviewers")
         login_as(staff_profile, self)
         act = ActFactory(submitted=True,
@@ -238,11 +241,11 @@ class TestIndex(TestCase):
 
     def test_classes_to_review(self):
         request = self.factory.get('/')
-        staff_profile = ProfileFactory (user_object__is_staff=True)
+        staff_profile = ProfileFactory(user_object__is_staff=True)
         grant_privilege(staff_profile, "Class Reviewers")
         login_as(staff_profile, self)
         klass = ClassFactory(submitted=True,
-                         conference=self.current_conf)
+                             conference=self.current_conf)
         request.session = {'cms_admin_site': 1}
         request.user = staff_profile.user_object
         response = landing_page(request)
@@ -250,11 +253,11 @@ class TestIndex(TestCase):
 
     def test_volunteers_to_review(self):
         request = self.factory.get('/')
-        staff_profile = ProfileFactory (user_object__is_staff=True)
+        staff_profile = ProfileFactory(user_object__is_staff=True)
         grant_privilege(staff_profile, "Volunteer Reviewers")
         login_as(staff_profile, self)
         volunteer = VolunteerFactory(submitted=True,
-                         conference=self.current_conf)
+                                     conference=self.current_conf)
         request.session = {'cms_admin_site': 1}
         request.user = staff_profile.user_object
         response = landing_page(request)
@@ -262,11 +265,11 @@ class TestIndex(TestCase):
 
     def test_vendors_to_review(self):
         request = self.factory.get('/')
-        staff_profile = ProfileFactory (user_object__is_staff=True)
+        staff_profile = ProfileFactory(user_object__is_staff=True)
         grant_privilege(staff_profile, "Vendor Reviewers")
         login_as(staff_profile, self)
         vendor = VendorFactory(submitted=True,
-                         conference=self.current_conf)
+                               conference=self.current_conf)
         request.session = {'cms_admin_site': 1}
         request.user = staff_profile.user_object
         response = landing_page(request)
@@ -274,11 +277,11 @@ class TestIndex(TestCase):
 
     def test_costumes_to_review(self):
         request = self.factory.get('/')
-        staff_profile = ProfileFactory (user_object__is_staff=True)
+        staff_profile = ProfileFactory(user_object__is_staff=True)
         grant_privilege(staff_profile, "Costume Reviewers")
         login_as(staff_profile, self)
         costume = CostumeFactory(submitted=True,
-                         conference=self.current_conf)
+                                 conference=self.current_conf)
         request.session = {'cms_admin_site': 1}
         request.user = staff_profile.user_object
         response = landing_page(request)

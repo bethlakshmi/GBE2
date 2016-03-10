@@ -35,8 +35,6 @@ class TestViewVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
 
-
-
     def test_view_vendor_privileged_user(self):
         vendor = VendorFactory.create()
         staff_user = ProfileFactory.create()
@@ -49,7 +47,6 @@ class TestViewVendor(TestCase):
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
-
 
     @nt.raises(PermissionDenied)
     def test_view_vendor_wrong_user(self):

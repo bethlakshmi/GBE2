@@ -28,18 +28,19 @@ class TestReviewVendorList(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.privileged_profile = ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Vendor Reviewers')
         self.conference = current_conference()
         VendorFactory.create_batch(4,
-                                conference=self.conference,
-                                submitted=True)
+                                   conference=self.conference,
+                                   submitted=True)
 
     def test_review_vendor_all_well(self):
-        request = self.factory.get('vendor/review/',
-                                   data={'conf_slug':self.conference.conference_slug})
+        request = self.factory.get(
+            'vendor/review/',
+            data={'conf_slug': self.conference.conference_slug})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
@@ -50,7 +51,7 @@ class TestReviewVendorList(TestCase):
     @nt.raises(PermissionDenied)
     def test_review_vendor_bad_user(self):
         request = self.factory.get('vendor/review/')
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = review_vendor_list(request)
@@ -58,7 +59,7 @@ class TestReviewVendorList(TestCase):
     @nt.raises(PermissionDenied)
     def test_review_vendor_no_profile(self):
         request = self.factory.get('vendor/review/')
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = review_vendor_list(request)

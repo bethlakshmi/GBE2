@@ -40,7 +40,6 @@ class TestReviewAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-
     def test_review_act_act_reviewer(self):
         act = ActFactory.create()
         request = self.factory.get('act/review/%d' % act.pk)
@@ -64,7 +63,6 @@ class TestReviewAct(TestCase):
         response = review_act(request, act.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Review Bids' in response.content)
-
 
     @nt.raises(PermissionDenied)
     def test_review_act_non_privileged_user(self):
