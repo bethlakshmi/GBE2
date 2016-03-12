@@ -58,3 +58,6 @@ def current_conference():
         return current_confs.first()
     return ConferenceFactory(status='upcoming',
                              accepting_bids=True)
+
+def reload(object):
+    return type(__object__).objects.get(pk=object.pk)

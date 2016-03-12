@@ -1,4 +1,4 @@
-import gbe.models as conf
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
@@ -15,6 +15,7 @@ from tests.factories.gbe_factories import (
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
+    reload,
 )
 
 
@@ -72,3 +73,21 @@ class TestReviewAct(TestCase):
         request.user = ProfileFactory().user_object
         login_as(request.user, self)
         response = review_act(request, act.pk)
+
+    # def test_review_act_act_post(self):
+    #     act = ActFactory.create(accepted=1)
+    #     user = ProfileFactory().user_object
+    #     grant_privilege(user, 'Act Reviewers')
+    #     login_as(user, self)
+    #     url = reverse('act_review',
+    #                   urlconf='gbe.urls',
+    #                   args=[act.pk])
+    #     import pdb; pdb.set_trace()
+    #     response = self.client.post(url,
+    #                                 data={'vote': 3,
+    #                                       'notes': "blah blah"},
+    #                                 follow=True)
+
+    #     nt.assert_equal(response.status_code, 302)
+    #     reloaded_act = reload(act)
+    #     nt.assert_equal(act.accepted, 3)
