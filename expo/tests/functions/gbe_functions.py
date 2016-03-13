@@ -20,7 +20,9 @@ def login_as(user_or_profile, testcase):
     user = user_for(user_or_profile)
     user.set_password('foo')
     user.save()
-    testcase.client.login(email=user.email, password='foo')
+    testcase.client.login(username=user.username,
+                          email=user.email,
+                          password='foo')
 
 
 def grant_privilege(user_or_profile, privilege):
@@ -59,5 +61,8 @@ def current_conference():
     return ConferenceFactory(status='upcoming',
                              accepting_bids=True)
 
+def clear_conferences():
+    Conference.objects.all().delete()
+
 def reload(object):
-    return type(__object__).objects.get(pk=object.pk)
+    return type(object).objects.get(pk=object.pk)

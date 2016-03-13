@@ -13,6 +13,8 @@ from tests.factories.gbe_factories import (
     ActFactory,
 )
 from tests.functions.gbe_functions import (
+    clear_conferences,
+    current_conference,
     grant_privilege,
     login_as,
     reload,
@@ -74,20 +76,52 @@ class TestReviewAct(TestCase):
         login_as(request.user, self)
         response = review_act(request, act.pk)
 
-    # def test_review_act_act_post(self):
-    #     act = ActFactory.create(accepted=1)
-    #     user = ProfileFactory().user_object
-    #     grant_privilege(user, 'Act Reviewers')
-    #     login_as(user, self)
-    #     url = reverse('act_review',
-    #                   urlconf='gbe.urls',
-    #                   args=[act.pk])
-    #     import pdb; pdb.set_trace()
-    #     response = self.client.post(url,
-    #                                 data={'vote': 3,
-    #                                       'notes': "blah blah"},
-    #                                 follow=True)
+    def test_review_act_act_post(self):
+        clear_conferences()
+        conference = ConferenceFactory(accepting_bids=True,
+                                       status='upcoming')
+        # conference = current_conference()
+        act = ActFactory.create(accepted=1,
+                                conference=conference)
+        profile = ProfileFactory()
+        user = profile.user_object
+        grant_privilege(user, 'Act Reviewers')
+        login_as(user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        response = self.client.post(url,
+                                    {'vote': 3,
+                                     'notes': "blah blah",
+                                     'evaluator': profile.pk,
+                                     'bid': act.pk},
+                                    follow=True)
+        nt.assert_equal(response.status_code, 200)
+        expected_string = ("Bid Information for %s" %
+                           conference.conference_name)
+        nt.assert_true(expected_string in response.content)
 
-    #     nt.assert_equal(response.status_code, 302)
-    #     reloaded_act = reload(act)
-    #     nt.assert_equal(act.accepted, 3)
+
+
+    def test_review_act_act_post_invalid_form(self):
+        clear_conferences()
+        conference = ConferenceFactory(accepting_bids=True,
+                                       status='upcoming')
+        # conference = current_conference()
+        act = ActFactory.create(accepted=1,
+                                conference=conference)
+        profile = ProfileFactory()
+        user = profile.user_object
+        grant_privilege(user, 'Act Reviewers')
+        login_as(user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        response = self.client.post(url,
+                                    {'vote': 3,
+                                     'notes': "blah blah",
+                                     'bid': act.pk},
+                                    follow=True)
+        nt.assert_equal(response.status_code, 200)
+        expected_string = "There is an error on the form."
+        nt.assert_true(expected_string in response.content)
