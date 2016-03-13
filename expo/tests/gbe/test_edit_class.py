@@ -86,3 +86,17 @@ class TestEditClass(TestCase):
         response = edit_class(request, klass.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
+
+
+    def test_edit_class_post_with_submit(self):
+        klass = factories.ClassFactory()
+        request = self.factory.post('/class/edit/%d' % klass.pk,
+                                    follow=True)
+        request.user = klass.teacher.performer_profile.user_object
+        login_as(request.user, self)
+        request.POST = self.get_class_form()
+        request.POST.update({'submit': 1})
+        request.session = {'cms_admin_site': 1}
+        response = edit_class(request, klass.pk)
+        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(location(response), '/gbe')
