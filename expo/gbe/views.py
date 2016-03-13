@@ -2811,8 +2811,7 @@ def edit_act_techinfo(request, act_id):
 
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != profile:
-        validate_perms(request, ('Tech Crew', )):
-
+        validate_perms(request, ('Tech Crew', ))
 
     audio_info = act.tech.audio
     stage_info = act.tech.stage

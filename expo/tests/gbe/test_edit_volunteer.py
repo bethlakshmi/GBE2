@@ -1,6 +1,6 @@
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -56,33 +56,31 @@ class TestEditVolunteer(TestCase):
         request.user = user
         response = edit_volunteer(request, volunteer.pk)
 
-#    def test_volunteer_edit_post_form_not_valid(self):
-#        '''volunteer_edit, if form not valid, should return
-#        to VolunteerEditForm'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        request.POST = {}
-#        request.POST.update(self.get_volunteer_form())
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 200)
-#        nt.assert_true('Edit Your Volunteer Proposal' in response.content)
+    def test_volunteer_edit_post_form_not_valid(self):
+        '''volunteer_edit, if form not valid, should return
+        to VolunteerEditForm'''
+        volunteer = factories.VolunteerFactory.create()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.post(
+            url,
+            self.get_volunteer_form(invalid=True))
 
-#    def test_volunteer_edit_post_form_valid(self):
-#        '''volunteer_edit, if form not valid, should return to ActEditForm'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        request.POST = {}
-#        request.POST.update(self.get_volunteer_form())
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Edit Volunteer Bid' in response.content)
 
-#    def test_edit_bid_not_post(self):
-#        '''edit_bid, not post, should take us to edit process'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 200)
-#        nt.assert_true('Edit Your Volunteer Proposal' in response.content)
+
+    def test_volunteer_edit_get(self):
+        volunteer = factories.VolunteerFactory(
+            availability='',
+            unavailability='',
+            interests='')
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Edit Volunteer Bid' in response.content)
