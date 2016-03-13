@@ -6,18 +6,18 @@ from gbe.models import (
 from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import ConferenceFactory
 
-def user_for(user_or_profile):
+def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
         user = user_or_profile.user_object
     elif type(user_or_profile) == User:
         user = user_or_profile
     else:
-        raise ValueError("login_as requires a Profile or User")
+        raise ValueError("this function requires a Profile or User")
     return user
 
 
 def login_as(user_or_profile, testcase):
-    user = user_for(user_or_profile)
+    user = _user_for(user_or_profile)
     user.set_password('foo')
     user.save()
     testcase.client.login(username=user.username,
@@ -28,7 +28,7 @@ def login_as(user_or_profile, testcase):
 def grant_privilege(user_or_profile, privilege):
     '''Add named privilege to user's groups. If group does not exist, create it
     '''
-    user = user_for(user_or_profile)
+    user = _user_for(user_or_profile)
     try:
         g, _ = Group.objects.get_or_create(name=privilege)
     except:

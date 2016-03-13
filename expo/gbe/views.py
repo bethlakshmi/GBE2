@@ -65,6 +65,7 @@ log_import(('*',), 'gbe.functions')
 
 from gbe.ticketing_idd_interface import (
     verify_performer_app_paid,
+    verify_vendor_app_paid,
     get_purchased_tickets,
     vendor_submittal_link,
     performer_act_submittal_link,

@@ -1,12 +1,19 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_vendor
-from django.contrib.auth.models import Group
-from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import (
+    ConferenceFactory,
+    PersonaFactory,
+    ProfileFactory,
+    VendorFactory,
+)
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 
 class TestReviewVendor(TestCase):
@@ -15,16 +22,57 @@ class TestReviewVendor(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.privileged_profile = factories.ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Vendor Reviewers')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Vendor Reviewers')
 
     def test_review_vendor_all_well(self):
-        vendor = factories.VendorFactory.create()
+        vendor = VendorFactory()
         request = self.factory.get('vendor/review/%d' % vendor.pk)
         request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        login_as(request.user, self)
+        response = review_vendor(request, vendor.pk)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Bid Information' in response.content)
+
+
+
+    def test_review_vendor_old_conference(self):
+        old_conf = ConferenceFactory(status='completed',
+                                     accepting_bids=False)
+        vendor = VendorFactory(conference=old_conf)
+        request = self.factory.get('vendor/review/%d' % vendor.pk)
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        login_as(request.user, self)
+        response = review_vendor(request, vendor.pk)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Bid Information' in response.content)
+
+    def test_review_vendor_post_valid_form(self):
+        vendor = VendorFactory()
+        url = reverse('vendor_review',
+                      args = [vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'vote':3,
+                'notes': "notes",
+                'bid': vendor.pk,
+                'evaluator': self.privileged_profile.pk}
+
+        response = self.client.post(url, data, follow=True)
+        nt.assert_equal(200, response.status_code)
+        nt.assert_true("Bid Information" in response.content)
+
+
+    def test_review_vendor_all_well_vendor_coordinator(self):
+        vendor = VendorFactory()
+        request = self.factory.get('vendor/review/%d' % vendor.pk)
+        request.user = ProfileFactory().user_object
+        grant_privilege(request.user, 'Vendor Reviewers')
+        grant_privilege(request.user, 'Vendor Coordinator')
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = review_vendor(request, vendor.pk)
