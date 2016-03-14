@@ -1,12 +1,15 @@
 from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import edit_act
-import mock
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    ActFactory,
+    PersonaFactory,
+    ProfileFactory,
+    UserFactory,
+)
 from tests.functions.gbe_functions import (
     login_as,
     location,
@@ -22,7 +25,7 @@ class TestEditAct(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def get_act_form(self, submit=False):
         form_dict = {'theact-teacher': 2,
@@ -38,29 +41,29 @@ class TestEditAct(TestCase):
     @nt.raises(Http404)
     def test_edit_act_no_act(self):
         '''Should get 404 if no valid act ID'''
-        profile = factories.ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.get('/act/edit/-1')
         request.user = profile.user_object
         response = edit_act(request, -1)
 
     @nt.raises(Http404)
     def test_edit_act_profile_is_not_contact(self):
-        user = factories.ProfileFactory.create().user_object
-        act = factories.ActFactory.create()
+        user = ProfileFactory().user_object
+        act = ActFactory()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = user
         response = edit_act(request, act.pk)
 
     def test_edit_act_user_has_no_profile(self):
-        user = factories.UserFactory()
-        act = factories.ActFactory.create()
+        user = UserFactory()
+        act = ActFactory()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = user
         response = edit_act(request, act.pk)
 
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.post('/act/edit/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
         request.POST = self.get_act_form()
@@ -71,7 +74,7 @@ class TestEditAct(TestCase):
         nt.assert_true('Edit Your Act Proposal' in response.content)
 
     def test_act_edit_post_form_submit(self):
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.post('/act/edit/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
         request.POST = self.get_act_form(submit=True)
@@ -84,7 +87,7 @@ class TestEditAct(TestCase):
         '''act_bid, not submitting and no other problems,
         should redirect to home
         have to solve the mocking problem to get submit paid'''
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.post('/act/edit/%d' % act.pk)
         request.user = act.performer.contact.user_object
         request.session = {'cms_admin_site': 1}
@@ -94,7 +97,7 @@ class TestEditAct(TestCase):
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('/act/edit/%d' % act.pk)
         request.user = act.performer.contact.user_object
         request.session = {'cms_admin_site': 1}

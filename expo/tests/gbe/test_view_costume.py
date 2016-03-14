@@ -1,10 +1,9 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_costume
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import CostumeFactory
 
 
 class TestViewCostume(TestCase):
@@ -16,7 +15,7 @@ class TestViewCostume(TestCase):
     def test_view_costume(self):
         '''view_costume view, success
         '''
-        costume = factories.CostumeFactory.create()
+        costume = CostumeFactory()
         request = self.factory.get('/costume/view/%d' % costume.pk)
         request.user = costume.profile.user_object
         request.session = {'cms_admin_site': 1}

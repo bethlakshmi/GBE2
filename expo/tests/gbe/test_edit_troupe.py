@@ -54,7 +54,7 @@ class TestEditTroupe(TestCase):
         '''
         persona = PersonaFactory()
         contact = persona.performer_profile
-        troupe = TroupeFactory.create(contact=contact)
+        troupe = TroupeFactory(contact=contact)
         request = self.factory.get('/troupe/edit/%d' % troupe.pk)
         request.user = contact.profile.user_object
         request.session = {'cms_admin_site': 1}

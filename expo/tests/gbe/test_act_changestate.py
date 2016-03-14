@@ -1,12 +1,9 @@
-from django.shortcuts import get_object_or_404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.core.exceptions import PermissionDenied
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import act_changestate
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     ActFactory,
     ProfileFactory,
@@ -17,6 +14,7 @@ from tests.factories.scheduler_factories import SchedEventFactory
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import grant_privilege
 from scheduler.models import ResourceAllocation
+
 
 class TestActChangestate(TestCase):
     '''Tests for act_changestate view'''
@@ -36,7 +34,6 @@ class TestActChangestate(TestCase):
         response = act_changestate(request, self.act.pk)
         nt.assert_equal(response.status_code, 302)
 
-
     def test_act_changestate_post_accepted_act(self):
         context = ActTechInfoContext()
         prev_count1 = ResourceAllocation.objects.filter(
@@ -52,9 +49,8 @@ class TestActChangestate(TestCase):
                         ResourceAllocation.objects.filter(
                             event=self.sched_event).count()-prev_count2)
 
-
     @nt.raises(PermissionDenied)
     def test_act_changestate_unauthorized_user(self):
         request = self.factory.get('act/changestate/%d' % self.act.pk)
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         response = act_changestate(request, self.act.pk)

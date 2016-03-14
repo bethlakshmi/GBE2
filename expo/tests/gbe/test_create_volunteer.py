@@ -1,11 +1,8 @@
-from django.shortcuts import get_object_or_404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_volunteer
-import mock
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
@@ -23,7 +20,7 @@ class TestCreateVolunteer(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
+        self.performer = PersonaFactory()
         Conference.objects.all().delete()
         self.conference = ConferenceFactory(accepting_bids=True)
         days = ConferenceDayFactory.create_batch(2, conference=self.conference)
@@ -44,13 +41,13 @@ class TestCreateVolunteer(TestCase):
 
     def test_create_volunteer_no_profile(self):
         request = self.factory.get('volunteer/bid/')
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_no_profile(self):
         request = self.factory.post('volunteer/bid/')
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         request.POST = self.get_volunteer_form()
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 302)
@@ -66,7 +63,7 @@ class TestCreateVolunteer(TestCase):
     def test_create_volunteer_post_form_invalid(self):
         request = self.factory.get('volunteer/bid/')
         request.method = 'POST'
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.POST = self.get_volunteer_form(invalid=True)
         request.session = {'cms_admin_site': 1}
         response = create_volunteer(request)
@@ -74,7 +71,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_create_volunteer_no_post(self):
         request = self.factory.get('volunteer/bid/')
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.session = {'cms_admin_site': 1}
         response = create_volunteer(request)
         nt.assert_equal(response.status_code, 200)

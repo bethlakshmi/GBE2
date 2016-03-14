@@ -87,7 +87,6 @@ class TestEditClass(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
 
-
     def test_edit_class_post_with_submit(self):
         klass = factories.ClassFactory()
         request = self.factory.post('/class/edit/%d' % klass.pk,

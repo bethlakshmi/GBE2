@@ -1,12 +1,17 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_costume
-from django.contrib.auth.models import Group
-from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from tests.factories.gbe_factories import (
+    CostumeFactory,
+    PersonaFactory,
+    ProfileFactory,
+)
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 
 class TestReviewCostume(TestCase):
@@ -15,14 +20,13 @@ class TestReviewCostume(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.privileged_profile = factories.ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Costume Reviewers')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Costume Reviewers')
 
     def test_review_costume_all_well(self):
-        costume = factories.CostumeFactory.create()
+        costume = CostumeFactory()
         request = self.factory.get('costume/review/%d' % costume.pk)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}

@@ -5,12 +5,11 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_act
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
+    ActFactory,
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
-    ActFactory,
 )
 from tests.functions.gbe_functions import (
     clear_conferences,
@@ -22,19 +21,19 @@ from tests.functions.gbe_functions import (
 
 
 class TestReviewAct(TestCase):
-    '''Tests for revview_act view'''
+    '''Tests for review_act view'''
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.privileged_profile = ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Act Reviewers')
         grant_privilege(self.privileged_user, 'Act Coordinator')
 
     def test_review_act_all_well(self):
-        act = ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/review/%d' % act.pk)
         request.session = {'cms_admin_site': 1}
         request.user = self.privileged_user
@@ -44,7 +43,7 @@ class TestReviewAct(TestCase):
         nt.assert_true('Bid Information' in response.content)
 
     def test_review_act_act_reviewer(self):
-        act = ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/review/%d' % act.pk)
         request.session = {'cms_admin_site': 1}
         request.user = ProfileFactory().user_object
@@ -58,7 +57,7 @@ class TestReviewAct(TestCase):
     def test_review_act_old_act(self):
         conference = ConferenceFactory(status="completed",
                                        accepting_bids=False)
-        act = ActFactory.create(conference=conference)
+        act = ActFactory(conference=conference)
         request = self.factory.get('act/review/%d' % act.pk)
         request.session = {'cms_admin_site': 1}
         request.user = self.privileged_user
@@ -69,7 +68,7 @@ class TestReviewAct(TestCase):
 
     @nt.raises(PermissionDenied)
     def test_review_act_non_privileged_user(self):
-        act = ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/review/%d' % act.pk)
         request.session = {'cms_admin_site': 1}
         request.user = ProfileFactory().user_object
@@ -81,8 +80,8 @@ class TestReviewAct(TestCase):
         conference = ConferenceFactory(accepting_bids=True,
                                        status='upcoming')
         # conference = current_conference()
-        act = ActFactory.create(accepted=1,
-                                conference=conference)
+        act = ActFactory(accepted=1,
+                         conference=conference)
         profile = ProfileFactory()
         user = profile.user_object
         grant_privilege(user, 'Act Reviewers')
@@ -101,15 +100,13 @@ class TestReviewAct(TestCase):
                            conference.conference_name)
         nt.assert_true(expected_string in response.content)
 
-
-
     def test_review_act_act_post_invalid_form(self):
         clear_conferences()
         conference = ConferenceFactory(accepting_bids=True,
                                        status='upcoming')
         # conference = current_conference()
-        act = ActFactory.create(accepted=1,
-                                conference=conference)
+        act = ActFactory(accepted=1,
+                         conference=conference)
         profile = ProfileFactory()
         user = profile.user_object
         grant_privilege(user, 'Act Reviewers')

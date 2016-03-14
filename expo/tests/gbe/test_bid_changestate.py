@@ -1,12 +1,13 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import bid_changestate
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    ActFactory,
+    PersonaFactory,
+    ProfileFactory,
+)
 
 
 class TestReviewProposalList(TestCase):
@@ -15,11 +16,11 @@ class TestReviewProposalList(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def test_bid_changestate_authorized_user(self):
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/changestate/%d' % act.pk)
-        request.user = factories.ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         response = bid_changestate(request, act.pk, 'act_review_list')
         nt.assert_equal(response.status_code, 302)

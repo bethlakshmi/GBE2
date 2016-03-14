@@ -1,10 +1,12 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import view_act
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    PersonaFactory,
+    ActFactory,
+)
 
 
 class TestViewAct(TestCase):
@@ -13,10 +15,10 @@ class TestViewAct(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def test_view_act_all_well(self):
-        act = factories.ActFactory.create()
+        act = ActFactory()
         request = self.factory.get('act/view/%d' % act.pk)
         request.user = act.performer.performer_profile.user_object
         request.session = {'cms_admin_site': 1}

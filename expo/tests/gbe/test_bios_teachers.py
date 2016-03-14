@@ -1,6 +1,3 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -33,7 +30,7 @@ class TestReviewProposalList(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def get_class_form(self):
         return {'name': 'someone@host.com',
@@ -42,9 +39,9 @@ class TestReviewProposalList(TestCase):
                 }
 
     def test_bios_teachers_authorized_user(self):
-        proposal = ClassProposalFactory.create()
+        proposal = ClassProposalFactory()
         request = self.factory.get('bios/teachers/')
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.session = {'cms_admin_site': 1}
         response = bios_teachers(request)
         nt.assert_equal(response.status_code, 200)
@@ -53,13 +50,13 @@ class TestReviewProposalList(TestCase):
 def test_view_teachers_given_slug():
     '''/bios/teachers/ should return all teachers in the selected
     conference, given the conference slug in the get request'''
-    conf = ConferenceFactory.create()
-    other_conf = ConferenceFactory.create()
-    this_class = ClassFactory.create(accepted=3)
+    conf = ConferenceFactory()
+    other_conf = ConferenceFactory()
+    this_class = ClassFactory(accepted=3)
     this_class.conference = conf
     this_class.title = "xyzzy"
     this_class.save()
-    that_class = ClassFactory.create(accepted=3)
+    that_class = ClassFactory(accepted=3)
     that_class.conference = other_conf
     that_class.title = "plugh"
     that_class.save()
@@ -69,7 +66,7 @@ def test_view_teachers_given_slug():
     this_sched_class.save()
     worker = Worker(_item=this_class.teacher, role='Teacher')
     worker.save()
-    this_class_assignment = ResourceAllocationFactory.create(
+    this_class_assignment = ResourceAllocationFactory(
             event=this_sched_class,
             resource=worker
     )
@@ -80,7 +77,7 @@ def test_view_teachers_given_slug():
     that_sched_class.save()
     that_worker = Worker(_item=that_class.teacher, role='Teacher')
     that_worker.save()
-    that_class_assignment = ResourceAllocationFactory.create(
+    that_class_assignment = ResourceAllocationFactory(
             event=that_sched_class,
             resource=that_worker
     )
@@ -90,7 +87,7 @@ def test_view_teachers_given_slug():
         reverse("bios_teacher",
                 urlconf="gbe.urls"),
         data={"conference": conf.conference_slug})
-    request.user = ProfileFactory.create().user_object
+    request.user = ProfileFactory().user_object
     request.session = {'cms_admin_site': 1}
     response = bios_teachers(request)
     nt.assert_true(this_class.title in response.content)
@@ -101,8 +98,8 @@ def test_view_teachers_default_view_current_conf_exists():
     '''/bios/teachers/ should return all teachers in the current
     conference, assuming a current conference exists'''
     Conference.objects.all().delete()
-    conf = ConferenceFactory.create()
-    other_conf = ConferenceFactory.create(status='completed')
+    conf = ConferenceFactory()
+    other_conf = ConferenceFactory(status='completed')
     accepted_class = ClassFactory(accepted=3)
     accepted_class.conference = conf
     accepted_class.title = 'accepted'
@@ -122,7 +119,7 @@ def test_view_teachers_default_view_current_conf_exists():
     accepted_sched_class.save()
     worker = Worker(_item=accepted_class.teacher, role='Teacher')
     worker.save()
-    accepted_class_assignment = ResourceAllocationFactory.create(
+    accepted_class_assignment = ResourceAllocationFactory(
             event=accepted_sched_class,
             resource=worker
     )
@@ -134,7 +131,7 @@ def test_view_teachers_default_view_current_conf_exists():
     previous_sched_class.save()
     previous_worker = Worker(_item=previous_class.teacher, role='Teacher')
     previous_worker.save()
-    previous_class_assignment = ResourceAllocationFactory.create(
+    previous_class_assignment = ResourceAllocationFactory(
             event=previous_sched_class,
             resource=previous_worker
     )
@@ -143,7 +140,7 @@ def test_view_teachers_default_view_current_conf_exists():
     request = RequestFactory().get(
         reverse("bios_teacher",
                 urlconf="gbe.urls"))
-    request.user = ProfileFactory.create().user_object
+    request.user = ProfileFactory().user_object
     request.session = {'cms_admin_site': 1}
     response = bios_teachers(request)
     nt.assert_true(accepted_class.title in response.content)

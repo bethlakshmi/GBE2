@@ -225,7 +225,6 @@ class Profile(WorkerItem):
                   group in self.user_object.groups.all().order_by('name')]
         return groups
 
-
     def alerts(self, historical=False):
         if historical:
             return []
@@ -254,7 +253,6 @@ class Profile(WorkerItem):
                              urlconf='gbe.urls',
                              args=[act.id])))
         return profile_alerts
-
 
     def get_costumebids(self, historical=False):
         costumes = self.costumes.all()

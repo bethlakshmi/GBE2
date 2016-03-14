@@ -1,12 +1,8 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import create_event
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
@@ -15,6 +11,7 @@ from tests.functions.gbe_functions import (
     current_conference,
     grant_privilege,
 )
+from gbe.models import Show
 
 
 class TestCreateEvent(TestCase):
@@ -23,8 +20,8 @@ class TestCreateEvent(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.privileged_user = ProfileFactory.create().user_object
+        self.performer = PersonaFactory()
+        self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         current_conference()
 
@@ -45,7 +42,7 @@ class TestCreateEvent(TestCase):
         duration = '2:00:00'
         request.POST['duration'] = duration
         create_event(request, 'Show')
-        nt.assert_true(conf.Show.objects.filter(title=title).count() > 0)
+        nt.assert_true(Show.objects.filter(title=title).count() > 0)
 
     def test_invalid_form(self):
         request = self.factory.post('create_event/Show')
@@ -57,4 +54,4 @@ class TestCreateEvent(TestCase):
         request.session = {'cms_admin_site': 1}
         duration = '2:00:00'
         create_event(request, 'Show')
-        nt.assert_false(conf.Show.objects.filter(title=title).exists())
+        nt.assert_false(Show.objects.filter(title=title).exists())

@@ -1,4 +1,3 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.core.urlresolvers import reverse
@@ -13,7 +12,7 @@ from tests.factories.gbe_factories import (
 from tests.functions.gbe_functions import (
     login_as,
     is_profile_update_page,
-    )
+)
 
 
 class TestViewTroupe(TestCase):
@@ -26,9 +25,9 @@ class TestViewTroupe(TestCase):
     def test_view_troupe(self):
         '''view_troupe view, success
         '''
-        persona = PersonaFactory.create()
+        persona = PersonaFactory()
         contact = persona.performer_profile
-        troupe = TroupeFactory.create(contact=contact)
+        troupe = TroupeFactory(contact=contact)
         request = self.factory.get('/troupe/view/%d' % troupe.resourceitem_id)
         request.session = {'cms_admin_site': 1}
         request.user = contact.profile.user_object

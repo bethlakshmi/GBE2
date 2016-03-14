@@ -15,13 +15,14 @@ from tests.functions.gbe_functions import (
     location,
 )
 
+
 class TestCreateVendor(TestCase):
     '''Tests for create_vendor view'''
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
+        self.performer = PersonaFactory()
         self.conference = current_conference()
 
     def get_vendor_form(self, submit=False, invalid=False):
@@ -38,18 +39,17 @@ class TestCreateVendor(TestCase):
 
     def test_create_vendor_no_profile(self):
         url = reverse('vendor_create', urlconf='gbe.urls')
-        login_as(UserFactory.create(), self)
+        login_as(UserFactory(), self)
         response = self.client.get(url, follow=True)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Update Your Profile' in response.content)
-
 
     def test_create_vendor_post_form_valid(self):
         url = reverse('vendor_create', urlconf='gbe.urls')
         profile = ProfileFactory()
         login_as(profile, self)
-        data=self.get_vendor_form()
-        data['profile']=profile.pk
+        data = self.get_vendor_form()
+        data['profile'] = profile.pk
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -60,8 +60,8 @@ class TestCreateVendor(TestCase):
         url = reverse('vendor_create', urlconf='gbe.urls')
         profile = ProfileFactory()
         login_as(profile, self)
-        data=self.get_vendor_form(submit=True)
-        data['profile']=profile.pk
+        data = self.get_vendor_form(submit=True)
+        data['profile'] = profile.pk
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -71,15 +71,15 @@ class TestCreateVendor(TestCase):
     def test_create_vendor_post_form_invalid(self):
         request = self.factory.get('vendor/bid/')
         request.method = 'POST'
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.POST = self.get_vendor_form(invalid=True)
-        request.session = {'cms_admin_site':1}
+        request.session = {'cms_admin_site': 1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)
 
     def test_create_vendor_no_post(self):
         request = self.factory.get('vendor/bid/')
-        request.user = ProfileFactory.create().user_object
-        request.session = {'cms_admin_site':1}
+        request.user = ProfileFactory().user_object
+        request.session = {'cms_admin_site': 1}
         response = create_vendor(request)
         nt.assert_equal(response.status_code, 200)

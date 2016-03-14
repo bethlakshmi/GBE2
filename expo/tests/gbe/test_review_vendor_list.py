@@ -5,7 +5,6 @@ from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_vendor_list
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     VendorFactory,
     ConferenceFactory,

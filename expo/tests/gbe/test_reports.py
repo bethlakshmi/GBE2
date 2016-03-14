@@ -59,17 +59,17 @@ from tests.functions.gbe_functions import (
 def _create_scheduled_show_with_acts(conference=None, qty=6):
     if not conference:
         conference = ConferenceFactory()
-    conf_day = ConferenceDayFactory.create(
+    conf_day = ConferenceDayFactory(
         conference=conference)
 
-    show = ShowFactory.create(conference=conference)
-    sEvent = SchedEventFactory.create(
+    show = ShowFactory(conference=conference)
+    sEvent = SchedEventFactory(
         eventitem=show.eventitem_ptr,
         starttime=utc.localize(datetime.combine(conf_day.day, time(20, 0))))
-    acts = [ActFactory.create(accepted=3) for i in range(qty)]
+    acts = [ActFactory(accepted=3) for i in range(qty)]
     for act in acts:
-        ar = ActResourceFactory.create(_item=act.actitem_ptr)
-        ResourceAllocationFactory.create(
+        ar = ActResourceFactory(_item=act.actitem_ptr)
+        ResourceAllocationFactory(
             event=sEvent,
             resource=ar)
     return show, sEvent, acts
@@ -325,7 +325,7 @@ class TestReports(TestCase):
         '''
         curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
-        old_conf = ConferenceFactory.create(status='completed')
+        old_conf = ConferenceFactory(status='completed')
         old_show, _, old_acts = _create_scheduled_show_with_acts(old_conf)
 
         profile = ProfileFactory()

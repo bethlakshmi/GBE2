@@ -1,4 +1,3 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -22,7 +21,7 @@ class TestEditCostume(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def get_costume_form(self):
         picture = SimpleUploadedFile("file.jpg",
@@ -42,7 +41,7 @@ class TestEditCostume(TestCase):
         '''costume_bid, when profile has no personae,
         should redirect to persona_create'''
         request = self.factory.get('costume/create/')
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 302)
 
@@ -71,7 +70,6 @@ class TestEditCostume(TestCase):
         response = bid_costume(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
-
 
     def test_costume_bid_post_with_submit(self):
         '''costume_bid, not submitting and no other problems,

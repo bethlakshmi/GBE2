@@ -1,4 +1,3 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -36,7 +35,7 @@ class TestEditClass(TestCase):
                 'conference': self.conference
                 }
         if submit:
-            data['submit']=1
+            data['submit'] = 1
         return data
 
     def test_bid_class_no_personae(self):
@@ -73,7 +72,6 @@ class TestEditClass(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
 
-
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
@@ -88,7 +86,6 @@ class TestEditClass(TestCase):
         response = bid_class(request)
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), '/gbe')
-
 
     def test_class_bid_post_with_submit_incomplete(self):
         '''class_bid, not submitting and no other problems,

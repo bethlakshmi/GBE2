@@ -27,7 +27,6 @@ class TestEditVendor(TestCase):
         self.client = Client()
         self.user = ProfileFactory().user_object
 
-
     def get_vendor_form(self, submit=False, invalid=False):
         form = {'thebiz-profile': 1,
                 'thebiz-title': 'title here',
@@ -48,7 +47,6 @@ class TestEditVendor(TestCase):
         request.user = profile.user_object
         response = edit_vendor(request, -1)
 
-
     def test_edit_vendor_no_profile(self):
         vendor = VendorFactory()
         login_as(UserFactory(), self)
@@ -57,14 +55,12 @@ class TestEditVendor(TestCase):
         nt.assert_equal(302, response.status_code)
         nt.assert_equal(location(response), 'http://testserver/profile')
 
-
     def test_edit_vendor_wrong_user(self):
         vendor = VendorFactory()
         login_as(ProfileFactory(), self)
         url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
         response = self.client.get(url)
         nt.assert_equal(404, response.status_code)
-
 
     @nt.raises(Http404)
     def test_edit_vendor_profile_is_not_coordinator(self):
@@ -93,7 +89,6 @@ class TestEditVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true("Profile View" in response.content)
 
-
     def test_vendor_edit_post_form_valid_submit(self):
         vendor = VendorFactory()
         login_as(vendor.profile, self)
@@ -103,7 +98,6 @@ class TestEditVendor(TestCase):
         response = self.client.post(url, data, follow=True)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true("Vendor Payment" in response.content)
-
 
     # def test_edit_bid_not_post(self):
     #     '''edit_bid, not post, should take us to edit process'''

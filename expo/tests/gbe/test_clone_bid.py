@@ -1,7 +1,5 @@
-import gbe.models as conf
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
@@ -18,6 +16,7 @@ from gbe.models import (
     Act,
     Conference,
 )
+
 
 class TestCloneBid(TestCase):
     def setUp(self):

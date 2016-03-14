@@ -6,6 +6,7 @@ from gbe.models import (
 from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import ConferenceFactory
 
+
 def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
         user = user_or_profile.user_object
@@ -52,6 +53,7 @@ def location(response):
     response_dict = dict(response.items())
     return response_dict['Location']
 
+
 def current_conference():
     current_confs = Conference.objects.filter(
         status__in=('upcoming', 'ongoing'),
@@ -61,8 +63,10 @@ def current_conference():
     return ConferenceFactory(status='upcoming',
                              accepting_bids=True)
 
+
 def clear_conferences():
     Conference.objects.all().delete()
+
 
 def reload(object):
     return type(object).objects.get(pk=object.pk)

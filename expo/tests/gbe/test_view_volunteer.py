@@ -10,7 +10,6 @@ from tests.factories.gbe_factories import (
     VolunteerFactory
 )
 from tests.functions.gbe_functions import current_conference
-import mock
 
 
 class TestViewVolunteer(TestCase):
@@ -19,11 +18,11 @@ class TestViewVolunteer(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
+        self.performer = PersonaFactory()
         self.conference = current_conference()
 
     def test_view_act_all_well(self):
-        volunteer = VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         request = self.factory.get('volunteer/view/%d' % volunteer.pk)
         request.user = volunteer.profile.user_object
         request.session = {'cms_admin_site': 1}
@@ -34,7 +33,7 @@ class TestViewVolunteer(TestCase):
 
     @nt.raises(PermissionDenied)
     def test_view_act_wrong_profile(self):
-        volunteer = VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         request = self.factory.get('volunteer/view/%d' % volunteer.pk)
         request.user = ProfileFactory().user_object
         request.session = {'cms_admin_site': 1}

@@ -1,13 +1,15 @@
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from django.contrib.auth.models import Group
 from gbe.views import edit_volunteer
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    PersonaFactory,
+    ProfileFactory,
+    VolunteerFactory,
+)
 from tests.functions.gbe_functions import (
     login_as,
     grant_privilege,
@@ -23,8 +25,8 @@ class TestEditVolunteer(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.privileged_profile = factories.ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
@@ -42,16 +44,15 @@ class TestEditVolunteer(TestCase):
 
     @nt.raises(PermissionDenied)
     def test_edit_volunteer_no_volunteer(self):
-        '''Should get 404 if no valid volunteer ID'''
-        profile = factories.ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.get('/volunteer/edit/-1')
         request.user = profile.user_object
         response = edit_volunteer(request, -1)
 
     @nt.raises(PermissionDenied)
     def test_edit_volunteer_profile_is_not_coordinator(self):
-        user = factories.ProfileFactory.create().user_object
-        volunteer = factories.VolunteerFactory.create()
+        user = ProfileFactory().user_object
+        volunteer = VolunteerFactory()
         request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
         request.user = user
         response = edit_volunteer(request, volunteer.pk)
@@ -59,7 +60,7 @@ class TestEditVolunteer(TestCase):
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
         to VolunteerEditForm'''
-        volunteer = factories.VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[volunteer.pk])
@@ -71,9 +72,8 @@ class TestEditVolunteer(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Volunteer Bid' in response.content)
 
-
     def test_volunteer_edit_get(self):
-        volunteer = factories.VolunteerFactory(
+        volunteer = VolunteerFactory(
             availability='',
             unavailability='',
             interests='')

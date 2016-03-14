@@ -1,4 +1,3 @@
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -8,17 +7,19 @@ from datetime import datetime, date, time
 import pytz
 import re
 from gbe.views import assign_volunteer
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
-    PersonaFactory,
-    ProfileFactory,
-    VolunteerFactory,
     ConferenceFactory,
     GenericEventFactory,
+    PersonaFactory,
+    ProfileFactory,
     UserFactory,
+    VolunteerFactory,
     VolunteerWindowFactory,
 )
-from tests.functions.gbe_functions import login_as
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 from scheduler.models import Event as sEvent
 from scheduler.models import (
     Worker,
@@ -33,18 +34,17 @@ class TestAssignVolunteer(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.privileged_profile = ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
     @nt.raises(PermissionDenied)
     def test_assign_volunteers_bad_user(self):
         ''' user does not have Volunteer Coordinator, permission is denied'''
-        volunteer = VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = assign_volunteer(request, volunteer.pk)
@@ -52,16 +52,16 @@ class TestAssignVolunteer(TestCase):
     @nt.raises(PermissionDenied)
     def test_assign_volunteers_no_profile(self):
         ''' user does not have a profile, permission is denied'''
-        volunteer = VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = UserFactory.create()
+        request.user = UserFactory()
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
         response = assign_volunteer(request, volunteer.pk)
 
     def test_assign_volunteer_no_events(self):
         ''' assign a volunteer when there are no opportunities'''
-        volunteer = VolunteerFactory.create()
+        volunteer = VolunteerFactory()
         request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
@@ -73,24 +73,24 @@ class TestAssignVolunteer(TestCase):
     def test_assign_volunteer_show_current_events(self):
         '''only current conference events, and windows should be shown'''
         # horrible setup process. Need to fix
-        current_conference = ConferenceFactory.create(
+        current_conference = ConferenceFactory(
             accepting_bids=True)
-        past_conference = ConferenceFactory.create(
+        past_conference = ConferenceFactory(
             status='completed')
 
-        parent = GenericEventFactory.create(
+        parent = GenericEventFactory(
             conference=current_conference)
         parent.save()
-        current_opportunity = GenericEventFactory.create(
+        current_opportunity = GenericEventFactory(
             conference=current_conference,
             volunteer_category='VA1',
             type='Volunteer')
         current_opportunity.save()
-        rehearsal = GenericEventFactory.create(
+        rehearsal = GenericEventFactory(
             conference=current_conference,
             type="Rehearsal Slot")
         rehearsal.save()
-        past_opportunity = GenericEventFactory.create(
+        past_opportunity = GenericEventFactory(
             conference=past_conference)
         past_opportunity.save()
 
@@ -133,19 +133,19 @@ class TestAssignVolunteer(TestCase):
             max_volunteer=10)
         past_sched.save()
 
-        current_window = VolunteerWindowFactory.create(
+        current_window = VolunteerWindowFactory(
             day__conference=current_conference)
-        unavail_window = VolunteerWindowFactory.create(
+        unavail_window = VolunteerWindowFactory(
             day__conference=current_conference,
             day__day=date(2016, 2, 7),
             start=time(11),
             end=time(15))
-        past_window = VolunteerWindowFactory.create(
+        past_window = VolunteerWindowFactory(
             day__conference=past_conference)
         current_window.save()
         past_window.save()
 
-        volunteer = VolunteerFactory.create(
+        volunteer = VolunteerFactory(
             conference=current_conference,
             submitted=True,
             )

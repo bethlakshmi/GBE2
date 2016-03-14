@@ -1,67 +1,38 @@
 from expo.gbe_logging import *
-log_import(('*',), 'gbe_logging')
-
 from django.db.models import Q
-log_import(('Q',), 'django.db.models')
-
 from django.core.urlresolvers import reverse
-log_import(('reverse',), 'django.core.urlresolvers')
-
 from django.core.exceptions import PermissionDenied
-log_import(('PermissionDenied',), 'django.core.exceptions')
-
 from django.shortcuts import (
     render,
     get_object_or_404,
     render_to_response,
 )
-log_import(('render', 'get_object_or_404', 'render_to_response'),
-           'django.shortcuts')
-
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
-log_import(('HttpResponse', 'HttpResponseRedirect', 'Http404'), 'django.http')
-
 from django.contrib.auth.decorators import login_required
-log_import(('login_required',), 'django.contrib.auth.decorators')
-
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
-log_import(('login',
-            'logout',
-            'authenticate'),
-           'django.contrib.auth')
-
 from django.contrib.auth.forms import UserCreationForm
-log_import(('UserCreationForm',), 'django.contrib.auth.forms')
-
 from django.template import (
     loader,
     RequestContext,
     Context,
 )
-log_import(('loader', 'RequestContext', 'Context'), 'django.template')
-
 from gbe.models import (
     Event,
     Act,
     Performer,
     Conference,
 )
-log_import(('Event', 'Act', 'Performer'), 'gbe.models')
-
-
 from gbe.forms import *
-log_import(('*',), 'gbe.forms')
 
 from gbe.functions import *
-log_import(('*',), 'gbe.functions')
 
 from gbe.ticketing_idd_interface import (
     verify_performer_app_paid,
@@ -70,32 +41,19 @@ from gbe.ticketing_idd_interface import (
     vendor_submittal_link,
     performer_act_submittal_link,
 )
-
-log_import(('*',), 'gbe.ticketing_idd_interface')
-
 import gbe_forms_text
-log_import(('all',), 'gbe_forms_text')
-
 from ticketingfuncs import compute_submission
-log_import(('compute_submission'), 'ticketingfuncs')
-
 from duration import Duration
-log_import(('Duration',), 'duration')
-
 from scheduler.functions import (
     set_time_format,
-    get_events_and_windows)
-log_import(('set_time_format'), 'scheduler.functions')
-log_import(('get_events_and_windows'), 'scheduler.functions')
-
+    get_events_and_windows
+)
 from scheduler.models import (
     Event as sEvent,
     ResourceAllocation,
     ActResource,
     Worker,
 )
-log_import(('Event', 'ResourceAllocation', 'ActResource', 'Worker'),
-           'scheduler.models')
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
@@ -132,11 +90,11 @@ def landing_page(request, profile_id=None, historical=False):
         admin_message = None
 
     template = loader.get_template('gbe/landing_page.tmpl')
-    class_to_class_name = {Act:"Act",
+    class_to_class_name = {Act: "Act",
                            Class: "Class",
                            Costume: "Costume",
                            Volunteer: "Volunteer"}
-    class_to_view_name = {Act:'act_review',
+    class_to_view_name = {Act: 'act_review',
                           Class: 'class_review',
                           Costume: 'costume_review',
                           Volunteer: 'volunteer_review'}
@@ -867,8 +825,6 @@ def act_changestate(request, bid_id):
         # ResourceAllocation
 
         ActResource.objects.filter(_item=act).delete()
-
-
 
         # if the act has been accepted, set the show.
         if act_accepted(request):
@@ -2273,7 +2229,6 @@ def costume_changestate(request, bid_id):
     return bid_changestate(request, bid_id, 'costume_review_list')
 
 
-
 @log_func
 def profile(request, profile_id=None):
     '''
@@ -2350,7 +2305,6 @@ def review_profiles(request):
 
     return render(request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
-
 
 
 @login_required
@@ -2617,7 +2571,6 @@ def review_proposal_list(request):
                    'conference_slugs': conference_slugs})
 
 
-
 @login_required
 @log_func
 def conference_volunteer(request):
@@ -2703,7 +2656,6 @@ def conference_volunteer(request):
     return render(request, 'gbe/conf_volunteer_list.tmpl',
                   {'view_title': view_title, 'page_title': page_title,
                    'header': header, 'rows': rows})
-
 
 
 @log_func

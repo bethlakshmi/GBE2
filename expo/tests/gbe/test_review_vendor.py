@@ -29,35 +29,33 @@ class TestReviewVendor(TestCase):
 
     def test_review_vendor_all_well(self):
         vendor = VendorFactory()
-        request = self.factory.get('vendor/review/%d' % vendor.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor(request, vendor.pk)
+        url = reverse('vendor_review',
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
-
-
 
     def test_review_vendor_old_conference(self):
         old_conf = ConferenceFactory(status='completed',
                                      accepting_bids=False)
         vendor = VendorFactory(conference=old_conf)
-        request = self.factory.get('vendor/review/%d' % vendor.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor(request, vendor.pk)
+        url = reverse('vendor_review',
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
     def test_review_vendor_post_valid_form(self):
         vendor = VendorFactory()
         url = reverse('vendor_review',
-                      args = [vendor.pk],
+                      args=[vendor.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'vote':3,
+        data = {'vote': 3,
                 'notes': "notes",
                 'bid': vendor.pk,
                 'evaluator': self.privileged_profile.pk}
@@ -66,15 +64,15 @@ class TestReviewVendor(TestCase):
         nt.assert_equal(200, response.status_code)
         nt.assert_true("Bid Information" in response.content)
 
-
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()
-        request = self.factory.get('vendor/review/%d' % vendor.pk)
-        request.user = ProfileFactory().user_object
-        grant_privilege(request.user, 'Vendor Reviewers')
-        grant_privilege(request.user, 'Vendor Coordinator')
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor(request, vendor.pk)
+        user = ProfileFactory().user_object
+        grant_privilege(user, 'Vendor Reviewers')
+        grant_privilege(user, 'Vendor Coordinator')
+        login_as(user, self)
+        url = reverse('vendor_review',
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)

@@ -2,9 +2,9 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_act_list
+from gbe.views import review_class_list
 from tests.factories.gbe_factories import (
-    ActFactory,
+    ClassFactory,
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
@@ -19,44 +19,43 @@ from tests.functions.gbe_functions import (
 from django.core.exceptions import PermissionDenied
 
 
-class TestReviewActList(TestCase):
-    '''Tests for review_act_list view'''
+class TestReviewClassList(TestCase):
+    '''Tests for review_class_list view'''
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory()
-        self.privileged_profile = ProfileFactory()
+        self.performer = PersonaFactory.create()
+        self.privileged_profile = ProfileFactory.create()
         self.privileged_user = self.privileged_profile.user_object
-        grant_privilege(self.privileged_user, 'Act Reviewers')
+        grant_privilege(self.privileged_user, 'Class Reviewers')
         self.conference = current_conference()
-        ActFactory.create_batch(4,
+        ClassFactory.create_batch(4,
                                 conference=self.conference,
                                 submitted=True)
 
-    def test_review_act_all_well(self):
-        request = self.factory.get(
-            'act/review/',
-            data={'conf_slug': self.conference.conference_slug})
+    def test_review_class_all_well(self):
+        request = self.factory.get('class/review/',
+                                   data={'conf_slug':self.conference.conference_slug})
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
-        response = review_act_list(request)
+        response = review_class_list(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
     @nt.raises(PermissionDenied)
-    def test_review_act_bad_user(self):
-        request = self.factory.get('act/review/')
-        request.user = ProfileFactory().user_object
+    def test_review_class_bad_user(self):
+        request = self.factory.get('class/review/')
+        request.user = ProfileFactory.create().user_object
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
-        response = review_act_list(request)
+        response = review_class_list(request)
 
     @nt.raises(PermissionDenied)
-    def test_review_act_no_profile(self):
-        request = self.factory.get('act/review/')
-        request.user = UserFactory()
+    def test_review_class_no_profile(self):
+        request = self.factory.get('class/review/')
+        request.user = UserFactory.create()
         request.session = {'cms_admin_site': 1}
         login_as(request.user, self)
-        response = review_act_list(request)
+        response = review_class_list(request)
