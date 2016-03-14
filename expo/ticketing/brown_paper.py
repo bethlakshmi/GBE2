@@ -12,6 +12,9 @@ from ticketing.models import *
 import HTMLParser
 from django.utils import timezone
 from gbe.models import Profile
+import sys
+from datetime import datetime
+import pytz
 
 
 def perform_bpt_api_call(api_call):
@@ -32,7 +35,8 @@ def perform_bpt_api_call(api_call):
         logger.error('Could not perform BPT call:  %s' % io_error.reason)
         return None
     except:
-        logger.error('Could not perform BPT call.  Reason unknown.')
+        logger.error(
+            'Could not perform BPT call.  Reason: %s ' % (sys.exc_info()[0]))
         return None
     return xml_tree
 
@@ -101,7 +105,7 @@ def get_bpt_event_description(event_id):
     event_xml = perform_bpt_api_call(event_call)
 
     if event_xml is None:
-        return "None Found"
+        return None
 
     h = HTMLParser.HTMLParser()
     descr = h.unescape(event_xml.find('.//e_description').text)
@@ -122,7 +126,7 @@ def get_bpt_event_date_list(event_id):
     date_xml = perform_bpt_api_call(date_call)
 
     if date_xml is None:
-        return None
+        return []
 
     date_list = []
     for date in date_xml.findall('.//date_id'):
@@ -146,18 +150,21 @@ def get_bpt_price_list():
     for event in BrownPaperEvents.objects.all():
         event_text = get_bpt_event_description(event.bpt_event_id)
 
-        for date in get_bpt_event_date_list(event.bpt_event_id):
-            url = "?".join(['http://www.brownpapertickets.com/api2/pricelist',
-                            'id=%s&event_id=%s&date_id=%s'])
-            price_call = url % (get_bpt_developer_id(),
-                                event.bpt_event_id,
-                                date)
-            price_xml = perform_bpt_api_call(price_call)
+        if event_text:
+            for date in get_bpt_event_date_list(event.bpt_event_id):
+                url = "?".join(
+                    ['http://www.brownpapertickets.com/api2/pricelist',
+                     'id=%s&event_id=%s&date_id=%s'])
+                price_call = url % (get_bpt_developer_id(),
+                                    event.bpt_event_id,
+                                    date)
+                price_xml = perform_bpt_api_call(price_call)
 
-            for price in price_xml.findall('.//price'):
-                ti_list.append(bpt_price_to_ticketitem(event,
-                                                       price,
-                                                       event_text))
+                if price_xml is not None:
+                    for price in price_xml.findall('.//price'):
+                        ti_list.append(bpt_price_to_ticketitem(event,
+                                                               price,
+                                                               event_text))
 
     return ti_list
 
@@ -294,7 +301,10 @@ def bpt_save_order_to_database(event_id, bpt_order):
 
     # Build out the remainder of the transaction.
 
-    trans.order_date = bpt_order.find('order_time').text
+    trans.order_date = pytz.utc.localize(
+        datetime.strptime(
+            bpt_order.find('order_time').text,
+            "%Y-%m-%d %H:%M:%S"))
     trans.shipping_method = unicode(bpt_order.find('shipping_method').text)
     trans.order_notes = unicode(bpt_order.find('order_notes').text)
     trans.reference = unicode(bpt_order.find('ticket_number').text)
@@ -317,19 +327,10 @@ def attempt_match_purchaser_to_user(purchaser, tracker_id='None'):
 
     try:
         user_id = int(tracker_id[3:])
-        user_found = True
-    except ValueError:
-        user_found = False
-
-    if (user_found):
-        try:
-            User.objects.get(id=user_id)
-            user_found = True
-        except:
-            user_found = False
-
-    if (user_found):
+        User.objects.get(id=user_id)
         return user_id
+    except:
+        user_found = False
 
     # Next try to match to a purchase email address from the Profile
     # (Manual Override Mechanism)

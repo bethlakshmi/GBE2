@@ -21,6 +21,14 @@ class BrownPaperEventsFactory(DjangoModelFactory):
     conference = SubFactory(ConferenceFactory)
 
 
+class BrownPaperSettingsFactory(DjangoModelFactory):
+    class Meta:
+        model = tickets.BrownPaperSettings
+    developer_token = "devtoken"
+    client_username = "clientusername"
+    last_poll_time = timezone.now()
+
+
 class TicketItemFactory(DjangoModelFactory):
     class Meta:
         model = tickets.TicketItem
@@ -114,8 +122,8 @@ class TicketingExclusionFactory(DjangoModelFactory):
             # A list of groups were passed in, use them
             for ticket in extracted:
                 self.tickets.add(ticket)
-    
-    
+
+
 class RoleExclusionFactory(DjangoModelFactory):
     class Meta:
         model = tickets.RoleExclusion
