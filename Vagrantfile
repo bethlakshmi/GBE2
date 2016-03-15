@@ -73,8 +73,10 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
   sudo pip install --requirement /vagrant/config/requirements.txt
-  cp /vagrant/aliases /home/vagrant/
-  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
+  cp /vagrant/aliases /vagrant/dbreset /home/vagrant/
+  chown -R vagrant:vagrant /home/vagrant
+  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc
+  mkdir /vagrant/expo/logs; chown vagrant:vagrant /vagrant/expo/logs
 BOOTSTRAP
 
 
