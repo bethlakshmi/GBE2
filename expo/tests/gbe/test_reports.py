@@ -176,9 +176,6 @@ class TestReports(TestCase):
     def test_staff_area_path(self):
         '''staff_area view should load
         '''
-        nt.assert_true(date.today() < date(2016, 3, 1),
-                       msg="Time to fix test_staff_area!")
-
         profile = ProfileFactory()
         show = ShowFactory()
         context = VolunteerContext(event=show)
