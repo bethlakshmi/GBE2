@@ -55,3 +55,15 @@ def test_calendar_view_shows_current_conf_by_default():
     response = calendar_view(request)
     nt.assert_true(show.title in response.content)
     nt.assert_false(other_show.title in response.content)
+
+def test_no_conference_days():
+    Conference.objects.all().delete()
+    ConferenceFactory(status='upcoming')
+    url = reverse('calendar_view_day',
+                  urlconf='scheduler.urls',
+                  kwargs={'event_type': 'Class',
+                          'day': 'Sunday'})
+    client = Client()
+    response = client.get(url)
+    import pdb; pdb.set_trace()
+    nt.assert_true('Event Calendar' in response.content)
