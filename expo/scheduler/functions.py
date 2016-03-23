@@ -1,5 +1,6 @@
 from table import table
 from datetime import (
+    date,
     timedelta,
     time,
     datetime
@@ -136,6 +137,8 @@ def init_time_blocks(events,
     events = [event for event in events
               if event['stop_time'] > cal_start and event['start_time'] < cal_stop]
     events = sorted(events, key=lambda event: event['start_time'])
+    if not events:
+        return [], cal_start, cal_stop
     if strip_empty_blocks in ('both', 'start'):
         cal_start = max(cal_start, events[0]['start_time'])
     events = sorted(events, key=lambda event: event['stop_time'])
@@ -424,7 +427,7 @@ def select_day(days, day_name):
     Behavior is undefined if conference has more than one instance of a
     given day of week. This is a bug.
     '''
-    return {d.day.strftime("%A"): d for d in days}[day_name]
+    return {d.day.strftime("%A"): d for d in days}.get(day_name, None)
 
 
 def date_to_datetime(the_date):
@@ -436,16 +439,18 @@ def cal_times_for_conf(conference, day_name):
     from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
 
+    if not days.exists():
+        today = date_to_datetime(date.today())
+        return (today + Duration(hours=8), today + Duration(hours=28))
     if day_name:
         day = date_to_datetime(select_day(days, day_name).day)
         if day:
             return day + Duration(hours=8), day + Duration(hours=28)
 
-        #  else, fall through
-
-    first_day = date_to_datetime(days.first().day)
-    last_day = date_to_datetime(days.last().day)
-    return (first_day + Duration(hours=8), last_day + Duration(hours=28))
+    else:
+        first_day = date_to_datetime(days.first().day)
+        last_day = date_to_datetime(days.last().day)
+        return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
 def volunteer_shift_info(
