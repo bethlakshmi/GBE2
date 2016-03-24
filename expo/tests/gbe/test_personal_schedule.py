@@ -1,8 +1,7 @@
-from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 
 import nose.tools as nt
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.test.client import RequestFactory
 from gbe.report_views import personal_schedule
 from tests.factories.gbe_factories import (
@@ -25,8 +24,7 @@ class TestPersonalSchedule(TestCase):
     '''Tests for index view'''
     def setUp(self):
         self.factory = RequestFactory()
-        self.client = Client()
-        self.priv_profile = ProfileFactory.create()
+        self.priv_profile = ProfileFactory()
         grant_privilege(self.priv_profile, 'Act Reviewers')
 
     @nt.raises(PermissionDenied)
@@ -34,7 +32,7 @@ class TestPersonalSchedule(TestCase):
         '''personal_schedule view should load for privileged users
            and fail for others
         '''
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         request = self.factory.get('reports/schedule_all')
         login_as(profile, self)
         request.user = profile.user_object
@@ -55,8 +53,8 @@ class TestPersonalSchedule(TestCase):
         '''a teacher booked into a class, with an active role condition
            should get a checklist item
         '''
-        role_condition = RoleEligibilityConditionFactory.create()
-        teacher = PersonaFactory.create()
+        role_condition = RoleEligibilityConditionFactory()
+        teacher = PersonaFactory()
         booking = book_worker_item_for_role(teacher,
                                             role_condition.role)
         conference = booking.event.eventitem.get_conference()
@@ -78,8 +76,8 @@ class TestPersonalSchedule(TestCase):
         '''a teacher booked into a class, with an active role condition
            should have a booking
         '''
-        role_condition = RoleEligibilityConditionFactory.create()
-        teacher = PersonaFactory.create()
+        role_condition = RoleEligibilityConditionFactory()
+        teacher = PersonaFactory()
         booking = book_worker_item_for_role(teacher,
                                             role_condition.role)
         conference = booking.event.eventitem.get_conference()
@@ -102,11 +100,11 @@ class TestPersonalSchedule(TestCase):
     def test_ticket_purchase(self):
         '''a ticket purchaser gets a checklist item
         '''
-        transaction = TransactionFactory.create()
-        purchaser = ProfileFactory.create(
+        transaction = TransactionFactory()
+        purchaser = ProfileFactory(
             user_object=transaction.purchaser.matched_to_user)
         conference = transaction.ticket_item.bpt_event.conference
-        ticket_condition = TicketingEligibilityConditionFactory.create(
+        ticket_condition = TicketingEligibilityConditionFactory(
             tickets=[transaction.ticket_item]
         )
 

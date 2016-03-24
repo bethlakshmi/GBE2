@@ -1,18 +1,13 @@
-from django.shortcuts import get_object_or_404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import volunteer_changestate
-import mock
-from django.contrib.auth.models import Group
-import gbe.ticketing_idd_interface
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     VolunteerFactory,
     ProfileFactory
 )
+from tests.functions.gbe_functions import grant_privilege
 from django.core.exceptions import PermissionDenied
 
 
@@ -22,10 +17,9 @@ class TestVolunteerChangestate(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.volunteer = VolunteerFactory.create()
-        self.privileged_user = ProfileFactory.create().user_object
-        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
-        self.privileged_user.groups.add(group)
+        self.volunteer = VolunteerFactory()
+        self.privileged_user = ProfileFactory().user_object
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
     def test_volunteer_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
@@ -40,5 +34,5 @@ class TestVolunteerChangestate(TestCase):
         '''A regular user is changing the state, it fails'''
         request = self.factory.get(
             'volunteer/changestate/%d' % self.volunteer.pk)
-        request.user = ProfileFactory.create().user_object
+        request.user = ProfileFactory().user_object
         response = volunteer_changestate(request, self.volunteer.pk)

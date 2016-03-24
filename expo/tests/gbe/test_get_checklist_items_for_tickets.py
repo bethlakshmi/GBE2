@@ -1,5 +1,3 @@
-from django.http import Http404
-from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
 from tests.factories.ticketing_factories import (
@@ -19,9 +17,9 @@ class TestGetCheckListForTickets(TestCase):
     '''Tests that checklists are built based on ticket purchases'''
 
     def setUp(self):
-        self.ticketingcondition = TicketingEligibilityConditionFactory.create()
-        self.transaction = TransactionFactory.create()
-        self.purchaser = ProfileFactory.create(
+        self.ticketingcondition = TicketingEligibilityConditionFactory()
+        self.transaction = TransactionFactory()
+        self.purchaser = ProfileFactory(
             user_object=self.transaction.purchaser.matched_to_user)
         self.conference = self.transaction.ticket_item.bpt_event.conference
 
@@ -49,7 +47,7 @@ class TestGetCheckListForTickets(TestCase):
         '''
             feeding in the matching ticket, gives an item
         '''
-        match_condition = TicketingEligibilityConditionFactory.create(
+        match_condition = TicketingEligibilityConditionFactory(
             tickets=[self.transaction.ticket_item])
 
         checklist_items = get_checklist_items_for_tickets(
@@ -67,9 +65,9 @@ class TestGetCheckListForTickets(TestCase):
         '''
             feeding in the matching ticket, gives an item
         '''
-        match_condition = TicketingEligibilityConditionFactory.create(
+        match_condition = TicketingEligibilityConditionFactory(
             tickets=[self.transaction.ticket_item])
-        another_transaction = TransactionFactory.create(
+        another_transaction = TransactionFactory(
             purchaser=self.transaction.purchaser,
             ticket_item=self.transaction.ticket_item)
 
@@ -89,9 +87,9 @@ class TestGetCheckListForTickets(TestCase):
         '''
             two conditions match this circumstance
         '''
-        match_condition = TicketingEligibilityConditionFactory.create(
+        match_condition = TicketingEligibilityConditionFactory(
             tickets=[self.transaction.ticket_item])
-        another_match = TicketingEligibilityConditionFactory.create(
+        another_match = TicketingEligibilityConditionFactory(
             tickets=[self.transaction.ticket_item])
 
         checklist_items = get_checklist_items_for_tickets(
@@ -110,9 +108,9 @@ class TestGetCheckListForTickets(TestCase):
         '''
             there's a match, but also an exclusion
         '''
-        match_condition = TicketingEligibilityConditionFactory.create(
+        match_condition = TicketingEligibilityConditionFactory(
             tickets=[self.transaction.ticket_item])
-        exclusion = TicketingExclusionFactory.create(
+        exclusion = TicketingExclusionFactory(
             condition=match_condition,
             tickets=[self.transaction.ticket_item])
 

@@ -1,5 +1,3 @@
-from django.http import Http404
-from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
 from tests.factories.ticketing_factories import (
@@ -21,15 +19,15 @@ class TestGetCheckListItems(TestCase):
     '''Tests for the biggest method to get all types of checklist items'''
 
     def setUp(self):
-        self.role_condition = RoleEligibilityConditionFactory.create()
-        self.ticket_condition = TicketingEligibilityConditionFactory.create()
+        self.role_condition = RoleEligibilityConditionFactory()
+        self.ticket_condition = TicketingEligibilityConditionFactory()
 
     def test_no_checklist(self):
         '''
             profile matches no conditions
         '''
-        no_match_profile = ProfileFactory.create()
-        transaction = TransactionFactory.create()
+        no_match_profile = ProfileFactory()
+        transaction = TransactionFactory()
         self.ticket_condition.tickets.add(transaction.ticket_item)
         checklist_items = get_checklist_items(
             no_match_profile,
@@ -41,7 +39,7 @@ class TestGetCheckListItems(TestCase):
         '''
             profile has a role match condition
         '''
-        teacher = PersonaFactory.create()
+        teacher = PersonaFactory()
         booking = book_worker_item_for_role(teacher,
                                             self.role_condition.role)
         conference = booking.event.eventitem.get_conference()
@@ -58,8 +56,8 @@ class TestGetCheckListItems(TestCase):
         '''
             profile has a ticket match condition
         '''
-        transaction = TransactionFactory.create()
-        purchaser = ProfileFactory.create(
+        transaction = TransactionFactory()
+        purchaser = ProfileFactory(
             user_object=transaction.purchaser.matched_to_user)
         conference = transaction.ticket_item.bpt_event.conference
         self.ticket_condition.tickets.add(transaction.ticket_item)
@@ -77,14 +75,14 @@ class TestGetCheckListItems(TestCase):
         '''
             profile meets role and ticket
         '''
-        teacher = PersonaFactory.create()
+        teacher = PersonaFactory()
         booking = book_worker_item_for_role(teacher,
                                             self.role_condition.role)
         conference = booking.event.eventitem.get_conference()
 
-        purchaser = PurchaserFactory.create(
+        purchaser = PurchaserFactory(
             matched_to_user=teacher.performer_profile.user_object)
-        transaction = TransactionFactory.create(
+        transaction = TransactionFactory(
             purchaser=purchaser)
         transaction.ticket_item.bpt_event.conference = conference
         transaction.ticket_item.bpt_event.save()

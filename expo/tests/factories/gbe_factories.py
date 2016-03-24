@@ -170,6 +170,9 @@ class CueInfoFactory(DjangoModelFactory):
 class ActFactory(DjangoModelFactory):
     class Meta:
         model = conf.Act
+
+    submitted = False
+    title = Sequence(lambda x: "Act #%d" % x)
     performer = SubFactory(PersonaFactory)
     tech = SubFactory(TechInfoFactory)
     video_link = ""
@@ -273,6 +276,7 @@ class VendorFactory(DjangoModelFactory):
     class Meta:
         model = conf.Vendor
 
+    title = Sequence(lambda x: "Vendor # %d" % x)
     profile = SubFactory(ProfileFactory)
     website = "http://www.foo.com"
     physical_address = "123 Main Street"

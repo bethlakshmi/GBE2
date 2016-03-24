@@ -2,14 +2,16 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ClassFactory,
     ProfileFactory,
 )
 from tests.factories.scheduler_factories import SchedEventFactory
-from tests.functions.gbe_functions import login_as
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 from gbe.views import (
     review_class,
@@ -24,16 +26,14 @@ class TestReviewClass(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = PersonaFactory.create()
-        self.privileged_profile = ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, _ = Group.objects.get_or_create(name='Class Reviewers')
-        self.privileged_user.groups.add(group)
-        group, _ = Group.objects.get_or_create(name='Class Coordinator')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Class Reviewers')
+        grant_privilege(self.privileged_user, 'Class Coordinator')
 
     def test_review_class_all_well(self):
-        klass = ClassFactory.create()
+        klass = ClassFactory()
         request = self.factory.get('class/review/%d' % klass.pk)
         request.user = self.privileged_user
         request.session = {'cms_admin_site': 1}
@@ -43,7 +43,7 @@ class TestReviewClass(TestCase):
         nt.assert_true('Bid Information' in response.content)
 
     def test_reject_class(self):
-        klass = ClassFactory.create()
+        klass = ClassFactory()
         s_event = SchedEventFactory(eventitem=klass.eventitem_ptr)
         request = self.factory.post(
             '/class/changestate/',

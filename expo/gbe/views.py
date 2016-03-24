@@ -1,94 +1,59 @@
 from expo.gbe_logging import *
-log_import(('*',), 'gbe_logging')
-
 from django.db.models import Q
-log_import(('Q',), 'django.db.models')
-
 from django.core.urlresolvers import reverse
-log_import(('reverse',), 'django.core.urlresolvers')
-
 from django.core.exceptions import PermissionDenied
-log_import(('PermissionDenied',), 'django.core.exceptions')
-
 from django.shortcuts import (
     render,
     get_object_or_404,
     render_to_response,
 )
-log_import(('render', 'get_object_or_404', 'render_to_response'),
-           'django.shortcuts')
-
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
     Http404,
 )
-log_import(('HttpResponse', 'HttpResponseRedirect', 'Http404'), 'django.http')
-
 from django.contrib.auth.decorators import login_required
-log_import(('login_required',), 'django.contrib.auth.decorators')
-
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
-log_import(('login',
-            'logout',
-            'authenticate'),
-           'django.contrib.auth')
-
 from django.contrib.auth.forms import UserCreationForm
-log_import(('UserCreationForm',), 'django.contrib.auth.forms')
-
 from django.template import (
     loader,
     RequestContext,
     Context,
 )
-log_import(('loader', 'RequestContext', 'Context'), 'django.template')
-
 from gbe.models import (
     Event,
     Act,
     Performer,
     Conference,
 )
-log_import(('Event', 'Act', 'Performer'), 'gbe.models')
-
-
 from gbe.forms import *
-log_import(('*',), 'gbe.forms')
 
 from gbe.functions import *
-log_import(('*',), 'gbe.functions')
 
-from gbe.ticketing_idd_interface import *
-log_import(('*',), 'gbe.ticketing_idd_interface')
-
+from gbe.ticketing_idd_interface import (
+    verify_performer_app_paid,
+    verify_vendor_app_paid,
+    get_purchased_tickets,
+    vendor_submittal_link,
+    performer_act_submittal_link,
+)
 import gbe_forms_text
-log_import(('all',), 'gbe_forms_text')
-
 from ticketingfuncs import compute_submission
-log_import(('compute_submission'), 'ticketingfuncs')
-
 from duration import Duration
-log_import(('Duration',), 'duration')
-
 from scheduler.functions import (
     set_time_format,
-    get_events_and_windows)
-log_import(('set_time_format'), 'scheduler.functions')
-log_import(('get_events_and_windows'), 'scheduler.functions')
-
+    get_events_and_windows
+)
 from scheduler.models import (
     Event as sEvent,
     ResourceAllocation,
     ActResource,
     Worker,
 )
-log_import(('Event', 'ResourceAllocation', 'ActResource', 'Worker'),
-           'scheduler.models')
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
@@ -102,28 +67,6 @@ def down(request):
     '''
     template = loader.get_template('down.tmpl')
     context = RequestContext(request, {})
-    return HttpResponse(template.render(context))
-
-
-@log_func
-def index(request):
-    '''
-    one of two cases:
-      - unknown user (sign in or register/browse expo)
-      - registered user (show objects/browse expo)
-    '''
-    if request.user.is_authenticated():
-        try:
-            profile = request.user.profile
-        except Profile.DoesNotExist:
-            context_dict['alerts'] = landing_page_no_profile_alert
-            return render_to_response('gbe/index_unregistered_user.tmpl',
-                                      context_dict)
-        template = loader.get_template('gbe/index_registered_user.tmpl')
-        context_dict['profile'] = profile
-    else:
-        pass
-    context = RequestContext(request, context_dict)
     return HttpResponse(template.render(context))
 
 
@@ -147,39 +90,27 @@ def landing_page(request, profile_id=None, historical=False):
         admin_message = None
 
     template = loader.get_template('gbe/landing_page.tmpl')
+    class_to_class_name = {Act: "Act",
+                           Class: "Class",
+                           Costume: "Costume",
+                           Volunteer: "Volunteer"}
+    class_to_view_name = {Act: 'act_review',
+                          Class: 'class_review',
+                          Costume: 'costume_review',
+                          Volunteer: 'volunteer_review'}
+
     if viewer_profile:
         bids_to_review = []
         for bid in viewer_profile.bids_to_review():
-            bid_type = ""
-            if bid.__class__ == Act:
-                url = reverse('act_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)]
-                              )
-                bid_type = "Act"
-            elif bid.__class__ == Class:
-                url = reverse('class_review',
+            bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
+            view_name = class_to_view_name.get(bid.__class__, None)
+            if view_name:
+                url = reverse(view_name,
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
-                bid_type = "Class"
-            elif bid.__class__ == Costume:
-                url = reverse('costume_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Costume"
-            elif bid.__class__ == Vendor:
-                url = reverse('vendor_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Vendor"
-            elif bid.__class__ == Volunteer:
-                url = reverse('volunteer_review',
-                              urlconf='gbe.urls',
-                              args=[str(bid.id)])
-                bid_type = "Volunteer"
             else:
                 url = ""
-                bid_type = "UNKNOWN"
+
             bids_to_review += [{'bid': bid,
                                 'url': url,
                                 'action': "Review",
@@ -211,22 +142,6 @@ def landing_page(request, profile_id=None, historical=False):
         context = RequestContext(request,
                                  {'standard_context': standard_context})
     return HttpResponse(template.render(context))
-
-
-@log_func
-def event(request, event_id):
-    '''Not listed in urlconf - can delete?
-    '''
-    event = get_object_or_404(Event, pk=event_id)
-    return render(request, 'gbe/event.html', {'event': event})
-
-
-@log_func
-def techinfo(request):
-    form = TechInfoForm()
-    return render(request,
-                  'gbe/techinfo.html',
-                  {'form': form})
 
 
 @login_required
@@ -373,14 +288,13 @@ def create_combo(request):
         return HttpResponseRedirect(reverse('profile_update',
                                             urlconf='gbe.urls') +
                                     '?next=' +
-                                    reverse('troupe_create',
+                                    reverse('combo_create',
                                             urlconf='gbe.urls'))
-    personae = profile.personae.all()
-    if len(personae) == 0:
+    if not profile.personae.exists():
         return HttpResponseRedirect(reverse('persona_create',
                                             urlconf='gbe.urls') +
                                     '?next=' +
-                                    reverse('troupe_create',
+                                    reverse('combo_create',
                                             urlconf='gbe.urls'))
     if request.method == 'POST':
         form = ComboForm(request.POST, request.FILES)
@@ -505,13 +419,6 @@ def bid_act(request):
             act.submitted = False
             act.accepted = False
             act.save()
-            if not act.performer:
-                return HttpResponseRedirect(reverse('persona_create',
-                                                    urlconf='gbe.urls') +
-                                            '?next=' +
-                                            reverse('act_edit',
-                                                    urlconf='gbe.urls',
-                                                    args=[str(act.id)]))
 
         else:
             fields, requiredsub = Act().bid_fields
@@ -527,37 +434,23 @@ def bid_act(request):
             )
 
         if 'submit' in request.POST.keys():
-            problems = act.validation_problems_for_submit()
-            if problems:
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_performer_app_paid(request.user.username):
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect(reverse('home',
+                                                    urlconf='gbe.urls'))
+            else:
+                page_title = 'Act Payment'
                 return render(
                     request,
-                    'gbe/bid.tmpl',
-                    {'forms': [form],
-                     'page_title': page_title,
-                     'view_title': view_title,
-                     'draft_fields': draft_fields,
-                     'fee_link': fee_link,
-                     'errors': problems}
+                    'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
                 )
-
-            else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if (verify_performer_app_paid(request.user.username)):
-                    act.submitted = True
-                    act.save()
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Act Payment'
-                    return render(
-                        request,
-                        'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
@@ -675,35 +568,23 @@ def edit_act(request, act_id):
             )
 
         if 'submit' in request.POST.keys():
-            problems = act.validation_problems_for_submit()
-            if problems:
-                return render(request,
-                              'gbe/bid.tmpl',
-                              {'forms': [form],
-                               'page_title': page_title,
-                               'view_title': view_title,
-                               'draft_fields': draft_fields,
-                               'fee_link': fee_link,
-                               'errors': problems
-                               })
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_performer_app_paid(request.user.username):
+                act.submitted = True
+                act.save()
+                return HttpResponseRedirect(reverse('home',
+                                                    urlconf='gbe.urls'))
             else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if (verify_performer_app_paid(request.user.username)):
-                    act.submitted = True
-                    act.save()
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Act Payment'
-                    return render(
-                        request,
-                        'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
+                page_title = 'Act Payment'
+                return render(
+                    request,
+                    'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
+                )
         else:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
@@ -750,11 +631,12 @@ def view_act(request, act_id):
                  'track_duration': audio_info.track_duration,
                  'act_duration': stage_info.act_duration}
     )
-    try:
-        instance = Troupe.objects.get(pk=act.performer.id)
+
+    if Troupe.objects.filter(pk=act.performer.pk).exists():
+        instance = Troupe.objects.get(pk=act.performer.pk)
         performer = TroupeForm(instance=instance,
                                prefix='The Troupe')
-    except:
+    else:
         performer = PersonaForm(instance=act.performer,
                                 prefix='The Performer(s)')
 
@@ -883,11 +765,10 @@ def review_act_list(request):
     try:
         header = Act().bid_review_header
         acts = Act.objects.filter(
-            submitted=True).filter(
-                conference=conference
-            ).order_by(
-                    'accepted',
-                    'performer')
+            submitted=True,
+            conference=conference).order_by(
+                'accepted',
+                'performer')
         review_query = BidEvaluation.objects.filter(
             bid=acts).select_related(
                 'evaluator').order_by(
@@ -942,6 +823,7 @@ def act_changestate(request, bid_id):
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
+
         ActResource.objects.filter(_item=act).delete()
 
         # if the act has been accepted, set the show.
@@ -1249,56 +1131,6 @@ def review_class(request, class_id):
                        'conference': conference,
                        'old_bid': old_bid,
                        })
-
-
-@login_required
-@log_func
-def review_class_list(request):
-    '''
-    Show the list of class bids, review results,
-    and give a way to update the reviews
-    '''
-
-    reviewer = validate_perms(request, ('Class Reviewers', ))
-    if request.GET and request.GET.get('conf_slug'):
-        conference = Conference.by_slug(request.GET['conf_slug'])
-    else:
-        conference = Conference.current_conf()
-    header = Class().bid_review_header
-    classes = Class.objects.filter(
-        submitted=True).filter(
-            conference=conference).order_by(
-            'accepted',
-            'title')
-    review_query = BidEvaluation.objects.filter(
-        bid=classes).select_related(
-            'evaluator').order_by('bid',
-                                  'evaluator')
-    rows = []
-    for aclass in classes:
-        bid_row = {}
-        bid_row['bid'] = aclass.bid_review_summary
-        bid_row['reviews'] = review_query.filter(
-            bid=aclass.id).select_related(
-                'evaluator').order_by('evaluator')
-        bid_row['id'] = aclass.id
-        bid_row['review_url'] = reverse('class_review',
-                                        urlconf='gbe.urls',
-                                        args=[aclass.id])
-        rows.append(bid_row)
-    conference_slugs = Conference.all_slugs()
-
-    return render(request,
-                  'gbe/bid_review_list.tmpl',
-                  {'header': header, 'rows': rows,
-                   'action1_text': 'Review',
-                   'action1_link': reverse('class_review_list',
-                                           urlconf='gbe.urls'),
-                   'return_link': reverse('class_review_list',
-                                          urlconf='gbe.urls'),
-                   'conference_slugs': conference_slugs,
-                   'conference': conference}
-                  )
 
 
 @login_required
@@ -1860,7 +1692,7 @@ def create_vendor(request):
                 If this is a formal submit request, did they pay?
                 They can't submit w/out paying
                 '''
-                if (verify_vendor_app_paid(request.user.username)):
+                if verify_vendor_app_paid(request.user.username):
                     vendor.submitted = True
                     conference = Conference.objects.filter(
                         accepting_bids=True).first()
@@ -1944,7 +1776,7 @@ def edit_vendor(request, vendor_id):
                 If this is a formal submit request, did they pay?
                 They can't submit w/out paying
                 '''
-                if (verify_vendor_app_paid(request.user.username)):
+                if verify_vendor_app_paid(request.user.username):
                     vendor.submitted = True
                     vendor.save()
                     return HttpResponseRedirect(reverse('home',
@@ -2398,16 +2230,6 @@ def costume_changestate(request, bid_id):
 
 
 @log_func
-def act(request, act_id):
-    '''
-    Act detail view. Display depends on state of act and identity of viewer.
-    Not used. Remove?
-    '''
-    act = get_object_or_404(Act, pk=act_id)
-    return render(request, 'gbe/act.html', {'act': act})
-
-
-@log_func
 def profile(request, profile_id=None):
     '''
     Display a profile. Display depends on user. If own profile, show
@@ -2480,34 +2302,6 @@ def review_profiles(request):
              'text': "View Landing Page"}
         ]
         rows.append(bid_row)
-
-    return render(request, 'gbe/profile_review.tmpl',
-                  {'header': header, 'rows': rows})
-
-
-@login_required
-@log_func
-def review_user_commitments(request, profile_id):
-    # note: this function is broken. (header is not defined)
-    admin_profile = validate_perms(request, ('Registrar',
-                                             'Volunteer Coordinator',
-                                             'Act Coordinator',
-                                             'Conference Coordinator',
-                                             'Vendor Coordinator',
-                                             'Ticketing - Admin'))
-
-    user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
-    return render(request, 'gbe/profile_review.tmpl',
-                  {'header': header, 'rows': rows})
-
-
-@login_required
-@log_func
-def manage_user_tickets(request, profile_id):
-    # note: this function is broken. (header is not defined)
-    admin_profile = validate_perms(request, ('Registrar', 'Ticketing - Admin'))
-
-    user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
 
     return render(request, 'gbe/profile_review.tmpl',
                   {'header': header, 'rows': rows})
@@ -2777,42 +2571,6 @@ def review_proposal_list(request):
                    'conference_slugs': conference_slugs})
 
 
-@log_func
-def panel_create(request):
-    '''
-    View for creating a panel.  Boilerplate for now, more later.
-    '''
-    pass
-
-
-@log_func
-def panel_view(request, panel_id):
-    '''
-    View for viewing a panel.
-    Boilerplate.
-    '''
-    pass
-
-
-@log_func
-def panel_edit(request, panel_id):
-    '''
-    View for editing a panel.
-    Boilerplate.
-    '''
-    pass
-
-
-@log_func
-def panel_delete(request, panel_id):
-    '''
-    View to delete a panel.  Deleting only marks panel as deleted, does not
-    actually remove the data from the DB.
-    Boilerplate.
-    '''
-    pass
-
-
 @login_required
 @log_func
 def conference_volunteer(request):
@@ -2901,60 +2659,6 @@ def conference_volunteer(request):
 
 
 @log_func
-def ad_create(request):
-    '''
-    View to create an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_list(request):
-    '''
-    View to get a list of advertisements.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_edit(request, ad_id):
-    '''
-    View to edit or alter an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_view(request, ad_id):
-    '''
-    View an advertisement.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def ad_delete(request, ad_id):
-    '''
-    Delete an advertisement.  Deletion does not remove the ad from
-    the database, but marks it as deleted.
-    Boilerplate
-    '''
-    pass
-
-
-@log_func
-def bios_staff(request):
-    '''
-    Display the staff bios, pulled from their profiles.
-    '''
-    pass
-
-
-@log_func
 def bios_teachers(request):
     '''
     Display the teachers bios.  Teachers are anyone teaching,
@@ -2968,14 +2672,11 @@ def bios_teachers(request):
         conference = get_conference_by_slug(conf_slug)
     conferences = conference_list()
 
-    try:
-        performers = Performer.objects.all()
-        commits = ResourceAllocation.objects.all()
-        workers = Worker.objects.filter(Q(role="Teacher") |
-                                        Q(role="Moderator") |
-                                        Q(role="Panelist"))
-    except:
-        performers = []
+    performers = Performer.objects.all()
+    commits = ResourceAllocation.objects.all()
+    workers = Worker.objects.filter(Q(role="Teacher") |
+                                    Q(role="Moderator") |
+                                    Q(role="Panelist"))
     bios = []
 
     for performer in performers:
@@ -2995,41 +2696,6 @@ def bios_teachers(request):
                'conferences': conferences}
 
     return render(request, template, context)
-
-
-@log_func
-def bios_volunteer(request):
-    '''
-    Display the volunteer bios, pulled from their profiles.
-    '''
-    pass
-
-
-@log_func
-def special(request):
-    '''
-    Edit special privledges.
-    '''
-    pass
-
-
-@log_func
-def volunteer(request):
-    '''
-    Gateway to volunteering pages for users.  Either places
-    links to individual pages for panel, class, tech, etc
-    volunteering, or a more flexible widget to
-    deal with all type of volunteering.
-    '''
-    pass
-
-
-@log_func
-def costume_display(request):
-    '''
-    Costume Display.  May move this and a few other things into a separate app?
-    '''
-    pass
 
 
 @log_func
@@ -3097,8 +2763,7 @@ def edit_act_techinfo(request, act_id):
 
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != profile:
-        if not validate_perms(request, ('Tech Crew', )):
-            raise Http404
+        validate_perms(request, ('Tech Crew', ))
 
     audio_info = act.tech.audio
     stage_info = act.tech.stage

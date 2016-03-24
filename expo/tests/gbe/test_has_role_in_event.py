@@ -1,28 +1,24 @@
-from django.http import Http404
-from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
-from django.test import Client
 
 from tests.factories.gbe_factories import (
     ActFactory,
     ConferenceFactory,
-    GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
     ShowFactory
 )
 from tests.functions.scheduler_functions import (
     book_act_item_for_show,
-    book_worker_item_for_role)
+    book_worker_item_for_role,
+)
 
 
 class TestHasRoleInEvent(TestCase):
     '''Tests that a profile will return all the possible roles'''
 
     def setUp(self):
-        self.persona = PersonaFactory.create()
+        self.persona = PersonaFactory()
         self.role = "Teacher"
         self.booking = book_worker_item_for_role(self.persona,
                                                  self.role)
@@ -31,7 +27,7 @@ class TestHasRoleInEvent(TestCase):
         '''
            Simplest user - just has a profile, doesn't have any booking
         '''
-        profile = ProfileFactory.create()
+        profile = ProfileFactory()
         result = profile.has_role_in_event(self.role,
                                            self.booking.event.eventitem)
         nt.assert_false(result)
@@ -40,7 +36,7 @@ class TestHasRoleInEvent(TestCase):
         '''
             Submitted an act, didn't make it to a show
         '''
-        act = ActFactory.create()
+        act = ActFactory()
         profile = act.performer.performer_profile
         result = profile.has_role_in_event("Performer",
                                            self.booking)
@@ -50,8 +46,8 @@ class TestHasRoleInEvent(TestCase):
         '''
            has the role of performer from being booked in a show
         '''
-        act = ActFactory.create(accepted=3)
-        show = ShowFactory.create()
+        act = ActFactory(accepted=3)
+        show = ShowFactory()
         booking = book_act_item_for_show(
             act,
             show)
@@ -64,7 +60,7 @@ class TestHasRoleInEvent(TestCase):
         '''
            has the role of a teacher, persona is booked for a class
         '''
-        persona = PersonaFactory.create()
+        persona = PersonaFactory()
         booking = book_worker_item_for_role(
             persona,
             "Teacher")

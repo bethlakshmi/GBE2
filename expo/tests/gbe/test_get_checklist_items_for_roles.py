@@ -21,8 +21,8 @@ class TestGetCheckListForRoles(TestCase):
     '''Tests that checklists are built based on roles'''
 
     def setUp(self):
-        self.role_condition = RoleEligibilityConditionFactory.create()
-        self.teacher = PersonaFactory.create()
+        self.role_condition = RoleEligibilityConditionFactory()
+        self.teacher = PersonaFactory()
         booking = book_worker_item_for_role(self.teacher,
                                             self.role_condition.role)
         self.conference = booking.event.eventitem.get_conference()
@@ -31,7 +31,7 @@ class TestGetCheckListForRoles(TestCase):
         '''
             purchaser has no roles
         '''
-        no_match_profile = ProfileFactory.create()
+        no_match_profile = ProfileFactory()
 
         checklist_items = get_checklist_items_for_roles(
             no_match_profile,
@@ -46,7 +46,7 @@ class TestGetCheckListForRoles(TestCase):
         '''
         checklist_items = get_checklist_items_for_roles(
             self.teacher.performer_profile,
-            ConferenceFactory.create(),
+            ConferenceFactory(),
             [])
 
         nt.assert_equal(len(checklist_items), 0)
@@ -70,13 +70,13 @@ class TestGetCheckListForRoles(TestCase):
         '''
             profile meets 2 role conditions
         '''
-        another_role = RoleEligibilityConditionFactory.create(
+        another_role = RoleEligibilityConditionFactory(
             role="Staff Lead")
 
         booking = book_worker_item_for_role(
             self.teacher.performer_profile,
             another_role.role,
-            GenericEventFactory.create(
+            GenericEventFactory(
                 conference=self.conference)
             )
 
@@ -101,7 +101,7 @@ class TestGetCheckListForRoles(TestCase):
             two conditions match this circumstance
         '''
 
-        another_match = RoleEligibilityConditionFactory.create()
+        another_match = RoleEligibilityConditionFactory()
 
         checklist_items = get_checklist_items_for_roles(
             self.teacher.performer_profile,
@@ -120,14 +120,14 @@ class TestGetCheckListForRoles(TestCase):
             a condition matches this circumstance, but is excluded
         '''
 
-        exclusion = NoEventRoleExclusionFactory.create(
+        exclusion = NoEventRoleExclusionFactory(
             condition=self.role_condition,
             role="Staff Lead")
 
         booking = book_worker_item_for_role(
             self.teacher.performer_profile,
             exclusion.role,
-            GenericEventFactory.create(
+            GenericEventFactory(
                 conference=self.conference)
             )
 
