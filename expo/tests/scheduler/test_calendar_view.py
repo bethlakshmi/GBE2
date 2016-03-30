@@ -65,5 +65,4 @@ def test_no_conference_days():
                           'day': 'Sunday'})
     client = Client()
     response = client.get(url)
-    import pdb; pdb.set_trace()
     nt.assert_true('Event Calendar' in response.content)

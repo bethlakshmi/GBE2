@@ -1,10 +1,23 @@
 from django.conf.urls import (
     patterns,
     url,
-    include
+    include,
 )
 from django.contrib.auth.views import *
-from gbe import views
+import gbe.remains as views
+from gbe.views import (
+    LandingPageView,
+    RegisterPersonaView,
+    EditTroupeView,
+    CreateComboView,
+    EditPersonaView,
+    BidActView,
+    ViewTroupeView,
+    CloneBidView,
+    EditActView,
+    ViewActView,
+    ReviewActView,
+)
 
 # NOTE: in general, url patterns should end with '/?$'. This
 # means "match the preceding patter, plus an optional final '?',
@@ -16,8 +29,7 @@ urlpatterns = patterns(
     '',
     #  landing page
     url(r'^gbe/?',
-        views.landing_page,
-        name='home'),
+        LandingPageView, name='home'),
 
     #  profile
     url(r'^profile/?$',
@@ -33,13 +45,13 @@ urlpatterns = patterns(
 
     #  acts
     url(r'^act/create/?$',
-        views.bid_act, name='act_create'),
+        BidActView, name='act_create'),
     url(r'^act/edit/(\d+)/?$',
-        views.edit_act, name='act_edit'),
+        EditActView, name='act_edit'),
     url(r'^act/view/(\d+)/?$',
         views.view_act, name='act_view'),
     url(r'^act/review/(\d+)/?$',
-        views.review_act, name='act_review'),
+        ReviewActView, name='act_review'),
     url(r'^act/review/?$',
         views.review_act_list, name='act_review'),
     url(r'^act/reviewlist/?$',
@@ -94,17 +106,17 @@ urlpatterns = patterns(
 
     #  personae
     url(r'^performer/create/?$',
-        views.register_persona, name='persona_create'),
+        RegisterPersonaView, name='persona_create'),
     url(r'^persona/edit/(\d+)/?$',
-        views.edit_persona, name='persona_edit'),
+        EditPersonaView, name='persona_edit'),
     url(r'^troupe/create/?$',
-        views.edit_troupe, name='troupe_create'),
+        EditTroupeView, name='troupe_create'),
     url(r'^troupe/edit/(\d+)/?$',
-        views.edit_troupe, name='troupe_edit'),
+        EditTroupeView, name='troupe_edit'),
     url(r'^troupe/view/(\d+)/?$',
-        views.view_troupe, name='troupe_view'),
+        ViewTroupeView, name='troupe_view'),
     url(r'^combo/create/?$',
-        views.create_combo, name='combo_create'),
+        CreateComboView, name='combo_create'),
 
     #  volunteers
     url(r'^volunteer/bid/?$',
@@ -165,7 +177,7 @@ urlpatterns = patterns(
         name='costume_changestate'),
 
     url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',
-        views.clone_bid,
+        CloneBidView,
         name='clone_bid'),
 
     #  miscellaneous URLs
@@ -217,6 +229,6 @@ urlpatterns = patterns(
         views.admin_profile,
         name='admin_profile'),
     url(r'^profile/landing_page/(\d+)/?$',
-        views.landing_page,
+        LandingPageView,
         name='admin_landing_page')
 )
