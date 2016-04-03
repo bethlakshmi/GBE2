@@ -10,8 +10,52 @@ from edit_persona_view import EditPersonaView
 from clone_bid_view import CloneBidView
 from edit_act_view import EditActView
 from view_act_view import ViewActView
-
-
 from review_act_view import ReviewActView
+from review_act_list_view import ReviewActListView
+
+from bid_changestate_view import BidChangeStateView
+from act_changestate_view import ActChangeStateView
+from class_changestate_view import ClassChangeStateView
+from volunteer_changestate_view import VolunteerChangeStateView
+from vendor_changestate_view import VendorChangeStateView
+from costume_changestate_view import CostumeChangeStateView
+from submit_act_view import SubmitActView
+from bid_class_view import BidClassView
+from edit_class_view import EditClassView
+from view_class_view import ViewClassView
+from review_class_view import ReviewClassView
+from register_view import RegisterView
+from create_volunteer_view import CreateVolunteerView
+from review_volunteer_view import ReviewVolunteerView
+from assign_volunteer_view import AssignVolunteerView
+from view_volunteer_view import ViewVolunteerView
+from view_costume_view import ViewCostumeView
+from review_volunteer_list_view import ReviewVolunteerListView
+from edit_volunteer_view import EditVolunteerView
+from review_vendor_view import ReviewVendorView
+from review_vendor_list_view import ReviewVendorListView
+from create_vendor_view import CreateVendorView
+from edit_vendor_view import EditVendorView
+from view_vendor_view import ViewVendorView
+from edit_vendor_view import EditVendorView
+from bid_costume_view import BidCostumeView
+from edit_costume_view import EditCostumeView
+from review_class_list_view import ReviewClassListView
+from review_costume_list_view import ReviewCostumeListView
+from admin_profile_view import AdminProfileView
+from update_profile_view import UpdateProfileView
+from logout_view import LogoutView
+from propose_class_view import ProposeClassView
+from publish_proposal_view import PublishProposalView
+from review_proposal_list_view import ReviewProposalListView
+from conference_volunteer_view import ConferenceVolunteerView
+from bios_teachers_view import BiosTeachersView
+from fashion_faire_view import FashionFaireView
+from edit_act_techinfo_view import EditActTechInfoView
+from create_event_view import CreateEventView
+from handle_user_contact_email_view import HandleUserContactEmailView
+from profile_view import ProfileView
+from review_profiles_view import ReviewProfilesView
+from review_costume_view import ReviewCostumeView
 #untested
 from create_combo_view import CreateComboView

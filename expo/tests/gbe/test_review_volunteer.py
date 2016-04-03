@@ -2,7 +2,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_volunteer
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     GenericEventFactory,
@@ -18,6 +18,7 @@ from tests.functions.gbe_functions import (
 
 class TestReviewVolunteer(TestCase):
     '''Tests for review_volunteer view'''
+    view_name = 'volunteer_review'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -29,10 +30,10 @@ class TestReviewVolunteer(TestCase):
 
     def test_review_volunteer_all_well(self):
         volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/review/%d' % volunteer.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer(request, volunteer.pk)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)

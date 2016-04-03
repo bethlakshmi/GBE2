@@ -2,7 +2,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_volunteer_list
+from django.core.urlresolvers import reverseo
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     GenericEventFactory,
@@ -30,6 +30,7 @@ from scheduler.models import (
 
 class TestReviewVolunteerList(TestCase):
     '''Tests for review_volunteer_list view'''
+    view_name = 'volunteer_review_list'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -51,11 +52,10 @@ class TestReviewVolunteerList(TestCase):
 
     def test_review_volunteer_all_well(self):
         '''default conference selected, make sure it returns the right page'''
-        request = self.factory.get('volunteer/review/')
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -64,6 +64,7 @@ class TestReviewVolunteerList(TestCase):
         ''' when a specific conf has specific bids, check bid details'''
         volunteer = VolunteerFactory(
             submitted=True)
+
         volunteer.profile.user_object.email = "review_vol@testemail.com"
         volunteer.profile.user_object.save()
         prefs = ProfilePreferencesFactory(
@@ -72,12 +73,13 @@ class TestReviewVolunteerList(TestCase):
             inform_about=True,
             show_hotel_infobox=True)
 
-        request = self.factory.get('volunteer/review/?conf_slug=%s' %
-                                   self.volunteer.conference.conference_slug)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
+
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -96,12 +98,12 @@ class TestReviewVolunteerList(TestCase):
         grant_privilege(coord_profile, 'Volunteer Reviewers')
         grant_privilege(coord_profile, 'Volunteer Coordinator')
 
-        request = self.factory.get('volunteer/review/?conf_slug=%s' %
-                                   self.volunteer.conference.conference_slug)
-        request.user = coord_profile.user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(coord_profile, self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -135,13 +137,12 @@ class TestReviewVolunteerList(TestCase):
             event=booked_sched,
             resource=worker
         )
-
-        request = self.factory.get('volunteer/review/?conf_slug=%s' %
-                                   self.volunteer.conference.conference_slug)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -183,13 +184,12 @@ class TestReviewVolunteerList(TestCase):
             event=booked_sched,
             resource=worker
         )
-
-        request = self.factory.get('volunteer/review/?conf_slug=%s' %
-                                   self.volunteer.conference.conference_slug)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -197,20 +197,23 @@ class TestReviewVolunteerList(TestCase):
                         msg="The commitment %s is showing up" % (
                             str(past_opportunity)))
 
-    @nt.raises(PermissionDenied)
+
     def test_review_volunteer_bad_user(self):
         ''' user does not have the right privilege and permission is denied'''
-        request = self.factory.get('volunteer/review/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
+        nt.assert_equal(response.status_code, 403)
 
-    @nt.raises(PermissionDenied)
     def test_review_volunteer_no_profile(self):
         ''' user does not have a profile, gets permission denied'''
-        request = self.factory.get('volunteer/review/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_volunteer_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(
+            url,
+            {'conf_slug':self.volunteer.conference.conference_slug})
+        nt.assert_equal(response.status_code, 403)

@@ -3,17 +3,21 @@ from django.core.exceptions import PermissionDenied
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import view_volunteer
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     VolunteerFactory
 )
-from tests.functions.gbe_functions import current_conference
+from tests.functions.gbe_functions import (
+    current_conference,
+    login_as,
+)
 
 
 class TestViewVolunteer(TestCase):
     '''Tests for view_volunteer view'''
+    view_name = 'volunteer_view'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -23,21 +27,24 @@ class TestViewVolunteer(TestCase):
 
     def test_view_act_all_well(self):
         volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/view/%d' % volunteer.pk)
-        request.user = volunteer.profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_volunteer(request, volunteer.pk)
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+
+        login_as(volunteer.profile, self)
+        response = self.client.get(url)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_view_act_wrong_profile(self):
         volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/view/%d' % volunteer.pk)
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_volunteer(request, volunteer.pk)
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
         test_string = 'Submitted proposals cannot be modified'
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true(test_string in response.content)
+        nt.assert_equal(response.status_code, 403)
+#        nt.assert_true(test_string in response.content)

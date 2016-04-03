@@ -1,21 +1,25 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import admin_profile
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ProfilePreferencesFactory,
     PersonaFactory,
     ProfileFactory,
 )
-from tests.functions.gbe_functions import grant_privilege
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
+from gbe.models import Profile
 
 
 class TestAdminProfile(TestCase):
     '''Tests for admin_profile  view'''
+    view_name = 'admin_profile'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -24,17 +28,23 @@ class TestAdminProfile(TestCase):
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Registrar')
 
-    @nt.raises(Http404)
     def test_admin_profile_no_such_profile(self):
-        request = self.factory.get('profile/admin/%d' % -1)
-        request.user = self.privileged_user
-        response = admin_profile(request, -1)
+        no_such_id = Profile.objects.latest('pk').pk + 1
+        url = reverse(self.view_name,
+                      args=[no_such_id],
+                      urlconf="gbe.urls")
+        login_as(self.privileged_user,self)
+        response = self.client.get(url)
+        nt.assert_equal(404, response.status_code)
 
-    def test_get(self):
-        profile = self.performer.contact
-        ProfilePreferencesFactory(profile=profile)
-        request = self.factory.get('profile/admin/%d' % profile.pk)
-        request.session = {'cms_admin_site': 1}
-        request.user = self.privileged_user
-        # response = admin_profile(request, profile.pk)
-        # nt.assert_true(profile.display_name in response.content)
+    # def test_get(self):
+    #     profile = self.performer.contact
+    #     ProfilePreferencesFactory(profile=profile)
+
+    #     url = reverse(self.view_name,
+    #                   args=[profile.pk],
+    #                   urlconf="gbe.urls")
+    #     login_as(self.privileged_user,self)
+    #     response = self.client.get(url)
+
+    #     nt.assert_equal(200, response.status_code)

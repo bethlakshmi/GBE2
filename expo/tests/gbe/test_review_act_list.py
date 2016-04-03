@@ -1,8 +1,8 @@
 import nose.tools as nt
 from unittest import TestCase
+from django.core.urlresolvers import reverse
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_act_list
 from tests.factories.gbe_factories import (
     ActFactory,
     ConferenceFactory,
@@ -21,6 +21,7 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewActList(TestCase):
     '''Tests for review_act_list view'''
+    view_name = 'act_review'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -34,29 +35,26 @@ class TestReviewActList(TestCase):
                                 conference=self.conference,
                                 submitted=True)
 
-    def test_review_act_all_well(self):
-        request = self.factory.get(
-            'act/review/',
+    def test_review_act_list_all_well(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
             data={'conf_slug': self.conference.conference_slug})
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_act_list(request)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_act_bad_user(self):
-        request = self.factory.get('act/review/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_act_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
     def test_review_act_no_profile(self):
-        request = self.factory.get('act/review/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_act_list(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)

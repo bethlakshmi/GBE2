@@ -4,7 +4,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_vendor_list
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     VendorFactory,
     ConferenceFactory,
@@ -23,6 +23,7 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewVendorList(TestCase):
     '''Tests for review_vendor_list view'''
+    view_name = 'vendor_review_list'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -37,28 +38,24 @@ class TestReviewVendorList(TestCase):
                                    submitted=True)
 
     def test_review_vendor_all_well(self):
-        request = self.factory.get(
-            'vendor/review/',
-            data={'conf_slug': self.conference.conference_slug})
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor_list(request)
+        url = reverse('vendor_review',
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_vendor_bad_user(self):
-        request = self.factory.get('vendor/review/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor_list(request)
+        url = reverse('vendor_review',
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
     def test_review_vendor_no_profile(self):
-        request = self.factory.get('vendor/review/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_vendor_list(request)
+        url = reverse('vendor_review',
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)

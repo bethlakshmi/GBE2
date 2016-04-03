@@ -4,7 +4,6 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import edit_vendor
 from tests.factories.gbe_factories import (
     ProfileFactory,
     UserFactory,
@@ -18,6 +17,7 @@ from tests.functions.gbe_functions import (
 
 class TestEditVendor(TestCase):
     '''Tests for edit_vendor view'''
+    view_name = "vendor_edit"
 
     # this test case should be unnecessary, since edit_vendor should go away
     # for now, test it.
@@ -39,18 +39,19 @@ class TestEditVendor(TestCase):
             del(form['thebiz-description'])
         return form
 
-    @nt.raises(Http404)
     def test_edit_vendor_no_vendor(self):
         '''Should get 404 if no valid vendor ID'''
-        profile = ProfileFactory()
-        request = self.factory.get('/vendor/edit/-1')
-        request.user = profile.user_object
-        response = edit_vendor(request, -1)
+        url = reverse(self.view_name,
+                      args=[0],
+                      urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(404, response.status_code)
 
     def test_edit_vendor_no_profile(self):
         vendor = VendorFactory()
         login_as(UserFactory(), self)
-        url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         response = self.client.get(url)
         nt.assert_equal(302, response.status_code)
         nt.assert_equal(location(response), 'http://testserver/profile')
@@ -58,22 +59,14 @@ class TestEditVendor(TestCase):
     def test_edit_vendor_wrong_user(self):
         vendor = VendorFactory()
         login_as(ProfileFactory(), self)
-        url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         response = self.client.get(url)
         nt.assert_equal(404, response.status_code)
-
-    @nt.raises(Http404)
-    def test_edit_vendor_profile_is_not_coordinator(self):
-        user = ProfileFactory().user_object
-        vendor = VendorFactory()
-        request = self.factory.get('/vendor/edit/%d' % vendor.pk)
-        request.user = user
-        response = edit_vendor(request, vendor.pk)
 
     def test_vendor_edit_post_form_not_valid(self):
         vendor = VendorFactory()
         login_as(vendor.profile, self)
-        url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         data = self.get_vendor_form(invalid=True)
         response = self.client.post(url, data)
         nt.assert_equal(response.status_code, 200)
@@ -82,7 +75,7 @@ class TestEditVendor(TestCase):
     def test_vendor_edit_post_form_valid(self):
         vendor = VendorFactory()
         login_as(vendor.profile, self)
-        url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         data = self.get_vendor_form()
         data['thebiz-profile'] = vendor.profile.pk
         response = self.client.post(url, data, follow=True)
@@ -92,7 +85,7 @@ class TestEditVendor(TestCase):
     def test_vendor_edit_post_form_valid_submit(self):
         vendor = VendorFactory()
         login_as(vendor.profile, self)
-        url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         data = self.get_vendor_form(submit=True)
         data['thebiz-profile'] = vendor.profile.pk
         response = self.client.post(url, data, follow=True)
@@ -103,7 +96,7 @@ class TestEditVendor(TestCase):
     #     '''edit_bid, not post, should take us to edit process'''
     #     vendor = VendorFactory()
     #     login_as(vendor.profile, self)
-    #     url = reverse('vendor_edit', urlconf='gbe.urls', args=[vendor.pk])
+    #     url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
     #     response = self.client.get(url)
     #     nt.assert_equal(response.status_code, 200)
     #     nt.assert_true('Edit Your Vendor Proposal' in response.content)

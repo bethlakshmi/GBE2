@@ -2,7 +2,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import create_volunteer
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
@@ -11,11 +11,13 @@ from tests.factories.gbe_factories import (
     UserFactory,
     VolunteerWindowFactory,
 )
+from tests.functions.gbe_functions import login_as
 from gbe.models import Conference
 
 
 class TestCreateVolunteer(TestCase):
     '''Tests for create_volunteer view'''
+    view_name = 'volunteer_create'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -40,38 +42,39 @@ class TestCreateVolunteer(TestCase):
         return form
 
     def test_create_volunteer_no_profile(self):
-        request = self.factory.get('volunteer/bid/')
-        request.user = UserFactory()
-        response = create_volunteer(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_no_profile(self):
-        request = self.factory.post('volunteer/bid/')
-        request.user = UserFactory()
-        request.POST = self.get_volunteer_form()
-        response = create_volunteer(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data)
         nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_valid_form(self):
-        request = self.factory.post('volunteer/bid/')
-        request.user = ProfileFactory().user_object
-        request.POST = self.get_volunteer_form()
-        request.session = {'cms_admin_site': 1}
-        response = create_volunteer(request)
-        # broken test: cannot create valid form
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_form_invalid(self):
-        request = self.factory.get('volunteer/bid/')
-        request.method = 'POST'
-        request.user = ProfileFactory().user_object
-        request.POST = self.get_volunteer_form(invalid=True)
-        request.session = {'cms_admin_site': 1}
-        response = create_volunteer(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        data = self.get_volunteer_form(invalid=True)
+        response = self.client.post(url, data=data)
         nt.assert_equal(response.status_code, 200)
 
     def test_create_volunteer_no_post(self):
-        request = self.factory.get('volunteer/bid/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        response = create_volunteer(request)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)

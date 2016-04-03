@@ -11,7 +11,6 @@ from gbe.functions import validate_profile
 @login_required
 @log_func
 def RegisterPersonaView(request, **kwargs):
-    import pdb; pdb.set_trace()
     page_title = 'Stage Persona'
     view_title = 'Tell Us About Your Stage Persona'
     submit_button = 'Save Persona'

@@ -2,7 +2,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_proposal_list
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ClassProposalFactory,
     ProfileFactory,
@@ -17,6 +17,7 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewProposalList(TestCase):
     '''Tests for review_proposal_list view'''
+    view_name='proposal_review_list'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -32,27 +33,21 @@ class TestReviewProposalList(TestCase):
 
     def test_review_proposal_list_authorized_user(self):
         proposal = ClassProposalFactory()
-        request = self.factory.get('classpropose/reviewlist/')
-        request.session = {'cms_admin_site': 1}
-        request.user = self.privileged_user
-        response = review_proposal_list(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_review_proposal_list_bad_user(self):
         proposal = ClassProposalFactory()
-        request = self.factory.get('classpropose/reviewlist/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        response = review_proposal_list(request)
-        nt.assert_equal(response.status_code, 200)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 403)
 
-    @nt.raises(PermissionDenied)
     def test_review_proposal_list_no_user(self):
         proposal = ClassProposalFactory()
-        request = self.factory.get('classpropose/reviewlist/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_proposal_list(request)
-        nt.assert_equal(response.status_code, 302)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 403)

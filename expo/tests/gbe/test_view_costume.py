@@ -2,11 +2,13 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import view_costume
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import CostumeFactory
-
+from tests.functions.gbe_functions import login_as
 
 class TestViewCostume(TestCase):
+    view_name = "costume_view"
+
     '''Tests for view_costume view'''
     def setUp(self):
         self.factory = RequestFactory()
@@ -16,8 +18,7 @@ class TestViewCostume(TestCase):
         '''view_costume view, success
         '''
         costume = CostumeFactory()
-        request = self.factory.get('/costume/view/%d' % costume.pk)
-        request.user = costume.profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_costume(request, costume.pk)
+        url = reverse(self.view_name, urlconf="gbe.urls", args=[costume.pk])
+        login_as(costume.profile, self)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

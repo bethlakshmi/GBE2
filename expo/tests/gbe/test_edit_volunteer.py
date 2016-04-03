@@ -4,7 +4,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import edit_volunteer
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
@@ -18,6 +18,7 @@ from tests.functions.gbe_functions import (
 
 class TestEditVolunteer(TestCase):
     '''Tests for edit_volunteer view'''
+    view_name = 'volunteer_edit'
 
     # this test case should be unnecessary, since edit_volunteer should go away
     # for now, test it.
@@ -30,7 +31,7 @@ class TestEditVolunteer(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
-    def get_volunteer_form(self, submit=False, invalid=False):
+    def get_form(self, submit=False, invalid=False):
         form = {'profile': 1,
                 'number_shifts': 2,
                 'availability': ('SH0',),
@@ -42,20 +43,24 @@ class TestEditVolunteer(TestCase):
             del(form['number_shifts'])
         return form
 
-    @nt.raises(PermissionDenied)
     def test_edit_volunteer_no_volunteer(self):
-        profile = ProfileFactory()
-        request = self.factory.get('/volunteer/edit/-1')
-        request.user = profile.user_object
-        response = edit_volunteer(request, -1)
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[0])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
+
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = ProfileFactory().user_object
         volunteer = VolunteerFactory()
-        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-        request.user = user
-        response = edit_volunteer(request, volunteer.pk)
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -67,7 +72,7 @@ class TestEditVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(
             url,
-            self.get_volunteer_form(invalid=True))
+            self.get_form(invalid=True))
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Volunteer Bid' in response.content)

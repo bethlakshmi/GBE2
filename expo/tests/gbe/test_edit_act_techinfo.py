@@ -26,6 +26,7 @@ from scheduler.models import (
 
 class TestEditActTechInfo(TestCase):
     '''Tests for edit_act_techinfo view'''
+    view_name='act_techinfo_edit'
 
     def setUp(self):
         self.factory = RequestFactory()

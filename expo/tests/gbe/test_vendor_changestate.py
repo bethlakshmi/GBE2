@@ -2,17 +2,21 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import vendor_changestate
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     VendorFactory,
     ProfileFactory
 )
 from django.core.exceptions import PermissionDenied
-from tests.functions.gbe_functions import grant_privilege
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 
 class TestVendorChangestate(TestCase):
     '''Tests for vendor_changestate view'''
+    view_name = 'vendor_changestate'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -23,14 +27,18 @@ class TestVendorChangestate(TestCase):
 
     def test_vendor_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
-        request = self.factory.get('vendor/changestate/%d' % self.vendor.pk)
-        request.user = self.privileged_user
-        response = vendor_changestate(request, self.vendor.pk)
+        url = reverse(self.view_name,
+                      args=[self.vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
-    @nt.raises(PermissionDenied)
     def test_vendor_changestate_unauthorized_user(self):
         '''A regular user is changing the state, it fails'''
-        request = self.factory.get('vendor/changestate/%d' % self.vendor.pk)
-        request.user = ProfileFactory().user_object
-        response = vendor_changestate(request, self.vendor.pk)
+        url = reverse(self.view_name,
+                      args=[self.vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 403)
