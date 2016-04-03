@@ -1,15 +1,27 @@
 from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
-from gbe.functions import validate_perms
+from gbe.functions import (
+    validate_perms,
+    get_conf,
+)
 from gbe.models import (
     BidEvaluation,
     Conference,
 )
 from gbe.forms import (
+    BidEvaluationForm,
     BidStateChangeForm,
+    ParticipantForm,
     VolunteerBidForm,
 )
+from gbe.models import Volunteer
+
 
 
 @login_required
