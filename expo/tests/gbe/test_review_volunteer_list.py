@@ -2,7 +2,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from django.core.urlresolvers import reverseo
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     GenericEventFactory,

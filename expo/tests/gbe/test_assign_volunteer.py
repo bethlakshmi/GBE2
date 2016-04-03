@@ -60,13 +60,6 @@ class TestAssignVolunteer(TestCase):
         response = self.client.get(url)
         nt.assert_equal(403, response.status_code)
 
-    def test_assign_volunteer_no_events(self):
-        ''' assign a volunteer when there are no opportunities'''
-        volunteer = VolunteerFactory()
-
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Assign Volunteer to Opportunities' in response.content)
-
     def test_assign_volunteer_show_current_events(self):
         '''only current conference events, and windows should be shown'''
         # horrible setup process. Need to fix
