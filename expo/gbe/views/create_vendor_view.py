@@ -15,6 +15,7 @@ from gbe.ticketing_idd_interface import (
     verify_vendor_app_paid,
 )
 
+
 @login_required
 @log_func
 def CreateVendorView(request):

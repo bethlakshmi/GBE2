@@ -12,6 +12,8 @@ from gbe.forms import (
 )
 from gbe.functions import validate_perms
 from gbe.models import Profile
+
+
 @login_required
 @log_func
 def AdminProfileView(request, profile_id):

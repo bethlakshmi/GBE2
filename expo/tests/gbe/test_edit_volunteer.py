@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -24,7 +23,6 @@ class TestEditVolunteer(TestCase):
     # for now, test it.
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -50,7 +48,6 @@ class TestEditVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(403, response.status_code)
-
 
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = ProfileFactory().user_object

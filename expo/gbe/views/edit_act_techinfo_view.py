@@ -33,6 +33,7 @@ from gbe.forms import (
 )
 from scheduler.models import Event as sEvent
 
+
 @login_required
 @log_func
 def EditActTechInfoView(request, act_id):

@@ -22,6 +22,7 @@ from datetime import (
     date,
 )
 
+
 def schedule_show(show):
     sEvent = SchedEventFactory.create(
         eventitem=show.eventitem_ptr,
@@ -31,17 +32,18 @@ def schedule_show(show):
     ResourceAllocationFactory.create(event=sEvent,
                                      resource=location)
 
+
 def test_calendar_view_shows_current_conf_by_default():
     Conference.objects.all().delete()
     current_conference = ConferenceFactory()
     other_conference = ConferenceFactory(
         status='completed')
     current_conf_day = ConferenceDayFactory(
-        conference = current_conference,
-        day = date(2016, 02, 06))
+        conference=current_conference,
+        day=date(2016, 02, 06))
     other_conf_day = ConferenceDayFactory(
-        conference = other_conference,
-        day = date(2015, 02, 06))
+        conference=other_conference,
+        day=date(2015, 02, 06))
 
     show = ShowFactory.create(conference=current_conference)
     other_show = ShowFactory.create(conference=other_conference)
@@ -55,6 +57,7 @@ def test_calendar_view_shows_current_conf_by_default():
     response = calendar_view(request)
     nt.assert_true(show.title in response.content)
     nt.assert_false(other_show.title in response.content)
+
 
 def test_no_conference_days():
     Conference.objects.all().delete()

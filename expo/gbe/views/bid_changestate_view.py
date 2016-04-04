@@ -10,6 +10,7 @@ from expo.gbe_logging import log_func
 from gbe.models import Biddable
 from gbe.forms import BidStateChangeForm
 
+
 @login_required
 @log_func
 def BidChangeStateView(request, bid_id, redirectURL):

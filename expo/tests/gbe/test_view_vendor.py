@@ -1,7 +1,5 @@
-from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -17,10 +15,9 @@ from tests.functions.gbe_functions import (
 
 class TestViewVendor(TestCase):
     '''Tests for view_vendor view'''
-    view_name='vendor_view'
+    view_name = 'vendor_view'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 

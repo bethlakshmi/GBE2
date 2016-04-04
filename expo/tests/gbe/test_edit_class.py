@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -19,7 +18,6 @@ class TestEditClass(TestCase):
     view_name = 'class_edit'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.teacher = PersonaFactory()
@@ -47,7 +45,6 @@ class TestEditClass(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(404, response.status_code)
-
 
     def test_edit_class_profile_is_not_contact(self):
         klass = ClassFactory()

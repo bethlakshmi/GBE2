@@ -1,9 +1,7 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
 from tests.factories.gbe_factories import (
     ClassFactory,
     ProfileFactory
@@ -19,7 +17,6 @@ class TestClassChangestate(TestCase):
     view_name = 'class_changestate'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.klass = ClassFactory()
         self.privileged_user = ProfileFactory().user_object
@@ -33,7 +30,6 @@ class TestClassChangestate(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
-
 
     def test_class_changestate_unauthorized_user(self):
         '''A regular user is changing the state, it fails'''

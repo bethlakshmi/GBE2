@@ -14,6 +14,7 @@ from gbe.forms import (
 from gbe.functions import validate_profile
 from gbe.models import Troupe
 
+
 @login_required
 @log_func
 def ViewTroupeView(request, troupe_id=None):

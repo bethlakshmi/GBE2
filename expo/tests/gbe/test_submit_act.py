@@ -1,9 +1,5 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -13,12 +9,12 @@ from tests.factories.gbe_factories import (
 from gbe.models import Act
 from tests.functions.gbe_functions import login_as
 
+
 class TestSubmitAct(TestCase):
     '''Tests for submit_act view'''
     view_name = 'act_submit'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
 
     def test_submit_act(self):

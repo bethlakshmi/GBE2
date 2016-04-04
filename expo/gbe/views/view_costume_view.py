@@ -11,6 +11,7 @@ from gbe.forms import (
 )
 from gbe.models import Costume
 
+
 @login_required
 @log_func
 def ViewCostumeView(request, costume_id):

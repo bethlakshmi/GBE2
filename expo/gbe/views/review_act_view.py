@@ -25,6 +25,7 @@ from gbe.functions import (
     validate_perms,
 )
 
+
 @login_required
 @log_func
 def ReviewActView(request, act_id):

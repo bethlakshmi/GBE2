@@ -12,7 +12,6 @@ from gbe.functions import validate_perms
 from gbe.models import Volunteer
 
 
-
 @login_required
 @log_func
 def VolunteerChangeStateView(request, bid_id):

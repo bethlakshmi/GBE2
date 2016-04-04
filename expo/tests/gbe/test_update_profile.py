@@ -1,11 +1,8 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
-    PersonaFactory,
-    ProfileFactory,
     ProfilePreferencesFactory,
     UserFactory,
 )
@@ -14,14 +11,14 @@ from tests.functions.gbe_functions import login_as
 
 class TestUpdateProfile(TestCase):
     '''Tests for update_profile  view'''
-    view_name='profile_update'
+    view_name = 'profile_update'
 
     def setUp(self):
         self.client = Client()
         self.counter = 0
 
     def get_form(self, invalid=False):
-        self.counter +=1
+        self.counter += 1
         email = "new%d@last.com" % self.counter
         data = {'first_name': 'new first',
                 'last_name': 'new last',
@@ -61,8 +58,8 @@ class TestUpdateProfile(TestCase):
         data = self.get_form()
         response = self.client.post(url, data=data, follow=True)
         nt.assert_true("Your Account" in response.content)
-        nt.assert_true(('http://testserver/gbe', 302) in response.redirect_chain)
-
+        nt.assert_true(('http://testserver/gbe', 302)
+                       in response.redirect_chain)
 
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile

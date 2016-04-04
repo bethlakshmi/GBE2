@@ -1,9 +1,6 @@
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -26,10 +23,9 @@ from scheduler.models import (
 
 class TestEditActTechInfo(TestCase):
     '''Tests for edit_act_techinfo view'''
-    view_name='act_techinfo_edit'
+    view_name = 'act_techinfo_edit'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 

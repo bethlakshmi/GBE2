@@ -1,8 +1,6 @@
-from django.http import Http404
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -21,11 +19,9 @@ class TestEditAct(TestCase):
 
     # this test case should be unnecessary, since edit_act should go away
     # for now, test it.
-
     view_name = 'act_edit'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -52,7 +48,6 @@ class TestEditAct(TestCase):
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 404)
 
-
     def test_edit_act_profile_is_not_contact(self):
         user = ProfileFactory().user_object
         act = ActFactory()
@@ -72,7 +67,8 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(user, self)
         response = self.client.get(url, follow=True)
-        nt.assert_true(('http://testserver/profile', 302) in response.redirect_chain)
+        nt.assert_true(('http://testserver/profile', 302)
+                       in response.redirect_chain)
 
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''

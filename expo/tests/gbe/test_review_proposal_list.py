@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -17,10 +16,9 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewProposalList(TestCase):
     '''Tests for review_proposal_list view'''
-    view_name='proposal_review_list'
+    view_name = 'proposal_review_list'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Class Coordinator')

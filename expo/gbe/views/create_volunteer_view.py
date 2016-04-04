@@ -7,7 +7,6 @@ from django.template import (
 )
 from django.shortcuts import render
 
-
 from expo.gbe_logging import log_func
 from gbe.forms import VolunteerBidForm
 from gbe.models import Conference
@@ -15,6 +14,7 @@ from gbe.functions import (
     mail_to_group,
     validate_profile,
 )
+
 
 @login_required
 @log_func

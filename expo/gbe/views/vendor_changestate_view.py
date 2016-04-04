@@ -5,7 +5,6 @@ from gbe.functions import validate_perms
 from gbe.views import BidChangeStateView
 
 
-
 @login_required
 @log_func
 def VendorChangeStateView(request, bid_id):

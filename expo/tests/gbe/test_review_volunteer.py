@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -21,7 +20,6 @@ class TestReviewVolunteer(TestCase):
     view_name = 'volunteer_review'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -35,11 +33,9 @@ class TestReviewVolunteer(TestCase):
         data = {'vote': 3,
                 'notes': "Foo",
                 'bid': bid.pk,
-                'evaluator': evaluator.pk
-        }
+                'evaluator': evaluator.pk}
         if invalid:
             del(data['vote'])
-
         return data
 
     def test_review_volunteer_all_well(self):
@@ -54,8 +50,6 @@ class TestReviewVolunteer(TestCase):
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false('Change Bid State:' in response.content)
 
-
-
     def test_review_volunteer_get_conference(self):
         volunteer = VolunteerFactory()
         url = reverse(self.view_name,
@@ -63,8 +57,9 @@ class TestReviewVolunteer(TestCase):
                       urlconf='gbe.urls')
 
         login_as(self.privileged_user, self)
-        response = self.client.get(url,
-                                   data={'conf_slug':volunteer.conference.id})
+        response = self.client.get(
+            url,
+            data={'conf_slug': volunteer.conference.id})
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false('Change Bid State:' in response.content)
@@ -93,7 +88,6 @@ class TestReviewVolunteer(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Change Bid State:' in response.content)
         nt.assert_true('Bid Information' in response.content)
-
 
     def test_review_volunteer_post_valid(self):
         volunteer = VolunteerFactory()

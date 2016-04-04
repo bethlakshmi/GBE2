@@ -10,6 +10,7 @@ from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
 from gbe.models import Act
 
+
 @login_required
 @log_func
 def SubmitActView(request, act_id):

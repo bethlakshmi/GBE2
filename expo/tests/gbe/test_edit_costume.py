@@ -1,7 +1,5 @@
-from django.http import Http404
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
@@ -25,7 +23,6 @@ class TestEditCostume(TestCase):
     # for now, test it.
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -69,8 +66,6 @@ class TestEditCostume(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true("You don&#39;t own that bid." in response.content)
 
-
-
     def test_edit_costume_no_profile(self):
         costume = CostumeFactory()
         url = reverse(self.view_name,
@@ -84,7 +79,7 @@ class TestEditCostume(TestCase):
         '''costume_edit, if form not valid, should return to ActEditForm'''
         costume = CostumeFactory()
         PersonaFactory(performer_profile=costume.profile,
-                       contact = costume.profile)
+                       contact=costume.profile)
         url = reverse(self.view_name,
                       args=[costume.pk],
                       urlconf='gbe.urls')
@@ -129,7 +124,6 @@ class TestEditCostume(TestCase):
         nt.assert_equal(location(response),
                         'http://testserver/gbe')
 
-
     def test_edit_bid_post_invalid(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''
@@ -146,7 +140,6 @@ class TestEditCostume(TestCase):
         expected_string = "Costume Information"
         nt.assert_true(expected_string in response.content)
         nt.assert_equal(response.status_code, 200)
-
 
     def test_edit_bid_not_post(self):
         '''edit_costume, not post, should take us to edit process'''

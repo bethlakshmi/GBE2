@@ -4,6 +4,7 @@ from expo.gbe_logging import log_func
 from gbe.functions import validate_perms
 from gbe.views import BidChangeStateView
 
+
 @login_required
 @log_func
 def CostumeChangeStateView(request, bid_id):

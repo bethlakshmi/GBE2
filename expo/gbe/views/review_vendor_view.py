@@ -21,6 +21,7 @@ from gbe.functions import (
     validate_perms,
 )
 
+
 @log_func
 def ReviewVendorView(request, vendor_id):
     '''

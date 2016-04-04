@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -18,7 +17,6 @@ from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-from django.core.exceptions import PermissionDenied
 from scheduler.models import Event as sEvent
 from datetime import datetime, date, time
 import pytz
@@ -33,7 +31,6 @@ class TestReviewVolunteerList(TestCase):
     view_name = 'volunteer_review_list'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -78,8 +75,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
-
+            {'conf_slug': self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -103,7 +99,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(coord_profile, self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -142,7 +138,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -189,14 +185,13 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false(str(past_opportunity) in response.content,
                         msg="The commitment %s is showing up" % (
                             str(past_opportunity)))
-
 
     def test_review_volunteer_bad_user(self):
         ''' user does not have the right privilege and permission is denied'''
@@ -205,7 +200,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.conference.conference_slug})
         nt.assert_equal(response.status_code, 403)
 
     def test_review_volunteer_no_profile(self):
@@ -215,5 +210,5 @@ class TestReviewVolunteerList(TestCase):
         login_as(UserFactory(), self)
         response = self.client.get(
             url,
-            {'conf_slug':self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.conference.conference_slug})
         nt.assert_equal(response.status_code, 403)

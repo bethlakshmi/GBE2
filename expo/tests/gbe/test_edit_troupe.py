@@ -24,7 +24,6 @@ class TestCreateTroupe(TestCase):
     view_name = 'troupe_create'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.troupe_string = 'Tell Us About Your Troupe'
 
@@ -37,7 +36,6 @@ class TestCreateTroupe(TestCase):
         self.assertEqual(response.status_code, 302)
         expected_loc = 'http://testserver/update_profile?next=/troupe/create'
         nt.assert_equal(location(response), expected_loc)
-
 
     def test_create_troupe_performer_exists(self):
         contact = PersonaFactory()

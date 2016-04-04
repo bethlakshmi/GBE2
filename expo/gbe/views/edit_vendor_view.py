@@ -17,6 +17,7 @@ from gbe.forms import VendorBidForm
 from gbe.functions import validate_profile
 from gbe.models import Vendor
 
+
 @login_required
 @log_func
 def EditVendorView(request, vendor_id):

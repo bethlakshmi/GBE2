@@ -4,6 +4,8 @@ from gbe.models import (
     Conference,
     Vendor,
 )
+
+
 @log_func
 def FashionFaireView(request):
     '''

@@ -13,6 +13,7 @@ from scheduler.functions import (
 from gbe.views import BidChangeStateView
 from gbe.models import Act
 
+
 @login_required
 @log_func
 def ActChangeStateView(request, bid_id):

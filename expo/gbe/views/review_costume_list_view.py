@@ -9,6 +9,7 @@ from gbe.models import (
 )
 from gbe.functions import validate_perms
 
+
 @login_required
 @log_func
 def ReviewCostumeListView(request):

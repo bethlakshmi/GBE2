@@ -12,6 +12,7 @@ from gbe.models import Persona
 from gbe.forms import PersonaForm
 from gbe.functions import validate_profile
 
+
 @login_required
 @log_func
 def EditPersonaView(request, persona_id):

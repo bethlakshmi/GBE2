@@ -10,8 +10,8 @@ from gbe.forms import (
     VendorBidForm,
     ParticipantForm,
 )
-
 from gbe.functions import validate_perms
+
 
 @login_required
 @log_func

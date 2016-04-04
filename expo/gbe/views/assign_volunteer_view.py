@@ -4,8 +4,6 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-
-
 from expo.gbe_logging import log_func
 from gbe.functions import (
     get_conf,
@@ -13,6 +11,7 @@ from gbe.functions import (
 )
 from gbe.models import Volunteer
 from scheduler.functions import get_events_and_windows
+
 
 @login_required
 @log_func

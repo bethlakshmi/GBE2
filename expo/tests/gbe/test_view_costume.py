@@ -1,17 +1,16 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import CostumeFactory
 from tests.functions.gbe_functions import login_as
+
 
 class TestViewCostume(TestCase):
     view_name = "costume_view"
 
     '''Tests for view_costume view'''
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
 
     def test_view_costume(self):

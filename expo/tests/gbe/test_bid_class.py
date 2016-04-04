@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -19,7 +18,6 @@ class TestBidClass(TestCase):
     view_name = 'class_create'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.teacher = PersonaFactory()
@@ -116,11 +114,10 @@ class TestBidClass(TestCase):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        data=self.get_class_form(submit=False)
+        data = self.get_class_form(submit=False)
         response = self.client.post(url, data=data, follow=True)
         nt.assert_equal(200, response.status_code)
         nt.assert_true('Profile View' in response.content)
-
 
     def test_class_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''

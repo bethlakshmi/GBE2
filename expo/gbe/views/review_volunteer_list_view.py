@@ -11,7 +11,6 @@ from gbe.models import (
 )
 
 
-
 def _show_edit(user, volunteer):
     return ('Volunteer Coordinator' in user.profile.privilege_groups and
             volunteer.is_current)

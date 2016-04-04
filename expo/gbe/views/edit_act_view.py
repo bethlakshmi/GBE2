@@ -16,7 +16,6 @@ from gbe.ticketing_idd_interface import (
     performer_act_submittal_link,
     verify_performer_app_paid,
 )
-
 from gbe.models import (
     Act,
     Performer,
@@ -28,6 +27,7 @@ from gbe.forms import (
     StageInfoForm,
 )
 from gbe.duration import Duration
+
 
 @login_required
 @log_func

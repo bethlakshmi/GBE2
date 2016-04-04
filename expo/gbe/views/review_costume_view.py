@@ -24,6 +24,7 @@ from gbe.models import (
     Costume,
 )
 
+
 @login_required
 @log_func
 def ReviewCostumeView(request, costume_id):

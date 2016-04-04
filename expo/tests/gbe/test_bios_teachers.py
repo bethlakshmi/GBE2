@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
     ConferenceFactory,
@@ -28,7 +27,6 @@ class TestBiosTeachers(TestCase):
     view_name='bios_teacher'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -126,7 +124,6 @@ class TestBiosTeachers(TestCase):
     #             resource=previous_worker
     #     )
     #     previous_class_assignment.save()
-
 
     #     url = reverse(self.view_name,
     #                   urlconf="gbe.urls")

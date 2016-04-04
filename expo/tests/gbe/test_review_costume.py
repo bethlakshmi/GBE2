@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -17,8 +16,8 @@ from tests.functions.gbe_functions import (
 class TestReviewCostume(TestCase):
     '''Tests for review_costume view'''
     view_name = "costume_review"
+
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()

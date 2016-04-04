@@ -5,6 +5,8 @@ from django.shortcuts import (
 )
 from gbe.functions import validate_profile
 from gbe.models import Profile
+
+
 @log_func
 def ProfileView(request, profile_id=None):
     '''

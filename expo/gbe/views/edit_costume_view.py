@@ -21,6 +21,7 @@ from gbe.models import (
 from gbetext import not_yours
 from gbe_forms_text import costume_proposal_form_text
 
+
 @login_required
 @log_func
 def EditCostumeView(request, costume_id):

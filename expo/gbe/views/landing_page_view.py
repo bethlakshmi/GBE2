@@ -24,6 +24,7 @@ from gbe.functions import (
 )
 from expo.gbe_logging import log_func
 
+
 @login_required
 @log_func
 def LandingPageView(request, profile_id=None, historical=False):

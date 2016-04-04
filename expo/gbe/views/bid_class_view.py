@@ -17,6 +17,7 @@ from gbe.models import (
 )
 from gbe.functions import validate_profile
 
+
 @login_required
 @log_func
 def BidClassView(request):

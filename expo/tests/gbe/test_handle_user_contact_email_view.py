@@ -3,12 +3,12 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 
+
 class TestHandleUserContactEmailView(TestCase):
-    view_name='handle_user_contact_email'
+    view_name = 'handle_user_contact_email'
 
     def setUp(self):
         self.client = Client()
-
 
     def get_form(self, invalid=False):
         form = {'name': "Bob",
@@ -25,7 +25,6 @@ class TestHandleUserContactEmailView(TestCase):
         with self.settings(USER_CONTACT_RECIPIENT_ADDRESSES=['a@b.com']):
             response = self.client.post(url, data=data, follow=True)
             nt.assert_equal(200, response.status_code)
-
 
     def test_user_contact_email_invalid_form(self):
         url = reverse(self.view_name, urlconf='gbe.urls')

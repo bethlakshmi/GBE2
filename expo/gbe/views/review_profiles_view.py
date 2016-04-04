@@ -7,7 +7,6 @@ from gbe.models import Profile
 from gbe.functions import validate_perms
 
 
-
 @login_required
 @log_func
 def ReviewProfilesView(request):

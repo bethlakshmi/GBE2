@@ -26,6 +26,7 @@ from gbe_forms_text import (
     costume_proposal_form_text,
 )
 
+
 @login_required
 @log_func
 def BidCostumeView(request):

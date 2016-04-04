@@ -1,17 +1,16 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import ClassFactory
 from tests.functions.gbe_functions import login_as
+
 
 class TestViewClass(TestCase):
     '''Tests for view_class view'''
     view_name = 'class_view'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.class_string = 'Tell Us About Your Class'
 

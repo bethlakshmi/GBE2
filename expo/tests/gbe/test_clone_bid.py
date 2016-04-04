@@ -1,11 +1,7 @@
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
-
 
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -18,13 +14,12 @@ from gbe.models import (
 )
 from tests.functions.gbe_functions import login_as
 
+
 class TestCloneBid(TestCase):
     view_name = 'clone_bid'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
-
 
     def test_clone_bid_succeed(self):
         Conference.objects.all().delete()

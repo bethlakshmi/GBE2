@@ -1,7 +1,6 @@
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -19,8 +18,8 @@ from tests.functions.gbe_functions import (
 class TestCreateVendor(TestCase):
     '''Tests for create_vendor view'''
     view_name = 'vendor_create'
+
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.conference = current_conference()

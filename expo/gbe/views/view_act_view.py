@@ -1,6 +1,4 @@
-
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -11,12 +9,12 @@ from gbe.forms import (
     PersonaForm,
     TroupeForm,
 )
-
 from gbe.models import (
     Act,
     Troupe,
 )
 from gbe.functions import validate_perms
+
 
 @login_required
 @log_func

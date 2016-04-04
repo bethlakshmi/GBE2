@@ -8,7 +8,6 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-
 from expo.gbe_logging import log_func
 from gbe.forms import (
     ClassBidForm,
@@ -17,6 +16,7 @@ from gbe.forms import (
 from gbe.models import Class
 from gbe.duration import Duration
 from gbe.functions import validate_profile
+
 
 @login_required
 @log_func

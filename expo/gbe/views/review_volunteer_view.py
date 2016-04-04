@@ -23,7 +23,6 @@ from gbe.forms import (
 from gbe.models import Volunteer
 
 
-
 @login_required
 @log_func
 def ReviewVolunteerView(request, volunteer_id):

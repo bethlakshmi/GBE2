@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -16,9 +15,9 @@ from tests.functions.gbe_functions import (
 
 class TestPublishProposal(TestCase):
     '''Tests for publish_proposal view'''
-    view_name='proposal_publish'
+    view_name = 'proposal_publish'
+
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_user = ProfileFactory().user_object
@@ -43,7 +42,6 @@ class TestPublishProposal(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
-
 
     def test_publish_proposal_post_valid_form(self):
         proposal = ClassProposalFactory()

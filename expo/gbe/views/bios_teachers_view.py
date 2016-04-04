@@ -15,6 +15,7 @@ from gbe.functions import (
     conference_list,
 )
 
+
 @log_func
 def BiosTeachersView(request):
     '''

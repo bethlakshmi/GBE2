@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -18,10 +17,9 @@ from gbetext import conf_volunteer_save_error
 
 class TestConferenceVolunteer(TestCase):
     '''Tests for conference_volunteer view'''
-    view_name='conference_volunteer'
+    view_name = 'conference_volunteer'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 

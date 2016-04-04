@@ -22,6 +22,7 @@ from gbe.functions import (
     get_conf,
 )
 
+
 @login_required
 @log_func
 def ReviewClassView(request, class_id):

@@ -11,11 +11,11 @@ from django.template import (
     Context,
 )
 
-
 from expo.gbe_logging import log_func
 from gbe.forms import ProposalPublishForm
 from gbe.functions import validate_perms
 from gbe.models import ClassProposal
+
 
 @login_required
 @log_func

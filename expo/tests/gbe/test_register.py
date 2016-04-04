@@ -1,6 +1,5 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -19,7 +18,6 @@ class TestRegister(TestCase):
     view_name = 'register'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_user = ProfileFactory().user_object
@@ -31,4 +29,4 @@ class TestRegister(TestCase):
 
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
-        #TO DO: test details here
+        # TO DO: test details here

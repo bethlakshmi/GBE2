@@ -3,7 +3,6 @@ from gbe.models import (
 )
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -14,12 +13,12 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import login_as
 
+
 class TestReviewProposalList(TestCase):
     '''Tests for fashion_faire view'''
-    view_name='fashion_faire'
+    view_name = 'fashion_faire'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -41,7 +40,7 @@ class TestReviewProposalList(TestCase):
         Conference.objects.all().delete()
         conference = ConferenceFactory(status='upcoming')
         otherconf = ConferenceFactory()
-        proposal = VendorFactory(title = "some vendor",
+        proposal = VendorFactory(title="some vendor",
                                  conference=conference,
                                  accepted=3)
 

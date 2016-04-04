@@ -1,7 +1,7 @@
 import nose.tools as nt
 from unittest import TestCase
-from django.test import Client
 from django.test.client import RequestFactory
+from django.test import Client
 from django.core.urlresolvers import reverse
 from gbe.views import CreateEventView
 from tests.factories.gbe_factories import (
@@ -17,7 +17,7 @@ from gbe.models import Show
 
 class TestCreateEvent(TestCase):
     '''Tests for create_event view'''
-    view_name='create_event'
+    view_name = 'create_event'
 
     def setUp(self):
         self.factory = RequestFactory()

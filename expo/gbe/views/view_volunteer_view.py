@@ -12,6 +12,7 @@ from gbe.forms import (
 from gbe.models import Volunteer
 from gbe.functions import validate_perms
 
+
 @login_required
 @log_func
 def ViewVolunteerView(request, volunteer_id):

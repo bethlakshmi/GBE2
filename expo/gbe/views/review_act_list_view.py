@@ -11,6 +11,7 @@ from gbe.models import (
     Conference,
 )
 
+
 @login_required
 @log_func
 def ReviewActListView(request):

@@ -2,7 +2,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from gbe.models import Persona
 from tests.factories.gbe_factories import (
@@ -21,7 +20,6 @@ class TestEditPersona(TestCase):
 
     '''Tests for edit_persona view'''
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.expected_string = 'Tell Us About Your Stage Persona'
 
@@ -29,9 +27,9 @@ class TestEditPersona(TestCase):
         '''edit_troupe view, create flow
         '''
         contact = PersonaFactory()
-        url = reverse (self.view_name,
-                       urlconf="gbe.urls",
-                       args=[contact.resourceitem_id])
+        url = reverse(self.view_name,
+                      urlconf="gbe.urls",
+                      args=[contact.resourceitem_id])
         login_as(UserFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)

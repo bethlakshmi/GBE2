@@ -1,4 +1,3 @@
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -11,6 +10,8 @@ from gbe.forms import (
     ClassScheduleForm,
 )
 from gbe_forms_text import event_create_text
+
+
 @log_func
 def CreateEventView(request, event_type):
     scheduler = validate_perms(request, ('Scheduling Mavens',))

@@ -1,8 +1,5 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -22,7 +19,6 @@ class TestAdminProfile(TestCase):
     view_name = 'admin_profile'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_user = ProfileFactory().user_object
@@ -55,7 +51,7 @@ class TestAdminProfile(TestCase):
         url = reverse(self.view_name,
                       args=[no_such_id],
                       urlconf="gbe.urls")
-        login_as(self.privileged_user,self)
+        login_as(self.privileged_user, self)
         response = self.client.get(url)
         nt.assert_equal(404, response.status_code)
 

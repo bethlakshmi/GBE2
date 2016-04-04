@@ -9,7 +9,6 @@ from expo.gbe_logging import log_func
 from gbe.forms import ClassProposalForm
 
 
-
 @log_func
 def ProposeClassView(request):
     '''

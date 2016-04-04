@@ -1,6 +1,4 @@
 from down_view import DownView
-
-#tested
 from landing_page_view import LandingPageView
 from view_troupe_view import ViewTroupeView
 from edit_troupe_view import EditTroupeView
@@ -57,5 +55,7 @@ from handle_user_contact_email_view import HandleUserContactEmailView
 from profile_view import ProfileView
 from review_profiles_view import ReviewProfilesView
 from review_costume_view import ReviewCostumeView
-#untested
+
+# untested
+
 from create_combo_view import CreateComboView
