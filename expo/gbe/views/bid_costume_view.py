@@ -11,10 +11,13 @@ from django.forms import ModelChoiceField
 from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
 from gbe.forms import (
+    CostumeBidDraftForm,
+    CostumeDetailsDraftForm,
     CostumeBidSubmitForm,
     CostumeDetailsSubmitForm,
 )
 from gbe.models import (
+    Conference,
     Costume,
     Persona,
 )
@@ -38,7 +41,6 @@ def BidCostumeView(request):
     view_title = "Displaying a Costume"
 
     owner = validate_profile(request, require=False)
-
     if not owner:
         return HttpResponseRedirect(reverse('profile',
                                             urlconf='gbe.urls') +
@@ -47,6 +49,7 @@ def BidCostumeView(request):
                                             urlconf='gbe.urls'))
 
     performers = owner.personae.all()
+
     if not performers.exists():
         return HttpResponseRedirect(reverse('persona_create',
                                             urlconf='gbe.urls') +
@@ -73,7 +76,6 @@ def BidCostumeView(request):
             details = CostumeDetailsDraftForm(request.POST,
                                               request.FILES,
                                               instance=new_costume)
-
         if form.is_valid() and details.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
             new_costume.profile = owner

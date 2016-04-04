@@ -3,10 +3,13 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from expo.gbe_logging import log_func
 from gbe.forms import (
+    CostumeBidDraftForm,
+    CostumeDetailsDraftForm,
     CostumeBidSubmitForm,
     CostumeDetailsSubmitForm,
 )
@@ -16,6 +19,7 @@ from gbe.models import (
     Persona,
 )
 from gbetext import not_yours
+from gbe_forms_text import costume_proposal_form_text
 
 @login_required
 @log_func
@@ -26,13 +30,13 @@ def EditCostumeView(request, costume_id):
     page_title = "Displaying a Costume"
     view_title = "Displaying a Costume"
 
-    owner = validate_profile(request, require=True)
+    owner = validate_profile(request, require=False)
     if not owner:
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
 
-    the_costume = get_object_or_404(Costume, id=costume_id)
+    costume = get_object_or_404(Costume, id=costume_id)
 
-    if the_costume.profile != owner:
+    if costume.profile != owner:
         return render(request,
                       'gbe/error.tmpl',
                       {'error': not_yours})
@@ -40,7 +44,7 @@ def EditCostumeView(request, costume_id):
     performers = owner.personae.all()
     draft_fields = Costume().bid_draft_fields
 
-    if performers.count() > 0 and the_costume.performer not in performers:
+    if performers.count() > 0 and costume.performer not in performers:
         return render(request,
                       'gbe/error.tmpl',
                       {'error': "This bid is not one of your stage names."})
@@ -48,24 +52,24 @@ def EditCostumeView(request, costume_id):
     if request.method == 'POST':
         if 'submit' in request.POST.keys():
             form = CostumeBidSubmitForm(request.POST,
-                                        instance=the_costume)
+                                        instance=costume)
             details = CostumeDetailsSubmitForm(request.POST,
                                                request.FILES,
-                                               instance=the_costume)
+                                               instance=costume)
         else:
             form = CostumeBidDraftForm(request.POST,
-                                       instance=the_costume)
+                                       instance=costume)
             details = CostumeDetailsDraftForm(request.POST,
                                               request.FILES,
-                                              instance=the_costume)
+                                              instance=costume)
 
         if form.is_valid() and details.is_valid():
-            the_costume = form.save()
-            the_costume = details.save()
+            costume = form.save()
+            costume = details.save()
             if 'submit' in request.POST.keys():
-                the_costume.submitted = True
+                costume.submitted = True
 
-            the_costume.save()
+            costume.save()
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Costume().bid_fields
@@ -80,8 +84,8 @@ def EditCostumeView(request, costume_id):
                  'view_header_text': costume_proposal_form_text}
             )
     else:
-        form = CostumeBidSubmitForm(instance=the_costume)
-        details = CostumeDetailsSubmitForm(instance=the_costume)
+        form = CostumeBidSubmitForm(instance=costume)
+        details = CostumeDetailsSubmitForm(instance=costume)
 
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
         form.fields['performer'] = forms.ModelChoiceField(

@@ -4,7 +4,7 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-
+from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.forms import (
     ProfileAdminForm,
@@ -15,9 +15,7 @@ from gbe.models import Profile
 @login_required
 @log_func
 def AdminProfileView(request, profile_id):
-
     admin_profile = validate_perms(request, ('Registrar',))
-
     user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)
 
     if request.method == 'POST':

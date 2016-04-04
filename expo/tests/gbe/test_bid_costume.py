@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import(
     ProfileFactory,
 )
 from tests.functions.gbe_functions import (
+    current_conference,
     location,
     login_as
 )
@@ -23,6 +24,7 @@ class TestEditCostume(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
+        current_conference()
 
     def get_costume_form(self, submit=False, invalid=False):
         picture = SimpleUploadedFile("file.jpg",
@@ -41,6 +43,7 @@ class TestEditCostume(TestCase):
             form['submit'] = 1
         if invalid:
             del(form['title'])
+        return form
 
     def test_bid_costume_no_profile(self):
         '''costume_bid, when profile has no personae,
@@ -51,36 +54,27 @@ class TestEditCostume(TestCase):
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
-    # def test_costume_bid_post_form_not_valid(self):
-    #     '''costume_bid, if form not valid, should return to CostumeEditForm'''
-    #     url = reverse(self.view_name,
-    #                   urlconf="gbe.urls")
-    #     login_as(ProfileFactory(), self)
-    #     data = self.get_costume_form(invalid=True)
-    #     response = self.client.get(url)
-    #     nt.assert_equal(response.status_code, 200)
-    #     nt.assert_true('Displaying a Costume' in response.content)
+    def test_costume_bid_post_form_not_valid(self):
+        '''costume_bid, if form not valid, should return to CostumeEditForm'''
+        url = reverse(self.view_name,
+                      urlconf="gbe.urls")
+        login_as(PersonaFactory().contact, self)
+        data = self.get_costume_form(invalid=True)
+        response = self.client.post(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Displaying a Costume' in response.content)
 
-    # def test_costume_bid_post_no_submit(self):
-    #     '''costume_bid, not submitting and no other problems,
-    #     should redirect to home'''
-    #     url = reverse(self.view_name,
-    #                   urlconf="gbe.urls")
-    #     login_as(self.performer.performer_profile, self)
-    #     response = self.client.get(url)
-    #     nt.assert_equal(response.status_code, 302)
-    #     nt.assert_equal(location(response), '/gbe')
-
-    # def test_costume_bid_post_with_submit(self):
-    #     '''costume_bid, not submitting and no other problems,
-    #     should redirect to home'''
-    #     url = reverse(self.view_name,
-    #                   urlconf="gbe.urls")
-    #     login_as(ProfileFactory(), self)
-    #     data = self.get_costume_form(submit=True)
-    #     response = self.client.get(url, data=data)
-    #     nt.assert_equal(response.status_code, 200)
-    #     nt.assert_true("Displaying a Costume" in response.content)
+    def test_costume_bid_post_with_submit(self):
+        '''costume_bid, not submitting and no other problems,
+        should redirect to home'''
+        url = reverse(self.view_name,
+                      urlconf="gbe.urls")
+        login_as(PersonaFactory().contact, self)
+        data = self.get_costume_form(submit=True)
+        response = self.client.post(url, data=data, follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true(('http://testserver/gbe', 302) in response.redirect_chain)
+        nt.assert_true("Your Account" in response.content)
 
     def test_costume_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
