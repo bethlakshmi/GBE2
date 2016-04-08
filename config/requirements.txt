@@ -45,3 +45,4 @@ six==1.9.0
 coverage
 django-compat
 django-hijack
+ipython==3.0
