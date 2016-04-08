@@ -4,7 +4,6 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_act
 from tests.factories.gbe_factories import (
     ActFactory,
     ConferenceFactory,
@@ -34,22 +33,23 @@ class TestReviewAct(TestCase):
 
     def test_review_act_all_well(self):
         act = ActFactory()
-        request = self.factory.get('act/review/%d' % act.pk)
-        request.session = {'cms_admin_site': 1}
-        request.user = self.privileged_user
-        login_as(request.user, self)
-        response = review_act(request, act.pk)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
     def test_review_act_act_reviewer(self):
         act = ActFactory()
-        request = self.factory.get('act/review/%d' % act.pk)
-        request.session = {'cms_admin_site': 1}
-        request.user = ProfileFactory().user_object
-        grant_privilege(request.user, 'Act Reviewers')
-        login_as(request.user, self)
-        response = review_act(request, act.pk)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        staff_user = ProfileFactory()
+        grant_privilege(staff_user, 'Act Reviewers')
+        login_as(staff_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false('Bid Control for Coordinator' in response.content)
@@ -58,22 +58,22 @@ class TestReviewAct(TestCase):
         conference = ConferenceFactory(status="completed",
                                        accepting_bids=False)
         act = ActFactory(conference=conference)
-        request = self.factory.get('act/review/%d' % act.pk)
-        request.session = {'cms_admin_site': 1}
-        request.user = self.privileged_user
-        login_as(request.user, self)
-        response = review_act(request, act.pk)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Review Bids' in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_act_non_privileged_user(self):
         act = ActFactory()
-        request = self.factory.get('act/review/%d' % act.pk)
-        request.session = {'cms_admin_site': 1}
-        request.user = ProfileFactory().user_object
-        login_as(request.user, self)
-        response = review_act(request, act.pk)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
     def test_review_act_act_post(self):
         clear_conferences()

@@ -4,7 +4,7 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_class_list
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ClassFactory,
     ConferenceFactory,
@@ -23,6 +23,7 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewClassList(TestCase):
     '''Tests for review_class_list view'''
+    view_name = 'class_review_list'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -37,28 +38,27 @@ class TestReviewClassList(TestCase):
                                   submitted=True)
 
     def test_review_class_all_well(self):
-        request = self.factory.get(
-            'class/review/',
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
             data={'conf_slug': self.conference.conference_slug})
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_class_list(request)
+
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_class_bad_user(self):
-        request = self.factory.get('class/review/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_class_list(request)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        nt.assert_equal(response.status_code, 403)
 
-    @nt.raises(PermissionDenied)
     def test_review_class_no_profile(self):
-        request = self.factory.get('class/review/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_class_list(request)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(UserFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        nt.assert_equal(response.status_code, 403)

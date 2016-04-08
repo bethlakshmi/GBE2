@@ -322,7 +322,7 @@ class ProfilePreferencesFactory(DjangoModelFactory):
 
     profile = SubFactory(ProfileFactory)
     in_hotel = "No"
-    inform_about = True
+    inform_about = []
     show_hotel_infobox = True
 
 

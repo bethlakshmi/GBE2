@@ -1,9 +1,7 @@
-from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import view_vendor
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
@@ -17,39 +15,44 @@ from tests.functions.gbe_functions import (
 
 class TestViewVendor(TestCase):
     '''Tests for view_vendor view'''
+    view_name = 'vendor_view'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
 
     def test_view_vendor_all_well(self):
-        vendor = VendorFactory()
-        request = self.factory.get('vendor/view/%d' % vendor.pk)
-        request.user = vendor.profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_vendor(request, vendor.pk)
+        vendor = VendorFactory(submitted=True)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(vendor.profile, self)
+        response = self.client.get(url)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
 
     def test_view_vendor_privileged_user(self):
-        vendor = VendorFactory()
+        vendor = VendorFactory(submitted=True)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+
         staff_user = ProfileFactory()
         grant_privilege(staff_user, "Vendor Reviewers")
         login_as(staff_user, self)
-        request = self.factory.get('vendor/view/%d' % vendor.pk)
-        request.user = staff_user.user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_vendor(request, vendor.pk)
+
+        response = self.client.get(url)
         test_string = 'Submitted proposals cannot be modified'
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(test_string in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_view_vendor_wrong_user(self):
         vendor = VendorFactory()
-        request = self.factory.get('vendor/view/%d' % vendor.pk)
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        response = view_vendor(request, vendor.pk)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+
+        nt.assert_equal(403, response.status_code)

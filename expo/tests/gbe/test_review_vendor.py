@@ -2,7 +2,6 @@ import nose.tools as nt
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_vendor
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
@@ -37,17 +36,17 @@ class TestReviewVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    def test_review_vendor_old_conference(self):
-        old_conf = ConferenceFactory(status='completed',
-                                     accepting_bids=False)
-        vendor = VendorFactory(conference=old_conf)
-        url = reverse('vendor_review',
-                      args=[vendor.pk],
-                      urlconf='gbe.urls')
-        login_as(self.privileged_user, self)
-        response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Bid Information' in response.content)
+    # def test_review_vendor_old_conference(self):
+    #     old_conf = ConferenceFactory(status='completed',
+    #                                  accepting_bids=False)
+    #     vendor = VendorFactory(conference=old_conf)
+    #     url = reverse('vendor_review',
+    #                   args=[vendor.pk],
+    #                   urlconf='gbe.urls')
+    #     login_as(self.privileged_user, self)
+    #     response = self.client.get(url)
+    #     nt.assert_equal(response.status_code, 200)
+    #     nt.assert_true('Bid Information' in response.content)
 
     def test_review_vendor_post_valid_form(self):
         vendor = VendorFactory()

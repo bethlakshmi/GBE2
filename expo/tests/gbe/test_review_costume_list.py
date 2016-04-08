@@ -1,10 +1,7 @@
-from django.shortcuts import get_object_or_404
-import gbe.models as conf
 import nose.tools as nt
 from unittest import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_costume_list
+from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     CostumeFactory,
     ConferenceFactory,
@@ -23,9 +20,9 @@ from django.core.exceptions import PermissionDenied
 
 class TestReviewCostumeList(TestCase):
     '''Tests for review_costume_list view'''
+    view_name = "costume_review_list"
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -37,28 +34,27 @@ class TestReviewCostumeList(TestCase):
                                     submitted=True)
 
     def test_review_costume_all_well(self):
-        request = self.factory.get(
-            'costume/review/',
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
             data={'conf_slug': self.conference.conference_slug})
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_costume_list(request)
+
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_costume_bad_user(self):
-        request = self.factory.get('costume/review/')
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_costume_list(request)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        nt.assert_equal(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
     def test_review_costume_no_profile(self):
-        request = self.factory.get('costume/review/')
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = review_costume_list(request)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(UserFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        nt.assert_equal(403, response.status_code)

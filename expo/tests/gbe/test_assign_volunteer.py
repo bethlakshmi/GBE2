@@ -4,9 +4,9 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.core.exceptions import PermissionDenied
 from datetime import datetime, date, time
+from django.core.urlresolvers import reverse
 import pytz
 import re
-from gbe.views import assign_volunteer
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     GenericEventFactory,
@@ -30,6 +30,7 @@ from scheduler.models import (
 
 class TestAssignVolunteer(TestCase):
     '''Tests for review_volunteer view'''
+    view_name = 'volunteer_assign'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -39,36 +40,25 @@ class TestAssignVolunteer(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
 
-    @nt.raises(PermissionDenied)
     def test_assign_volunteers_bad_user(self):
         ''' user does not have Volunteer Coordinator, permission is denied'''
         volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = ProfileFactory().user_object
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = assign_volunteer(request, volunteer.pk)
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
     def test_assign_volunteers_no_profile(self):
         ''' user does not have a profile, permission is denied'''
         volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = assign_volunteer(request, volunteer.pk)
-
-    def test_assign_volunteer_no_events(self):
-        ''' assign a volunteer when there are no opportunities'''
-        volunteer = VolunteerFactory()
-        request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = assign_volunteer(request, volunteer.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Assign Volunteer to Opportunities' in response.content)
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(403, response.status_code)
 
     def test_assign_volunteer_show_current_events(self):
         '''only current conference events, and windows should be shown'''
@@ -159,12 +149,12 @@ class TestAssignVolunteer(TestCase):
             resource=worker
         )
         volunteer_assignment.save()
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf="gbe.urls")
 
-        request = self.factory.get('volunteer/assign/%d' % volunteer.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
-        login_as(request.user, self)
-        response = assign_volunteer(request, volunteer.pk)
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Assign Volunteer to Opportunities' in response.content)

@@ -1,19 +1,24 @@
 import nose.tools as nt
+from django.core.urlresolvers import reverse
 from unittest import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import bid_act
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
     UserFactory,
 )
-from tests.functions.gbe_functions import location
+from tests.functions.gbe_functions import (
+    location,
+    login_as,
+    current_conference,
+)
 
 
 class TestBidAct(TestCase):
     '''Tests for bid_act view'''
+    view_name = 'act_create'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -39,69 +44,64 @@ class TestBidAct(TestCase):
     def test_bid_act_no_profile(self):
         '''act_bid, when user has no profile, should bounce out to /profile'''
         user = UserFactory()
-        request = self.factory.get('/act/create')
-        request.user = user
-        response = bid_act(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
     def test_bid_act_no_personae(self):
         '''act_bid, when profile has no personae,
         should redirect to persona_create'''
         profile = ProfileFactory()
-        request = self.factory.get('/act/create')
-        request.user = profile.user_object
-        response = bid_act(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
         profile = ProfileFactory()
-        request = self.factory.get('/act/create')
-        request.user = profile.user_object
-        request.POST = self.get_act_form()
-        response = bid_act(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.post(url, data=self.get_act_form())
         nt.assert_equal(response.status_code, 302)
 
     def test_act_bid_post_form_not_valid(self):
-        request = self.factory.post('/act/create')
-        request.user = self.performer.performer_profile.user_object
-        request.POST = self.get_act_form(submit=True)
-        request.session = {'cms_admin_site': 1}
-        del(request.POST['theact-description'])
-        response = bid_act(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form(submit=True)
+        del(POST['theact-description'])
+        response = self.client.post(url,
+                                    data=POST)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
 
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
-        ConferenceFactory(accepting_bids=True)
-        profile = ProfileFactory()
-        request = self.factory.post('/act/create')
-        request.user = profile.user_object
-        request.user = self.performer.performer_profile.user_object
-        request.POST = self.get_act_form()
-        request.POST.update({'submit': ''})
-        request.session = {'cms_admin_site': 1}
-        response = bid_act(request)
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        POST.update({'submit': ''})
+        response = self.client.post(url, data=POST)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Fee has not been Paid' in response.content)
 
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
         should redirect to home'''
-        ConferenceFactory(accepting_bids=True)
-        request = self.factory.post('/act/create')
-        request.user = self.performer.performer_profile.user_object
-        request.POST = self.get_act_form()
-        response = bid_act(request)
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        response = self.client.post(url, data=POST)
         nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/gbe')
+        nt.assert_equal(location(response), 'http://testserver/gbe')
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
-        request = self.factory.get('/act/create')
-        request.user = self.performer.performer_profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = bid_act(request)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
