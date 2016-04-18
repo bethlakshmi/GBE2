@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.forms import ModelChoiceField
 
 from expo.gbe_logging import log_func
 from gbe.forms import (
@@ -22,6 +23,7 @@ from gbe.models import (
     Act,
     AudioInfo,
     LightingInfo,
+    Performer,
     StageInfo,
     TechInfo,
 )
@@ -125,7 +127,7 @@ def BidActView(request):
                                     'performer': personae[0]},
                            prefix='theact')
         q = Performer.objects.filter(contact=profile)
-        form.fields['performer'] = forms.ModelChoiceField(queryset=q)
+        form.fields['performer'] = ModelChoiceField(queryset=q)
 
         return render(
             request,
