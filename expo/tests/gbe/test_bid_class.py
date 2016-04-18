@@ -23,7 +23,7 @@ class TestBidClass(TestCase):
         self.teacher = PersonaFactory()
         self.conference = ConferenceFactory(accepting_bids=True)
 
-    def get_class_form(self, submit=False, invalid=False):
+    def get_class_form(self, submit=False, invalid=False, incomplete=False):
         data = {'teacher': self.teacher.pk,
                 'title': 'A class',
                 'description': 'a description',
@@ -37,22 +37,25 @@ class TestBidClass(TestCase):
             data['submit'] = 1
         if invalid:
             del(data['title'])
+        if incomplete:
+            data['title'] = ''
         return data
 
-    # def test_bid_class_no_personae(self):
-    #     '''class_bid, when profile has no personae,
-    #     should redirect to persona_create'''
-    #     profile = ProfileFactory()
-    #     url = reverse(self.view_name,
-    #                   urlconf='gbe.urls')
-    #     login_as(profile, self)
-    #     response = self.client.get(
-    #         url,
-    #         follow=True)
-    #     redirect = ('http://testserver/gbe', 302)
-    #     nt.assert_true(redirect in response.redirect_chain)
-    #     nt.assert_true("Profile View" in response.content)
-    #     nt.assert_equal(response.status_code, 200)
+    def test_bid_class_no_personae(self):
+        '''class_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = ProfileFactory()
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.get(
+            url,
+            follow=True)
+        redirect = (('http://testserver/performer/create?next=/class/create', 302))
+        nt.assert_true(redirect in response.redirect_chain)
+        expected_string = "Tell Us About Your Stage Persona"
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
 
     # def test_class_bid_post_form_not_valid(self):
     #     '''class_bid, if form not valid, should return to ClassEditForm'''

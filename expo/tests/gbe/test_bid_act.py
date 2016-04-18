@@ -1,4 +1,9 @@
 import nose.tools as nt
+import mock
+from gbe.ticketing_idd_interface import (
+    verify_performer_app_paid,
+)
+
 from django.core.urlresolvers import reverse
 from unittest import TestCase
 from django.test.client import RequestFactory
@@ -58,6 +63,17 @@ class TestBidAct(TestCase):
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
+    def test_bid_act_get_with_persona(self):
+        '''act_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = PersonaFactory().performer_profile
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.get(url)
+        expected_string = "Propose an Act"
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
+
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
         profile = ProfileFactory()
@@ -86,6 +102,9 @@ class TestBidAct(TestCase):
         response = self.client.post(url, data=POST)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Fee has not been Paid' in response.content)
+
+    def fake_verify_performer_app_paid(user_name):
+        return True
 
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
