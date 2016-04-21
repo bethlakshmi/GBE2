@@ -41,14 +41,32 @@ class TestReviewClass(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-    # def test_reject_class(self):
-    #     klass = ClassFactory()
-    #     s_event = SchedEventFactory(eventitem=klass.eventitem_ptr)
-    #     request = self.factory.post(
-    #         '/class/changestate/',
-    #         data={'accepted': 1})
-    #     request.session = {'cms_admin_site': 1}
-    #     request.user = self.privileged_user
-    #     login_as(request.user, self)
-    #     class_changestate(request, klass.pk)
-    #     nt.assert_equal(0, sEvent.objects.filter(pk=s_event.pk).count())
+
+    def test_review_class_post_form_invalid(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.post(url,
+                                    data = {'accepted': 1})
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Bid Information' in response.content)
+
+
+    def test_review_class_post_form_valid(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        profile = self.privileged_user.profile
+        login_as(self.privileged_user, self)
+        response = self.client.post(url,
+                                    {'vote': 3,
+                                     'notes': "blah blah",
+                                     'evaluator': profile.pk,
+                                     'bid': klass.pk},
+                                    follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('Bid Information' in response.content)
