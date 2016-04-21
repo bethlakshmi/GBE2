@@ -5,6 +5,7 @@ from django.shortcuts import (
 )
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.forms import ModelChoiceField
 
 from expo.gbe_logging import log_func
 from gbe.forms import (
@@ -19,7 +20,10 @@ from gbe.models import (
     Persona,
 )
 from gbetext import not_yours
-from gbe_forms_text import costume_proposal_form_text
+from gbe_forms_text import (
+    costume_proposal_form_text,
+    costume_proposal_labels,
+)
 
 
 @login_required
@@ -89,7 +93,7 @@ def EditCostumeView(request, costume_id):
         details = CostumeDetailsSubmitForm(instance=costume)
 
         q = Persona.objects.filter(performer_profile_id=owner.resourceitem_id)
-        form.fields['performer'] = forms.ModelChoiceField(
+        form.fields['performer'] = ModelChoiceField(
             queryset=q,
             label=costume_proposal_labels['performer'],
             required=False)
