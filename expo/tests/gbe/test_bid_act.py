@@ -102,6 +102,6 @@ class TestBidAct(TestCase):
         '''act_bid, not post, should take us to bid process'''
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        response = self.client.post(url)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
