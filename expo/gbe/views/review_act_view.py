@@ -36,7 +36,6 @@ def ReviewActView(request, act_id):
     If user is not a reviewer, politely decline to show anything.
     TODO: refactor to eliminate duplication between this and view_act
     '''
-    import pdb; pdb.set_trace()
     reviewer = validate_perms(request, ('Act Reviewers', ))
     act = get_object_or_404(Act,
                             id=act_id)
@@ -65,10 +64,11 @@ def ReviewActView(request, act_id):
     '''
     if user has previously reviewed the act, provide their review for update
     '''
-    bid_eval = BidEvaluation.objects.filter(
-        bid_id=act_id,
-        evaluator_id=reviewer.resourceitem_id).first()
-    if not bid_eval:
+    try:
+        bid_eval = BidEvaluation.objects.filter(
+            bid_id=act_id,
+            evaluator_id=reviewer.resourceitem_id).first()
+    except:
         bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
 
     # show act info and inputs for review
