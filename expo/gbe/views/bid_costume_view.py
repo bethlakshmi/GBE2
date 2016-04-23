@@ -90,6 +90,13 @@ def BidCostumeView(request):
                                                 urlconf='gbe.urls'))
         else:
             fields, requiredsub = Costume().bid_fields
+            q = Persona.objects.filter(
+                performer_profile_id=owner.resourceitem_id)
+            form.fields['performer'] = ModelChoiceField(
+                queryset=q,
+                label=costume_proposal_labels['performer'],
+                required=False)
+
             return render(
                 request,
                 'gbe/bid.tmpl',

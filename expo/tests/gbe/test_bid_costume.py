@@ -73,7 +73,8 @@ class TestEditCostume(TestCase):
         data = self.get_costume_form(submit=True)
         response = self.client.post(url, data=data, follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true(('http://testserver/gbe', 302) in response.redirect_chain)
+        nt.assert_true(('http://testserver/gbe', 302)
+                       in response.redirect_chain)
         nt.assert_true("Your Account" in response.content)
 
     def test_costume_bid_not_post(self):
@@ -91,3 +92,20 @@ class TestEditCostume(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(302, response.status_code)
+
+    def test_costume_bid_post_invalid_form_no_submit(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        other_performer = PersonaFactory()
+        other_profile = other_performer.performer_profile
+        login_as(self.performer.performer_profile, self)
+        data = self.get_costume_form(submit=False, invalid=True)
+        response = self.client.post(url, data=data, follow=True)
+        nt.assert_equal(200, response.status_code)
+        nt.assert_true('Displaying a Costume' in response.content)
+        nt.assert_false(other_performer.name in response.content)
+        current_user_selection = '<option value="%d">%s</option>'
+        persona_id = self.performer.pk
+        selection_string = current_user_selection % (persona_id,
+                                                     self.performer.name)
+        nt.assert_true(selection_string in response.content)
