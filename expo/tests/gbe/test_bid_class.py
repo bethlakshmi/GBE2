@@ -119,6 +119,23 @@ class TestBidClass(TestCase):
         nt.assert_equal(200, response.status_code)
         nt.assert_true('Profile View' in response.content)
 
+    def test_class_bid_post_invalid_form_no_submit(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        other_performer = PersonaFactory()
+        other_profile = other_performer.performer_profile
+        login_as(self.performer.performer_profile, self)
+        data = self.get_class_form(submit=False, invalid=True)
+        response = self.client.post(url, data=data, follow=True)
+        nt.assert_equal(200, response.status_code)
+        nt.assert_true('Submit a Class' in response.content)
+        nt.assert_false(other_performer.name in response.content)
+        current_user_selection = '<option value="%d">%s</option>'
+        persona_id = self.performer.pk
+        selection_string = current_user_selection % (persona_id,
+                                                     self.performer.name)
+        nt.assert_true(selection_string in response.content)
+
     def test_class_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
         url = reverse(self.view_name,
