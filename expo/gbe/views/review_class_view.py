@@ -3,6 +3,7 @@ from django.shortcuts import (
     render,
     get_object_or_404,
 )
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.forms import (
