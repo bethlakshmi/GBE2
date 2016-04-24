@@ -54,6 +54,22 @@ class TestReviewAct(TestCase):
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false('Bid Control for Coordinator' in response.content)
 
+    def test_hidden_fields_are_populated(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        staff_user = ProfileFactory()
+        grant_privilege(staff_user, 'Act Reviewers')
+        login_as(staff_user, self)
+        response = self.client.get(url)
+        evaluator_input = ('<input id="id_evaluator" name="evaluator" '
+                           'type="hidden" value="%d" />') % staff_user.pk
+        bid_id_input = ('<input id="id_bid" name="bid" type="hidden" '
+                        'value="%d" />') % act.pk
+        nt.assert_true(evaluator_input in response.content)
+        nt.assert_true(bid_id_input in response.content)
+
     def test_review_act_old_act(self):
         conference = ConferenceFactory(status="completed",
                                        accepting_bids=False)
@@ -98,7 +114,9 @@ class TestReviewAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         expected_string = ("Bid Information for %s" %
                            conference.conference_name)
+        error_string = "There is an error on the form"
         nt.assert_true(expected_string in response.content)
+        nt.assert_false(error_string in response.content)
 
     def test_review_act_act_post_invalid_form(self):
         clear_conferences()
