@@ -148,8 +148,8 @@ class TestEditCostume(TestCase):
                       args=[costume.pk],
                       urlconf='gbe.urls')
         data = self.get_costume_form()
-        login_as(ProfileFactory(), self)
+        login_as(costume.profile, self)
         response = self.client.get(url)
-        error_text = "Great Burlesque Exposition: Error!"
+        expected_text = "Displaying a Costume"
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true(error_text in response.content)
+        nt.assert_true(expected_text in response.content)
