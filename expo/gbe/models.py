@@ -1351,22 +1351,23 @@ class Class(Biddable, Event):
                                     choices=yesno_options, default="No")
 
     def clone(self):
-        new_class = Class(teacher=self.teacher,
-                          minimum_enrollment=self.minimum_enrollment,
-                          organization=self.organization,
-                          type=self.type,
-                          fee=self.fee,
-                          other_teachers=self.other_teachers,
-                          length_minutes=self.length_minutes,
-                          history=self.history,
-                          run_before=self.run_before,
-                          space_needs=self.space_needs,
-                          physical_restrictions=self.physical_restrictions,
-                          multiple_run=self.multiple_run,
-                          title=self.biddable_ptr.title,
-                          description=self.biddable_ptr.description,
-                          conference=Conference.objects.filter(
-                              status="upcoming").first())
+        new_class = Class()
+        new_class.teacher=self.teacher
+        new_class.minimum_enrollment=self.minimum_enrollment
+        new_class.organization=self.organization
+        new_class.type=self.type
+        new_class.fee=self.fee
+        new_class.other_teachers=self.other_teachers
+        new_class.length_minutes=self.length_minutes
+        new_class.history=self.history
+        new_class.run_before=self.run_before
+        new_class.space_needs=self.space_needs
+        new_class.physical_restrictions=self.physical_restrictions
+        new_class.multiple_run=self.multiple_run
+        new_class.title=self.title
+        new_class.description=self.description
+        new_class.conference=Conference.objects.filter(
+            status="upcoming").first()
         new_class.save()
         return new_class
 
