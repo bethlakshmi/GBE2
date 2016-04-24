@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 
 from gbe.functions import validate_perms
 from gbe.models import Volunteer
+from gbe.forms import VolunteerBidStateChangeForm
 
 
 @login_required
