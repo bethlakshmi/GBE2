@@ -75,6 +75,9 @@ def BidClassView(request):
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Class().get_bid_fields
+            q = Persona.objects.filter(
+                performer_profile_id=owner.resourceitem_id)
+            form.fields['teacher'] = ModelChoiceField(queryset=q)
             return render(
                 request,
                 'gbe/bid.tmpl',
