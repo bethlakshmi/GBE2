@@ -3,6 +3,7 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,
     VolunteerFactory,
+    VolunteerWindowFactory,
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
@@ -19,6 +20,8 @@ class VolunteerContext():
                  event=None,
                  opportunity=None,
                  role=None):
+        self.window = VolunteerWindowFactory()
+        self.conference = self.window.day.conference
         if bid is False:
             self.profile = profile or ProfileFactory()
             self.bid = None
@@ -26,7 +29,8 @@ class VolunteerContext():
             self.bid = bid
             self.profile = self.bid.profile
         else:
-            self.bid = VolunteerFactory()
+            self.bid = VolunteerFactory(
+                conference=self.conference)
             self.profile = self.bid.profile
         self.opportunity = opportunity or GenericEventFactory()
         self.event = event or ShowFactory()
