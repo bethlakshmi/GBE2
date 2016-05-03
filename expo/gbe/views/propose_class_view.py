@@ -3,7 +3,11 @@ from django.template import (
     loader,
     RequestContext,
 )
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+)
 
 from expo.gbe_logging import log_func
 from gbe.forms import ClassProposalForm
@@ -19,7 +23,6 @@ def ProposeClassView(request):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-            # TO DO: this should be a better redirect
         else:
             template = loader.get_template('gbe/class_proposal.tmpl')
             context = RequestContext(request, {'form': form})
