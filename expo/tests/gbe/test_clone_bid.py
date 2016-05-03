@@ -59,8 +59,11 @@ class TestCloneBid(TestCase):
         current_conference = ConferenceFactory(status="upcoming",
                                                accepting_bids=True)
         bid = ClassFactory(conference=old_conference)
-        # Class.objects.filter(title=bid.title,
-        #                      conference=current_conference).delete()
+        bid.title = "Factory is broken"
+        bid.save()
+        count = Class.objects.filter(
+            title=bid.title,
+            conference=current_conference).count()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Class',
@@ -68,9 +71,10 @@ class TestCloneBid(TestCase):
         login_as(bid.teacher.contact, self)
 
         response = self.client.get(url)
-        nt.assert_true(Class.objects.filter(
-            title=bid.title,
-            conference=current_conference).exists())
+        nt.assert_equal(
+            1 + count,
+            Class.objects.filter(title=bid.title,
+                                 conference=current_conference).count())
 
     def test_clone_bid_bad_bid_type(self):
         Conference.objects.all().delete()
