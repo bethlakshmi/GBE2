@@ -4,7 +4,7 @@ from django.shortcuts import (
     render,
 )
 from django.http import HttpResponseRedirect
-
+from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.forms import VolunteerBidForm
 from gbe.functions import validate_perms
@@ -45,25 +45,13 @@ def EditVolunteerView(request, volunteer_id):
                            'view_title': view_title,
                            'nodraft': 'Submit'})
     else:
-        if len(the_bid.availability.strip()) > 0:
-            availability_initial = eval(the_bid.availability)
-        else:
-            availability_initial = []
-
-        if len(the_bid.unavailability.strip()) > 0:
-            unavailability_initial = eval(the_bid.unavailability)
-        else:
-            unavailability_initial = []
-
         if len(the_bid.interests.strip()) > 0:
             interests_initial = eval(the_bid.interests)
         else:
             interests_initial = []
         form = VolunteerBidForm(
             instance=the_bid,
-            initial={'availability': availability_initial,
-                     'unavailability': unavailability_initial,
-                     'interests': interests_initial},
+            initial={'interests': interests_initial},
             available_windows=the_bid.conference.windows(),
             unavailable_windows=the_bid.conference.windows())
 
