@@ -1,6 +1,5 @@
 import nose.tools as nt
 from django.core.urlresolvers import reverse
-from django.test.client import RequestFactory
 from django.test import Client
 from scheduler.views import calendar_view
 from tests.factories.gbe_factories import (
@@ -15,6 +14,7 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     SchedEventFactory,
 )
+from tests.functions.gbe_functions import clear_conferences
 from gbe.models import Conference
 from pytz import utc
 from datetime import (
@@ -34,7 +34,8 @@ def schedule_show(show):
 
 
 def test_calendar_view_shows_current_conf_by_default():
-    Conference.objects.all().delete()
+    client = Client()
+    clear_conferences()
     current_conference = ConferenceFactory()
     other_conference = ConferenceFactory(
         status='completed')
@@ -49,18 +50,64 @@ def test_calendar_view_shows_current_conf_by_default():
     other_show = ShowFactory.create(conference=other_conference)
     schedule_show(show)
     schedule_show(other_show)
-    request = RequestFactory().get(reverse('calendar_view',
-                                           urlconf="scheduler.urls"))
-    request.user = ProfileFactory.create().user_object
-    request.session = {'cms_admin_site': 1}
-    request.GET = {'conf_slug': current_conference.conference_slug}
-    response = calendar_view(request)
+    url = reverse('calendar_view', urlconf="scheduler.urls")
+    response = client.get(url)
     nt.assert_true(show.title in response.content)
     nt.assert_false(other_show.title in response.content)
 
 
+def test_calendar_view_event_shows_all_events():
+    client = Client()
+    clear_conferences()
+    current_conference = ConferenceFactory()
+    other_conference = ConferenceFactory(
+        status='completed')
+    current_conf_day = ConferenceDayFactory(
+        conference=current_conference,
+        day=date(2016, 02, 06))
+    other_conf_day = ConferenceDayFactory(
+        conference=other_conference,
+        day=date(2015, 02, 06))
+
+    show = ShowFactory.create(conference=current_conference)
+    other_show = ShowFactory.create(conference=other_conference)
+    schedule_show(show)
+    schedule_show(other_show)
+    url = reverse('calendar_view_day',
+                  urlconf="scheduler.urls",
+                  kwargs={'event_type': 'All',
+                          'day': 'Saturday'})
+    response = client.get(url)
+    nt.assert_true(show.title in response.content)
+    nt.assert_false(other_show.title in response.content)
+
+
+def test_calendar_view_shows_requested_conference():
+    client = Client()
+    clear_conferences()
+    current_conference = ConferenceFactory()
+    other_conference = ConferenceFactory(
+        status='completed')
+    current_conf_day = ConferenceDayFactory(
+        conference=current_conference,
+        day=date(2015, 02, 06))
+    other_conf_day = ConferenceDayFactory(
+        conference=other_conference,
+        day=date(2016, 02, 06))
+
+    show = ShowFactory.create(conference=current_conference)
+    other_show = ShowFactory.create(conference=other_conference)
+    schedule_show(show)
+    schedule_show(other_show)
+    url = reverse('calendar_view', urlconf="scheduler.urls")
+    data = {'conf': other_conference.conference_slug}
+    response = client.get(url, data=data)
+    nt.assert_false(show.title in response.content)
+    nt.assert_true(other_show.title in response.content)
+
+
 def test_no_conference_days():
-    Conference.objects.all().delete()
+    clear_conferences()
     ConferenceFactory(status='upcoming')
     url = reverse('calendar_view_day',
                   urlconf='scheduler.urls',
