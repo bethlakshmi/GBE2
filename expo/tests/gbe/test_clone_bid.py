@@ -51,26 +51,26 @@ class TestCloneBid(TestCase):
     # ClassFactory creates an instance of gbe.Class w/o data,
     # which doesn't seem to persist to the db
 
-    # def test_clone_class_succeed(self):
-    #     clear_conferences()
-    #     Conference.objects.all().delete()
-    #     old_conference = ConferenceFactory(status="completed",
-    #                                        accepting_bids=False)
-    #     current_conference = ConferenceFactory(status="upcoming",
-    #                                            accepting_bids=True)
-    #     bid = ClassFactory(conference=old_conference)
-    #     Class.objects.filter(title=bid.title,
-    #                        conference=current_conference).delete()
-    #     url = reverse(self.view_name,
-    #                   urlconf="gbe.urls",
-    #                   kwargs={'bid_type': 'Class',
-    #                           'bid_id': bid.id})
-    #     login_as(bid.teacher.contact, self)
+    def test_clone_class_succeed(self):
+        clear_conferences()
+        Conference.objects.all().delete()
+        old_conference = ConferenceFactory(status="completed",
+                                           accepting_bids=False)
+        current_conference = ConferenceFactory(status="upcoming",
+                                               accepting_bids=True)
+        bid = ClassFactory(conference=old_conference)
+        # Class.objects.filter(title=bid.title,
+        #                      conference=current_conference).delete()
+        url = reverse(self.view_name,
+                      urlconf="gbe.urls",
+                      kwargs={'bid_type': 'Class',
+                              'bid_id': bid.id})
+        login_as(bid.teacher.contact, self)
 
-    #     response = self.client.get(url)
-    #     nt.assert_true(Class.objects.filter(
-    #         title=bid.title,
-    #         conference=current_conference).exists())
+        response = self.client.get(url)
+        nt.assert_true(Class.objects.filter(
+            title=bid.title,
+            conference=current_conference).exists())
 
     def test_clone_bid_bad_bid_type(self):
         Conference.objects.all().delete()
