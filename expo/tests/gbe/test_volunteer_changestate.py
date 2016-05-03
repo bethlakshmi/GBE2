@@ -42,3 +42,14 @@ class TestVolunteerChangestate(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 403)
+
+    def test_volunteer_changestate_authorized_user_post(self):
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.conference,
+                'events': [],
+                'accepted': 3}
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
