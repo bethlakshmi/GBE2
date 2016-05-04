@@ -506,11 +506,14 @@ def manage_volunteer_opportunities(request, event_id):
     set_time_format()
     template = 'scheduler/event_schedule.tmpl'
 
+    event = get_object_or_404(Event, id=event_id)
+
     if request.method != 'POST':
         # TO DO: review this
-        return HttpResponseRedirect(reverse('event_schedule',
-                                            urlconf='scheduler.urls'))
-    event = get_object_or_404(Event, id=event_id)
+        return HttpResponseRedirect(reverse('edit_event',
+                                        urlconf='scheduler.urls',
+                                        args=[event.event_type_name,
+                                                event_id]))
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():
             form = VolunteerOpportunityForm(
