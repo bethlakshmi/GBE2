@@ -379,7 +379,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         createform = VolunteerOpportunityForm(
             prefix='new_opp',
             initial=initial,
-            conference=get_current_conference())
+            conference=item.eventitem.get_conference())
 
     actionheaders = ['Title',
                      'Volunteer Type',
@@ -519,11 +519,11 @@ def manage_volunteer_opportunities(request, event_id):
             form = VolunteerOpportunityForm(
                 request.POST,
                 prefix='new_opp',
-                conference=get_current_conference())
+                conference=event.eventitem.get_conference())
         else:
             form = VolunteerOpportunityForm(
                 request.POST,
-                conference=get_current_conference())
+                conference=event.eventitem.get_conference())
         if form.is_valid():
             opp = form.save(commit=False)
             opp.type = "Volunteer"
