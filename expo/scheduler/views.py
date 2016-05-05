@@ -32,7 +32,10 @@ from datetime import time as dttime
 import csv
 
 from table import table
-from gbe_forms_text import volunteer_interests_options
+from gbe_forms_text import (
+    volunteer_interests_options,
+    list_titles,
+)
 from gbetext import acceptance_states
 from gbe.duration import (
     Duration,
@@ -970,8 +973,6 @@ def edit_event_display(request, item, errorcontext=None):
 
 def view_list(request, event_type='All'):
     if not event_type.lower() in list_titles:
-        event_type = "All"
-    if not event_type.lower() in list_text:
         event_type = "All"
 
     current_conf = get_current_conference()
