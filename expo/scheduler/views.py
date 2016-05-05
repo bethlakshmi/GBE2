@@ -490,7 +490,7 @@ def allocate_workers(request, opp_id):
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
 
-
+@login_required
 def manage_volunteer_opportunities(request, event_id):
     '''
     Create or edit volunteer opportunities for an event.
