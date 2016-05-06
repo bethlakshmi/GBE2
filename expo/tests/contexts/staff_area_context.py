@@ -12,6 +12,8 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+
+
 class StaffAreaContext:
     '''
     Sets up a GenericEvent as a StaffArea in a pattern similar to what we
