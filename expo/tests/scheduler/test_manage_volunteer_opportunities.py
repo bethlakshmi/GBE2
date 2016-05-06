@@ -218,3 +218,64 @@ class TestEventList(TestCase):
                      response.content)
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
                      response.content)
+
+    def test_delete_opportunity(self):
+        context = StaffAreaContext()
+        room = RoomFactory()
+        vol_opp = context.add_volunteer_opp(room=room)
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            url,
+            data={'delete': 'delete',
+                  'title': 'Delete Volunteer Opportunity',
+                  'volunteer_category': 'VA0',
+                  'num_volunteers': '',
+                  'duration': '1:00:00',
+                  'day': context.conf_day.pk,
+                  'time': '10:00:00',
+                  'location': room.pk,
+                  'opp_event_id': vol_opp.eventitem.pk,
+                  'opp_sched_id': vol_opp.pk},
+            follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_not_in('Delete Volunteer Opportunity',
+                     response.content)
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_false(opps.exists())
+
+    def test_allocate_opportunity(self):
+        context = StaffAreaContext()
+        room = RoomFactory()
+        vol_opp = context.add_volunteer_opp(room=room)
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            url,
+            data={'allocate': 'allocate',
+                  'title': 'Allocate Volunteer Opportunity',
+                  'volunteer_category': 'VA0',
+                  'num_volunteers': '',
+                  'duration': '1:00:00',
+                  'day': context.conf_day.pk,
+                  'time': '10:00:00',
+                  'location': room.pk,
+                  'opp_event_id': vol_opp.eventitem.pk,
+                  'opp_sched_id': vol_opp.pk},
+            follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_not_in('Allocate Volunteer Opportunity',
+                     response.content)
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(opps.exists())
+        nt.assert_in("Volunteer Allocation", response.content)
