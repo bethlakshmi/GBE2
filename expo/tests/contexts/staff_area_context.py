@@ -6,6 +6,7 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from tests.factories.scheduler_factories import (
+    EventContainerFactory,
     LocationFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
@@ -25,13 +26,13 @@ class StaffAreaContext:
         self.staff_lead = staff_lead or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         self.area = area or GenericEventFactory(type='Staff Area',
-                                              conference=self.conference)
+                                                conference=self.conference)
         self.sched_event = None
         self.sched_event = self.schedule_instance(starttime=starttime)
         self.conf_day = ConferenceDayFactory(
             day=self.sched_event.starttime.date(),
             conference=self.conference)
-        self.opportunities = None
+        self.opportunities = []
 
     def schedule_instance(self,
                           starttime=None,
@@ -51,3 +52,23 @@ class StaffAreaContext:
             event=sched_event,
             resource=WorkerFactory(_item=staff_lead.workeritem_ptr))
         return sched_event
+
+    def add_volunteer_opp(self,
+                          volunteer_sched_event=None,
+                          room=None):
+        if not volunteer_sched_event:
+            vol_event = GenericEventFactory(conference=self.conference,
+                                            type="Volunteer"
+                                            )
+            volunteer_sched_event = SchedEventFactory(
+                eventitem=vol_event,
+                starttime=self.sched_event.starttime,
+                max_volunteer=1)
+        if not room:
+            room = RoomFactory()
+        ResourceAllocationFactory(
+            event=self.sched_event,
+            resource=LocationFactory(_item=room))
+        EventContainerFactory(parent_event=self.sched_event,
+                              child_event=volunteer_sched_event)
+        self.opportunities += [volunteer_sched_event]

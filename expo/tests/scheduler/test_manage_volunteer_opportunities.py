@@ -120,3 +120,38 @@ class TestEventList(TestCase):
         nt.assert_false(opps.exists())
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
                      response.content)
+
+    def test_copy_opportunity(self):
+        context = StaffAreaContext()
+        room = RoomFactory()
+        context.add_volunteer_opp(room=room)
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            url,
+            data={'duplicate': 'duplicate',
+                  'title': 'Copied Volunteer Opportunity',
+                  'volunteer_category': 'VA0',
+                  'num_volunteers': '1',
+                  'duration': '1:00:00',
+                  'day': context.conf_day.pk,
+                  'time': '10:00:00',
+                  'location': room.pk},
+            follow=True)
+        assert_redirects(response, reverse('edit_event',
+                                              urlconf='scheduler.urls',
+                                              args=['GenericEvent',
+                                                    context.sched_event.pk]))
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(len(opps), 2)
+        for opp in opps:
+            nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
+                        'type="text" value="'+
+                        opp.child_event.eventitem.child().title+
+                        '" />',
+                        response.content)
