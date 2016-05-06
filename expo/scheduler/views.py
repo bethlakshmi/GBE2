@@ -568,7 +568,8 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event.max_volunteer = data['num_volunteers']
         day = data.get('day').day
         time_parts = map(int, data.get('time').split(":"))
-        start_time = datetime.combine(day, dttime(*time_parts))
+        start_time = datetime.combine(day,
+                                      dttime(*time_parts, tzinfo=pytz.utc))
         opp_event.starttime = start_time
         opp_event.save()
         opp_event.set_location(data.get('location').locationitem)

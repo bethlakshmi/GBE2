@@ -32,7 +32,6 @@ class StaffAreaContext:
         self.conf_day = ConferenceDayFactory(
             day=self.sched_event.starttime.date(),
             conference=self.conference)
-        self.opportunities = []
 
     def schedule_instance(self,
                           starttime=None,
@@ -71,4 +70,4 @@ class StaffAreaContext:
             resource=LocationFactory(_item=room))
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=volunteer_sched_event)
-        self.opportunities += [volunteer_sched_event]
+        return volunteer_sched_event
