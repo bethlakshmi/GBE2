@@ -58,9 +58,9 @@ class TestEventList(TestCase):
                       args=[context.sched_event.pk])
         response = self.client.get(url, follow=True)
         assert_redirects(response, reverse('edit_event',
-                                              urlconf='scheduler.urls',
-                                              args=['GenericEvent',
-                                                    context.sched_event.pk]))
+                                           urlconf='scheduler.urls',
+                                           args=['GenericEvent',
+                                                 context.sched_event.pk]))
 
     def test_create_opportunity(self):
         context = StaffAreaContext()
@@ -82,15 +82,15 @@ class TestEventList(TestCase):
                   'new_opp-location': room.pk},
             follow=True)
         assert_redirects(response, reverse('edit_event',
-                                              urlconf='scheduler.urls',
-                                              args=['GenericEvent',
-                                                    context.sched_event.pk]))
+                                           urlconf='scheduler.urls',
+                                           args=['GenericEvent',
+                                                 context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         for opp in opps:
             nt.assert_equal(opp.child_event.eventitem.child().title,
                             'New Volunteer Opportunity')
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
+        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
@@ -102,7 +102,7 @@ class TestEventList(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
-        
+
         # number of volunteers is missing, it's required
         response = self.client.post(
             url,
@@ -130,7 +130,7 @@ class TestEventList(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
-        
+
         response = self.client.post(
             url,
             data={'duplicate': 'duplicate',
@@ -143,17 +143,17 @@ class TestEventList(TestCase):
                   'location': room.pk},
             follow=True)
         assert_redirects(response, reverse('edit_event',
-                                              urlconf='scheduler.urls',
-                                              args=['GenericEvent',
-                                                    context.sched_event.pk]))
+                                           urlconf='scheduler.urls',
+                                           args=['GenericEvent',
+                                                 context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
-            nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
-                        'type="text" value="'+
-                        opp.child_event.eventitem.child().title+
-                        '" />',
-                        response.content)
+            nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+                         'type="text" value="' +
+                         opp.child_event.eventitem.child().title +
+                         '" />',
+                         response.content)
 
     def test_edit_opportunity(self):
         context = StaffAreaContext()
@@ -164,7 +164,7 @@ class TestEventList(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
-        
+
         response = self.client.post(
             url,
             data={'edit': 'edit',
@@ -179,12 +179,12 @@ class TestEventList(TestCase):
                   'opp_sched_id': vol_opp.pk},
             follow=True)
         assert_redirects(response, reverse('edit_event',
-                                              urlconf='scheduler.urls',
-                                              args=['GenericEvent',
-                                                    context.sched_event.pk]))
+                                           urlconf='scheduler.urls',
+                                           args=['GenericEvent',
+                                                 context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
+        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
 
@@ -213,7 +213,7 @@ class TestEventList(TestCase):
                   'opp_sched_id': vol_opp.pk},
             follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
+        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
@@ -245,7 +245,7 @@ class TestEventList(TestCase):
             follow=True)
         nt.assert_equal(response.status_code, 200)
         nt.assert_not_in('Delete Volunteer Opportunity',
-                     response.content)
+                         response.content)
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_false(opps.exists())
 
@@ -275,7 +275,7 @@ class TestEventList(TestCase):
             follow=True)
         nt.assert_equal(response.status_code, 200)
         nt.assert_not_in('Allocate Volunteer Opportunity',
-                     response.content)
+                         response.content)
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         nt.assert_in("Volunteer Allocation", response.content)
