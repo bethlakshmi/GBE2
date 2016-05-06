@@ -5,19 +5,12 @@ from unittest import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     ProfileFactory,
-    ShowFactory,
     RoomFactory
 )
-from gbe.models import Conference
 from scheduler.models import EventContainer
-
 from tests.functions.gbe_functions import (
-    current_conference,
     grant_privilege,
     login_as,
-)
-from tests.factories.scheduler_factories import (
-    SchedEventFactory,
 )
 from tests.contexts import (
     StaffAreaContext,
