@@ -28,6 +28,10 @@ class StaffAreaContext:
                                               conference=self.conference)
         self.sched_event = None
         self.sched_event = self.schedule_instance(starttime=starttime)
+        self.conf_day = ConferenceDayFactory(
+            day=self.sched_event.starttime.date(),
+            conference=self.conference)
+        self.opportunities = None
 
     def schedule_instance(self,
                           starttime=None,
@@ -43,8 +47,6 @@ class StaffAreaContext:
                 starttime=self.sched_event.starttime+one_day)
         else:
             sched_event = SchedEventFactory(eventitem=self.area.eventitem_ptr)
-        ConferenceDayFactory(day=sched_event.starttime.date(),
-                             conference=self.conference)
         ResourceAllocationFactory(
             event=sched_event,
             resource=WorkerFactory(_item=staff_lead.workeritem_ptr))

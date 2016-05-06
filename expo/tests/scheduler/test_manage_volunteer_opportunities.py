@@ -6,8 +6,11 @@ from django.test import Client
 from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,
+    RoomFactory
 )
 from gbe.models import Conference
+from scheduler.models import EventContainer
+
 from tests.functions.gbe_functions import (
     current_conference,
     grant_privilege,
@@ -58,3 +61,62 @@ class TestEventList(TestCase):
                                               urlconf='scheduler.urls',
                                               args=['GenericEvent',
                                                     context.sched_event.pk]))
+
+    def test_create_opportunity(self):
+        context = StaffAreaContext()
+        room = RoomFactory()
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'create': 'create',
+                  'new_opp-title': 'New Volunteer Opportunity',
+                  'new_opp-volunteer_category': 'VA0',
+                  'new_opp-num_volunteers': '1',
+                  'new_opp-duration': '1:00:00',
+                  'new_opp-day': context.conf_day.pk,
+                  'new_opp-time': '10:00:00',
+                  'new_opp-location': room.pk},
+            follow=True)
+        assert_redirects(response, reverse('edit_event',
+                                              urlconf='scheduler.urls',
+                                              args=['GenericEvent',
+                                                    context.sched_event.pk]))
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(opps.exists())
+        for opp in opps:
+            nt.assert_equal(opp.child_event.eventitem.child().title,
+                            'New Volunteer Opportunity')
+        nt.assert_in('<input id="id_title" maxlength="128" name="title" '+
+                     'type="text" value="New Volunteer Opportunity" />',
+                     response.content)
+
+    def test_create_opportunity_error(self):
+        context = StaffAreaContext()
+        room = RoomFactory()
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            url,
+            data={'create': 'create',
+                  'new_opp-title': 'New Volunteer Opportunity',
+                  'new_opp-volunteer_category': 'VA0',
+                  'new_opp-num_volunteers': '',
+                  'new_opp-duration': '1:00:00',
+                  'new_opp-day': context.conf_day.pk,
+                  'new_opp-time': '10:00:00',
+                  'new_opp-location': room.pk},
+            follow=True)
+        nt.assert_equal(response.status_code, 200)
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_false(opps.exists())
+        nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
+                     response.content)
