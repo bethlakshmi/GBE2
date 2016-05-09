@@ -19,6 +19,7 @@ from django.template import (
 )
 from scheduler.models import *
 from scheduler.forms import *
+from gbe.forms import VolunteerOpportunityForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     login,
@@ -29,6 +30,7 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from datetime import time as dttime
+import pytz
 import csv
 
 from table import table
@@ -340,7 +342,6 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
     Generate the forms to allocate, edit, or delete volunteer
     opportunities associated with a scheduler event.
     '''
-    from gbe.forms import VolunteerOpportunityForm
     actionform = []
     context = {}
     for opp in item.get_volunteer_opps():
@@ -382,7 +383,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         createform = VolunteerOpportunityForm(
             prefix='new_opp',
             initial=initial,
-            conference=get_current_conference())
+            conference=item.eventitem.get_conference())
 
     actionheaders = ['Title',
                      'Volunteer Type',
@@ -493,7 +494,7 @@ def allocate_workers(request, opp_id):
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
 
-
+@login_required
 def manage_volunteer_opportunities(request, event_id):
     '''
     Create or edit volunteer opportunities for an event.
@@ -504,39 +505,43 @@ def manage_volunteer_opportunities(request, event_id):
     role, which should be the "title" of the GenericEvent
     '''
     coordinator = validate_perms(request, ('Volunteer Coordinator',))
-    from gbe.forms import VolunteerOpportunityForm
     from gbe.models import GenericEvent
     set_time_format()
     template = 'scheduler/event_schedule.tmpl'
 
+    event = get_object_or_404(Event, id=event_id)
+
     if request.method != 'POST':
         # TO DO: review this
-        return HttpResponseRedirect(reverse('event_schedule',
-                                            urlconf='scheduler.urls'))
-    event = get_object_or_404(Event, id=event_id)
+        return HttpResponseRedirect(reverse('edit_event',
+                                        urlconf='scheduler.urls',
+                                        args=[event.event_type_name,
+                                                event_id]))
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():
             form = VolunteerOpportunityForm(
                 request.POST,
                 prefix='new_opp',
-                conference=get_current_conference())
+                conference=event.eventitem.get_conference())
         else:
             form = VolunteerOpportunityForm(
                 request.POST,
-                conference=get_current_conference())
+                conference=event.eventitem.get_conference())
         if form.is_valid():
             opp = form.save(commit=False)
             opp.type = "Volunteer"
+            opp.conference = event.eventitem.get_conference()
             opp.save()
             data = form.cleaned_data
             day = data.get('day').day
             time_parts = map(int, data.get('time').split(":"))
-            start_time = datetime.combine(day, dttime(*time_parts))
+            start_time = datetime.combine(day, dttime(*time_parts, tzinfo=pytz.utc))
             opp_event = Event(eventitem=opp.eventitem_ptr,
                               max_volunteer=data.get('num_volunteers', 1),
                               starttime=start_time,
                               duration=data.get('duration'))
             opp_event.save()
+
             opp_event.set_location(data.get('location').locationitem)
             opp_event.save()
             container = EventContainer(parent_event=event,
@@ -566,7 +571,8 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event.max_volunteer = data['num_volunteers']
         day = data.get('day').day
         time_parts = map(int, data.get('time').split(":"))
-        start_time = datetime.combine(day, dttime(*time_parts))
+        start_time = datetime.combine(day,
+                                      dttime(*time_parts, tzinfo=pytz.utc))
         opp_event.starttime = start_time
         opp_event.save()
         opp_event.set_location(data.get('location').locationitem)

@@ -10,6 +10,8 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+
+
 class ClassContext:
     def __init__(self,
                  bid=None,
