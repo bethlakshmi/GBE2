@@ -4,6 +4,7 @@ from django_nose.tools import assert_redirects
 from unittest import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
+    ClassFactory,
     GenericEventFactory,
     ProfileFactory,
     RoomFactory
@@ -32,7 +33,7 @@ class TestAddEvent(TestCase):
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["GenericEvent", self.eventitem.pk])
+                      args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
@@ -40,7 +41,7 @@ class TestAddEvent(TestCase):
         login_as(ProfileFactory(), self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["GenericEvent", self.eventitem.pk])
+                      args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 403)
 
@@ -48,6 +49,37 @@ class TestAddEvent(TestCase):
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["GenericEvent", self.eventitem.pk+1])
+                      args=["GenericEvent", self.eventitem.eventitem_id+1])
         response = self.client.get(url, follow=True)
         nt.assert_equal(response.status_code, 404)
+
+    def test_good_user_get_success(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["GenericEvent", self.eventitem.eventitem_id])
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(self.eventitem.title,
+                     response.content)
+        nt.assert_in(self.eventitem.description,
+                     response.content)
+        nt.assert_in(str(self.eventitem.duration),
+                     response.content)
+
+    def test_good_user_get_class(self):
+        login_as(self.privileged_profile, self)
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", klass.eventitem_id])
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(klass.title,
+                     response.content)
+        nt.assert_in(klass.description,
+                     response.content)
+        nt.assert_in("1:00",
+                     response.content)
+        nt.assert_in(str(klass.teacher),
+                     response.content)

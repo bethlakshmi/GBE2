@@ -773,7 +773,8 @@ def add_event(request, eventitem_id, event_type='Class'):
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
-    item = get_object_or_404(EventItem, eventitem_id=eventitem_id)
+    eventitem = get_object_or_404(EventItem, eventitem_id=eventitem_id)
+    item = eventitem.child()
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)
 
