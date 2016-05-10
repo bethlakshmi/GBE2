@@ -762,6 +762,7 @@ def contact_by_role(request, participant_type):
     return response
 
 
+@login_required
 def add_event(request, eventitem_id, event_type='Class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
@@ -772,13 +773,7 @@ def add_event(request, eventitem_id, event_type='Class'):
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
-    try:
-        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
-    except:
-        logger.warn(("add_event tried to get an EventItem for id %d and failed. "
-                     "user saw Http404.") % eventitem_id)
-        raise Http404
-
+    item = get_object_or_404(EventItem, eventitem_id=eventitem_id)
     template = 'scheduler/event_schedule.tmpl'
     eventitem_view = get_event_display_info(eventitem_id)
 
