@@ -1,5 +1,6 @@
 from tests.factories.gbe_factories import (
     ClassFactory,
+    ConferenceDayFactory,
     ConferenceFactory,
     PersonaFactory,
     RoomFactory,
@@ -20,12 +21,13 @@ class ClassContext:
                  room=None,
                  starttime=None):
         self.teacher = teacher or PersonaFactory()
-        self.bid = bid or ClassFactory()
         self.conference = conference or ConferenceFactory()
+        self.bid = bid or ClassFactory(conference=self.conference)
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,
                                                   starttime=starttime)
+        self.days = [ConferenceDayFactory(conference=self.conference)]
 
     def schedule_instance(self,
                           starttime=None,

@@ -59,9 +59,8 @@ class EventScheduleForm(forms.ModelForm):
     
     day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
-    location = forms.ChoiceField(choices=[
-                (loc, loc.__str__()) for loc in
-                LocationItem.objects.all().order_by('room__name')])
+    location = forms.ModelChoiceField(
+            queryset=LocationItem.objects.all().order_by('room__name'))
     duration = DurationFormField(
                    help_text=scheduling_help_texts['duration'])
     teacher = forms.ModelChoiceField(queryset=conf.Performer.objects.all(),
