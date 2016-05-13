@@ -22,7 +22,8 @@ class ClassContext:
                  starttime=None):
         self.teacher = teacher or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        self.bid = bid or ClassFactory(conference=self.conference)
+        self.bid = bid or ClassFactory(conference=self.conference,
+                                       accepted=3)
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,

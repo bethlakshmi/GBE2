@@ -20,6 +20,10 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ClassContext,
 )
+from scheduler.models import Event
+import pytz
+from datetime import datetime, time
+
 
 class TestAddEvent(TestCase):
     view_name = 'create_event'
@@ -102,35 +106,33 @@ class TestAddEvent(TestCase):
                   'event-max_volunteer': 3,
                   'event-title': 'New Title',
                   'event-description': 'New Description',
-                  })
-
-        print(response.content)
+                  },
+            follow=True)
 
         assert_redirects(response, reverse('event_schedule',
                                            urlconf='scheduler.urls',
                                            args=["Class"]))
-        nt.assert_in('<input id="id_event-title" name="event-title" '+
-                     'type="text" value="New Title" />',
-                     response.content)
-        nt.assert_in("New Description",
-                     response.content)
-        nt.assert_in('<input id="id_event-max_volunteer" min="0" '+
-                     'name="event-max_volunteer" type="number" value="3" />',
-                     response.content)
-        nt.assert_in('<option value="12:00:00" selected="selected">'+
-                     '12:00 PM</option>',
-                     response.content)
-        nt.assert_in('<option value="'+str(context.days[0].pk)+
-                     '" selected="selected">'+str(context.days[0])+'</option>',
-                     response.content)
+
         nt.assert_not_in('<ul class="errorlist">', response.content)
+        nt.assert_in('Events Information', response.content)
+        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+        nt.assert_equal(session.starttime,
+                        datetime.combine(context.days[0].day,
+                                         time(12, 0, 0, tzinfo=pytz.utc)))
+        nt.assert_in('New Title', response.content)
+        nt.assert_in(str(context.room), response.content)
+        nt.assert_in('3', response.content)
 
     def test_good_user_invalid_submit(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["GenericEvent", context.bid.eventitem_id])
+                      args=["Class", context.bid.eventitem_id])
         response = self.client.post(
             url,
             data={'event-day': context.days[0].pk,
@@ -139,40 +141,56 @@ class TestAddEvent(TestCase):
                   'event-max_volunteer': 3,
                   'event-title': 'New Title',
                   'event-description': 'New Description',
-                })
+                  })
 
         nt.assert_equal(response.status_code, 200)
+        nt.assert_in('<input id="id_event-title" name="event-title" ' +
+                     'type="text" value="New Title" />',
+                     response.content)
         nt.assert_in("New Description",
                      response.content)
-        nt.assert_in('<li>Select a valid choice. That choice is not one of '+
+        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+                     'name="event-max_volunteer" type="number" value="3" />',
+                     response.content)
+        nt.assert_in('<option value="12:00:00" selected="selected">' +
+                     '12:00 PM</option>',
+                     response.content)
+        nt.assert_in('<option value="'+str(context.days[0].pk) +
+                     '" selected="selected">'+str(context.days[0]) +
+                     '</option>',
+                     response.content)
+        nt.assert_in('<li>Select a valid choice. That choice is not one of ' +
                      'the available choices.</li>',
                      response.content)
 
-'''
-    def test_good_user_with_time(self):
+    def test_good_user_with_duration(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["GenericEvent", self.eventitem.eventitem_id])
-        overcommitter = PersonaFactory()
+                      args=["Class", context.bid.eventitem_id])
         response = self.client.post(
             url,
-            data={'event-day': self.day.pk,
-                'event-time': "12:00:00",
-                'event-duration': "1:00:00",
-                'event-location': self.room,
-                'event-max_volunteer': 0,
-                'title': 'New Title',
-                'description': 'New Description',
-                })
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in(self.eventitem.title,
-                     response.content)
-        nt.assert_in(self.eventitem.description,
-                     response.content)
-        nt.assert_in(str(self.eventitem.duration),
+            data={'event-day': context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': context.room.pk,
+                  'event-duration': "3:00:00",
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  },
+            follow=True)
+
+        assert_redirects(response, reverse('event_schedule',
+                                           urlconf='scheduler.urls',
+                                           args=["Class"]))
+        nt.assert_in('Events Information', response.content)
+        nt.assert_in("3:00",
                      response.content)
 
+'''
     def test_good_user_with_teacher(self):
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,

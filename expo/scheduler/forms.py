@@ -10,6 +10,7 @@ from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 import gbe.models as conf
 from gbe.functions import get_current_conference
+import pytz
 
 conference_days = (
     (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
@@ -106,7 +107,7 @@ class EventScheduleForm(forms.ModelForm):
         event = super(EventScheduleForm, self).save(commit=False)
         day = data.get('day').day
         time_parts = map(int, data.get('time').split(":"))
-        starttime = time(*time_parts)
+        starttime = time(*time_parts, tzinfo=pytz.utc)
         event.starttime = datetime.combine(day, starttime)
 
         if commit:
