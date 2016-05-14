@@ -23,6 +23,7 @@ def schedule_show(show):
     return SchedEventFactory.create(eventitem=show.eventitem_ptr)
 
 
+@pytest.mark.django_db
 def test_no_permission_required():
     show = ShowFactory()
     sched_event = schedule_show(show)
@@ -35,6 +36,7 @@ def test_no_permission_required():
     nt.assert_true(show.title in response.content)
 
 
+@pytest.mark.django_db
 @nt.raises(Http404)
 def test_bad_id_raises_404():
     request = RequestFactory().get(
@@ -44,6 +46,7 @@ def test_bad_id_raises_404():
     response = detail_view(request, -1)
 
 
+@pytest.mark.django_db
 def test_repeated_lead_shows_once():
     show = ShowFactory()
     sched_events = [schedule_show(show) for i in range(2)]

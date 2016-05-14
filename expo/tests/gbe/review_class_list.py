@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from gbe.views import review_class_list

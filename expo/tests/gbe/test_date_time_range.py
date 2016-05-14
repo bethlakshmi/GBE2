@@ -7,7 +7,7 @@ from gbe.duration import (
     DateTimeRange,
 )
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 
 
 # unit tests for  DateTimeRange

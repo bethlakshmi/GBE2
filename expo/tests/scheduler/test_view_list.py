@@ -20,6 +20,7 @@ from scheduler.views import view_list
 import nose.tools as nt
 
 
+@pytest.mark.django_db
 def test_view_list_given_slug():
     conf = ConferenceFactory.create()
     other_conf = ConferenceFactory.create()
@@ -43,6 +44,7 @@ def test_view_list_given_slug():
     nt.assert_false(that_class.title in response.content)
 
 
+@pytest.mark.django_db
 def test_view_list_default_view_current_conf_exists():
     '''
     /scheduler/view_list/ should return all events in the current
@@ -84,6 +86,7 @@ def test_view_list_default_view_current_conf_exists():
     nt.assert_false(previous_class.title in response.content)
 
 
+@pytest.mark.django_db
 def test_view_list_event_type_not_case_sensitive():
     param = 'class'
     request1 = RequestFactory().get(
@@ -103,6 +106,7 @@ def test_view_list_event_type_not_case_sensitive():
 
 
 
+@pytest.mark.django_db
 def test_view_list_event_type_not_in_list_titles():
     client = Client()
     param = 'classification'

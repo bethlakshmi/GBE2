@@ -28,6 +28,7 @@ from scheduler.views import edit_event
 import nose.tools as nt
 
 
+@pytest.mark.django_db
 def _test_scheduled_volunteer_opportunity_shows_day():
     show = ShowFactory()
     show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)

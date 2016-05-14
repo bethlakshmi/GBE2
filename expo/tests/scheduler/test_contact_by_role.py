@@ -28,6 +28,7 @@ from gbe.models import (
 )
 
 
+@pytest.mark.django_db
 @nt.raises(PermissionDenied)
 def test_contact_performers_permissions_required():
     user = ProfileFactory.create().user_object
@@ -38,6 +39,7 @@ def test_contact_performers_permissions_required():
     response = contact_by_role(request, "Performers")
 
 
+@pytest.mark.django_db
 def test_contact_performers_current_performers_visible():
     Conference.objects.all().delete()
     user = ProfileFactory.create().user_object
@@ -54,6 +56,7 @@ def test_contact_performers_current_performers_visible():
                         for act in acts]))
 
 
+@pytest.mark.django_db
 def test_contact_performers_former_performers_not_visible():
     Conference.objects.all().delete()
     user = ProfileFactory.create().user_object
@@ -70,6 +73,7 @@ def test_contact_performers_former_performers_not_visible():
                         for act in acts]))
 
 
+@pytest.mark.django_db
 def test_contact_volunteers_current_volunteers_visible():
     Conference.objects.all().delete()
     conference = ConferenceFactory(status="upcoming")
@@ -101,6 +105,7 @@ def test_contact_volunteers_current_volunteers_visible():
                         for volunteer in volunteers]))
 
 
+@pytest.mark.django_db
 def test_contact_volunteers_former_volunteers_not_visible():
     Conference.objects.all().delete()
     previous_conf = ConferenceFactory(status="finished")
@@ -130,6 +135,7 @@ def test_contact_volunteers_former_volunteers_not_visible():
                         for volunteer in volunteers]))
 
 
+@pytest.mark.django_db
 def test_contact_vendors():
     Conference.objects.all().delete()
     previous_conf = ConferenceFactory(status="completed")
@@ -149,6 +155,7 @@ def test_contact_vendors():
     nt.assert_false(previous_vendor.profile.display_name in response.content)
 
 
+@pytest.mark.django_db
 def test_contact_teachers():
     Conference.objects.all().delete()
     Class.objects.all().delete()
