@@ -11,6 +11,9 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+import pytz
+from datetime import time
+from datetime import datetime
 
 
 class ClassContext:
@@ -22,13 +25,13 @@ class ClassContext:
                  starttime=None):
         self.teacher = teacher or PersonaFactory()
         self.conference = conference or ConferenceFactory()
+        self.days = [ConferenceDayFactory(conference=self.conference)]
         self.bid = bid or ClassFactory(conference=self.conference,
                                        accepted=3)
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,
                                                   starttime=starttime)
-        self.days = [ConferenceDayFactory(conference=self.conference)]
 
     def schedule_instance(self,
                           starttime=None,
@@ -45,7 +48,10 @@ class ClassContext:
                 eventitem=self.bid.eventitem_ptr,
                 starttime=self.sched_event.starttime+one_day)
         else:
-            sched_event = SchedEventFactory(eventitem=self.bid.eventitem_ptr)
+            sched_event = SchedEventFactory(
+                eventitem=self.bid.eventitem_ptr,
+                starttime=datetime.combine(self.days[0].day,
+                                  time(12,0,0, tzinfo=pytz.utc)))
         ResourceAllocationFactory(
             event=sched_event,
             resource=LocationFactory(_item=room.locationitem_ptr))

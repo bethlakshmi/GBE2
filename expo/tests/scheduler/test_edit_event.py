@@ -1,97 +1,324 @@
-from django.core.exceptions import PermissionDenied
-from django import forms
-import gbe.models as conf
+from django.core.urlresolvers import reverse
 import nose.tools as nt
-from django.test import TestCase
-from django.test.client import RequestFactory
+from django_nose.tools import assert_redirects
+from unittest import TestCase
 from django.test import Client
-from scheduler.views import edit_event
-from scheduler.forms import conference_days
-from gbe.models import Room
-from tests.factories import gbe_factories, scheduler_factories
-import mock
-import tests.functions.gbe_functions as functions
-
+from tests.factories.gbe_factories import (
+    ClassFactory,
+    ConferenceDayFactory,
+    GenericEventFactory,
+    ProfileFactory,
+    PersonaFactory,
+    RoomFactory
+)
+from gbe.models import (
+    Conference,
+    Room
+)
+from scheduler.models import Worker
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
+from tests.contexts import (
+    ClassContext,
+    PanelContext,
+    StaffAreaContext
+)
+from scheduler.models import Event
+import pytz
+from datetime import (
+    date,
+    time,
+    timedelta,
+)
 
 class TestEditEvent(TestCase):
-    '''Tests for edit_event view'''
-
-    # Fixture to create some rooms, location items, and resource items
-    fixtures = ['tests/fixtures/rooms.json']
+    view_name = 'edit_event'
 
     def setUp(self):
-        self.factory = RequestFactory()
-        self.s_event = scheduler_factories.SchedEventFactory.create()
-        self.profile_factory = gbe_factories.ProfileFactory
         self.client = Client()
-        self.room = Room.objects.all().order_by('name').first()
-        self.s_event.set_location(self.room)
+        self.user = ProfileFactory.create().user_object
+        self.privileged_profile = ProfileFactory()
+        self.privileged_user = self.privileged_profile.user_object
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        self.context = ClassContext()
 
-    def get_edit_event_form(self):
-        return {'event-day': conference_days[1][0],
-                'event-time': "12:00:00",
-                'event-duration': "1:00:00",
-                'event-location': self.s_event.location,
-                'event-max_volunteer': 0,
-                'title': 'New Title',
-                'description': 'New Description',
-                }
+    def test_no_login_gives_error(self):
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 302)
 
-    @nt.raises(PermissionDenied)
-    def test_edit_event_no_eventitem(self):
-        '''Should get 404 if no valid act ID'''
-        request = self.factory.get('/scheduler/create/GenericEvent/-1')
-        request.user = self.profile_factory.create().user_object
-        response = edit_event(request, -1)
+    def test_bad_user(self):
+        login_as(ProfileFactory(), self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 403)
 
-    @nt.raises(PermissionDenied)
-    def test_edit_event_no_permission(self):
-        '''edit event attempt should fail because user is not a Schedule Maven
-        '''
-        profile = self.profile_factory.create()
-        request = self.factory.get('/scheduler/create/GenericEvent/%d' %
-                                   self.s_event.pk)
-        request.user = profile.user_object
-        response = edit_event(request, self.s_event.pk, "GenericEvent")
+    def test_good_user_get_bad_event(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk+1])
+        response = self.client.get(url, follow=True)
+        nt.assert_equal(response.status_code, 404)
 
+    def test_good_user_get_success(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(self.context.bid.title,
+                     response.content)
+        nt.assert_in(self.context.bid.description,
+                     response.content)
+        nt.assert_in(str(self.context.bid.duration),
+                     response.content)
 
-"""
-COMMENTED OUT 9/22/2015
-Test failing, couldn't fix
-If still commented out after 10/22, kill this test and we'll try again
+    def test_good_user_minimal_post(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        self.context.days += [ConferenceDayFactory(
+            conference=self.context.conference,
+            day=date.today() + timedelta(8))]
+        response = self.client.post(
+            url,
+            data={'event-day': self.context.days[1].pk,
+                  'event-time': "12:00:00",
+                  'event-location': self.context.room.pk,
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  },
+            follow=True)
 
-    def test_edit_event_get_succeed(self):
-        '''edit event get succeeds, user has proper privileges
-        '''
-        profile = self.profile_factory.create()
-        request = self.factory.get('/scheduler/create/GenericEvent/%d' %
-                                   self.s_event.pk)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
-        functions.grant_privilege(profile, 'Scheduling Mavens')
-        response = edit_event(request, self.s_event.pk, "GenericEvent")
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.s_event.eventitem.title in response.content)
-        self.assertTrue(self.s_event.eventitem.description in response.content)
-"""
+        assert_redirects(response, url)
 
-"""
-COMMENTED OUT 9/22/2015
-Test failing, couldn't fix
-If still commented out after 10/22, kill this test and we'll try again
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        # check title
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        # check day
+        nt.assert_in('<option value="' +
+                     str(self.context.days[1].pk) +
+                     '" selected="selected">',
+                     response.content)
+        # check time
+        nt.assert_in('<option value="12:00:00" selected="selected">',
+                     response.content)
+        # check location
+        nt.assert_in('<option value="' +
+                     str(self.context.room.pk) +
+                     '" selected="selected">' +
+                     str(self.context.room),
+                     response.content)
+        # check volunteers
+        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+                     'name="event-max_volunteer" type="number" value="3" />',
+                     response.content)
+        # check description
+        nt.assert_in('New Description', response.content)
 
-    def test_edit_event_submit_succeed(self):
-        '''edit event post succeeds without errors
-        '''
-        profile = self.profile_factory.create()
-        form_post = self.get_edit_event_form()
-        request = self.factory.post('/scheduler/create/GenericEvent/%d' %
-                                    self.s_event.pk,
-                                    form_post)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site':1}
-        functions.grant_privilege(profile, 'Scheduling Mavens')
-        response = edit_event(request, self.s_event.pk, "GenericEvent")
+    def test_good_user_invalid_submit(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': self.context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': 'bad room',
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  })
 
-        self.assertEqual(response.status_code, 200)
-"""
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('<input id="id_event-title" name="event-title" ' +
+                     'type="text" value="New Title" />',
+                     response.content)
+        nt.assert_in("New Description",
+                     response.content)
+        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+                     'name="event-max_volunteer" type="number" value="3" />',
+                     response.content)
+        nt.assert_in('<option value="12:00:00" selected="selected">' +
+                     '12:00 PM</option>',
+                     response.content)
+        nt.assert_in('<option value="'+str(self.context.days[0].pk) +
+                     '" selected="selected">'+str(self.context.days[0]) +
+                     '</option>',
+                     response.content)
+        nt.assert_in('<li>Select a valid choice. That choice is not one of ' +
+                     'the available choices.</li>',
+                     response.content)
+
+    def test_good_user_with_duration(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': self.context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': self.context.room.pk,
+                  'event-duration': "3:00:00",
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  },
+            follow=True)
+
+        assert_redirects(response, url)
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+                     'type="text" value="3:00:00" />',
+                     response.content)
+
+    def test_good_user_with_teacher(self):
+        overcommitter = PersonaFactory()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': self.context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': self.context.room.pk,
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  'event-teacher': overcommitter.pk,
+                  },
+            follow=True)
+
+        assert_redirects(response, url)
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        sessions = Event.objects.filter(eventitem=self.context.bid,
+                                        max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+        teachers = session.get_direct_workers('Teacher')
+        nt.assert_equal(len(teachers), 1)
+        nt.assert_equal(teachers[0].pk, overcommitter.pk)
+
+    def test_good_user_with_moderator(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = PanelContext()
+        overcommitter = PersonaFactory()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': context.room.pk,
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  'event-moderator': overcommitter.pk,
+                  },
+            follow=True)
+
+        assert_redirects(response, url)
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+        moderators = session.get_direct_workers('Moderator')
+        nt.assert_equal(len(moderators), 1)
+        nt.assert_equal(moderators[0].pk, overcommitter.pk)
+
+    def test_good_user_with_staff_area_lead(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        room = RoomFactory()
+        context = StaffAreaContext()
+        overcommitter = ProfileFactory()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["GenericEvent",
+                            context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': room.pk,
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  'event-staff_lead': overcommitter.pk,
+                  },
+            follow=True)
+        assert_redirects(response, url)
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        sessions = Event.objects.filter(
+            eventitem=context.sched_event.eventitem,
+            max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+
+        leads = Worker.objects.filter(role="Staff Lead",
+                                      allocations__event=session)
+        nt.assert_equal(len(leads), 1)
+        nt.assert_equal(leads.first().workeritem.pk, overcommitter.pk)
+
+    def test_good_user_with_panelists(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = PanelContext()
+        context.add_panelist()
+        overcommitter1 = PersonaFactory()
+        overcommitter2 = PersonaFactory()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", context.sched_event.pk])
+        response = self.client.post(
+            url,
+            data={'event-day': context.days[0].pk,
+                  'event-time': "12:00:00",
+                  'event-location': context.room.pk,
+                  'event-max_volunteer': 3,
+                  'event-title': 'New Title',
+                  'event-description': 'New Description',
+                  'event-panelists': [overcommitter1.pk, overcommitter2.pk]
+                  },
+            follow=True)
+
+        assert_redirects(response, url)
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+        leads = session.get_direct_workers('Panelist')
+        nt.assert_equal(len(leads), 2)
+        nt.assert_in(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
+        nt.assert_in(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])

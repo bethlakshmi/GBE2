@@ -45,6 +45,8 @@ class TestEventList(TestCase):
 
     def test_good_user_get_success(self):
         SchedEventFactory()
+        show = ShowFactory()
+        show_event = SchedEventFactory.create(eventitem=show.eventitem_ptr)
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls")

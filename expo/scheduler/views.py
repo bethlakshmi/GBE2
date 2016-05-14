@@ -843,6 +843,7 @@ def add_event(request, eventitem_id, event_type='Class'):
                                       'event_type': event_type})
 
 
+@login_required
 def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
@@ -851,11 +852,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     profile = validate_perms(request, ('Scheduling Mavens',))
 
-    try:
-        item = Event.objects.get_subclass(id=scheduler_event_id)
-    except:
-        raise Exception("Error code XYZZY: Couldn't get an item for id")
-        # TO DO: log this exception
+    item = get_object_or_404(Event, id=scheduler_event_id)
+
     if request.method == 'POST':
         event_form = EventScheduleForm(request.POST,
                                        instance=item,
