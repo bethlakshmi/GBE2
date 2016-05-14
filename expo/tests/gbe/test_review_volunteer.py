@@ -13,7 +13,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-
+from unittest import skip
 
 class TestReviewVolunteer(TestCase):
     '''Tests for review_volunteer view'''
@@ -64,6 +64,7 @@ class TestReviewVolunteer(TestCase):
         nt.assert_true('Bid Information' in response.content)
         nt.assert_false('Change Bid State:' in response.content)
 
+
     def test_review_volunteer_coordinator(self):
         volunteer = VolunteerFactory()
         url = reverse(self.view_name,
@@ -99,5 +100,8 @@ class TestReviewVolunteer(TestCase):
         data = self.get_form(volunteer, self.coordinator)
         response = self.client.post(url, data=data, follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Review Volunteers' in response.content)
-        nt.assert_true('Bid Information' in response.content)
+        html_tag= '<h2 class="review-title">%s</h2>'
+        title_string = ("Bid Information for %s" %
+                        volunteer.conference.conference_name)
+        html_title = html_tag % title_string
+        assert html_title in response.content

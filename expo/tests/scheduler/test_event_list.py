@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     ProfileFactory,
+    ClassFactory,
     ShowFactory,
 )
 from gbe.models import Conference
@@ -45,6 +46,8 @@ class TestEventList(TestCase):
 
     def test_good_user_get_success(self):
         SchedEventFactory()
+        SchedEventFactory(eventitem=ClassFactory())
+        SchedEventFactory(eventitem=ShowFactory())
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls")
