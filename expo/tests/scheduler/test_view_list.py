@@ -1,3 +1,4 @@
+import pytest
 from gbe.models import (
     Conference
 )
@@ -102,8 +103,7 @@ def test_view_list_event_type_not_case_sensitive():
     request2.user = ProfileFactory.create().user_object
     request1.session = {'cms_admin_site': 1}
     request2.session = {'cms_admin_site': 1}
-    nt.assert_equal(view_list(request1).content, view_list(request2).content)
-
+    assert view_list(request1).content == view_list(request2).content
 
 
 @pytest.mark.django_db

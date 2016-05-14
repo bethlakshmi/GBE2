@@ -1,8 +1,8 @@
+import pytest
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django import forms
 import nose.tools as nt
-from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from scheduler.views import detail_view
@@ -16,7 +16,6 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
-import mock
 
 
 def schedule_show(show):

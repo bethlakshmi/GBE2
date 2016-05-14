@@ -50,10 +50,9 @@ class TestEventList(TestCase):
                       urlconf="scheduler.urls")
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Select event type to schedule' in response.content)
-        nt.assert_true(
-            '<option value="GenericEvent">GenericEvent</option>'
-            in response.content)
+        assert 'Select event type to schedule' in response.content
+        assert ('<option value="GenericEvent">GenericEvent</option>'
+                in response.content)
         nt.assert_true(
             '<option value="Class">Class</option>' in response.content)
         nt.assert_true(

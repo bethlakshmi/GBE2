@@ -1,3 +1,4 @@
+import pytest
 from django.contrib.auth.models import Group
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse

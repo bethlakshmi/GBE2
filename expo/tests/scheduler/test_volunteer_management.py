@@ -1,3 +1,4 @@
+import pytest
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
@@ -16,10 +17,6 @@ from tests.factories.scheduler_factories import (
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
-)
-from django.test import (
-    TestCase,
-    Client
 )
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse

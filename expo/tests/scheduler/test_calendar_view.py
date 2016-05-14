@@ -1,3 +1,4 @@
+import pytest
 import nose.tools as nt
 from django.core.urlresolvers import reverse
 from django.test import Client
