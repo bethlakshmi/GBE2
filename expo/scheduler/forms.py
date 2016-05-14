@@ -57,7 +57,7 @@ class WorkerAllocationForm (forms.Form):
 class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    
+
     day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
     location = forms.ModelChoiceField(
@@ -80,13 +80,11 @@ class EventScheduleForm(forms.ModelForm):
     title = forms.CharField(required=False,
                             help_text=scheduling_help_texts['title'])
 
-
     def __init__(self, *args, **kwargs):
         conference = get_current_conference()
         super(EventScheduleForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all())
-
 
     class Meta:
         model = Event

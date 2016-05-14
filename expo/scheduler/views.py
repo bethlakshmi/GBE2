@@ -494,6 +494,7 @@ def allocate_workers(request, opp_id):
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
 
+
 @login_required
 def manage_volunteer_opportunities(request, event_id):
     '''
@@ -514,9 +515,9 @@ def manage_volunteer_opportunities(request, event_id):
     if request.method != 'POST':
         # TO DO: review this
         return HttpResponseRedirect(reverse('edit_event',
-                                        urlconf='scheduler.urls',
-                                        args=[event.event_type_name,
-                                                event_id]))
+                                    urlconf='scheduler.urls',
+                                    args=[event.event_type_name,
+                                          event_id]))
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():
             form = VolunteerOpportunityForm(
@@ -535,7 +536,8 @@ def manage_volunteer_opportunities(request, event_id):
             data = form.cleaned_data
             day = data.get('day').day
             time_parts = map(int, data.get('time').split(":"))
-            start_time = datetime.combine(day, dttime(*time_parts, tzinfo=pytz.utc))
+            start_time = datetime.combine(day, dttime(*time_parts,
+                                                      tzinfo=pytz.utc))
             opp_event = Event(eventitem=opp.eventitem_ptr,
                               max_volunteer=data.get('num_volunteers', 1),
                               starttime=start_time,
@@ -805,6 +807,11 @@ def add_event(request, eventitem_id, event_type='Class'):
                 s_event.unallocate_role('Panelist')
                 for panelist in data['panelists']:
                     s_event.allocate_worker(panelist.workeritem, 'Panelist')
+
+            if data['staff_lead']:
+                s_event.unallocate_role('Staff Lead')
+                s_event.allocate_worker(data['staff_lead'].workeritem,
+                                        'Staff Lead')
 
             if data['description'] or data['title']:
                 c_event = s_event.as_subtype
