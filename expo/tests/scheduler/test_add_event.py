@@ -12,7 +12,6 @@ from tests.factories.gbe_factories import (
 )
 from gbe.models import (
     Conference,
-    ConferenceDay,
     Room
 )
 from scheduler.models import Worker
