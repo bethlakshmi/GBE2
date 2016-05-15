@@ -34,6 +34,7 @@ class StaffAreaContext:
         self.conf_day = ConferenceDayFactory(
             day=self.sched_event.starttime.date(),
             conference=self.conference)
+        self.days = [ConferenceDayFactory(conference=self.conference)]
 
     def schedule_instance(self,
                           starttime=None,

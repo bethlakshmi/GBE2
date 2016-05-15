@@ -13,14 +13,14 @@ from tests.factories.scheduler_factories import (
 )
 
 
-class ClassContext:
+class PanelContext:
     def __init__(self,
                  bid=None,
-                 teacher=None,
+                 moderator=None,
                  conference=None,
                  room=None,
                  starttime=None):
-        self.teacher = teacher or PersonaFactory()
+        self.moderator = moderator or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         self.bid = bid or ClassFactory(conference=self.conference,
                                        accepted=3)
@@ -33,9 +33,9 @@ class ClassContext:
     def schedule_instance(self,
                           starttime=None,
                           room=None,
-                          teacher=None):
+                          moderator=None):
         room = room or self.room
-        teacher = teacher or self.teacher
+        moderator = moderator or self.moderator
         if starttime:
             sched_event = SchedEventFactory(eventitem=self.bid.eventitem_ptr,
                                             starttime=starttime)
@@ -51,6 +51,15 @@ class ClassContext:
             resource=LocationFactory(_item=room.locationitem_ptr))
         ResourceAllocationFactory(
             event=sched_event,
-            resource=WorkerFactory(_item=teacher.workeritem_ptr,
-                                   role='Teacher'))
+            resource=WorkerFactory(_item=moderator.workeritem_ptr,
+                                   role='Moderator'))
         return sched_event
+
+    def add_panelist(self,
+                     panelist=None):
+        panelist = panelist or PersonaFactory()
+        ResourceAllocationFactory(
+            event=self.sched_event,
+            resource=WorkerFactory(_item=panelist.workeritem_ptr,
+                                   role='Panelist'))
+        return panelist
