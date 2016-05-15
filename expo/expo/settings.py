@@ -139,7 +139,6 @@ INSTALLED_APPS = (
 
 )
 
-# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 
