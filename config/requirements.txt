@@ -47,3 +47,4 @@ coverage
 django-compat
 django-hijack
 ipython
+pep8
