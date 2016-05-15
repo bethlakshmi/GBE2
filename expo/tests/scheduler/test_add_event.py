@@ -51,6 +51,16 @@ class TestAddEvent(TestCase):
                      'event-description': 'New Description',
                      }
         return form_dict
+    
+    def assert_good_get(self, response, eventitem):
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(eventitem.title,
+                     response.content)
+        nt.assert_in(eventitem.description,
+                     response.content)
+        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+                     'type="text" value="01:00:00" />',
+                     response.content)
 
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
@@ -84,14 +94,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in(self.eventitem.title,
-                     response.content)
-        nt.assert_in(self.eventitem.description,
-                     response.content)
-        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
-                     'type="text" value="01:00:00" />',
-                     response.content)
+        self.assert_good_get(response, self.eventitem)
 
     def test_good_user_get_class(self):
         Conference.objects.all().delete()
@@ -102,14 +105,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in(context.bid.title,
-                     response.content)
-        nt.assert_in(context.bid.description,
-                     response.content)
-        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
-                     'type="text" value="01:00:00" />',
-                     response.content)
+        self.assert_good_get(response, context.bid)
 
     def test_good_user_minimal_post(self):
         Conference.objects.all().delete()
