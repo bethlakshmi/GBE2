@@ -122,6 +122,7 @@ class TestConferenceVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url, follow=True)
         nt.assert_true(
-            ('http://testserver/performer/create?next=/conference/volunteer', 302)
+            ('http://testserver/performer/create?next=/conference/volunteer',
+             302)
             in response.redirect_chain)
         nt.assert_equal(response.status_code, 200)

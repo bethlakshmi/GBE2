@@ -34,7 +34,6 @@ class TestProposeClass(TestCase):
             del(data['type'])
         return data
 
-
     def test_propose_invalid_class(self):
         current_conference()
         url = reverse(self.view_name, urlconf="gbe.urls")

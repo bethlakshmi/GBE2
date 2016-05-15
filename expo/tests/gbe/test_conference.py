@@ -7,6 +7,7 @@ from gbe.models import Conference
 
 import nose.tools as nt
 
+
 @pytest.mark.django_db
 def test_by_slug_gets_conf_for_given_slug():
     conf = ConferenceFactory(conference_slug="foo",
