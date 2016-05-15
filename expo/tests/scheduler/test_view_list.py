@@ -90,20 +90,21 @@ def test_view_list_default_view_current_conf_exists():
 @pytest.mark.django_db
 def test_view_list_event_type_not_case_sensitive():
     param = 'class'
-    request1 = RequestFactory().get(
-        reverse("event_list",
+    client = Client()
+    password = "password"
+    url_lower = reverse("event_list",
                 urlconf="scheduler.urls",
-                args=[param]))
-    request2 = RequestFactory().get(
-        reverse("event_list",
-                urlconf="scheduler.urls",
-                args=[param.upper()]))
+                args=[param.lower()])
 
-    request1.user = ProfileFactory.create().user_object
-    request2.user = ProfileFactory.create().user_object
-    request1.session = {'cms_admin_site': 1}
-    request2.session = {'cms_admin_site': 1}
-    assert view_list(request1).content == view_list(request2).content
+    url_upper = reverse("event_list",
+                urlconf="scheduler.urls",
+                args=[param.upper()])
+    user = ProfileFactory.create().user_object
+    client.login(username=user.username,
+                 email=user.email,
+                 password=password)
+
+    assert client.get(url_lower).content == client.get(url_upper).content
 
 
 @pytest.mark.django_db

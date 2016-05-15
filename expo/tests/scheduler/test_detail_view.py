@@ -28,7 +28,7 @@ def test_no_permission_required():
     sched_event = schedule_show(show)
     request = RequestFactory().get(
         '/scheduler/details/%d' % show.eventitem_ptr.pk)
-    request.user = ProfileFactory.create().user_object
+    request.user = ProfileFactory().user_object
     request.session = {'cms_admin_site': 1}
     response = detail_view(request, show.eventitem_ptr.pk)
     nt.assert_equal(200, response.status_code)
@@ -40,7 +40,7 @@ def test_no_permission_required():
 def test_bad_id_raises_404():
     request = RequestFactory().get(
         '/scheduler/details/%d' % -1)
-    request.user = ProfileFactory.create().user_object
+    request.user = ProfileFactory.user_object
     request.session = {'cms_admin_site': 1}
     response = detail_view(request, -1)
 
@@ -49,15 +49,15 @@ def test_bad_id_raises_404():
 def test_repeated_lead_shows_once():
     show = ShowFactory()
     sched_events = [schedule_show(show) for i in range(2)]
-    staff_lead = ProfileFactory.create()
-    lead_worker = WorkerFactory.create(_item=staff_lead.workeritem_ptr,
-                                       role="Staff Lead")
+    staff_lead = ProfileFactory()
+    lead_worker = WorkerFactory(_item=staff_lead.workeritem_ptr,
+                                role="Staff Lead")
     for se in sched_events:
         ResourceAllocationFactory.create(event=se,
                                          resource=lead_worker)
     request = RequestFactory().get(
         '/scheduler/details/%d' % show.eventitem_ptr.pk)
-    request.user = ProfileFactory.create().user_object
+    request.user = ProfileFactory().user_object
     request.session = {'cms_admin_site': 1}
     response = detail_view(request, show.eventitem_ptr.pk)
     nt.assert_equal(200, response.status_code)
