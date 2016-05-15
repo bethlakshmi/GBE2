@@ -89,24 +89,26 @@ class TestAddEvent(TestCase):
                      response.content)
         nt.assert_in(self.eventitem.description,
                      response.content)
-        nt.assert_in(str(self.eventitem.duration),
+        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+                     'type="text" value="01:00:00" />',
                      response.content)
 
     def test_good_user_get_class(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = ClassContext()
         login_as(self.privileged_profile, self)
-        klass = ClassFactory()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", klass.eventitem_id])
+                      args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_in(klass.title,
+        nt.assert_in(context.bid.title,
                      response.content)
-        nt.assert_in(klass.description,
+        nt.assert_in(context.bid.description,
                      response.content)
-        nt.assert_in("1:00",
-                     response.content)
-        nt.assert_in(str(klass.teacher),
+        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+                     'type="text" value="01:00:00" />',
                      response.content)
 
     def test_good_user_minimal_post(self):
