@@ -51,7 +51,7 @@ class TestAddEvent(TestCase):
                      'event-description': 'New Description',
                      }
         return form_dict
-    
+
     def assert_good_get(self, response, eventitem):
         nt.assert_equal(response.status_code, 200)
         nt.assert_in(eventitem.title,
@@ -62,13 +62,32 @@ class TestAddEvent(TestCase):
                      'type="text" value="01:00:00" />',
                      response.content)
 
+    def assert_good_post(self, response, event, day, room, event_type="Class"):
+        assert_redirects(response, reverse('event_schedule',
+                                           urlconf='scheduler.urls',
+                                           args=[event_type]))
+
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        nt.assert_in('Events Information', response.content)
+        sessions = event.scheduler_events.filter(max_volunteer=3)
+        nt.assert_equal(len(sessions), 1)
+        session = sessions.first()
+        nt.assert_equal(session.starttime,
+                        datetime.combine(day,
+                                         time(12, 0, 0, tzinfo=pytz.utc)))
+        nt.assert_in('New Title', response.content)
+        nt.assert_in(str(room), response.content)
+        nt.assert_in('<td class="events-table">      \n\t\t\t  \n\t\t\t' +
+                     '    3\n\t\t\t  \n          \t\t</td>',
+                     response.content)
+        return session
+
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
-        
         assert_redirects(response, redirect_url)
         nt.assert_true(is_login_page(response))
 
@@ -118,22 +137,10 @@ class TestAddEvent(TestCase):
         response = self.client.post(url,
                                     data=self.get_add_event_form(context),
                                     follow=True)
-
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["Class"]))
-
-        nt.assert_not_in('<ul class="errorlist">', response.content)
-        nt.assert_in('Events Information', response.content)
-        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-        nt.assert_equal(session.starttime,
-                        datetime.combine(context.days[0].day,
-                                         time(12, 0, 0, tzinfo=pytz.utc)))
-        nt.assert_in('New Title', response.content)
-        nt.assert_in(str(context.room), response.content)
-        nt.assert_in('3', response.content)
+        self.assert_good_post(response,
+                              context.bid,
+                              context.days[0].day,
+                              context.room)
 
     def test_good_user_invalid_submit(self):
         Conference.objects.all().delete()
@@ -182,12 +189,12 @@ class TestAddEvent(TestCase):
             url,
             data=form_data,
             follow=True)
-
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["Class"]))
-        nt.assert_in('Events Information', response.content)
-        nt.assert_in("3:00",
+        self.assert_good_post(response,
+                              context.bid,
+                              context.days[0].day,
+                              context.room)
+        nt.assert_in('<td class="events-table">      \n            ' +
+                     '\t\t03:00\n          \t\t</td>',
                      response.content)
 
     def test_good_user_with_teacher(self):
@@ -205,14 +212,10 @@ class TestAddEvent(TestCase):
             url,
             data=form_data,
             follow=True)
-
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["Class"]))
-        nt.assert_in('Events Information', response.content)
-        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
+        session = self.assert_good_post(response,
+                                        context.bid,
+                                        context.days[0].day,
+                                        context.room)
         teachers = session.get_direct_workers('Teacher')
         nt.assert_equal(len(teachers), 1)
         nt.assert_equal(teachers[0].pk, overcommitter.pk)
@@ -233,13 +236,10 @@ class TestAddEvent(TestCase):
             data=form_data,
             follow=True)
 
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["Class"]))
-        nt.assert_in('Events Information', response.content)
-        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
+        session = self.assert_good_post(response,
+                                        context.bid,
+                                        context.days[0].day,
+                                        context.room)
         moderators = session.get_direct_workers('Moderator')
         nt.assert_equal(len(moderators), 1)
         nt.assert_equal(moderators[0].pk, overcommitter.pk)
@@ -261,15 +261,11 @@ class TestAddEvent(TestCase):
             url,
             data=form_data,
             follow=True)
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["GenericEvent"]))
-        nt.assert_in('Events Information', response.content)
-        sessions = context.sched_event.eventitem.scheduler_events.filter(
-            max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-
+        session = self.assert_good_post(response,
+                                        context.sched_event.eventitem,
+                                        context.days[0].day,
+                                        room,
+                                        "GenericEvent")
         leads = Worker.objects.filter(role="Staff Lead",
                                       allocations__event=session)
         nt.assert_equal(len(leads), 1)
@@ -293,13 +289,10 @@ class TestAddEvent(TestCase):
             data=form_data,
             follow=True)
 
-        assert_redirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=["Class"]))
-        nt.assert_in('Events Information', response.content)
-        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
+        session = self.assert_good_post(response,
+                                        context.bid,
+                                        context.days[0].day,
+                                        context.room)
         leads = session.get_direct_workers('Panelist')
         nt.assert_equal(len(leads), 2)
         nt.assert_in(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
