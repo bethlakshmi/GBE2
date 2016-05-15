@@ -127,7 +127,7 @@ class TestAddEvent(TestCase):
 
         nt.assert_not_in('<ul class="errorlist">', response.content)
         nt.assert_in('Events Information', response.content)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
         nt.assert_equal(session.starttime,
@@ -212,7 +212,7 @@ class TestAddEvent(TestCase):
                                            urlconf='scheduler.urls',
                                            args=["Class"]))
         nt.assert_in('Events Information', response.content)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
         teachers = session.get_direct_workers('Teacher')
@@ -239,7 +239,7 @@ class TestAddEvent(TestCase):
                                            urlconf='scheduler.urls',
                                            args=["Class"]))
         nt.assert_in('Events Information', response.content)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
         moderators = session.get_direct_workers('Moderator')
@@ -267,8 +267,7 @@ class TestAddEvent(TestCase):
                                            urlconf='scheduler.urls',
                                            args=["GenericEvent"]))
         nt.assert_in('Events Information', response.content)
-        sessions = Event.objects.filter(
-            eventitem=context.sched_event.eventitem,
+        sessions = context.sched_event.eventitem.scheduler_events.filter(
             max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
@@ -300,7 +299,7 @@ class TestAddEvent(TestCase):
                                            urlconf='scheduler.urls',
                                            args=["Class"]))
         nt.assert_in('Events Information', response.content)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
+        sessions = context.bid.scheduler_events.filter(max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
         leads = session.get_direct_workers('Panelist')
