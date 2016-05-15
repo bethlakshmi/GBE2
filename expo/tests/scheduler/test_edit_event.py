@@ -33,6 +33,7 @@ from datetime import (
     timedelta,
 )
 
+
 class TestEditEvent(TestCase):
     view_name = 'edit_event'
 
@@ -186,7 +187,7 @@ class TestEditEvent(TestCase):
                      response.content)
         nt.assert_not_in('<ul class="errorlist">', response.content)
         nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
-                     'type="text" value="3:00:00" />',
+                     'type="text" value="03:00:00" />',
                      response.content)
 
     def test_good_user_with_teacher(self):
@@ -218,6 +219,10 @@ class TestEditEvent(TestCase):
         teachers = session.get_direct_workers('Teacher')
         nt.assert_equal(len(teachers), 1)
         nt.assert_equal(teachers[0].pk, overcommitter.pk)
+        nt.assert_in('<option value="' + str(overcommitter.pk) +
+                     '" selected="selected">' + str(overcommitter) +
+                     '</option>',
+                     response.content)
 
     def test_good_user_with_moderator(self):
         Conference.objects.all().delete()
@@ -250,6 +255,10 @@ class TestEditEvent(TestCase):
         moderators = session.get_direct_workers('Moderator')
         nt.assert_equal(len(moderators), 1)
         nt.assert_equal(moderators[0].pk, overcommitter.pk)
+        nt.assert_in('<option value="' + str(overcommitter.pk) +
+                     '" selected="selected">' + str(overcommitter) +
+                     '</option>',
+                     response.content)
 
     def test_good_user_with_staff_area_lead(self):
         Conference.objects.all().delete()
@@ -287,6 +296,10 @@ class TestEditEvent(TestCase):
                                       allocations__event=session)
         nt.assert_equal(len(leads), 1)
         nt.assert_equal(leads.first().workeritem.pk, overcommitter.pk)
+        nt.assert_in('<option value="' + str(overcommitter.pk) +
+                     '" selected="selected">' + str(overcommitter) +
+                     '</option>',
+                     response.content)
 
     def test_good_user_with_panelists(self):
         Conference.objects.all().delete()
@@ -322,3 +335,11 @@ class TestEditEvent(TestCase):
         nt.assert_equal(len(leads), 2)
         nt.assert_in(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
         nt.assert_in(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])
+        nt.assert_in('<option value="' + str(overcommitter1.pk) +
+                     '" selected="selected">' + str(overcommitter1) +
+                     '</option>',
+                     response.content)
+        nt.assert_in('<option value="' + str(overcommitter2.pk) +
+                     '" selected="selected">' + str(overcommitter2) +
+                     '</option>',
+                     response.content)
