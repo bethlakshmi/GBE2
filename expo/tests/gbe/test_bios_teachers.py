@@ -55,7 +55,7 @@ class TestBiosTeachers(TestCase):
                                   conference=conf,
                                   title="xyzzy")
         that_class = ClassFactory(accepted=3,
-                                  conferenceother_conf,
+                                  conference=other_conf,
                                   title="plugh")
         this_sched_class = sEvent(
             eventitem=this_class,
