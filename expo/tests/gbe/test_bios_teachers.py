@@ -1,4 +1,5 @@
 import nose.tools as nt
+from unittest import skip
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
@@ -21,7 +22,6 @@ from scheduler.models import (
 )
 from tests.factories.scheduler_factories import ResourceAllocationFactory
 from tests.functions.gbe_functions import login_as
-from nt import skip
 
 
 class TestBiosTeachers(TestCase):
