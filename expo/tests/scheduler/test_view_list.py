@@ -107,7 +107,6 @@ def test_view_list_event_type_not_case_sensitive():
     assert client.get(url_lower).content == client.get(url_upper).content
 
 
-
 @pytest.mark.django_db
 def test_view_list_event_type_not_in_list_titles():
     client = Client()
