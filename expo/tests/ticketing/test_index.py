@@ -2,7 +2,7 @@ from tests.factories.ticketing_factories import (
     TicketItemFactory
 )
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from ticketing.views import (

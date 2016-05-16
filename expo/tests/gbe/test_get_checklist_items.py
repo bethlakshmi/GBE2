@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from tests.factories.ticketing_factories import (
     RoleEligibilityConditionFactory,
     PurchaserFactory,

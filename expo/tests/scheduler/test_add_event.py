@@ -1,18 +1,20 @@
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from django_nose.tools import assert_redirects
-from unittest import TestCase
-from django.test import Client
+from django.test import (
+    Client,
+    TestCase,
+)
 from tests.factories.gbe_factories import (
     ClassFactory,
     GenericEventFactory,
     ProfileFactory,
     PersonaFactory,
-    RoomFactory
+    RoomFactory,
 )
 from gbe.models import (
     Conference,
-    Room
+    Room,
 )
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
@@ -23,11 +25,14 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ClassContext,
     PanelContext,
-    StaffAreaContext
+    StaffAreaContext,
 )
 from scheduler.models import Event
 import pytz
-from datetime import datetime, time
+from datetime import (
+    datetime,
+    time,
+)
 
 
 class TestAddEvent(TestCase):

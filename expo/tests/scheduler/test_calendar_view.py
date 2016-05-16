@@ -1,3 +1,4 @@
+import pytest
 import nose.tools as nt
 from django.core.urlresolvers import reverse
 from django.test import Client
@@ -33,6 +34,7 @@ def schedule_show(show):
                                      resource=location)
 
 
+@pytest.mark.django_db
 def test_calendar_view_shows_current_conf_by_default():
     client = Client()
     clear_conferences()
@@ -56,6 +58,7 @@ def test_calendar_view_shows_current_conf_by_default():
     nt.assert_false(other_show.title in response.content)
 
 
+@pytest.mark.django_db
 def test_calendar_view_event_shows_all_events():
     client = Client()
     clear_conferences()
@@ -82,6 +85,7 @@ def test_calendar_view_event_shows_all_events():
     nt.assert_false(other_show.title in response.content)
 
 
+@pytest.mark.django_db
 def test_calendar_view_shows_requested_conference():
     client = Client()
     clear_conferences()
@@ -106,6 +110,7 @@ def test_calendar_view_shows_requested_conference():
     nt.assert_true(other_show.title in response.content)
 
 
+@pytest.mark.django_db
 def test_no_conference_days():
     clear_conferences()
     ConferenceFactory(status='upcoming')

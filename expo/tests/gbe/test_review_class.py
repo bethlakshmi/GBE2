@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -41,7 +41,6 @@ class TestReviewClass(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
-
     def test_review_class_post_form_invalid(self):
         klass = ClassFactory()
         url = reverse(self.view_name,
@@ -50,10 +49,9 @@ class TestReviewClass(TestCase):
 
         login_as(self.privileged_user, self)
         response = self.client.post(url,
-                                    data = {'accepted': 1})
+                                    data={'accepted': 1})
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
-
 
     def test_review_class_post_form_valid(self):
         klass = ClassFactory()

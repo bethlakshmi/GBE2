@@ -2,7 +2,7 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from django.contrib.auth.models import Group
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from ticketing.views import ticket_item_edit
