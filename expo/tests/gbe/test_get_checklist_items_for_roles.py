@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from tests.factories.ticketing_factories import (
     RoleEligibilityConditionFactory,
     NoEventRoleExclusionFactory

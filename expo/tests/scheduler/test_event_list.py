@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     ProfileFactory,
+    ClassFactory,
     ShowFactory,
 )
 from gbe.models import Conference
@@ -45,17 +46,16 @@ class TestEventList(TestCase):
 
     def test_good_user_get_success(self):
         SchedEventFactory()
-        show = ShowFactory()
-        show_event = SchedEventFactory.create(eventitem=show.eventitem_ptr)
+        SchedEventFactory(eventitem=ClassFactory())
+        SchedEventFactory(eventitem=ShowFactory())
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls")
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Select event type to schedule' in response.content)
-        nt.assert_true(
-            '<option value="GenericEvent">GenericEvent</option>'
-            in response.content)
+        assert 'Select event type to schedule' in response.content
+        assert ('<option value="GenericEvent">GenericEvent</option>'
+                in response.content)
         nt.assert_true(
             '<option value="Class">Class</option>' in response.content)
         nt.assert_true(

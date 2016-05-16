@@ -2,7 +2,7 @@ from gbe.models import (
     Conference,
 )
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (

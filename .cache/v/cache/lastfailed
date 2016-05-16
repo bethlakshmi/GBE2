@@ -1,0 +1,13 @@
+{
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_bad_user": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_get_bad_event": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_get_success": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_invalid_submit": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_minimal_post": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_with_duration": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_with_moderator": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_with_panelists": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_with_staff_area_lead": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_good_user_with_teacher": true, 
+  "expo/tests/scheduler/test_edit_event.py::TestEditEvent::test_no_login_gives_error": true
+}

@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -99,5 +99,8 @@ class TestReviewVolunteer(TestCase):
         data = self.get_form(volunteer, self.coordinator)
         response = self.client.post(url, data=data, follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Review Volunteers' in response.content)
-        nt.assert_true('Bid Information' in response.content)
+        html_tag = '<h2 class="review-title">%s</h2>'
+        title_string = ("Bid Information for %s" %
+                        volunteer.conference.conference_name)
+        html_title = html_tag % title_string
+        assert html_title in response.content

@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from django_nose.tools import assert_redirects
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     ProfileFactory,

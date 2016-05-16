@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse

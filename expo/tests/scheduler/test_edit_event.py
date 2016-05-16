@@ -1,8 +1,10 @@
 from django.core.urlresolvers import reverse
 import nose.tools as nt
 from django_nose.tools import assert_redirects
-from unittest import TestCase
-from django.test import Client
+from django.test import (
+    Client,
+    TestCase,
+)
 from tests.factories.gbe_factories import (
     ClassFactory,
     ConferenceDayFactory,
