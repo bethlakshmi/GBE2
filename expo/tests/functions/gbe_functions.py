@@ -42,7 +42,7 @@ def grant_privilege(user_or_profile, privilege):
 
 
 def is_login_page(response):
-    return 'I forgot my password!' in response.content
+    return 'I forgot my username or password!' in response.content
 
 
 def is_profile_update_page(response):
