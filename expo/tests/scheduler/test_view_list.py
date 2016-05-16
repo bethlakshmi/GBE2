@@ -99,10 +99,6 @@ def test_view_list_event_type_not_case_sensitive():
     url_upper = reverse("event_list",
                         urlconf="scheduler.urls",
                         args=[param.upper()])
-    user = ProfileFactory.create().user_object
-    client.login(username=user.username,
-                 email=user.email,
-                 password=password)
 
     assert client.get(url_lower).content == client.get(url_upper).content
 
@@ -114,13 +110,6 @@ def test_view_list_event_type_not_in_list_titles():
     url = reverse("event_list",
                   urlconf="scheduler.urls",
                   args=[param])
-    user = ProfileFactory().user_object
-    password = "password"
-    user.set_password('password')
-    user.save()
-    client.login(username=user.username,
-                 email=user.email,
-                 password=password)
     response = client.get(url)
     expected_string = "Check out the full list of all shows"
     nt.assert_true(expected_string in response.content)
