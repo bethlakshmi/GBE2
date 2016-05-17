@@ -27,7 +27,10 @@ from tests.contexts import (
     PanelContext,
     StaffAreaContext,
 )
-from scheduler.models import Event
+from tests.functions.scheduler_functions import (
+    assert_good_sched_event_form,
+    get_sched_event_form
+)
 import pytz
 from datetime import (
     datetime,
@@ -45,27 +48,6 @@ class TestAddEvent(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.eventitem = GenericEventFactory()
-
-    def get_add_event_form(self, context, room=None):
-        room = room or context.room
-        form_dict = {'event-day': context.days[0].pk,
-                     'event-time': "12:00:00",
-                     'event-location': room.pk,
-                     'event-max_volunteer': 3,
-                     'event-title': 'New Title',
-                     'event-description': 'New Description',
-                     }
-        return form_dict
-
-    def assert_good_get(self, response, eventitem):
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in(eventitem.title,
-                     response.content)
-        nt.assert_in(eventitem.description,
-                     response.content)
-        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
-                     'type="text" value="01:00:00" />',
-                     response.content)
 
     def assert_good_post(self, response, event, day, room, event_type="Class"):
         assert_redirects(response, reverse('event_schedule',
@@ -118,7 +100,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
-        self.assert_good_get(response, self.eventitem)
+        assert_good_sched_event_form(response, self.eventitem)
 
     def test_good_user_get_class(self):
         Conference.objects.all().delete()
@@ -129,7 +111,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
-        self.assert_good_get(response, context.bid)
+        assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_minimal_post(self):
         Conference.objects.all().delete()
@@ -140,7 +122,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.post(url,
-                                    data=self.get_add_event_form(context),
+                                    data=get_sched_event_form(context),
                                     follow=True)
         self.assert_good_post(response,
                               context.bid,
@@ -155,7 +137,7 @@ class TestAddEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
-        form_data = self.get_add_event_form(context)
+        form_data = get_sched_event_form(context)
         form_data['event-location'] = 'bad room'
         response = self.client.post(url,
                                     data=form_data)
@@ -188,7 +170,7 @@ class TestAddEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
-        form_data = self.get_add_event_form(context)
+        form_data = get_sched_event_form(context)
         form_data['event-duration'] = "3:00:00"
         response = self.client.post(
             url,
@@ -211,7 +193,7 @@ class TestAddEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
-        form_data = self.get_add_event_form(context)
+        form_data = get_sched_event_form(context)
         form_data['event-teacher'] = overcommitter.pk
         response = self.client.post(
             url,
@@ -234,7 +216,7 @@ class TestAddEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
-        form_data = self.get_add_event_form(context)
+        form_data = get_sched_event_form(context)
         form_data['event-moderator'] = overcommitter.pk
         response = self.client.post(
             url,
@@ -260,7 +242,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["GenericEvent",
                             context.sched_event.eventitem.eventitem_id])
-        form_data = self.get_add_event_form(context, room)
+        form_data = get_sched_event_form(context, room)
         form_data['event-staff_lead'] = overcommitter.pk
         response = self.client.post(
             url,
@@ -287,7 +269,7 @@ class TestAddEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
-        form_data = self.get_add_event_form(context)
+        form_data = get_sched_event_form(context)
         form_data['event-panelists'] = [overcommitter1.pk, overcommitter2.pk]
         response = self.client.post(
             url,
