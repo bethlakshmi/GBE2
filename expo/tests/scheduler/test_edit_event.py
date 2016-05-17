@@ -20,6 +20,7 @@ from gbe.models import (
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
     grant_privilege,
+    is_login_page,
     login_as,
 )
 from tests.contexts import (
@@ -49,12 +50,70 @@ class TestEditEvent(TestCase):
         Room.objects.all().delete()
         self.context = ClassContext()
 
+    def get_edit_event_form(self, context, room=None):
+        room = room or context.room
+        form_dict = {'event-day': context.days[0].pk,
+                     'event-time': "12:00:00",
+                     'event-location': room.pk,
+                     'event-max_volunteer': 3,
+                     'event-title': 'New Title',
+                     'event-description': 'New Description',
+                     }
+        return form_dict
+
+    def assert_good_get(self, response, eventitem):
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(eventitem.title,
+                     response.content)
+        nt.assert_in(eventitem.description,
+                     response.content)
+        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+                     'type="text" value="01:00:00" />',
+                     response.content)
+
+    def assert_good_post(self,
+                         response,
+                         context,
+                         day,
+                         room,
+                         event_type="Class"):
+        assert_redirects(response, reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=[event_type, context.sched_event.pk]))
+
+        nt.assert_not_in('<ul class="errorlist">', response.content)
+        # check title
+        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+                     response.content)
+        # check day
+        nt.assert_in('<option value="' +
+                     str(day.pk) +
+                     '" selected="selected">',
+                     response.content)
+        # check time
+        nt.assert_in('<option value="12:00:00" selected="selected">',
+                     response.content)
+        # check location
+        nt.assert_in('<option value="' +
+                     str(room.pk) +
+                     '" selected="selected">' +
+                     str(room),
+                     response.content)
+        # check volunteers
+        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+                     'name="event-max_volunteer" type="number" value="3" />',
+                     response.content)
+        # check description
+        nt.assert_in('New Description', response.content)
+
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
-        response = self.client.get(url)
-        nt.assert_equal(response.status_code, 302)
+        response = self.client.get(url, follow=True)
+        redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
+        assert_redirects(response, redirect_url)
+        nt.assert_true(is_login_page(response))
 
     def test_bad_user(self):
         login_as(ProfileFactory(), self)
@@ -78,74 +137,33 @@ class TestEditEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in(self.context.bid.title,
-                     response.content)
-        nt.assert_in(self.context.bid.description,
-                     response.content)
-        nt.assert_in(str(self.context.bid.duration),
-                     response.content)
+        self.assert_good_get(response, self.context.bid)
 
     def test_good_user_minimal_post(self):
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
-        self.context.days += [ConferenceDayFactory(
-            conference=self.context.conference,
-            day=date.today() + timedelta(8))]
+        form_data = self.get_edit_event_form(self.context)
         response = self.client.post(
             url,
-            data={'event-day': self.context.days[1].pk,
-                  'event-time': "12:00:00",
-                  'event-location': self.context.room.pk,
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  },
+            data=form_data,
             follow=True)
-
-        assert_redirects(response, url)
-
-        nt.assert_not_in('<ul class="errorlist">', response.content)
-        # check title
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        # check day
-        nt.assert_in('<option value="' +
-                     str(self.context.days[1].pk) +
-                     '" selected="selected">',
-                     response.content)
-        # check time
-        nt.assert_in('<option value="12:00:00" selected="selected">',
-                     response.content)
-        # check location
-        nt.assert_in('<option value="' +
-                     str(self.context.room.pk) +
-                     '" selected="selected">' +
-                     str(self.context.room),
-                     response.content)
-        # check volunteers
-        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
-                     'name="event-max_volunteer" type="number" value="3" />',
-                     response.content)
-        # check description
-        nt.assert_in('New Description', response.content)
+        self.assert_good_post(response,
+                              self.context,
+                              self.context.days[0],
+                              self.context.room)
 
     def test_good_user_invalid_submit(self):
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
+        form_data = self.get_edit_event_form(self.context)
+        form_data['event-location'] = 'bad room'
         response = self.client.post(
             url,
-            data={'event-day': self.context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': 'bad room',
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  })
+            data=form_data)
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_in('<input id="id_event-title" name="event-title" ' +
@@ -172,22 +190,17 @@ class TestEditEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
+        form_data = self.get_edit_event_form(self.context)
+        form_data['event-duration'] = "3:00:00"
         response = self.client.post(
             url,
-            data={'event-day': self.context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': self.context.room.pk,
-                  'event-duration': "3:00:00",
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  },
+            data=form_data,
             follow=True)
 
-        assert_redirects(response, url)
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+        self.assert_good_post(response,
+                              self.context,
+                              self.context.days[0],
+                              self.context.room)
         nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
                      'type="text" value="03:00:00" />',
                      response.content)
@@ -198,22 +211,17 @@ class TestEditEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
+        form_data = self.get_edit_event_form(self.context)
+        form_data['event-teacher'] = overcommitter.pk
         response = self.client.post(
             url,
-            data={'event-day': self.context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': self.context.room.pk,
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  'event-teacher': overcommitter.pk,
-                  },
+            data=form_data,
             follow=True)
-
-        assert_redirects(response, url)
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+ 
+        self.assert_good_post(response,
+                              self.context,
+                              self.context.days[0],
+                              self.context.room)
         sessions = Event.objects.filter(eventitem=self.context.bid,
                                         max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
@@ -235,22 +243,17 @@ class TestEditEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.sched_event.pk])
+        form_data = self.get_edit_event_form(context)
+        form_data['event-moderator'] = overcommitter.pk
         response = self.client.post(
             url,
-            data={'event-day': context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': context.room.pk,
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  'event-moderator': overcommitter.pk,
-                  },
+            data=form_data,
             follow=True)
 
-        assert_redirects(response, url)
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+        self.assert_good_post(response,
+                              context,
+                              context.days[0],
+                              context.room)
         sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
@@ -273,21 +276,17 @@ class TestEditEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["GenericEvent",
                             context.sched_event.pk])
+        form_data = self.get_edit_event_form(context, room=room)
+        form_data['event-staff_lead'] = overcommitter.pk
         response = self.client.post(
             url,
-            data={'event-day': context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': room.pk,
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  'event-staff_lead': overcommitter.pk,
-                  },
+            data=form_data,
             follow=True)
-        assert_redirects(response, url)
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+        self.assert_good_post(response,
+                              context,
+                              context.days[0],
+                              room,
+                              "GenericEvent")
         sessions = Event.objects.filter(
             eventitem=context.sched_event.eventitem,
             max_volunteer=3)
@@ -314,22 +313,17 @@ class TestEditEvent(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.sched_event.pk])
+        form_data = self.get_edit_event_form(context)
+        form_data['event-panelists'] = [overcommitter1.pk, overcommitter2.pk]
         response = self.client.post(
             url,
-            data={'event-day': context.days[0].pk,
-                  'event-time': "12:00:00",
-                  'event-location': context.room.pk,
-                  'event-max_volunteer': 3,
-                  'event-title': 'New Title',
-                  'event-description': 'New Description',
-                  'event-panelists': [overcommitter1.pk, overcommitter2.pk]
-                  },
+            data=form_data,
             follow=True)
 
-        assert_redirects(response, url)
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+        self.assert_good_post(response,
+                              context,
+                              context.days[0],
+                              context.room)
         sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
         nt.assert_equal(len(sessions), 1)
         session = sessions.first()
