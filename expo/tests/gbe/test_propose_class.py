@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -33,7 +33,6 @@ class TestProposeClass(TestCase):
         if not valid:
             del(data['type'])
         return data
-
 
     def test_propose_invalid_class(self):
         current_conference()

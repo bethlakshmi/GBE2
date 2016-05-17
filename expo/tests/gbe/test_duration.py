@@ -1,6 +1,6 @@
 from gbe.duration import Duration
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 
 
 # unit tests for Duration

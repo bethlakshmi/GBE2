@@ -1,5 +1,5 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from datetime import datetime
 import pytz
 from django.test import Client

@@ -218,7 +218,7 @@ class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class
     title = Sequence(lambda x: "Test Class #%d" % x)
-
+    duration = Duration(hours=1)
     teacher = SubFactory(PersonaFactory)
     minimum_enrollment = 1
     maximum_enrollment = 20

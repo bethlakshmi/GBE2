@@ -1,3 +1,4 @@
+import pytest
 from gbe.models import (
     Conference
 )
@@ -20,6 +21,7 @@ from scheduler.views import view_list
 import nose.tools as nt
 
 
+@pytest.mark.django_db
 def test_view_list_given_slug():
     conf = ConferenceFactory.create()
     other_conf = ConferenceFactory.create()
@@ -43,6 +45,7 @@ def test_view_list_given_slug():
     nt.assert_false(that_class.title in response.content)
 
 
+@pytest.mark.django_db
 def test_view_list_default_view_current_conf_exists():
     '''
     /scheduler/view_list/ should return all events in the current
@@ -84,38 +87,29 @@ def test_view_list_default_view_current_conf_exists():
     nt.assert_false(previous_class.title in response.content)
 
 
+@pytest.mark.django_db
 def test_view_list_event_type_not_case_sensitive():
     param = 'class'
-    request1 = RequestFactory().get(
-        reverse("event_list",
-                urlconf="scheduler.urls",
-                args=[param]))
-    request2 = RequestFactory().get(
-        reverse("event_list",
-                urlconf="scheduler.urls",
-                args=[param.upper()]))
+    client = Client()
+    password = "password"
+    url_lower = reverse("event_list",
+                        urlconf="scheduler.urls",
+                        args=[param.lower()])
 
-    request1.user = ProfileFactory.create().user_object
-    request2.user = ProfileFactory.create().user_object
-    request1.session = {'cms_admin_site': 1}
-    request2.session = {'cms_admin_site': 1}
-    nt.assert_equal(view_list(request1).content, view_list(request2).content)
+    url_upper = reverse("event_list",
+                        urlconf="scheduler.urls",
+                        args=[param.upper()])
+
+    assert client.get(url_lower).content == client.get(url_upper).content
 
 
-
+@pytest.mark.django_db
 def test_view_list_event_type_not_in_list_titles():
     client = Client()
     param = 'classification'
-    url =reverse("event_list",
-                 urlconf="scheduler.urls",
-                 args=[param])
-    user = ProfileFactory().user_object
-    password = "password"
-    user.set_password('password')
-    user.save()
-    client.login(username=user.username,
-                  email=user.email,
-                  password=password)
+    url = reverse("event_list",
+                  urlconf="scheduler.urls",
+                  args=[param])
     response = client.get(url)
     expected_string = "Check out the full list of all shows"
     nt.assert_true(expected_string in response.content)

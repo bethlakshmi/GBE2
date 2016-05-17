@@ -10,6 +10,7 @@ from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 import gbe.models as conf
 from gbe.functions import get_current_conference
+import pytz
 
 conference_days = (
     (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
@@ -56,12 +57,11 @@ class WorkerAllocationForm (forms.Form):
 class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    
+
     day = forms.ChoiceField(choices=['No Days Specified'])
     time = forms.ChoiceField(choices=conference_times)
-    location = forms.ChoiceField(choices=[
-                (loc, loc.__str__()) for loc in
-                LocationItem.objects.all().order_by('room__name')])
+    location = forms.ModelChoiceField(
+            queryset=LocationItem.objects.all().order_by('room__name'))
     duration = DurationFormField(
                    help_text=scheduling_help_texts['duration'])
     teacher = forms.ModelChoiceField(queryset=conf.Performer.objects.all(),
@@ -80,13 +80,11 @@ class EventScheduleForm(forms.ModelForm):
     title = forms.CharField(required=False,
                             help_text=scheduling_help_texts['title'])
 
-
     def __init__(self, *args, **kwargs):
         conference = get_current_conference()
         super(EventScheduleForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all())
-
 
     class Meta:
         model = Event
@@ -107,7 +105,7 @@ class EventScheduleForm(forms.ModelForm):
         event = super(EventScheduleForm, self).save(commit=False)
         day = data.get('day').day
         time_parts = map(int, data.get('time').split(":"))
-        starttime = time(*time_parts)
+        starttime = time(*time_parts, tzinfo=pytz.utc)
         event.starttime = datetime.combine(day, starttime)
 
         if commit:

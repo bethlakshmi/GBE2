@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
 import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
-from django.test import Client
+from django.test import (
+    TestCase,
+    Client,
+)
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ClassFactory,
@@ -26,7 +27,6 @@ class TestReviewClassList(TestCase):
     view_name = 'class_review_list'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
