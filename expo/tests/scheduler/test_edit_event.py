@@ -1,6 +1,4 @@
 from django.core.urlresolvers import reverse
-import nose.tools as nt
-from django_nose.tools import assert_redirects
 from django.test import (
     Client,
     TestCase,
@@ -59,34 +57,34 @@ class TestEditEvent(TestCase):
                          day,
                          room,
                          event_type="Class"):
-        assert_redirects(response, reverse(self.view_name,
+        self.assertRedirects(response, reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=[event_type, context.sched_event.pk]))
 
-        nt.assert_not_in('<ul class="errorlist">', response.content)
+        self.assertNotIn('<ul class="errorlist">', response.content)
         # check title
-        nt.assert_in('<H1 class="sched_detail_title">New Title</H1>',
+        self.assertIn('<H1 class="sched_detail_title">New Title</H1>',
                      response.content)
         # check day
-        nt.assert_in('<option value="' +
+        self.assertIn('<option value="' +
                      str(day.pk) +
                      '" selected="selected">',
                      response.content)
         # check time
-        nt.assert_in('<option value="12:00:00" selected="selected">',
+        self.assertIn('<option value="12:00:00" selected="selected">',
                      response.content)
         # check location
-        nt.assert_in('<option value="' +
+        self.assertIn('<option value="' +
                      str(room.pk) +
                      '" selected="selected">' +
                      str(room),
                      response.content)
         # check volunteers
-        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+        self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
                      'name="event-max_volunteer" type="number" value="3" />',
                      response.content)
         # check description
-        nt.assert_in('New Description', response.content)
+        self.assertIn('New Description', response.content)
 
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
@@ -94,8 +92,8 @@ class TestEditEvent(TestCase):
                       args=["Class", self.context.sched_event.pk])
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
-        assert_redirects(response, redirect_url)
-        nt.assert_true(is_login_page(response))
+        self.assertRedirects(response, redirect_url)
+        self.assertTrue(is_login_page(response))
 
     def test_bad_user(self):
         login_as(ProfileFactory(), self)
@@ -103,7 +101,7 @@ class TestEditEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
     def test_good_user_get_bad_event(self):
         login_as(self.privileged_profile, self)
@@ -111,7 +109,7 @@ class TestEditEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk+1])
         response = self.client.get(url, follow=True)
-        nt.assert_equal(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
@@ -147,23 +145,23 @@ class TestEditEvent(TestCase):
             url,
             data=form_data)
 
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_in('<input id="id_event-title" name="event-title" ' +
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('<input id="id_event-title" name="event-title" ' +
                      'type="text" value="New Title" />',
                      response.content)
-        nt.assert_in("New Description",
+        self.assertIn("New Description",
                      response.content)
-        nt.assert_in('<input id="id_event-max_volunteer" min="0" ' +
+        self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
                      'name="event-max_volunteer" type="number" value="3" />',
                      response.content)
-        nt.assert_in('<option value="12:00:00" selected="selected">' +
+        self.assertIn('<option value="12:00:00" selected="selected">' +
                      '12:00 PM</option>',
                      response.content)
-        nt.assert_in('<option value="'+str(self.context.days[0].pk) +
+        self.assertIn('<option value="'+str(self.context.days[0].pk) +
                      '" selected="selected">'+str(self.context.days[0]) +
                      '</option>',
                      response.content)
-        nt.assert_in('<li>Select a valid choice. That choice is not one of ' +
+        self.assertIn('<li>Select a valid choice. That choice is not one of ' +
                      'the available choices.</li>',
                      response.content)
 
@@ -183,7 +181,7 @@ class TestEditEvent(TestCase):
                               self.context,
                               self.context.days[0],
                               self.context.room)
-        nt.assert_in('<input id="id_event-duration" name="event-duration" ' +
+        self.assertIn('<input id="id_event-duration" name="event-duration" ' +
                      'type="text" value="03:00:00" />',
                      response.content)
 
@@ -205,9 +203,9 @@ class TestEditEvent(TestCase):
                               self.context.days[0],
                               self.context.room)
         teachers = self.context.sched_event.get_direct_workers('Teacher')
-        nt.assert_equal(len(teachers), 1)
-        nt.assert_equal(teachers[0].pk, overcommitter.pk)
-        nt.assert_in('<option value="' + str(overcommitter.pk) +
+        self.assertEqual(len(teachers), 1)
+        self.assertEqual(teachers[0].pk, overcommitter.pk)
+        self.assertIn('<option value="' + str(overcommitter.pk) +
                      '" selected="selected">' + str(overcommitter) +
                      '</option>',
                      response.content)
@@ -233,9 +231,9 @@ class TestEditEvent(TestCase):
                               context.days[0],
                               context.room)
         moderators = context.sched_event.get_direct_workers('Moderator')
-        nt.assert_equal(len(moderators), 1)
-        nt.assert_equal(moderators[0].pk, overcommitter.pk)
-        nt.assert_in('<option value="' + str(overcommitter.pk) +
+        self.assertEqual(len(moderators), 1)
+        self.assertEqual(moderators[0].pk, overcommitter.pk)
+        self.assertIn('<option value="' + str(overcommitter.pk) +
                      '" selected="selected">' + str(overcommitter) +
                      '</option>',
                      response.content)
@@ -265,9 +263,9 @@ class TestEditEvent(TestCase):
         leads = Worker.objects.filter(
             role="Staff Lead",
             allocations__event=context.sched_event)
-        nt.assert_equal(len(leads), 1)
-        nt.assert_equal(leads.first().workeritem.pk, overcommitter.pk)
-        nt.assert_in('<option value="' + str(overcommitter.pk) +
+        self.assertEqual(len(leads), 1)
+        self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
+        self.assertIn('<option value="' + str(overcommitter.pk) +
                      '" selected="selected">' + str(overcommitter) +
                      '</option>',
                      response.content)
@@ -295,14 +293,14 @@ class TestEditEvent(TestCase):
                               context.days[0],
                               context.room)
         leads = context.sched_event.get_direct_workers('Panelist')
-        nt.assert_equal(len(leads), 2)
-        nt.assert_in(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
-        nt.assert_in(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])
-        nt.assert_in('<option value="' + str(overcommitter1.pk) +
+        self.assertEqual(len(leads), 2)
+        self.assertIn(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
+        self.assertIn(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])
+        self.assertIn('<option value="' + str(overcommitter1.pk) +
                      '" selected="selected">' + str(overcommitter1) +
                      '</option>',
                      response.content)
-        nt.assert_in('<option value="' + str(overcommitter2.pk) +
+        self.assertIn('<option value="' + str(overcommitter2.pk) +
                      '" selected="selected">' + str(overcommitter2) +
                      '</option>',
                      response.content)
