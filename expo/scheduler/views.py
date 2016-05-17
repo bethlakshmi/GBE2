@@ -448,7 +448,7 @@ def show_potential_workers(opp):
             'all_volunteers': all_volunteers,
             'available_volunteers': available}
 
-
+@login_required
 def allocate_workers(request, opp_id):
     '''
     Process a worker allocation form
@@ -456,6 +456,9 @@ def allocate_workers(request, opp_id):
     '''
     if request.method != "POST":
         raise Http404
+
+    coordinator = validate_perms(request, ('Volunteer Coordinator',))
+
     opp = Event.objects.get(id=opp_id)
     form = WorkerAllocationForm(request.POST)
 
