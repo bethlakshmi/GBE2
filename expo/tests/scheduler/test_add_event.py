@@ -10,16 +10,16 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
     ProfileFactory,
     PersonaFactory,
-    RoomFactory,
+    RoomFactory
 )
 from gbe.models import (
     Conference,
-    Room,
+    Room
 )
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
-    is_login_page,
     grant_privilege,
+    is_login_page,
     login_as,
 )
 from tests.contexts import (

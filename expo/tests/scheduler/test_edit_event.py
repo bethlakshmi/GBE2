@@ -222,11 +222,7 @@ class TestEditEvent(TestCase):
                               self.context,
                               self.context.days[0],
                               self.context.room)
-        sessions = Event.objects.filter(eventitem=self.context.bid,
-                                        max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-        teachers = session.get_direct_workers('Teacher')
+        teachers = self.context.sched_event.get_direct_workers('Teacher')
         nt.assert_equal(len(teachers), 1)
         nt.assert_equal(teachers[0].pk, overcommitter.pk)
         nt.assert_in('<option value="' + str(overcommitter.pk) +
@@ -254,10 +250,7 @@ class TestEditEvent(TestCase):
                               context,
                               context.days[0],
                               context.room)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-        moderators = session.get_direct_workers('Moderator')
+        moderators = context.sched_event.get_direct_workers('Moderator')
         nt.assert_equal(len(moderators), 1)
         nt.assert_equal(moderators[0].pk, overcommitter.pk)
         nt.assert_in('<option value="' + str(overcommitter.pk) +
@@ -287,14 +280,9 @@ class TestEditEvent(TestCase):
                               context.days[0],
                               room,
                               "GenericEvent")
-        sessions = Event.objects.filter(
-            eventitem=context.sched_event.eventitem,
-            max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-
-        leads = Worker.objects.filter(role="Staff Lead",
-                                      allocations__event=session)
+        leads = Worker.objects.filter(
+            role="Staff Lead",
+            allocations__event=context.sched_event)
         nt.assert_equal(len(leads), 1)
         nt.assert_equal(leads.first().workeritem.pk, overcommitter.pk)
         nt.assert_in('<option value="' + str(overcommitter.pk) +
@@ -324,10 +312,7 @@ class TestEditEvent(TestCase):
                               context,
                               context.days[0],
                               context.room)
-        sessions = Event.objects.filter(eventitem=context.bid, max_volunteer=3)
-        nt.assert_equal(len(sessions), 1)
-        session = sessions.first()
-        leads = session.get_direct_workers('Panelist')
+        leads = context.sched_event.get_direct_workers('Panelist')
         nt.assert_equal(len(leads), 2)
         nt.assert_in(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
         nt.assert_in(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])
