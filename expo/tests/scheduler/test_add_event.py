@@ -48,9 +48,10 @@ class TestAddEvent(TestCase):
         self.eventitem = GenericEventFactory()
 
     def assert_good_post(self, response, event, day, room, event_type="Class"):
-        self.assertRedirects(response, reverse('event_schedule',
-                                           urlconf='scheduler.urls',
-                                           args=[event_type]))
+        self.assertRedirects(response,
+                             reverse('event_schedule',
+                                     urlconf='scheduler.urls',
+                                     args=[event_type]))
 
         self.assertNotIn('<ul class="errorlist">', response.content)
         self.assertIn('Events Information', response.content)
@@ -58,13 +59,13 @@ class TestAddEvent(TestCase):
         self.assertEqual(len(sessions), 1)
         session = sessions.first()
         self.assertEqual(session.starttime,
-                        datetime.combine(day,
-                                         time(12, 0, 0, tzinfo=pytz.utc)))
+                         datetime.combine(day,
+                                          time(12, 0, 0, tzinfo=pytz.utc)))
         self.assertIn('New Title', response.content)
         self.assertIn(str(room), response.content)
         self.assertIn('<td class="events-table">      \n\t\t\t  \n\t\t\t' +
-                     '    3\n\t\t\t  \n          \t\t</td>',
-                     response.content)
+                      '    3\n\t\t\t  \n          \t\t</td>',
+                      response.content)
         return session
 
     def test_no_login_gives_error(self):
@@ -142,23 +143,23 @@ class TestAddEvent(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('<input id="id_event-title" name="event-title" ' +
-                     'type="text" value="New Title" />',
-                     response.content)
+                      'type="text" value="New Title" />',
+                      response.content)
         self.assertIn("New Description",
-                     response.content)
+                      response.content)
         self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
-                     'name="event-max_volunteer" type="number" value="3" />',
-                     response.content)
+                      'name="event-max_volunteer" type="number" value="3" />',
+                      response.content)
         self.assertIn('<option value="12:00:00" selected="selected">' +
-                     '12:00 PM</option>',
-                     response.content)
+                      '12:00 PM</option>',
+                      response.content)
         self.assertIn('<option value="'+str(context.days[0].pk) +
-                     '" selected="selected">'+str(context.days[0]) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">'+str(context.days[0]) +
+                      '</option>',
+                      response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
-                     'the available choices.</li>',
-                     response.content)
+                      'the available choices.</li>',
+                      response.content)
 
     def test_good_user_with_duration(self):
         Conference.objects.all().delete()
@@ -179,8 +180,8 @@ class TestAddEvent(TestCase):
                               context.days[0].day,
                               context.room)
         self.assertIn('<td class="events-table">      \n            ' +
-                     '\t\t03:00\n          \t\t</td>',
-                     response.content)
+                      '\t\t03:00\n          \t\t</td>',
+                      response.content)
 
     def test_good_user_with_teacher(self):
         Conference.objects.all().delete()

@@ -57,32 +57,33 @@ class TestEditEvent(TestCase):
                          day,
                          room,
                          event_type="Class"):
-        self.assertRedirects(response, reverse(self.view_name,
-                                           urlconf="scheduler.urls",
-                                           args=[event_type, context.sched_event.pk]))
+        self.assertRedirects(response, reverse(
+            self.view_name,
+            urlconf="scheduler.urls",
+            args=[event_type, context.sched_event.pk]))
 
         self.assertNotIn('<ul class="errorlist">', response.content)
         # check title
         self.assertIn('<H1 class="sched_detail_title">New Title</H1>',
-                     response.content)
+                      response.content)
         # check day
         self.assertIn('<option value="' +
-                     str(day.pk) +
-                     '" selected="selected">',
-                     response.content)
+                      str(day.pk) +
+                      '" selected="selected">',
+                      response.content)
         # check time
         self.assertIn('<option value="12:00:00" selected="selected">',
-                     response.content)
+                      response.content)
         # check location
         self.assertIn('<option value="' +
-                     str(room.pk) +
-                     '" selected="selected">' +
-                     str(room),
-                     response.content)
+                      str(room.pk) +
+                      '" selected="selected">' +
+                      str(room),
+                      response.content)
         # check volunteers
         self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
-                     'name="event-max_volunteer" type="number" value="3" />',
-                     response.content)
+                      'name="event-max_volunteer" type="number" value="3" />',
+                      response.content)
         # check description
         self.assertIn('New Description', response.content)
 
@@ -147,23 +148,23 @@ class TestEditEvent(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('<input id="id_event-title" name="event-title" ' +
-                     'type="text" value="New Title" />',
-                     response.content)
+                      'type="text" value="New Title" />',
+                      response.content)
         self.assertIn("New Description",
-                     response.content)
+                      response.content)
         self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
-                     'name="event-max_volunteer" type="number" value="3" />',
-                     response.content)
+                      'name="event-max_volunteer" type="number" value="3" />',
+                      response.content)
         self.assertIn('<option value="12:00:00" selected="selected">' +
-                     '12:00 PM</option>',
-                     response.content)
+                      '12:00 PM</option>',
+                      response.content)
         self.assertIn('<option value="'+str(self.context.days[0].pk) +
-                     '" selected="selected">'+str(self.context.days[0]) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">'+str(self.context.days[0]) +
+                      '</option>',
+                      response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
-                     'the available choices.</li>',
-                     response.content)
+                      'the available choices.</li>',
+                      response.content)
 
     def test_good_user_with_duration(self):
         login_as(self.privileged_profile, self)
@@ -182,8 +183,8 @@ class TestEditEvent(TestCase):
                               self.context.days[0],
                               self.context.room)
         self.assertIn('<input id="id_event-duration" name="event-duration" ' +
-                     'type="text" value="03:00:00" />',
-                     response.content)
+                      'type="text" value="03:00:00" />',
+                      response.content)
 
     def test_good_user_with_teacher(self):
         overcommitter = PersonaFactory()
@@ -197,7 +198,7 @@ class TestEditEvent(TestCase):
             url,
             data=form_data,
             follow=True)
- 
+
         self.assert_good_post(response,
                               self.context,
                               self.context.days[0],
@@ -206,9 +207,31 @@ class TestEditEvent(TestCase):
         self.assertEqual(len(teachers), 1)
         self.assertEqual(teachers[0].pk, overcommitter.pk)
         self.assertIn('<option value="' + str(overcommitter.pk) +
-                     '" selected="selected">' + str(overcommitter) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">' + str(overcommitter) +
+                      '</option>',
+                      response.content)
+
+    def test_good_user_remove_teacher(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        form_data = get_sched_event_form(self.context)
+        form_data['event-teacher'] = ""
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+
+        self.assert_good_post(response,
+                              self.context,
+                              self.context.days[0],
+                              self.context.room)
+        teachers = self.context.sched_event.get_direct_workers('Teacher')
+        self.assertEqual(len(teachers), 0)
+        self.assertIn('<select id="id_event-teacher" name="event-teacher">\n' +
+                      '<option value="" selected="selected">---------</option>',
+                      response.content)
 
     def test_good_user_with_moderator(self):
         Conference.objects.all().delete()
@@ -234,9 +257,9 @@ class TestEditEvent(TestCase):
         self.assertEqual(len(moderators), 1)
         self.assertEqual(moderators[0].pk, overcommitter.pk)
         self.assertIn('<option value="' + str(overcommitter.pk) +
-                     '" selected="selected">' + str(overcommitter) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">' + str(overcommitter) +
+                      '</option>',
+                      response.content)
 
     def test_good_user_with_staff_area_lead(self):
         Conference.objects.all().delete()
@@ -266,9 +289,9 @@ class TestEditEvent(TestCase):
         self.assertEqual(len(leads), 1)
         self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
         self.assertIn('<option value="' + str(overcommitter.pk) +
-                     '" selected="selected">' + str(overcommitter) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">' + str(overcommitter) +
+                      '</option>',
+                      response.content)
 
     def test_good_user_with_panelists(self):
         Conference.objects.all().delete()
@@ -297,10 +320,10 @@ class TestEditEvent(TestCase):
         self.assertIn(leads[0].pk, [overcommitter1.pk, overcommitter2.pk])
         self.assertIn(leads[1].pk, [overcommitter1.pk, overcommitter2.pk])
         self.assertIn('<option value="' + str(overcommitter1.pk) +
-                     '" selected="selected">' + str(overcommitter1) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">' + str(overcommitter1) +
+                      '</option>',
+                      response.content)
         self.assertIn('<option value="' + str(overcommitter2.pk) +
-                     '" selected="selected">' + str(overcommitter2) +
-                     '</option>',
-                     response.content)
+                      '" selected="selected">' + str(overcommitter2) +
+                      '</option>',
+                      response.content)

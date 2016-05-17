@@ -763,6 +763,36 @@ def contact_by_role(request, participant_type):
         writer.writerow(row)
     return response
 
+#
+# Takes data in the form of a POST of name value pairs
+# and optionally a list of role tuples, (X, Y) where
+#    X = the key in the data
+#    Y = the role name in the worker allocation
+#
+# and clears and sets the role in the event.
+# Event should be scheduled event (scheduler.Event)
+#
+def set_single_role(event, data, roles=None):
+    if not roles:
+        roles = [('teacher', 'Teacher'),
+                ('moderator', 'Moderator'),
+                ('staff_lead', 'Staff Lead')]
+    for role_key, role in roles:
+        event.unallocate_role(role)
+        if data[role_key]:
+            event.allocate_worker(data[role_key].workeritem, role)
+    event.save()
+
+def set_multi_role(event, data, roles=None):
+    if not roles:
+        roles = [('panelists', 'Panelist')]
+    for role_key, role in roles:
+        event.unallocate_role(role)
+        if len(data[role_key]) > 0:
+            for worker in data[role_key]:
+                 event.allocate_worker(worker.workeritem, role)
+    event.save()
+  
 
 @login_required
 def add_event(request, eventitem_id, event_type='Class'):
@@ -795,24 +825,8 @@ def add_event(request, eventitem_id, event_type='Class'):
             l = LocationItem.objects.get_subclass(room__name=data['location'])
             s_event.save()
             s_event.set_location(l)
-            if data['teacher']:
-                s_event.unallocate_role('Teacher')
-                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()
-            if data['moderator']:
-                s_event.unallocate_role('Moderator')
-                s_event.allocate_worker(data['moderator'].workeritem,
-                                        'Moderator')
-            if len(data['panelists']) > 0:
-                s_event.unallocate_role('Panelist')
-                for panelist in data['panelists']:
-                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
-
-            if data['staff_lead']:
-                s_event.unallocate_role('Staff Lead')
-                s_event.allocate_worker(data['staff_lead'].workeritem,
-                                        'Staff Lead')
-
+            set_single_role(s_event, data)
+            set_multi_role(s_event, data)
             if data['description'] or data['title']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
@@ -870,27 +884,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 room__name=data['location'])
             s_event.save()
             s_event.set_location(l)
-
-            s_event.unallocate_role('Teacher')
-            if data['teacher']:
-                s_event.allocate_worker(data['teacher'].workeritem, 'Teacher')
-            s_event.save()
-
-            s_event.unallocate_role('Moderator')
-            if data['moderator']:
-                s_event.allocate_worker(data['moderator'].workeritem,
-                                        'Moderator')
-
-            s_event.unallocate_role('Panelist')
-            if len(data['panelists']) > 0:
-                for panelist in data['panelists']:
-                    s_event.allocate_worker(panelist.workeritem, 'Panelist')
-
-            s_event.unallocate_role('Staff Lead')
-            if data['staff_lead']:
-                s_event.allocate_worker(data['staff_lead'].workeritem,
-                                        'Staff Lead')
-
+            set_single_role(s_event, data)
+            set_multi_role(s_event, data)
             if data['description'] or data['title']:
                 c_event = s_event.as_subtype
                 c_event.description = data['description']
@@ -946,13 +941,6 @@ def edit_event_display(request, item, errorcontext=None):
     # Set initial values for specialized event roles
     if len(teachers) > 0:
         initial['teacher'] = teachers[0].item
-
-    elif item.event_type_name == 'Class':
-        try:
-            initial['teacher'] = item.as_subtype.teacher
-        except:
-            pass
-
     if len(moderators) > 0:
         initial['moderator'] = moderators[0].item
     if len(panelists) > 0:
