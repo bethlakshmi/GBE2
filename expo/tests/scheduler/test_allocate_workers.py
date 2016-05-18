@@ -18,6 +18,7 @@ from datetime import (
     datetime,
     time,
 )
+from model_utils.managers import InheritanceManager
 
 class TestAllocateWorkers(TestCase):
     view_name = "allocate_workers"
@@ -28,6 +29,7 @@ class TestAllocateWorkers(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.context = StaffAreaContext()
 
     def test_no_login_gives_error(self):
@@ -59,46 +61,7 @@ class TestAllocateWorkers(TestCase):
         response = self.client.get(url)
         self.assertEqual(404, response.status_code)
 
-    # def test_post_form_not_valid_nonexistent_alloc_id(self):
-    #     context = VolunteerContext()
-    #     url = reverse(self.view_name,
-    #                   args=[context.event.pk],
-    #                   urlconf="scheduler.urls")
-    #     data = {'worker': context.worker.id,
-    #             'alloc_id': "invalid alloc_id",
-    #             'role': 'Volunteer'}
-    #     login_as(ProfileFactory(), self)
-    #     response = self.client.post(url, data=data, follow=True)
-    #     self.assertEqual(1,2)
-
-    # def test_post_form_not_valid_good_alloc_id(self):
-    #     context = VolunteerContext()
-    #     url = reverse(self.view_name,
-    #                   args=[context.event.pk],
-    #                   urlconf="scheduler.urls")
-    #     data = {'worker': "Ralph Kramden",
-    #             'alloc_id': context.allocation.id,
-    #             'role': 'Volunteer'}
-    #     login_as(ProfileFactory(), self)
-    #     response = self.client.post(url, data=data, follow=True)
-    #     self.assertEqual(1,2)
-
-
-    # def test_post_form_valid_delete_allocation(self):
-    #     context = VolunteerContext()
-    #     url = reverse(self.view_name,
-    #                   args=[context.event.pk],
-    #                   urlconf="scheduler.urls")
-    #     data = {'worker': context.worker.id,
-    #             'alloc_id': context.allocation.id,
-    #             'role': 'Volunteer',
-    #             'delete': 1}
-    #     login_as(ProfileFactory(), self)
-    #     response = self.client.post(url, data=data, follow=True)
-    #     self.assertEqual(1,2)
-
-
-    def test_post_form_valid_alloc_id_lt_zero(self):
+    def test_post_form_valid_make_new_allocation(self):
         context = StaffAreaContext()
         volunteer_opp = context.add_volunteer_opp()
         volunteer = ProfileFactory()
@@ -106,27 +69,65 @@ class TestAllocateWorkers(TestCase):
                       args=[volunteer_opp.pk],
                       urlconf="scheduler.urls")
         data = {'worker': volunteer.pk,
-                'alloc_id': -1, # context.allocation.id,
+                'alloc_id': -1,
                 'role': 'Volunteer'}
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
-        # self.assertEqual(1,2)
+        self.assertRedirects(response,
+                             reverse('edit_event',
+                                     urlconf='scheduler.urls',
+                                     args=["GenericEvent", volunteer_opp.pk]))
+        allocations = volunteer_opp.worker_list("Volunteer")
+        # self.assertEqual(len(allocations), 1)
+        self.assertContains(
+            response,
+            '<option value="' + str(volunteer.pk) +
+            '" selected="selected">' + str(volunteer) + '</option>')
+        self.assertContains(
+            response,
+            '<form method="POST" action="/scheduler/allocate/' +
+            str(volunteer_opp.pk) + '"', count=2)
+        self.assertContains(
+            response,
+            '<option value="Volunteer" selected="selected">Volunteer</option>')
+        #self.assertContains(
+        #    response,
+        #    '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
+        #    allocations.first().pk + '" />')
 
-    # def test_post_form_valid_alloc_exists(self):
+    def test_post_form_edit_exiting_allocation(self):
+        context = StaffAreaContext()
+        volunteer_opp = context.add_volunteer_opp()
+        volunteer, alloc = context.book_volunteer(volunteer_opp)
+        new_volunteer = ProfileFactory()
 
-    #     context = StaffAreaContext()
-    #     volunteer_opp = context.add_volunteer_opp()
-    #     volunteer = ProfileFactory()
-    #     url = reverse(self.view_name,
-    #                   args=[volunteer_opp.pk],
-    #                   urlconf="scheduler.urls")
+        url = reverse(self.view_name,
+                      args=[volunteer_opp.pk],
+                      urlconf="scheduler.urls")
+        data = {'worker': new_volunteer.pk,
+                'alloc_id': alloc.pk,
+                'role': 'Producer'}
 
-    #     data = {'worker': volunteer.pk,
-    #             'alloc_id': -1, # context.allocation.id,
-    #             'role': 'Volunteer'}
-
-    #     login_as(self.staff_user, self)
-    #     import pdb; pdb.set_trace()
-    #     response = self.client.post(url, data=data, follow=True)
-    #     # self.assertEqual(1,2)
+        login_as(self.privileged_profile, self)
+        response = self.client.post(url, data=data, follow=True)
+        print(response.content)
+        self.assertRedirects(response,
+                             reverse('edit_event',
+                                     urlconf='scheduler.urls',
+                                     args=["GenericEvent", volunteer_opp.pk]))
+        self.assertContains(
+            response,
+            '<option value="' + str(new_volunteer.pk) +
+            '" selected="selected">' + str(new_volunteer) + '</option>')
+        self.assertContains(
+            response,
+            '<option value="Producer" selected="selected">Producer</option>')
+        self.assertContains(
+            response,
+            '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
+            str(alloc.pk) + '" />')
+        self.assertContains(
+            response,
+            '<form method="POST" action="/scheduler/allocate/' +
+            str(volunteer_opp.pk) + '"', count=2)
