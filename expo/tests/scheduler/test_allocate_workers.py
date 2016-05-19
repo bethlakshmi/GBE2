@@ -32,6 +32,34 @@ class TestAllocateWorkers(TestCase):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.context = StaffAreaContext()
 
+    def assert_good_post(self,
+                         response,
+                         volunteer_opp,
+                         volunteer,
+                         alloc,
+                         role="Volunteer"):
+        self.assertRedirects(response,
+                             reverse('edit_event',
+                                     urlconf='scheduler.urls',
+                                     args=["GenericEvent", volunteer_opp.pk]))
+        self.assertContains(
+            response,
+            '<option value="' + str(volunteer.pk) +
+            '" selected="selected">' + str(volunteer) + '</option>')
+        self.assertContains(
+            response,
+            '<option value="' + role +
+            '" selected="selected">' + role +
+            '</option>')
+        self.assertContains(
+            response,
+            '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
+            str(alloc.pk) + '" />')
+        self.assertContains(
+            response,
+            '<form method="POST" action="/scheduler/allocate/' +
+            str(volunteer_opp.pk) + '"', count=2)
+
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
@@ -64,6 +92,7 @@ class TestAllocateWorkers(TestCase):
     def test_post_form_valid_make_new_allocation(self):
         context = StaffAreaContext()
         volunteer_opp = context.add_volunteer_opp()
+        allocations = volunteer_opp.resources_allocated.all()
         volunteer = ProfileFactory()
         url = reverse(self.view_name,
                       args=[volunteer_opp.pk],
@@ -74,27 +103,13 @@ class TestAllocateWorkers(TestCase):
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
-        self.assertRedirects(response,
-                             reverse('edit_event',
-                                     urlconf='scheduler.urls',
-                                     args=["GenericEvent", volunteer_opp.pk]))
-        allocations = volunteer_opp.worker_list("Volunteer")
-        # self.assertEqual(len(allocations), 1)
-        self.assertContains(
-            response,
-            '<option value="' + str(volunteer.pk) +
-            '" selected="selected">' + str(volunteer) + '</option>')
-        self.assertContains(
-            response,
-            '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=2)
-        self.assertContains(
-            response,
-            '<option value="Volunteer" selected="selected">Volunteer</option>')
-        #self.assertContains(
-        #    response,
-        #    '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
-        #    allocations.first().pk + '" />')
+        alloc = volunteer_opp.resources_allocated.all().first()
+
+        self.assertIsNotNone(alloc)
+        self.assert_good_post(response,
+                         volunteer_opp,
+                         volunteer,
+                         alloc)
 
     def test_post_form_edit_exiting_allocation(self):
         context = StaffAreaContext()
@@ -111,23 +126,38 @@ class TestAllocateWorkers(TestCase):
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
-        print(response.content)
+        self.assert_good_post(response,
+                         volunteer_opp,
+                         new_volunteer,
+                         alloc,
+                         "Producer")
+
+    def test_post_form_valid_delete_allocation(self):
+        context = StaffAreaContext()
+        volunteer_opp = context.add_volunteer_opp()
+        volunteer, alloc = context.book_volunteer(volunteer_opp)
+        url = reverse(self.view_name,
+                      args=[volunteer_opp.pk],
+                      urlconf="scheduler.urls")
+        data = {'worker': volunteer.pk,
+                'alloc_id': alloc.pk,
+                'role': 'Producer',
+                'delete': 1}
+        login_as(self.privileged_profile, self)
+        response = self.client.post(url, data=data, follow=True)
         self.assertRedirects(response,
                              reverse('edit_event',
                                      urlconf='scheduler.urls',
                                      args=["GenericEvent", volunteer_opp.pk]))
-        self.assertContains(
+        self.assertNotContains(
             response,
-            '<option value="' + str(new_volunteer.pk) +
-            '" selected="selected">' + str(new_volunteer) + '</option>')
-        self.assertContains(
-            response,
-            '<option value="Producer" selected="selected">Producer</option>')
-        self.assertContains(
+            '<option value="' + str(volunteer.pk) +
+            '" selected="selected">' + str(volunteer) + '</option>')
+        self.assertNotContains(
             response,
             '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
             str(alloc.pk) + '" />')
         self.assertContains(
             response,
             '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=2)
+            str(volunteer_opp.pk) + '"', count=1)
