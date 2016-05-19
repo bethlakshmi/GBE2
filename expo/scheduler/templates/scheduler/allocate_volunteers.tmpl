@@ -21,9 +21,6 @@ included in event edit flow. Show WorkerAllocationForms
         {% csrf_token %}
 	{% for field in form.visible_fields %}
 	  <td>
-          {% if field.errors %}
-            <font color="red">!</font>&nbsp;&nbsp;
-          {% endif %}
             {{ field }}
           {% if field.errors %}
             </br>
