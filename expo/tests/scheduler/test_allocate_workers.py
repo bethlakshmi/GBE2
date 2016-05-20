@@ -22,7 +22,29 @@ class TestAllocateWorkers(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        self.context = StaffAreaContext()
+        context = StaffAreaContext()
+        self.volunteer_opp = context.add_volunteer_opp()
+        self.volunteer, self.alloc = context.book_volunteer(
+            self.volunteer_opp)
+        self.url = reverse(self.view_name,
+                      args=[self.volunteer_opp.pk],
+                      urlconf="scheduler.urls")
+
+    def get_edit_data(self):
+        data = self.get_either_data()
+        data['alloc_id'] = self.alloc.pk
+        return data
+
+    def get_create_data(self):
+        data = self.get_either_data()
+        data['alloc_id'] = -1
+        return data
+        
+    def get_either_data(self):
+        data = {'worker': self.volunteer.pk,
+                'role': 'Volunteer',
+                'label': 'Do these notes work?'}
+        return data
 
     def assert_post_contents(self,
                              response,
@@ -78,32 +100,21 @@ class TestAllocateWorkers(TestCase):
         self.assertNotContains(response, '<ul class="errorlist">')
 
     def test_no_login_gives_error(self):
-        url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=[1])
-        response = self.client.get(url, follow=True)
-        redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
+        response = self.client.get(self.url, follow=True)
+        redirect_url = reverse(
+            'login',
+            urlconf='gbe.urls') + "/?next=" + self.url
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
     def test_bad_user(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=[1])
-        response = self.client.get(url)
-        data = {'worker': 1,
-                'alloc_id': 1,
-                'role': 'Volunteer'}
-        response = self.client.post(url, data=data)
+        response = self.client.post(self.url, data=self.get_create_data())
         self.assertEqual(response.status_code, 403)
 
     def test_not_post(self):
         login_as(self.privileged_profile, self)
-        url = reverse(self.view_name,
-                      args=[1],
-                      urlconf="scheduler.urls")
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(404, response.status_code)
 
     def test_post_form_valid_make_new_allocation(self):
@@ -114,10 +125,8 @@ class TestAllocateWorkers(TestCase):
         url = reverse(self.view_name,
                       args=[volunteer_opp.pk],
                       urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': -1,
-                'role': 'Volunteer',
-                'label': 'Do these notes work?'}
+        data = self.get_create_data()
+        data['worker'] = volunteer.pk,
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
@@ -132,55 +141,37 @@ class TestAllocateWorkers(TestCase):
             'Do these notes work?')
 
     def test_post_form_edit_exiting_allocation(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
         new_volunteer = ProfileFactory()
-
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': new_volunteer.pk,
-                'alloc_id': alloc.pk,
-                'role': 'Producer',
-                'label': 'Do these notes work?'}
+        data = self.get_edit_data()
+        data['worker'] = new_volunteer.pk,
+        data['role'] = 'Producer',
 
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assert_good_post(
             response,
-            volunteer_opp,
+            self.volunteer_opp,
             new_volunteer,
-            alloc,
+            self.alloc,
             'Do these notes work?',
             "Producer")
 
     def test_post_form_edit_bad_label(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
-
         big_label = 'Do these notes work?Do these notes work?' + \
                     'Do these notes work?Do these notes work?' + \
                     'Do these notes work?Do these notes work?' + \
                     'Do these notes work?Do these notes work?'
-
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': alloc.pk,
-                'role': 'Volunteer',
-                'label': big_label}
+        data = self.get_edit_data()
+        data['label'] = big_label
 
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assert_post_contents(
             response,
-            volunteer_opp,
-            volunteer,
-            alloc,
+            self.volunteer_opp,
+            self.volunteer,
+            self.alloc,
             big_label)
         self.assertContains(
             response,
@@ -188,52 +179,34 @@ class TestAllocateWorkers(TestCase):
             '(it has ' + str(len(big_label)) + ').</li>')
 
     def test_post_form_edit_bad_role(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
-
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': alloc.pk,
-                'role': '',
-                'label': 'Do these notes work?'}
+        data = self.get_edit_data()
+        data['role'] = ''
 
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assert_post_contents(
             response,
-            volunteer_opp,
-            volunteer,
-            alloc,
+            self.volunteer_opp,
+            self.volunteer,
+            self.alloc,
             'Do these notes work?')
         self.assertContains(
             response,
             '<li>This field is required.</li>')
 
     def test_post_form_create_bad_role(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
-
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': -1,
-                'role': '',
-                'label': 'Do these notes work?'}
+        data = self.get_create_data()
+        data['role'] = '',
 
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assert_post_contents(
             response,
-            volunteer_opp,
-            volunteer,
-            alloc,
+            self.volunteer_opp,
+            self.volunteer,
+            self.alloc,
             'Do these notes work?')
         self.assertContains(
             response,
@@ -248,61 +221,46 @@ class TestAllocateWorkers(TestCase):
             count=2)
 
     def test_post_form_valid_delete_allocation(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': alloc.pk,
-                'role': 'Producer',
-                'delete': 1}
+        data = self.get_edit_data()
+        data['delete'] = 1
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(response,
                              reverse('edit_event',
                                      urlconf='scheduler.urls',
-                                     args=["GenericEvent", volunteer_opp.pk]))
+                                     args=["GenericEvent", self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
-            '<option value="' + str(volunteer.pk) +
-            '" selected="selected">' + str(volunteer) + '</option>')
+            '<option value="' + str(self.volunteer.pk) +
+            '" selected="selected">' + str(self.volunteer) + '</option>')
         self.assertNotContains(
             response,
             '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
-            str(alloc.pk) + '" />')
+            str(self.alloc.pk) + '" />')
         self.assertContains(
             response,
             '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=1)
+            str(self.volunteer_opp.pk) + '"', count=1)
 
     def test_post_form_valid_delete_allocation_w_bad_data(self):
-        context = StaffAreaContext()
-        volunteer_opp = context.add_volunteer_opp()
-        volunteer, alloc = context.book_volunteer(volunteer_opp)
-        url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
-        data = {'worker': volunteer.pk,
-                'alloc_id': alloc.pk,
-                'role': '',
-                'delete': 1}
+        data = self.get_edit_data()
+        data['role'] = ''
+        data['delete'] = 1
         login_as(self.privileged_profile, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(response,
                              reverse('edit_event',
                                      urlconf='scheduler.urls',
-                                     args=["GenericEvent", volunteer_opp.pk]))
+                                     args=["GenericEvent", self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
-            '<option value="' + str(volunteer.pk) +
-            '" selected="selected">' + str(volunteer) + '</option>')
+            '<option value="' + str(self.volunteer.pk) +
+            '" selected="selected">' + str(self.volunteer) + '</option>')
         self.assertNotContains(
             response,
             '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
-            str(alloc.pk) + '" />')
+            str(self.alloc.pk) + '" />')
         self.assertContains(
             response,
             '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=1)
+            str(self.volunteer_opp.pk) + '"', count=1)
