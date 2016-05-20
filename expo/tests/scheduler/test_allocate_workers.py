@@ -3,22 +3,13 @@ from django.test import (
     Client
 )
 from django.core.urlresolvers import reverse
-from tests.factories.gbe_factories import (
-    ProfileFactory,
-    UserFactory,
-)
+from tests.factories.gbe_factories import ProfileFactory
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     is_login_page,
     login_as,
 )
-import pytz
-from datetime import (
-    datetime,
-    time,
-)
-from model_utils.managers import InheritanceManager
 
 
 class TestAllocateWorkers(TestCase):
