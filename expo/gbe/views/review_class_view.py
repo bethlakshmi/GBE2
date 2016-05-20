@@ -39,7 +39,8 @@ def ReviewClassView(request, class_id):
         id=class_id,
     )
     if not aclass.is_current:
-        return view_class(request, class_id)
+        return HttpResponseRedirect(
+            reverse('class_view', urlconf='gbe.urls', args=[class_id]))
     conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,
