@@ -449,6 +449,7 @@ def show_potential_workers(opp):
             'all_volunteers': all_volunteers,
             'available_volunteers': available}
 
+
 @login_required
 def allocate_workers(request, opp_id):
     '''
@@ -463,37 +464,40 @@ def allocate_workers(request, opp_id):
     opp = get_object_or_404(Event, id=opp_id)
     form = WorkerAllocationForm(request.POST)
 
-    if not form.is_valid():
-        if request.POST['alloc_id'] == '-1':
-            form.alloc_id = -1
-            return edit_event_display(request,
-                                      opp,
-                                      {'new_worker_alloc_form': form})
-        else:
-            get_object_or_404(ResourceAllocation, id=request.POST['alloc_id'])
-            return edit_event_display(request,
-                                      opp,
-                                      {'worker_alloc_forms': form})
-
-    data = form.cleaned_data
-    # if no worker, the volunteer that was there originally is deallocated.
     if 'delete' in request.POST.keys():
         alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
         res = alloc.resource
         alloc.delete()
         res.delete()
-    elif data.get('worker', None):
-        worker = Worker(_item=data['worker'].workeritem,
-                        role=data['role'])
-        worker.save()
-        if data['alloc_id'] < 0:
-            allocation = ResourceAllocation(event=opp,
-                                            resource=worker)
-        else:
-            allocation = ResourceAllocation.objects.get(id=data['alloc_id'])
-            allocation.resource = worker
-        allocation.save()
-        allocation.set_label(data['label'])
+
+    elif not form.is_valid():
+            if request.POST['alloc_id'] == '-1':
+                form.alloc_id = -1
+                return edit_event_display(request,
+                                          opp,
+                                          {'new_worker_alloc_form': form})
+            else:
+                get_object_or_404(ResourceAllocation,
+                                  id=request.POST['alloc_id'])
+                return edit_event_display(request,
+                                          opp,
+                                          {'worker_alloc_forms': form})
+    else:
+        data = form.cleaned_data
+
+        if data.get('worker', None):
+            worker = Worker(_item=data['worker'].workeritem,
+                            role=data['role'])
+            worker.save()
+            if data['alloc_id'] < 0:
+                allocation = ResourceAllocation(event=opp,
+                                                resource=worker)
+            else:
+                allocation = ResourceAllocation.objects.get(
+                    id=data['alloc_id'])
+                allocation.resource = worker
+            allocation.save()
+            allocation.set_label(data['label'])
 
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',

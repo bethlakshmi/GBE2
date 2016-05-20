@@ -26,17 +26,22 @@ urlpatterns = patterns(
         views.calendar_view, name='calendar_view'),
 #    url(r'^scheduler/(?P<event_type>Show|Class|Panel)/?$',
 #        views.calendar_view, name='calendar_view_event'),
-    url(r'^scheduler/(?P<event_type>'+'|'.join(event_types)+')/(?P<day>'+'|'.join(days_of_week)+')/?$',
+    url(r'^scheduler/(?P<event_type>' +
+        '|'.join(event_types) +
+        ')/(?P<day>' +
+        '|'.join(days_of_week) + ')/?$',
         views.calendar_view, name='calendar_view_day'),
     url(r'^scheduler/details/(\d+)/?$',
         views.detail_view, name='detail_view'),
-    url(r'^scheduler/edit/(?P<event_type>[-\w]+)/(?P<scheduler_event_id>\d+)/?$',
+    url(r'^scheduler/edit/(?P<event_type>[-\w]+)/' +
+        '(?P<scheduler_event_id>\d+)/?$',
         views.edit_event, name='edit_event'),
     url(r'^scheduler/delete_schedule/(?P<scheduler_event_id>\d+)/?$',
         views.delete_schedule, name='delete_schedule'),
     url(r'^scheduler/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         views.add_event, name='create_event'),
-    url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
+    url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/' +
+        '(?P<eventitem_id>\d+)/?$',
         views.delete_event, name='delete_event'),
     url(r'^scheduler/view_list/?$',
         views.view_list, name='event_list'),
