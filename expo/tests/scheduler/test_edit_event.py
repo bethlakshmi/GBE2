@@ -229,9 +229,10 @@ class TestEditEvent(TestCase):
                               self.context.room)
         teachers = self.context.sched_event.get_direct_workers('Teacher')
         self.assertEqual(len(teachers), 0)
-        self.assertIn('<select id="id_event-teacher" name="event-teacher">\n' +
-                      '<option value="" selected="selected">---------</option>',
-                      response.content)
+        self.assertIn(
+            '<select id="id_event-teacher" name="event-teacher">\n' +
+            '<option value="" selected="selected">---------</option>',
+            response.content)
 
     def test_good_user_with_moderator(self):
         Conference.objects.all().delete()

@@ -763,6 +763,7 @@ def contact_by_role(request, participant_type):
         writer.writerow(row)
     return response
 
+
 #
 # Takes data in the form of a POST of name value pairs
 # and optionally a list of role tuples, (X, Y) where
@@ -775,13 +776,14 @@ def contact_by_role(request, participant_type):
 def set_single_role(event, data, roles=None):
     if not roles:
         roles = [('teacher', 'Teacher'),
-                ('moderator', 'Moderator'),
-                ('staff_lead', 'Staff Lead')]
+                 ('moderator', 'Moderator'),
+                 ('staff_lead', 'Staff Lead')]
     for role_key, role in roles:
         event.unallocate_role(role)
         if data[role_key]:
             event.allocate_worker(data[role_key].workeritem, role)
     event.save()
+
 
 def set_multi_role(event, data, roles=None):
     if not roles:
@@ -790,9 +792,9 @@ def set_multi_role(event, data, roles=None):
         event.unallocate_role(role)
         if len(data[role_key]) > 0:
             for worker in data[role_key]:
-                 event.allocate_worker(worker.workeritem, role)
+                event.allocate_worker(worker.workeritem, role)
     event.save()
-  
+
 
 @login_required
 def add_event(request, eventitem_id, event_type='Class'):

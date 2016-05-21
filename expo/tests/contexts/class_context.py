@@ -50,8 +50,9 @@ class ClassContext:
         else:
             sched_event = SchedEventFactory(
                 eventitem=self.bid.eventitem_ptr,
-                starttime=datetime.combine(self.days[0].day,
-                                  time(12,0,0, tzinfo=pytz.utc)))
+                starttime=datetime.combine(
+                    self.days[0].day,
+                    time(12, 0, 0, tzinfo=pytz.utc)))
         ResourceAllocationFactory(
             event=sched_event,
             resource=LocationFactory(_item=room.locationitem_ptr))
