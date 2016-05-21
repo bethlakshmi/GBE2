@@ -22,11 +22,30 @@ def book_worker_item_for_role(workeritem, role, eventitem=None):
         )
         return booking
 
+
 def book_act_item_for_show(actitem, eventitem):
         booking = ResourceAllocationFactory.create(
             event=SchedEventFactory.create(
                 eventitem=eventitem),
             resource=ActResourceFactory.create(
-            _item=actitem)
-        )
+                _item=actitem))
         return booking
+
+
+def get_sched_event_form(context, room=None):
+    room = room or context.room
+    form_dict = {'event-day': context.days[0].pk,
+                 'event-time': "12:00:00",
+                 'event-location': room.pk,
+                 'event-max_volunteer': 3,
+                 'event-title': 'New Title',
+                 'event-description': 'New Description'}
+    return form_dict
+
+
+def assert_good_sched_event_form(response, eventitem):
+    assert response.status_code is 200
+    assert eventitem.title in response.content
+    assert eventitem.description in response.content
+    assert '<input id="id_event-duration" name="event-duration" ' + \
+        'type="text" value="01:00:00" />' in response.content

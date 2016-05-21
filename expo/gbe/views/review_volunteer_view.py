@@ -45,7 +45,10 @@ def ReviewVolunteerView(request, volunteer_id):
         id=volunteer_id,
     )
     if not volunteer.is_current:
-        return view_volunteer(request, volunteer_id)
+        return HttpResponseRedirect(
+            reverse('volunteer_view',
+                    urlconf='gbe.urls',
+                    args=[volunteer_id]))
     conference, old_bid = get_conf(volunteer)
     volunteer_prof = volunteer.profile
     volform = VolunteerBidForm(

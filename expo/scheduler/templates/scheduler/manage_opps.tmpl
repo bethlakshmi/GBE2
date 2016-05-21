@@ -23,9 +23,7 @@ included in event edit flow. If there is an actionform, show it
         {% csrf_token %}
 	{% for field in form.visible_fields %}
 	  <td>
-          {% if field.errors %}
-          {% endif %}
-            {{ field }}
+          {{ field }}
           {% if field.errors %}
 	    <span class="opps-errors">
               {{ field.errors }}
@@ -49,9 +47,7 @@ included in event edit flow. If there is an actionform, show it
         {% csrf_token %}
 	{% for field in createform.visible_fields %}
 	  <td>
-          {% if field.errors %}
-          {% endif %}
-            {{ field }}
+          {{ field }}
           {% if field.errors %}
 	    <span class="opps-errors">
               {{ field.errors }}

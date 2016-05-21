@@ -47,6 +47,9 @@ class WorkerAllocationForm (forms.Form):
     '''
     Form for selecting a worker to fill a slot in a Volunteer Opportunity
     '''
+    required_css_class = 'required'
+    error_css_class = 'error'
+
     worker = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
                                     required=False)
     role = forms.ChoiceField(choices=role_options, initial='Volunteer')
