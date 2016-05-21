@@ -26,9 +26,10 @@ class TestAllocateWorkers(TestCase):
         self.volunteer_opp = context.add_volunteer_opp()
         self.volunteer, self.alloc = context.book_volunteer(
             self.volunteer_opp)
-        self.url = reverse(self.view_name,
-                      args=[self.volunteer_opp.pk],
-                      urlconf="scheduler.urls")
+        self.url = reverse(
+            self.view_name,
+            args=[self.volunteer_opp.pk],
+            urlconf="scheduler.urls")
 
     def get_edit_data(self):
         data = self.get_either_data()
@@ -39,7 +40,7 @@ class TestAllocateWorkers(TestCase):
         data = self.get_either_data()
         data['alloc_id'] = -1
         return data
-        
+
     def get_either_data(self):
         data = {'worker': self.volunteer.pk,
                 'role': 'Volunteer',
@@ -225,10 +226,12 @@ class TestAllocateWorkers(TestCase):
         data['delete'] = 1
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertRedirects(response,
-                             reverse('edit_event',
-                                     urlconf='scheduler.urls',
-                                     args=["GenericEvent", self.volunteer_opp.pk]))
+        self.assertRedirects(
+            response,
+            reverse(
+                'edit_event',
+                urlconf='scheduler.urls',
+                args=["GenericEvent", self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
             '<option value="' + str(self.volunteer.pk) +
@@ -248,10 +251,12 @@ class TestAllocateWorkers(TestCase):
         data['delete'] = 1
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertRedirects(response,
-                             reverse('edit_event',
-                                     urlconf='scheduler.urls',
-                                     args=["GenericEvent", self.volunteer_opp.pk]))
+        self.assertRedirects(
+            response,
+            reverse(
+                'edit_event',
+                urlconf='scheduler.urls',
+                args=["GenericEvent", self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
             '<option value="' + str(self.volunteer.pk) +

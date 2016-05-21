@@ -24,8 +24,8 @@ urlpatterns = patterns(
         views.event_list, name='event_schedule'),
     url(r'^scheduler/calendar/?$',
         views.calendar_view, name='calendar_view'),
-#    url(r'^scheduler/(?P<event_type>Show|Class|Panel)/?$',
-#        views.calendar_view, name='calendar_view_event'),
+    #    url(r'^scheduler/(?P<event_type>Show|Class|Panel)/?$',
+    #        views.calendar_view, name='calendar_view_event'),
     url(r'^scheduler/(?P<event_type>' +
         '|'.join(event_types) +
         ')/(?P<day>' +
