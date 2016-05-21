@@ -29,7 +29,8 @@ urlpatterns = patterns(
     url(r'^scheduler/(?P<event_type>' +
         '|'.join(event_types) +
         ')/(?P<day>' +
-        '|'.join(days_of_week) + ')/?$',
+        '|'.join(days_of_week) +
+        ')/?$',
         views.calendar_view, name='calendar_view_day'),
     url(r'^scheduler/details/(\d+)/?$',
         views.detail_view, name='detail_view'),
