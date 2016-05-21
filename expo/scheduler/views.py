@@ -410,9 +410,9 @@ def get_worker_allocation_forms(opp, errorcontext=None):
     forms = []
     for alloc in allocs:
         if (errorcontext and
-                worker_alloc_forms in errorcontext and
+                'worker_alloc_forms' in errorcontext and
                 errorcontext['worker_alloc_forms'].cleaned_data[
-                    'alloc_id']) == alloc.id:
+                    'alloc_id'] == alloc.id):
             forms.append(errorcontext['worker_alloc_forms'])
         else:
             forms.append(WorkerAllocationForm(
@@ -425,8 +425,9 @@ def get_worker_allocation_forms(opp, errorcontext=None):
             )
     if errorcontext and 'new_worker_alloc_form' in errorcontext:
         forms.append(errorcontext['new_worker_alloc_form'])
-    forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
-                                               'alloc_id': -1}))
+    else:
+        forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
+                                                   'alloc_id': -1}))
     return {'worker_alloc_forms': forms,
             'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
             'opp_id': opp.id}
@@ -449,6 +450,7 @@ def show_potential_workers(opp):
             'available_volunteers': available}
 
 
+@login_required
 def allocate_workers(request, opp_id):
     '''
     Process a worker allocation form
@@ -456,39 +458,49 @@ def allocate_workers(request, opp_id):
     '''
     if request.method != "POST":
         raise Http404
-    opp = Event.objects.get(id=opp_id)
+
+    coordinator = validate_perms(request, ('Volunteer Coordinator',))
+
+    opp = get_object_or_404(Event, id=opp_id)
     form = WorkerAllocationForm(request.POST)
 
-    if not form.is_valid():
-        try:
-            ResourceAllocation.objects.get(id=data['alloc_id'])
-            return edit_event_display(request,
-                                      opp,
-                                      {'worker_alloc_forms': form})
-        except:
-            form.alloc_id = -1
-            return edit_event_display(request,
-                                      opp,
-                                      {'new_worker_alloc_form': form})
-    data = form.cleaned_data
-    # if no worker, the volunteer that was there originally is deallocated.
     if 'delete' in request.POST.keys():
         alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
         res = alloc.resource
         alloc.delete()
         res.delete()
-    elif data.get('worker', None):
-        worker = Worker(_item=data['worker'].workeritem,
-                        role=data['role'])
-        worker.save()
-        if data['alloc_id'] < 0:
-            allocation = ResourceAllocation(event=opp,
-                                            resource=worker)
+
+    elif not form.is_valid():
+        if request.POST['alloc_id'] == '-1':
+            form.data['alloc_id'] = -1
+            return edit_event_display(
+                request,
+                opp,
+                {'new_worker_alloc_form': form})
         else:
-            allocation = ResourceAllocation.objects.get(id=data['alloc_id'])
-            allocation.resource = worker
-        allocation.save()
-        allocation.set_label(data['label'])
+            get_object_or_404(ResourceAllocation,
+                              id=request.POST['alloc_id'])
+            return edit_event_display(
+                request,
+                opp,
+                {'worker_alloc_forms': form})
+
+    else:
+        data = form.cleaned_data
+
+        if data.get('worker', None):
+            worker = Worker(_item=data['worker'].workeritem,
+                            role=data['role'])
+            worker.save()
+            if data['alloc_id'] < 0:
+                allocation = ResourceAllocation(event=opp,
+                                                resource=worker)
+            else:
+                allocation = ResourceAllocation.objects.get(
+                    id=data['alloc_id'])
+                allocation.resource = worker
+            allocation.save()
+            allocation.set_label(data['label'])
 
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
