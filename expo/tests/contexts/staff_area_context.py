@@ -3,6 +3,7 @@ from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     ConferenceFactory,
     PersonaFactory,
+    ProfileFactory,
     RoomFactory,
 )
 from tests.factories.scheduler_factories import (
@@ -74,3 +75,16 @@ class StaffAreaContext:
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=volunteer_sched_event)
         return volunteer_sched_event
+
+    def book_volunteer(self,
+                       volunteer_sched_event=None,
+                       volunteer=None,
+                       role="Volunteer"):
+        if not volunteer_sched_event:
+            volunteer_sched_event = add_volunteer_opp()
+        if not volunteer:
+            volunteer = ProfileFactory()
+        booking = ResourceAllocationFactory(
+            event=volunteer_sched_event,
+            resource=WorkerFactory(_item=volunteer))
+        return (volunteer, booking)

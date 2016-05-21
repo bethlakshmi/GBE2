@@ -29,9 +29,10 @@ class TestReviewCostumeList(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Costume Reviewers')
         self.conference = current_conference()
-        CostumeFactory.create_batch(4,
-                                    conference=self.conference,
-                                    submitted=True)
+        self.costumes = CostumeFactory.create_batch(
+            4,
+            conference=self.conference,
+            submitted=True)
 
     def test_review_costume_all_well(self):
         url = reverse(self.view_name, urlconf="gbe.urls")
@@ -58,3 +59,12 @@ class TestReviewCostumeList(TestCase):
             url,
             data={'conf_slug': self.conference.conference_slug})
         nt.assert_equal(403, response.status_code)
+
+    def test_review_costume_no_conf_slug(self):
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+
+        nt.assert_equal(200, response.status_code)
+        assert all([acostume.title in response.content
+                    for acostume in self.costumes])
