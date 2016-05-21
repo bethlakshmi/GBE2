@@ -22,6 +22,7 @@ from gbe.functions import (
 )
 
 
+@login_required
 @log_func
 def ReviewVendorView(request, vendor_id):
     '''

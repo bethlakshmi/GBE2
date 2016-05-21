@@ -1,4 +1,3 @@
-import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
@@ -11,12 +10,14 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
+    is_login_page,
     login_as,
 )
 
 
 class TestReviewVendor(TestCase):
     '''Tests for review_vendor view'''
+    view_name = 'vendor_review'
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -28,29 +29,31 @@ class TestReviewVendor(TestCase):
 
     def test_review_vendor_all_well(self):
         vendor = VendorFactory()
-        url = reverse('vendor_review',
+        url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Bid Information' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)
 
-    # def test_review_vendor_old_conference(self):
-    #     old_conf = ConferenceFactory(status='completed',
-    #                                  accepting_bids=False)
-    #     vendor = VendorFactory(conference=old_conf)
-    #     url = reverse('vendor_review',
-    #                   args=[vendor.pk],
-    #                   urlconf='gbe.urls')
-    #     login_as(self.privileged_user, self)
-    #     response = self.client.get(url)
-    #     nt.assert_equal(response.status_code, 200)
-    #     nt.assert_true('Bid Information' in response.content)
+    def test_review_vendor_past_conference(self):
+        conference = ConferenceFactory(status='completed')
+        vendor = VendorFactory(conference=conference)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('vendor_view', urlconf='gbe.urls', args=[vendor.pk]))
+        self.assertTrue('Bid Information' in response.content)
+        self.assertFalse('Review Information' in response.content)
 
     def test_review_vendor_post_valid_form(self):
         vendor = VendorFactory()
-        url = reverse('vendor_review',
+        url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
@@ -60,8 +63,8 @@ class TestReviewVendor(TestCase):
                 'evaluator': self.privileged_profile.pk}
 
         response = self.client.post(url, data, follow=True)
-        nt.assert_equal(200, response.status_code)
-        nt.assert_true("Bid Information" in response.content)
+        self.assertEqual(200, response.status_code)
+        self.assertTrue("Bid Information" in response.content)
 
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()
@@ -69,9 +72,22 @@ class TestReviewVendor(TestCase):
         grant_privilege(user, 'Vendor Reviewers')
         grant_privilege(user, 'Vendor Coordinator')
         login_as(user, self)
-        url = reverse('vendor_review',
+        url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Bid Information' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)
+
+    def test_no_login_gives_error(self):
+        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        response = self.client.get(url, follow=True)
+        redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
+        self.assertRedirects(response, redirect_url)
+        self.assertTrue(is_login_page(response))
+
+    def test_bad_user(self):
+        login_as(ProfileFactory(), self)
+        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)

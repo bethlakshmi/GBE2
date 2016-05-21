@@ -19,7 +19,6 @@ from gbe.forms import (
     BidStateChangeForm,
     PersonaForm,
 )
-from gbe.views import ViewActView
 from gbe.functions import (
     get_conf,
     validate_perms,
@@ -40,7 +39,8 @@ def ReviewActView(request, act_id):
     act = get_object_or_404(Act,
                             id=act_id)
     if not act.is_current:
-        return ViewActView(request, act_id)
+        return HttpResponseRedirect(
+            reverse('act_view', urlconf='gbe.urls', args=[act_id]))
     conference, old_bid = get_conf(act)
     audio_info = act.tech.audio
     stage_info = act.tech.stage
