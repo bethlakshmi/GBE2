@@ -132,4 +132,3 @@ class TestReviewVolunteer(TestCase):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-
