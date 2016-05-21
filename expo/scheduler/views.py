@@ -471,17 +471,20 @@ def allocate_workers(request, opp_id):
         res.delete()
 
     elif not form.is_valid():
-            if request.POST['alloc_id'] == '-1':
-                form.alloc_id.value = -1
-                return edit_event_display(request,
-                                          opp,
-                                          {'new_worker_alloc_form': form})
-            else:
-                get_object_or_404(ResourceAllocation,
-                                  id=request.POST['alloc_id'])
-                return edit_event_display(request,
-                                          opp,
-                                          {'worker_alloc_forms': form})
+        if request.POST['alloc_id'] == '-1':
+            form.data['alloc_id'] = -1
+            return edit_event_display(
+                request,
+                opp,
+                {'new_worker_alloc_form': form})
+        else:
+            get_object_or_404(ResourceAllocation,
+                              id=request.POST['alloc_id'])
+            return edit_event_display(
+                request,
+                opp,
+                {'worker_alloc_forms': form})
+
     else:
         data = form.cleaned_data
 
