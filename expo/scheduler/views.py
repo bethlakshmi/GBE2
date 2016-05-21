@@ -314,10 +314,12 @@ def schedule_acts(request, show_title=None):
                   {'forms': forms})
 
 
+@login_required
 def delete_schedule(request, scheduler_event_id):
     '''
     Remove the scheduled item
     '''
+    validate_perms(request, ('Scheduling Mavens',))
     event = get_object_or_404(Event, id=scheduler_event_id)
     type = event.event_type_name
     event.delete()
@@ -326,10 +328,12 @@ def delete_schedule(request, scheduler_event_id):
                                         args=[type]))
 
 
+@login_required
 def delete_event(request, eventitem_id, event_type):
     '''
     Remove any scheduled items, make basic event item invisible
     '''
+    validate_perms(request, ('Scheduling Mavens',))
     event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
     event.remove()
     return HttpResponseRedirect(reverse('event_schedule',
