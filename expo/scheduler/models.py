@@ -691,7 +691,7 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
-        if self.location == location:
+        if self.location == location.item:
             pass   # already set
         elif self.location is None:
             ra = ResourceAllocation(resource=location, event=self)
@@ -704,7 +704,7 @@ class Event(Schedulable):
                     allocation.resource = location
                     allocation.save()
 
-    def allocate_worker(self, worker, role, label=None):
+    def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''
         worker can be an instance of WorkerItem or of Worker
         role is a string, must be one of the role types.
@@ -718,11 +718,16 @@ class Event(Schedulable):
         else:
             worker.role = role
         worker.save()
-        allocation = ResourceAllocation(event=self, resource=worker)
+        if alloc_id < 0:
+            allocation = ResourceAllocation(event=self,
+                                            resource=worker)
+        else:
+            allocation = ResourceAllocation.objects.get(
+                id=alloc_id)
+            allocation.resource = worker
         allocation.save()
         if label:
-            l = Label(allocation=allocation, text=label)
-            l.save()
+            allocation.set_label(label)
 
     def unallocate_role(self, role):
         '''

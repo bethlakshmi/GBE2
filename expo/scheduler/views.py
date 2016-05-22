@@ -493,18 +493,11 @@ def allocate_workers(request, opp_id):
         data = form.cleaned_data
 
         if data.get('worker', None):
-            worker = Worker(_item=data['worker'].workeritem,
-                            role=data['role'])
-            worker.save()
-            if data['alloc_id'] < 0:
-                allocation = ResourceAllocation(event=opp,
-                                                resource=worker)
-            else:
-                allocation = ResourceAllocation.objects.get(
-                    id=data['alloc_id'])
-                allocation.resource = worker
-            allocation.save()
-            allocation.set_label(data['label'])
+            opp.allocate_worker(
+                data['worker'].workeritem,
+                data['role'],
+                data['label'],
+                data['alloc_id'])
 
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
