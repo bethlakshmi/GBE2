@@ -14,7 +14,7 @@ from tests.factories.gbe_factories import(
     VendorFactory,
     VolunteerFactory,
     )
-
+from tests.contexts import StaffAreaContext
 from tests.factories.scheduler_factories import(
     ResourceAllocationFactory,
     SchedEventFactory,
@@ -45,8 +45,19 @@ class TestDeleteEvent(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
-                                           args=['Performer']))
+                                           args=['Performers']))
         self.assertEqual(response.status_code, 403)
+
+    def test_contact_performers_current_unknown_role(self):
+        Conference.objects.all().delete()
+        login_as(self.privileged_profile, self)
+        conference = ConferenceFactory.create(status="upcoming")
+        acts = ActFactory.create_batch(5, conference=conference)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Unknown']))
+        self.assertFalse(all([str(act.performer) in response.content
+                        for act in acts]))
 
     def test_contact_performers_current_performers_visible(self):
         Conference.objects.all().delete()
@@ -55,8 +66,8 @@ class TestDeleteEvent(TestCase):
         acts = ActFactory.create_batch(5, conference=conference)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
-                                           args=['Performer']))
-        self.assertFalse(all([str(act.performer) in response.content
+                                           args=['Performers']))
+        self.assertTrue(all([str(act.performer) in response.content
                         for act in acts]))
 
     def test_contact_performers_former_performers_not_visible(self):
@@ -66,11 +77,32 @@ class TestDeleteEvent(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
-                                           args=['Performer']))
+                                           args=['Performers']))
         self.assertFalse(any([str(act.performer) in response.content
                          for act in acts]))
 
     def test_contact_volunteers_current_volunteers_visible(self):
+        Conference.objects.all().delete()
+        context = StaffAreaContext()
+        opp = context.add_volunteer_opp()
+        volunteers = ProfileFactory.create_batch(5)
+        opp = context.add_volunteer_opp()
+
+        for volunteer in volunteers:
+            VolunteerFactory.create(profile=volunteer,
+                                    interests="['VA1']",
+                                    conference=context.conference)
+            context.book_volunteer(opp, volunteer)
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Volunteers']))
+        print(response.content)
+        self.assertTrue(all([volunteer.display_name in response.content
+                        for volunteer in volunteers]))
+
+    def test_contact_volunteers_current_volunteers_no_container(self):
         Conference.objects.all().delete()
         conference = ConferenceFactory(status="upcoming")
         volunteers = ProfileFactory.create_batch(5)
@@ -91,8 +123,8 @@ class TestDeleteEvent(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
-                                           args=['Volunteer']))
-        self.assertFalse(all([volunteer.display_name in response.content
+                                           args=['Volunteers']))
+        self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
 
     def test_contact_volunteers_former_volunteers_not_visible(self):
@@ -115,7 +147,7 @@ class TestDeleteEvent(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
-                                           args=['Volunteer']))
+                                           args=['Volunteers']))
         self.assertFalse(any([volunteer.display_name in response.content
                          for volunteer in volunteers]))
 

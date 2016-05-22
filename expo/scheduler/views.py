@@ -672,8 +672,6 @@ def contact_volunteers(conference=None):
               'Volunteer Role',
               'Event']
     volunteer_categories = dict(volunteer_interests_options)
-    if not conference:
-        conference = get_current_conference()
     from gbe.models import Volunteer
     contacts = filter(lambda worker: worker.allocations.count() > 0,
                       [vol.profile.workeritem_ptr.worker_set.first() for vol in
@@ -716,9 +714,6 @@ def contact_volunteers(conference=None):
 
 
 def contact_teachers(conference=None):
-    if not conference:
-        conference = get_current_conference()
-
     header = ['email',
               'Class',
               'Role',
