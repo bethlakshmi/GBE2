@@ -14,6 +14,9 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+def refresh_from_db(item):
+    return type(item).objects.get(pk=item.pk)
+
 
 class TestReviewVendor(TestCase):
     '''Tests for review_vendor view'''
@@ -26,6 +29,11 @@ class TestReviewVendor(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Vendor Reviewers')
+        self.coordinator = ProfileFactory()
+        grant_privilege(self.coordinator.user_object, 'Vendor Reviewers')
+        grant_privilege(self.coordinator.user_object, 'Vendor Coordinator')
+
+
 
     def test_review_vendor_all_well(self):
         vendor = VendorFactory()
@@ -52,11 +60,11 @@ class TestReviewVendor(TestCase):
         self.assertFalse('Review Information' in response.content)
 
     def test_review_vendor_post_valid_form(self):
-        vendor = VendorFactory()
+        vendor = VendorFactory(accepted=1)
         url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
-        login_as(self.privileged_user, self)
+        login_as(self.coordinator, self)
         data = {'vote': 3,
                 'notes': "notes",
                 'bid': vendor.pk,
@@ -65,6 +73,23 @@ class TestReviewVendor(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertTrue("Bid Information" in response.content)
+
+
+    def test_review_vendor_post_invalid_form(self):
+        vendor = VendorFactory(accepted=1)
+        original_state = vendor.accepted
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        login_as(self.coordinator, self)
+        data = {'vote': 3,
+                'notes': "notes",
+                'bid': "forty-two",
+                'evaluator': self.privileged_profile.pk}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertTrue("Bid Information" in response.content)
+
 
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()
