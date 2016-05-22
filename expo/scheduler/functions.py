@@ -395,32 +395,6 @@ def event_info(confitem_type='Show',
     return events
 
 
-def day_to_cal_time(day='Saturday',
-                    week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
-    '''
-    Accepts a day of the week, and returns the hours for that day as a
-    datetime tuple.
-    Can also accept a datetime for a particular week.
-    '''
-    conference_days = ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday']
-    # Eventually change this to a call to the master conference event to
-    # determine its first day we are dealing w/ ISO 8601 week, which start
-    # on Monday at 0, so Thursday is 3
-    if week.weekday() < 3:
-        shift = 3 - week.weekday()
-        week = week + Duration(0, shift * 60 * 60 * 24)
-    elif week.weekday() > 3:
-        shift = week.weekday() - 3
-        week = week - Duration(0, shift * 60 * 60 * 24)
-
-    return_day = week + Duration(
-        days=[i for i, x in enumerate(conference_days) if x == day][0])
-
-    cal_times = (return_day + Duration(hours=8),
-                 return_day + Duration(hours=28))
-    return cal_times
-
-
 def select_day(days, day_name):
     '''
     Take a list of conference_days, return the one whose name is day_name

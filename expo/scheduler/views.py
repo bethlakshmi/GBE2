@@ -46,7 +46,6 @@ from gbe.duration import (
 from functions import (
     table_prep,
     event_info,
-    day_to_cal_time,
     cal_times_for_conf,
     overlap_clear,
     set_time_format,
