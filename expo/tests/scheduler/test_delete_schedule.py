@@ -13,11 +13,10 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.contexts import ClassContext
-from gbe.models import Conference
 
 
-class TestDeleteEvent(TestCase):
-    view_name = 'delete_event'
+class TestDeleteSchedule(TestCase):
+    view_name = 'delete_schedule'
 
     def setUp(self):
         self.client = Client()
@@ -25,11 +24,10 @@ class TestDeleteEvent(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        Conference.objects.all().delete()
         self.context = ClassContext()
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
-                           args=["Class", self.context.bid.eventitem_id])
+                           args=[self.context.sched_event.pk])
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
@@ -46,18 +44,15 @@ class TestDeleteEvent(TestCase):
 
     def test_good_user_get_bad_event(self):
         login_as(self.privileged_profile, self)
-        bad_url = reverse(
-            self.view_name,
-            urlconf="scheduler.urls",
-            args=["Class", self.context.bid.eventitem_id+1])
+        bad_url = reverse(self.view_name,
+                          urlconf="scheduler.urls",
+                          args=[self.context.sched_event.pk+1])
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 404)
 
     def test_good_user_get_success(self):
-        pk = self.context.bid.eventitem_id
-        title = "deletable class"
-        self.context.bid.title = title
-        self.context.bid.save()
+        pk = self.context.sched_event.pk
+        title = self.context.bid.title
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
         self.assertRedirects(response,
@@ -66,6 +61,14 @@ class TestDeleteEvent(TestCase):
                                      args=["Class"]))
         self.assertNotIn('<ul class="errorlist">', response.content)
         self.assertIn('Events Information', response.content)
-        self.assertNotIn(title, response.content)
-        self.assertNotIn("<a href='" + self.url + "'>Delete</a>'",
-                         response.content)
+        self.assertIn(self.context.bid.title, response.content)
+        self.assertNotIn(
+            "<a href='" + self.url + "'>Unschedule</a>'",
+            response.content)
+        self.assertIn(
+            "<a href='" +
+            reverse("delete_event",
+                    urlconf="scheduler.urls",
+                    args=["Class", self.context.bid.eventitem_id]) +
+            "'>Delete</a>",
+            response.content)
