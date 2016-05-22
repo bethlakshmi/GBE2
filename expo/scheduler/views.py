@@ -606,6 +606,7 @@ def manage_volunteer_opportunities(request, event_id):
                                                 event_id]))
 
 
+@login_required
 def contact_info(request,
                  event_id=None,
                  resource_type='All',
@@ -621,7 +622,7 @@ def contact_info(request,
                              'Scheduling Mavens',
                              'Vendor Coordinator'),
                    require=True)
-    event = Event.objects.get(schedulable_ptr_id=event_id)
+    event = get_object_or_404(Event, schedulable_ptr_id=event_id)
     data = event.contact_info(resource_type, status, worker_type)
     response = HttpResponse(content_type='text/csv')
     cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
@@ -751,6 +752,7 @@ def contact_vendors(conference):
     return header, contact_info
 
 
+@login_required
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
     conference = get_current_conference()

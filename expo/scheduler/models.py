@@ -886,7 +886,10 @@ class Event(Schedulable):
         return info
 
     def act_contact_info(self, status=None):
-        return [(act.contact_info for act in self.get_acts(status))]
+        info = []
+        for act in self.get_acts(status):
+            info.append(act.contact_info)
+        return info
 
     def worker_contact_info(self, worker_type=None):
         '''
