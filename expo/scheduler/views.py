@@ -633,7 +633,7 @@ def contact_info(request,
     return response
 
 
-def contact_performers(conference=None):
+def contact_performers(conference):
     if not conference:
         conference = get_current_conference()
     from gbe.models import Act
@@ -664,7 +664,7 @@ def contact_performers(conference=None):
     return header, contact_info
 
 
-def contact_volunteers(conference=None):
+def contact_volunteers(conference):
     header = ['Name',
               'Phone',
               'Email',
@@ -713,7 +713,7 @@ def contact_volunteers(conference=None):
     return header, contact_info
 
 
-def contact_teachers(conference=None):
+def contact_teachers(conference):
     header = ['email',
               'Class',
               'Role',
@@ -739,7 +739,7 @@ def contact_teachers(conference=None):
     return header, contact_info
 
 
-def contact_vendors(conference=None):
+def contact_vendors(conference):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
     contacts = Vendor.objects.filter(conference=conference)
