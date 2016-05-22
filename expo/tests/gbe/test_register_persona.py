@@ -55,24 +55,49 @@ class TestRegisterPersona(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(1, profile.personae.count()-persona_count)
 
-    # def test_redirect(self):
-    #     profile = ProfileFactory()
-    #     login_as(profile, self)
-    #     url = reverse(self.view_name, urlconf='gbe.urls')
 
-    #     response = self.client.post(
-    #         'performer/create?next=/combo/create',
-    #         data={'performer_profile': profile.pk,
-    #               'contact': profile.pk,
-    #               'name': 'persona name',
-    #               'homepage': 'foo.bar.com/~quux',
-    #               'bio': 'bio bio bio',
-    #               'experience': 3,
-    #               'awards': 'Generic string here',
-    #               },
-    #         follow=True)
-    #     nt.assert_equal(response.status_code, 302)
-    #     nt.assert_equal(location(response), '/combo/create')
+    def test_register_persona_invalid_post(self):
+        profile = ProfileFactory()
+        login_as(profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.get(url)
+
+        persona_count = profile.personae.count()
+        response = self.client.post(
+            url,
+            data={'performer_profile': profile.pk,
+                  'contact': profile.pk,
+                  'name': '',
+                  'homepage': 'foo.bar.com/~quux',
+                  'bio': 'bio bio bio',
+                  'experience': 3,
+                  'awards': 'Generic string here'
+                  })
+        nt.assert_equal(response.status_code, 200)
+        assert "This field is required." in response.content
+
+
+
+
+    def test_redirect(self):
+        profile = ProfileFactory()
+        login_as(profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.post(
+            url + '?next=/troupe/create',
+            data={'performer_profile': profile.pk,
+                  'contact': profile.pk,
+                  'name': 'persona name',
+                  'homepage': 'foo.bar.com/~quux',
+                  'bio': 'bio bio bio',
+                  'experience': 3,
+                  'awards': 'Generic string here',
+                  },
+            follow=True)
+        assert response.status_code == 200
+        redirect = ('http://testserver/troupe/create', 302)
+        assert redirect in response.redirect_chain
+        assert "Tell Us About Your Troupe" in response.content
 
     def test_get(self):
         profile = ProfileFactory()
