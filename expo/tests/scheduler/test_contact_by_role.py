@@ -31,6 +31,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+
 class TestDeleteEvent(TestCase):
     view_name = 'contact_by_role'
 
@@ -57,7 +58,7 @@ class TestDeleteEvent(TestCase):
                                            urlconf="scheduler.urls",
                                            args=['Unknown']))
         self.assertFalse(all([str(act.performer) in response.content
-                        for act in acts]))
+                         for act in acts]))
 
     def test_contact_performers_current_performers_visible(self):
         Conference.objects.all().delete()
@@ -161,8 +162,10 @@ class TestDeleteEvent(TestCase):
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=['Vendors']))
-        self.assertTrue(current_vendor.profile.display_name in response.content)
-        self.assertFalse(previous_vendor.profile.display_name in response.content)
+        self.assertTrue(
+            current_vendor.profile.display_name in response.content)
+        self.assertFalse(
+            previous_vendor.profile.display_name in response.content)
 
     def test_contact_teachers(self):
         Conference.objects.all().delete()

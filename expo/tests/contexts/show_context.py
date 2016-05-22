@@ -28,8 +28,8 @@ class ShowContext:
         self.conference = conference or ConferenceFactory()
         self.days = [ConferenceDayFactory(conference=self.conference)]
         act = act or ActFactory(conference=self.conference,
-                                     performer=self.performer,
-                                     accepted=3)
+                                performer=self.performer,
+                                accepted=3)
         self.acts = [act]
         self.show = ShowFactory(conference=self.conference)
         self.room = room or RoomFactory()

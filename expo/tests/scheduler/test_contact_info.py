@@ -61,7 +61,7 @@ class TestContactInfo(TestCase):
             self.view_name,
             urlconf="scheduler.urls",
             args=[self.context.sched_event.pk+1,
-                 'Teachers'])
+                  'Teachers'])
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 404)
 
