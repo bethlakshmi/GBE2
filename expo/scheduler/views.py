@@ -608,7 +608,7 @@ def manage_volunteer_opportunities(request, event_id):
 
 @login_required
 def contact_info(request,
-                 event_id=None,
+                 event_id,
                  resource_type='All',
                  status=None,
                  worker_type=None):

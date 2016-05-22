@@ -787,6 +787,7 @@ class Event(Schedulable):
         returns the Worker Resource assigned. Calling function has to
         drill down to get to profile
         '''
+        worker_type = worker_type or 'Volunteer'
         opps = self.get_volunteer_opps()
         alloc_list = [(opp['conf'].volunteer_category,
                        list(opp['sched'].resources_allocated.all()))
@@ -795,7 +796,7 @@ class Event(Schedulable):
         workers = []
         for a in alloc_list:
             for w in a[1]:
-                if w.resource.type == 'Volunteer':
+                if w.resource.type == worker_type:
                     workers.append((category.get(a[0], 'Blank'),
                                     Worker.objects.get(
                                         resource_ptr_id=w.resource_id)))

@@ -14,7 +14,8 @@ from tests.functions.gbe_functions import (
 )
 from tests.contexts import (
     ClassContext,
-    ShowContext
+    ShowContext,
+    StaffAreaContext
 )
 from gbe.models import Conference
 
@@ -94,3 +95,51 @@ class TestContactInfo(TestCase):
                 self.assertContains(
                     response,
                     str(item))
+
+    def test_good_user_get_default_contacts(self):
+        Conference.objects.all().delete()
+        show = ShowContext()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            reverse(
+                self.view_name,
+                urlconf="scheduler.urls",
+                args=[show.sched_event.pk]), follow=True)
+        self.assertEqual(response.status_code, 200)
+        for act in show.acts:
+            for item in act.contact_info:
+                self.assertContains(
+                    response,
+                    str(item))
+
+    def test_good_user_get_volunteer_contacts(self):
+        Conference.objects.all().delete()
+        context = StaffAreaContext()
+        opp1 = context.add_volunteer_opp()
+        opp2 = context.add_volunteer_opp()
+        (volunteer1, alloc1) = context.book_volunteer(opp1)
+        (volunteer2, alloc2) = context.book_volunteer(opp2)
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            reverse(
+                self.view_name,
+                urlconf="scheduler.urls",
+                args=[context.sched_event.pk, 'Worker']),
+            follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            volunteer1.display_name)
+        self.assertContains(
+            response,
+            volunteer1.contact_email)
+        self.assertContains(
+            response,
+            volunteer1.phone)
+        self.assertContains(
+            response,
+            "Volunteer")
+        self.assertContains(
+            response,
+            "Registration")
