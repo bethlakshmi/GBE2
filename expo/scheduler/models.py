@@ -586,12 +586,6 @@ class EventItem (models.Model):
             ).distinct().order_by('role', '_item')
         return people
 
-    def get_worker_items(self, role):
-        people = WorkerItem.objects.filter(
-            worker__allocations__event__eventitem=self.eventitem_id,
-            worker__role=role)
-        return people
-
     def set_duration(self, duration):
         child = self.child()
         child.duration = duration
@@ -954,9 +948,6 @@ class Event(Schedulable):
         bio_list = sorted(bio_list, key=lambda bio: bio.name)
 
         return bio_list
-
-    def worker_list(self, role):
-        workers = Worker.objects.filter(allocations__event=self, role=role)
 
     def __str__(self):
         try:
