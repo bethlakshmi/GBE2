@@ -481,19 +481,17 @@ class Worker(Resource):
         except:
             return "No Worker Item"
 
-
+'''
 class EquipmentItem(ResourceItem):
-    '''
-    Payload object for an allocatable item
-    Not currently used
-    '''
+    
+    # Payload object for an allocatable item
+    # Not currently used
+
     objects = InheritanceManager()
 
     def get_resource(self):
-        '''
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
+        # Return the resource corresonding to this item
+        # To do: find a way to make this work at the Resource level
         try:
             equip = Equipment.objects.select_subclasses().get(_item=self)
         except:
@@ -517,20 +515,18 @@ class EquipmentItem(ResourceItem):
 
 
 class Equipment(Resource):
-    '''
-    An allocatable thing
-    Not currently used. Probably needs a good bit of development before we can
-    really use it (we'd like to be able to allocate single objects, sets of
-    objects, and quantities of objects at the very least - this requires a bit
-    of design)
-    '''
+    # An allocatable thing
+    # Not currently used. Probably needs a good bit of development before 
+    # we can really use it (we'd like to be able to allocate single objects,
+    # sets of objects, and quantities of objects at the very least - this 
+    # requires a bit of design)
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
 
     @property
     def type(self):
         return "equipment"
-
+'''
 
 class EventItem (models.Model):
     '''
