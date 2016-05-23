@@ -135,7 +135,8 @@ def init_time_blocks(events,
         pass  # TO DO
 
     events = [event for event in events
-              if event['stop_time'] > cal_start and event['start_time'] < cal_stop]
+              if event['stop_time'] > cal_start and
+              event['start_time'] < cal_stop]
     events = sorted(events, key=lambda event: event['start_time'])
     if not events:
         return [], cal_start, cal_stop
@@ -306,13 +307,14 @@ def table_prep(events,
                                                          time_format,
                                                          cal_start,
                                                          cal_stop)
+    events = filter(lambda e: ((cal_start <= e['start_time'] < cal_stop)) or
+                    ((cal_start < e['stop_time'] <= cal_stop)), events)
+
     if not col_heads:
         col_heads = init_column_heads(events)
     cal_table = table(rows=block_labels,
                       columns=col_heads,
                       default='<td></td>')
-    events = filter(lambda e: ((cal_start <= e['start_time'] < cal_stop)) or
-                    ((cal_start < e['stop_time'] <= cal_stop)), events)
 
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
@@ -408,6 +410,7 @@ def date_to_datetime(the_date):
     zero_hour = time(0)
     return utc.localize(datetime.combine(the_date, zero_hour))
 
+
 def send_today():
     today = date_to_datetime(date.today())
     return (today + Duration(hours=8), today + Duration(hours=28))
@@ -432,7 +435,6 @@ def cal_times_for_conf(conference, day_name):
         last_day = date_to_datetime(days.last().day)
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
-    
 
 def get_events_and_windows(conference):
     from scheduler.models import Event

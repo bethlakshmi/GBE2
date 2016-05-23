@@ -99,7 +99,6 @@ class TestDeleteEvent(TestCase):
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=['Volunteers']))
-        print(response.content)
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
 

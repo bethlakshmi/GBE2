@@ -22,10 +22,13 @@ class ClassContext:
                  teacher=None,
                  conference=None,
                  room=None,
-                 starttime=None):
+                 starttime=None,
+                 day=None):
         self.teacher = teacher or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        self.days = [ConferenceDayFactory(conference=self.conference)]
+        if not day:
+            day = ConferenceDayFactory(conference=self.conference)
+        self.days = [day]
         self.bid = bid or ClassFactory(conference=self.conference,
                                        accepted=3)
         self.room = room or RoomFactory()

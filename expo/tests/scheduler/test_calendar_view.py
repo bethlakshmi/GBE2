@@ -42,7 +42,8 @@ class TestCalendarView(TestCase):
         self.other_show = ShowContext(conference=self.other_conference,
                                       day=self.other_conf_day)
         self.classcontext = ClassContext(
-            conference=self.showcontext.conference)
+            conference=self.showcontext.conference,
+            day=conference_day)
 
     def test_calendar_view_shows_current_conf_by_default(self):
         url = reverse('calendar_view', urlconf="scheduler.urls")
@@ -56,7 +57,6 @@ class TestCalendarView(TestCase):
                       kwargs={'event_type': 'All',
                               'day': 'Saturday'})
         response = self.client.get(url)
-        print(response.content)
         self.assertContains(response, self.showcontext.show.title)
         self.assertFalse(self.other_show.show.title in response.content)
 
@@ -127,7 +127,13 @@ class TestCalendarView(TestCase):
             response,
             '<p>This calendar is not currently available.</p>')
 
-    def test_calendar_view_class_current_conf_by_default(self):
+    def test_calendar_view_class(self):
+        sunday = ConferenceDayFactory(
+            conference=self.showcontext.conference,
+            day=date(2016, 02, 07))
+        classcontextSun = ClassContext(
+            conference=self.showcontext.conference,
+            day=sunday)
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
                       kwargs={'event_type': 'Class',
@@ -135,8 +141,10 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertTrue(self.classcontext.bid.title in response.content)
         self.assertFalse(self.showcontext.show.title in response.content)
+        self.assertContains(response, str(self.classcontext.room))
+        self.assertNotContains(response, str(classcontextSun.room))
 
-    def test_calendar_view_movement_class_current_conf_by_default(self):
+    def test_calendar_view_movement_class(self):
         self.classcontext.bid.type = 'Movement'
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
