@@ -1030,6 +1030,7 @@ def calendar_view(request=None,
             events = events + event_info(confitem_type=e_type,
                                          cal_times=cal_times,
                                          conference=conf)
+
     elif event_type == 'Show':
         events = event_info(confitem_type='Show',
                             cal_times=cal_times,
@@ -1044,8 +1045,10 @@ def calendar_view(request=None,
                              cal_times=cal_times,
                              conference=conf)
     else:
-        events = event_info(confitem_type=event_type, cal_times=cal_times,
+        events = event_info(confitem_type=event_type,
+                            cal_times=cal_times,
                             conference=conf)
+
     events = overlap_clear(events)
     if time_format is None:
         time_format = set_time_format()

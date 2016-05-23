@@ -427,35 +427,6 @@ def cal_times_for_conf(conference, day_name):
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
-def volunteer_shift_info(
-    profile_id,
-    filter_type=None,
-    cal_times=(datetime(2015, 02, 20, 18, 00,
-               tzinfo=pytz.timezone('UTC')),
-               datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
-    '''
-    Accepts a username or profile id number, a filter type, and a set of
-    times.  Prepares a schedule of commitments that user has, filtered
-    on filter_type, filter_type = None shows everything they are scheduled
-    for (does not work yet).
-    '''
-
-    from scheduler.models import Location
-    from scheduler.models import WorkerItem, Worker
-
-    volunteer = Worker.objects.filter(id=profile_id)[0]
-
-    scheduled_shifts = volunteer.item.get_bookings(role=filter_type)
-
-    for shift in scheduled_shifts:
-        start_t = shift.start_time
-        stop_t = shift.start_time + shift.duration
-        if start_t > cal_times[1] or stop_t < cal_times[0]:
-            scheduled_shift.remove(shift)
-
-    return scheduled_shifts
-
-
 def get_events_and_windows(conference):
     from scheduler.models import Event
 

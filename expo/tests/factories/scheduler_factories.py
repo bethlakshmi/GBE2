@@ -74,6 +74,7 @@ class EquipmentFactory(DjangoModelFactory):
         model = sched.Equipment
 '''
 
+
 class EventItemFactory(DjangoModelFactory):
     visible = True
 

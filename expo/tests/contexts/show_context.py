@@ -23,10 +23,13 @@ class ShowContext:
                  performer=None,
                  conference=None,
                  room=None,
-                 starttime=None):
+                 starttime=None,
+                 day=None):
         self.performer = performer or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        self.days = [ConferenceDayFactory(conference=self.conference)]
+        if not day:
+            day = ConferenceDayFactory(conference=self.conference)
+        self.days = [day]
         act = act or ActFactory(conference=self.conference,
                                 performer=self.performer,
                                 accepted=3)

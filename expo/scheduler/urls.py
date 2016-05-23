@@ -7,7 +7,11 @@ event_types = ['All',
                'Show',
                'Special Event',
                'Class',
-               'Volunteer Opportunity']
+               'Volunteer Opportunity',
+               'Lecture',
+               'Workshop',
+               'Panel',
+               'Movement']
 days_of_week = ['Monday',
                 'Tuesday',
                 'Wednesday',

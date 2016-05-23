@@ -1,19 +1,13 @@
 import pytest
-import nose.tools as nt
 from django.core.urlresolvers import reverse
-from django.test import Client
+from django.test import (
+    Client,
+    TestCase,
+)
 from scheduler.views import calendar_view
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
-    ProfileFactory,
-    RoomFactory,
-    ShowFactory,
-)
-from tests.factories.scheduler_factories import (
-    LocationFactory,
-    ResourceAllocationFactory,
-    SchedEventFactory,
 )
 from tests.functions.gbe_functions import clear_conferences
 from gbe.models import Conference
@@ -22,102 +16,83 @@ from datetime import (
     datetime,
     date,
 )
+from tests.contexts import (
+    ClassContext,
+    ShowContext
+)
 
 
-def schedule_show(show):
-    sEvent = SchedEventFactory.create(
-        eventitem=show.eventitem_ptr,
-        starttime=utc.localize(datetime(2016, 02, 06, 20, 0, 0)))
-    room = RoomFactory.create()
-    location = LocationFactory.create(_item=room.locationitem_ptr)
-    ResourceAllocationFactory.create(event=sEvent,
-                                     resource=location)
+class TestCalendarView(TestCase):
+    view_name = 'contact_by_role'
 
+    def setUp(self):
+        self.client = Client()
+        clear_conferences()
+        conference = ConferenceFactory()
+        conference_day = ConferenceDayFactory(
+            conference=conference,
+            day=date(2016, 02, 06))
+        self.showcontext = ShowContext(conference=conference,
+                                       day=conference_day)
+        self.other_conference = ConferenceFactory(
+            status='completed')
+        self.other_conf_day = ConferenceDayFactory(
+            conference=self.other_conference,
+            day=date(2015, 02, 06))
+        self.other_show = ShowContext(conference=self.other_conference,
+                                      day=self.other_conf_day)
+        self.classcontext = ClassContext(
+            conference=self.showcontext.conference)
 
-@pytest.mark.django_db
-def test_calendar_view_shows_current_conf_by_default():
-    client = Client()
-    clear_conferences()
-    current_conference = ConferenceFactory()
-    other_conference = ConferenceFactory(
-        status='completed')
-    current_conf_day = ConferenceDayFactory(
-        conference=current_conference,
-        day=date(2016, 02, 06))
-    other_conf_day = ConferenceDayFactory(
-        conference=other_conference,
-        day=date(2015, 02, 06))
+    def test_calendar_view_shows_current_conf_by_default(self):
+        url = reverse('calendar_view', urlconf="scheduler.urls")
+        response = self.client.get(url)
+        self.assertTrue(self.showcontext.show.title in response.content)
+        self.assertFalse(self.other_show.show.title in response.content)
 
-    show = ShowFactory.create(conference=current_conference)
-    other_show = ShowFactory.create(conference=other_conference)
-    schedule_show(show)
-    schedule_show(other_show)
-    url = reverse('calendar_view', urlconf="scheduler.urls")
-    response = client.get(url)
-    nt.assert_true(show.title in response.content)
-    nt.assert_false(other_show.title in response.content)
+    def test_calendar_view_event_shows_all_events(self):
+        url = reverse('calendar_view_day',
+                      urlconf="scheduler.urls",
+                      kwargs={'event_type': 'All',
+                              'day': 'Saturday'})
+        response = self.client.get(url)
+        print(response.content)
+        self.assertContains(response, self.showcontext.show.title)
+        self.assertFalse(self.other_show.show.title in response.content)
 
+    def test_calendar_view_shows_requested_conference(self):
+        url = reverse('calendar_view', urlconf="scheduler.urls")
+        data = {'conf': self.other_conference.conference_slug}
+        response = self.client.get(url, data=data)
+        self.assertFalse(self.showcontext.show.title in response.content)
+        self.assertTrue(self.other_show.show.title in response.content)
 
-@pytest.mark.django_db
-def test_calendar_view_event_shows_all_events():
-    client = Client()
-    clear_conferences()
-    current_conference = ConferenceFactory()
-    other_conference = ConferenceFactory(
-        status='completed')
-    current_conf_day = ConferenceDayFactory(
-        conference=current_conference,
-        day=date(2016, 02, 06))
-    other_conf_day = ConferenceDayFactory(
-        conference=other_conference,
-        day=date(2015, 02, 06))
+    def test_no_conference_days(self):
+        clear_conferences()
+        ConferenceFactory(status='upcoming')
+        url = reverse('calendar_view_day',
+                      urlconf='scheduler.urls',
+                      kwargs={'event_type': 'Class',
+                              'day': 'Sunday'})
+        client = Client()
+        response = self.client.get(url)
+        self.assertTrue('Event Calendar' in response.content)
 
-    show = ShowFactory.create(conference=current_conference)
-    other_show = ShowFactory.create(conference=other_conference)
-    schedule_show(show)
-    schedule_show(other_show)
-    url = reverse('calendar_view_day',
-                  urlconf="scheduler.urls",
-                  kwargs={'event_type': 'All',
-                          'day': 'Saturday'})
-    response = client.get(url)
-    nt.assert_true(show.title in response.content)
-    nt.assert_false(other_show.title in response.content)
+    def test_calendar_view_class_current_conf_by_default(self):
+        url = reverse('calendar_view_day',
+                      urlconf="scheduler.urls",
+                      kwargs={'event_type': 'Class',
+                              'day': 'Saturday'})
+        response = self.client.get(url)
+        self.assertTrue(self.classcontext.bid.title in response.content)
+        self.assertFalse(self.showcontext.show.title in response.content)
 
-
-@pytest.mark.django_db
-def test_calendar_view_shows_requested_conference():
-    client = Client()
-    clear_conferences()
-    current_conference = ConferenceFactory()
-    other_conference = ConferenceFactory(
-        status='completed')
-    current_conf_day = ConferenceDayFactory(
-        conference=current_conference,
-        day=date(2015, 02, 06))
-    other_conf_day = ConferenceDayFactory(
-        conference=other_conference,
-        day=date(2016, 02, 06))
-
-    show = ShowFactory.create(conference=current_conference)
-    other_show = ShowFactory.create(conference=other_conference)
-    schedule_show(show)
-    schedule_show(other_show)
-    url = reverse('calendar_view', urlconf="scheduler.urls")
-    data = {'conf': other_conference.conference_slug}
-    response = client.get(url, data=data)
-    nt.assert_false(show.title in response.content)
-    nt.assert_true(other_show.title in response.content)
-
-
-@pytest.mark.django_db
-def test_no_conference_days():
-    clear_conferences()
-    ConferenceFactory(status='upcoming')
-    url = reverse('calendar_view_day',
-                  urlconf='scheduler.urls',
-                  kwargs={'event_type': 'Class',
-                          'day': 'Sunday'})
-    client = Client()
-    response = client.get(url)
-    nt.assert_true('Event Calendar' in response.content)
+    def test_calendar_view_movement_class_current_conf_by_default(self):
+        self.classcontext.bid.type = 'Movement'
+        url = reverse('calendar_view_day',
+                      urlconf="scheduler.urls",
+                      kwargs={'event_type': 'Movement',
+                              'day': 'Saturday'})
+        response = self.client.get(url)
+        self.assertTrue(self.classcontext.bid.title in response.content)
+        self.assertFalse(self.showcontext.show.title in response.content)
