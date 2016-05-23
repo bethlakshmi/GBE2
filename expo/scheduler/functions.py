@@ -408,16 +408,22 @@ def date_to_datetime(the_date):
     zero_hour = time(0)
     return utc.localize(datetime.combine(the_date, zero_hour))
 
+def send_today():
+    today = date_to_datetime(date.today())
+    return (today + Duration(hours=8), today + Duration(hours=28))
+
 
 def cal_times_for_conf(conference, day_name):
     from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
 
     if not days.exists():
-        today = date_to_datetime(date.today())
-        return (today + Duration(hours=8), today + Duration(hours=28))
+        return send_today()
     if day_name:
-        day = date_to_datetime(select_day(days, day_name).day)
+        selected_day = select_day(days, day_name)
+        if not selected_day:
+            return send_today()
+        day = date_to_datetime(selected_day.day)
         if day:
             return day + Duration(hours=8), day + Duration(hours=28)
 
@@ -426,6 +432,7 @@ def cal_times_for_conf(conference, day_name):
         last_day = date_to_datetime(days.last().day)
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
+    
 
 def get_events_and_windows(conference):
     from scheduler.models import Event

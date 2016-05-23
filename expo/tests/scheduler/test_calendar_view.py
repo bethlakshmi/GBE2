@@ -82,6 +82,29 @@ class TestCalendarView(TestCase):
         self.assertContains(
             response,
             '<p>This calendar is not currently available.</p>')
+
+    def test_no_day(self):
+        '''
+        There is a day, but that's not the day we're asking for.
+        '''
+        clear_conferences()
+        conference = ConferenceFactory(status='upcoming')
+        conference_day = ConferenceDayFactory(
+            conference=conference,
+            day=date(2016, 02, 06))
+        url = reverse('calendar_view_day',
+                      urlconf='scheduler.urls',
+                      kwargs={'event_type': 'Class',
+                              'day': 'Sunday'})
+        client = Client()
+        response = self.client.get(url)
+        self.assertNotContains(
+            response,
+            '<li><a href="http://burlesque-expo.com/class_rooms">')
+        self.assertContains(
+            response,
+            '<p>This calendar is not currently available.</p>')
+
     def test_calendar_view_class_current_conf_by_default(self):
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
