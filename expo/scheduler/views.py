@@ -1053,17 +1053,19 @@ def calendar_view(request=None,
     if time_format is None:
         time_format = set_time_format()
 
-    # Changing function to get table labels from the request
     table = {}
-    table['rows'] = table_prep(events,
-                               duration,
-                               cal_start=cal_times[0],
-                               cal_stop=cal_times[1])
-    table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
-    table['link'] = 'http://burlesque-expo.com'
-    table['x_name'] = {}
-    table['x_name']['html'] = 'Rooms'
-    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
+
+    if len(events) > 0:
+        # Changing function to get table labels from the request
+        table['rows'] = table_prep(events,
+                                   duration,
+                                   cal_start=cal_times[0],
+                                   cal_stop=cal_times[1])
+        table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+        table['link'] = 'http://burlesque-expo.com'
+        table['x_name'] = {}
+        table['x_name']['html'] = 'Rooms'
+        table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
     # TO DO: Get rid of hard-coded links
 
     template = 'scheduler/Sched_Display.tmpl'

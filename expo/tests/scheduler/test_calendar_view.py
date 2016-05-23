@@ -76,8 +76,12 @@ class TestCalendarView(TestCase):
                               'day': 'Sunday'})
         client = Client()
         response = self.client.get(url)
-        self.assertTrue('Event Calendar' in response.content)
-
+        self.assertNotContains(
+            response,
+            '<li><a href="http://burlesque-expo.com/class_rooms">')
+        self.assertContains(
+            response,
+            '<p>This calendar is not currently available.</p>')
     def test_calendar_view_class_current_conf_by_default(self):
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
