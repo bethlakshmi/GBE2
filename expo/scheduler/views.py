@@ -234,6 +234,7 @@ def detail_view(request, eventitem_id):
                   )
 
 
+@login_required
 def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
@@ -244,8 +245,7 @@ def schedule_acts(request, show_title=None):
     if request.method == "POST":
         show_title = request.POST.get('event_type', 'POST')
 
-    if show_title.strip() == '':
-        import gbe.models as conf
+    if (show_title is None) or show_title.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
         show_options = EventItem.objects.all().select_subclasses()
         show_options = filter(lambda event: type(event) == conf.Show,
@@ -273,8 +273,7 @@ def schedule_acts(request, show_title=None):
 
     # we should have a show title at this point.
 
-    show = conf.Show.objects.get(title=show_title)
-    import gbe.models as conf
+    show = get_object_or_404(conf.Show, title=show_title)
     # get allocations involving the show we want
     event = show.scheduler_events.first()
 
