@@ -30,6 +30,17 @@ class TestDeleteEvent(TestCase):
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
                            args=[self.context.show.title])
+    def get_basic_post(self):
+        data = {
+            'event_type': self.context.show.title,
+            'performer': 'changed performer',
+            'title': 'changed title',
+            'show': self.context.sched_event.pk,
+            'order': 1,
+            'actresource': self.context.sched_event.resources_allocated.filter(
+                resource__actresource___item=self.context.acts[0])}
+        return data
+    
     def assert_good_form_display(self, response):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('<ul class="errorlist">', response.content)
@@ -101,4 +112,18 @@ class TestDeleteEvent(TestCase):
         self.context.book_act(wait_act)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
+        self.assert_good_form_display(response)
+
+    def test_good_user_post_just_show(self):
+        login_as(self.privileged_profile, self)
+        response = self.client.post(
+            self.url,
+            data={'event_type': self.context.show.title})
+        self.assert_good_form_display(response)
+
+    def test_good_user_post_success(self):
+        login_as(self.privileged_profile, self)
+        response = self.client.post(
+            self.url,
+            data=self.get_basic_post())
         self.assert_good_form_display(response)
