@@ -35,8 +35,8 @@ class TestReviewVendorList(TestCase):
         self.conference = current_conference()
         self.vendors = VendorFactory.create_batch(
             4,
-           conference=self.conference,
-           submitted=True)
+            conference=self.conference,
+            submitted=True)
 
     def test_review_vendor_all_well(self):
         url = reverse('vendor_review',
