@@ -63,18 +63,6 @@ from gbe.functions import (
 )
 
 
-def selfcast(sobj):
-    '''
-    Takes a scheduler object and casts it to its underlying type.
-    This can (will) fail if object ids are out of sync, see issue 145
-    Pretty rudimentary, can probably be improved
-    '''
-    try:
-        return sobj.typeof().objects.get(pk=sobj.child.id)
-    except:
-        return sobj
-
-
 def get_events_display_info(event_type='Class', time_format=None):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
@@ -263,11 +251,13 @@ def schedule_acts(request, show_title=None):
                 continue  # error, should log
             alloc = get_object_or_404(ResourceAllocation,
                                       id=prefix.split('_')[1])
-
             alloc.event = data['show']
             alloc.save()
-            ordering = alloc.ordering
-            ordering.order = data['order']
+            try:
+               ordering = alloc.ordering
+               ordering.order = data['order']
+            except:
+               ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 

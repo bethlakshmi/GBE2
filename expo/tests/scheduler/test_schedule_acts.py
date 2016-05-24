@@ -16,7 +16,6 @@ from tests.functions.gbe_functions import (
 )
 from tests.contexts import ShowContext
 
-
 class TestDeleteEvent(TestCase):
     view_name = 'schedule_acts'
 
@@ -31,14 +30,21 @@ class TestDeleteEvent(TestCase):
                            urlconf="scheduler.urls",
                            args=[self.context.show.title])
     def get_basic_post(self):
+        allocation = self.context.sched_event.resources_allocated.filter(
+                resource__actresource___item=self.context.acts[0]).first()
         data = {
-            'event_type': self.context.show.title,
-            'performer': 'changed performer',
-            'title': 'changed title',
-            'show': self.context.sched_event.pk,
-            'order': 1,
-            'actresource': self.context.sched_event.resources_allocated.filter(
-                resource__actresource___item=self.context.acts[0])}
+            'allocation_' + str(allocation.pk) +
+            '-event_type': self.context.show.title,
+            'allocation_' + str(allocation.pk) +
+            '-performer': 'changed performer',
+            'allocation_' + str(allocation.pk) +
+            '-title': 'changed title',
+            'allocation_' + str(allocation.pk) +
+            '-show': self.context.sched_event.pk,
+            'allocation_' + str(allocation.pk) +
+            '-order': 1,
+            'allocation_' + str(allocation.pk) +
+            '-actresource': allocation.resource.pk}
         return data
     
     def assert_good_form_display(self, response):
@@ -126,4 +132,50 @@ class TestDeleteEvent(TestCase):
         response = self.client.post(
             self.url,
             data=self.get_basic_post())
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
+
+    def test_good_user_post_success_w_label(self):
+        self.context.order_act(self.context.acts[0], 2)
+        login_as(self.privileged_profile, self)
+        response = self.client.post(
+            self.url,
+            data=self.get_basic_post())
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
+        allocation = self.context.sched_event.resources_allocated.filter(
+            resource__actresource___item=self.context.acts[0]).first()
+        self.assertEqual(allocation.ordering.order, 1)
+
+    def test_good_user_get_success_w_label(self):
+        self.context.order_act(self.context.acts[0], 2)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            self.url)
         self.assert_good_form_display(response)
+        allocation = self.context.sched_event.resources_allocated.filter(
+            resource__actresource___item=self.context.acts[0]).first()
+        self.assertContains(
+            response,
+            '<input id="id_allocation_' + str(allocation.pk) +
+            '-order" name="allocation_' + str(allocation.pk) +
+            '-order" type="number" value="2" />')
+
+    def test_good_user_post_invalid(self):
+        login_as(self.privileged_profile, self)
+        allocation = self.context.sched_event.resources_allocated.filter(
+            resource__actresource___item=self.context.acts[0]).first()
+        data = self.get_basic_post()
+        data['allocation_' + str(allocation.pk) +
+            '-show'] = 'bad'
+        data['allocation_' + str(allocation.pk) + '-order'] = 'very bad'
+        data['allocation_' + str(allocation.pk) + '-actresource'] = \
+            'adfasdfasdfkljasdfklajsdflkjasdlkfjalksjdflkasjdflkjasdl'
+        response = self.client.post(
+            self.url,
+            data=data)
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
