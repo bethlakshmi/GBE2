@@ -283,8 +283,6 @@ def schedule_acts(request, show_title=None):
     forms = []
     for alloc in allocations:
         actitem = alloc.resource.item
-        if type(actitem) != ActItem:
-            continue
         act = actitem.act
         if act.accepted != 3:
             continue
