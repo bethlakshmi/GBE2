@@ -4,7 +4,9 @@ from django.test import (
     TestCase,
 )
 from tests.factories.gbe_factories import (
+    ActFactory,
     ProfileFactory,
+    ShowFactory
 )
 from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
@@ -28,6 +30,21 @@ class TestDeleteEvent(TestCase):
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
                            args=[self.context.show.title])
+    def assert_good_form_display(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('<ul class="errorlist">', response.content)
+        for act in self.context.acts:
+            if act.accepted == 3:
+                self.assertContains(response, act.title)
+                self.assertContains(response, str(act.performer))
+            else:
+                self.assertNotContains(response, act.title)
+                self.assertNotContains(response, str(act.performer))
+        self.assertContains(
+            response,
+            '<option value="' + str(self.context.sched_event.pk) +
+            '" selected="selected">' + self.context.show.title +
+            '</option>')
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
@@ -68,6 +85,20 @@ class TestDeleteEvent(TestCase):
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
+        self.assert_good_form_display(response)
+
+    def test_good_user_get_success_not_scheduled(self):
+        show = ShowFactory()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('<ul class="errorlist">', response.content)
-        self.assertIn(self.context.show.title, response.content)
+        self.assertIn('Performer', response.content)
+
+    def test_good_user_get_w_waitlist(self):
+        wait_act = ActFactory(accepted=2,
+                              conference=self.context.conference)
+        self.context.book_act(wait_act)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assert_good_form_display(response)
