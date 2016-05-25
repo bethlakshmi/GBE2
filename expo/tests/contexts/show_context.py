@@ -74,7 +74,7 @@ class ShowContext:
         return (act, booking)
 
     def order_act(self, act, order):
-        alloc=self.sched_event.resources_allocated.filter(
+        alloc = self.sched_event.resources_allocated.filter(
             resource__actresource___item=self.acts[0]).first()
         try:
             alloc.ordering = order
