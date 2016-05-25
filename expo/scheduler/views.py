@@ -259,6 +259,7 @@ def schedule_acts(request, show_title=None):
             except:
                ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
+            
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     # we should have a show title at this point.
@@ -286,7 +287,6 @@ def schedule_acts(request, show_title=None):
             o = Ordering(allocation=alloc, order=0)
             o.save()
             details['order'] = 0
-        details['actresource'] = alloc.resource.id
 
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])

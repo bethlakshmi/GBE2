@@ -16,6 +16,7 @@ from tests.functions.gbe_functions import (
 )
 from tests.contexts import ShowContext
 
+
 class TestDeleteEvent(TestCase):
     view_name = 'schedule_acts'
 
@@ -29,6 +30,7 @@ class TestDeleteEvent(TestCase):
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
                            args=[self.context.show.title])
+
     def get_basic_post(self):
         allocation = self.context.sched_event.resources_allocated.filter(
                 resource__actresource___item=self.context.acts[0]).first()
@@ -40,13 +42,11 @@ class TestDeleteEvent(TestCase):
             'allocation_' + str(allocation.pk) +
             '-title': 'changed title',
             'allocation_' + str(allocation.pk) +
-            '-show': self.context.sched_event.pk,
+            '-show': str(self.context.sched_event.pk),
             'allocation_' + str(allocation.pk) +
-            '-order': 1,
-            'allocation_' + str(allocation.pk) +
-            '-actresource': allocation.resource.pk}
+            '-order': 1}
         return data
-    
+
     def assert_good_form_display(self, response):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('<ul class="errorlist">', response.content)
@@ -135,6 +135,10 @@ class TestDeleteEvent(TestCase):
         self.assertRedirects(
             response,
             reverse('home', urlconf='gbe.urls'))
+        self.assertNotEqual(self.context.acts[0].title,
+                            'changed title')
+        self.assertNotEqual(str(self.context.acts[0].performer),
+                            'changed performer')
 
     def test_good_user_post_success_w_label(self):
         self.context.order_act(self.context.acts[0], 2)
@@ -169,7 +173,7 @@ class TestDeleteEvent(TestCase):
             resource__actresource___item=self.context.acts[0]).first()
         data = self.get_basic_post()
         data['allocation_' + str(allocation.pk) +
-            '-show'] = 'bad'
+             '-show'] = 'bad'
         data['allocation_' + str(allocation.pk) + '-order'] = 'very bad'
         data['allocation_' + str(allocation.pk) + '-actresource'] = \
             'adfasdfasdfkljasdfklajsdflkjasdlkfjalksjdflkasjdflkjasdl'
@@ -179,3 +183,21 @@ class TestDeleteEvent(TestCase):
         self.assertRedirects(
             response,
             reverse('home', urlconf='gbe.urls'))
+
+    def test_good_user_change_show(self):
+        new_show = ShowContext(conference=self.context.conference)
+        login_as(self.privileged_profile, self)
+        allocation = self.context.sched_event.resources_allocated.filter(
+            resource__actresource___item=self.context.acts[0]).first()
+        data = self.get_basic_post()
+        data['allocation_' + str(allocation.pk) +
+             '-show'] = str(new_show.sched_event.pk)
+
+        response = self.client.post(
+            self.url,
+            data=data)
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(new_show.sched_event.volunteer_count, "2 acts")
+        self.assertEqual(self.context.sched_event.volunteer_count, 0)
