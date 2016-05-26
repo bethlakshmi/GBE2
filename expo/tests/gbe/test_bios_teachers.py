@@ -28,6 +28,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+
 class TestBiosTeachers(TestCase):
     '''Tests for bios_teachers view'''
     view_name = 'bios_teacher'
@@ -45,7 +46,7 @@ class TestBiosTeachers(TestCase):
     def test_bios_teachers_no_conf_slug(self):
         current_context = ClassContext(conference=current_conference())
         other_conference = ConferenceFactory(status="ended")
-        other_context = ClassContext(conference = other_conference)
+        other_context = ClassContext(conference=other_conference)
         url = reverse(self.view_name, urlconf="gbe.urls")
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
@@ -62,7 +63,6 @@ class TestBiosTeachers(TestCase):
         # assert other_context.teacher.name not in response.content
         # assert other_context.bid.title not in response.content
 
-
     def test_bios_teachers_specific_conference(self):
         first_context = ClassContext()
         other_context = ClassContext()
@@ -70,7 +70,7 @@ class TestBiosTeachers(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(
             url,
-            data={'conference':first_context.conference.conference_slug})
+            data={'conference': first_context.conference.conference_slug})
         assert response.status_code == 200
         assert first_context.bid.teacher.name in response.content
         assert first_context.bid.title in response.content

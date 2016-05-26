@@ -55,7 +55,6 @@ class TestRegisterPersona(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(1, profile.personae.count()-persona_count)
 
-
     def test_register_persona_invalid_post(self):
         profile = ProfileFactory()
         login_as(profile, self)
@@ -75,9 +74,6 @@ class TestRegisterPersona(TestCase):
                   })
         nt.assert_equal(response.status_code, 200)
         assert "This field is required." in response.content
-
-
-
 
     def test_redirect(self):
         profile = ProfileFactory()

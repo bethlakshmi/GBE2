@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+
 def refresh_from_db(item):
     return type(item).objects.get(pk=item.pk)
 
@@ -32,8 +33,6 @@ class TestReviewVendor(TestCase):
         self.coordinator = ProfileFactory()
         grant_privilege(self.coordinator.user_object, 'Vendor Reviewers')
         grant_privilege(self.coordinator.user_object, 'Vendor Coordinator')
-
-
 
     def test_review_vendor_all_well(self):
         vendor = VendorFactory()
@@ -74,7 +73,6 @@ class TestReviewVendor(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue("Bid Information" in response.content)
 
-
     def test_review_vendor_post_invalid_form(self):
         vendor = VendorFactory(accepted=1)
         original_state = vendor.accepted
@@ -89,7 +87,6 @@ class TestReviewVendor(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertTrue("Bid Information" in response.content)
-
 
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()

@@ -20,12 +20,16 @@ from datetime import (
     time,
     timedelta,
 )
+
+
 def unique_string(base_string):
-    return base_string % str(randint(0,10000))
+    return base_string % str(randint(0, 10000))
+
 
 def noon(day):
     return datetime.combine(day.day,
                             time(12, 0, 0, tzinfo=pytz.utc))
+
 
 class ClassContext:
     def __init__(self,
