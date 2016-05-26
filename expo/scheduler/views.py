@@ -1068,6 +1068,6 @@ def calendar_view(request=None,
         table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
     # TO DO: Get rid of hard-coded links
 
-    template = 'scheduler/Sched_Display.tmpl'
+    template = 'scheduler/sched_display.tmpl'
 
     return render(request, template, table)
