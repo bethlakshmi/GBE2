@@ -55,6 +55,7 @@ def assert_good_sched_event_form(response, eventitem):
     assert '<input id="id_event-duration" name="event-duration" ' + \
         'type="text" value="01:00:00" />' in response.content
 
+
 def noon(day):
     return datetime.combine(day.day,
                             time(12, 0, 0, tzinfo=pytz.utc))

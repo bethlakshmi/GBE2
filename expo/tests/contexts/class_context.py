@@ -19,8 +19,10 @@ from datetime import (
 )
 from tests.functions.scheduler_functions import noon
 
+
 def unique_string(base_string):
     return base_string % str(randint(0, 10000))
+
 
 class ClassContext:
     def __init__(self,
