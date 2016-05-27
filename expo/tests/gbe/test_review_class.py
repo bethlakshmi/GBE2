@@ -93,7 +93,11 @@ class TestReviewClass(TestCase):
         self.assertTrue(is_login_page(response))
 
     def test_bad_user(self):
-        login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        klass = ClassFactory()
+        reviewer = ProfileFactory()
+        grant_privilege(reviewer, 'Class Reviewers')
+        login_as(reviewer, self)
+        url = reverse(self.view_name, args=[klass.pk], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        assert "Review Bids" in response.content
+        assert response.status_code == 200

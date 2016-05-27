@@ -13,8 +13,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
 )
 import pytz
-from datetime import time
-from datetime import datetime
+from tests.functions.scheduler_functions import noon
 
 
 class ShowContext:
@@ -23,13 +22,12 @@ class ShowContext:
                  performer=None,
                  conference=None,
                  room=None,
-                 starttime=None,
-                 day=None):
+                 starttime=None):
         self.performer = performer or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        if not day:
-            day = ConferenceDayFactory(conference=self.conference)
-        self.days = [day]
+        if not self.conference.conferenceday_set.exists():
+            ConferenceDayFactory(conference=self.conference)
+        self.days = self.conference.conferenceday_set.all()
         act = act or ActFactory(conference=self.conference,
                                 performer=self.performer,
                                 accepted=3)
@@ -56,9 +54,7 @@ class ShowContext:
         else:
             sched_event = SchedEventFactory(
                 eventitem=self.show.eventitem_ptr,
-                starttime=datetime.combine(
-                    self.days[0].day,
-                    time(12, 0, 0, tzinfo=pytz.utc)))
+                starttime=noon(self.days[0]))
         ResourceAllocationFactory(
             event=sched_event,
             resource=LocationFactory(_item=room.locationitem_ptr))
