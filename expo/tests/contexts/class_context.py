@@ -1,3 +1,4 @@
+from random import randint
 from tests.factories.gbe_factories import (
     ClassFactory,
     ConferenceDayFactory,
@@ -11,9 +12,23 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+
+from gbe.models import Class
 import pytz
-from datetime import time
-from datetime import datetime
+from datetime import (
+    datetime,
+    time,
+    timedelta,
+)
+
+
+def unique_string(base_string):
+    return base_string % str(randint(0, 10000))
+
+
+def noon(day):
+    return datetime.combine(day.day,
+                            time(12, 0, 0, tzinfo=pytz.utc))
 
 
 class ClassContext:
@@ -25,9 +40,19 @@ class ClassContext:
                  starttime=None):
         self.teacher = teacher or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        self.days = [ConferenceDayFactory(conference=self.conference)]
+        if not self.conference.conferenceday_set.exists():
+            ConferenceDayFactory(conference=self.conference)
+        self.days = self.conference.conferenceday_set.all()
+        self.starttime = starttime or noon(self.days[0])
         self.bid = bid or ClassFactory(conference=self.conference,
-                                       accepted=3)
+                                       accepted=3,
+                                       teacher=self.teacher)
+        self.bid.title = unique_string("Class Title %s")
+        self.bid.eventitem_ptr.title = self.bid.title
+        self.bid.biddable_ptr.title = self.bid.title
+        self.bid.save()
+        self.bid.eventitem_ptr.save()
+        self.bid.biddable_ptr.save()
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,
@@ -50,9 +75,7 @@ class ClassContext:
         else:
             sched_event = SchedEventFactory(
                 eventitem=self.bid.eventitem_ptr,
-                starttime=datetime.combine(
-                    self.days[0].day,
-                    time(12, 0, 0, tzinfo=pytz.utc)))
+                starttime=noon(self.days[0]))
         ResourceAllocationFactory(
             event=sched_event,
             resource=LocationFactory(_item=room.locationitem_ptr))
