@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
@@ -36,8 +35,8 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true("Cue Sheet Instructions" in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Cue Sheet Instructions" in response.content)
 
     def test_edit_act_techinfo_wrong_profile(self):
         context = ActTechInfoContext()
@@ -46,7 +45,7 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        nt.assert_true(400 <= response.status_code < 500)
+        self.assertTrue(400 <= response.status_code < 500)
 
     def test_edit_act_techinfo_no_profile(self):
         context = ActTechInfoContext()
@@ -55,7 +54,7 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(UserFactory(), self)
         response = self.client.get(url, follow=True)
-        nt.assert_equal(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_edit_act_techinfo_authorized_user_with_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -64,8 +63,8 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true("Cue Sheet Instructions" in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Cue Sheet Instructions" in response.content)
 
     def test_edit_act_techinfo_authorized_user_post_empty_form(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -74,5 +73,5 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
         response = self.client.post(url, {})
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true("Cue Sheet Instructions" in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Cue Sheet Instructions" in response.content)
