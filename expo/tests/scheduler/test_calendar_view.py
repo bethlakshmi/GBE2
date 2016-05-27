@@ -10,10 +10,9 @@ from tests.factories.gbe_factories import (
     ConferenceDayFactory,
 )
 from tests.functions.gbe_functions import clear_conferences
+from tests.functions.scheduler_functions import noon
 from gbe.models import Conference
-from pytz import utc
 from datetime import (
-    datetime,
     date,
 )
 from tests.contexts import (
@@ -32,18 +31,16 @@ class TestCalendarView(TestCase):
         conference_day = ConferenceDayFactory(
             conference=conference,
             day=date(2016, 02, 06))
-        self.showcontext = ShowContext(conference=conference,
-                                       day=conference_day)
+        self.showcontext = ShowContext(conference=conference)
         self.other_conference = ConferenceFactory(
             status='completed')
         self.other_conf_day = ConferenceDayFactory(
             conference=self.other_conference,
             day=date(2015, 02, 06))
-        self.other_show = ShowContext(conference=self.other_conference,
-                                      day=self.other_conf_day)
+        self.other_show = ShowContext(conference=self.other_conference)
         self.classcontext = ClassContext(
             conference=self.showcontext.conference,
-            day=conference_day)
+            starttime=noon(conference_day))
 
     def test_calendar_view_shows_current_conf_by_default(self):
         url = reverse('calendar_view', urlconf="scheduler.urls")
@@ -133,7 +130,7 @@ class TestCalendarView(TestCase):
             day=date(2016, 02, 07))
         classcontextSun = ClassContext(
             conference=self.showcontext.conference,
-            day=sunday)
+            starttime=noon(sunday))
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
                       kwargs={'event_type': 'Class',
@@ -146,6 +143,7 @@ class TestCalendarView(TestCase):
 
     def test_calendar_view_movement_class(self):
         self.classcontext.bid.type = 'Movement'
+        self.classcontext.bid.save()
         url = reverse('calendar_view_day',
                       urlconf="scheduler.urls",
                       kwargs={'event_type': 'Movement',

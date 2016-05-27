@@ -411,7 +411,7 @@ def date_to_datetime(the_date):
     return utc.localize(datetime.combine(the_date, zero_hour))
 
 
-def send_today():
+def get_default_range():
     today = date_to_datetime(date.today())
     return (today + Duration(hours=8), today + Duration(hours=28))
 
@@ -421,11 +421,11 @@ def cal_times_for_conf(conference, day_name):
     days = get_conference_days(conference)
 
     if not days.exists():
-        return send_today()
+        return get_default_range()
     if day_name:
         selected_day = select_day(days, day_name)
         if not selected_day:
-            return send_today()
+            return get_default_range()
         day = date_to_datetime(selected_day.day)
         if day:
             return day + Duration(hours=8), day + Duration(hours=28)
