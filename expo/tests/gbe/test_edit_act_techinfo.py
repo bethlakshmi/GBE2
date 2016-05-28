@@ -28,7 +28,7 @@ class TestEditActTechInfo(TestCase):
         self.client = Client()
         self.performer = PersonaFactory()
 
-    def get_full_post(self, rehearsal, techinfo, show, full_cues=True):
+    def get_full_post(self, rehearsal, show):
         data = {
             'show': show.title,
             'lighting_info-notes': 'lighting notes',
@@ -48,38 +48,25 @@ class TestEditActTechInfo(TestCase):
             'stage_info-notes': 'notes',
             'stage_info-set_props': 'checked',
             'stage_info-set_props': 'checked',
-            'stage_info-set_props': 'checked',
-            'cue0-cue_sequence': '0',
-            'cue0-cue_off_of': 'Start of music',
-            'cue0-follow_spot': 'Blue',
-            'cue0-cyc_color': 'White',
-            'cue0-wash': 'Blue',
-            'cue0-sound_note': 'sound note',
-            'cue0-techinfo': techinfo.pk,
-            'cue1-cue_sequence': '1',
-            'cue1-cue_off_of': 'cue note',
-            'cue1-follow_spot': 'Pink',
-            'cue1-cyc_color': 'Green',
-            'cue1-wash': 'Green',
-            'cue1-sound_note': 'sound note',
-            'cue1-techinfo': techinfo.pk,
-            'cue2-cue_sequence': '2',
-            'cue2-cue_off_of': 'cue note',
-            'cue2-follow_spot': 'Red',
-            'cue2-cyc_color': 'Red',
-            'cue2-wash': 'Red',
-            'cue2-sound_note': 'sound note',
-            'cue2-techinfo': techinfo.pk,
-        }
-        if full_cues:
-            data['cue0-center_spot'] = 'ON',
-            data['cue0-backlight'] = 'ON',
-            data['cue1-center_spot'] = 'Off',
-            data['cue1-backlight'] = 'Off',
-            data['cue2-center_spot'] = 'ON',
-            data['cue2-backlight'] = 'ON',
+            'stage_info-set_props': 'checked'}
         if rehearsal:
            data['rehearsal'] = str(rehearsal.pk)
+
+        return data
+
+    def get_cues(self, techinfo, num_cues, full_set=True ):
+        data = {}
+        for x in range(0, num_cues):
+            data['cue' + str(x) + '-cue_sequence'] = str(x),
+            data['cue' + str(x) + '-cue_off_of'] = "Start of music",
+            data['cue' + str(x) + '-follow_spot'] = "Blue",
+            data['cue' + str(x) + '-cyc_color'] = "White",
+            data['cue' + str(x) + '-wash'] = "Blue",
+            data['cue' + str(x) + '-sound_note'] = "sound note",
+            data['cue' + str(x) + '-techinfo'] = str(techinfo.pk),
+            if full_set:
+                data['cue' + str(x) + '-center_spot'] = 'ON',
+                data['cue' + str(x) + '-backlight'] = 'ON',
         return data
 
     def test_edit_act_techinfo_unauthorized_user(self):
@@ -173,12 +160,14 @@ class TestEditActTechInfo(TestCase):
                       urlconf='gbe.urls',
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3))
+
         response = self.client.post(
             url,
-            data=self.get_full_post(
-                another_rehearsal,
-                context.act.tech,
-                context.show))
+            data=data)
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
@@ -186,7 +175,7 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(
             context.act.tech.cueinfo_set.get(
                 cue_sequence=2).cyc_color,
-            'Red')
+            'White')
 
     def test_edit_act_techinfo_authorized_user_post_complete_alt_cues_full_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -200,13 +189,13 @@ class TestEditActTechInfo(TestCase):
                       urlconf='gbe.urls',
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3, False))
         response = self.client.post(
             url,
-            data=self.get_full_post(
-                another_rehearsal,
-                context.act.tech,
-                context.show,
-                False))
+            data=data)
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
@@ -234,15 +223,39 @@ class TestEditActTechInfo(TestCase):
                       urlconf='gbe.urls',
                       args=[context.act.pk])
         login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            None,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3))
         response = self.client.post(
             url,
-            data=self.get_full_post(
-                None,
-                context.act.tech,
-                context.show))
+            data=data)
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
 
     def test_edit_act_techinfo_authorized_user_rehearsal_not_set(self):
+        context = ActTechInfoContext(schedule_rehearsal=False)
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3))
+        response = self.client.post(
+            url,
+            data=data)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
+        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
+                         another_rehearsal)
+        self.assertEqual(
+            context.act.tech.cueinfo_set.get(
+                cue_sequence=2).cyc_color,
+            'White')
+
+    def test_edit_act_techinfo_authorized_user_cues_not_set(self):
         context = ActTechInfoContext(schedule_rehearsal=False)
         another_rehearsal = context._schedule_rehearsal(context.sched_event)
         url = reverse('act_techinfo_edit',
@@ -253,13 +266,6 @@ class TestEditActTechInfo(TestCase):
             url,
             data=self.get_full_post(
                 another_rehearsal,
-                context.act.tech,
                 context.show))
-        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
-        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
-        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
-                         another_rehearsal)
-        self.assertEqual(
-            context.act.tech.cueinfo_set.get(
-                cue_sequence=2).cyc_color,
-            'Red')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Add text if you wish to save information for this cue.')

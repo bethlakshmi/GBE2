@@ -130,6 +130,7 @@ def EditActTechInfoView(request, act_id):
         else:
             formtype = "None"
 
+        cue_fail = False
         if formtype != "None":
             cue_forms = [formtype(request.POST,
                                   prefix='cue%d' % i,
@@ -140,6 +141,8 @@ def EditActTechInfoView(request, act_id):
             for f in cue_forms:
                 if f.is_valid():
                     f.save()
+                else:
+                    cue_fail = True
 
         techforms = [lightingform,  audioform, stageform, ]
 
@@ -147,7 +150,7 @@ def EditActTechInfoView(request, act_id):
             if f.is_valid():
                 f.save()
         tech = act.tech
-        if tech.is_complete:
+        if tech.is_complete and not cue_fail:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form_data = {'readonlyform': [form],
