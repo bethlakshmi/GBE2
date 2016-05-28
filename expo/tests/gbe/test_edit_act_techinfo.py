@@ -212,7 +212,7 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
                          another_rehearsal)
 
-    def test_edit_act_techinfo_authorized_user_none_theater(self):
+    def test_edit_act_techinfo_authorized_user_get_none_theater(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
         context.show.cue_sheet = "None"
         context.show.save()
@@ -241,3 +241,25 @@ class TestEditActTechInfo(TestCase):
                 context.act.tech,
                 context.show))
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+
+    def test_edit_act_techinfo_authorized_user_rehearsal_not_set(self):
+        context = ActTechInfoContext(schedule_rehearsal=False)
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.post(
+            url,
+            data=self.get_full_post(
+                another_rehearsal,
+                context.act.tech,
+                context.show))
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
+        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
+                         another_rehearsal)
+        self.assertEqual(
+            context.act.tech.cueinfo_set.get(
+                cue_sequence=2).cyc_color,
+            'Red')
