@@ -28,10 +28,9 @@ class TestEditActTechInfo(TestCase):
         self.client = Client()
         self.performer = PersonaFactory()
 
-    def get_full_post(self, rehearsal, techinfo, show):
+    def get_full_post(self, rehearsal, techinfo, show, full_cues=True):
         data = {
             'show': show.title,
-            'rehearsal': str(rehearsal.pk),
             'lighting_info-notes': 'lighting notes',
             'lighting_info-costume': 'costume description',
             'lighting_info-specific_needs': 'lighting specific needs',
@@ -50,31 +49,37 @@ class TestEditActTechInfo(TestCase):
             'stage_info-set_props': 'checked',
             'stage_info-set_props': 'checked',
             'stage_info-set_props': 'checked',
+            'cue0-cue_sequence': '0',
             'cue0-cue_off_of': 'Start of music',
             'cue0-follow_spot': 'Blue',
-            'cue0-center_spot': 'ON',
-            'cue0-backlight': 'ON',
             'cue0-cyc_color': 'White',
             'cue0-wash': 'Blue',
             'cue0-sound_note': 'sound note',
             'cue0-techinfo': techinfo.pk,
+            'cue1-cue_sequence': '1',
             'cue1-cue_off_of': 'cue note',
             'cue1-follow_spot': 'Pink',
-            'cue1-center_spot': 'OFF',
-            'cue1-backlight': 'OFF',
             'cue1-cyc_color': 'Green',
             'cue1-wash': 'Green',
             'cue1-sound_note': 'sound note',
             'cue1-techinfo': techinfo.pk,
+            'cue2-cue_sequence': '2',
             'cue2-cue_off_of': 'cue note',
             'cue2-follow_spot': 'Red',
-            'cue2-center_spot': 'ON',
-            'cue2-backlight': 'ON',
             'cue2-cyc_color': 'Red',
             'cue2-wash': 'Red',
             'cue2-sound_note': 'sound note',
             'cue2-techinfo': techinfo.pk,
         }
+        if full_cues:
+            data['cue0-center_spot'] = 'ON',
+            data['cue0-backlight'] = 'ON',
+            data['cue1-center_spot'] = 'Off',
+            data['cue1-backlight'] = 'Off',
+            data['cue2-center_spot'] = 'ON',
+            data['cue2-backlight'] = 'ON',
+        if rehearsal:
+           data['rehearsal'] = str(rehearsal.pk)
         return data
 
     def test_edit_act_techinfo_unauthorized_user(self):
@@ -178,6 +183,10 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
                          another_rehearsal)
+        self.assertEqual(
+            context.act.tech.cueinfo_set.get(
+                cue_sequence=2).cyc_color,
+            'Red')
 
     def test_edit_act_techinfo_authorized_user_post_complete_alt_cues_full_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -196,7 +205,8 @@ class TestEditActTechInfo(TestCase):
             data=self.get_full_post(
                 another_rehearsal,
                 context.act.tech,
-                context.show))
+                context.show,
+                False))
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
@@ -215,3 +225,19 @@ class TestEditActTechInfo(TestCase):
         self.assertFalse("Cue Sheet Instructions" in response.content)
         self.assertNotContains(response, '  <tr class="bid-table">\n' +
             '    <th class="bid-table">Cue #</th>\n')
+
+    def test_edit_act_techinfo_authorized_user_post_complete_no_cues_no_rehearsal(self):
+        context = ActTechInfoContext(schedule_rehearsal=False)
+        context.show.cue_sheet = "None"
+        context.show.save()
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.post(
+            url,
+            data=self.get_full_post(
+                None,
+                context.act.tech,
+                context.show))
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
