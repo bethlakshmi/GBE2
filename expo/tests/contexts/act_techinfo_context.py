@@ -63,5 +63,5 @@ class ActTechInfoContext():
         if act:
             ResourceAllocationFactory(
                 resource=ActResourceFactory(_item=act.actitem_ptr),
-                event=s_event)
+                event=rehearsal_event)
         return rehearsal_event

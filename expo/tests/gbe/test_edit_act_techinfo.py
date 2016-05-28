@@ -114,6 +114,42 @@ class TestEditActTechInfo(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Cue Sheet Instructions" in response.content)
+        self.assertContains(response, '<tr class="bid-table">\n' +
+            '    <th class="bid-table">Cue #</th>\n' +
+            '    <th class="bid-table">Cue Off of...</th>\n' +
+            '    <th class="bid-table">Follow spot</th>\n' +
+            '    <th class="bid-table">Backlight</th>\n' +
+            '    <th class="bid-table">Center Spot</th>\n' +
+            '    <th class="bid-table">Cyc Light</th>\n' +
+            '    <th class="bid-table">Wash</th>\n' +
+            '    <th class="bid-table">Sound</th>\n' +
+            '  </tr>')
+        self.assertContains(
+            response,
+            '<option value="' + str(context.rehearsal.id) +
+            '" selected="selected">' +
+            "%s: %s" % (context.rehearsal.as_subtype.title,
+                        context.rehearsal.starttime.strftime("%I:%M:%p")) +
+            '</option>')
+
+    def test_edit_act_techinfo_authorized_user_alt_theater(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "Alternate"
+        context.show.save()
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Cue Sheet Instructions" in response.content)
+        self.assertContains(response, '  <tr class="bid-table">\n' +
+            '    <th class="bid-table">Cue #</th>\n' +
+            '    <th class="bid-table">Cue Off of...</th>\n' +
+            '    <th class="bid-table">Follow spot</th>\n' +
+            '    <th class="bid-table">Wash</th>\n' +
+            '    <th class="bid-table" >Sound</th>\n' +
+            '  </tr>')
 
     def test_edit_act_techinfo_authorized_user_post_empty_form(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -142,3 +178,40 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
                          another_rehearsal)
+
+    def test_edit_act_techinfo_authorized_user_post_complete_alt_cues_full_rehearsal(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "Alternate"
+        context.show.save()
+        context.rehearsal.max_volunteer = 1
+        context.rehearsal.save()
+
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.post(
+            url,
+            data=self.get_full_post(
+                another_rehearsal,
+                context.act.tech,
+                context.show))
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
+        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
+                         another_rehearsal)
+
+    def test_edit_act_techinfo_authorized_user_none_theater(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "None"
+        context.show.save()
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse("Cue Sheet Instructions" in response.content)
+        self.assertNotContains(response, '  <tr class="bid-table">\n' +
+            '    <th class="bid-table">Cue #</th>\n')

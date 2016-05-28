@@ -529,8 +529,14 @@ class RehearsalSelectionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
-        self.fields['rehearsal'] = forms.ChoiceField(choices=kwargs['initial']
-                                                     ['rehearsal_choices'])
+        if 'rehearsal' in kwargs['initial']:
+            self.fields['rehearsal'] = forms.ChoiceField(
+                choices=kwargs['initial']['rehearsal_choices'],
+                initial=kwargs['initial']['rehearsal'])
+        else:
+            self.fields['rehearsal'] = forms.ChoiceField(
+                choices=kwargs['initial']['rehearsal_choices'])
+
 
     class Meta:
         fields = ['show', 'rehearsal']
