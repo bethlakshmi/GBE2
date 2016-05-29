@@ -25,7 +25,7 @@ class TestCreateVolunteer(TestCase):
         self.performer = PersonaFactory()
         Conference.objects.all().delete()
         self.conference = ConferenceFactory(accepting_bids=True)
-        days = ConferenceDayFactory.create_batch(2, conference=self.conference)
+        days = ConferenceDayFactory.create_batch(3, conference=self.conference)
         [VolunteerWindowFactory(day=day) for day in days]
 
     def get_volunteer_form(self, submit=False, invalid=False):
@@ -33,7 +33,9 @@ class TestCreateVolunteer(TestCase):
                 'number_shifts': 2,
                 'interests': ['VA0'],
                 'available_windows': self.conference.windows().values_list(
-                    'pk', flat=True)
+                    'pk', flat=True)[0:2],
+                'unavailable_windows': self.conference.windows().values_list(
+                    'pk', flat=True)[2]
                 }
         if submit:
             form['submit'] = True
@@ -78,3 +80,11 @@ class TestCreateVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
+
+    def test_create_volunteer_post_with_submit_is_true(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        data = self.get_volunteer_form(submit=True)
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
