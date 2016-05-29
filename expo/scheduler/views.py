@@ -46,7 +46,6 @@ from gbe.duration import (
 from functions import (
     table_prep,
     event_info,
-    day_to_cal_time,
     cal_times_for_conf,
     overlap_clear,
     set_time_format,
@@ -314,10 +313,12 @@ def schedule_acts(request, show_title=None):
                   {'forms': forms})
 
 
+@login_required
 def delete_schedule(request, scheduler_event_id):
     '''
     Remove the scheduled item
     '''
+    validate_perms(request, ('Scheduling Mavens',))
     event = get_object_or_404(Event, id=scheduler_event_id)
     type = event.event_type_name
     event.delete()
@@ -326,10 +327,12 @@ def delete_schedule(request, scheduler_event_id):
                                         args=[type]))
 
 
+@login_required
 def delete_event(request, eventitem_id, event_type):
     '''
     Remove any scheduled items, make basic event item invisible
     '''
+    validate_perms(request, ('Scheduling Mavens',))
     event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
     event.remove()
     return HttpResponseRedirect(reverse('event_schedule',
@@ -489,18 +492,11 @@ def allocate_workers(request, opp_id):
         data = form.cleaned_data
 
         if data.get('worker', None):
-            worker = Worker(_item=data['worker'].workeritem,
-                            role=data['role'])
-            worker.save()
-            if data['alloc_id'] < 0:
-                allocation = ResourceAllocation(event=opp,
-                                                resource=worker)
-            else:
-                allocation = ResourceAllocation.objects.get(
-                    id=data['alloc_id'])
-                allocation.resource = worker
-            allocation.save()
-            allocation.set_label(data['label'])
+            opp.allocate_worker(
+                data['worker'].workeritem,
+                data['role'],
+                data['label'],
+                data['alloc_id'])
 
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
@@ -602,8 +598,9 @@ def manage_volunteer_opportunities(request, event_id):
                                                 event_id]))
 
 
+@login_required
 def contact_info(request,
-                 event_id=None,
+                 event_id,
                  resource_type='All',
                  status=None,
                  worker_type=None):
@@ -617,7 +614,7 @@ def contact_info(request,
                              'Scheduling Mavens',
                              'Vendor Coordinator'),
                    require=True)
-    event = Event.objects.get(schedulable_ptr_id=event_id)
+    event = get_object_or_404(Event, schedulable_ptr_id=event_id)
     data = event.contact_info(resource_type, status, worker_type)
     response = HttpResponse(content_type='text/csv')
     cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
@@ -629,7 +626,7 @@ def contact_info(request,
     return response
 
 
-def contact_performers(conference=None):
+def contact_performers(conference):
     if not conference:
         conference = get_current_conference()
     from gbe.models import Act
@@ -660,7 +657,7 @@ def contact_performers(conference=None):
     return header, contact_info
 
 
-def contact_volunteers(conference=None):
+def contact_volunteers(conference):
     header = ['Name',
               'Phone',
               'Email',
@@ -668,8 +665,6 @@ def contact_volunteers(conference=None):
               'Volunteer Role',
               'Event']
     volunteer_categories = dict(volunteer_interests_options)
-    if not conference:
-        conference = get_current_conference()
     from gbe.models import Volunteer
     contacts = filter(lambda worker: worker.allocations.count() > 0,
                       [vol.profile.workeritem_ptr.worker_set.first() for vol in
@@ -711,10 +706,7 @@ def contact_volunteers(conference=None):
     return header, contact_info
 
 
-def contact_teachers(conference=None):
-    if not conference:
-        conference = get_current_conference()
-
+def contact_teachers(conference):
     header = ['email',
               'Class',
               'Role',
@@ -740,7 +732,7 @@ def contact_teachers(conference=None):
     return header, contact_info
 
 
-def contact_vendors(conference=None):
+def contact_vendors(conference):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
     contacts = Vendor.objects.filter(conference=conference)
@@ -752,6 +744,7 @@ def contact_vendors(conference=None):
     return header, contact_info
 
 
+@login_required
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
     conference = get_current_conference()
@@ -1037,6 +1030,7 @@ def calendar_view(request=None,
             events = events + event_info(confitem_type=e_type,
                                          cal_times=cal_times,
                                          conference=conf)
+
     elif event_type == 'Show':
         events = event_info(confitem_type='Show',
                             cal_times=cal_times,
@@ -1051,25 +1045,29 @@ def calendar_view(request=None,
                              cal_times=cal_times,
                              conference=conf)
     else:
-        events = event_info(confitem_type=event_type, cal_times=cal_times,
+        events = event_info(confitem_type=event_type,
+                            cal_times=cal_times,
                             conference=conf)
+
     events = overlap_clear(events)
     if time_format is None:
         time_format = set_time_format()
 
-    # Changing function to get table labels from the request
     table = {}
-    table['rows'] = table_prep(events,
-                               duration,
-                               cal_start=cal_times[0],
-                               cal_stop=cal_times[1])
-    table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
-    table['link'] = 'http://burlesque-expo.com'
-    table['x_name'] = {}
-    table['x_name']['html'] = 'Rooms'
-    table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
+
+    if len(events) > 0:
+        # Changing function to get table labels from the request
+        table['rows'] = table_prep(events,
+                                   duration,
+                                   cal_start=cal_times[0],
+                                   cal_stop=cal_times[1])
+        table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+        table['link'] = 'http://burlesque-expo.com'
+        table['x_name'] = {}
+        table['x_name']['html'] = 'Rooms'
+        table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
     # TO DO: Get rid of hard-coded links
 
-    template = 'scheduler/Sched_Display.tmpl'
+    template = 'scheduler/sched_display.tmpl'
 
     return render(request, template, table)

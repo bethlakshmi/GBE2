@@ -186,6 +186,24 @@ class TestEditEvent(TestCase):
                       'type="text" value="03:00:00" />',
                       response.content)
 
+    def test_good_user_change_room(self):
+        login_as(self.privileged_profile, self)
+        new_room = RoomFactory()
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", self.context.sched_event.pk])
+        form_data = get_sched_event_form(self.context, new_room)
+        form_data['event-duration'] = "3:00:00"
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+
+        self.assert_good_post(response,
+                              self.context,
+                              self.context.days[0],
+                              new_room)
+
     def test_good_user_with_teacher(self):
         overcommitter = PersonaFactory()
         login_as(self.privileged_profile, self)

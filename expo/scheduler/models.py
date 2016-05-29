@@ -481,19 +481,17 @@ class Worker(Resource):
         except:
             return "No Worker Item"
 
-
+'''
 class EquipmentItem(ResourceItem):
-    '''
-    Payload object for an allocatable item
-    Not currently used
-    '''
+    
+    # Payload object for an allocatable item
+    # Not currently used
+
     objects = InheritanceManager()
 
     def get_resource(self):
-        '''
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
+        # Return the resource corresonding to this item
+        # To do: find a way to make this work at the Resource level
         try:
             equip = Equipment.objects.select_subclasses().get(_item=self)
         except:
@@ -517,20 +515,18 @@ class EquipmentItem(ResourceItem):
 
 
 class Equipment(Resource):
-    '''
-    An allocatable thing
-    Not currently used. Probably needs a good bit of development before we can
-    really use it (we'd like to be able to allocate single objects, sets of
-    objects, and quantities of objects at the very least - this requires a bit
-    of design)
-    '''
+    # An allocatable thing
+    # Not currently used. Probably needs a good bit of development before 
+    # we can really use it (we'd like to be able to allocate single objects,
+    # sets of objects, and quantities of objects at the very least - this 
+    # requires a bit of design)
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
 
     @property
     def type(self):
         return "equipment"
-
+'''
 
 class EventItem (models.Model):
     '''
@@ -584,12 +580,6 @@ class EventItem (models.Model):
                 allocations__event__eventitem=self.eventitem_id,
                 role__in=roles
             ).distinct().order_by('role', '_item')
-        return people
-
-    def get_worker_items(self, role):
-        people = WorkerItem.objects.filter(
-            worker__allocations__event__eventitem=self.eventitem_id,
-            worker__role=role)
         return people
 
     def set_duration(self, duration):
@@ -691,7 +681,7 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
-        if self.location == location:
+        if self.location == location.item:
             pass   # already set
         elif self.location is None:
             ra = ResourceAllocation(resource=location, event=self)
@@ -704,7 +694,7 @@ class Event(Schedulable):
                     allocation.resource = location
                     allocation.save()
 
-    def allocate_worker(self, worker, role, label=None):
+    def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''
         worker can be an instance of WorkerItem or of Worker
         role is a string, must be one of the role types.
@@ -718,11 +708,16 @@ class Event(Schedulable):
         else:
             worker.role = role
         worker.save()
-        allocation = ResourceAllocation(event=self, resource=worker)
+        if alloc_id < 0:
+            allocation = ResourceAllocation(event=self,
+                                            resource=worker)
+        else:
+            allocation = ResourceAllocation.objects.get(
+                id=alloc_id)
+            allocation.resource = worker
         allocation.save()
         if label:
-            l = Label(allocation=allocation, text=label)
-            l.save()
+            allocation.set_label(label)
 
     def unallocate_role(self, role):
         '''
@@ -787,6 +782,7 @@ class Event(Schedulable):
         returns the Worker Resource assigned. Calling function has to
         drill down to get to profile
         '''
+        worker_type = worker_type or 'Volunteer'
         opps = self.get_volunteer_opps()
         alloc_list = [(opp['conf'].volunteer_category,
                        list(opp['sched'].resources_allocated.all()))
@@ -795,7 +791,7 @@ class Event(Schedulable):
         workers = []
         for a in alloc_list:
             for w in a[1]:
-                if w.resource.type == 'Volunteer':
+                if w.resource.type == worker_type:
                     workers.append((category.get(a[0], 'Blank'),
                                     Worker.objects.get(
                                         resource_ptr_id=w.resource_id)))
@@ -886,7 +882,10 @@ class Event(Schedulable):
         return info
 
     def act_contact_info(self, status=None):
-        return [(act.contact_info for act in self.get_acts(status))]
+        info = []
+        for act in self.get_acts(status):
+            info.append(act.contact_info)
+        return info
 
     def worker_contact_info(self, worker_type=None):
         '''
@@ -945,9 +944,6 @@ class Event(Schedulable):
         bio_list = sorted(bio_list, key=lambda bio: bio.name)
 
         return bio_list
-
-    def worker_list(self, role):
-        workers = Worker.objects.filter(allocations__event=self, role=role)
 
     def __str__(self):
         try:
