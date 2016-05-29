@@ -90,3 +90,4 @@ class TestCreateVendor(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
+        nt.assert_in('Vendor Application', response.content)
