@@ -83,3 +83,10 @@ class TestCreateVendor(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
+
+    def test_create_vendor_with_get_request(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
