@@ -17,8 +17,15 @@ from django.utils import timezone
 class BrownPaperEventsFactory(DjangoModelFactory):
     class Meta:
         model = tickets.BrownPaperEvents
-    bpt_event_id = "111111"
+    bpt_event_id = Sequence(lambda x: "bpt_id #%d" % x)
     conference = SubFactory(ConferenceFactory)
+    primary = False
+    act_submission_event = False
+    vendor_submission_event = False
+    include_conference = False
+    include_most = False
+    badgeable = False
+    ticket_style = Sequence(lambda x: "BrownPaperEventTicketStyle #%d" % x)
 
 
 class BrownPaperSettingsFactory(DjangoModelFactory):
@@ -43,14 +50,14 @@ class TicketItemFactory(DjangoModelFactory):
 class PurchaserFactory(DjangoModelFactory):
     class Meta:
         model = tickets.Purchaser
-    first_name = "Betty"
-    last_name = "Blaize"
-    address = "12 Betty Lane"
+    first_name = Sequence(lambda x: "purchaser_first: #%d" % x)
+    last_name = Sequence(lambda x: "purchaser_last: #%d" % x)
+    address = Sequence(lambda x: "purchaser_address: #%d" % x)
     city = "Boston"
     state = "MA"
     zip = "12312"
     country = "USA"
-    email = "purchaseemail@test.com"
+    email = Sequence(lambda x: "purchaser_%d@test.com" % x)
     phone = "111-222-3333"
     matched_to_user = SubFactory(UserFactory)
 
@@ -62,10 +69,11 @@ class TransactionFactory(DjangoModelFactory):
     purchaser = SubFactory(PurchaserFactory)
     amount = 99.99
     order_date = timezone.now()
-    shipping_method = ""
-    order_notes = ""
-    reference = ""
-    payment_source = ""
+    shipping_method = Sequence(lambda x: "shipping_method: #%d" % x)
+    order_notes = Sequence(lambda x: "order_notes: #%d" % x)
+    reference = Sequence(lambda x: "reference: #%d" % x)
+    payment_source = Sequence(lambda x: "payment_source: #%d" % x)
+    import_date = timezone.now()
 
 
 class CheckListItemFactory(DjangoModelFactory):
