@@ -44,7 +44,6 @@ def CreateVendorView(request):
                            'fee_link': fee_link,
                            'view_title': title})
         if 'submit' in request.POST.keys():
-            
             '''
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
