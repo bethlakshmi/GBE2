@@ -12,7 +12,7 @@ from tests.factories.gbe_factories import (
     VolunteerWindowFactory,
 )
 from tests.functions.gbe_functions import login_as
-from gbe.models import Conference
+from gbe.models import Conference, Volunteer
 
 
 class TestCreateVolunteer(TestCase):
@@ -85,10 +85,12 @@ class TestCreateVolunteer(TestCase):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
+        num_volunteers_before = Volunteer.objects.count()
         data = self.get_volunteer_form(submit=True)
         response = self.client.post(url, data=data, follow=True)
         nt.assert_equal(response.status_code, 200)
         nt.assert_in('Profile View', response.content)
+        nt.assert_equal(num_volunteers_before + 1, Volunteer.objects.count())
 
     def test_create_volunteer_with_get_request(self):
         url = reverse(self.view_name,
