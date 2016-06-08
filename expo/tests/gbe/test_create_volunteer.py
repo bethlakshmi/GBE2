@@ -86,8 +86,9 @@ class TestCreateVolunteer(TestCase):
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         data = self.get_volunteer_form(submit=True)
-        response = self.client.post(url, data=data)
-        nt.assert_equal(response.status_code, 302)
+        response = self.client.post(url, data=data, follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('Profile View', response.content)
 
     def test_create_volunteer_with_get_request(self):
         url = reverse(self.view_name,
