@@ -5,6 +5,7 @@
 
 {% block content %}
 
+{% if rows %}
 <table border=4, style="list-style: none;">
 <CAPTION ALIGN="top">
 <li><a href="{{ x_name.link }}">{{ x_name.title }}</a></li></CAPTION>
@@ -37,5 +38,7 @@
   {% endfor %}
 
 </table>
-
+{% else %}
+<p>This calendar is not currently available.</p>
+{% endif %}
 {% endblock %}

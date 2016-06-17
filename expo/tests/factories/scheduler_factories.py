@@ -61,7 +61,7 @@ class WorkerFactory(DjangoModelFactory):
     class Meta:
         model = sched.Worker
 
-
+'''
 class EquipmentItemFactory(DjangoModelFactory):
     class Meta:
         model = sched.EquipmentItem
@@ -72,6 +72,7 @@ class EquipmentFactory(DjangoModelFactory):
 
     class Meta:
         model = sched.Equipment
+'''
 
 
 class EventItemFactory(DjangoModelFactory):
