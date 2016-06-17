@@ -233,7 +233,7 @@ def schedule_acts(request, show_title=None):
     if request.method == "POST":
         show_title = request.POST.get('event_type', 'POST')
 
-    if (show_title is None) or show_title.strip() == '':
+    if show_title is None or show_title.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
         show_options = EventItem.objects.all().select_subclasses()
         show_options = filter(lambda event: type(event) == conf.Show,
