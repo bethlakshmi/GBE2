@@ -77,7 +77,7 @@ def EditActTechInfoView(request, act_id):
                 re_set.remove(existing_rehearsal)
             except:
                 pass
-            re_set.insert(0, existing_rehearsal)
+            re_set.append(existing_rehearsal)
             re_set = sorted(re_set,
                             key=lambda sched_event: sched_event.starttime)
             existing_rehearsals[show] = existing_rehearsal
