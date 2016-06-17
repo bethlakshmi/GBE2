@@ -43,7 +43,7 @@ class TestDeleteEvent(TestCase):
             allocation.pk: 'changed title',
             'allocation_%d-show' %
             allocation.pk: str(self.context.sched_event.pk),
-            'allocation_%d-order'% allocation.pk: 1}
+            'allocation_%d-order' % allocation.pk: 1}
         return data
 
     def assert_good_form_display(self, response):
