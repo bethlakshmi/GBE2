@@ -254,12 +254,12 @@ def schedule_acts(request, show_title=None):
             alloc.event = data['show']
             alloc.save()
             try:
-               ordering = alloc.ordering
-               ordering.order = data['order']
+                ordering = alloc.ordering
+                ordering.order = data['order']
             except:
-               ordering = Ordering(allocation=alloc, order=data['order'])
+                ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
-            
+
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     # we should have a show title at this point.
