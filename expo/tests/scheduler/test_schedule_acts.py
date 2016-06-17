@@ -35,16 +35,15 @@ class TestDeleteEvent(TestCase):
         allocation = self.context.sched_event.resources_allocated.filter(
                 resource__actresource___item=self.context.acts[0]).first()
         data = {
-            'allocation_' + str(allocation.pk) +
-            '-event_type': self.context.show.title,
-            'allocation_' + str(allocation.pk) +
-            '-performer': 'changed performer',
-            'allocation_' + str(allocation.pk) +
-            '-title': 'changed title',
-            'allocation_' + str(allocation.pk) +
-            '-show': str(self.context.sched_event.pk),
-            'allocation_' + str(allocation.pk) +
-            '-order': 1}
+            'allocation_%d-event_type' %
+            allocation.pk: self.context.show.title,
+            'allocation_%d-performer' %
+            allocation.pk: 'changed performer',
+            'allocation_%d-title' %
+            allocation.pk: 'changed title',
+            'allocation_%d-show' %
+            allocation.pk: str(self.context.sched_event.pk),
+            'allocation_%d-order'% allocation.pk: 1}
         return data
 
     def assert_good_form_display(self, response):
@@ -59,9 +58,10 @@ class TestDeleteEvent(TestCase):
                 self.assertNotContains(response, str(act.performer))
         self.assertContains(
             response,
-            '<option value="' + str(self.context.sched_event.pk) +
-            '" selected="selected">' + self.context.show.title +
-            '</option>')
+            '<option value="%d" selected="selected">%s</option>' % (
+                self.context.sched_event.pk,
+                self.context.show.title)
+            )
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
@@ -95,9 +95,10 @@ class TestDeleteEvent(TestCase):
         self.assertContains(response, "Select event type to schedule")
         self.assertContains(
             response,
-            '<option value="' + self.context.show.title +
-            '">' + self.context.show.title +
-            '</option>')
+            '<option value="%s">%s</option>' % (
+                self.context.show.title,
+                self.context.show.title)
+            )
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
@@ -161,21 +162,21 @@ class TestDeleteEvent(TestCase):
         self.assert_good_form_display(response)
         allocation = self.context.sched_event.resources_allocated.filter(
             resource__actresource___item=self.context.acts[0]).first()
+        input_text = '<input id="id_allocation_%d-order" ' + \
+                     'name="allocation_%d-order" type="number" value="2" />'
         self.assertContains(
             response,
-            '<input id="id_allocation_' + str(allocation.pk) +
-            '-order" name="allocation_' + str(allocation.pk) +
-            '-order" type="number" value="2" />')
+            input_text % (allocation.pk, allocation.pk)
+            )
 
     def test_good_user_post_invalid(self):
         login_as(self.privileged_profile, self)
         allocation = self.context.sched_event.resources_allocated.filter(
             resource__actresource___item=self.context.acts[0]).first()
         data = self.get_basic_post()
-        data['allocation_' + str(allocation.pk) +
-             '-show'] = 'bad'
-        data['allocation_' + str(allocation.pk) + '-order'] = 'very bad'
-        data['allocation_' + str(allocation.pk) + '-actresource'] = \
+        data['allocation_%d-show' % allocation.pk] = 'bad'
+        data['allocation_%d-order' % allocation.pk] = 'very bad'
+        data['allocation_%d-actresource' % allocation.pk] = \
             'adfasdfasdfkljasdfklajsdflkjasdlkfjalksjdflkasjdflkjasdl'
         response = self.client.post(
             self.url,
@@ -190,8 +191,8 @@ class TestDeleteEvent(TestCase):
         allocation = self.context.sched_event.resources_allocated.filter(
             resource__actresource___item=self.context.acts[0]).first()
         data = self.get_basic_post()
-        data['allocation_' + str(allocation.pk) +
-             '-show'] = str(new_show.sched_event.pk)
+        data['allocation_%d-show' % allocation.pk] = str(
+            new_show.sched_event.pk)
 
         response = self.client.post(
             self.url,
