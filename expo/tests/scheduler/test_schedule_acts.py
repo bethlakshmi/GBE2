@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import (
     Client,
-    TestCase,
+    TestCase
 )
 from tests.factories.gbe_factories import (
     ActFactory,
