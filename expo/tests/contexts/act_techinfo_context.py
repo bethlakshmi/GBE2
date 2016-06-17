@@ -50,8 +50,9 @@ class ActTechInfoContext():
             event=self.sched_event,
             resource=ActResourceFactory(_item=self.act.actitem_ptr))
         if schedule_rehearsal:
-            self.rehearsal = self._schedule_rehearsal(self.sched_event, self.act)
-
+            self.rehearsal = self._schedule_rehearsal(
+                self.sched_event,
+                self.act)
 
     def _schedule_rehearsal(self, s_event, act=None):
         rehearsal = GenericEventFactory(type="Rehearsal Slot")

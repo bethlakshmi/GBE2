@@ -50,11 +50,10 @@ class TestEditActTechInfo(TestCase):
             'stage_info-set_props': 'checked',
             'stage_info-set_props': 'checked'}
         if rehearsal:
-           data['rehearsal'] = str(rehearsal.pk)
-
+            data['rehearsal'] = str(rehearsal.pk)
         return data
 
-    def get_cues(self, techinfo, num_cues, full_set=True ):
+    def get_cues(self, techinfo, num_cues, full_set=True):
         data = {}
         for x in range(0, num_cues):
             data['cue' + str(x) + '-cue_sequence'] = str(x),
@@ -106,7 +105,9 @@ class TestEditActTechInfo(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Cue Sheet Instructions" in response.content)
-        self.assertContains(response, '<tr class="bid-table">\n' +
+        self.assertContains(
+            response,
+            '<tr class="bid-table">\n' +
             '    <th class="bid-table">Cue #</th>\n' +
             '    <th class="bid-table">Cue Off of...</th>\n' +
             '    <th class="bid-table">Follow spot</th>\n' +
@@ -135,7 +136,9 @@ class TestEditActTechInfo(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Cue Sheet Instructions" in response.content)
-        self.assertContains(response, '  <tr class="bid-table">\n' +
+        self.assertContains(
+            response,
+            '  <tr class="bid-table">\n' +
             '    <th class="bid-table">Cue #</th>\n' +
             '    <th class="bid-table">Cue Off of...</th>\n' +
             '    <th class="bid-table">Follow spot</th>\n' +
@@ -177,7 +180,7 @@ class TestEditActTechInfo(TestCase):
                 cue_sequence=2).cyc_color,
             'White')
 
-    def test_edit_act_techinfo_authorized_user_post_complete_alt_cues_full_rehearsal(self):
+    def test_edit_act_techinfo_post_complete_alt_cues_full_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
         context.show.cue_sheet = "Alternate"
         context.show.save()
@@ -212,10 +215,12 @@ class TestEditActTechInfo(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertFalse("Cue Sheet Instructions" in response.content)
-        self.assertNotContains(response, '  <tr class="bid-table">\n' +
+        self.assertNotContains(
+            response,
+            '  <tr class="bid-table">\n' +
             '    <th class="bid-table">Cue #</th>\n')
 
-    def test_edit_act_techinfo_authorized_user_post_complete_no_cues_no_rehearsal(self):
+    def test_edit_act_techinfo_post_complete_no_cues_no_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=False)
         context.show.cue_sheet = "None"
         context.show.save()
@@ -268,4 +273,6 @@ class TestEditActTechInfo(TestCase):
                 another_rehearsal,
                 context.show))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Add text if you wish to save information for this cue.')
+        self.assertContains(
+            response,
+            'Add text if you wish to save information for this cue.')
