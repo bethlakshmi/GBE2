@@ -12,7 +12,7 @@ from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
     grant_privilege,
     is_login_page,
-    login_as,
+    login_as
 )
 from tests.contexts import ShowContext
 
