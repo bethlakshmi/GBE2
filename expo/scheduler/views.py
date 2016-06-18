@@ -63,18 +63,6 @@ from gbe.functions import (
 )
 
 
-def selfcast(sobj):
-    '''
-    Takes a scheduler object and casts it to its underlying type.
-    This can (will) fail if object ids are out of sync, see issue 145
-    Pretty rudimentary, can probably be improved
-    '''
-    try:
-        return sobj.typeof().objects.get(pk=sobj.child.id)
-    except:
-        return sobj
-
-
 def get_events_display_info(event_type='Class', time_format=None):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
@@ -234,6 +222,7 @@ def detail_view(request, eventitem_id):
                   )
 
 
+@login_required
 def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
@@ -244,8 +233,7 @@ def schedule_acts(request, show_title=None):
     if request.method == "POST":
         show_title = request.POST.get('event_type', 'POST')
 
-    if show_title.strip() == '':
-        import gbe.models as conf
+    if show_title is None or show_title.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
         show_options = EventItem.objects.all().select_subclasses()
         show_options = filter(lambda event: type(event) == conf.Show,
@@ -263,18 +251,20 @@ def schedule_acts(request, show_title=None):
                 continue  # error, should log
             alloc = get_object_or_404(ResourceAllocation,
                                       id=prefix.split('_')[1])
-
             alloc.event = data['show']
             alloc.save()
-            ordering = alloc.ordering
-            ordering.order = data['order']
+            try:
+                ordering = alloc.ordering
+                ordering.order = data['order']
+            except:
+                ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
+
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     # we should have a show title at this point.
 
-    show = conf.Show.objects.get(title=show_title)
-    import gbe.models as conf
+    show = get_object_or_404(conf.Show, title=show_title)
     # get allocations involving the show we want
     event = show.scheduler_events.first()
 
@@ -284,8 +274,6 @@ def schedule_acts(request, show_title=None):
     forms = []
     for alloc in allocations:
         actitem = alloc.resource.item
-        if type(actitem) != ActItem:
-            continue
         act = actitem.act
         if act.accepted != 3:
             continue
@@ -299,7 +287,6 @@ def schedule_acts(request, show_title=None):
             o = Ordering(allocation=alloc, order=0)
             o.save()
             details['order'] = 0
-        details['actresource'] = alloc.resource.id
 
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])
