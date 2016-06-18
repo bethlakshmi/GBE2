@@ -39,8 +39,6 @@ class ActScheduleForm(forms.Form):
 
     show = forms.ModelChoiceField(queryset=Event.objects.all())
     order = forms.IntegerField()
-    actresource = forms.CharField(required=False, max_length=10,
-                                  widget=forms.HiddenInput())
 
 
 class WorkerAllocationForm (forms.Form):
