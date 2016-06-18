@@ -63,6 +63,7 @@ def EditActTechInfoView(request, act_id):
     shows = act.get_scheduled_shows()
     show_detail = get_object_or_404(Show, eventitem_id=shows[0].eventitem.pk)
     rehearsal_sets = {}
+    existing_rehearsals = {}
     for show in shows:
         re_set = show.get_open_rehearsals()
         existing_rehearsal = None
@@ -76,21 +77,31 @@ def EditActTechInfoView(request, act_id):
                 re_set.remove(existing_rehearsal)
             except:
                 pass
-            re_set.insert(0, existing_rehearsal)
+            re_set.append(existing_rehearsal)
+            re_set = sorted(re_set,
+                            key=lambda sched_event: sched_event.starttime)
+            existing_rehearsals[show] = existing_rehearsal
+
         if len(re_set) > 0:
             rehearsal_sets[show] = re_set
 
     if len(rehearsal_sets) > 0:
-        rehearsal_forms = [RehearsalSelectionForm(
-            initial={'show': show,
-                     'rehearsal_choices':
-                     [(r.id, "%s: %s" % (
-                         r.as_subtype.title,
-                         r.starttime.strftime("%I:%M:%p"))) for r in r_set]})
-                           for (show, r_set) in rehearsal_sets.items()
-                       ]
+        rehearsal_forms = []
+        for (show, r_set) in rehearsal_sets.items():
+            initial = {
+                'show': show,
+                'rehearsal_choices':
+                    [(r.id, "%s: %s" % (
+                        r.as_subtype.title,
+                        r.starttime.strftime("%I:%M:%p"))) for r in r_set]}
+            if show in existing_rehearsals:
+                initial['rehearsal'] = existing_rehearsals[show].id
+            rehearsal_forms += [
+                RehearsalSelectionForm(
+                    initial=initial)]
     else:
         rehearsal_forms = []
+
     if request.method == 'POST':
         if 'rehearsal' in request.POST:
             rehearsal = get_object_or_404(sEvent,
@@ -119,6 +130,7 @@ def EditActTechInfoView(request, act_id):
         else:
             formtype = "None"
 
+        cue_fail = False
         if formtype != "None":
             cue_forms = [formtype(request.POST,
                                   prefix='cue%d' % i,
@@ -129,6 +141,8 @@ def EditActTechInfoView(request, act_id):
             for f in cue_forms:
                 if f.is_valid():
                     f.save()
+                else:
+                    cue_fail = True
 
         techforms = [lightingform,  audioform, stageform, ]
 
@@ -136,7 +150,7 @@ def EditActTechInfoView(request, act_id):
             if f.is_valid():
                 f.save()
         tech = act.tech
-        if tech.is_complete:
+        if tech.is_complete and not cue_fail:
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form_data = {'readonlyform': [form],
