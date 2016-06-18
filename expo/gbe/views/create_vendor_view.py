@@ -44,35 +44,25 @@ def CreateVendorView(request):
                            'fee_link': fee_link,
                            'view_title': title})
         if 'submit' in request.POST.keys():
-            problems = vendor.validation_problems_for_submit()
-            if problems:
-                return render(request,
-                              'gbe/bid.tmpl',
-                              {'forms': [form],
-                               'page_title': page_title,
-                               'view_title': view_title,
-                               'fee_link': fee_link,
-                               'errors': problems})
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_vendor_app_paid(request.user.username):
+                vendor.submitted = True
+                conference = Conference.objects.filter(
+                    accepting_bids=True).first()
+                vendor.conference = conference
+                vendor.save()
+                return HttpResponseRedirect(reverse('home',
+                                                    urlconf='gbe.urls'))
             else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if verify_vendor_app_paid(request.user.username):
-                    vendor.submitted = True
-                    conference = Conference.objects.filter(
-                        accepting_bids=True).first()
-                    vendor.conference = conference
-                    vendor.save()
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Vendor Payment'
-                    return render(
-                        request, 'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
+                page_title = 'Vendor Payment'
+                return render(
+                    request, 'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
+                )
         else:   # saving a draft
             if form.is_valid():
                 vendor = form.save()

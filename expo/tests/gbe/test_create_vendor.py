@@ -8,11 +8,19 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     UserFactory,
 )
+from tests.factories.ticketing_factories import (
+    BrownPaperEventsFactory,
+    TransactionFactory,
+    TicketItemFactory,
+    PurchaserFactory,
+)
 from tests.functions.gbe_functions import (
     current_conference,
     login_as,
     location,
 )
+
+import mock
 
 
 class TestCreateVendor(TestCase):
@@ -83,3 +91,33 @@ class TestCreateVendor(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
+
+    def test_create_vendor_with_get_request(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('Vendor Application', response.content)
+
+    def test_create_vendor_post_with_vendor_app_paid(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        profile = ProfileFactory()
+        username = profile.user_object.username
+        bpt_event = BrownPaperEventsFactory(conference=self.conference,
+                                            vendor_submission_event=True)
+        purchaser = PurchaserFactory(matched_to_user=profile.user_object)
+        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
+        ticket = TicketItemFactory(ticket_id=ticket_id)
+        transaction = TransactionFactory(ticket_item=ticket,
+                                         purchaser=purchaser)
+        login_as(profile, self)
+        data = self.get_form(submit=True)
+        data['profile'] = profile.pk
+        data['username'] = username
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in("Profile View", response.content)
