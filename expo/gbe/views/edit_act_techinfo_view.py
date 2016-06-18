@@ -33,6 +33,7 @@ from gbe.forms import (
 )
 from scheduler.models import Event as sEvent
 
+
 def set_rehearsal_forms(shows, act):
     '''
     Sets up any forms for shows with scheduled rehearsal sets.
@@ -80,6 +81,7 @@ def set_rehearsal_forms(shows, act):
                 RehearsalSelectionForm(
                     initial=initial)]
     return rehearsal_forms
+
 
 @login_required
 @log_func
