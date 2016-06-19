@@ -1,8 +1,9 @@
 import nose.tools as nt
-from django.test import TestCase
+from django.test import (
+    Client,
+    TestCase,
+)
 from django.core.exceptions import PermissionDenied
-from django.test.client import RequestFactory
-from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -24,7 +25,6 @@ class TestActChangestate(TestCase):
     view_name = 'act_changestate'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.act = ActFactory()
         self.show = ShowFactory()

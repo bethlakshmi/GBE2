@@ -121,22 +121,22 @@ def get_events_list_by_type(event_type, conference):
         items = conf.GenericEvent.objects.filter(
             type__iexact=event_type,
             visible=True,
-            e_conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type in map(lambda x: x.lower, class_types.keys()):
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,
             type__iexact=event_type,
-            e_conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type == 'show':
         items = conf.Show.objects.filter(
-            e_conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type == 'class':
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,
             e_conference=conference).exclude(
-                type='Panel').order_by('title')
+                type='Panel').order_by('e_title')
     else:
         items = []
     return items

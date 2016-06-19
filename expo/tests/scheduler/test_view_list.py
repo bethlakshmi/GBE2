@@ -1,8 +1,13 @@
 import pytest
-from gbe.models import (
-    Conference
+from django.test import (
+    TestCase,
+    Client
 )
-
+from django.core.urlresolvers import reverse
+from tests.functions.gbe_functions import (
+    clear_conferences,
+    login_as,
+)
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ClassFactory,
@@ -10,106 +15,83 @@ from tests.factories.gbe_factories import (
     ShowFactory,
     GenericEventFactory,
 )
-from django.test import (
-    TestCase,
-    Client
-)
-from django.test.client import RequestFactory
-from django.core.urlresolvers import reverse
 
 from scheduler.views import view_list
 import nose.tools as nt
 
 
-@pytest.mark.django_db
-def test_view_list_given_slug():
-    conf = ConferenceFactory.create()
-    other_conf = ConferenceFactory.create()
-    this_class = ClassFactory.create(accepted=3)
-    this_class.conference = conf
-    this_class.title = "xyzzy"
-    this_class.save()
-    that_class = ClassFactory.create(accepted=3)
-    that_class.conference = other_conf
-    that_class.title = "plugh"
-    that_class.save()
-    request = RequestFactory().get(
-        reverse("event_list",
-                urlconf="scheduler.urls",
-                args=["Class"]),
-        data={"conference": conf.conference_slug})
-    request.user = ProfileFactory.create().user_object
-    request.session = {'cms_admin_site': 1}
-    response = view_list(request, "Class")
-    nt.assert_true(this_class.title in response.content)
-    nt.assert_false(that_class.title in response.content)
+class TestViewList(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_view_list_given_slug(self):
+        conf = ConferenceFactory()
+        other_conf = ConferenceFactory()
+        this_class = ClassFactory.create(accepted=3,
+                                         e_conference=conf,
+                                         b_conference=conf)
+        that_class = ClassFactory.create(accepted=3,
+                                         e_conference=other_conf,
+                                         b_conference=other_conf)
+        login_as(ProfileFactory(), self)
+        url = reverse("event_list",
+                      urlconf="scheduler.urls",
+                      args=["Class"])
+        response = self.client.get(
+            url,
+            data={"conference": conf.conference_slug})
+        nt.assert_true(this_class.e_title in response.content)
+        nt.assert_false(that_class.e_title in response.content)
+
+    def test_view_list_default_view_current_conf_exists(self):
+        '''
+        /scheduler/view_list/ should return all events in the current
+        conference, assuming a current conference exists
+        '''
+        clear_conferences()
+        conf = ConferenceFactory()
+        other_conf = ConferenceFactory(status='completed')
+        show = ShowFactory(e_conference = conf)
+        generic_event = GenericEventFactory(e_conference = conf)
+        accepted_class = ClassFactory(accepted=3,
+                                      e_conference = conf,
+                                      b_conference = conf)
+        previous_class = ClassFactory(accepted=3,
+                                      e_conference = other_conf,
+                                      b_conference = other_conf)
+        rejected_class = ClassFactory(accepted=1,
+                                      e_conference = conf,
+                                      b_conference = conf)
+        url = reverse("event_list",
+                      urlconf="scheduler.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_true(generic_event.e_title in response.content)
+        nt.assert_true(show.e_title in response.content)
+        nt.assert_true(accepted_class.e_title in response.content)
+        nt.assert_false(rejected_class.e_title in response.content)
+        nt.assert_false(previous_class.e_title in response.content)
 
 
-@pytest.mark.django_db
-def test_view_list_default_view_current_conf_exists():
-    '''
-    /scheduler/view_list/ should return all events in the current
-    conference, assuming a current conference exists
-    '''
-    Conference.objects.all().delete()
-    conf = ConferenceFactory.create()
-    other_conf = ConferenceFactory.create(status='completed')
-    show = ShowFactory()
-    show.conference = conf
-    show.title = "the show"
-    show.save()
-    generic_event = GenericEventFactory.create()
-    generic_event.conference = conf
-    generic_event.title = "genericevent"
-    generic_event.save()
-    accepted_class = ClassFactory(accepted=3)
-    accepted_class.conference = conf
-    accepted_class.title = 'accepted'
-    accepted_class.save()
-    previous_class = ClassFactory(accepted=3)
-    previous_class.conference = other_conf
-    previous_class.title = 'previous'
-    previous_class.save()
-    rejected_class = ClassFactory(accepted=1)
-    rejected_class.conference = conf
-    rejected_class.title = 'reject'
-    rejected_class.save()
-    request = RequestFactory().get(
-        reverse("event_list",
-                urlconf="scheduler.urls"))
-    request.user = ProfileFactory.create().user_object
-    request.session = {'cms_admin_site': 1}
-    response = view_list(request)
-    nt.assert_true(generic_event.title in response.content)
-    nt.assert_true(show.title in response.content)
-    nt.assert_true(accepted_class.title in response.content)
-    nt.assert_false(rejected_class.title in response.content)
-    nt.assert_false(previous_class.title in response.content)
+    def test_view_list_event_type_not_case_sensitive(self):
+        param = 'class'
+        password = "password"
+        url_lower = reverse("event_list",
+                            urlconf="scheduler.urls",
+                            args=[param.lower()])
 
+        url_upper = reverse("event_list",
+                            urlconf="scheduler.urls",
+                            args=[param.upper()])
 
-@pytest.mark.django_db
-def test_view_list_event_type_not_case_sensitive():
-    param = 'class'
-    client = Client()
-    password = "password"
-    url_lower = reverse("event_list",
-                        urlconf="scheduler.urls",
-                        args=[param.lower()])
+        assert self.client.get(url_lower).content == self.client.get(url_upper).content
 
-    url_upper = reverse("event_list",
-                        urlconf="scheduler.urls",
-                        args=[param.upper()])
-
-    assert client.get(url_lower).content == client.get(url_upper).content
-
-
-@pytest.mark.django_db
-def test_view_list_event_type_not_in_list_titles():
-    client = Client()
-    param = 'classification'
-    url = reverse("event_list",
-                  urlconf="scheduler.urls",
-                  args=[param])
-    response = client.get(url)
-    expected_string = "Check out the full list of all shows"
-    nt.assert_true(expected_string in response.content)
+    def test_view_list_event_type_not_in_list_titles(self):
+        param = 'classification'
+        url = reverse("event_list",
+                      urlconf="scheduler.urls",
+                      args=[param])
+        response = self.client.get(url)
+        expected_string = "Check out the full list of all shows"
+        nt.assert_true(expected_string in response.content)

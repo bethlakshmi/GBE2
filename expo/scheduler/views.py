@@ -264,7 +264,7 @@ def schedule_acts(request, show_title=None):
 
     # we should have a show title at this point.
 
-    show = get_object_or_404(conf.Show, title=show_title)
+    show = get_object_or_404(conf.Show, e_title=show_title)
     # get allocations involving the show we want
     event = show.scheduler_events.first()
 
@@ -278,7 +278,7 @@ def schedule_acts(request, show_title=None):
         if act.accepted != 3:
             continue
         details = {}
-        details['title'] = act.title
+        details['title'] = act.b_title
         details['performer'] = act.performer
         details['show'] = event
         try:
@@ -559,7 +559,7 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
         form = VolunteerOpportunityForm(request.POST,
                                         instance=opp,
-                                        e_conference=opp.conference)
+                                        e_conference=opp.e_conference)
         if not form.is_valid():
             return edit_event_display(request, event, {'error_opp_form': form})
 
@@ -632,7 +632,7 @@ def contact_performers(conference):
         act = c.as_subtype
         performer = act.performer
         contact_info.append(
-            [act.title,
+            [act.b_title,
              str(performer),
              str(performer.contact),
              act.contact_email,
@@ -710,7 +710,7 @@ def contact_teachers(conference):
 
         contact_info.append(
             [c.teacher.contact_email,
-             c.title.encode('utf-8').strip(),
+             c.b_title.encode('utf-8').strip(),
              'Bidder',
              c.teacher.name.encode('utf-8').strip(),
              c.teacher.contact.display_name.encode('utf-8').strip(),
@@ -724,7 +724,7 @@ def contact_vendors(conference):
     acceptance_dict = dict(acceptance_states)
     contacts = Vendor.objects.filter(b_conference=conference)
     header = ['Business Name', 'Personal Name', 'Email', 'Status']
-    contact_info = [[v.title,
+    contact_info = [[v.b_title,
                      v.profile.display_name,
                      v.profile.contact_email,
                      acceptance_dict[v.accepted]] for v in contacts]

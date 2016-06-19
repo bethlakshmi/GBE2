@@ -10,12 +10,10 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     RoomFactory
 )
-from gbe.models import (
-    Conference,
-    Room
-)
+from gbe.models import Room
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
+    clear_conferences,
     grant_privilege,
     is_login_page,
     login_as,
@@ -61,7 +59,7 @@ class TestAddEvent(TestCase):
         self.assertEqual(session.starttime,
                          datetime.combine(day,
                                           time(12, 0, 0, tzinfo=pytz.utc)))
-        self.assertIn('New Title', response.content)
+        self.assertIn(event.child().e_title, response.content)
         self.assertIn(str(room), response.content)
         self.assertIn('<td class="events-table">      \n\t\t\t  \n\t\t\t' +
                       '    3\n\t\t\t  \n          \t\t</td>',
@@ -102,7 +100,7 @@ class TestAddEvent(TestCase):
         assert_good_sched_event_form(response, self.eventitem)
 
     def test_good_user_get_class(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
@@ -113,7 +111,7 @@ class TestAddEvent(TestCase):
         assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_minimal_post(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
@@ -129,7 +127,7 @@ class TestAddEvent(TestCase):
                               context.room)
 
     def test_good_user_invalid_submit(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
@@ -162,7 +160,7 @@ class TestAddEvent(TestCase):
                       response.content)
 
     def test_good_user_with_duration(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
@@ -184,7 +182,7 @@ class TestAddEvent(TestCase):
                       response.content)
 
     def test_good_user_with_teacher(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         overcommitter = PersonaFactory()
@@ -207,7 +205,7 @@ class TestAddEvent(TestCase):
         self.assertEqual(teachers[0].pk, overcommitter.pk)
 
     def test_good_user_with_moderator(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = PanelContext()
         overcommitter = PersonaFactory()
@@ -231,7 +229,7 @@ class TestAddEvent(TestCase):
         self.assertEqual(moderators[0].pk, overcommitter.pk)
 
     def test_good_user_with_staff_area_lead(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         room = RoomFactory()
         context = StaffAreaContext()
@@ -258,7 +256,7 @@ class TestAddEvent(TestCase):
         self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
 
     def test_good_user_with_panelists(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = PanelContext()
         context.add_panelist()

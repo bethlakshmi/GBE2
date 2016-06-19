@@ -659,7 +659,7 @@ class AudioInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return "AudioInfo: " + self.techinfo.act.title
+            return "AudioInfo: " + self.techinfo.act.b_title
         except:
             return "AudioInfo: (deleted act)"
 
@@ -699,7 +699,7 @@ class LightingInfo (models.Model):
 
     def __unicode__(self):
         try:
-            return "LightingInfo: " + self.techinfo.act.title
+            return "LightingInfo: " + self.techinfo.act.b_title
         except:
             return "LightingInfo: (deleted act)"
 
@@ -758,7 +758,7 @@ class StageInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return "StageInfo: " + self.techinfo.act.title
+            return "StageInfo: " + self.techinfo.act.b_title
         except:
             return "StageInfo: (deleted act)"
 
@@ -807,7 +807,7 @@ class TechInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return "Techinfo: " + self.act.title
+            return "Techinfo: " + self.act.b_title
         except:
             return "Techinfo: (deleted act)"
 
@@ -861,7 +861,7 @@ class CueInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return self.techinfo.act.title+' - cue ' + str(self.cue_sequence)
+            return self.techinfo.act.b_title+' - cue ' + str(self.cue_sequence)
         except:
             return "Cue: (deleted act) - " + str(self.cue_sequence)
 
@@ -1062,7 +1062,7 @@ class Act (Biddable, ActItem):
 
     @property
     def bid_draft_fields(self):
-        return (['title', 'performer'])
+        return (['b_title', 'performer'])
 
     @property
     def sched_payload(self):
@@ -1146,7 +1146,7 @@ class Event(EventItem):
     @classmethod
     def get_all_events(cls, conference):
         events = cls.objects.filter(
-            conference=conference,
+            e_conference=conference,
             visible=True).select_subclasses()
         return [event for event in events if
                 getattr(event, 'accepted', 3) == 3 and
@@ -1441,7 +1441,7 @@ class Class(Biddable, Event):
 
     @property
     def get_draft_fields(self):
-        return (['title', 'teacher'])
+        return (['e_title', 'teacher'])
 
     @property
     def schedule_ready(self):
@@ -1508,7 +1508,7 @@ class BidEvaluation(models.Model):
     bid = models.ForeignKey(Biddable)
 
     def __unicode__(self):
-        return self.bid.title+": "+self.evaluator.display_name
+        return self.bid.b_title+": "+self.evaluator.display_name
 
 
 class PerformerFestivals(models.Model):
@@ -1851,7 +1851,7 @@ class ConferenceVolunteer(models.Model):
     volunteering = models.BooleanField(default=True, blank='True')
 
     def __unicode__(self):
-        return self.bid.title+": "+self.presenter.name
+        return self.bid.b_title+": "+self.presenter.name
 
     @property
     def bid_fields(self):

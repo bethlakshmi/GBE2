@@ -11,12 +11,10 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     RoomFactory
 )
-from gbe.models import (
-    Conference,
-    Room
-)
+from gbe.models import Room
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
+    clear_conferences,
     grant_privilege,
     is_login_page,
     login_as,
@@ -36,7 +34,7 @@ from datetime import (
     time,
     timedelta,
 )
-
+from unittest import skip
 
 class TestEditEvent(TestCase):
     view_name = 'edit_event'
@@ -47,9 +45,7 @@ class TestEditEvent(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        Conference.objects.all().delete()
         Room.objects.all().delete()
-        self.context = ClassContext()
 
     def assert_good_post(self,
                          response,
@@ -64,7 +60,8 @@ class TestEditEvent(TestCase):
 
         self.assertNotIn('<ul class="errorlist">', response.content)
         # check title
-        self.assertIn('<H1 class="sched_detail_title">New Title</H1>',
+        self.assertIn(('<H1 class="sched_detail_title">%s</H1>' %
+                       context.bid.e_title),
                       response.content)
         # check day
         self.assertIn('<option value="' +
@@ -85,62 +82,68 @@ class TestEditEvent(TestCase):
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
         # check description
-        self.assertIn('New Description', response.content)
+        self.assertIn(context.bid.e_description, response.content)
 
     def test_no_login_gives_error(self):
+        context = ClassContext()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
+                      args=["Class", context.sched_event.pk])
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
     def test_bad_user(self):
+        context = ClassContext()
         login_as(ProfileFactory(), self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
+                      args=["Class", context.sched_event.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
     def test_good_user_get_bad_event(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk+1])
+                      args=["Class", context.sched_event.pk+1])
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
 
     def test_good_user_get_success(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
+                      args=["Class", context.sched_event.pk])
         response = self.client.get(url)
-        assert_good_sched_event_form(response, self.context.bid)
+        assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_minimal_post(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         response = self.client.post(
             url,
             data=form_data,
             follow=True)
         self.assert_good_post(response,
-                              self.context,
-                              self.context.days[0],
-                              self.context.room)
+                              context,
+                              context.days[0],
+                              context.room)
 
     def test_good_user_invalid_submit(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         form_data['event-location'] = 'bad room'
         response = self.client.post(
             url,
@@ -158,8 +161,8 @@ class TestEditEvent(TestCase):
         self.assertIn('<option value="12:00:00" selected="selected">' +
                       '12:00 PM</option>',
                       response.content)
-        self.assertIn('<option value="'+str(self.context.days[0].pk) +
-                      '" selected="selected">'+str(self.context.days[0]) +
+        self.assertIn('<option value="'+str(context.days[0].pk) +
+                      '" selected="selected">'+str(context.days[0]) +
                       '</option>',
                       response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
@@ -167,11 +170,12 @@ class TestEditEvent(TestCase):
                       response.content)
 
     def test_good_user_with_duration(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         form_data['event-duration'] = "3:00:00"
         response = self.client.post(
             url,
@@ -179,20 +183,21 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              self.context,
-                              self.context.days[0],
-                              self.context.room)
+                              context,
+                              context.days[0],
+                              context.room)
         self.assertIn('<input id="id_event-duration" name="event-duration" ' +
                       'type="text" value="03:00:00" />',
                       response.content)
 
     def test_good_user_change_room(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         new_room = RoomFactory()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context, new_room)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context, new_room)
         form_data['event-duration'] = "3:00:00"
         response = self.client.post(
             url,
@@ -200,17 +205,18 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              self.context,
-                              self.context.days[0],
+                              context,
+                              context.days[0],
                               new_room)
 
     def test_good_user_with_teacher(self):
+        context = ClassContext()
         overcommitter = PersonaFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         form_data['event-teacher'] = overcommitter.pk
         response = self.client.post(
             url,
@@ -218,10 +224,10 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              self.context,
-                              self.context.days[0],
-                              self.context.room)
-        teachers = self.context.sched_event.get_direct_workers('Teacher')
+                              context,
+                              context.days[0],
+                              context.room)
+        teachers = context.sched_event.get_direct_workers('Teacher')
         self.assertEqual(len(teachers), 1)
         self.assertEqual(teachers[0].pk, overcommitter.pk)
         self.assertIn('<option value="' + str(overcommitter.pk) +
@@ -230,11 +236,12 @@ class TestEditEvent(TestCase):
                       response.content)
 
     def test_good_user_remove_teacher(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         form_data['event-teacher'] = ""
         response = self.client.post(
             url,
@@ -242,10 +249,10 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              self.context,
-                              self.context.days[0],
-                              self.context.room)
-        teachers = self.context.sched_event.get_direct_workers('Teacher')
+                              context,
+                              context.days[0],
+                              context.room)
+        teachers = context.sched_event.get_direct_workers('Teacher')
         self.assertEqual(len(teachers), 0)
         self.assertIn(
             '<select id="id_event-teacher" name="event-teacher">\n' +
@@ -253,7 +260,8 @@ class TestEditEvent(TestCase):
             response.content)
 
     def test_good_user_with_moderator(self):
-        Conference.objects.all().delete()
+        context = ClassContext()
+        clear_conferences()
         Room.objects.all().delete()
         context = PanelContext()
         overcommitter = PersonaFactory()
@@ -280,11 +288,13 @@ class TestEditEvent(TestCase):
                       '</option>',
                       response.content)
 
+    @skip
     def test_good_user_with_staff_area_lead(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         room = RoomFactory()
         context = StaffAreaContext()
+        context = ClassContext()
         overcommitter = ProfileFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
@@ -313,7 +323,8 @@ class TestEditEvent(TestCase):
                       response.content)
 
     def test_good_user_with_panelists(self):
-        Conference.objects.all().delete()
+        context = ClassContext()
+        clear_conferences()
         Room.objects.all().delete()
         context = PanelContext()
         context.add_panelist()

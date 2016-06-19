@@ -354,7 +354,7 @@ def event_info(confitem_type='Show',
     if not conference:
         conference = conf.Conference.current_conf()
     confitem_class = eval('conf.'+confitem_type)
-    confitems_list = confitem_class.objects.filter(conference=conference)
+    confitems_list = confitem_class.objects.filter(e_conference=conference)
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
 
@@ -383,10 +383,10 @@ def event_info(confitem_type='Show',
             if scheduled_event_ids[index] == confitem.eventitem_id:
                 events_dict[scheduled_events[index]] = confitem
 
-    events = [{'title': confitem.title,
+    events = [{'title': confitem.e_title,
                'link': reverse('detail_view', urlconf='scheduler.urls',
                                args=[str(confitem.eventitem_id)]),
-               'description': confitem.description,
+               'description': confitem.e_description,
                'start_time': event.start_time,
                'stop_time': event.start_time + confitem.duration,
                'location': event.location.room.name,

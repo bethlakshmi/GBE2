@@ -32,7 +32,7 @@ def test_no_permission_required():
     request.session = {'cms_admin_site': 1}
     response = detail_view(request, show.eventitem_ptr.pk)
     nt.assert_equal(200, response.status_code)
-    nt.assert_true(show.title in response.content)
+    nt.assert_true(show.e_title in response.content)
 
 
 @pytest.mark.django_db
