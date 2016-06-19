@@ -130,9 +130,9 @@ INSTALLED_APPS = (
     #    'djangocms_teaser',
     #    'djangocms_video',
     'reversion',  # for versioning in cms -- use easy install
-    'gbe',
-    'ticketing',
     'scheduler',
+    'ticketing',
+    'gbe',
     'django_nose',
     'hijack',
     'compat',

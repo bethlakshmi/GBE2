@@ -81,6 +81,8 @@ class Biddable(models.Model):
     Essentially, specifies that we want something with a title
     '''
     title = models.CharField(max_length=128)
+    b_title = models.CharField(max_length=128, default="a")
+    b_description = models.TextField(blank=True, default="a")
     description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
     accepted = models.IntegerField(choices=acceptance_states,
@@ -88,6 +90,10 @@ class Biddable(models.Model):
                                    blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    b_conference = models.ForeignKey(
+        Conference,
+        related_name="b_conference_set",
+        default=lambda: Conference.objects.filter(status="upcoming").first())
     conference = models.ForeignKey(
         Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
@@ -1128,12 +1134,18 @@ class Event(EventItem):
     from participant bids.
     '''
     objects = InheritanceManager()
+    e_title = models.CharField(max_length=128, default="a")
     title = models.CharField(max_length=128)
+    e_description = models.TextField(default="a")            # public-facing description
     description = models.TextField()            # public-facing description
     blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
     event_id = models.AutoField(primary_key=True)
+    e_conference = models.ForeignKey(
+        Conference,
+        related_name="e_conference_set",
+        default=lambda: Conference.objects.filter(status="upcoming").first())
     conference = models.ForeignKey(
         Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
@@ -1181,7 +1193,7 @@ class Event(EventItem):
         return self.conference.status == "upcoming"
 
     class Meta:
-        ordering = ['title']
+        ordering = ['e_title']
 
 
 class Show (Event):
