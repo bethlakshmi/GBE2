@@ -13,7 +13,7 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-
+from unittest import skip
 
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''
@@ -90,6 +90,7 @@ class TestEditCostume(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(error_string in response.content)
 
+    @skip
     def test_edit_bid_post_no_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''
@@ -107,6 +108,7 @@ class TestEditCostume(TestCase):
         nt.assert_equal(location(response),
                         'http://testserver/gbe')
 
+    @skip
     def test_edit_bid_post_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''

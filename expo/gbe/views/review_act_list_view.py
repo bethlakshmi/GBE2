@@ -28,7 +28,7 @@ def ReviewActListView(request):
         header = Act().bid_review_header
         acts = Act.objects.filter(
             submitted=True,
-            conference=conference).order_by(
+            b_conference=conference).order_by(
                 'accepted',
                 'performer')
         review_query = BidEvaluation.objects.filter(

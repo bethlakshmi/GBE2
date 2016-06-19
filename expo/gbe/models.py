@@ -36,8 +36,8 @@ import pytz
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
-visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
-                     Q(biddable_ptr__conference__status='ongoing'))
+visible_bid_query = (Q(biddable_ptr__b_conference__status='upcoming') |
+                     Q(biddable_ptr__b_conference__status='ongoing'))
 
 
 class Conference(models.Model):
@@ -80,10 +80,8 @@ class Biddable(models.Model):
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
-    title = models.CharField(max_length=128)
-    b_title = models.CharField(max_length=128, default="a")
-    b_description = models.TextField(blank=True, default="a")
-    description = models.TextField(blank=True)
+    b_title = models.CharField(max_length=128)
+    b_description = models.TextField(blank=True)
     submitted = models.BooleanField(default=False)
     accepted = models.IntegerField(choices=acceptance_states,
                                    default=0,
@@ -94,16 +92,13 @@ class Biddable(models.Model):
         Conference,
         related_name="b_conference_set",
         default=lambda: Conference.objects.filter(status="upcoming").first())
-    conference = models.ForeignKey(
-        Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
 
     class Meta:
         verbose_name = "biddable item"
         verbose_name_plural = "biddable items"
 
     def __unicode__(self):
-        return self.title
+        return self.b_title
 
     def typeof(self):
         return self.__class__
@@ -115,7 +110,7 @@ class Biddable(models.Model):
 
     @property
     def is_current(self):
-        return self.conference.status in ("upcoming", "current")
+        return self.b_conference.status in ("upcoming", "current")
 
 
 class Profile(WorkerItem):
@@ -254,7 +249,7 @@ class Profile(WorkerItem):
                     not act.tech.is_complete):
                 profile_alerts.append(
                     gbetext.profile_alerts['schedule_rehearsal'] %
-                    (act.title,
+                    (act.b_title,
                      reverse('act_techinfo_edit',
                              urlconf='gbe.urls',
                              args=[act.id])))
@@ -899,8 +894,8 @@ class Act (Biddable, ActItem):
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
 
     validation_list = [
-        (('title', 'Title'), is_not_blank),
-        (('description', 'Description'), is_not_blank),
+        (('b_title', 'Title'), is_not_blank),
+        (('b_description', 'Description'), is_not_blank),
     ]
 
     def clone(self):
@@ -911,11 +906,11 @@ class Act (Biddable, ActItem):
             video_choice=self.video_link,
             other_performance=self.other_performance,
             why_you=self.why_you,
-            title=self.title,
-            description=self.description,
+            b_title=self.b_title,
+            b_description=self.b_description,
             submitted=False,
             accepted=False,
-            conference=Conference.objects.filter(
+            b_conference=Conference.objects.filter(
                 status="upcoming").first()
         )
         act.save()
@@ -942,7 +937,7 @@ class Act (Biddable, ActItem):
 
     @property
     def contact_info(self):
-        return (self.title,
+        return (self.b_title,
                 self.contact_email,
                 self.accepted,
                 self.performer.contact.phone,
@@ -1006,7 +1001,7 @@ class Act (Biddable, ActItem):
             show_name = ''
 
         return (self.performer.name,
-                self.title,
+                self.b_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1],
                 show_name)
@@ -1014,8 +1009,8 @@ class Act (Biddable, ActItem):
     @property
     def complete(self):
         return (self.performer.complete and
-                len(self.title) > 0 and
-                len(self.description) > 0 and
+                len(self.b_title) > 0 and
+                len(self.b_description) > 0 and
                 len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
 
@@ -1053,16 +1048,16 @@ class Act (Biddable, ActItem):
             ['performer',
              'shows_preferences',
              'other_performance',
-             'title',
+             'b_title',
              'track_title',
              'track_artist',
              'track_duration',
              'act_duration',
              'video_link',
              'video_choice',
-             'description',
+             'b_description',
              'why_you'],
-            ['title', 'description', 'shows_preferences', 'performer', ],
+            ['b_title', 'b_description', 'shows_preferences', 'performer', ],
         )
 
     @property
@@ -1072,8 +1067,8 @@ class Act (Biddable, ActItem):
     @property
     def sched_payload(self):
         return {'duration': self.tech.stage.act_duration,
-                'title': self.title,
-                'description': self.description,
+                'title': self.b_title,
+                'description': self.b_description,
                 'details': {'type': 'act'}}
 
     @property
@@ -1081,7 +1076,7 @@ class Act (Biddable, ActItem):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
     def __str__(self):
-        return str(self.performer) + ": "+self.title
+        return str(self.performer) + ": "+self.b_title
 
 
 class Room(LocationItem):
@@ -1134,10 +1129,8 @@ class Event(EventItem):
     from participant bids.
     '''
     objects = InheritanceManager()
-    e_title = models.CharField(max_length=128, default="a")
-    title = models.CharField(max_length=128)
-    e_description = models.TextField(default="a")            # public-facing description
-    description = models.TextField()            # public-facing description
+    e_title = models.CharField(max_length=128)
+    e_description = models.TextField()            # public-facing description
     blurb = models.TextField(blank=True)        # short description
     duration = DurationField()
     notes = models.TextField(blank=True)  # internal notes about this event
@@ -1146,12 +1139,9 @@ class Event(EventItem):
         Conference,
         related_name="e_conference_set",
         default=lambda: Conference.objects.filter(status="upcoming").first())
-    conference = models.ForeignKey(
-        Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @classmethod
     def get_all_events(cls, conference):
@@ -1166,8 +1156,8 @@ class Event(EventItem):
 
     @property
     def sched_payload(self):
-        return {'title': self.title,
-                'description': self.description,
+        return {'title': self.e_title,
+                'description': self.e_description,
                 'duration': self.duration,
                 'details': {'type': ''}
                 }
@@ -1190,7 +1180,7 @@ class Event(EventItem):
 
     @property
     def is_current(self):
-        return self.conference.status == "upcoming"
+        return self.e_conference.status == "upcoming"
 
     class Meta:
         ordering = ['e_title']
@@ -1211,12 +1201,12 @@ class Show (Event):
     type = "Show"
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @property
     def sched_payload(self):
-        return {'title': self.title,
-                'description': self.description,
+        return {'title': self.e_title,
+                'description': self.e_description,
                 'duration': self.duration,
                 'details': {'type': 'Show'}
                 }
@@ -1235,7 +1225,7 @@ class Show (Event):
         most_events = TicketItem.objects.filter(
             bpt_event__include_most=True,
             active=True,
-            bpt_event__conference=self.conference)
+            bpt_event__conference=self.e_conference)
         my_events = TicketItem.objects.filter(
             bpt_event__linked_events=self,
             active=True)
@@ -1252,7 +1242,7 @@ class Show (Event):
                             "downloads",
                             ("%s_%s.tar.gz" %
                              (self.conference.conference_slug,
-                              self.title.replace(" ", "_").replace("/", "_"))))
+                              self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 
 
@@ -1270,7 +1260,7 @@ class GenericEvent (Event):
                                           default="")
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @property
     def volunteer_category_description(self):
@@ -1282,8 +1272,8 @@ class GenericEvent (Event):
         types = dict(event_options)
         payload = {
             'type': self.type,
-            'title': self.title,
-            'description': self.description,
+            'title': self.e_title,
+            'description': self.e_description,
             'duration': self.duration,
             'details': {'type': types[self.type]},
             }
@@ -1320,7 +1310,7 @@ class GenericEvent (Event):
             most_events = TicketItem.objects.filter(
                                         bpt_event__include_most=True,
                                         active=True,
-                                        bpt_event__conference=self.conference)
+                                        bpt_event__conference=self.e_conference)
         else:
             most_events = []
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
@@ -1376,10 +1366,15 @@ class Class(Biddable, Event):
         new_class.space_needs = self.space_needs
         new_class.physical_restrictions = self.physical_restrictions
         new_class.multiple_run = self.multiple_run
-        new_class.title = self.title
-        new_class.description = self.description
-        new_class.conference = Conference.objects.filter(
+        new_class.e_title = self.e_title
+        new_class.e_description = self.e_description
+        new_class.e_conference = Conference.objects.filter(
             status="upcoming").first()
+        new_class.b_title = self.b_title
+        new_class.b_description = self.b_description
+        new_class.b_onference = Conference.objects.filter(
+            status="upcoming").first()
+
         new_class.save()
         return new_class
 
@@ -1401,8 +1396,8 @@ class Class(Biddable, Event):
             details['fee'] = self.fee
 
         payload['details'] = details
-        payload['title'] = self.event_ptr.title
-        payload['description'] = self.event_ptr.description
+        payload['title'] = self.event_ptr.e_title
+        payload['description'] = self.event_ptr.e_description
         if not self.duration:
             self.duration = Duration(hours=1)
             self.save(update_fields=('duration',))
@@ -1429,9 +1424,9 @@ class Class(Biddable, Event):
         '''
         Returns fields, required_fields as tuple of lists
         '''
-        return (['title',
+        return (['b_title',
                  'teacher',
-                 'description',
+                 'b_description',
                  'maximum_enrollment',
                  'type',
                  'fee',
@@ -1439,9 +1434,9 @@ class Class(Biddable, Event):
                  'history',
                  'schedule_constraints',
                  'space_needs'],
-                ['title',
+                ['b_title',
                  'teacher',
-                 'description',
+                 'b_description',
                  'schedule_constraints'])
 
     @property
@@ -1454,9 +1449,9 @@ class Class(Biddable, Event):
 
     @property
     def complete(self):
-        return (self.title is not '' and
+        return (self.b_title is not '' and
                 self.teacher is not None and
-                self.description is not '' and
+                self.b_description is not '' and
                 self.blurb is not ''
                 )
 
@@ -1472,14 +1467,14 @@ class Class(Biddable, Event):
 
     @property
     def bid_review_summary(self):
-        return (self.title,
+        return (self.b_title,
                 self.teacher,
                 self.type,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 
     def __str__(self):
-        return self.title
+        return self.b_title
 
     # tickets that apply to class are:
     #   - any ticket that applies to "most"
@@ -1493,7 +1488,7 @@ class Class(Biddable, Event):
             Q(bpt_event__include_most=True) |
             Q(bpt_event__include_conference=True)).filter(
                 active=True,
-                bpt_event__conference=self.conference)
+                bpt_event__conference=self.e_conference)
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
                                               active=True)
         tickets = list(chain(my_events, most_events))
@@ -1587,7 +1582,7 @@ class Volunteer(Biddable):
 
         commitments = ''
 
-        for event in self.profile.get_schedule(self.conference):
+        for event in self.profile.get_schedule(self.b_conference):
             start_time = event.start_time.strftime("%a, %b %d, %-I:%M %p")
             end_time = event.end_time.strftime("%-I:%M %p")
 
@@ -1636,7 +1631,7 @@ class Vendor(Biddable):
     help_times = models.TextField(blank=True)
 
     def __unicode__(self):
-        return self.title  # "title" here is company name
+        return self.b_title  # "title" here is company name
 
     def validation_problems_for_submit(self):
         return []
@@ -1650,9 +1645,9 @@ class Vendor(Biddable):
                         want_help=self.want_help,
                         help_description=self.help_description,
                         help_times=self.help_times,
-                        title=self.title,
-                        description=self.description,
-                        conference=Conference.objects.filter(
+                        b_title=self.b_title,
+                        b_description=self.b_description,
+                        b_conference=Conference.objects.filter(
                             status="upcoming").first())
 
         vendor.save()
@@ -1670,7 +1665,7 @@ class Vendor(Biddable):
 
     @property
     def bid_review_summary(self):
-        return (self.profile.display_name, self.title, self.website,
+        return (self.profile.display_name, self.b_title, self.website,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 
@@ -1737,23 +1732,23 @@ class Costume(Biddable):
     @property
     def bid_fields(self):
         return (
-            ['title',
+            ['b_title',
              'performer',
              'creator',
              'act_title',
              'debut_date',
              'active_use',
              'pieces',
-             'description',
+             'b_description',
              'pasties',
              'dress_size',
              'more_info',
              'picture'],
-            ['title',
+            ['b_title',
              'creator',
              'active_use',
              'pieces',
-             'description',
+             'b_description',
              'pasties',
              'dress_size',
              'picture']
@@ -1761,7 +1756,7 @@ class Costume(Biddable):
 
     @property
     def bid_draft_fields(self):
-        return (['title'])
+        return (['b_title'])
 
     @property
     def bid_review_header(self):
@@ -1781,7 +1776,7 @@ class Costume(Biddable):
 
         name += "("+self.creator+")"
         return (name,
-                self.title,
+                self.b_title,
                 self.act_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])

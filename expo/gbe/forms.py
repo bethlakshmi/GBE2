@@ -307,7 +307,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
     conference = get_current_conference()
     qset = Event.objects.filter(
         max_volunteer__gt=0,
-        eventitem__event__conference=conference).order_by('starttime')
+        eventitem__event__e_conference=conference).order_by('starttime')
     events = EventCheckBox(queryset=qset,
                            widget=forms.CheckboxSelectMultiple(),
                            required=False,
@@ -492,7 +492,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
         error_messages={'null': 'required'})
 
     def __init__(self, *args, **kwargs):
-        conference = kwargs.pop('conference')
+        conference = kwargs.pop('e_conference')
         super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all(),
@@ -500,7 +500,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title',
+        fields = ['e_title',
                   'volunteer_category',
                   'num_volunteers',
                   'duration',
@@ -556,8 +556,8 @@ class VendorBidForm(forms.ModelForm):
 
     class Meta:
         model = Vendor
-        fields = ['title',
-                  'description',
+        fields = ['b_title',
+                  'b_description',
                   'profile',
                   'website',
                   'physical_address',
@@ -583,8 +583,8 @@ class ActTechInfoForm(forms.ModelForm):
 
     class Meta:
         model = Act
-        fields = ['title',
-                  'description',
+        fields = ['b_title',
+                  'b_description',
                   'performer',
                   'video_link',
                   'video_choice']
@@ -801,7 +801,7 @@ class GenericEventScheduleForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title', 'description', 'duration', 'type']
+        fields = ['e_title', 'e_description', 'duration', 'type']
         help_texts = event_help_texts
 
 
@@ -811,7 +811,7 @@ class ShowScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Show
-        fields = ['title', 'description', 'duration']
+        fields = ['e_title', 'e_description', 'duration']
         help_texts = event_help_texts
 
 
@@ -824,8 +824,8 @@ class ClassScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Class
-        fields = ['title',
-                  'description',
+        fields = ['e_title',
+                  'e_description',
                   'maximum_enrollment',
                   'type',
                   'fee',
@@ -866,7 +866,7 @@ class CostumeBidDraftForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['title',
+        fields = ['b_title',
                   'performer',
                   'creator',
                   'act_title',
@@ -893,7 +893,7 @@ class CostumeBidSubmitForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['title',
+        fields = ['b_title',
                   'performer',
                   'creator',
                   'act_title',
@@ -936,7 +936,7 @@ class CostumeDetailsDraftForm(forms.ModelForm):
 
         model = Costume
         fields = ['pieces',
-                  'description',
+                  'b_description',
                   'pasties',
                   'dress_size',
                   'more_info',
@@ -975,7 +975,7 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
 
         model = Costume
         fields = ['pieces',
-                  'description',
+                  'b_description',
                   'pasties',
                   'dress_size',
                   'more_info',

@@ -80,7 +80,7 @@ def send_user_contact_email(name, from_address, message):
 
 
 def get_conf(biddable):
-    conference = biddable.biddable_ptr.conference
+    conference = biddable.biddable_ptr.b_conference
     old_bid = conference.status == 'completed'
     return conference, old_bid
 
@@ -121,21 +121,21 @@ def get_events_list_by_type(event_type, conference):
         items = conf.GenericEvent.objects.filter(
             type__iexact=event_type,
             visible=True,
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('title')
     elif event_type in map(lambda x: x.lower, class_types.keys()):
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,
             type__iexact=event_type,
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('title')
     elif event_type == 'show':
         items = conf.Show.objects.filter(
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('title')
     elif event_type == 'class':
         items = conf.Class.objects.filter(
             accepted='3',
             visible=True,
-            conference=conference).exclude(
+            e_conference=conference).exclude(
                 type='Panel').order_by('title')
     else:
         items = []

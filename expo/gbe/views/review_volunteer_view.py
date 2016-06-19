@@ -54,8 +54,8 @@ def ReviewVolunteerView(request, volunteer_id):
     volform = VolunteerBidForm(
         instance=volunteer,
         prefix='The Volunteer',
-        available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows())
+        available_windows=volunteer.b_conference.windows(),
+        unavailable_windows=volunteer.b_conference.windows())
     profile = ParticipantForm(
         instance=volunteer_prof,
         initial={'email': volunteer_prof.user_object.email,

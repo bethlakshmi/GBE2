@@ -28,8 +28,8 @@ def ViewVolunteerView(request, volunteer_id):
     volunteerform = VolunteerBidForm(
         instance=volunteer,
         prefix='Volunteer Info',
-        available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows()
+        available_windows=volunteer.b_conference.windows(),
+        unavailable_windows=volunteer.b_conference.windows()
     )
     profile = ParticipantForm(
         instance=volunteer.profile,

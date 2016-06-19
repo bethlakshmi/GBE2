@@ -77,7 +77,7 @@ def get_events_display_info(event_type='Class', time_format=None):
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
     confitems = event_class.objects.filter(visible=True,
-                                           conference=conference)
+                                           e_conference=conference)
     if event_type == 'Event':
         confitems = confitems.select_subclasses()
     else:
@@ -343,7 +343,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
             sevent = opp['sched']
             num_volunteers = sevent.max_volunteer
             date = sevent.start_time.date()
-            conference = opp['conf'].conference
+            conference = opp['conf'].e_conference
 
             time = sevent.start_time.time
             day = get_conference_day(conference=conference,
@@ -363,7 +363,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                              'time': time,
                              'location': room,
                              },
-                    conference=conference
+                    e_conference=conference
                 )
             )
     context['actionform'] = actionform
@@ -373,7 +373,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         createform = VolunteerOpportunityForm(
             prefix='new_opp',
             initial=initial,
-            conference=item.eventitem.get_conference())
+            e_conference=item.eventitem.get_conference())
 
     actionheaders = ['Title',
                      'Volunteer Type',
@@ -518,15 +518,15 @@ def manage_volunteer_opportunities(request, event_id):
             form = VolunteerOpportunityForm(
                 request.POST,
                 prefix='new_opp',
-                conference=event.eventitem.get_conference())
+                e_conference=event.eventitem.get_conference())
         else:
             form = VolunteerOpportunityForm(
                 request.POST,
-                conference=event.eventitem.get_conference())
+                e_conference=event.eventitem.get_conference())
         if form.is_valid():
             opp = form.save(commit=False)
             opp.type = "Volunteer"
-            opp.conference = event.eventitem.get_conference()
+            opp.e_conference = event.eventitem.get_conference()
             opp.save()
             data = form.cleaned_data
             day = data.get('day').day
@@ -559,7 +559,7 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
         form = VolunteerOpportunityForm(request.POST,
                                         instance=opp,
-                                        conference=opp.conference)
+                                        e_conference=opp.conference)
         if not form.is_valid():
             return edit_event_display(request, event, {'error_opp_form': form})
 
@@ -618,7 +618,7 @@ def contact_performers(conference):
         conference = get_current_conference()
     from gbe.models import Act
     contacts = [act.actitem_ptr for act in Act.objects.filter(
-        conference=conference)]
+        b_conference=conference)]
     header = ['Act',
               'Performer',
               'Profile',
@@ -655,10 +655,10 @@ def contact_volunteers(conference):
     from gbe.models import Volunteer
     contacts = filter(lambda worker: worker.allocations.count() > 0,
                       [vol.profile.workeritem_ptr.worker_set.first() for vol in
-                       Volunteer.objects.filter(conference=conference)
+                       Volunteer.objects.filter(b_conference=conference)
                        if vol.profile.workeritem_ptr.worker_set.exists()])
 
-    volunteers = Volunteer.objects.filter(conference=conference).annotate(
+    volunteers = Volunteer.objects.filter(b_conference=conference).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
             '-profile__workeritem_ptr__worker__count')
 
@@ -701,7 +701,7 @@ def contact_teachers(conference):
               'Display Name',
               'Phone']
     from gbe.models import Class
-    classes = Class.objects.filter(conference=conference)
+    classes = Class.objects.filter(b_conference=conference)
     contact_info = []
 
     for c in classes:
@@ -722,7 +722,7 @@ def contact_teachers(conference):
 def contact_vendors(conference):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
-    contacts = Vendor.objects.filter(conference=conference)
+    contacts = Vendor.objects.filter(b_conference=conference)
     header = ['Business Name', 'Personal Name', 'Email', 'Status']
     contact_info = [[v.title,
                      v.profile.display_name,

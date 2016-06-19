@@ -32,9 +32,9 @@ class TestCloneBid(TestCase):
                                            accepting_bids=False)
         current_conference = ConferenceFactory(status="upcoming",
                                                accepting_bids=True)
-        bid = ActFactory(conference=old_conference)
-        Act.objects.filter(title=bid.title,
-                           conference=current_conference).delete()
+        bid = ActFactory(b_conference=old_conference)
+        Act.objects.filter(b_title=bid.b_title,
+                           b_conference=current_conference).delete()
 
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
@@ -44,8 +44,8 @@ class TestCloneBid(TestCase):
 
         response = self.client.get(url)
         nt.assert_true(Act.objects.filter(
-            title=bid.title,
-            conference=current_conference).exists())
+            b_title=bid.b_title,
+            b_conference=current_conference).exists())
 
     # following test fails, not sure why.
     # ClassFactory creates an instance of gbe.Class w/o data,
@@ -53,17 +53,16 @@ class TestCloneBid(TestCase):
 
     def test_clone_class_succeed(self):
         clear_conferences()
-        Conference.objects.all().delete()
         old_conference = ConferenceFactory(status="completed",
                                            accepting_bids=False)
         current_conference = ConferenceFactory(status="upcoming",
                                                accepting_bids=True)
-        bid = ClassFactory(conference=old_conference)
-        bid.title = "Factory is broken"
+        bid = ClassFactory(b_conference=old_conference)
+        bid.b_title = "Factory is broken"
         bid.save()
         count = Class.objects.filter(
-            title=bid.title,
-            conference=current_conference).count()
+            b_title=bid.b_title,
+            b_conference=current_conference).count()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Class',
@@ -73,8 +72,8 @@ class TestCloneBid(TestCase):
         response = self.client.get(url)
         nt.assert_equal(
             1 + count,
-            Class.objects.filter(title=bid.title,
-                                 conference=current_conference).count())
+            Class.objects.filter(b_title=bid.b_title,
+                                 b_conference=current_conference).count())
 
     def test_clone_bid_bad_bid_type(self):
         Conference.objects.all().delete()
@@ -82,9 +81,9 @@ class TestCloneBid(TestCase):
                                            accepting_bids=False)
         current_conference = ConferenceFactory(status="upcoming",
                                                accepting_bids=True)
-        bid = ActFactory(conference=old_conference)
-        Act.objects.filter(title=bid.title,
-                           conference=current_conference).delete()
+        bid = ActFactory(b_conference=old_conference)
+        Act.objects.filter(b_title=bid.b_title,
+                           b_conference=current_conference).delete()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Steakknife',
@@ -99,9 +98,9 @@ class TestCloneBid(TestCase):
                                            accepting_bids=False)
         current_conference = ConferenceFactory(status="upcoming",
                                                accepting_bids=True)
-        bid = ActFactory(conference=old_conference)
-        Act.objects.filter(title=bid.title,
-                           conference=current_conference).delete()
+        bid = ActFactory(b_conference=old_conference)
+        Act.objects.filter(b_title=bid.b_title,
+                           b_conference=current_conference).delete()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Act',

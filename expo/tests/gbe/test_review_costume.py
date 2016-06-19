@@ -35,7 +35,7 @@ class TestReviewCostume(TestCase):
 
     def test_review_costume_past_conference(self):
         conference = ConferenceFactory(status='completed')
-        costume = CostumeFactory(conference=conference)
+        costume = CostumeFactory(b_conference=conference)
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)

@@ -92,7 +92,7 @@ def EditActTechInfoView(request, act_id):
                 'show': show,
                 'rehearsal_choices':
                     [(r.id, "%s: %s" % (
-                        r.as_subtype.title,
+                        r.as_subtype.e_title,
                         r.starttime.strftime("%I:%M:%p"))) for r in r_set]}
             if show in existing_rehearsals:
                 initial['rehearsal'] = existing_rehearsals[show].id
@@ -108,7 +108,7 @@ def EditActTechInfoView(request, act_id):
                                           id=request.POST['rehearsal'])
             show = get_object_or_404(
                 Show,
-                title=request.POST['show']).scheduler_events.first()
+                e_title=request.POST['show']).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
         form = ActTechInfoForm(request.POST,
                                instance=act,

@@ -34,7 +34,8 @@ class TestReviewClassList(TestCase):
         grant_privilege(self.privileged_user, 'Class Reviewers')
         self.conference = current_conference()
         ClassFactory.create_batch(4,
-                                  conference=self.conference,
+                                  b_conference=self.conference,
+                                  e_conference=self.conference,
                                   submitted=True)
 
     def test_review_class_all_well(self):

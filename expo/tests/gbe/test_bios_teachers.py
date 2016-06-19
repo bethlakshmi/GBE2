@@ -52,7 +52,7 @@ class TestBiosTeachers(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         assert current_context.teacher.name in response.content
-        assert current_context.bid.title in response.content
+        assert current_context.bid.b_title in response.content
 
         # the following assertions should work, but currently
         # do not. This is possibly an issue with multiple
@@ -73,7 +73,7 @@ class TestBiosTeachers(TestCase):
             data={'conference': first_context.conference.conference_slug})
         assert response.status_code == 200
         assert first_context.bid.teacher.name in response.content
-        assert first_context.bid.title in response.content
+        assert first_context.bid.b_title in response.content
 
         # the following assertions should work, but currently
         # do not. This is possibly an issue with multiple

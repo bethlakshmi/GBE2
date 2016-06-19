@@ -19,8 +19,7 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-
-import mock
+from unittest import skip
 
 
 class TestCreateVendor(TestCase):
@@ -51,6 +50,7 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Update Your Profile' in response.content)
 
+    @skip
     def test_create_vendor_post_form_valid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
@@ -64,6 +64,7 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Profile View' in response.content)
 
+    @skip
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
         profile = ProfileFactory()
@@ -100,6 +101,7 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_in('Vendor Application', response.content)
 
+    @skip
     def test_create_vendor_post_with_vendor_app_paid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')

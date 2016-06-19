@@ -35,9 +35,11 @@ class ClassContext:
         self.conference = conference or ConferenceFactory()
         if not self.conference.conferenceday_set.exists():
             ConferenceDayFactory(conference=self.conference)
+
         self.days = self.conference.conferenceday_set.all()
         self.starttime = starttime or noon(self.days[0])
-        self.bid = bid or ClassFactory(conference=self.conference,
+        self.bid = bid or ClassFactory(b_conference=self.conference,
+                                       e_conference=self.conference,
                                        accepted=3,
                                        teacher=self.teacher)
         self.bid.title = unique_string("Class Title %s")

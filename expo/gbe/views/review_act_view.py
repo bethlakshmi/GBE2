@@ -115,7 +115,7 @@ def _create_action_form(act):
     except:
         start = ""
     q = Show.objects.filter(
-        conference=act.conference,
+        e_conference=act.b_conference,
         scheduler_events__isnull=False).order_by(
             'scheduler_events__starttime')
     actionform.fields['show'] = ModelChoiceField(

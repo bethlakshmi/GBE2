@@ -230,7 +230,7 @@ class ActItem(ResourceItem):
     def describe(self):
         return ActItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
-        ).title
+        ).b_title
 
     def __str__(self):
         return str(self.describe)
@@ -483,7 +483,7 @@ class Worker(Resource):
 
 '''
 class EquipmentItem(ResourceItem):
-    
+
     # Payload object for an allocatable item
     # Not currently used
 
@@ -516,9 +516,9 @@ class EquipmentItem(ResourceItem):
 
 class Equipment(Resource):
     # An allocatable thing
-    # Not currently used. Probably needs a good bit of development before 
+    # Not currently used. Probably needs a good bit of development before
     # we can really use it (we'd like to be able to allocate single objects,
-    # sets of objects, and quantities of objects at the very least - this 
+    # sets of objects, and quantities of objects at the very least - this
     # requires a bit of design)
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
@@ -542,7 +542,7 @@ class EventItem (models.Model):
         return EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
 
     def get_conference(self):
-        return self.child().conference
+        return self.child().e_conference
 
     def day_options(self):
         return self.get_conference().conferenceday_set.all()

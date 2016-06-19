@@ -441,7 +441,7 @@ def get_events_and_windows(conference):
 
     events = Event.objects.filter(
         max_volunteer__gt=0,
-        eventitem__event__conference=conference
+        eventitem__event__e_conference=conference
         ).exclude(
             eventitem__event__genericevent__type='Rehearsal Slot').order_by(
                 'starttime')

@@ -59,7 +59,7 @@ class BPTEventForm(forms.ModelForm):
     event_set = Event.objects.filter(
         Q(show__in=shows) |
         Q(genericevent__in=genericevents)).exclude(
-        conference__status="completed")
+            e_conference__status="completed")
     linked_events = forms.ModelMultipleChoiceField(
         queryset=event_set,
         required=False,

@@ -69,19 +69,19 @@ class TestAssignVolunteer(TestCase):
             status='completed')
 
         parent = GenericEventFactory(
-            conference=current_conference)
+            e_conference=current_conference)
         parent.save()
         current_opportunity = GenericEventFactory(
-            conference=current_conference,
+            e_conference=current_conference,
             volunteer_category='VA1',
             type='Volunteer')
         current_opportunity.save()
         rehearsal = GenericEventFactory(
-            conference=current_conference,
+            e_conference=current_conference,
             type="Rehearsal Slot")
         rehearsal.save()
         past_opportunity = GenericEventFactory(
-            conference=past_conference)
+            e_conference=past_conference)
         past_opportunity.save()
 
         parent_sched = sEvent(
@@ -136,7 +136,7 @@ class TestAssignVolunteer(TestCase):
         past_window.save()
 
         volunteer = VolunteerFactory(
-            conference=current_conference,
+            b_conference=current_conference,
             submitted=True,
             )
         volunteer.save()

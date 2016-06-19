@@ -26,9 +26,9 @@ def ReviewVendorListView(request):
     header = Vendor().bid_review_header
     vendors = Vendor.objects.filter(
         submitted=True).filter(
-            conference=conference).order_by(
+            b_conference=conference).order_by(
                 'accepted',
-                'title')
+                'b_title')
     review_query = BidEvaluation.objects.filter(
         bid=vendors).select_related(
             'evaluator').order_by('bid',

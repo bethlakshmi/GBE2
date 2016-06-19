@@ -157,7 +157,6 @@ class TestEventList(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
-
         response = self.client.post(
             url,
             data={'edit': 'edit',

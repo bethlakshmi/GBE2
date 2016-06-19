@@ -31,7 +31,7 @@ class TestReviewCostumeList(TestCase):
         self.conference = current_conference()
         self.costumes = CostumeFactory.create_batch(
             4,
-            conference=self.conference,
+            b_conference=self.conference,
             submitted=True)
 
     def test_review_costume_all_well(self):
@@ -66,5 +66,5 @@ class TestReviewCostumeList(TestCase):
         response = self.client.get(url)
 
         nt.assert_equal(200, response.status_code)
-        assert all([acostume.title in response.content
+        assert all([acostume.b_title in response.content
                     for acostume in self.costumes])

@@ -29,11 +29,11 @@ class ShowContext:
         if not self.conference.conferenceday_set.exists():
             ConferenceDayFactory(conference=self.conference)
         self.days = self.conference.conferenceday_set.all()
-        act = act or ActFactory(conference=self.conference,
+        act = act or ActFactory(b_conference=self.conference,
                                 performer=self.performer,
                                 accepted=3)
         self.acts = [act]
-        self.show = ShowFactory(conference=self.conference)
+        self.show = ShowFactory(e_conference=self.conference)
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,
@@ -62,7 +62,7 @@ class ShowContext:
         return sched_event
 
     def book_act(self, act=None):
-        act = act or ActFactory(conference=self.conference,
+        act = act or ActFactory(b_conference=self.conference,
                                 accepted=3)
         booking = ResourceAllocationFactory(
             event=self.sched_event,

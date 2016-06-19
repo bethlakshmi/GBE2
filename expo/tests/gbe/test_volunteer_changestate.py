@@ -48,7 +48,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'conference': self.volunteer.b_conference,
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)

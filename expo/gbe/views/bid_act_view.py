@@ -72,7 +72,7 @@ def BidActView(request):
             # hack
             conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
-            act.conference = conference
+            act.b_conference = conference
             techinfo = TechInfo()
             audioinfoform = AudioInfoForm(request.POST, prefix='theact')
             techinfo.audio = audioinfoform.save()
