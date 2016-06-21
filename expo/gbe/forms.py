@@ -210,7 +210,7 @@ class ActEditForm(forms.ModelForm):
         help_text=act_help_texts['other_performance'],
         required=False,
     )
-    description = forms.CharField(required=True,
+    b_description = forms.CharField(required=True,
                                   label=act_bid_labels['description'],
                                   help_text=act_help_texts['description'],
                                   widget=forms.Textarea)
@@ -408,7 +408,7 @@ class ClassBidDraftForm(forms.ModelForm):
     ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
     description = forms.CharField(required=False,
-                                  widget=forms.Textarea)
+                                    widget=forms.Textarea)
 
     class Meta:
         model = Class
@@ -921,7 +921,7 @@ class CostumeDetailsDraftForm(forms.ModelForm):
         label=costume_proposal_labels['dress_size'],
         help_text=costume_proposal_help_texts['dress_size'],
         required=False)
-    description = forms.CharField(
+    b_description = forms.CharField(
         max_length=500,
         widget=forms.Textarea,
         label=costume_proposal_labels['description'],
@@ -961,7 +961,7 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
         choices=[(x, x) for x in range(1, 21)],
         label=costume_proposal_labels['dress_size'],
         help_text=costume_proposal_help_texts['dress_size'])
-    description = forms.CharField(max_length=500,
+    b_description = forms.CharField(max_length=500,
                                   widget=forms.Textarea,
                                   label=costume_proposal_labels['description'])
     more_info = forms.CharField(max_length=500,

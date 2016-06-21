@@ -34,7 +34,6 @@ class TestCreateEvent(TestCase):
         response = CreateEventView(request, 'Show')
         nt.assert_equal(response.status_code, 200)
 
-    @skip
     def test_auth_user_can_create_show(self):
         request = self.factory.post('create_event/Show')
         request.user = self.privileged_user

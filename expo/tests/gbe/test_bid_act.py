@@ -28,17 +28,19 @@ class TestBidAct(TestCase):
         current_conference.accepting_bids = True
         current_conference.save()
 
-    def get_act_form(self, submit=False):
+    def get_act_form(self, submit=False, valid=True):
 
         form_dict = {'theact-shows_preferences': [1],
-                     'theact-title': 'An act',
+                     'theact-b_title': 'An act',
                      'theact-track_title': 'a track',
                      'theact-track_artist': 'an artist',
-                     'theact-description': 'a description',
+                     'theact-b_description': 'a description',
                      'theact-performer': self.performer.resourceitem_id,
                      }
         if submit:
             form_dict['submit'] = 1
+        if not valid:
+            del(form_dict['theact-b_description'])
         return form_dict
 
     def test_bid_act_no_profile(self):
@@ -69,14 +71,12 @@ class TestBidAct(TestCase):
     def test_act_bid_post_form_not_valid(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        POST = self.get_act_form(submit=True)
-        del(POST['theact-description'])
+        POST = self.get_act_form(submit=True, valid=False)
         response = self.client.post(url,
                                     data=POST)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Propose an Act' in response.content)
 
-    @skip
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
         current_conference()
@@ -88,7 +88,6 @@ class TestBidAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Fee has not been Paid' in response.content)
 
-    @skip
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
         should redirect to home'''
