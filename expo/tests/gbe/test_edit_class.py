@@ -11,7 +11,6 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-from unittest import skip
 
 class TestEditClass(TestCase):
     '''Tests for edit_class view'''
@@ -24,8 +23,8 @@ class TestEditClass(TestCase):
 
     def get_form(self, submit=True, invalid=False):
         data = {"teacher": self.teacher.pk,
-                "title": 'A class',
-                "description": 'a description',
+                "b_title": 'A class',
+                "b_description": 'a description',
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
@@ -34,7 +33,7 @@ class TestEditClass(TestCase):
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         return data
 
     def test_edit_class_no_class(self):
@@ -67,7 +66,6 @@ class TestEditClass(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
 
-    @skip
     def test_edit_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
         should redirect to home'''
@@ -92,7 +90,6 @@ class TestEditClass(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Class Proposal' in response.content)
 
-    @skip
     def test_edit_class_post_with_submit(self):
         klass = ClassFactory()
         url = reverse(self.view_name,

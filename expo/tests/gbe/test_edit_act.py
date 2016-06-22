@@ -12,7 +12,6 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-from unittest import skip
 
 class TestEditAct(TestCase):
     '''Tests for edit_act view'''
@@ -27,15 +26,15 @@ class TestEditAct(TestCase):
 
     def get_act_form(self, submit=False, invalid=False):
         form_dict = {'theact-teacher': 2,
-                     'theact-title': 'An act',
-                     'theact-description': 'a description',
+                     'theact-b_title': 'An act',
+                     'theact-b_description': 'a description',
                      'theact-length_minutes': 60,
                      'theact-shows_preferences': [0],
                      }
         if submit:
             form_dict['submit'] = 1
         if invalid:
-            del(form_dict['theact-title'])
+            del(form_dict['theact-b_title'])
         return form_dict
 
     def test_edit_act_no_act(self):
@@ -83,7 +82,6 @@ class TestEditAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Your Act Proposal' in response.content)
 
-    @skip
     def test_act_edit_post_form_submit(self):
         act = ActFactory()
         url = reverse(self.view_name,
@@ -96,7 +94,6 @@ class TestEditAct(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Act Payment' in response.content)
 
-    @skip
     def test_edit_bid_post_no_submit(self):
         act = ActFactory()
         url = reverse(self.view_name,

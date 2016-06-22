@@ -545,7 +545,7 @@ class RehearsalSelectionForm(forms.Form):
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    description = forms.CharField(required=True,
+    b_description = forms.CharField(required=True,
                                   widget=forms.Textarea,
                                   help_text=vendor_help_texts['description'],
                                   label=vendor_labels['description'])

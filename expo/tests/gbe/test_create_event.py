@@ -13,7 +13,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
 )
 from gbe.models import Show
-from unittest import skip
+
 
 class TestCreateEvent(TestCase):
     '''Tests for create_event view'''

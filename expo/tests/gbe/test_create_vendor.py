@@ -19,7 +19,6 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-from unittest import skip
 
 
 class TestCreateVendor(TestCase):
@@ -33,14 +32,14 @@ class TestCreateVendor(TestCase):
 
     def get_form(self, submit=False, invalid=False):
         form = {'profile': 1,
-                'title': 'title here',
-                'description': 'description here',
+                'b_title': 'title here',
+                'b_description': 'description here',
                 'physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['description'])
+            del(form['b_description'])
         return form
 
     def test_create_vendor_no_profile(self):
@@ -50,7 +49,6 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Update Your Profile' in response.content)
 
-    @skip
     def test_create_vendor_post_form_valid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
@@ -64,7 +62,6 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Profile View' in response.content)
 
-    @skip
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
         profile = ProfileFactory()
@@ -101,7 +98,6 @@ class TestCreateVendor(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_in('Vendor Application', response.content)
 
-    @skip
     def test_create_vendor_post_with_vendor_app_paid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')

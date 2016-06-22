@@ -11,7 +11,6 @@ from tests.functions.gbe_functions import (
     location,
     login_as
 )
-from unittest import skip
 
 class TestBidClass(TestCase):
     '''Tests for edit_class view'''
@@ -28,8 +27,8 @@ class TestBidClass(TestCase):
                        invalid=False,
                        incomplete=False):
         data = {'teacher': self.teacher.pk,
-                'title': 'A class',
-                'description': 'a description',
+                'b_title': 'A class',
+                'b_description': 'a description',
                 'length_minutes': 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
@@ -39,9 +38,9 @@ class TestBidClass(TestCase):
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         if incomplete:
-            data['title'] = ''
+            data['b_title'] = ''
         return data
 
     def test_bid_class_no_personae(self):
@@ -88,7 +87,6 @@ class TestBidClass(TestCase):
         expected_string = "This field is required"
         nt.assert_true(expected_string in response.content)
 
-    @skip
     def test_class_bid_post_no_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''

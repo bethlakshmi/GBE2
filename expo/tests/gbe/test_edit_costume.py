@@ -13,7 +13,6 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
 )
-from unittest import skip
 
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''
@@ -30,9 +29,9 @@ class TestEditCostume(TestCase):
         picture = SimpleUploadedFile("file.jpg",
                                      "file_content",
                                      content_type="image/jpg")
-        data = {'title': 'A costume',
+        data = {'b_title': 'A costume',
                 'creator': 'A creator',
-                'description': 'pieces are listed',
+                'b_description': 'pieces are listed',
                 'active_use': True,
                 'pieces': 10,
                 'pasties': False,
@@ -40,7 +39,7 @@ class TestEditCostume(TestCase):
                 'picture': picture,
                 }
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         if submit:
             data['submit'] = 1
 
@@ -90,7 +89,6 @@ class TestEditCostume(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true(error_string in response.content)
 
-    @skip
     def test_edit_bid_post_no_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''
@@ -108,7 +106,6 @@ class TestEditCostume(TestCase):
         nt.assert_equal(location(response),
                         'http://testserver/gbe')
 
-    @skip
     def test_edit_bid_post_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''

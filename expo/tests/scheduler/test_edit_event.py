@@ -34,7 +34,6 @@ from datetime import (
     time,
     timedelta,
 )
-from unittest import skip
 
 class TestEditEvent(TestCase):
     view_name = 'edit_event'
@@ -288,7 +287,6 @@ class TestEditEvent(TestCase):
                       '</option>',
                       response.content)
 
-    @skip
     def test_good_user_with_staff_area_lead(self):
         clear_conferences()
         Room.objects.all().delete()

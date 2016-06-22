@@ -15,7 +15,6 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     StaffAreaContext,
 )
-from unittest import skip
 
 class TestEventList(TestCase):
     view_name = 'manage_opps'
@@ -55,7 +54,6 @@ class TestEventList(TestCase):
                                            args=['GenericEvent',
                                                  context.sched_event.pk]))
 
-    @skip
     def test_create_opportunity(self):
         context = StaffAreaContext()
         room = RoomFactory()
@@ -67,7 +65,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'create': 'create',
-                  'new_opp-title': 'New Volunteer Opportunity',
+                  'new_opp-e_title': 'New Volunteer Opportunity',
                   'new_opp-volunteer_category': 'VA0',
                   'new_opp-num_volunteers': '1',
                   'new_opp-duration': '1:00:00',
@@ -82,9 +80,9 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         for opp in opps:
-            nt.assert_equal(opp.child_event.eventitem.child().title,
+            nt.assert_equal(opp.child_event.eventitem.child().e_title,
                             'New Volunteer Opportunity')
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
@@ -114,7 +112,7 @@ class TestEventList(TestCase):
         nt.assert_false(opps.exists())
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
                      response.content)
-    @skip
+
     def test_copy_opportunity(self):
         context = StaffAreaContext()
         room = RoomFactory()
@@ -128,7 +126,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'duplicate': 'duplicate',
-                  'title': 'Copied Volunteer Opportunity',
+                  'e_title': 'Copied Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '1',
                   'duration': '1:00:00',
@@ -143,13 +141,12 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
-            nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+            nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                          'type="text" value="' +
-                         opp.child_event.eventitem.child().title +
+                         opp.child_event.eventitem.child().e_title +
                          '" />',
                          response.content)
 
-    @skip
     def test_edit_opportunity(self):
         context = StaffAreaContext()
         room = RoomFactory()
@@ -162,7 +159,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'edit': 'edit',
-                  'title': 'Edit Volunteer Opportunity',
+                  'e_title': 'Edit Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '1',
                   'duration': '1:00:00',
@@ -178,11 +175,10 @@ class TestEventList(TestCase):
                                                  context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
 
-    @skip
     def test_edit_opportunity_error(self):
         context = StaffAreaContext()
         room = RoomFactory()
@@ -197,7 +193,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'edit': 'edit',
-                  'title': 'Edit Volunteer Opportunity',
+                  'e_title': 'Edit Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '',
                   'duration': '1:00:00',
@@ -208,7 +204,7 @@ class TestEventList(TestCase):
                   'opp_sched_id': vol_opp.pk},
             follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',

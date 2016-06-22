@@ -14,7 +14,6 @@ from tests.functions.gbe_functions import (
     login_as,
     current_conference,
 )
-from unittest import skip
 
 class TestBidAct(TestCase):
     '''Tests for bid_act view'''
