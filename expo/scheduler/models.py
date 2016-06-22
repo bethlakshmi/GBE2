@@ -528,6 +528,7 @@ class Equipment(Resource):
         return "equipment"
 '''
 
+
 class EventItem (models.Model):
     '''
     The payload for an event (ie, a class, act, show, or generic event)
@@ -994,9 +995,11 @@ class Event(Schedulable):
         is_conflict = False
         if self.start_time == other_event.starttime:
             is_conflict = True
-        elif self.start_time > other_event.start_time and self.start_time < other_event.end_time:
+        elif (self.start_time > other_event.start_time and
+              self.start_time < other_event.end_time):
             is_conflict = True
-        elif self.start_time < other_event.start_time and self.end_time > other_event.start_time:
+        elif (self.start_time < other_event.start_time and
+              self.end_time > other_event.start_time):
             is_conflict = True
         return is_conflict
 

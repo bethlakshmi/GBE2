@@ -5,12 +5,13 @@ from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ClassFactory,
     PersonaFactory,
-    ProfileFactory
+    ProfileFactory,
 )
 from tests.functions.gbe_functions import (
     login_as,
     location,
 )
+
 
 class TestEditClass(TestCase):
     '''Tests for edit_class view'''

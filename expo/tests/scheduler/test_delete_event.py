@@ -16,7 +16,6 @@ from tests.functions.gbe_functions import (
 from tests.contexts import ClassContext
 
 
-
 class TestDeleteEvent(TestCase):
     view_name = 'delete_event'
 

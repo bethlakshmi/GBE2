@@ -11,7 +11,7 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
     ProfileFactory,
     PersonaFactory,
-    RoomFactory
+    RoomFactory,
 )
 from gbe.models import Room
 from scheduler.models import Worker
@@ -24,11 +24,11 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ClassContext,
     PanelContext,
-    StaffAreaContext
+    StaffAreaContext,
 )
 from tests.functions.scheduler_functions import (
     assert_good_sched_event_form,
-    get_sched_event_form
+    get_sched_event_form,
 )
 import pytz
 from datetime import (
@@ -36,6 +36,7 @@ from datetime import (
     time,
     timedelta,
 )
+
 
 class TestEditEvent(TestCase):
     view_name = 'edit_event'
@@ -137,6 +138,7 @@ class TestEditEvent(TestCase):
                               context,
                               context.days[0],
                               context.room)
+
     @skip
     def test_good_user_invalid_submit(self):
         context = ClassContext()
@@ -288,7 +290,6 @@ class TestEditEvent(TestCase):
                       '" selected="selected">' + str(overcommitter) +
                       '</option>',
                       response.content)
-
 
     def test_good_user_with_staff_area_lead(self):
 

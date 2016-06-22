@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import login_as
 
+
 class TestFashionFaireView(TestCase):
     view_name = 'fashion_faire'
 

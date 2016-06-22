@@ -16,6 +16,7 @@ from tests.contexts import (
     StaffAreaContext,
 )
 
+
 class TestEventList(TestCase):
     view_name = 'manage_opps'
 
@@ -141,11 +142,11 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
-            nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
-                         'type="text" value="' +
-                         opp.child_event.eventitem.child().e_title +
-                         '" />',
-                         response.content)
+            nt.assert_in(
+                '<input id="id_e_title" maxlength="128" '
+                'name="e_title" type="text" value="%s" />' % (
+                    opp.child_event.eventitem.child().e_title),
+                response.content)
 
     def test_edit_opportunity(self):
         context = StaffAreaContext()

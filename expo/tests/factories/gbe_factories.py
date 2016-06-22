@@ -282,7 +282,6 @@ class VolunteerFactory(DjangoModelFactory):
     b_conference = SubFactory(ConferenceFactory)
 
 
-
 class VendorFactory(DjangoModelFactory):
     class Meta:
         model = conf.Vendor
@@ -300,6 +299,7 @@ class VendorFactory(DjangoModelFactory):
     help_times = LazyAttribute(
         lambda a: "Help times for test Volunteer")
     b_conference = SubFactory(ConferenceFactory)
+
 
 class ClassProposalFactory(DjangoModelFactory):
     class Meta:

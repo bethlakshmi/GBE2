@@ -52,17 +52,17 @@ class TestViewList(TestCase):
         clear_conferences()
         conf = ConferenceFactory()
         other_conf = ConferenceFactory(status='completed')
-        show = ShowFactory(e_conference = conf)
-        generic_event = GenericEventFactory(e_conference = conf)
+        show = ShowFactory(e_conference=conf)
+        generic_event = GenericEventFactory(e_conference=conf)
         accepted_class = ClassFactory(accepted=3,
-                                      e_conference = conf,
-                                      b_conference = conf)
+                                      e_conference=conf,
+                                      b_conference=conf)
         previous_class = ClassFactory(accepted=3,
-                                      e_conference = other_conf,
-                                      b_conference = other_conf)
+                                      e_conference=other_conf,
+                                      b_conference=other_conf)
         rejected_class = ClassFactory(accepted=1,
-                                      e_conference = conf,
-                                      b_conference = conf)
+                                      e_conference=conf,
+                                      b_conference=conf)
         url = reverse("event_list",
                       urlconf="scheduler.urls")
         login_as(ProfileFactory(), self)
@@ -72,7 +72,6 @@ class TestViewList(TestCase):
         nt.assert_true(accepted_class.e_title in response.content)
         nt.assert_false(rejected_class.e_title in response.content)
         nt.assert_false(previous_class.e_title in response.content)
-
 
     def test_view_list_event_type_not_case_sensitive(self):
         param = 'class'
@@ -85,7 +84,8 @@ class TestViewList(TestCase):
                             urlconf="scheduler.urls",
                             args=[param.upper()])
 
-        assert self.client.get(url_lower).content == self.client.get(url_upper).content
+        assert (self.client.get(url_lower).content ==
+                self.client.get(url_upper).content)
 
     def test_view_list_event_type_not_in_list_titles(self):
         param = 'classification'

@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
     location,
 )
 
+
 class TestEditVendor(TestCase):
     '''Tests for edit_vendor view'''
     view_name = "vendor_edit"

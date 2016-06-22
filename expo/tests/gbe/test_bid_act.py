@@ -15,6 +15,7 @@ from tests.functions.gbe_functions import (
     current_conference,
 )
 
+
 class TestBidAct(TestCase):
     '''Tests for bid_act view'''
     view_name = 'act_create'

@@ -12,8 +12,9 @@ from tests.factories.gbe_factories import(
 from tests.functions.gbe_functions import (
     current_conference,
     location,
-    login_as
+    login_as,
 )
+
 
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''

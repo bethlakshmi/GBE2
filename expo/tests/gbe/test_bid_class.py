@@ -9,8 +9,9 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     location,
-    login_as
+    login_as,
 )
+
 
 class TestBidClass(TestCase):
     '''Tests for edit_class view'''

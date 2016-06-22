@@ -28,6 +28,7 @@ from tests.functions.gbe_functions import (
 )
 from unittest import skip
 
+
 class TestIndex(TestCase):
     '''Tests for index view'''
     view_name = 'home'
@@ -61,7 +62,7 @@ class TestIndex(TestCase):
                                            submitted=True,
                                            accepted=3,
                                            b_conference=self.previous_conf,
-                                           e_conference= self.previous_conf)
+                                           e_conference=self.previous_conf)
 
         self.current_vendor = VendorFactory(
             profile=self.profile,
@@ -152,7 +153,6 @@ class TestIndex(TestCase):
         '''
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
-        import pdb; pdb.set_trace()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         content = response.content
@@ -180,6 +180,7 @@ class TestIndex(TestCase):
             self.current_class_sched, content))
         nt.assert_false(self.is_event_present(
             self.previous_class_sched, content))
+
     @skip
     def test_historical_view(self):
         url = reverse('home', urlconf='gbe.urls')

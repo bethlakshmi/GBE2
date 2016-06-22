@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
     location,
 )
 
+
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''
     view_name = 'costume_edit'

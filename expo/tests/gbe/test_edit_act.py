@@ -13,6 +13,7 @@ from tests.functions.gbe_functions import (
     location,
 )
 
+
 class TestEditAct(TestCase):
     '''Tests for edit_act view'''
 
