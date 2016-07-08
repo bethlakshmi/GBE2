@@ -23,8 +23,8 @@ def EditVolunteerView(request, volunteer_id):
         form = VolunteerBidForm(
             request.POST,
             instance=the_bid,
-            available_windows=the_bid.conference.windows(),
-            unavailable_windows=the_bid.conference.windows())
+            available_windows=the_bid.b_conference.windows(),
+            unavailable_windows=the_bid.b_conference.windows())
 
         if form.is_valid():
             the_bid = form.save(commit=True)
@@ -52,8 +52,8 @@ def EditVolunteerView(request, volunteer_id):
         form = VolunteerBidForm(
             instance=the_bid,
             initial={'interests': interests_initial},
-            available_windows=the_bid.conference.windows(),
-            unavailable_windows=the_bid.conference.windows())
+            available_windows=the_bid.b_conference.windows(),
+            unavailable_windows=the_bid.b_conference.windows())
 
         return render(request,
                       'gbe/bid.tmpl',

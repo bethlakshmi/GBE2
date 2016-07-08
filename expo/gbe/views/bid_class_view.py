@@ -58,7 +58,8 @@ def BidClassView(request):
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
-                    new_class.conference = conference
+                    new_class.b_conference = conference
+                    new_class.e_conference = conference
                     new_class.save()
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))

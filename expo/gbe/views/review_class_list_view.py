@@ -27,9 +27,9 @@ def ReviewClassListView(request):
     header = Class().bid_review_header
     classes = Class.objects.filter(
         submitted=True).filter(
-            conference=conference).order_by(
-            'accepted',
-            'title')
+            b_conference=conference).order_by(
+                'accepted',
+                'b_title')
     review_query = BidEvaluation.objects.filter(
         bid=classes).select_related(
             'evaluator').order_by('bid',

@@ -210,7 +210,7 @@ class ActEditForm(forms.ModelForm):
         help_text=act_help_texts['other_performance'],
         required=False,
     )
-    description = forms.CharField(required=True,
+    b_description = forms.CharField(required=True,
                                   label=act_bid_labels['description'],
                                   help_text=act_help_texts['description'],
                                   widget=forms.Textarea)
@@ -307,7 +307,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
     conference = get_current_conference()
     qset = Event.objects.filter(
         max_volunteer__gt=0,
-        eventitem__event__conference=conference).order_by('starttime')
+        eventitem__event__e_conference=conference).order_by('starttime')
     events = EventCheckBox(queryset=qset,
                            widget=forms.CheckboxSelectMultiple(),
                            required=False,
@@ -408,7 +408,7 @@ class ClassBidDraftForm(forms.ModelForm):
     ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
     description = forms.CharField(required=False,
-                                  widget=forms.Textarea)
+                                    widget=forms.Textarea)
 
     class Meta:
         model = Class
@@ -492,7 +492,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
         error_messages={'null': 'required'})
 
     def __init__(self, *args, **kwargs):
-        conference = kwargs.pop('conference')
+        conference = kwargs.pop('e_conference')
         super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
         self.fields['day'] = forms.ModelChoiceField(
             queryset=conference.conferenceday_set.all(),
@@ -500,7 +500,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title',
+        fields = ['e_title',
                   'volunteer_category',
                   'num_volunteers',
                   'duration',
@@ -545,7 +545,7 @@ class RehearsalSelectionForm(forms.Form):
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    description = forms.CharField(required=True,
+    b_description = forms.CharField(required=True,
                                   widget=forms.Textarea,
                                   help_text=vendor_help_texts['description'],
                                   label=vendor_labels['description'])
@@ -556,8 +556,8 @@ class VendorBidForm(forms.ModelForm):
 
     class Meta:
         model = Vendor
-        fields = ['title',
-                  'description',
+        fields = ['b_title',
+                  'b_description',
                   'profile',
                   'website',
                   'physical_address',
@@ -583,8 +583,8 @@ class ActTechInfoForm(forms.ModelForm):
 
     class Meta:
         model = Act
-        fields = ['title',
-                  'description',
+        fields = ['b_title',
+                  'b_description',
                   'performer',
                   'video_link',
                   'video_choice']
@@ -801,7 +801,7 @@ class GenericEventScheduleForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title', 'description', 'duration', 'type']
+        fields = ['e_title', 'e_description', 'duration', 'type']
         help_texts = event_help_texts
 
 
@@ -811,7 +811,7 @@ class ShowScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Show
-        fields = ['title', 'description', 'duration']
+        fields = ['e_title', 'e_description', 'duration']
         help_texts = event_help_texts
 
 
@@ -824,8 +824,8 @@ class ClassScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Class
-        fields = ['title',
-                  'description',
+        fields = ['e_title',
+                  'e_description',
                   'maximum_enrollment',
                   'type',
                   'fee',
@@ -866,7 +866,7 @@ class CostumeBidDraftForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['title',
+        fields = ['b_title',
                   'performer',
                   'creator',
                   'act_title',
@@ -893,7 +893,7 @@ class CostumeBidSubmitForm(forms.ModelForm):
     class Meta:
 
         model = Costume
-        fields = ['title',
+        fields = ['b_title',
                   'performer',
                   'creator',
                   'act_title',
@@ -921,7 +921,7 @@ class CostumeDetailsDraftForm(forms.ModelForm):
         label=costume_proposal_labels['dress_size'],
         help_text=costume_proposal_help_texts['dress_size'],
         required=False)
-    description = forms.CharField(
+    b_description = forms.CharField(
         max_length=500,
         widget=forms.Textarea,
         label=costume_proposal_labels['description'],
@@ -936,7 +936,7 @@ class CostumeDetailsDraftForm(forms.ModelForm):
 
         model = Costume
         fields = ['pieces',
-                  'description',
+                  'b_description',
                   'pasties',
                   'dress_size',
                   'more_info',
@@ -961,7 +961,7 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
         choices=[(x, x) for x in range(1, 21)],
         label=costume_proposal_labels['dress_size'],
         help_text=costume_proposal_help_texts['dress_size'])
-    description = forms.CharField(max_length=500,
+    b_description = forms.CharField(max_length=500,
                                   widget=forms.Textarea,
                                   label=costume_proposal_labels['description'])
     more_info = forms.CharField(max_length=500,
@@ -975,7 +975,7 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
 
         model = Costume
         fields = ['pieces',
-                  'description',
+                  'b_description',
                   'pasties',
                   'dress_size',
                   'more_info',

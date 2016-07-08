@@ -9,7 +9,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     location,
-    login_as
+    login_as,
 )
 
 
@@ -28,8 +28,8 @@ class TestBidClass(TestCase):
                        invalid=False,
                        incomplete=False):
         data = {'teacher': self.teacher.pk,
-                'title': 'A class',
-                'description': 'a description',
+                'b_title': 'A class',
+                'b_description': 'a description',
                 'length_minutes': 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
@@ -39,9 +39,9 @@ class TestBidClass(TestCase):
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         if incomplete:
-            data['title'] = ''
+            data['b_title'] = ''
         return data
 
     def test_bid_class_no_personae(self):

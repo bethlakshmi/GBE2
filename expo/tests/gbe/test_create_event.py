@@ -38,13 +38,14 @@ class TestCreateEvent(TestCase):
         request = self.factory.post('create_event/Show')
         request.user = self.privileged_user
         title = 'The Big Show'
-        request.POST['title'] = title
+        request.POST['e_title'] = title
         description = 'Really Big Show'
-        request.POST['description'] = description
+        request.POST['e_description'] = description
         duration = '2:00:00'
         request.POST['duration'] = duration
+        request.session = {'cms_admin_site': 1}
         CreateEventView(request, 'Show')
-        nt.assert_true(Show.objects.filter(title=title).count() > 0)
+        nt.assert_true(Show.objects.filter(e_title=title).count() > 0)
 
     def test_invalid_form(self):
         request = self.factory.post('create_event/Show')
@@ -56,4 +57,4 @@ class TestCreateEvent(TestCase):
         request.session = {'cms_admin_site': 1}
         duration = '2:00:00'
         CreateEventView(request, 'Show')
-        nt.assert_false(Show.objects.filter(title=title).exists())
+        nt.assert_false(Show.objects.filter(e_title=title).exists())

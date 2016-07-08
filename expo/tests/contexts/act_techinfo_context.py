@@ -28,7 +28,7 @@ class ActTechInfoContext():
         self.conference = conference or ConferenceFactory()
         self.performer = performer or PersonaFactory()
         self.act = act or ActFactory(performer=self.performer,
-                                     conference=self.conference,
+                                     b_conference=self.conference,
                                      accepted=3)
         self.tech = self.act.tech
         self.audio = self.tech.audio
@@ -37,7 +37,7 @@ class ActTechInfoContext():
         for i in range(cue_count):
             CueInfoFactory.create(techinfo=self.tech,
                                   cue_sequence=i)
-        self.show = show or ShowFactory(conference=self.conference)
+        self.show = show or ShowFactory(e_conference=self.conference)
         # schedule the show
         self.sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
         room_name = room_name or "Dining Room"

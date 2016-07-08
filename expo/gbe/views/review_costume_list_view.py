@@ -26,13 +26,13 @@ def ReviewCostumeListView(request):
     header = Costume().bid_review_header
     costumes = Costume.objects.filter(
         submitted=True).filter(
-            conference=conference).order_by(
-            'accepted',
-            'title')
+            b_conference=conference).order_by(
+                'accepted',
+                'b_title')
     review_query = BidEvaluation.objects.filter(
         bid=costumes).select_related(
-            'evaluator').order_by('bid',
-                                  'evaluator')
+        'evaluator').order_by('bid',
+                              'evaluator')
     rows = []
     for acostume in costumes:
         bid_row = {}

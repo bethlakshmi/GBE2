@@ -59,7 +59,7 @@ class TestReviewVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            data={'conf_slug': volunteer.conference.id})
+            data={'conf_slug': volunteer.b_conference.id})
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Bid Information' in response.content)
         self.assertTrue('Review Information' in response.content)
@@ -102,13 +102,13 @@ class TestReviewVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         html_tag = '<h2 class="review-title">%s</h2>'
         title_string = ("Bid Information for %s" %
-                        volunteer.conference.conference_name)
+                        volunteer.b_conference.conference_name)
         html_title = html_tag % title_string
         assert html_title in response.content
 
     def test_review_volunteer_past_conference(self):
         conference = ConferenceFactory(status='completed')
-        volunteer = VolunteerFactory(conference=conference)
+        volunteer = VolunteerFactory(b_conference=conference)
         url = reverse(self.view_name, args=[volunteer.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)

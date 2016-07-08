@@ -5,7 +5,7 @@ from model_utils.managers import InheritanceManager
 
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class ClassAdmin(BidAdmin):
@@ -15,7 +15,7 @@ class ClassAdmin(BidAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class PerformerAdmin(admin.ModelAdmin):
@@ -87,17 +87,17 @@ class RoomAdmin(admin.ModelAdmin):
 
 
 class ShowAdmin(admin.ModelAdmin):
-    list_filter = ['conference']
+    list_filter = ['e_conference']
 
 
 class GenericAdmin(admin.ModelAdmin):
-    list_display = ('title', 'type')
-    list_filter = ['conference']
+    list_display = ('e_title', 'type')
+    list_filter = ['e_conference']
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subclass')
-    list_filter = ['conference']
+    list_display = ('e_title', 'subclass')
+    list_filter = ['e_conference']
 
     def subclass(self, obj):
         try:

@@ -30,7 +30,7 @@ class VolunteerContext():
             self.profile = self.bid.profile
         else:
             self.bid = VolunteerFactory(
-                conference=self.conference)
+                b_conference=self.conference)
             self.profile = self.bid.profile
         self.opportunity = opportunity or GenericEventFactory()
         self.event = event or ShowFactory()

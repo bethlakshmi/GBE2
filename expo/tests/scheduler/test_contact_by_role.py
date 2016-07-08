@@ -53,7 +53,7 @@ class TestDeleteEvent(TestCase):
         Conference.objects.all().delete()
         login_as(self.privileged_profile, self)
         conference = ConferenceFactory.create(status="upcoming")
-        acts = ActFactory.create_batch(5, conference=conference)
+        acts = ActFactory.create_batch(5, b_conference=conference)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=['Unknown']))
@@ -64,7 +64,7 @@ class TestDeleteEvent(TestCase):
         Conference.objects.all().delete()
         login_as(self.privileged_profile, self)
         conference = ConferenceFactory.create(status="upcoming")
-        acts = ActFactory.create_batch(5, conference=conference)
+        acts = ActFactory.create_batch(5, b_conference=conference)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=['Performers']))
@@ -74,7 +74,7 @@ class TestDeleteEvent(TestCase):
     def test_contact_performers_former_performers_not_visible(self):
         Conference.objects.all().delete()
         conference = ConferenceFactory.create(status="finished")
-        acts = ActFactory.create_batch(5, conference=conference)
+        acts = ActFactory.create_batch(5, b_conference=conference)
         login_as(self.privileged_profile, self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
@@ -92,7 +92,7 @@ class TestDeleteEvent(TestCase):
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     interests="['VA1']",
-                                    conference=context.conference)
+                                    b_conference=context.conference)
             context.book_volunteer(opp, volunteer)
 
         login_as(self.privileged_profile, self)
@@ -114,7 +114,7 @@ class TestDeleteEvent(TestCase):
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     interests="['VA1']",
-                                    conference=conference)
+                                    b_conference=conference)
         event = SchedEventFactory()
         for worker in workers:
             ResourceAllocationFactory.create(
@@ -138,7 +138,7 @@ class TestDeleteEvent(TestCase):
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     interests="['VA1']",
-                                    conference=previous_conf)
+                                    b_conference=previous_conf)
         event = SchedEventFactory()
         for worker in workers:
             ResourceAllocationFactory.create(
@@ -155,8 +155,8 @@ class TestDeleteEvent(TestCase):
         Conference.objects.all().delete()
         previous_conf = ConferenceFactory(status="completed")
         current_conf = ConferenceFactory(status="upcoming")
-        previous_vendor = VendorFactory(conference=previous_conf)
-        current_vendor = VendorFactory(conference=current_conf)
+        previous_vendor = VendorFactory(b_conference=previous_conf)
+        current_vendor = VendorFactory(b_conference=current_conf)
         login_as(self.privileged_profile, self)
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
@@ -171,11 +171,11 @@ class TestDeleteEvent(TestCase):
         Class.objects.all().delete()
         previous_conf = ConferenceFactory(status="completed")
         current_conf = ConferenceFactory(status="upcoming")
-        previous_class = ClassFactory(conference=previous_conf)
-        current_class = ClassFactory(conference=current_conf)
-        previous_class.conference = previous_conf
-        previous_class.save()
-        # something broken about the factory here.
+        previous_class = ClassFactory(b_conference=previous_conf,
+                                      e_conference=previous_conf)
+        current_class = ClassFactory(b_conference=current_conf,
+                                     e_conference=previous_conf)
+
         previous_teacher = ProfileFactory()
         PersonaFactory(performer_profile=previous_teacher)
         current_teacher = ProfileFactory()

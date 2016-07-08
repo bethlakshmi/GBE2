@@ -30,7 +30,7 @@ class TestEditActTechInfo(TestCase):
 
     def get_full_post(self, rehearsal, show):
         data = {
-            'show': show.title,
+            'show': show.e_title,
             'lighting_info-notes': 'lighting notes',
             'lighting_info-costume': 'costume description',
             'lighting_info-specific_needs': 'lighting specific needs',
@@ -121,7 +121,7 @@ class TestEditActTechInfo(TestCase):
             response,
             '<option value="' + str(context.rehearsal.id) +
             '" selected="selected">' +
-            "%s: %s" % (context.rehearsal.as_subtype.title,
+            "%s: %s" % (context.rehearsal.as_subtype.e_title,
                         context.rehearsal.starttime.strftime("%I:%M:%p")) +
             '</option>')
 

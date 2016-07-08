@@ -77,7 +77,7 @@ class TestGetCheckListForRoles(TestCase):
             self.teacher.performer_profile,
             another_role.role,
             GenericEventFactory(
-                conference=self.conference)
+                e_conference=self.conference)
             )
 
         checklist_items = get_checklist_items_for_roles(
@@ -128,7 +128,7 @@ class TestGetCheckListForRoles(TestCase):
             self.teacher.performer_profile,
             exclusion.role,
             GenericEventFactory(
-                conference=self.conference)
+                e_conference=self.conference)
             )
 
         checklist_items = get_checklist_items_for_roles(

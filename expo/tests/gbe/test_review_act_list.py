@@ -32,7 +32,7 @@ class TestReviewActList(TestCase):
         grant_privilege(self.privileged_user, 'Act Reviewers')
         self.conference = current_conference()
         ActFactory.create_batch(4,
-                                conference=self.conference,
+                                b_conference=self.conference,
                                 submitted=True)
 
     def test_review_act_list_all_well(self):

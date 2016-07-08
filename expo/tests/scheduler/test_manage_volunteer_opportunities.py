@@ -66,7 +66,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'create': 'create',
-                  'new_opp-title': 'New Volunteer Opportunity',
+                  'new_opp-e_title': 'New Volunteer Opportunity',
                   'new_opp-volunteer_category': 'VA0',
                   'new_opp-num_volunteers': '1',
                   'new_opp-duration': '1:00:00',
@@ -81,9 +81,9 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         for opp in opps:
-            nt.assert_equal(opp.child_event.eventitem.child().title,
+            nt.assert_equal(opp.child_event.eventitem.child().e_title,
                             'New Volunteer Opportunity')
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
@@ -127,7 +127,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'duplicate': 'duplicate',
-                  'title': 'Copied Volunteer Opportunity',
+                  'e_title': 'Copied Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '1',
                   'duration': '1:00:00',
@@ -142,11 +142,11 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
-            nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
-                         'type="text" value="' +
-                         opp.child_event.eventitem.child().title +
-                         '" />',
-                         response.content)
+            nt.assert_in(
+                '<input id="id_e_title" maxlength="128" '
+                'name="e_title" type="text" value="%s" />' % (
+                    opp.child_event.eventitem.child().e_title),
+                response.content)
 
     def test_edit_opportunity(self):
         context = StaffAreaContext()
@@ -157,11 +157,10 @@ class TestEventList(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
-
         response = self.client.post(
             url,
             data={'edit': 'edit',
-                  'title': 'Edit Volunteer Opportunity',
+                  'e_title': 'Edit Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '1',
                   'duration': '1:00:00',
@@ -177,7 +176,7 @@ class TestEventList(TestCase):
                                                  context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
 
@@ -195,7 +194,7 @@ class TestEventList(TestCase):
         response = self.client.post(
             url,
             data={'edit': 'edit',
-                  'title': 'Edit Volunteer Opportunity',
+                  'e_title': 'Edit Volunteer Opportunity',
                   'volunteer_category': 'VA0',
                   'num_volunteers': '',
                   'duration': '1:00:00',
@@ -206,7 +205,7 @@ class TestEventList(TestCase):
                   'opp_sched_id': vol_opp.pk},
             follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Edit Volunteer Opportunity" />',
                      response.content)
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',

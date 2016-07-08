@@ -12,7 +12,7 @@ from tests.factories.gbe_factories import(
 from tests.functions.gbe_functions import (
     current_conference,
     location,
-    login_as
+    login_as,
 )
 
 
@@ -30,9 +30,9 @@ class TestEditCostume(TestCase):
         picture = SimpleUploadedFile("file.jpg",
                                      "file_content",
                                      content_type="image/jpg")
-        form = {'title': 'A costume',
+        form = {'b_title': 'A costume',
                 'creator': 'A creator',
-                'description': 'pieces are listed',
+                'b_description': 'pieces are listed',
                 'active_use': True,
                 'pieces': 10,
                 'pasties': False,
@@ -42,7 +42,7 @@ class TestEditCostume(TestCase):
         if submit:
             form['submit'] = 1
         if invalid:
-            del(form['title'])
+            del(form['b_title'])
         return form
 
     def test_bid_costume_no_profile(self):

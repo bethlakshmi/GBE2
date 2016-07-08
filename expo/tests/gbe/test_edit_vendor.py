@@ -29,14 +29,14 @@ class TestEditVendor(TestCase):
 
     def get_vendor_form(self, submit=False, invalid=False):
         form = {'thebiz-profile': 1,
-                'thebiz-title': 'title here',
-                'thebiz-description': 'description here',
+                'thebiz-b_title': 'title here',
+                'thebiz-b_description': 'description here',
                 'thebiz-physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['thebiz-description'])
+            del(form['thebiz-b_description'])
         return form
 
     def test_edit_vendor_no_vendor(self):

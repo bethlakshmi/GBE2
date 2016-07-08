@@ -8,12 +8,12 @@ from tests.factories.gbe_factories import (
 )
 from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
+    clear_conferences,
     grant_privilege,
     is_login_page,
     login_as,
 )
 from tests.contexts import ClassContext
-from gbe.models import Conference
 
 
 class TestDeleteEvent(TestCase):
@@ -25,7 +25,7 @@ class TestDeleteEvent(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        Conference.objects.all().delete()
+        clear_conferences()
         self.context = ClassContext()
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",

@@ -42,7 +42,7 @@ class TestGetRoles(TestCase):
         '''
             Submitted an act, didn't make it to a show
         '''
-        act = ActFactory(conference=self.conference)
+        act = ActFactory(b_conference=self.conference)
         profile = act.performer.performer_profile
         result = profile.get_roles(self.conference)
         nt.assert_equal(len(result), 0)
@@ -51,9 +51,9 @@ class TestGetRoles(TestCase):
         '''
            has the role of performer from being booked in a show
         '''
-        act = ActFactory(conference=self.conference,
+        act = ActFactory(b_conference=self.conference,
                          accepted=3)
-        show = ShowFactory(conference=self.conference)
+        show = ShowFactory(e_conference=self.conference)
         booking = book_act_item_for_show(
             act,
             show)
@@ -70,7 +70,7 @@ class TestGetRoles(TestCase):
             persona,
             "Teacher")
         result = persona.performer_profile.get_roles(
-            booking.event.eventitem.conference)
+            booking.event.eventitem.e_conference)
         nt.assert_equal(result, ["Teacher"])
 
     def test_overcommitment_addict(self):
@@ -79,21 +79,21 @@ class TestGetRoles(TestCase):
         '''
         persona = PersonaFactory()
         this_class = GenericEventFactory(
-            conference=self.conference)
+            e_conference=self.conference)
         book_worker_item_for_role(
             persona,
             "Teacher",
             this_class)
         event = GenericEventFactory(
-            conference=self.conference)
+            e_conference=self.conference)
         book_worker_item_for_role(
             persona.performer_profile,
             "Staff Lead",
             event)
-        act = ActFactory(conference=self.conference,
+        act = ActFactory(b_conference=self.conference,
                          accepted=3,
                          performer=persona)
-        show = ShowFactory(conference=self.conference)
+        show = ShowFactory(e_conference=self.conference)
         booking = book_act_item_for_show(act, show)
 
         result = persona.performer_profile.get_roles(

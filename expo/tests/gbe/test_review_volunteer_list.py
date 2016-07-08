@@ -75,7 +75,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -99,7 +99,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(coord_profile, self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -118,7 +118,7 @@ class TestReviewVolunteerList(TestCase):
         ''' when a volunteer is already booked somewhere, it should show up'''
 
         current_opportunity = GenericEventFactory(
-            conference=self.volunteer.conference,
+            e_conference=self.volunteer.b_conference,
             volunteer_category='VA1',
             type='Volunteer')
         current_opportunity.save()
@@ -138,7 +138,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -165,7 +165,7 @@ class TestReviewVolunteerList(TestCase):
             status='completed'
             )
         past_opportunity = GenericEventFactory(
-            conference=past_conference,
+            e_conference=past_conference,
             volunteer_category='VA1',
             type='Volunteer')
         past_opportunity.save()
@@ -185,7 +185,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -200,7 +200,7 @@ class TestReviewVolunteerList(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
         nt.assert_equal(response.status_code, 403)
 
     def test_review_volunteer_no_profile(self):
@@ -210,5 +210,5 @@ class TestReviewVolunteerList(TestCase):
         login_as(UserFactory(), self)
         response = self.client.get(
             url,
-            {'conf_slug': self.volunteer.conference.conference_slug})
+            {'conf_slug': self.volunteer.b_conference.conference_slug})
         nt.assert_equal(response.status_code, 403)

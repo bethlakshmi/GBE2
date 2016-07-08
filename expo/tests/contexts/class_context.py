@@ -35,17 +35,13 @@ class ClassContext:
         self.conference = conference or ConferenceFactory()
         if not self.conference.conferenceday_set.exists():
             ConferenceDayFactory(conference=self.conference)
+
         self.days = self.conference.conferenceday_set.all()
         self.starttime = starttime or noon(self.days[0])
-        self.bid = bid or ClassFactory(conference=self.conference,
+        self.bid = bid or ClassFactory(b_conference=self.conference,
+                                       e_conference=self.conference,
                                        accepted=3,
                                        teacher=self.teacher)
-        self.bid.title = unique_string("Class Title %s")
-        self.bid.eventitem_ptr.title = self.bid.title
-        self.bid.biddable_ptr.title = self.bid.title
-        self.bid.save()
-        self.bid.eventitem_ptr.save()
-        self.bid.biddable_ptr.save()
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,

@@ -20,8 +20,6 @@ from tests.functions.gbe_functions import (
     location,
 )
 
-import mock
-
 
 class TestCreateVendor(TestCase):
     '''Tests for create_vendor view'''
@@ -34,14 +32,14 @@ class TestCreateVendor(TestCase):
 
     def get_form(self, submit=False, invalid=False):
         form = {'profile': 1,
-                'title': 'title here',
-                'description': 'description here',
+                'b_title': 'title here',
+                'b_description': 'description here',
                 'physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['description'])
+            del(form['b_description'])
         return form
 
     def test_create_vendor_no_profile(self):

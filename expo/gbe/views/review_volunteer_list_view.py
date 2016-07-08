@@ -31,7 +31,7 @@ def ReviewVolunteerListView(request):
     header = Volunteer().bid_review_header
     volunteers = Volunteer.objects.filter(
         submitted=True).filter(
-            conference=conference).order_by('accepted')
+            b_conference=conference).order_by('accepted')
     review_query = BidEvaluation.objects.filter(
         bid=volunteers).select_related(
         'evaluator'

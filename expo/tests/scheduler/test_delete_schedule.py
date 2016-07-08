@@ -54,7 +54,7 @@ class TestDeleteSchedule(TestCase):
 
     def test_good_user_get_success(self):
         pk = self.context.sched_event.pk
-        title = self.context.bid.title
+        title = self.context.bid.b_title
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
         self.assertRedirects(response,
@@ -63,7 +63,7 @@ class TestDeleteSchedule(TestCase):
                                      args=["Class"]))
         self.assertNotIn('<ul class="errorlist">', response.content)
         self.assertIn('Events Information', response.content)
-        self.assertIn(self.context.bid.title, response.content)
+        self.assertIn(self.context.bid.b_title, response.content)
         self.assertNotIn(
             "<a href='" + self.url + "'>Unschedule</a>'",
             response.content)

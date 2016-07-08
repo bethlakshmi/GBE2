@@ -1,1366 +1,1366 @@
 [
 {
-    "pk": 1, 
-    "model": "gbe.conference", 
+    "pk": 1,
+    "model": "gbe.conference",
     "fields": {
-        "status": "completed", 
-        "conference_slug": "GBE2015", 
-        "accepting_bids": false, 
+        "status": "completed",
+        "conference_slug": "GBE2015",
+        "accepting_bids": false,
         "conference_name": "The Great Burlesque Expo 9"
     }
 },
 {
-    "pk": 2, 
-    "model": "gbe.conference", 
+    "pk": 2,
+    "model": "gbe.conference",
     "fields": {
-        "status": "ongoing", 
-        "conference_slug": "GBE2016", 
-        "accepting_bids": false, 
+        "status": "ongoing",
+        "conference_slug": "GBE2016",
+        "accepting_bids": false,
         "conference_name": "The Great Burlesque Expo 10"
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.conference", 
+    "pk": 3,
+    "model": "gbe.conference",
     "fields": {
-        "status": "upcoming", 
-        "conference_slug": "GBE2017", 
-        "accepting_bids": true, 
+        "status": "upcoming",
+        "conference_slug": "GBE2017",
+        "accepting_bids": true,
         "conference_name": "The Great Burlesque Expo 11"
     }
 },
 {
-    "pk": 1, 
-    "model": "gbe.biddable", 
+    "pk": 1,
+    "model": "gbe.biddable",
     "fields": {
-        "conference": 3, 
-        "description": "Class", 
-        "title": "Class 2017", 
-        "created_at": "2015-09-05T21:24:49.398Z", 
-        "updated_at": "2015-09-05T21:25:54.895Z", 
-        "submitted": true, 
+        "b_conference": 3,
+        "b_description": "Class",
+        "b_title": "Class 2017",
+        "created_at": "2015-09-05T21:24:49.398Z",
+        "updated_at": "2015-09-05T21:25:54.895Z",
+        "submitted": true,
         "accepted": 0
     }
 },
-{
-    "pk": 2, 
-    "model": "gbe.biddable", 
-    "fields": {
-        "conference": 2, 
-        "description": "Class", 
-        "title": "Class 2016", 
-        "created_at": "2015-09-05T21:26:35.059Z", 
-        "updated_at": "2015-09-05T21:26:35.059Z", 
-        "submitted": true, 
+    {
+	"pk": 2,
+	"model": "gbe.biddable",
+	"fields": {
+            "b_conference": 2,
+            "b_description": "Class",
+            "b_title": "Class 2016",
+            "created_at": "2015-09-05T21:26:35.059Z",
+            "updated_at": "2015-09-05T21:26:35.059Z",
+            "submitted": true,
+            "accepted": 3
+	}
+    },
+    {
+	"pk": 3,
+	"model": "gbe.biddable",
+	"fields": {
+        "b_conference": 1,
+        "b_description": "Class",
+        "b_title": "Class 2015",
+        "created_at": "2015-09-05T21:26:57.115Z",
+        "updated_at": "2015-09-05T21:26:57.115Z",
+        "submitted": true,
         "accepted": 3
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.biddable", 
+    "pk": 5,
+    "model": "gbe.performer",
     "fields": {
-        "conference": 1, 
-        "description": "Class", 
-        "title": "Class 2015", 
-        "created_at": "2015-09-05T21:26:57.115Z", 
-        "updated_at": "2015-09-05T21:26:57.115Z", 
-        "submitted": true, 
-        "accepted": 3
-    }
-},
-{
-    "pk": 5, 
-    "model": "gbe.performer", 
-    "fields": {
-        "bio": "Betty Blaize is a test persona", 
-        "name": "Betty Blaize", 
-        "promo_image": "", 
-        "experience": 10, 
-        "contact": 1, 
-        "awards": "", 
-        "festivals": "", 
+        "bio": "Betty Blaize is a test persona",
+        "name": "Betty Blaize",
+        "promo_image": "",
+        "experience": 10,
+        "contact": 1,
+        "awards": "",
+        "festivals": "",
         "homepage": "http://www.bostonbeautease.com/"
     }
 },
 {
-    "pk": 5, 
-    "model": "gbe.persona", 
+    "pk": 5,
+    "model": "gbe.persona",
     "fields": {
         "performer_profile": 1
     }
 },
 {
-    "pk": 1, 
-    "model": "gbe.event", 
+    "pk": 1,
+    "model": "gbe.event",
     "fields": {
-        "conference": 1, 
-        "description": "The Main Event 2015", 
-        "title": "The Main Event 2015", 
-        "notes": "", 
-        "eventitem_ptr": 1, 
-        "duration": "120:00", 
+        "e_conference": 1,
+        "e_description": "The Main Event 2015",
+        "e_title": "The Main Event 2015",
+        "notes": "",
+        "eventitem_ptr": 1,
+        "duration": "120:00",
         "blurb": ""
     }
 },
 {
-    "pk": 2, 
-    "model": "gbe.event", 
+    "pk": 2,
+    "model": "gbe.event",
     "fields": {
-        "conference": 2, 
-        "description": "The Main Event 2016", 
-        "title": "The Main Event 2016", 
-        "notes": "", 
-        "eventitem_ptr": 2, 
-        "duration": "120:00", 
+        "e_conference": 2,
+        "e_description": "The Main Event 2016",
+        "e_title": "The Main Event 2016",
+        "notes": "",
+        "eventitem_ptr": 2,
+        "duration": "120:00",
         "blurb": ""
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.event", 
+    "pk": 3,
+    "model": "gbe.event",
     "fields": {
-        "conference": 3, 
-        "description": "The Main Event 2017", 
-        "title": "The Main Event 2017", 
-        "notes": "", 
-        "eventitem_ptr": 3, 
-        "duration": "120:00", 
+        "e_conference": 3,
+        "e_description": "The Main Event 2017",
+        "e_title": "The Main Event 2017",
+        "notes": "",
+        "eventitem_ptr": 3,
+        "duration": "120:00",
         "blurb": ""
     }
 },
 {
-    "pk": 4, 
-    "model": "gbe.event", 
+    "pk": 4,
+    "model": "gbe.event",
     "fields": {
-        "conference": 3, 
-        "description": "Master Class", 
-        "title": "Master Class 2017", 
-        "notes": "", 
-        "eventitem_ptr": 4, 
-        "duration": "90:00", 
+        "e_conference": 3,
+        "e_description": "Master Class",
+        "e_title": "Master Class 2017",
+        "notes": "",
+        "eventitem_ptr": 4,
+        "duration": "90:00",
         "blurb": ""
     }
 },
 {
-    "pk": 5, 
-    "model": "gbe.event", 
+    "pk": 5,
+    "model": "gbe.event",
     "fields": {
-        "conference": 2, 
-        "description": "Master Class", 
-        "title": "Master Class 2016", 
-        "notes": "", 
-        "eventitem_ptr": 5, 
-        "duration": "90:00", 
+        "e_conference": 2,
+        "e_description": "Master Class",
+        "e_title": "Master Class 2016",
+        "notes": "",
+        "eventitem_ptr": 5,
+        "duration": "90:00",
         "blurb": ""
     }
 },
 {
-    "pk": 6, 
-    "model": "gbe.event", 
+    "pk": 6,
+    "model": "gbe.event",
     "fields": {
-        "conference": 1, 
-        "description": "Master Class", 
-        "title": "Master Class 2015", 
-        "notes": "", 
-        "eventitem_ptr": 6, 
-        "duration": "90:00", 
+        "e_conference": 1,
+        "e_description": "Master Class",
+        "e_title": "Master Class 2015",
+        "notes": "",
+        "eventitem_ptr": 6,
+        "duration": "90:00",
         "blurb": ""
     }
 },
 {
-    "pk": 7, 
-    "model": "gbe.event", 
+    "pk": 7,
+    "model": "gbe.event",
     "fields": {
-        "conference": 1, 
-        "description": "Pool Party", 
-        "title": "Pool Party 2015", 
-        "notes": "", 
-        "eventitem_ptr": 7, 
-        "duration": "180:00", 
+        "e_conference": 1,
+        "e_description": "Pool Party",
+        "e_title": "Pool Party 2015",
+        "notes": "",
+        "eventitem_ptr": 7,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 8, 
-    "model": "gbe.event", 
+    "pk": 8,
+    "model": "gbe.event",
     "fields": {
-        "conference": 2, 
-        "description": "Pool Party", 
-        "title": "Pool Party 2016", 
-        "notes": "", 
-        "eventitem_ptr": 8, 
-        "duration": "180:00", 
+        "e_conference": 2,
+        "e_description": "Pool Party",
+        "e_title": "Pool Party 2016",
+        "notes": "",
+        "eventitem_ptr": 8,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 9, 
-    "model": "gbe.event", 
+    "pk": 9,
+    "model": "gbe.event",
     "fields": {
-        "conference": 3, 
-        "description": "Pool Party", 
-        "title": "Pool Party 2017", 
-        "notes": "", 
-        "eventitem_ptr": 9, 
-        "duration": "180:00", 
+        "e_conference": 3,
+        "e_description": "Pool Party",
+        "e_title": "Pool Party 2017",
+        "notes": "",
+        "eventitem_ptr": 9,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 10, 
-    "model": "gbe.event", 
+    "pk": 10,
+    "model": "gbe.event",
     "fields": {
-        "conference": 1, 
-        "description": "Volunteer", 
-        "title": "Volunteer 2015", 
-        "notes": "", 
-        "eventitem_ptr": 10, 
-        "duration": "180:00", 
+        "e_conference": 1,
+        "e_description": "Volunteer",
+        "e_title": "Volunteer 2015",
+        "notes": "",
+        "eventitem_ptr": 10,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 11, 
-    "model": "gbe.event", 
+    "pk": 11,
+    "model": "gbe.event",
     "fields": {
-        "conference": 2, 
-        "description": "Volunteer", 
-        "title": "Volunteer 2016", 
-        "notes": "", 
-        "eventitem_ptr": 11, 
-        "duration": "180:00", 
+        "e_conference": 2,
+        "e_description": "Volunteer",
+        "e_title": "Volunteer 2016",
+        "notes": "",
+        "eventitem_ptr": 11,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 12, 
-    "model": "gbe.event", 
+    "pk": 12,
+    "model": "gbe.event",
     "fields": {
-        "conference": 3, 
-        "description": "Volunteer", 
-        "title": "Volunteer 2017", 
-        "notes": "", 
-        "eventitem_ptr": 12, 
-        "duration": "180:00", 
+        "e_conference": 3,
+        "e_description": "Volunteer",
+        "e_title": "Volunteer 2017",
+        "notes": "",
+        "eventitem_ptr": 12,
+        "duration": "180:00",
         "blurb": ""
     }
 },
 {
-    "pk": 13, 
-    "model": "gbe.event", 
+    "pk": 13,
+    "model": "gbe.event",
     "fields": {
-        "conference": 3, 
-        "description": "Class", 
-        "title": "Class 2017", 
-        "notes": "", 
-        "eventitem_ptr": 13, 
-        "duration": "60:00", 
+        "e_conference": 3,
+        "e_description": "Class",
+        "e_title": "Class 2017",
+        "notes": "",
+        "eventitem_ptr": 13,
+        "duration": "60:00",
         "blurb": ""
     }
 },
 {
-    "pk": 14, 
-    "model": "gbe.event", 
+    "pk": 14,
+    "model": "gbe.event",
     "fields": {
-        "conference": 2, 
-        "description": "Class", 
-        "title": "Class 2016", 
-        "notes": "", 
-        "eventitem_ptr": 14, 
-        "duration": "60:00", 
+        "e_conference": 2,
+        "e_description": "Class",
+        "e_title": "Class 2016",
+        "notes": "",
+        "eventitem_ptr": 14,
+        "duration": "60:00",
         "blurb": ""
     }
 },
 {
-    "pk": 15, 
-    "model": "gbe.event", 
+    "pk": 15,
+    "model": "gbe.event",
     "fields": {
-        "conference": 1, 
-        "description": "Class", 
-        "title": "Class 2015", 
-        "notes": "", 
-        "eventitem_ptr": 15, 
-        "duration": "60:00", 
+        "e_conference": 1,
+        "e_description": "Class",
+        "e_title": "Class 2015",
+        "notes": "",
+        "eventitem_ptr": 15,
+        "duration": "60:00",
         "blurb": ""
     }
 },
 {
-    "pk": 1, 
-    "model": "gbe.show", 
+    "pk": 1,
+    "model": "gbe.show",
     "fields": {
-        "acts": [], 
+        "acts": [],
         "mc": []
     }
 },
 {
-    "pk": 2, 
-    "model": "gbe.show", 
+    "pk": 2,
+    "model": "gbe.show",
     "fields": {
-        "acts": [], 
+        "acts": [],
         "mc": []
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.show", 
+    "pk": 3,
+    "model": "gbe.show",
     "fields": {
-        "acts": [], 
+        "acts": [],
         "mc": []
     }
 },
 {
-    "pk": 6, 
-    "model": "gbe.genericevent", 
+    "pk": 6,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Master"
     }
 },
 {
-    "pk": 5, 
-    "model": "gbe.genericevent", 
+    "pk": 5,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Master"
     }
 },
 {
-    "pk": 4, 
-    "model": "gbe.genericevent", 
+    "pk": 4,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Master"
     }
 },
 {
-    "pk": 7, 
-    "model": "gbe.genericevent", 
+    "pk": 7,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Special"
     }
 },
 {
-    "pk": 8, 
-    "model": "gbe.genericevent", 
+    "pk": 8,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Special"
     }
 },
 {
-    "pk": 9, 
-    "model": "gbe.genericevent", 
+    "pk": 9,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Special"
     }
 },
 {
-    "pk": 10, 
-    "model": "gbe.genericevent", 
+    "pk": 10,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Volunteer"
     }
 },
 {
-    "pk": 11, 
-    "model": "gbe.genericevent", 
+    "pk": 11,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Volunteer"
     }
 },
 {
-    "pk": 12, 
-    "model": "gbe.genericevent", 
+    "pk": 12,
+    "model": "gbe.genericevent",
     "fields": {
-        "volunteer_category": "", 
+        "volunteer_category": "",
         "type": "Volunteer"
     }
 },
 {
-    "pk": 1, 
-    "model": "gbe.class", 
+    "pk": 1,
+    "model": "gbe.class",
     "fields": {
-        "minimum_enrollment": 1, 
-        "fee": 0, 
-        "multiple_run": "No", 
-        "space_needs": "", 
-        "length_minutes": 60, 
-        "run_before": "", 
-        "maximum_enrollment": 20, 
-        "schedule_constraints": "[u'0']", 
-        "other_teachers": "", 
-        "physical_restrictions": "", 
-        "organization": "", 
-        "event_ptr": 13, 
-        "type": "Lecture", 
-        "teacher": 5, 
+        "minimum_enrollment": 1,
+        "fee": 0,
+        "multiple_run": "No",
+        "space_needs": "",
+        "length_minutes": 60,
+        "run_before": "",
+        "maximum_enrollment": 20,
+        "schedule_constraints": "[u'0']",
+        "other_teachers": "",
+        "physical_restrictions": "",
+        "organization": "",
+        "event_ptr": 13,
+        "type": "Lecture",
+        "teacher": 5,
         "history": ""
     }
 },
 {
-    "pk": 2, 
-    "model": "gbe.class", 
+    "pk": 2,
+    "model": "gbe.class",
     "fields": {
-        "minimum_enrollment": 1, 
-        "fee": 0, 
-        "multiple_run": "No", 
-        "space_needs": "", 
-        "length_minutes": 60, 
-        "run_before": "", 
-        "maximum_enrollment": 20, 
-        "schedule_constraints": "", 
-        "other_teachers": "", 
-        "physical_restrictions": "", 
-        "organization": "", 
-        "event_ptr": 14, 
-        "type": "Lecture", 
-        "teacher": 5, 
+        "minimum_enrollment": 1,
+        "fee": 0,
+        "multiple_run": "No",
+        "space_needs": "",
+        "length_minutes": 60,
+        "run_before": "",
+        "maximum_enrollment": 20,
+        "schedule_constraints": "",
+        "other_teachers": "",
+        "physical_restrictions": "",
+        "organization": "",
+        "event_ptr": 14,
+        "type": "Lecture",
+        "teacher": 5,
         "history": ""
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.class", 
+    "pk": 3,
+    "model": "gbe.class",
     "fields": {
-        "minimum_enrollment": 1, 
-        "fee": 0, 
-        "multiple_run": "No", 
-        "space_needs": "", 
-        "length_minutes": 60, 
-        "run_before": "", 
-        "maximum_enrollment": 20, 
-        "schedule_constraints": "", 
-        "other_teachers": "", 
-        "physical_restrictions": "", 
-        "organization": "", 
-        "event_ptr": 15, 
-        "type": "Lecture", 
-        "teacher": 5, 
+        "minimum_enrollment": 1,
+        "fee": 0,
+        "multiple_run": "No",
+        "space_needs": "",
+        "length_minutes": 60,
+        "run_before": "",
+        "maximum_enrollment": 20,
+        "schedule_constraints": "",
+        "other_teachers": "",
+        "physical_restrictions": "",
+        "organization": "",
+        "event_ptr": 15,
+        "type": "Lecture",
+        "teacher": 5,
         "history": ""
     }
 },
 {
-    "pk": 1, 
-    "model": "gbe.profilepreferences", 
+    "pk": 1,
+    "model": "gbe.profilepreferences",
     "fields": {
-        "profile": 1, 
-        "inform_about": "[]", 
-        "show_hotel_infobox": true, 
+        "profile": 1,
+        "inform_about": "[]",
+        "show_hotel_infobox": true,
         "in_hotel": ""
     }
 },
 {
-    "pk": 1, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 1,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 3, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": true, 
-        "linked_events": [], 
-        "ticket_style": "Print 4 of each vendor", 
-        "bpt_event_id": "111111", 
+        "conference": 3,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": true,
+        "linked_events": [],
+        "ticket_style": "Print 4 of each vendor",
+        "bpt_event_id": "111111",
         "include_conference": false
     }
 },
 {
-    "pk": 2, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 2,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 3, 
-        "act_submission_event": true, 
-        "badgeable": true, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "wristband", 
-        "bpt_event_id": "222222", 
+        "conference": 3,
+        "act_submission_event": true,
+        "badgeable": true,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "wristband",
+        "bpt_event_id": "222222",
         "include_conference": false
     }
 },
 {
-    "pk": 3, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 3,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 3, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": true, 
-        "include_most": true, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "Whole Shebang Badge", 
-        "bpt_event_id": "333333", 
+        "conference": 3,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": true,
+        "include_most": true,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "Whole Shebang Badge",
+        "bpt_event_id": "333333",
         "include_conference": false
     }
 },
 {
-    "pk": 4, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 4,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 2, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": true, 
-        "include_most": true, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "Whole Shebang Badge", 
-        "bpt_event_id": "333334", 
+        "conference": 2,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": true,
+        "include_most": true,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "Whole Shebang Badge",
+        "bpt_event_id": "333334",
         "include_conference": false
     }
 },
 {
-    "pk": 5, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 5,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 1, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": true, 
-        "include_most": true, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "Whole Shebang Badge", 
-        "bpt_event_id": "333335", 
+        "conference": 1,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": true,
+        "include_most": true,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "Whole Shebang Badge",
+        "bpt_event_id": "333335",
         "include_conference": false
     }
 },
 {
-    "pk": 6, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 6,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 3, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": true, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "The Scholar", 
-        "bpt_event_id": "444444", 
+        "conference": 3,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": true,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "The Scholar",
+        "bpt_event_id": "444444",
         "include_conference": true
     }
 },
 {
-    "pk": 7, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 7,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 2, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": true, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "The Scholar", 
-        "bpt_event_id": "444445", 
+        "conference": 2,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": true,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "The Scholar",
+        "bpt_event_id": "444445",
         "include_conference": true
     }
 },
 {
-    "pk": 8, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 8,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 1, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": true, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "The Scholar", 
-        "bpt_event_id": "444446", 
+        "conference": 1,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": true,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "The Scholar",
+        "bpt_event_id": "444446",
         "include_conference": true
     }
 },
 {
-    "pk": 9, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 9,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 2, 
-        "act_submission_event": false, 
-        "badgeable": true, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": true, 
-        "linked_events": [], 
-        "ticket_style": "Print 4 of each vendors", 
-        "bpt_event_id": "111112", 
+        "conference": 2,
+        "act_submission_event": false,
+        "badgeable": true,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": true,
+        "linked_events": [],
+        "ticket_style": "Print 4 of each vendors",
+        "bpt_event_id": "111112",
         "include_conference": false
     }
 },
 {
-    "pk": 10, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 10,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 1, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": true, 
-        "linked_events": [], 
-        "ticket_style": "Print 4 of each vendors", 
-        "bpt_event_id": "111113", 
+        "conference": 1,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": true,
+        "linked_events": [],
+        "ticket_style": "Print 4 of each vendors",
+        "bpt_event_id": "111113",
         "include_conference": false
     }
 },
 {
-    "pk": 11, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 11,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 2, 
-        "act_submission_event": true, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "wristband", 
-        "bpt_event_id": "222223", 
+        "conference": 2,
+        "act_submission_event": true,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "wristband",
+        "bpt_event_id": "222223",
         "include_conference": false
     }
 },
 {
-    "pk": 12, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 12,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 1, 
-        "act_submission_event": true, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
-        "linked_events": [], 
-        "ticket_style": "wristband", 
-        "bpt_event_id": "222224", 
+        "conference": 1,
+        "act_submission_event": true,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
+        "linked_events": [],
+        "ticket_style": "wristband",
+        "bpt_event_id": "222224",
         "include_conference": false
     }
 },
 {
-    "pk": 13, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 13,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 1, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
+        "conference": 1,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
         "linked_events": [
             6
-        ], 
-        "ticket_style": "print agenda and give to teacher by 9:00 AM", 
-        "bpt_event_id": "555555", 
+        ],
+        "ticket_style": "print agenda and give to teacher by 9:00 AM",
+        "bpt_event_id": "555555",
         "include_conference": false
     }
 },
 {
-    "pk": 14, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 14,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 2, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
+        "conference": 2,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
         "linked_events": [
             5
-        ], 
-        "ticket_style": "print agenda and give to teacher by 9:00 AM", 
-        "bpt_event_id": "555556", 
+        ],
+        "ticket_style": "print agenda and give to teacher by 9:00 AM",
+        "bpt_event_id": "555556",
         "include_conference": false
     }
 },
 {
-    "pk": 15, 
-    "model": "ticketing.brownpaperevents", 
+    "pk": 15,
+    "model": "ticketing.brownpaperevents",
     "fields": {
-        "conference": 3, 
-        "act_submission_event": false, 
-        "badgeable": false, 
-        "primary": false, 
-        "include_most": false, 
-        "vendor_submission_event": false, 
+        "conference": 3,
+        "act_submission_event": false,
+        "badgeable": false,
+        "primary": false,
+        "include_most": false,
+        "vendor_submission_event": false,
         "linked_events": [
             4
-        ], 
-        "ticket_style": "print agenda and give to teacher by 9:00 AM", 
-        "bpt_event_id": "555557", 
+        ],
+        "ticket_style": "print agenda and give to teacher by 9:00 AM",
+        "bpt_event_id": "555557",
         "include_conference": false
     }
 },
 {
-    "pk": 1, 
-    "model": "ticketing.ticketitem", 
+    "pk": 1,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "The Whole Shebang 2016", 
-        "title": "The Whole Shebang 2016", 
-        "datestamp": "2015-09-05T21:42:36.297Z", 
-        "cost": "1", 
-        "ticket_id": "333334-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "The Whole Shebang 2016",
+        "title": "The Whole Shebang 2016",
+        "datestamp": "2015-09-05T21:42:36.297Z",
+        "cost": "1",
+        "ticket_id": "333334-1",
+        "active": true,
         "bpt_event": 4
     }
 },
 {
-    "pk": 2, 
-    "model": "ticketing.ticketitem", 
+    "pk": 2,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "The Whole Shebang 2016", 
-        "title": "The Whole Shebang 2016 - inactive", 
-        "datestamp": "2015-09-05T21:42:46.660Z", 
-        "cost": "1", 
-        "ticket_id": "333334-0", 
-        "active": false, 
+        "modified_by": "bethlakshmi",
+        "description": "The Whole Shebang 2016",
+        "title": "The Whole Shebang 2016 - inactive",
+        "datestamp": "2015-09-05T21:42:46.660Z",
+        "cost": "1",
+        "ticket_id": "333334-0",
+        "active": false,
         "bpt_event": 4
     }
 },
 {
-    "pk": 3, 
-    "model": "ticketing.ticketitem", 
+    "pk": 3,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "The Scholar 2016", 
-        "title": "The Scholar 2016", 
-        "datestamp": "2015-09-05T21:42:55.894Z", 
-        "cost": "1", 
-        "ticket_id": "444445-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "The Scholar 2016",
+        "title": "The Scholar 2016",
+        "datestamp": "2015-09-05T21:42:55.894Z",
+        "cost": "1",
+        "ticket_id": "444445-1",
+        "active": true,
         "bpt_event": 7
     }
 },
 {
-    "pk": 4, 
-    "model": "ticketing.ticketitem", 
+    "pk": 4,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "The Scholar 2017", 
-        "title": "The Scholar 2016", 
-        "datestamp": "2015-09-05T22:15:34.996Z", 
-        "cost": "1", 
-        "ticket_id": "444445-0", 
-        "active": false, 
+        "modified_by": "bethlakshmi",
+        "description": "The Scholar 2017",
+        "title": "The Scholar 2016",
+        "datestamp": "2015-09-05T22:15:34.996Z",
+        "cost": "1",
+        "ticket_id": "444445-0",
+        "active": false,
         "bpt_event": 7
     }
 },
 {
-    "pk": 5, 
-    "model": "ticketing.ticketitem", 
+    "pk": 5,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "Act 2016", 
-        "title": "Act 2016", 
-        "datestamp": "2015-09-05T21:43:39.084Z", 
-        "cost": "1", 
-        "ticket_id": "222223", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "Act 2016",
+        "title": "Act 2016",
+        "datestamp": "2015-09-05T21:43:39.084Z",
+        "cost": "1",
+        "ticket_id": "222223",
+        "active": true,
         "bpt_event": 11
     }
 },
 {
-    "pk": 6, 
-    "model": "ticketing.ticketitem", 
+    "pk": 6,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "Vendor 2016", 
-        "title": "Vendor 2016", 
-        "datestamp": "2015-09-05T21:43:27.205Z", 
-        "cost": "1", 
-        "ticket_id": "111112", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "Vendor 2016",
+        "title": "Vendor 2016",
+        "datestamp": "2015-09-05T21:43:27.205Z",
+        "cost": "1",
+        "ticket_id": "111112",
+        "active": true,
         "bpt_event": 9
     }
 },
 {
-    "pk": 7, 
-    "model": "ticketing.ticketitem", 
+    "pk": 7,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "Master Class 2016", 
-        "title": "Master Class 2016", 
-        "datestamp": "2015-09-05T21:45:32.915Z", 
-        "cost": "1", 
-        "ticket_id": "555556-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "Master Class 2016",
+        "title": "Master Class 2016",
+        "datestamp": "2015-09-05T21:45:32.915Z",
+        "cost": "1",
+        "ticket_id": "555556-1",
+        "active": true,
         "bpt_event": 14
     }
 },
 {
-    "pk": 8, 
-    "model": "ticketing.ticketitem", 
+    "pk": 8,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "Unit Test", 
-        "description": "The Whole Shebang 2015", 
-        "title": "The Whole Shebang 2015", 
-        "datestamp": "2015-09-05T22:04:07.647Z", 
-        "cost": "1", 
-        "ticket_id": "333335-1", 
-        "active": true, 
+        "modified_by": "Unit Test",
+        "description": "The Whole Shebang 2015",
+        "title": "The Whole Shebang 2015",
+        "datestamp": "2015-09-05T22:04:07.647Z",
+        "cost": "1",
+        "ticket_id": "333335-1",
+        "active": true,
         "bpt_event": 5
     }
 },
 {
-    "pk": 9, 
-    "model": "ticketing.ticketitem", 
+    "pk": 9,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "444446", 
-        "title": "The Scholar 2015", 
-        "datestamp": "2015-09-05T22:08:16.409Z", 
-        "cost": "1", 
-        "ticket_id": "444446-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "444446",
+        "title": "The Scholar 2015",
+        "datestamp": "2015-09-05T22:08:16.409Z",
+        "cost": "1",
+        "ticket_id": "444446-1",
+        "active": true,
         "bpt_event": 8
     }
 },
 {
-    "pk": 10, 
-    "model": "ticketing.ticketitem", 
+    "pk": 10,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "111113", 
-        "title": "Vendor 2015", 
-        "datestamp": "2015-09-05T22:10:47.439Z", 
-        "cost": "1", 
-        "ticket_id": "111113", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "111113",
+        "title": "Vendor 2015",
+        "datestamp": "2015-09-05T22:10:47.439Z",
+        "cost": "1",
+        "ticket_id": "111113",
+        "active": true,
         "bpt_event": 10
     }
 },
 {
-    "pk": 11, 
-    "model": "ticketing.ticketitem", 
+    "pk": 11,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "222224", 
-        "title": "Act 2015", 
-        "datestamp": "2015-09-05T22:10:19.441Z", 
-        "cost": "1", 
-        "ticket_id": "222224", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "222224",
+        "title": "Act 2015",
+        "datestamp": "2015-09-05T22:10:19.441Z",
+        "cost": "1",
+        "ticket_id": "222224",
+        "active": true,
         "bpt_event": 12
     }
 },
 {
-    "pk": 12, 
-    "model": "ticketing.ticketitem", 
+    "pk": 12,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "555555", 
-        "title": "Master Class 2015", 
-        "datestamp": "2015-09-05T22:15:01.581Z", 
-        "cost": "1", 
-        "ticket_id": "555555-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "555555",
+        "title": "Master Class 2015",
+        "datestamp": "2015-09-05T22:15:01.581Z",
+        "cost": "1",
+        "ticket_id": "555555-1",
+        "active": true,
         "bpt_event": 13
     }
 },
 {
-    "pk": 13, 
-    "model": "ticketing.ticketitem", 
+    "pk": 13,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "111111-1", 
-        "title": "Vendor 2017", 
-        "datestamp": "2015-09-05T22:16:15.170Z", 
-        "cost": "1", 
-        "ticket_id": "111111-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "111111-1",
+        "title": "Vendor 2017",
+        "datestamp": "2015-09-05T22:16:15.170Z",
+        "cost": "1",
+        "ticket_id": "111111-1",
+        "active": true,
         "bpt_event": 1
     }
 },
 {
-    "pk": 14, 
-    "model": "ticketing.ticketitem", 
+    "pk": 14,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "222222-1", 
-        "title": "Act 2017", 
-        "datestamp": "2015-09-05T22:16:50.731Z", 
-        "cost": "1", 
-        "ticket_id": "222222-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "222222-1",
+        "title": "Act 2017",
+        "datestamp": "2015-09-05T22:16:50.731Z",
+        "cost": "1",
+        "ticket_id": "222222-1",
+        "active": true,
         "bpt_event": 2
     }
 },
 {
-    "pk": 15, 
-    "model": "ticketing.ticketitem", 
+    "pk": 15,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "333333", 
-        "title": "Whole Shebang 2017", 
-        "datestamp": "2015-09-05T22:17:31.121Z", 
-        "cost": "1", 
-        "ticket_id": "333333-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "333333",
+        "title": "Whole Shebang 2017",
+        "datestamp": "2015-09-05T22:17:31.121Z",
+        "cost": "1",
+        "ticket_id": "333333-1",
+        "active": true,
         "bpt_event": 3
     }
 },
 {
-    "pk": 16, 
-    "model": "ticketing.ticketitem", 
+    "pk": 16,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "444444", 
-        "title": "The Scholar 2017", 
-        "datestamp": "2015-09-05T22:18:09.641Z", 
-        "cost": "1", 
-        "ticket_id": "444444-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "444444",
+        "title": "The Scholar 2017",
+        "datestamp": "2015-09-05T22:18:09.641Z",
+        "cost": "1",
+        "ticket_id": "444444-1",
+        "active": true,
         "bpt_event": 6
     }
 },
 {
-    "pk": 17, 
-    "model": "ticketing.ticketitem", 
+    "pk": 17,
+    "model": "ticketing.ticketitem",
     "fields": {
-        "modified_by": "bethlakshmi", 
-        "description": "555557", 
-        "title": "Master Class 2017", 
-        "datestamp": "2015-09-05T22:18:48.919Z", 
-        "cost": "1", 
-        "ticket_id": "555557-1", 
-        "active": true, 
+        "modified_by": "bethlakshmi",
+        "description": "555557",
+        "title": "Master Class 2017",
+        "datestamp": "2015-09-05T22:18:48.919Z",
+        "cost": "1",
+        "ticket_id": "555557-1",
+        "active": true,
         "bpt_event": 15
     }
 },
 {
-    "pk": 1, 
-    "model": "ticketing.transaction", 
+    "pk": 1,
+    "model": "ticketing.transaction",
     "fields": {
-        "purchaser": 1, 
-        "ticket_item": 2, 
-        "reference": "reference", 
-        "payment_source": "credit card", 
-        "shipping_method": "electronic", 
-        "import_date": "2015-09-06T18:18:58.573Z", 
-        "amount": "1", 
-        "order_date": "2015-09-06T14:18:31Z", 
+        "purchaser": 1,
+        "ticket_item": 2,
+        "reference": "reference",
+        "payment_source": "credit card",
+        "shipping_method": "electronic",
+        "import_date": "2015-09-06T18:18:58.573Z",
+        "amount": "1",
+        "order_date": "2015-09-06T14:18:31Z",
         "order_notes": "pickup at desk"
     }
 },
 {
-    "pk": 2, 
-    "model": "ticketing.transaction", 
+    "pk": 2,
+    "model": "ticketing.transaction",
     "fields": {
-        "purchaser": 1, 
-        "ticket_item": 8, 
-        "reference": "reference", 
-        "payment_source": "credit card", 
-        "shipping_method": "electronic", 
-        "import_date": "2015-09-06T18:19:30.427Z", 
-        "amount": "1", 
-        "order_date": "2015-09-06T14:19:13Z", 
+        "purchaser": 1,
+        "ticket_item": 8,
+        "reference": "reference",
+        "payment_source": "credit card",
+        "shipping_method": "electronic",
+        "import_date": "2015-09-06T18:19:30.427Z",
+        "amount": "1",
+        "order_date": "2015-09-06T14:19:13Z",
         "order_notes": "pickup at desk"
     }
 },
 {
-    "pk": 3, 
-    "model": "ticketing.transaction", 
+    "pk": 3,
+    "model": "ticketing.transaction",
     "fields": {
-        "purchaser": 1, 
-        "ticket_item": 15, 
-        "reference": "reference", 
-        "payment_source": "credit card", 
-        "shipping_method": "electronic", 
-        "import_date": "2015-09-06T18:19:50.447Z", 
-        "amount": "1", 
-        "order_date": "2015-09-06T14:19:42Z", 
+        "purchaser": 1,
+        "ticket_item": 15,
+        "reference": "reference",
+        "payment_source": "credit card",
+        "shipping_method": "electronic",
+        "import_date": "2015-09-06T18:19:50.447Z",
+        "amount": "1",
+        "order_date": "2015-09-06T14:19:42Z",
         "order_notes": "asdf"
     }
 },
 {
-    "pk": 4, 
-    "model": "ticketing.transaction", 
+    "pk": 4,
+    "model": "ticketing.transaction",
     "fields": {
-        "purchaser": 1, 
-        "ticket_item": 5, 
-        "reference": "reference", 
-        "payment_source": "credit card", 
-        "shipping_method": "electronic", 
-        "import_date": "2015-09-06T18:20:47.590Z", 
-        "amount": "1", 
-        "order_date": "2015-09-06T14:19:13Z", 
+        "purchaser": 1,
+        "ticket_item": 5,
+        "reference": "reference",
+        "payment_source": "credit card",
+        "shipping_method": "electronic",
+        "import_date": "2015-09-06T18:20:47.590Z",
+        "amount": "1",
+        "order_date": "2015-09-06T14:19:13Z",
         "order_notes": "asdf"
     }
 },
 {
-    "pk": 5, 
-    "model": "ticketing.transaction", 
+    "pk": 5,
+    "model": "ticketing.transaction",
     "fields": {
-        "purchaser": 1, 
-        "ticket_item": 6, 
-        "reference": "reference", 
-        "payment_source": "credit card", 
-        "shipping_method": "electronic", 
-        "import_date": "2015-09-06T18:21:06.163Z", 
-        "amount": "1", 
-        "order_date": "2015-09-06T14:19:42Z", 
+        "purchaser": 1,
+        "ticket_item": 6,
+        "reference": "reference",
+        "payment_source": "credit card",
+        "shipping_method": "electronic",
+        "import_date": "2015-09-06T18:21:06.163Z",
+        "amount": "1",
+        "order_date": "2015-09-06T14:19:42Z",
         "order_notes": "asdf"
     }
 },
 {
-    "pk": 1, 
-    "model": "scheduler.resourceitem", 
+    "pk": 1,
+    "model": "scheduler.resourceitem",
     "fields": {}
 },
 {
-    "pk": 2, 
-    "model": "scheduler.resourceitem", 
+    "pk": 2,
+    "model": "scheduler.resourceitem",
     "fields": {}
 },
 {
-    "pk": 3, 
-    "model": "scheduler.resourceitem", 
+    "pk": 3,
+    "model": "scheduler.resourceitem",
     "fields": {}
 },
 {
-    "pk": 4, 
-    "model": "scheduler.resourceitem", 
+    "pk": 4,
+    "model": "scheduler.resourceitem",
     "fields": {}
 },
 {
-    "pk": 5, 
-    "model": "scheduler.resourceitem", 
+    "pk": 5,
+    "model": "scheduler.resourceitem",
     "fields": {}
 },
 {
-    "pk": 1, 
-    "model": "scheduler.workeritem", 
+    "pk": 1,
+    "model": "scheduler.workeritem",
     "fields": {}
 },
 {
-    "pk": 3, 
-    "model": "scheduler.workeritem", 
+    "pk": 3,
+    "model": "scheduler.workeritem",
     "fields": {}
 },
 {
-    "pk": 5, 
-    "model": "scheduler.workeritem", 
+    "pk": 5,
+    "model": "scheduler.workeritem",
     "fields": {}
 },
 {
-    "pk": 1, 
-    "model": "scheduler.eventitem", 
+    "pk": 1,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 2, 
-    "model": "scheduler.eventitem", 
+    "pk": 2,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 3, 
-    "model": "scheduler.eventitem", 
+    "pk": 3,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 4, 
-    "model": "scheduler.eventitem", 
+    "pk": 4,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 5, 
-    "model": "scheduler.eventitem", 
+    "pk": 5,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 6, 
-    "model": "scheduler.eventitem", 
+    "pk": 6,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 7, 
-    "model": "scheduler.eventitem", 
+    "pk": 7,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 8, 
-    "model": "scheduler.eventitem", 
+    "pk": 8,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 9, 
-    "model": "scheduler.eventitem", 
+    "pk": 9,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 10, 
-    "model": "scheduler.eventitem", 
+    "pk": 10,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 11, 
-    "model": "scheduler.eventitem", 
+    "pk": 11,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 12, 
-    "model": "scheduler.eventitem", 
+    "pk": 12,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 13, 
-    "model": "scheduler.eventitem", 
+    "pk": 13,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 14, 
-    "model": "scheduler.eventitem", 
+    "pk": 14,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 15, 
-    "model": "scheduler.eventitem", 
+    "pk": 15,
+    "model": "scheduler.eventitem",
     "fields": {
         "visible": true
     }
 },
 {
-    "pk": 1, 
-    "model": "auth.group", 
+    "pk": 1,
+    "model": "auth.group",
     "fields": {
-        "name": "Act Coordinator", 
+        "name": "Act Coordinator",
         "permissions": []
     }
 },
 {
-    "pk": 2, 
-    "model": "auth.group", 
+    "pk": 2,
+    "model": "auth.group",
     "fields": {
-        "name": "Act Reviewers", 
+        "name": "Act Reviewers",
         "permissions": []
     }
 },
 {
-    "pk": 3, 
-    "model": "auth.group", 
+    "pk": 3,
+    "model": "auth.group",
     "fields": {
-        "name": "Class Coordinator", 
+        "name": "Class Coordinator",
         "permissions": []
     }
 },
 {
-    "pk": 4, 
-    "model": "auth.group", 
+    "pk": 4,
+    "model": "auth.group",
     "fields": {
-        "name": "Class Reviewers", 
+        "name": "Class Reviewers",
         "permissions": []
     }
 },
 {
-    "pk": 5, 
-    "model": "auth.group", 
+    "pk": 5,
+    "model": "auth.group",
     "fields": {
-        "name": "Vendor Coordinator", 
+        "name": "Vendor Coordinator",
         "permissions": []
     }
 },
 {
-    "pk": 6, 
-    "model": "auth.group", 
+    "pk": 6,
+    "model": "auth.group",
     "fields": {
-        "name": "Vendor Reviewers", 
+        "name": "Vendor Reviewers",
         "permissions": []
     }
 },
 {
-    "pk": 7, 
-    "model": "auth.group", 
+    "pk": 7,
+    "model": "auth.group",
     "fields": {
-        "name": "Volunteer Coordinator", 
+        "name": "Volunteer Coordinator",
         "permissions": []
     }
 },
 {
-    "pk": 8, 
-    "model": "auth.group", 
+    "pk": 8,
+    "model": "auth.group",
     "fields": {
-        "name": "Volunteer Reviewers", 
+        "name": "Volunteer Reviewers",
         "permissions": []
     }
 },
 {
-    "pk": 9, 
-    "model": "auth.group", 
+    "pk": 9,
+    "model": "auth.group",
     "fields": {
-        "name": "Registrar", 
+        "name": "Registrar",
         "permissions": []
     }
 },
 {
-    "pk": 10, 
-    "model": "auth.group", 
+    "pk": 10,
+    "model": "auth.group",
     "fields": {
-        "name": "Scheduling Mavens", 
+        "name": "Scheduling Mavens",
         "permissions": []
     }
 },
 {
-    "pk": 11, 
-    "model": "auth.group", 
+    "pk": 11,
+    "model": "auth.group",
     "fields": {
-        "name": "Ticketing - Admin", 
+        "name": "Ticketing - Admin",
         "permissions": []
     }
 },
 {
-    "pk": 12, 
-    "model": "auth.group", 
+    "pk": 12,
+    "model": "auth.group",
     "fields": {
-        "name": "Ticketing - Transactions", 
+        "name": "Ticketing - Transactions",
         "permissions": []
     }
 },
 {
-    "pk": 13, 
-    "model": "auth.group", 
+    "pk": 13,
+    "model": "auth.group",
     "fields": {
-        "name": "Tech Crew", 
+        "name": "Tech Crew",
         "permissions": []
     }
 },
 {
-    "pk": 1, 
-    "model": "auth.user", 
+    "pk": 1,
+    "model": "auth.user",
     "fields": {
-        "username": "bethlakshmi", 
-        "first_name": "Betty", 
-        "last_name": "BlaizeAdmin", 
-        "is_active": true, 
-        "is_superuser": true, 
-        "is_staff": true, 
-        "last_login": "2015-09-05T21:04:17.079Z", 
+        "username": "bethlakshmi",
+        "first_name": "Betty",
+        "last_name": "BlaizeAdmin",
+        "is_active": true,
+        "is_superuser": true,
+        "is_staff": true,
+        "last_login": "2015-09-05T21:04:17.079Z",
         "groups": [
-            1, 
-            2, 
-            3, 
-            4, 
-            5, 
-            6, 
-            7, 
-            8, 
-            9, 
-            10, 
-            11, 
-            12, 
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
             13
-        ], 
-        "user_permissions": [], 
-        "password": "pbkdf2_sha256$12000$xS7YlRwTeOyR$pP9HfSL578EJvVxdSEisd4w61UY77bZM4zxfnAd4nVU=", 
-        "email": "bethlakshmi@gmail.com", 
+        ],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$xS7YlRwTeOyR$pP9HfSL578EJvVxdSEisd4w61UY77bZM4zxfnAd4nVU=",
+        "email": "bethlakshmi@gmail.com",
         "date_joined": "2015-09-05T20:37:57Z"
     }
 },
 {
-    "pk": 3, 
-    "model": "auth.user", 
+    "pk": 3,
+    "model": "auth.user",
     "fields": {
-        "username": "elcheapo", 
-        "first_name": "", 
-        "last_name": "", 
-        "is_active": true, 
-        "is_superuser": false, 
-        "is_staff": false, 
-        "last_login": "2015-09-06T18:44:47.698Z", 
-        "groups": [], 
-        "user_permissions": [], 
-        "password": "pbkdf2_sha256$12000$iv93GLfqiHzM$LjRSTxPoMbp1h2G1p2p4gqqPeDCXIsOaTpXi/eocW68=", 
-        "email": "", 
+        "username": "elcheapo",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-06T18:44:47.698Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$12000$iv93GLfqiHzM$LjRSTxPoMbp1h2G1p2p4gqqPeDCXIsOaTpXi/eocW68=",
+        "email": "",
         "date_joined": "2015-09-06T18:44:47.698Z"
     }
 },
 
 {
-    "pk": 1, 
-    "model": "gbe.profile", 
+    "pk": 1,
+    "model": "gbe.profile",
     "fields": {
-        "city": "", 
-        "purchase_email": "bethlakshmi@gmail.com", 
-        "display_name": "Betty BlaizeAdmin", 
-        "best_time": "Any", 
-        "address1": "", 
-        "address2": "", 
-        "how_heard": "[]", 
-        "phone": "111-222-3333", 
-        "state": "", 
-        "country": "", 
-        "user_object": 1, 
+        "city": "",
+        "purchase_email": "bethlakshmi@gmail.com",
+        "display_name": "Betty BlaizeAdmin",
+        "best_time": "Any",
+        "address1": "",
+        "address2": "",
+        "how_heard": "[]",
+        "phone": "111-222-3333",
+        "state": "",
+        "country": "",
+        "user_object": 1,
         "zip_code": ""
     }
 },
 {
-    "pk": 3, 
-    "model": "gbe.profile", 
+    "pk": 3,
+    "model": "gbe.profile",
     "fields": {
-        "city": "", 
-        "purchase_email": "cheapo@test.com", 
-        "display_name": "Cheap User", 
-        "best_time": "Any", 
-        "address1": "", 
-        "address2": "", 
-        "how_heard": "[]", 
-        "phone": "111-222-3333", 
-        "state": "", 
-        "country": "", 
-        "user_object": 3, 
+        "city": "",
+        "purchase_email": "cheapo@test.com",
+        "display_name": "Cheap User",
+        "best_time": "Any",
+        "address1": "",
+        "address2": "",
+        "how_heard": "[]",
+        "phone": "111-222-3333",
+        "state": "",
+        "country": "",
+        "user_object": 3,
         "zip_code": ""
     }
 },
 {
-    "pk": 1, 
-    "model": "ticketing.purchaser", 
+    "pk": 1,
+    "model": "ticketing.purchaser",
     "fields": {
-        "city": "Testville", 
-        "first_name": "Betty", 
-        "last_name": "Admin", 
-        "matched_to_user": 1, 
-        "zip": "12345", 
-        "country": "USA", 
-        "phone": "111-222-3333", 
-        "state": "UT", 
-        "address": "test address\r\n", 
+        "city": "Testville",
+        "first_name": "Betty",
+        "last_name": "Admin",
+        "matched_to_user": 1,
+        "zip": "12345",
+        "country": "USA",
+        "phone": "111-222-3333",
+        "state": "UT",
+        "address": "test address\r\n",
         "email": "bethlakshmi@gmail.com"
     }
 }

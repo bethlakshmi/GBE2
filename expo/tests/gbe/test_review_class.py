@@ -72,8 +72,8 @@ class TestReviewClass(TestCase):
 
     def test_review_class_past_conference(self):
         klass = ClassFactory()
-        klass.conference.status = 'completed'
-        klass.conference.save()
+        klass.b_conference.status = 'completed'
+        klass.b_conference.save()
         url = reverse(self.view_name, args=[klass.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)

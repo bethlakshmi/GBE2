@@ -11,7 +11,6 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import clear_conferences
 from tests.functions.scheduler_functions import noon
-from gbe.models import Conference
 from datetime import (
     date,
 )
@@ -45,8 +44,8 @@ class TestCalendarView(TestCase):
     def test_calendar_view_shows_current_conf_by_default(self):
         url = reverse('calendar_view', urlconf="scheduler.urls")
         response = self.client.get(url)
-        self.assertTrue(self.showcontext.show.title in response.content)
-        self.assertFalse(self.other_show.show.title in response.content)
+        self.assertTrue(self.showcontext.show.e_title in response.content)
+        self.assertFalse(self.other_show.show.e_title in response.content)
 
     def test_calendar_view_event_shows_all_events(self):
         url = reverse('calendar_view_day',
@@ -54,15 +53,15 @@ class TestCalendarView(TestCase):
                       kwargs={'event_type': 'All',
                               'day': 'Saturday'})
         response = self.client.get(url)
-        self.assertContains(response, self.showcontext.show.title)
-        self.assertFalse(self.other_show.show.title in response.content)
+        self.assertContains(response, self.showcontext.show.e_title)
+        self.assertFalse(self.other_show.show.e_title in response.content)
 
     def test_calendar_view_shows_requested_conference(self):
         url = reverse('calendar_view', urlconf="scheduler.urls")
         data = {'conf': self.other_conference.conference_slug}
         response = self.client.get(url, data=data)
-        self.assertFalse(self.showcontext.show.title in response.content)
-        self.assertTrue(self.other_show.show.title in response.content)
+        self.assertFalse(self.showcontext.show.e_title in response.content)
+        self.assertTrue(self.other_show.show.e_title in response.content)
 
     def test_no_conference_days(self):
         clear_conferences()
@@ -136,8 +135,8 @@ class TestCalendarView(TestCase):
                       kwargs={'event_type': 'Class',
                               'day': 'Saturday'})
         response = self.client.get(url)
-        self.assertTrue(self.classcontext.bid.title in response.content)
-        self.assertFalse(self.showcontext.show.title in response.content)
+        self.assertTrue(self.classcontext.bid.e_title in response.content)
+        self.assertFalse(self.showcontext.show.e_title in response.content)
         self.assertContains(response, str(self.classcontext.room))
         self.assertNotContains(response, str(classcontextSun.room))
 
@@ -149,5 +148,5 @@ class TestCalendarView(TestCase):
                       kwargs={'event_type': 'Movement',
                               'day': 'Saturday'})
         response = self.client.get(url)
-        self.assertTrue(self.classcontext.bid.title in response.content)
-        self.assertFalse(self.showcontext.show.title in response.content)
+        self.assertTrue(self.classcontext.bid.e_title in response.content)
+        self.assertFalse(self.showcontext.show.e_title in response.content)
