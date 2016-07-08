@@ -9,7 +9,6 @@ from django.core.validators import (
 )
 from django.contrib.auth.models import User
 from itertools import chain
-from django.db.models import Q
 from scheduler.models import (
     Schedulable,
     EventItem,
@@ -22,15 +21,14 @@ from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
 from datetime import timedelta
-from expomodelfields import DurationField
+from gbe.expomodelfields import DurationField
 from django.core.urlresolvers import reverse
 from scheduler.functions import (
     set_time_format,
     get_roles_from_scheduler
 )
 from model_utils.managers import InheritanceManager
-from duration import Duration
-import gbetext
+from gbe.duration import Duration
 import gbe
 import pytz
 
