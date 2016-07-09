@@ -71,6 +71,7 @@ class Conference(models.Model):
     class Meta:
         verbose_name = "conference"
         verbose_name_plural = "conferences"
+        app_label = "gbe"
 
 
 class Biddable(models.Model):
@@ -93,6 +94,7 @@ class Biddable(models.Model):
     class Meta:
         verbose_name = "biddable item"
         verbose_name_plural = "biddable items"
+        app_label = "gbe"
 
     def __unicode__(self):
         return self.title
@@ -424,6 +426,7 @@ class Profile(WorkerItem):
 
     class Meta:
         ordering = ['display_name']
+        app_label = "gbe"
 
 
 class Performer (WorkerItem):
@@ -496,6 +499,7 @@ class Performer (WorkerItem):
 
     class Meta:
         ordering = ['name']
+        app_label = "gbe"
 
 
 class Persona (Performer):
@@ -533,6 +537,7 @@ class Persona (Performer):
 
     class Meta:
         verbose_name_plural = 'personae'
+        app_label = "gbe"
 
 
 class Troupe(Performer):
@@ -565,6 +570,8 @@ class Troupe(Performer):
         '''
         alerts = super(Troupe, self).append_alerts()
         return alerts
+    class Meta:
+        app_label = "gbe"
 
 
 class Combo (Performer):
@@ -596,6 +603,8 @@ class Combo (Performer):
         '''
         alerts = super(Combo, self).append_alerts()
         return alerts
+    class Meta:
+        app_label = "gbe"
 
 
 ###################
@@ -662,6 +671,7 @@ class AudioInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'audio info'
+        app_label = "gbe"
 
 
 class LightingInfo (models.Model):
@@ -702,6 +712,7 @@ class LightingInfo (models.Model):
 
     class Meta:
         verbose_name_plural = 'lighting info'
+        app_label = "gbe"
 
 
 class StageInfo(models.Model):
@@ -761,6 +772,7 @@ class StageInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'stage info'
+        app_label = "gbe"
 
 
 class TechInfo(models.Model):
@@ -810,6 +822,7 @@ class TechInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'tech info'
+        app_label = "gbe"
 
 
 class CueInfo(models.Model):
@@ -864,6 +877,8 @@ class CueInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'cue info'
+        app_label = "gbe"
+
 
 #######
 # Act #
@@ -1075,6 +1090,9 @@ class Act (Biddable, ActItem):
     def __str__(self):
         return str(self.performer) + ": "+self.title
 
+    class Meta:
+        app_label = "gbe"
+
 
 class Room(LocationItem):
     '''
@@ -1086,6 +1104,9 @@ class Room(LocationItem):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        app_label = "gbe"
 
 
 class ConferenceDay(models.Model):
@@ -1099,6 +1120,7 @@ class ConferenceDay(models.Model):
         ordering = ['day']
         verbose_name = "Conference Day"
         verbose_name_plural = "Conference Days"
+        app_label = "gbe"
 
 
 class VolunteerWindow(models.Model):
@@ -1115,6 +1137,7 @@ class VolunteerWindow(models.Model):
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
         verbose_name_plural = "Volunteer Windows"
+        app_label = "gbe"
 
 
 class Event(EventItem):
@@ -1180,6 +1203,7 @@ class Event(EventItem):
 
     class Meta:
         ordering = ['title']
+        app_label = "gbe"
 
 
 class Show (Event):
@@ -1240,6 +1264,8 @@ class Show (Event):
                              (self.conference.conference_slug,
                               self.title.replace(" ", "_").replace("/", "_"))))
         return path
+    class Meta:
+        app_label = "gbe"
 
 
 class GenericEvent (Event):
@@ -1313,6 +1339,8 @@ class GenericEvent (Event):
                                               active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
+    class Meta:
+        app_label = "gbe"
 
 
 class Class(Biddable, Event):
@@ -1487,6 +1515,7 @@ class Class(Biddable, Event):
 
     class Meta:
         verbose_name_plural = 'classes'
+        app_label = "gbe"
 
 
 class BidEvaluation(models.Model):
@@ -1501,6 +1530,9 @@ class BidEvaluation(models.Model):
     def __unicode__(self):
         return self.bid.title+": "+self.evaluator.display_name
 
+    class Meta:
+        app_label = "gbe"
+
 
 class PerformerFestivals(models.Model):
     festival = models.CharField(max_length=20, choices=festival_list)
@@ -1511,6 +1543,7 @@ class PerformerFestivals(models.Model):
 
     class Meta:
         verbose_name_plural = 'performer festivals'
+        app_label = "gbe"
 
 
 class Volunteer(Biddable):
@@ -1603,6 +1636,9 @@ class Volunteer(Biddable):
             submitted=True,
             accepted=0)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class Vendor(Biddable):
     '''
@@ -1667,6 +1703,9 @@ class Vendor(Biddable):
             submitted=True,
             accepted=0)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class AdBid(Biddable):
     '''
@@ -1678,6 +1717,9 @@ class AdBid(Biddable):
 
     def __unicode__(self):
         return self.company
+
+    class Meta:
+        app_label = "gbe"
 
 
 class ArtBid(Biddable):
@@ -1692,6 +1734,9 @@ class ArtBid(Biddable):
 
     def __unicode__(self):
         return self.bidder.display_name
+
+    class Meta:
+        app_label = "gbe"
 
 
 class Costume(Biddable):
@@ -1779,6 +1824,9 @@ class Costume(Biddable):
             submitted=True,
             accepted=0)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class ClassProposal(models.Model):
     '''
@@ -1826,6 +1874,9 @@ class ClassProposal(models.Model):
     def presenter_bid_info(self):
         return (self.title, self.proposal, self.type)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class ConferenceVolunteer(models.Model):
     '''
@@ -1857,6 +1908,9 @@ class ConferenceVolunteer(models.Model):
     def presenter_bid_header(self):
         return (['Interested', 'Presenter', 'Role', 'Qualification'])
 
+    class Meta:
+        app_label = "gbe"
+
 
 class ProfilePreferences(models.Model):
     '''
@@ -1873,3 +1927,4 @@ class ProfilePreferences(models.Model):
 
     class Meta:
         verbose_name_plural = 'profile preferences'
+        app_label = "gbe"

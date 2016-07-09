@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from gbe.models import (
-    Conference,
-    Event
-)
+from gbe.models import Conference
 from gbetext import role_options
 
 
@@ -43,14 +40,14 @@ class BrownPaperEvents(models.Model):
                                                verbose_name='Act Fee')
     vendor_submission_event = models.BooleanField(default=False,
                                                   verbose_name='Vendor Fee')
-    linked_events = models.ManyToManyField(Event,
+    linked_events = models.ManyToManyField('gbe.Event',
                                            related_name='ticketing_item',
                                            blank=True)
     include_conference = models.BooleanField(default=False)
     include_most = models.BooleanField(default=False)
     badgeable = models.BooleanField(default=False)
     ticket_style = models.CharField(max_length=50, blank=True)
-    conference = models.ForeignKey(Conference,
+    conference = models.ForeignKey('gbe.Conference',
                                    related_name='ticketing_item',
                                    default=lambda: Conference.objects.filter(
                                     status="upcoming").first())
@@ -297,7 +294,7 @@ class RoleExclusion(Exclusion):
     '''
     role = models.CharField(max_length=25,
                             choices=role_options)
-    event = models.ForeignKey(Event, blank=True, null=True)
+    event = models.ForeignKey('gbe.Event', blank=True, null=True)
 
     def __unicode__(self):
         describe = self.role
