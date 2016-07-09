@@ -18,8 +18,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('gbe', ['UserMessage'])
 
+        # Adding unique constraint on 'UserMessage', fields ['view', 'code']
+        db.create_unique(u'gbe_usermessage', ['view', 'code'])
+
 
     def backwards(self, orm):
+        # Removing unique constraint on 'UserMessage', fields ['view', 'code']
+        db.delete_unique(u'gbe_usermessage', ['view', 'code'])
+
         # Deleting model 'UserMessage'
         db.delete_table(u'gbe_usermessage')
 
@@ -103,7 +109,7 @@ class Migration(SchemaMigration):
         'gbe.biddable': {
             'Meta': {'object_name': 'Biddable'},
             'accepted': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Conference']"}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -140,7 +146,7 @@ class Migration(SchemaMigration):
         },
         'gbe.classproposal': {
             'Meta': {'object_name': 'ClassProposal'},
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Conference']"}),
             'display': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -208,7 +214,7 @@ class Migration(SchemaMigration):
         'gbe.event': {
             'Meta': {'ordering': "['title']", 'object_name': 'Event', '_ormbases': [u'scheduler.EventItem']},
             'blurb': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Conference']"}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'duration': ('gbe.expomodelfields.DurationField', [], {}),
             'event_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -315,7 +321,7 @@ class Migration(SchemaMigration):
             u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
         },
         'gbe.usermessage': {
-            'Meta': {'object_name': 'UserMessage'},
+            'Meta': {'unique_together': "(('view', 'code'),)", 'object_name': 'UserMessage'},
             'code': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'description': ('django.db.models.fields.TextField', [], {'max_length': '500'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

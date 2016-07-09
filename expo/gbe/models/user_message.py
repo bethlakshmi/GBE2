@@ -8,3 +8,4 @@ class UserMessage(models.Model):
 
     class Meta:
         app_label = "gbe"
+        unique_together = (('view', 'code'),)
