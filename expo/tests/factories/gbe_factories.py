@@ -6,6 +6,7 @@ from factory import (
     LazyAttribute
 )
 import gbe.models as conf
+from django.contrib.auth.models import User
 import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
@@ -52,7 +53,7 @@ class WorkerItemFactory(DjangoModelFactory):
 
 class UserFactory(DjangoModelFactory):
     class Meta:
-        model = conf.User
+        model = User
     first_name = Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
     username = LazyAttribute(lambda a: "%s" % (a.first_name))

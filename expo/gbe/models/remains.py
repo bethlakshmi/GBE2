@@ -214,7 +214,7 @@ class Profile(WorkerItem):
 
     @property
     def special_privs(self):
-        from special_privileges import special_privileges
+        from gbe.special_privileges import special_privileges
         privs = [special_privileges.get(group, None) for group in
                  self.privilege_groups]
         return filter(lambda x: x is not None, privs)
@@ -228,17 +228,17 @@ class Profile(WorkerItem):
     def alerts(self, historical=False):
         if historical:
             return []
-        profile_alerts = []
+        p_alerts = []
         if (len(self.display_name.strip()) == 0 or
                 len(self.purchase_email.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['empty_profile'] %
+            p_alerts.append(profile_alerts['empty_profile'] %
                                   reverse('profile_update',
                                           urlconf='gbe.urls'))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and len(self.phone.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['onsite_phone'] %
+            p_alerts.append(profile_alerts['onsite_phone'] %
                                   reverse('profile_update',
                                           urlconf='gbe.urls'))
         for act in self.get_acts():
@@ -246,13 +246,13 @@ class Profile(WorkerItem):
                act.is_current and \
                (len(act.get_scheduled_rehearsals()) == 0 or
                     not act.tech.is_complete):
-                profile_alerts.append(
-                    gbetext.profile_alerts['schedule_rehearsal'] %
+                p_alerts.append(
+                    profile_alerts['schedule_rehearsal'] %
                     (act.title,
                      reverse('act_techinfo_edit',
                              urlconf='gbe.urls',
                              args=[act.id])))
-        return profile_alerts
+        return p_alerts
 
     def get_costumebids(self, historical=False):
         costumes = self.costumes.all()
