@@ -153,8 +153,6 @@ class TestEditCostume(TestCase):
             response, 'success', 'Success', default_costume_submit_msg)
 
     def test_costume_draft_make_message(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         response, data = self.post_costume_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
