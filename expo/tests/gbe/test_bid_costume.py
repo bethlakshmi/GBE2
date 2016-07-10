@@ -24,6 +24,7 @@ from gbe.models import (
     UserMessage
 )
 
+
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''
     view_name = 'costume_create'
@@ -96,7 +97,7 @@ class TestEditCostume(TestCase):
         response, data = self.post_costume_submission()
         self.assertEqual(response.status_code, 200)
         self.assertTrue(('http://testserver/gbe', 302)
-                       in response.redirect_chain)
+                        in response.redirect_chain)
         self.assertTrue("Your Account" in response.content)
         self.assertContains(response, "(Click to view)")
         self.assertContains(response, data['title'])
@@ -107,7 +108,7 @@ class TestEditCostume(TestCase):
         response, data = self.post_costume_draft()
         self.assertEqual(response.status_code, 200)
         self.assertTrue(('http://testserver/gbe', 302)
-                       in response.redirect_chain)
+                        in response.redirect_chain)
         self.assertTrue("Your Account" in response.content)
         self.assertContains(response, "(Click to edit)")
         self.assertContains(response, data['title'])
@@ -176,4 +177,3 @@ class TestEditCostume(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
-

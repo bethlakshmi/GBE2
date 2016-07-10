@@ -70,7 +70,7 @@ class TestBidClass(TestCase):
         data = self.get_class_form(submit=False)
         response = self.client.post(url, data=data, follow=True)
         return response, data
-    
+
     def test_bid_class_no_personae(self):
         '''class_bid, when profile has no personae,
         should redirect to persona_create'''

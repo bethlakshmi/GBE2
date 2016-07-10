@@ -148,8 +148,8 @@ class TestCreateVendor(TestCase):
 
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
-            submitted = True,
-            profile = self.profile
+            submitted=True,
+            profile=self.profile
         )
         self.make_vendor_app_purchase()
         response, data = self.post_paid_vendor_submission()
