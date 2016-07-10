@@ -11,6 +11,7 @@ from tests.factories.ticketing_factories import (
     PurchaserFactory,
 )
 
+
 def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
         user = user_or_profile.user_object
@@ -94,6 +95,7 @@ def make_act_app_purchase(user_object):
     transaction.ticket_item.bpt_event.save()
     return transaction
 
+
 def make_vendor_app_purchase(conference, user_object):
     bpt_event = BrownPaperEventsFactory(conference=conference,
                                         vendor_submission_event=True)
@@ -102,4 +104,3 @@ def make_vendor_app_purchase(conference, user_object):
     ticket = TicketItemFactory(ticket_id=ticket_id)
     transaction = TransactionFactory(ticket_item=ticket,
                                      purchaser=purchaser)
-
