@@ -1,4 +1,3 @@
-import nose.tools as nt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -8,13 +7,23 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
+    UserMessageFactory
 )
 from tests.functions.gbe_functions import (
     location,
     login_as,
     current_conference,
+    assert_alert_exists,
 )
-
+from tests.factories.ticketing_factories import (
+    PurchaserFactory,
+    TransactionFactory
+)
+from gbetext import (
+    default_act_submit_msg,
+    default_act_draft_msg
+)
+from gbe.models import UserMessage
 
 class TestBidAct(TestCase):
     '''Tests for bid_act view'''
@@ -27,6 +36,7 @@ class TestBidAct(TestCase):
         current_conference = ConferenceFactory()
         current_conference.accepting_bids = True
         current_conference.save()
+        UserMessage.objects.all().delete()
 
     def get_act_form(self, submit=False):
 
@@ -47,7 +57,7 @@ class TestBidAct(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(user, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_bid_act_no_personae(self):
         '''act_bid, when profile has no personae,
@@ -56,7 +66,7 @@ class TestBidAct(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
@@ -64,7 +74,7 @@ class TestBidAct(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
         response = self.client.post(url, data=self.get_act_form())
-        nt.assert_equal(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_act_bid_post_form_not_valid(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
@@ -73,8 +83,8 @@ class TestBidAct(TestCase):
         del(POST['theact-description'])
         response = self.client.post(url,
                                     data=POST)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Propose an Act' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Propose an Act' in response.content)
 
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
@@ -84,8 +94,8 @@ class TestBidAct(TestCase):
         POST = self.get_act_form()
         POST.update({'submit': ''})
         response = self.client.post(url, data=POST)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Fee has not been Paid' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Fee has not been Paid' in response.content)
 
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
@@ -95,13 +105,81 @@ class TestBidAct(TestCase):
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
         response = self.client.post(url, data=POST)
-        nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), 'http://testserver/gbe')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(location(response), 'http://testserver/gbe')
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Propose an Act' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Propose an Act' in response.content)
+
+    def test_act_submit_make_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        POST.update({'submit': ''})
+        purchaser = PurchaserFactory(
+            matched_to_user=self.performer.performer_profile.user_object)
+        transaction = TransactionFactory(purchaser=purchaser)
+        transaction.ticket_item.bpt_event.act_submission_event = True
+        transaction.ticket_item.bpt_event.bpt_event_id = "111111"
+        transaction.ticket_item.bpt_event.save()
+        response = self.client.post(url, data=POST, follow=True)
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_act_submit_msg)
+
+    def test_act_draft_make_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        response = self.client.post(url, data=POST, follow=True)
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', default_act_draft_msg)
+
+    def test_act_submit_has_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        msg = UserMessageFactory(
+            view='BidActView',
+            code='SUBMIT_SUCCESS')
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        POST.update({'submit': ''})
+        purchaser = PurchaserFactory(
+            matched_to_user=self.performer.performer_profile.user_object)
+        transaction = TransactionFactory(purchaser=purchaser)
+        transaction.ticket_item.bpt_event.act_submission_event = True
+        transaction.ticket_item.bpt_event.bpt_event_id = "111111"
+        transaction.ticket_item.bpt_event.save()
+        response = self.client.post(url, data=POST, follow=True)
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_act_draft_has_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        msg = UserMessageFactory(
+            view='BidActView',
+            code='DRAFT_SUCCESS')
+        current_conference()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        POST = self.get_act_form()
+        response = self.client.post(url, data=POST, follow=True)
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)

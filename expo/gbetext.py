@@ -268,4 +268,12 @@ event_labels = {'type':  'Type',
 overlap_location_text = ' (alt)'
 
 default_class_submit_msg = "Your class was sucessfully submitted"
-default_class_draft_msg = "Your draft was sucessfully submitted"
+default_class_draft_msg = "Your draft was sucessfully saved"
+default_act_submit_msg = "Your act was sucessfully submitted"
+default_act_draft_msg = "Your draft was sucessfully saved"
+default_costume_submit_msg = "Your costume was sucessfully submitted"
+default_costume_draft_msg = "Your draft was sucessfully saved"
+default_propose_submit_msg = "Your idea was sucessfully submitted"
+default_vendor_submit_msg = "Your vendor proposal was sucessfully submitted"
+default_vendor_draft_msg = "Your draft was sucessfully saved"
+default_volunteer_submit_msg = "Your offer to volunteer was sucessfully submitted"

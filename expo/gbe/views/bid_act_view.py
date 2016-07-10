@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -26,9 +27,13 @@ from gbe.models import (
     Performer,
     StageInfo,
     TechInfo,
+    UserMessage
 )
 from gbe.functions import validate_profile
-
+from gbetext import (
+    default_act_submit_msg,
+    default_act_draft_msg
+)
 
 @login_required
 @log_func
@@ -65,9 +70,21 @@ def BidActView(request):
         if 'submit' in request.POST.keys():
             form = ActEditForm(request.POST,
                                prefix='theact')
+            user_message = UserMessage.objects.get_or_create(
+                view='BidActView',
+                code="SUBMIT_SUCCESS",
+                defaults={
+                    'summary': "Act Submit Success",
+                    'description': default_act_submit_msg})
         else:
             form = ActEditDraftForm(request.POST,
                                     prefix='theact')
+            user_message = UserMessage.objects.get_or_create(
+                view='BidActView',
+                code="DRAFT_SUCCESS",
+                defaults={
+                    'summary': "Act Draft Success",
+                    'description': default_act_draft_msg})
         if form.is_valid():
             # hack
             conference = Conference.objects.filter(accepting_bids=True).first()
@@ -109,8 +126,6 @@ def BidActView(request):
             if verify_performer_app_paid(request.user.username):
                 act.submitted = True
                 act.save()
-                return HttpResponseRedirect(reverse('home',
-                                                    urlconf='gbe.urls'))
             else:
                 page_title = 'Act Payment'
                 return render(
@@ -119,8 +134,8 @@ def BidActView(request):
                     {'link': fee_link,
                      'page_title': page_title}
                 )
-        else:
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        messages.success(request, user_message[0].description)
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     else:
         form = ActEditForm(initial={'owner': profile,

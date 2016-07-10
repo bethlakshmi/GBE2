@@ -58,7 +58,7 @@ def BidClassView(request):
                 view='BidClassView',
                 code="SUBMIT_SUCCESS",
                 defaults={
-                    'summary': "Class Draft Success",
+                    'summary': "Class Submit Success",
                     'description': default_class_submit_msg})
         else:
             form = ClassBidDraftForm(request.POST)
