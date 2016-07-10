@@ -357,3 +357,12 @@ class VolunteerWindowFactory(DjangoModelFactory):
     day = SubFactory(ConferenceDayFactory)
     start = time(10)
     end = time(14)
+
+
+class UserMessageFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.UserMessage
+    view = Sequence(lambda x: "View%d" % x)
+    code = Sequence(lambda x: "CODE_%d" % x)
+    summary = Sequence(lambda x: "Message Summary #%d" % x)
+    description = Sequence(lambda x: "Description #%d" % x)

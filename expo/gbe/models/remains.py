@@ -232,15 +232,15 @@ class Profile(WorkerItem):
         if (len(self.display_name.strip()) == 0 or
                 len(self.purchase_email.strip()) == 0):
             p_alerts.append(profile_alerts['empty_profile'] %
-                                  reverse('profile_update',
-                                          urlconf='gbe.urls'))
+                            reverse('profile_update',
+                                    urlconf='gbe.urls'))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and len(self.phone.strip()) == 0):
             p_alerts.append(profile_alerts['onsite_phone'] %
-                                  reverse('profile_update',
-                                          urlconf='gbe.urls'))
+                            reverse('profile_update',
+                                    urlconf='gbe.urls'))
         for act in self.get_acts():
             if act.accepted == 3 and \
                act.is_current and \
@@ -570,6 +570,7 @@ class Troupe(Performer):
         '''
         alerts = super(Troupe, self).append_alerts()
         return alerts
+
     class Meta:
         app_label = "gbe"
 
@@ -603,6 +604,7 @@ class Combo (Performer):
         '''
         alerts = super(Combo, self).append_alerts()
         return alerts
+
     class Meta:
         app_label = "gbe"
 
@@ -1264,6 +1266,7 @@ class Show (Event):
                              (self.conference.conference_slug,
                               self.title.replace(" ", "_").replace("/", "_"))))
         return path
+
     class Meta:
         app_label = "gbe"
 
@@ -1339,6 +1342,7 @@ class GenericEvent (Event):
                                               active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
+
     class Meta:
         app_label = "gbe"
 

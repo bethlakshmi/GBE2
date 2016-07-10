@@ -266,3 +266,6 @@ event_labels = {'type':  'Type',
                 }
 
 overlap_location_text = ' (alt)'
+
+default_class_submit_msg = "Your class was sucessfully submitted"
+default_class_draft_msg = "Your draft was sucessfully submitted"

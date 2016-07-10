@@ -18,6 +18,10 @@ from gbe.models import (
     UserMessage
 )
 from gbe.functions import validate_profile
+from gbetext import (
+    default_class_submit_msg,
+    default_class_draft_msg
+)
 
 
 @login_required
@@ -55,15 +59,15 @@ def BidClassView(request):
                 code="SUBMIT_SUCCESS",
                 defaults={
                     'summary': "Class Draft Success",
-                    'description': "Your class was sucessfully submitted"})
+                    'description': default_class_submit_msg})
         else:
             form = ClassBidDraftForm(request.POST)
             user_message = UserMessage.objects.get_or_create(
                 view='BidClassView',
-                code="SUBMIT_DRAFT",
+                code="DRAFT_SUCCESS",
                 defaults={
                     'summary': "Class Draft Success",
-                    'description': "Your draft was sucessfully submitted"})
+                    'description': default_class_draft_msg})
 
         if form.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
