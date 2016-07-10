@@ -159,7 +159,6 @@ class TestBidAct(TestCase):
             response, 'success', 'Success', default_act_submit_msg)
 
     def test_act_draft_make_message(self):
-        current_conference()
         response, data = self.post_paid_act_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(

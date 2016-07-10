@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
@@ -79,7 +78,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(profile, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_edit_act_profile_is_not_contact(self):
         user = ProfileFactory().user_object
@@ -90,7 +89,7 @@ class TestEditAct(TestCase):
 
         login_as(user, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_edit_act_user_has_no_profile(self):
         user = UserFactory()
@@ -100,7 +99,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(user, self)
         response = self.client.get(url, follow=True)
-        nt.assert_true(('http://testserver/profile', 302)
+        self.assertTrue(('http://testserver/profile', 302)
                        in response.redirect_chain)
 
     def test_act_edit_post_form_not_valid(self):
@@ -113,8 +112,8 @@ class TestEditAct(TestCase):
         response = self.client.post(
             url,
             self.get_act_form(invalid=True))
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Act Proposal' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Act Proposal' in response.content)
 
     def test_act_edit_post_form_submit_unpaid(self):
         act = ActFactory()
@@ -125,14 +124,14 @@ class TestEditAct(TestCase):
         response = self.client.post(
             url,
             data=self.get_act_form(submit=True))
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Act Payment' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Act Payment' in response.content)
 
     def test_edit_bid_post_no_submit(self):
         response = self.post_edit_paid_act_draft()
         redirect_tuple = ('http://testserver/gbe', 302)
-        nt.assert_true(redirect_tuple in response.redirect_chain)
-        nt.assert_true('Profile View' in response.content)
+        self.assertTrue(redirect_tuple in response.redirect_chain)
+        self.assertTrue('Profile View' in response.content)
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
@@ -143,8 +142,8 @@ class TestEditAct(TestCase):
 
         login_as(act.performer.contact, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Act Proposal' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Act Proposal' in response.content)
 
     def test_edit_act_submit_make_message(self):
         response = self.post_edit_paid_act_submission()
