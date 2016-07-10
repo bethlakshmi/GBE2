@@ -8,17 +8,12 @@ from tests.factories.gbe_factories import (
     UserMessageFactory,
     VendorFactory
 )
-from tests.factories.ticketing_factories import (
-    BrownPaperEventsFactory,
-    TransactionFactory,
-    TicketItemFactory,
-    PurchaserFactory,
-)
 from tests.functions.gbe_functions import (
     current_conference,
     login_as,
     location,
-    assert_alert_exists
+    assert_alert_exists,
+    make_vendor_app_purchase
 )
 from gbetext import (
     default_vendor_submit_msg,
@@ -53,20 +48,11 @@ class TestCreateVendor(TestCase):
             del(form['description'])
         return form
 
-    def make_vendor_app_purchase(self):
-        bpt_event = BrownPaperEventsFactory(conference=self.conference,
-                                            vendor_submission_event=True)
-        purchaser = PurchaserFactory(matched_to_user=self.profile.user_object)
-        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
-        ticket = TicketItemFactory(ticket_id=ticket_id)
-        transaction = TransactionFactory(ticket_item=ticket,
-                                         purchaser=purchaser)
-
     def post_paid_vendor_submission(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         username = self.profile.user_object.username
-        self.make_vendor_app_purchase()
+        make_vendor_app_purchase(self.conference, self.profile.user_object)
         login_as(self.profile, self)
         data = self.get_form(submit=True)
         data['profile'] = self.profile.pk
@@ -151,7 +137,7 @@ class TestCreateVendor(TestCase):
             submitted=True,
             profile=self.profile
         )
-        self.make_vendor_app_purchase()
+        make_vendor_app_purchase(self.conference, self.profile.user_object)
         response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
@@ -165,8 +151,6 @@ class TestCreateVendor(TestCase):
             response, 'success', 'Success', default_vendor_submit_msg)
 
     def test_vendor_draft_make_message(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         response, data = self.post_paid_vendor_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(

@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -15,7 +16,14 @@ from gbe.ticketing_idd_interface import (
 )
 from gbe.forms import VendorBidForm
 from gbe.functions import validate_profile
-from gbe.models import Vendor
+from gbe.models import (
+    UserMessage,
+    Vendor
+)
+from gbetext import (
+    default_vendor_submit_msg,
+    default_vendor_draft_msg
+)
 
 
 @login_required
@@ -74,6 +82,13 @@ def EditVendorView(request, vendor_id):
                 if verify_vendor_app_paid(request.user.username):
                     vendor.submitted = True
                     vendor.save()
+                    user_message = UserMessage.objects.get_or_create(
+                        view='EditVendorView',
+                        code="SUBMIT_SUCCESS",
+                        defaults={
+                            'summary': "Vendor Edit & Submit Success",
+                            'description': default_vendor_submit_msg})
+                    messages.success(request, user_message[0].description)
                     return HttpResponseRedirect(reverse('home',
                                                         urlconf='gbe.urls'))
                 else:
@@ -84,6 +99,13 @@ def EditVendorView(request, vendor_id):
                          'page_title': page_title}
                     )
         else:
+            user_message = UserMessage.objects.get_or_create(
+                view='EditVendorView',
+                code="DRAFT_SUCCESS",
+                defaults={
+                    'summary': "Vendor Edit Draft Success",
+                    'description': default_vendor_draft_msg})
+            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         if len(vendor.help_times.strip()) > 0:

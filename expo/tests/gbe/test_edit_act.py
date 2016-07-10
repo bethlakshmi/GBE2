@@ -100,7 +100,7 @@ class TestEditAct(TestCase):
         login_as(user, self)
         response = self.client.get(url, follow=True)
         self.assertTrue(('http://testserver/profile', 302)
-                       in response.redirect_chain)
+                        in response.redirect_chain)
 
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''

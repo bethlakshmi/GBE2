@@ -5,8 +5,10 @@ from gbe.models import (
 from django.contrib.auth.models import Group, User
 from tests.factories.gbe_factories import ConferenceFactory
 from tests.factories.ticketing_factories import (
+    BrownPaperEventsFactory,
+    TransactionFactory,
+    TicketItemFactory,
     PurchaserFactory,
-    TransactionFactory
 )
 
 def _user_for(user_or_profile):
@@ -91,3 +93,13 @@ def make_act_app_purchase(user_object):
     transaction.ticket_item.bpt_event.bpt_event_id = "111111"
     transaction.ticket_item.bpt_event.save()
     return transaction
+
+def make_vendor_app_purchase(conference, user_object):
+    bpt_event = BrownPaperEventsFactory(conference=conference,
+                                        vendor_submission_event=True)
+    purchaser = PurchaserFactory(matched_to_user=user_object)
+    ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
+    ticket = TicketItemFactory(ticket_id=ticket_id)
+    transaction = TransactionFactory(ticket_item=ticket,
+                                     purchaser=purchaser)
+

@@ -54,7 +54,6 @@ class TestBidAct(TestCase):
             form_dict['submit'] = 1
         return form_dict
 
-
     def post_paid_act_submission(self):
         current_conference()
         url = reverse(self.view_name, urlconf='gbe.urls')
