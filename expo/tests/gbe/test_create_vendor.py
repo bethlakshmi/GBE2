@@ -3,10 +3,10 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
-    PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
+    UserMessageFactory,
+    VendorFactory
 )
 from tests.factories.ticketing_factories import (
     BrownPaperEventsFactory,
@@ -24,7 +24,10 @@ from gbetext import (
     default_vendor_submit_msg,
     default_vendor_draft_msg
 )
-from gbe.models import UserMessage
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 
 
 class TestCreateVendor(TestCase):
@@ -32,8 +35,9 @@ class TestCreateVendor(TestCase):
     view_name = 'vendor_create'
 
     def setUp(self):
+        Conference.objects.all().delete()
         self.client = Client()
-        self.performer = PersonaFactory()
+        self.profile = ProfileFactory()
         self.conference = current_conference()
         UserMessage.objects.all().delete()
 
@@ -49,6 +53,40 @@ class TestCreateVendor(TestCase):
             del(form['description'])
         return form
 
+    def make_vendor_app_purchase(self):
+        bpt_event = BrownPaperEventsFactory(conference=self.conference,
+                                            vendor_submission_event=True)
+        purchaser = PurchaserFactory(matched_to_user=self.profile.user_object)
+        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
+        ticket = TicketItemFactory(ticket_id=ticket_id)
+        transaction = TransactionFactory(ticket_item=ticket,
+                                         purchaser=purchaser)
+
+    def post_paid_vendor_submission(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        username = self.profile.user_object.username
+        self.make_vendor_app_purchase()
+        login_as(self.profile, self)
+        data = self.get_form(submit=True)
+        data['profile'] = self.profile.pk
+        data['username'] = username
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        return response, data
+
+    def post_paid_vendor_draft(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.profile, self)
+        data = self.get_form()
+        data['profile'] = self.profile.pk
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        return response, data
+
     def test_create_vendor_no_profile(self):
         url = reverse('vendor_create', urlconf='gbe.urls')
         login_as(UserFactory(), self)
@@ -59,22 +97,18 @@ class TestCreateVendor(TestCase):
     def test_create_vendor_post_form_valid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
-        profile = ProfileFactory()
-        login_as(profile, self)
-        data = self.get_form()
-        data['profile'] = profile.pk
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_draft()
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Profile View' in response.content)
+        self.assertContains(response, "(Click to edit)")
+        self.assertContains(response, data['title'])
 
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
-        profile = ProfileFactory()
-        login_as(profile, self)
+        login_as(self.profile, self)
         data = self.get_form(submit=True)
-        data['profile'] = profile.pk
+        data['profile'] = self.profile.pk
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -106,46 +140,26 @@ class TestCreateVendor(TestCase):
         self.assertIn('Vendor Application', response.content)
 
     def test_create_vendor_post_with_vendor_app_paid(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        profile = ProfileFactory()
-        username = profile.user_object.username
-        bpt_event = BrownPaperEventsFactory(conference=self.conference,
-                                            vendor_submission_event=True)
-        purchaser = PurchaserFactory(matched_to_user=profile.user_object)
-        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
-        ticket = TicketItemFactory(ticket_id=ticket_id)
-        transaction = TransactionFactory(ticket_item=ticket,
-                                         purchaser=purchaser)
-        login_as(profile, self)
-        data = self.get_form(submit=True)
-        data['profile'] = profile.pk
-        data['username'] = username
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['title'])
+
+    def test_create_vendor_post_with_second_vendor_app_paid(self):
+        prev_vendor = VendorFactory(
+            submitted = True,
+            profile = self.profile
+        )
+        self.make_vendor_app_purchase()
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['title'])
 
     def test_vendor_submit_make_message(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        profile = ProfileFactory()
-        username = profile.user_object.username
-        bpt_event = BrownPaperEventsFactory(conference=self.conference,
-                                            vendor_submission_event=True)
-        purchaser = PurchaserFactory(matched_to_user=profile.user_object)
-        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
-        ticket = TicketItemFactory(ticket_id=ticket_id)
-        transaction = TransactionFactory(ticket_item=ticket,
-                                         purchaser=purchaser)
-        login_as(profile, self)
-        data = self.get_form(submit=True)
-        data['profile'] = profile.pk
-        data['username'] = username
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', default_vendor_submit_msg)
@@ -153,13 +167,7 @@ class TestCreateVendor(TestCase):
     def test_vendor_draft_make_message(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
-        profile = ProfileFactory()
-        login_as(profile, self)
-        data = self.get_form()
-        data['profile'] = profile.pk
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', default_vendor_draft_msg)
@@ -168,24 +176,7 @@ class TestCreateVendor(TestCase):
         msg = UserMessageFactory(
             view='CreateVendorView',
             code='SUBMIT_SUCCESS')
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        profile = ProfileFactory()
-        username = profile.user_object.username
-        bpt_event = BrownPaperEventsFactory(conference=self.conference,
-                                            vendor_submission_event=True)
-        purchaser = PurchaserFactory(matched_to_user=profile.user_object)
-        ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
-        ticket = TicketItemFactory(ticket_id=ticket_id)
-        transaction = TransactionFactory(ticket_item=ticket,
-                                         purchaser=purchaser)
-        login_as(profile, self)
-        data = self.get_form(submit=True)
-        data['profile'] = profile.pk
-        data['username'] = username
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
@@ -194,15 +185,7 @@ class TestCreateVendor(TestCase):
         msg = UserMessageFactory(
             view='CreateVendorView',
             code='DRAFT_SUCCESS')
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        profile = ProfileFactory()
-        login_as(profile, self)
-        data = self.get_form()
-        data['profile'] = profile.pk
-        response = self.client.post(url,
-                                    data,
-                                    follow=True)
+        response, data = self.post_paid_vendor_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)

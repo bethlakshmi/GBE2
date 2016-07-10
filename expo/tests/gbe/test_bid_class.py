@@ -16,7 +16,10 @@ from gbetext import (
     default_class_submit_msg,
     default_class_draft_msg
 )
-from gbe.models import UserMessage
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 
 
 class TestBidClass(TestCase):
@@ -24,6 +27,7 @@ class TestBidClass(TestCase):
     view_name = 'class_create'
 
     def setUp(self):
+        Conference.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
         self.teacher = PersonaFactory()
@@ -51,6 +55,22 @@ class TestBidClass(TestCase):
             data['title'] = ''
         return data
 
+    def post_class_submit(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        data = self.get_class_form(submit=True)
+        response = self.client.post(url, data=data, follow=True)
+        return response, data
+
+    def post_class_draft(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        data = self.get_class_form(submit=False)
+        response = self.client.post(url, data=data, follow=True)
+        return response, data
+    
     def test_bid_class_no_personae(self):
         '''class_bid, when profile has no personae,
         should redirect to persona_create'''
@@ -71,17 +91,12 @@ class TestBidClass(TestCase):
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=True)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_submit()
         self.assertEqual(response.status_code, 200)
         # stricter test required here
 
     def test_class_bid_post_with_submit_incomplete(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
+        '''class_bid, submit, incomplete form'''
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
 
@@ -98,11 +113,7 @@ class TestBidClass(TestCase):
     def test_class_bid_post_no_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=False)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_draft()
         self.assertEqual(200, response.status_code)
         self.assertTrue('Profile View' in response.content)
 
@@ -135,11 +146,7 @@ class TestBidClass(TestCase):
     def test_class_submit_make_message(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=True)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_submit()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', default_class_submit_msg)
@@ -147,11 +154,7 @@ class TestBidClass(TestCase):
     def test_class_draft_make_message(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=False)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', default_class_draft_msg)
@@ -162,11 +165,7 @@ class TestBidClass(TestCase):
         msg = UserMessageFactory(
             view='BidClassView',
             code='SUBMIT_SUCCESS')
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=True)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_submit()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
@@ -177,11 +176,7 @@ class TestBidClass(TestCase):
         msg = UserMessageFactory(
             view='BidClassView',
             code='DRAFT_SUCCESS')
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=False)
-        response = self.client.post(url, data=data, follow=True)
+        response, data = self.post_class_draft()
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
