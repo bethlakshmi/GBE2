@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -8,13 +9,17 @@ from gbe.forms import VendorBidForm
 from gbe.models import (
     Conference,
     Vendor,
+    UserMessage
 )
 from gbe.functions import validate_profile
 from gbe.ticketing_idd_interface import (
     vendor_submittal_link,
     verify_vendor_app_paid,
 )
-
+from gbetext import (
+    default_vendor_submit_msg,
+    default_vendor_draft_msg
+)
 
 @login_required
 @log_func
@@ -54,6 +59,13 @@ def CreateVendorView(request):
                     accepting_bids=True).first()
                 vendor.conference = conference
                 vendor.save()
+                user_message = UserMessage.objects.get_or_create(
+                    view='CreateVendorView',
+                    code="SUBMIT_SUCCESS",
+                    defaults={
+                        'summary': "Vendor Submit Success",
+                        'description': default_vendor_submit_msg})
+                messages.success(request, user_message[0].description)
                 return HttpResponseRedirect(reverse('home',
                                                     urlconf='gbe.urls'))
             else:
@@ -65,7 +77,14 @@ def CreateVendorView(request):
                 )
         else:   # saving a draft
             if form.is_valid():
+                user_message = UserMessage.objects.get_or_create(
+                    view='CreateVendorView',
+                    code="DRAFT_SUCCESS",
+                    defaults={
+                        'summary': "Vendor Draft Success",
+                        'description': default_vendor_draft_msg})
                 vendor = form.save()
+                messages.success(request, user_message[0].description)
                 return HttpResponseRedirect(reverse('home',
                                                     urlconf='gbe.urls'))
     else:

@@ -117,8 +117,6 @@ class TestBidAct(TestCase):
         self.assertTrue('Propose an Act' in response.content)
 
     def test_act_submit_make_message(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
         current_conference()
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
@@ -136,8 +134,6 @@ class TestBidAct(TestCase):
             response, 'success', 'Success', default_act_submit_msg)
 
     def test_act_draft_make_message(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
         current_conference()
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
@@ -148,8 +144,6 @@ class TestBidAct(TestCase):
             response, 'success', 'Success', default_act_draft_msg)
 
     def test_act_submit_has_message(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
         msg = UserMessageFactory(
             view='BidActView',
             code='SUBMIT_SUCCESS')
@@ -170,8 +164,6 @@ class TestBidAct(TestCase):
             response, 'success', 'Success', msg.description)
 
     def test_act_draft_has_message(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
         msg = UserMessageFactory(
             view='BidActView',
             code='DRAFT_SUCCESS')
