@@ -15,10 +15,7 @@ from tests.functions.gbe_functions import (
     login_as,
     current_conference,
     assert_alert_exists,
-)
-from tests.factories.ticketing_factories import (
-    PurchaserFactory,
-    TransactionFactory
+    make_act_app_purchase
 )
 from gbetext import (
     default_act_submit_msg,
@@ -57,14 +54,6 @@ class TestBidAct(TestCase):
             form_dict['submit'] = 1
         return form_dict
 
-    def make_act_app_purchase(self):
-        purchaser = PurchaserFactory(
-            matched_to_user=self.performer.performer_profile.user_object)
-        transaction = TransactionFactory(purchaser=purchaser)
-        transaction.ticket_item.bpt_event.act_submission_event = True
-        transaction.ticket_item.bpt_event.bpt_event_id = "111111"
-        transaction.ticket_item.bpt_event.save()
-        return transaction
 
     def post_paid_act_submission(self):
         current_conference()
@@ -72,7 +61,7 @@ class TestBidAct(TestCase):
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
         POST.update({'submit': ''})
-        self.make_act_app_purchase()
+        make_act_app_purchase(self.performer.performer_profile.user_object)
         response = self.client.post(url, data=POST, follow=True)
         return response, POST
 
@@ -157,7 +146,7 @@ class TestBidAct(TestCase):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer)
-        self.make_act_app_purchase()
+        make_act_app_purchase(self.performer.performer_profile.user_object)
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")

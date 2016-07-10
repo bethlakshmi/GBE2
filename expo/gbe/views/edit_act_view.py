@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import (
     get_object_or_404,
@@ -19,6 +20,7 @@ from gbe.ticketing_idd_interface import (
 from gbe.models import (
     Act,
     Performer,
+    UserMessage
 )
 from gbe.forms import (
     ActEditDraftForm,
@@ -27,7 +29,10 @@ from gbe.forms import (
     StageInfoForm,
 )
 from gbe.duration import Duration
-
+from gbetext import (
+    default_act_submit_msg,
+    default_act_draft_msg
+)
 
 @login_required
 @log_func
@@ -68,6 +73,12 @@ def EditActView(request, act_id):
                                    'track_duration': audio_info.track_duration,
                                    'act_duration': stage_info.act_duration
                                })
+            user_message = UserMessage.objects.get_or_create(
+                view='EditActView',
+                code="SUBMIT_SUCCESS",
+                defaults={
+                    'summary': "Act Edit & Submit Success",
+                    'description': default_act_submit_msg})
         else:
             form = ActEditDraftForm(
                 request.POST,
@@ -79,6 +90,12 @@ def EditActView(request, act_id):
                     'track_duration': audio_info.track_duration,
                     'act_duration': stage_info.act_duration
                 })
+            user_message = UserMessage.objects.get_or_create(
+                view='EditActView',
+                code="DRAFT_SUCCESS",
+                defaults={
+                    'summary': "Act Edit Draft Success",
+                    'description': default_act_draft_msg})
         audioform = AudioInfoForm(request.POST, prefix='theact',
                                   instance=audio_info)
         stageform = StageInfoForm(request.POST, prefix='theact',
@@ -113,8 +130,6 @@ def EditActView(request, act_id):
             if verify_performer_app_paid(request.user.username):
                 act.submitted = True
                 act.save()
-                return HttpResponseRedirect(reverse('home',
-                                                    urlconf='gbe.urls'))
             else:
                 page_title = 'Act Payment'
                 return render(
@@ -123,8 +138,8 @@ def EditActView(request, act_id):
                     {'link': fee_link,
                      'page_title': page_title}
                 )
-        else:
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        messages.success(request, user_message[0].description)
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         audio_info = act.tech.audio
         stage_info = act.tech.stage

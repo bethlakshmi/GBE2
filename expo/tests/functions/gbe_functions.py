@@ -4,7 +4,10 @@ from gbe.models import (
 )
 from django.contrib.auth.models import Group, User
 from tests.factories.gbe_factories import ConferenceFactory
-
+from tests.factories.ticketing_factories import (
+    PurchaserFactory,
+    TransactionFactory
+)
 
 def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
@@ -78,3 +81,13 @@ def assert_alert_exists(response, tag, label, text):
         '          <strong>%s:</strong> %s\n' \
         '	</div>'
     assert alert_html % (tag, label, text) in response.content
+
+
+def make_act_app_purchase(user_object):
+    purchaser = PurchaserFactory(
+        matched_to_user=user_object)
+    transaction = TransactionFactory(purchaser=purchaser)
+    transaction.ticket_item.bpt_event.act_submission_event = True
+    transaction.ticket_item.bpt_event.bpt_event_id = "111111"
+    transaction.ticket_item.bpt_event.save()
+    return transaction
