@@ -63,9 +63,12 @@
       </div>
       <div class="main-content" >
         {% if messages %}
-        <script>
-          alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
-        </script>
+	{% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <strong>{{message.tags|capfirst}}:</strong> {{message}}
+	</div>
+	{% endfor %}
         {% endif %}
 
         {% block content %}
