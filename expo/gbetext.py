@@ -280,3 +280,5 @@ default_volunteer_submit_msg = "Your offer to volunteer was sucessfully submitte
 default_volunteer_edit_msg = "You have successfully edited a volunteer."
 default_clone_msg = "You have successfully made a new copy."
 default_update_profile_msg = "Your profile has been updated."
+default_create_persona_msg = "Your persona has been created."
+default_edit_persona_msg = "Your persona has been updated."

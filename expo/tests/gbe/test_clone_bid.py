@@ -30,10 +30,12 @@ class TestCloneBid(TestCase):
         self.client = Client()
         UserMessage.objects.all().delete()
         clear_conferences()
-        self.old_conference = ConferenceFactory(status="completed",
-                                           accepting_bids=False)
-        self.current_conference = ConferenceFactory(status="upcoming",
-                                               accepting_bids=True)
+        self.old_conference = ConferenceFactory(
+            status="completed",
+            accepting_bids=False)
+        self.current_conference = ConferenceFactory(
+            status="upcoming",
+            accepting_bids=True)
 
     def clone_act(self):
         bid = ActFactory(conference=self.old_conference)

@@ -69,7 +69,7 @@ class TestUpdateProfile(TestCase):
         response = self.post_profile()
         self.assertTrue("Your Account" in response.content)
         self.assertTrue(('http://testserver/gbe', 302)
-                       in response.redirect_chain)
+                        in response.redirect_chain)
 
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile
@@ -82,12 +82,12 @@ class TestUpdateProfile(TestCase):
         self.assertTrue("Update Profile" in response.content)
         self.assertEqual(response.status_code, 200)
 
-    def test_clone_act_make_message(self):
+    def test_update_profile_make_message(self):
         response = self.post_profile()
         assert_alert_exists(
             response, 'success', 'Success', default_update_profile_msg)
 
-    def test_clone_act_has_message(self):
+    def test_update_profile_has_message(self):
         msg = UserMessageFactory(
             view='UpdateProfileView',
             code='UPDATE_PROFILE')

@@ -54,7 +54,7 @@ def UpdateProfileView(request):
                 view='UpdateProfileView',
                 code="UPDATE_PROFILE",
                 defaults={
-                    'summary': "Act Submit Success",
+                    'summary': "Update Profile Success",
                     'description': default_update_profile_msg})
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
