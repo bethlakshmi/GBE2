@@ -65,39 +65,26 @@ def EditVendorView(request, vendor_id):
             )
 
         if 'submit' in request.POST.keys():
-            problems = vendor.validation_problems_for_submit()
-            if problems:
-                return render(request,
-                              'gbe/bid.tmpl',
-                              {'forms': [form],
-                               'page_title': page_title,
-                               'view_title': view_title,
-                               'fee_link': fee_link,
-                               'errors': problems})
+            '''
+            If this is a formal submit request, did they pay?
+            They can't submit w/out paying
+            '''
+            if verify_vendor_app_paid(request.user.username):
+                vendor.submitted = True
+                vendor.save()
+                user_message = UserMessage.objects.get_or_create(
+                    view='EditVendorView',
+                    code="SUBMIT_SUCCESS",
+                    defaults={
+                        'summary': "Vendor Edit & Submit Success",
+                        'description': default_vendor_submit_msg})
             else:
-                '''
-                If this is a formal submit request, did they pay?
-                They can't submit w/out paying
-                '''
-                if verify_vendor_app_paid(request.user.username):
-                    vendor.submitted = True
-                    vendor.save()
-                    user_message = UserMessage.objects.get_or_create(
-                        view='EditVendorView',
-                        code="SUBMIT_SUCCESS",
-                        defaults={
-                            'summary': "Vendor Edit & Submit Success",
-                            'description': default_vendor_submit_msg})
-                    messages.success(request, user_message[0].description)
-                    return HttpResponseRedirect(reverse('home',
-                                                        urlconf='gbe.urls'))
-                else:
-                    page_title = 'Vendor Payment'
-                    return render(
-                        request, 'gbe/please_pay.tmpl',
-                        {'link': fee_link,
-                         'page_title': page_title}
-                    )
+                page_title = 'Vendor Payment'
+                return render(
+                    request, 'gbe/please_pay.tmpl',
+                    {'link': fee_link,
+                     'page_title': page_title}
+                )
         else:
             user_message = UserMessage.objects.get_or_create(
                 view='EditVendorView',
@@ -105,8 +92,8 @@ def EditVendorView(request, vendor_id):
                 defaults={
                     'summary': "Vendor Edit Draft Success",
                     'description': default_vendor_draft_msg})
-            messages.success(request, user_message[0].description)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        messages.success(request, user_message[0].description)
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
     else:
         if len(vendor.help_times.strip()) > 0:
             help_times_initial = eval(vendor.help_times)

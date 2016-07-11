@@ -114,15 +114,29 @@ class TestEditVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Vendor Payment" in response.content)
 
-    # def test_edit_bid_not_post(self):
-    #     '''edit_bid, not post, should take us to edit process'''
-    #     vendor = VendorFactory()
-    #     login_as(vendor.profile, self)
-    #     url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertTrue('Edit Your Vendor Proposal' in response.content)
-    # leads to syntax error in edit_vendor.
+    def test_edit_bid_get(self):
+        '''edit_bid, not post, should take us to edit process'''
+        vendor = VendorFactory()
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            '<h2 class="subtitle">Edit Your Vendor Application</h2>'
+            in response.content)
+
+    def test_edit_bid_get_no_help(self):
+        '''edit_bid, not post, should take us to edit process'''
+        vendor = VendorFactory(
+            help_times="",
+            help_description="")
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            '<h2 class="subtitle">Edit Your Vendor Application</h2>'
+            in response.content)
 
     def test_vendor_submit_make_message(self):
         response = self.post_edit_paid_vendor_submission()

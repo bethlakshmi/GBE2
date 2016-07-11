@@ -52,13 +52,16 @@ class TestEditVolunteer(TestCase):
     def edit_volunteer(self):
         clear_conferences()
         context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[context.bid.pk])
         login_as(self.privileged_user, self)
+        form = self.get_form(context.conference)
+        form['unavailable_windows'] = add_window.pk
         response = self.client.post(
             url,
-            self.get_form(context.conference),
+            form,
             follow=True)
         return response, context
 
@@ -110,6 +113,16 @@ class TestEditVolunteer(TestCase):
             availability='',
             unavailability='',
             interests='')
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+
+    def test_volunteer_edit_get_with_stuff(self):
+        volunteer = VolunteerFactory()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[volunteer.pk])

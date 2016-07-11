@@ -1664,9 +1664,6 @@ class Vendor(Biddable):
     def __unicode__(self):
         return self.title  # "title" here is company name
 
-    def validation_problems_for_submit(self):
-        return []
-
     def clone(self):
         vendor = Vendor(profile=self.profile,
                         website=self.website,
