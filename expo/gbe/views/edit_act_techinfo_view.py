@@ -33,6 +33,47 @@ from gbe.forms import (
 )
 from scheduler.models import Event as sEvent
 
+def set_rehearsal_forms(shows, act):
+    rehearsal_sets = {}
+    existing_rehearsals = {}
+    rehearsal_forms = []
+
+    for show in shows:
+        re_set = show.get_open_rehearsals()
+        existing_rehearsal = None
+        try:
+            existing_rehearsal = [r for r in act.get_scheduled_rehearsals() if
+                                  r.container_event.parent_event == show][0]
+        except:
+            pass
+        if existing_rehearsal:
+            try:
+                re_set.remove(existing_rehearsal)
+            except:
+                pass
+            re_set.append(existing_rehearsal)
+            re_set = sorted(re_set,
+                            key=lambda sched_event: sched_event.starttime)
+            existing_rehearsals[show] = existing_rehearsal
+
+        if len(re_set) > 0:
+            rehearsal_sets[show] = re_set
+
+    if len(rehearsal_sets) > 0:
+        for (show, r_set) in rehearsal_sets.items():
+            initial = {
+                'show': show,
+                'rehearsal_choices':
+                    [(r.id, "%s: %s" % (
+                        r.as_subtype.title,
+                        r.starttime.strftime("%I:%M:%p"))) for r in r_set]}
+            if show in existing_rehearsals:
+                initial['rehearsal'] = existing_rehearsals[show].id
+            rehearsal_forms += [
+                RehearsalSelectionForm(
+                    initial=initial)]
+    return rehearsal_forms
+
 
 @login_required
 @log_func
@@ -62,8 +103,6 @@ def EditActTechInfoView(request, act_id):
 
     shows = act.get_scheduled_shows()
     show_detail = get_object_or_404(Show, eventitem_id=shows[0].eventitem.pk)
-    rehearsal_sets = {}
-    existing_rehearsals = {}
     
     if show_detail.cue_sheet == 'Theater':
         formtype = CueInfoForm
@@ -77,43 +116,7 @@ def EditActTechInfoView(request, act_id):
     q = Performer.objects.filter(contact=profile)
     form.fields['performer'] = ModelChoiceField(queryset=q)
 
-    for show in shows:
-        re_set = show.get_open_rehearsals()
-        existing_rehearsal = None
-        try:
-            existing_rehearsal = [r for r in act.get_scheduled_rehearsals() if
-                                  r.container_event.parent_event == show][0]
-        except:
-            pass
-        if existing_rehearsal:
-            try:
-                re_set.remove(existing_rehearsal)
-            except:
-                pass
-            re_set.append(existing_rehearsal)
-            re_set = sorted(re_set,
-                            key=lambda sched_event: sched_event.starttime)
-            existing_rehearsals[show] = existing_rehearsal
-
-        if len(re_set) > 0:
-            rehearsal_sets[show] = re_set
-
-    if len(rehearsal_sets) > 0:
-        rehearsal_forms = []
-        for (show, r_set) in rehearsal_sets.items():
-            initial = {
-                'show': show,
-                'rehearsal_choices':
-                    [(r.id, "%s: %s" % (
-                        r.as_subtype.title,
-                        r.starttime.strftime("%I:%M:%p"))) for r in r_set]}
-            if show in existing_rehearsals:
-                initial['rehearsal'] = existing_rehearsals[show].id
-            rehearsal_forms += [
-                RehearsalSelectionForm(
-                    initial=initial)]
-    else:
-        rehearsal_forms = []
+    rehearsal_forms = set_rehearsal_forms(shows, act)
 
     if request.method == 'POST':
         if 'rehearsal' in request.POST:
