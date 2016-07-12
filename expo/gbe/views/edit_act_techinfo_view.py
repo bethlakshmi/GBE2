@@ -33,20 +33,11 @@ from gbe.forms import (
 )
 from scheduler.models import Event as sEvent
 
-
 def set_rehearsal_forms(shows, act):
-    '''
-    Sets up any forms for shows with scheduled rehearsal sets.
-        shows = a list of shows to build rehearsal sets for
-        act = the act that is the current working element for the forms
-        return value = a set of RehearsalSelectionForm, one
-            for each show that has some *open* rehearsals scheduled
-            (open = has available slots to add acts to)
-            with the scheduled rehearsals for this act selected
-    '''
     rehearsal_sets = {}
     existing_rehearsals = {}
     rehearsal_forms = []
+
     for show in shows:
         re_set = show.get_open_rehearsals()
         existing_rehearsal = None
@@ -56,13 +47,14 @@ def set_rehearsal_forms(shows, act):
         except:
             pass
         if existing_rehearsal:
+            try:
+                re_set.remove(existing_rehearsal)
+            except:
+                pass
+            re_set.append(existing_rehearsal)
+            re_set = sorted(re_set,
+                            key=lambda sched_event: sched_event.starttime)
             existing_rehearsals[show] = existing_rehearsal
-            # show chosen rehearsal, even if it doesn't have an open slot
-            if existing_rehearsal not in re_set:
-                re_set.append(existing_rehearsal)
-                re_set = sorted(
-                    re_set,
-                    key=lambda sched_event: sched_event.starttime)
 
         if len(re_set) > 0:
             rehearsal_sets[show] = re_set
@@ -111,6 +103,19 @@ def EditActTechInfoView(request, act_id):
 
     shows = act.get_scheduled_shows()
     show_detail = get_object_or_404(Show, eventitem_id=shows[0].eventitem.pk)
+    
+    if show_detail.cue_sheet == 'Theater':
+        formtype = CueInfoForm
+    elif show_detail.cue_sheet == 'Alternate':
+        formtype = VendorCueInfoForm
+    else:
+        formtype = "None"
+
+    form = ActTechInfoForm(instance=act,
+                               prefix='act_tech_info')
+    q = Performer.objects.filter(contact=profile)
+    form.fields['performer'] = ModelChoiceField(queryset=q)
+
     rehearsal_forms = set_rehearsal_forms(shows, act)
 
     if request.method == 'POST':
@@ -121,9 +126,6 @@ def EditActTechInfoView(request, act_id):
                 Show,
                 title=request.POST['show']).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
-        form = ActTechInfoForm(request.POST,
-                               instance=act,
-                               prefix='act_tech_info')
         audioform = AudioInfoSubmitForm(request.POST,
                                         request.FILES,
                                         prefix='audio_info',
@@ -134,12 +136,6 @@ def EditActTechInfoView(request, act_id):
         lightingform = LightingInfoForm(request.POST,
                                         prefix='lighting_info',
                                         instance=lighting_info)
-        if show_detail.cue_sheet == 'Theater':
-            formtype = CueInfoForm
-        elif show_detail.cue_sheet == 'Alternate':
-            formtype = VendorCueInfoForm
-        else:
-            formtype = "None"
 
         cue_fail = False
         if formtype != "None":
@@ -181,8 +177,6 @@ def EditActTechInfoView(request, act_id):
                           'gbe/act_techinfo.tmpl',
                           form_data)
     else:
-        form = ActTechInfoForm(instance=act,
-                               prefix='act_tech_info')
         audioform = AudioInfoSubmitForm(prefix='audio_info',
                                         instance=audio_info)
         stageform = StageInfoSubmitForm(prefix='stage_info',
@@ -190,13 +184,6 @@ def EditActTechInfoView(request, act_id):
         lightingform = LightingInfoForm(prefix='lighting_info',
                                         instance=lighting_info)
         techforms = [lightingform, audioform, stageform, ]
-
-        if show_detail.cue_sheet == 'Theater':
-            formtype = CueInfoForm
-        elif show_detail.cue_sheet == 'Alternate':
-            formtype = VendorCueInfoForm
-        else:
-            formtype = "None"
 
         form_data = {'readonlyform': [form],
                      'rehearsal_forms': rehearsal_forms,
@@ -215,9 +202,6 @@ def EditActTechInfoView(request, act_id):
                 choices=starting_cues,
                 initial=starting_cues[0])
             form_data['cues'] = cue_forms
-
-        q = Performer.objects.filter(contact=profile)
-        form.fields['performer'] = ModelChoiceField(queryset=q)
 
         return render(request,
                       'gbe/act_techinfo.tmpl',
