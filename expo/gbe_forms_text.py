@@ -134,7 +134,7 @@ volunteer_interests_options = [('VA8', 'Art Show'),
                                ('VA6', 'Vendor room')]
 
 volunteer_labels = {
-    'number_shifts': 'How many shifts would you like to work?',
+    'number_shifts': 'How many hours would you like to work?',
     'interests': 'What are your particular areas of interest?',
     'availability': 'I am Available....',
     'unavailability': 'I am Not Available....',
