@@ -112,6 +112,7 @@ class MessageAdmin(admin.ModelAdmin):
                     'summary',
                     'description')
     list_editable = ('summary', 'description')
+    readonly_fields = ('view', 'code')
 
 admin.site.register(Conference)
 admin.site.register(ConferenceDay)
