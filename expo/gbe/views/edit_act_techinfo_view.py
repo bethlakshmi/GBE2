@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.forms import (
     ChoiceField,
@@ -20,6 +21,7 @@ from gbe.models import (
     CueInfo,
     Performer,
     Show,
+    UserMessage
 )
 from gbe.forms import (
     RehearsalSelectionForm,
@@ -32,6 +34,7 @@ from gbe.forms import (
 
 )
 from scheduler.models import Event as sEvent
+from gbetext import default_update_act_tech
 
 def set_rehearsal_forms(shows, act):
     rehearsal_sets = {}
@@ -137,7 +140,6 @@ def EditActTechInfoView(request, act_id):
                                         prefix='lighting_info',
                                         instance=lighting_info)
 
-        cue_fail = False
         if formtype != "None":
             cue_forms = [formtype(request.POST,
                                   prefix='cue%d' % i,
@@ -148,8 +150,6 @@ def EditActTechInfoView(request, act_id):
             for f in cue_forms:
                 if f.is_valid():
                     f.save()
-                else:
-                    cue_fail = True
 
         techforms = [lightingform,  audioform, stageform, ]
 
@@ -157,7 +157,14 @@ def EditActTechInfoView(request, act_id):
             if f.is_valid():
                 f.save()
         tech = act.tech
-        if tech.is_complete and not cue_fail:
+        if tech.is_complete:
+            user_message = UserMessage.objects.get_or_create(
+                view='EditActTechInfoView',
+                code="UPDATE_ACT_TECH",
+                defaults={
+                    'summary': "Update Act Tech Info Success",
+                    'description': default_update_act_tech})
+            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             form_data = {'readonlyform': [form],
