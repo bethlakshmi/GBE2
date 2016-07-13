@@ -17,6 +17,7 @@ from gbetext import (
     default_propose_submit_msg,
 )
 
+
 @log_func
 def ProposeClassView(request):
     '''

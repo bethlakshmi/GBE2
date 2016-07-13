@@ -10,6 +10,7 @@ from gbe.functions import validate_profile
 from gbetext import default_create_persona_msg
 from gbe.models import UserMessage
 
+
 @login_required
 @log_func
 def RegisterPersonaView(request, **kwargs):

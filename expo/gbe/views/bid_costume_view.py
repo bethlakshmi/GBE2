@@ -32,6 +32,7 @@ from gbetext import (
     default_costume_draft_msg
 )
 
+
 @login_required
 @log_func
 def BidCostumeView(request):

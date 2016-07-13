@@ -31,6 +31,7 @@ from gbetext import (
     not_yours
 )
 
+
 @login_required
 @log_func
 def EditCostumeView(request, costume_id):

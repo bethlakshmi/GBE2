@@ -12,6 +12,7 @@ from gbe.models import (
 )
 from gbetext import default_clone_msg
 
+
 @login_required
 def CloneBidView(request, bid_type, bid_id):
     '''

@@ -35,6 +35,7 @@ from gbetext import (
     default_act_draft_msg
 )
 
+
 @login_required
 @log_func
 def BidActView(request):

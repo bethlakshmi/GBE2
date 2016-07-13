@@ -21,6 +21,7 @@ from gbetext import (
     default_vendor_draft_msg
 )
 
+
 @login_required
 @log_func
 def CreateVendorView(request):

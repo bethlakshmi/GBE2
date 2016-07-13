@@ -16,6 +16,7 @@ from gbe.models import (
 from gbe.functions import validate_profile
 from gbetext import default_update_profile_msg
 
+
 @login_required
 @log_func
 def UpdateProfileView(request):

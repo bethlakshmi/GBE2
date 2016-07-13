@@ -73,11 +73,11 @@ class TestEditActTechInfo(TestCase):
 
     def check_good_info(self, response, context, random_performer):
         labels = [
-            ('Title','title'),
-            ('Description','description'),
-            ('Performer','performer'),
-            ('Video link','video_link'),
-            ('Video choice','video_choice')
+            ('Title', 'title'),
+            ('Description', 'description'),
+            ('Performer', 'performer'),
+            ('Video link', 'video_link'),
+            ('Video choice', 'video_choice')
             ]
         html_label_format = '<td class="readonlyform form_label">' + \
             '<label for="id_act_tech_info-%s">%s:</label>'
@@ -141,7 +141,6 @@ class TestEditActTechInfo(TestCase):
             data=data,
             follow=True)
         return response, context, another_rehearsal
-
 
     def test_edit_act_techinfo_unauthorized_user(self):
         context = ActTechInfoContext()
@@ -379,7 +378,6 @@ class TestEditActTechInfo(TestCase):
         self.assertContains(
             response,
             'Add text if you wish to save information for this cue.')
-
 
     def test_edit_act_techinfo_make_message(self):
         response, context, another = self.post_act_tech_info_success()

@@ -25,6 +25,7 @@ from gbetext import (
     default_class_draft_msg
 )
 
+
 @login_required
 @log_func
 def EditClassView(request, class_id):

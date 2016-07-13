@@ -22,6 +22,7 @@ from gbetext import (
     default_volunteer_submit_msg
 )
 
+
 @login_required
 @log_func
 def CreateVolunteerView(request):
