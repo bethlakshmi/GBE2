@@ -9,6 +9,7 @@ from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
+from gbetext import act_shows_options
 from expoformfields import (
     DurationFormField,
     FriendlyURLInput,
