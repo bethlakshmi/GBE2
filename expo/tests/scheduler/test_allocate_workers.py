@@ -277,7 +277,6 @@ class TestAllocateWorkers(TestCase):
         data = self.get_edit_data()
         data['worker'] = new_volunteer.pk,
         data['role'] = 'Producer',
-
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
         assert 1 == len(mail.outbox)
