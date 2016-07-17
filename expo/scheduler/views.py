@@ -450,7 +450,7 @@ def mail_to_user(subject, message, user):
 def notify_volunteer_schedule_change(profile):
     subject = "A change has been made to your Volunteer Schedule!"
     message = loader.get_template('scheduler/volunteer_schedule_update.tmpl')
-    c = Context({'user': profile.user_object})
+    c = Context({'profile': profile})
     if not settings.DEBUG:
         mail_to_user(subject, message.render(c), profile.user_object)
 

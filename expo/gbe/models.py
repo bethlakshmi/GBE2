@@ -344,6 +344,11 @@ class Profile(WorkerItem):
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
+    def volunteer_schedule(self, conference=None):
+        conference = conference or Conference.current_conf()
+        return self.workeritem.volunteer_events(conference)
+
+
     def get_roles(self, conference):
         '''
         Gets all of a person's roles for a conference

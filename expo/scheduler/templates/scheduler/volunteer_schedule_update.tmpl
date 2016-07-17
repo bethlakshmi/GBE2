@@ -1,13 +1,13 @@
 {% load scheduler_tags %}
 
-<p>Dear {{ user.profile.display_name }},</p>
+<p>Dear {{ profile.display_name }},</p>
 
 <p>Thank you for participating in The Great Burlesque Exposition! An update has
 been made to your volunteer schedule. Your current volunteer schedule is listed
 below; you can also check your schedule at anytime by logging in to the site and
 looking at your personal page.</p>
 
-{% volunteer_schedule user %}
+{% volunteer_schedule profile %}
 
 <p>Please try to report for each volunteer shift a few minutes before it begins. If
 for any reason you will not be able to make the commitments on your schedule,

@@ -449,6 +449,11 @@ class WorkerItem(ResourceItem):
                 conflicts += [event]
         return conflicts
 
+    def volunteer_events(self, conference):
+        return Event.objects.filter(
+            resources_allocated__resource__worker___item=self,
+            eventitem__event__conference=conference).order_by('starttime')
+
 
 class Worker(Resource):
     '''
@@ -483,7 +488,7 @@ class Worker(Resource):
 
 '''
 class EquipmentItem(ResourceItem):
-    
+
     # Payload object for an allocatable item
     # Not currently used
 
@@ -516,9 +521,9 @@ class EquipmentItem(ResourceItem):
 
 class Equipment(Resource):
     # An allocatable thing
-    # Not currently used. Probably needs a good bit of development before 
+    # Not currently used. Probably needs a good bit of development before
     # we can really use it (we'd like to be able to allocate single objects,
-    # sets of objects, and quantities of objects at the very least - this 
+    # sets of objects, and quantities of objects at the very least - this
     # requires a bit of design)
     objects = InheritanceManager()
     _item = models.ForeignKey(EquipmentItem)
