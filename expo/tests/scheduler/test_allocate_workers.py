@@ -271,7 +271,6 @@ class TestAllocateWorkers(TestCase):
             '<form method="POST" action="/scheduler/allocate/' +
             str(self.volunteer_opp.pk) + '"', count=1)
 
-
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
         data = self.get_edit_data()

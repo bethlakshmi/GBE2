@@ -486,52 +486,6 @@ class Worker(Resource):
         except:
             return "No Worker Item"
 
-'''
-class EquipmentItem(ResourceItem):
-
-    # Payload object for an allocatable item
-    # Not currently used
-
-    objects = InheritanceManager()
-
-    def get_resource(self):
-        # Return the resource corresonding to this item
-        # To do: find a way to make this work at the Resource level
-        try:
-            equip = Equipment.objects.select_subclasses().get(_item=self)
-        except:
-            equip = Equipment(_item=self)
-            equip.save()
-        return equip
-
-    @property
-    def contact_email(self):
-        return ""
-
-    @property
-    def describe(self):
-        return "Equipment Item"
-
-    def __str__(self):
-        return str(self.describe)
-
-    def __unicode__(self):
-        return unicode(self.describe)
-
-
-class Equipment(Resource):
-    # An allocatable thing
-    # Not currently used. Probably needs a good bit of development before
-    # we can really use it (we'd like to be able to allocate single objects,
-    # sets of objects, and quantities of objects at the very least - this
-    # requires a bit of design)
-    objects = InheritanceManager()
-    _item = models.ForeignKey(EquipmentItem)
-
-    @property
-    def type(self):
-        return "equipment"
-'''
 
 class EventItem (models.Model):
     '''
@@ -999,9 +953,11 @@ class Event(Schedulable):
         is_conflict = False
         if self.start_time == other_event.starttime:
             is_conflict = True
-        elif self.start_time > other_event.start_time and self.start_time < other_event.end_time:
+        elif (self.start_time > other_event.start_time and
+              self.start_time < other_event.end_time):
             is_conflict = True
-        elif self.start_time < other_event.start_time and self.end_time > other_event.start_time:
+        elif (self.start_time < other_event.start_time and
+              self.end_time > other_event.start_time):
             is_conflict = True
         return is_conflict
 

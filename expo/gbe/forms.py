@@ -538,7 +538,6 @@ class RehearsalSelectionForm(forms.Form):
             self.fields['rehearsal'] = forms.ChoiceField(
                 choices=kwargs['initial']['rehearsal_choices'])
 
-
     class Meta:
         fields = ['show', 'rehearsal']
 

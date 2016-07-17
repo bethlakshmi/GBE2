@@ -348,7 +348,6 @@ class Profile(WorkerItem):
         conference = conference or Conference.current_conf()
         return self.workeritem.volunteer_events(conference)
 
-
     def get_roles(self, conference):
         '''
         Gets all of a person's roles for a conference
