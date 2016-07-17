@@ -1,3 +1,4 @@
+from django.core import mail
 from django.test import (
     TestCase,
     Client
@@ -269,3 +270,17 @@ class TestAllocateWorkers(TestCase):
             response,
             '<form method="POST" action="/scheduler/allocate/' +
             str(self.volunteer_opp.pk) + '"', count=1)
+
+
+    def test_post_form_edit_exiting_allocation(self):
+        new_volunteer = ProfileFactory()
+        data = self.get_edit_data()
+        data['worker'] = new_volunteer.pk,
+        data['role'] = 'Producer',
+
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = "A change has been made to your Volunteer Schedule!"
+        assert msg.subject == expected_subject
