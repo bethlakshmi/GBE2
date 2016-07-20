@@ -16,6 +16,7 @@ from gbe.forms import (
 from gbe.models import Class
 from gbe.duration import Duration
 from gbe.functions import validate_profile
+from gbe_forms_text import avoided_constraints_popup_text
 
 
 @login_required
@@ -61,7 +62,8 @@ def EditClassView(request, class_id):
                          'page_title': page_title,
                          'view_title': view_title,
                          'draft_fields': draft_fields,
-                         'errors': ['Cannot submit, class is not complete']}
+                         'errors': ['Cannot submit, class is not complete'],
+                         'popup_text': avoided_constraints_popup_text}
                     )
             the_class.save()
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
@@ -74,7 +76,8 @@ def EditClassView(request, class_id):
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
-                 'submit_fields': requiredsub}
+                 'submit_fields': requiredsub,
+                 'popup_text': avoided_constraints_popup_text}
             )
     else:
         form = ClassBidForm(instance=the_class)
@@ -85,5 +88,6 @@ def EditClassView(request, class_id):
             {'forms': [form],
              'page_title': page_title,
              'view_title': view_title,
-             'draft_fields': draft_fields}
+             'draft_fields': draft_fields,
+             'popup_text': avoided_constraints_popup_text}
         )
