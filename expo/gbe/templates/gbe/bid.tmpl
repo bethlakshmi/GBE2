@@ -16,7 +16,9 @@
     <p style= "color:red">{{error}}</p>
     {% endfor %}
   {% endif %}
-
+  <div class="alert alert-info">
+    <strong>Info!</strong> {{popup_text}}
+  </div>
    <form action="" method="post" enctype="multipart/form-data">
 
    {% include "form_table_wrapper.tmpl" %}
