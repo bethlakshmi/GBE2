@@ -325,7 +325,7 @@ description_help_text = '''For use on the The Great Burlesque Expo website, \
     in advertising and in any schedule of events. The description should be \
     1-2 paragraphs.'''
 
-avoided_constraints_popup_text '''We will do our best to accommodate everyone's
+avoided_constraints_popup_text = '''We will do our best to accommodate everyone's
     requests when scheduling classes, but please realize that is not always
     possible. The more flexible you can be, the more likely we are to be able
     to schedule your class. Thanks for your understanding!'''
