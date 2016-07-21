@@ -102,3 +102,23 @@ class TestEditClass(TestCase):
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response), 'http://testserver/gbe')
         # should test some change to class
+
+    def test_edit_bid_verify_info_popup_text(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('We will do our best to accommodate' in response.content)
+
+    def test_edit_bid_verify_avoided_constraints(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('I Would Prefer to Avoid' in response.content)
