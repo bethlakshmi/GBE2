@@ -1,8 +1,12 @@
+
 from gbe.models import (
     Conference,
     Profile,
 )
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import (
+    Group,
+    User,
+)
 from tests.factories.gbe_factories import ConferenceFactory
 from tests.factories.ticketing_factories import (
     BrownPaperEventsFactory,

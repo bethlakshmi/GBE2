@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from factory import (
     Sequence,
     DjangoModelFactory,
