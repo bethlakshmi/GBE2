@@ -391,7 +391,8 @@ class ClassBidForm(forms.ModelForm):
     avoided_constraints = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=class_schedule_options,
-        label=classbid_labels['avoided_constraints'])
+        label=classbid_labels['avoided_constraints'],
+        required=False)
 
     class Meta:
         model = Class
@@ -412,7 +413,8 @@ class ClassBidDraftForm(forms.ModelForm):
     avoided_constraints = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=class_schedule_options,
-        label=classbid_labels['avoided_constraints'])
+        label=classbid_labels['avoided_constraints'],
+        required=False)
     ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
     description = forms.CharField(required=False,
