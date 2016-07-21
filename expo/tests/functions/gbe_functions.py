@@ -1,9 +1,12 @@
+
 from gbe.models import (
     Conference,
     Profile,
+)
+from django.contrib.auth.models import (
+    Group,
     User,
 )
-from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import ConferenceFactory
 
 

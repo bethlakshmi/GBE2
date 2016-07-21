@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from factory import (
     Sequence,
     DjangoModelFactory,
@@ -52,7 +53,7 @@ class WorkerItemFactory(DjangoModelFactory):
 
 class UserFactory(DjangoModelFactory):
     class Meta:
-        model = conf.User
+        model = User
     first_name = Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
     username = LazyAttribute(lambda a: "%s" % (a.first_name))
