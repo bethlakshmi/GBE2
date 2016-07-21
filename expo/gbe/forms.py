@@ -11,11 +11,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbetext import (
     acceptance_states,
-    act_shows_options,
     act_other_perf_options,
+    act_shows_options,
     boolean_options,
     new_event_options,
-
 )
 from expoformfields import (
     DurationFormField,
@@ -544,7 +543,6 @@ class RehearsalSelectionForm(forms.Form):
         else:
             self.fields['rehearsal'] = forms.ChoiceField(
                 choices=kwargs['initial']['rehearsal_choices'])
-
 
     class Meta:
         fields = ['show', 'rehearsal']

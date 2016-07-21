@@ -106,6 +106,14 @@ class EventAdmin(admin.ModelAdmin):
         except:
             return "Event"
 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('view',
+                    'code',
+                    'summary',
+                    'description')
+    list_editable = ('summary', 'description')
+    readonly_fields = ('view', 'code')
+
 admin.site.register(Conference)
 admin.site.register(ConferenceDay)
 admin.site.register(VolunteerWindow)
@@ -134,3 +142,4 @@ admin.site.register(Troupe, TroupeAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
 admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(UserMessage, MessageAdmin)

@@ -7,6 +7,7 @@ from factory import (
     LazyAttribute
 )
 import gbe.models as conf
+from django.contrib.auth.models import User
 import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
@@ -288,8 +289,7 @@ class VendorFactory(DjangoModelFactory):
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = LazyAttribute(
-        lambda a: "Help times for test Volunteer")
+    help_times = "['VSH0']"
     conference = SubFactory(ConferenceFactory)
 
 
@@ -357,3 +357,12 @@ class VolunteerWindowFactory(DjangoModelFactory):
     day = SubFactory(ConferenceDayFactory)
     start = time(10)
     end = time(14)
+
+
+class UserMessageFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.UserMessage
+    view = Sequence(lambda x: "View%d" % x)
+    code = Sequence(lambda x: "CODE_%d" % x)
+    summary = Sequence(lambda x: "Message Summary #%d" % x)
+    description = Sequence(lambda x: "Description #%d" % x)

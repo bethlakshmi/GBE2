@@ -1,20 +1,23 @@
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
+    UserMessageFactory,
     VolunteerFactory,
 )
 from tests.contexts import VolunteerContext
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     clear_conferences,
     login_as,
     grant_privilege,
 )
+from gbetext import default_volunteer_edit_msg
+from gbe.models import UserMessage
 
 
 class TestEditVolunteer(TestCase):
@@ -25,6 +28,7 @@ class TestEditVolunteer(TestCase):
     # for now, test it.
 
     def setUp(self):
+        UserMessage.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -45,13 +49,29 @@ class TestEditVolunteer(TestCase):
             del(form['number_shifts'])
         return form
 
+    def edit_volunteer(self):
+        clear_conferences()
+        context = VolunteerContext()
+        add_window = context.add_window()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(self.privileged_user, self)
+        form = self.get_form(context.conference)
+        form['unavailable_windows'] = add_window.pk
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        return response, context
+
     def test_edit_volunteer_no_volunteer(self):
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[0])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        nt.assert_equal(403, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = ProfileFactory().user_object
@@ -61,7 +81,7 @@ class TestEditVolunteer(TestCase):
                       args=[volunteer.pk])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        nt.assert_equal(403, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -76,26 +96,17 @@ class TestEditVolunteer(TestCase):
             self.get_form(context.conference,
                           invalid=True))
 
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Volunteer Bid' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
 
     def test_volunteer_edit_post_form_valid(self):
         '''volunteer_edit, if form not valid, should return
         to VolunteerEditForm'''
-        clear_conferences()
-        context = VolunteerContext()
-        url = reverse('volunteer_edit',
-                      urlconf='gbe.urls',
-                      args=[context.bid.pk])
-        login_as(self.privileged_user, self)
-        response = self.client.post(
-            url,
-            self.get_form(context.conference),
-            follow=True)
+        response, context = self.edit_volunteer()
         expected_string = ("Bid Information for %s" %
                            context.conference.conference_name)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true(expected_string in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(expected_string in response.content)
 
     def test_volunteer_edit_get(self):
         volunteer = VolunteerFactory(
@@ -107,5 +118,30 @@ class TestEditVolunteer(TestCase):
                       args=[volunteer.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Volunteer Bid' in response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+
+    def test_volunteer_edit_get_with_stuff(self):
+        volunteer = VolunteerFactory()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+
+    def test_volunteer_submit_make_message(self):
+        response, context = self.edit_volunteer()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_volunteer_edit_msg)
+
+    def test_volunteer_submit_has_message(self):
+        msg = UserMessageFactory(
+            view='EditVolunteerView',
+            code='SUBMIT_SUCCESS')
+        response, context = self.edit_volunteer()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
