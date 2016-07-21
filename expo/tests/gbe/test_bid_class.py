@@ -124,3 +124,19 @@ class TestBidClass(TestCase):
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Submit a Class' in response.content)
+
+    def test_class_bid_verify_info_popup_text(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('We will do our best to accommodate' in response.content)
+
+    def test_class_bid_verify_avoided_constraints(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        response = self.client.get(url)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true('I Would Prefer to Avoid' in response.content)
