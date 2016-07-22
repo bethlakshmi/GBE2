@@ -138,7 +138,7 @@ INSTALLED_APPS = (
     'compat',
     'debug_toolbar',
 )
-
+DEBUG_TOOLBAR_PATCH_SETTINGS = False 
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 
