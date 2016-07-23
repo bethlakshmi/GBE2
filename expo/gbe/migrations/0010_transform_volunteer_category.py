@@ -276,7 +276,8 @@ class Migration(DataMigration):
             'Meta': {'ordering': "['title']", 'object_name': 'GenericEvent', '_ormbases': ['gbe.Event']},
             u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'Special'", 'max_length': '128'}),
-            'volunteer_category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'})
+            'volunteer_category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
+            'volunteer_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']", 'null': 'True', 'blank': 'True'})
         },
         'gbe.lightinginfo': {
             'Meta': {'object_name': 'LightingInfo'},
@@ -408,7 +409,7 @@ class Migration(DataMigration):
             'Meta': {'unique_together': "(('interest', 'volunteer'),)", 'object_name': 'VolunteerInterest'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'interest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']"}),
-            'rank': ('django.db.models.fields.IntegerField', [], {'default': '3', 'blank': 'True'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {'default': '2', 'blank': 'True'}),
             'volunteer': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Volunteer']"})
         },
         'gbe.volunteerwindow': {
