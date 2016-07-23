@@ -9,7 +9,7 @@ class VolunteerInterest(models.Model):
     interest = models.ForeignKey(AvailableInterest)
     volunteer = models.ForeignKey(Volunteer)
     rank = models.IntegerField(choices=rank_interest_options,
-                               default=3,
+                               default=2,
                                blank=True)
 
     class Meta:

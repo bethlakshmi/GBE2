@@ -1,45 +1,57 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'AvailableInterest'
-        db.create_table(u'gbe_availableinterest', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('interest', self.gf('django.db.models.fields.CharField')(unique=True, max_length=128)),
-            ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('help_text', self.gf('django.db.models.fields.TextField')(max_length=500)),
-        ))
-        db.send_create_signal('gbe', ['AvailableInterest'])
+        # this goes here because it will be deleted in gbe_forms by the time
+        # this runs
+        volunteer_interests_options = [
+            ('VA8', 'Art Show'),
+            ('VA4', 'Conference Staff'),
+            ('VA7', 'Costume Exhibit'),
+            ('VA10', 'Model/Performer'),
+            ('VA9', 'Photography/Media'),
+            ('VA0', 'Registration'),
+            ('VA1', 'Security/usher'),
+            ('VA2', 'Stage crew'),
+            ('VA3', 'Stage Management'),
+            ('VA5', 'Tech crew'),
+            ('VA6', 'Vendor room')]
 
-        # Adding model 'VolunteerInterest'
-        db.create_table(u'gbe_volunteerinterest', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('interest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.AvailableInterest'])),
-            ('volunteer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Volunteer'])),
-            ('rank', self.gf('django.db.models.fields.IntegerField')(default=2, blank=True)),
-        ))
-        db.send_create_signal('gbe', ['VolunteerInterest'])
-
-        # Adding unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
-        db.create_unique(u'gbe_volunteerinterest', ['interest_id', 'volunteer_id'])
-
+        # 1 = create the current interests as AvailableInterests
+        # 2 = for each Volunteer - make a set of VolunteerInterests for
+        #     ALL current interests, as follows:
+        #        - if the interest is in the Volunteer.intersts, it's ranked
+        #          "Somewhat Interested" (2)
+        #        - if the interest is NOT in the interests, it's ranked "0",
+        #          "Not interested"
+        #
+        volunteers = orm.Volunteer.objects.all()
+        load_set = []
+        for code, text in volunteer_interests_options:
+            avail = orm.AvailableInterest.objects.create(interest=text)
+            load_set += [(avail, code)]
+        for volunteer in volunteers:
+            for v_avail, v_code in load_set:
+                interests = []
+                if code in volunteer.interests:
+                    interests += [orm.VolunteerInterest(
+                        volunteer=volunteer,
+                        interest=v_avail,
+                        rank=3)]
+                else:
+                    interests += [orm.VolunteerInterest(
+                        volunteer=volunteer,
+                        interest=v_avail,
+                        rank=0)]
+                orm.VolunteerInterest.objects.bulk_create(interests)
 
     def backwards(self, orm):
-        # Removing unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
-        db.delete_unique(u'gbe_volunteerinterest', ['interest_id', 'volunteer_id'])
-
-        # Deleting model 'AvailableInterest'
-        db.delete_table(u'gbe_availableinterest')
-
-        # Deleting model 'VolunteerInterest'
-        db.delete_table(u'gbe_volunteerinterest')
-
+        "Write your backwards methods here."
 
     models = {
         u'auth.group': {
@@ -376,7 +388,7 @@ class Migration(SchemaMigration):
             'Meta': {'unique_together': "(('interest', 'volunteer'),)", 'object_name': 'VolunteerInterest'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'interest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']"}),
-            'rank': ('django.db.models.fields.IntegerField', [], {'default': '2', 'blank': 'True'}),
+            'rank': ('django.db.models.fields.IntegerField', [], {'default': '3', 'blank': 'True'}),
             'volunteer': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Volunteer']"})
         },
         'gbe.volunteerwindow': {
@@ -410,3 +422,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['gbe']
+    symmetrical = True
