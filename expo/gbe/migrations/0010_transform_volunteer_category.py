@@ -21,6 +21,10 @@ volunteer_interests_options_dict = {
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ("scheduler", "0001_initial"),
+    )
+
     def forwards(self, orm):
         # 1 = create the current interests as AvailableInterests
         # 2 = for each Volunteer - make a set of VolunteerInterests for
