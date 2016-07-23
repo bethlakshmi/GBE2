@@ -66,9 +66,10 @@ class Migration(DataMigration):
                     volunteer_interests_options_dict[interest.interest.interest]]
             volunteer.save()
         for event in orm.GenericEvent.objects.all():
-            #if event.volunteer_type:
-            #    event.volunteer_category = volunteer_interests_options_dict[
-            #        event.volunteer_type.interest]
+            if event.volunteer_type:
+                event.volunteer_category = volunteer_interests_options_dict[
+                    event.volunteer_type.interest]
+            event.volunteer_type = None
             event.save()
         orm.VolunteerInterest.objects.all().delete()
         orm.AvailableInterest.objects.all().delete()
