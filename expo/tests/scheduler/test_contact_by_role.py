@@ -91,7 +91,6 @@ class TestDeleteEvent(TestCase):
 
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
-                                    interests="['VA1']",
                                     conference=context.conference)
             context.book_volunteer(opp, volunteer)
 
@@ -101,6 +100,7 @@ class TestDeleteEvent(TestCase):
                                            args=['Volunteers']))
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
+        self.assertContains(response, 'Registration', count=5)
 
     def test_contact_volunteers_current_volunteers_no_container(self):
         Conference.objects.all().delete()
@@ -113,7 +113,6 @@ class TestDeleteEvent(TestCase):
                 for volunteer in volunteers]
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
-                                    interests="['VA1']",
                                     conference=conference)
         event = SchedEventFactory()
         for worker in workers:
@@ -126,6 +125,7 @@ class TestDeleteEvent(TestCase):
                                            args=['Volunteers']))
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
+        self.assertContains(response, 'Registration', count=5)
 
     def test_contact_volunteers_former_volunteers_not_visible(self):
         Conference.objects.all().delete()
@@ -137,7 +137,6 @@ class TestDeleteEvent(TestCase):
                    for volunteer in volunteers]
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
-                                    interests="['VA1']",
                                     conference=previous_conf)
         event = SchedEventFactory()
         for worker in workers:
@@ -150,6 +149,7 @@ class TestDeleteEvent(TestCase):
                                            args=['Volunteers']))
         self.assertFalse(any([volunteer.display_name in response.content
                          for volunteer in volunteers]))
+        self.assertNotContains(response, 'Registration')
 
     def test_contact_vendors(self):
         Conference.objects.all().delete()
