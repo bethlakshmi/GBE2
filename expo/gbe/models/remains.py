@@ -1560,7 +1560,6 @@ class Volunteer(Biddable):
     availability = models.TextField(blank=True)
     unavailability = models.TextField(blank=True)
 
-    interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
