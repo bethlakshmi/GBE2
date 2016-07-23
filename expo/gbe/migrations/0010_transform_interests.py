@@ -4,24 +4,24 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
+# this goes here because it will be deleted in gbe_forms by the time
+# this runs
+volunteer_interests_options_dict = {
+    'Art Show': 'VA8',
+    'Conference Staff': 'VA4',
+    'Costume Exhibit': 'VA7',
+    'Model/Performer': 'VA10',
+    'Photography/Media': 'VA9',
+    'Registration': 'VA0',
+    'Security/usher': 'VA1',
+    'Stage crew': 'VA2',
+    'Stage Management': 'VA3',
+    'Tech crew': 'VA5',
+    'Vendor room': 'VA6'}
+
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        # this goes here because it will be deleted in gbe_forms by the time
-        # this runs
-        volunteer_interests_options = [
-            ('VA8', 'Art Show'),
-            ('VA4', 'Conference Staff'),
-            ('VA7', 'Costume Exhibit'),
-            ('VA10', 'Model/Performer'),
-            ('VA9', 'Photography/Media'),
-            ('VA0', 'Registration'),
-            ('VA1', 'Security/usher'),
-            ('VA2', 'Stage crew'),
-            ('VA3', 'Stage Management'),
-            ('VA5', 'Tech crew'),
-            ('VA6', 'Vendor room')]
-
         # 1 = create the current interests as AvailableInterests
         # 2 = for each Volunteer - make a set of VolunteerInterests for
         #     ALL current interests, as follows:
@@ -30,12 +30,11 @@ class Migration(DataMigration):
         #        - if the interest is NOT in the interests, it's ranked "0",
         #          "Not interested"
         #
-        volunteers = orm.Volunteer.objects.all()
         load_set = []
-        for code, text in volunteer_interests_options:
+        for text, code in volunteer_interests_options_dict.iteritems():
             avail = orm.AvailableInterest.objects.create(interest=text)
             load_set += [(avail, code)]
-        for volunteer in volunteers:
+        for volunteer in orm.Volunteer.objects.all():
             for v_avail, v_code in load_set:
                 interests = []
                 if code in volunteer.interests:
@@ -51,7 +50,19 @@ class Migration(DataMigration):
                 orm.VolunteerInterest.objects.bulk_create(interests)
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        # for each Volunteer - for any interests in VolunteerInterest,
+        #  if the interest is 2 or higher, turn it back into a flat interest
+        volunteer_interests = orm.VolunteerInterest.objects.all()
+        for volunteer in orm.Volunteer.objects.all():
+            volunteer.interests = []
+            for interest in volunteer_interests.filter(
+                volunteer=volunteer,
+                rank__gt=2):
+                volunteer.interests += [
+                    volunteer_interests_options_dict[interest.interest.interest]]
+            volunteer.save()
+        orm.VolunteerInterest.objects.all().delete()
+        orm.AvailableInterest.objects.all().delete()
 
     models = {
         u'auth.group': {
