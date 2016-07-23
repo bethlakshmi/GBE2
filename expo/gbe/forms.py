@@ -443,9 +443,6 @@ class VolunteerBidForm(forms.ModelForm):
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
 
-    interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                          choices=volunteer_interests_options)
-
     def __init__(self, *args, **kwargs):
         if 'available_windows' in kwargs:
             available_windows = kwargs.pop('available_windows')
@@ -464,7 +461,6 @@ class VolunteerBidForm(forms.ModelForm):
         fields = ['number_shifts',
                   'available_windows',
                   'unavailable_windows',
-                  'interests',
                   'opt_outs',
                   'pre_event',
                   'background',

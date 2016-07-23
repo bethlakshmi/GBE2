@@ -31,6 +31,7 @@ from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
 import pytz
+from gbe.models import AvailableInterest
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -1283,6 +1284,9 @@ class GenericEvent (Event):
                                           choices=volunteer_interests_options,
                                           blank=True,
                                           default="")
+    volunteer_type = models.ForeignKey(AvailableInterest,
+                                       blank=True,
+                                       null=True)
 
     def __str__(self):
         return self.title
@@ -1559,7 +1563,7 @@ class Volunteer(Biddable):
                                         default=1)
     availability = models.TextField(blank=True)
     unavailability = models.TextField(blank=True)
-
+    interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
@@ -1577,8 +1581,9 @@ class Volunteer(Biddable):
 
     @property
     def interest_list(self):
-        return [interest for code, interest in volunteer_interests_options if
-                code in self.interests]
+        return [
+            interest.interest.interest
+            for interest in self.volunteerinterest_set.all()]
 
     @property
     def bid_review_header(self):
@@ -1597,9 +1602,8 @@ class Volunteer(Biddable):
     @property
     def bid_review_summary(self):
         interest_string = ''
-        for option_id, option_value in volunteer_interests_options:
-            if option_id in self.interests:
-                interest_string += option_value + ', \n'
+        for interest in self.volunteerinterest_set.all():
+            interest_string += interest.interest.interest + ', \n'
         availability_string = ''
         unavailability_string = ''
         for window in self.available_windows.all():

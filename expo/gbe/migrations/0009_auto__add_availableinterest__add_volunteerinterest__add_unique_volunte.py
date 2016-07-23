@@ -29,6 +29,11 @@ class Migration(SchemaMigration):
         # Adding unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
         db.create_unique(u'gbe_volunteerinterest', ['interest_id', 'volunteer_id'])
 
+        # Adding field 'GenericEvent.volunteer_type'
+        db.add_column(u'gbe_genericevent', 'volunteer_type',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.AvailableInterest'], null=True, blank=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
         # Removing unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
@@ -39,6 +44,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'VolunteerInterest'
         db.delete_table(u'gbe_volunteerinterest')
+
+        # Deleting field 'GenericEvent.volunteer_type'
+        db.delete_column(u'gbe_genericevent', 'volunteer_type_id')
 
 
     models = {
@@ -244,7 +252,8 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['title']", 'object_name': 'GenericEvent', '_ormbases': ['gbe.Event']},
             u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'Special'", 'max_length': '128'}),
-            'volunteer_category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'})
+            'volunteer_category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
+            'volunteer_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']", 'null': 'True', 'blank': 'True'})
         },
         'gbe.lightinginfo': {
             'Meta': {'object_name': 'LightingInfo'},

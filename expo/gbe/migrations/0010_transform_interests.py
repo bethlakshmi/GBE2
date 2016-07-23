@@ -30,14 +30,14 @@ class Migration(DataMigration):
         #        - if the interest is NOT in the interests, it's ranked "0",
         #          "Not interested"
         #
-        load_set = []
+        load_set = {}
         for text, code in volunteer_interests_options_dict.iteritems():
             avail = orm.AvailableInterest.objects.create(interest=text)
-            load_set += [(avail, code)]
+            load_set[code] = avail
         for volunteer in orm.Volunteer.objects.all():
-            for v_avail, v_code in load_set:
+            for v_code, v_avail in load_set.iteritems():
                 interests = []
-                if code in volunteer.interests:
+                if v_code in volunteer.interests:
                     interests += [orm.VolunteerInterest(
                         volunteer=volunteer,
                         interest=v_avail,
@@ -48,6 +48,10 @@ class Migration(DataMigration):
                         interest=v_avail,
                         rank=0)]
                 orm.VolunteerInterest.objects.bulk_create(interests)
+        for event in orm.GenericEvent.objects.all():
+            if event.volunteer_category:
+                event.volunteer_type = load_set[event.volunteer_category]
+                event.save()
 
     def backwards(self, orm):
         # for each Volunteer - for any interests in VolunteerInterest,
@@ -61,6 +65,11 @@ class Migration(DataMigration):
                 volunteer.interests += [
                     volunteer_interests_options_dict[interest.interest.interest]]
             volunteer.save()
+        for event in orm.GenericEvent.objects.all():
+            #if event.volunteer_type:
+            #    event.volunteer_category = volunteer_interests_options_dict[
+            #        event.volunteer_type.interest]
+            event.save()
         orm.VolunteerInterest.objects.all().delete()
         orm.AvailableInterest.objects.all().delete()
 
