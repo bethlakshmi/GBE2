@@ -778,13 +778,13 @@ class Event(Schedulable):
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
-        filtered by type if volunteer_type is specified
+        filtered by type if worker_type is specified
         returns the Worker Resource assigned. Calling function has to
         drill down to get to profile
         '''
         worker_type = worker_type or 'Volunteer'
         opps = self.get_volunteer_opps()
-        alloc_list = [(opp['conf'].volunteer_category,
+        alloc_list = [(opp['conf'].volunteer_type,
                        list(opp['sched'].resources_allocated.all()))
                       for opp in opps]
         category = dict(volunteer_interests_options)

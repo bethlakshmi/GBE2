@@ -933,7 +933,7 @@ def edit_event_display(request, item, errorcontext=None):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
             context.update(show_potential_workers(
-                item.as_subtype.volunteer_category,
+                item.as_subtype.volunteer_type,
                 item.start_time,
                 item.eventitem.get_conference()))
         else:

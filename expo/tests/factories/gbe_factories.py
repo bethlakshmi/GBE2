@@ -19,6 +19,12 @@ from datetime import (
 )
 from pytz import utc
 
+class AvailableInterestFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.AvailableInterest
+        django_get_or_create = ('interest',)
+    interest = 'Registration'
+
 
 class ConferenceFactory(DjangoModelFactory):
     class Meta:
@@ -212,7 +218,7 @@ class GenericEventFactory(DjangoModelFactory):
     title = Sequence(lambda n: 'Test Generic Event %d' % n)
     duration = Duration(hours=1)
     type = 'Special'
-    volunteer_category = 'VA0'
+    volunteer_type = SubFactory(AvailableInterestFactory)
     conference = SubFactory(ConferenceFactory)
 
 
@@ -272,6 +278,15 @@ class VolunteerFactory(DjangoModelFactory):
         lambda a: ("Background for test Volunteer #%s" %
                    a.profile.display_name))
     conference = SubFactory(ConferenceFactory)
+
+
+class VolunteerInterestFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.VolunteerInterest
+
+    interest = SubFactory(AvailableInterestFactory, interest='Security/usher')
+    volunteer = SubFactory(VolunteerFactory)
+    rank = 3
 
 
 class VendorFactory(DjangoModelFactory):

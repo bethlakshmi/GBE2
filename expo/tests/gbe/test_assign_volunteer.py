@@ -89,7 +89,6 @@ class TestAssignVolunteer(TestCase):
         parent.save()
         current_opportunity = GenericEventFactory(
             conference=current_conference,
-            volunteer_category='VA1',
             type='Volunteer')
         current_opportunity.save()
         rehearsal = GenericEventFactory(
