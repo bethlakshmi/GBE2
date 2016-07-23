@@ -1289,8 +1289,7 @@ class GenericEvent (Event):
 
     @property
     def volunteer_category_description(self):
-        return dict(
-            volunteer_interests_options).get(self.volunteer_category, None)
+        return self.volunteer_type.interest
 
     @property
     def sched_payload(self):
@@ -1304,8 +1303,7 @@ class GenericEvent (Event):
             }
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
-            payload['details']['volunteer_category'] = dict(
-                volunteer_interests_options).get(self.volunteer_category, None)
+            payload['details']['volunteer_category'] = self.volunteer_type.interest
         return payload
 
     @property
