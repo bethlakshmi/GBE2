@@ -26,7 +26,7 @@ from scheduler.models import (
     ResourceAllocation,
     EventContainer
 )
-
+from tests.contexts import VolunteerContext
 
 class TestAssignVolunteer(TestCase):
     '''Tests for review_volunteer view'''
@@ -39,6 +39,7 @@ class TestAssignVolunteer(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
     def test_assign_volunteers_bad_user(self):
         ''' user does not have Volunteer Coordinator, permission is denied'''
@@ -59,6 +60,21 @@ class TestAssignVolunteer(TestCase):
         login_as(UserFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(403, response.status_code)
+
+    def test_assign_volunteers_old_bid(self):
+        ''' bid is froma past conference'''
+        context = VolunteerContext()
+        context.conference.status = 'past'
+        context.conference.save()
+        url = reverse(self.view_name,
+                      args=[context.bid.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertRedirects(response, reverse(
+            'volunteer_view',
+            urlconf='gbe.urls',
+            args=[context.bid.pk]))
 
     def test_assign_volunteer_show_current_events(self):
         '''only current conference events, and windows should be shown'''

@@ -264,7 +264,6 @@ class VolunteerFactory(DjangoModelFactory):
     unavailability = LazyAttribute(
         lambda a: ("Unavailability for test Volunteer #%s" %
                    a.profile.display_name))
-    interests = "['VA1']"
     opt_outs = LazyAttribute(
         lambda a: ("Opt-outs for test Volunteer #%s" %
                    a.profile.display_name))
