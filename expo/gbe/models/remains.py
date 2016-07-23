@@ -1280,10 +1280,6 @@ class GenericEvent (Event):
                             choices=event_options,
                             blank=False,
                             default="Special")
-    volunteer_category = models.CharField(max_length=128,
-                                          choices=volunteer_interests_options,
-                                          blank=True,
-                                          default="")
     volunteer_type = models.ForeignKey(AvailableInterest,
                                        blank=True,
                                        null=True)
@@ -1563,7 +1559,6 @@ class Volunteer(Biddable):
                                         default=1)
     availability = models.TextField(blank=True)
     unavailability = models.TextField(blank=True)
-    interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
