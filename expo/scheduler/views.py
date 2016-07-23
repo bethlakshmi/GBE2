@@ -35,7 +35,6 @@ import csv
 
 from table import table
 from gbe_forms_text import (
-    volunteer_interests_options,
     list_titles,
 )
 from gbetext import acceptance_states
@@ -634,7 +633,6 @@ def contact_volunteers(conference):
               'Volunteer Category',
               'Volunteer Role',
               'Event']
-    volunteer_categories = dict(volunteer_interests_options)
     from gbe.models import Volunteer
     contacts = filter(lambda worker: worker.allocations.count() > 0,
                       [vol.profile.workeritem_ptr.worker_set.first() for vol in
@@ -644,7 +642,6 @@ def contact_volunteers(conference):
     volunteers = Volunteer.objects.filter(conference=conference).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
             '-profile__workeritem_ptr__worker__count')
-
     contact_info = []
     for v in volunteers:
         profile = v.profile
@@ -655,23 +652,28 @@ def contact_volunteers(conference):
                     parent_event = container.parent_event
                 except:
                     parent_event = allocation.event
+                
+                try:
+                    interest = allocation.event.as_subtype.volunteer_type.interest
+                except:
+                    interest = ''
+
                 contact_info.append(
                     [profile.display_name,
                      profile.phone,
                      profile.contact_email,
-                     volunteer_categories.get(
-                         allocation.event.as_subtype.volunteer_category, ''),
+                     interest,
                      str(allocation.event),
                      str(parent_event)])
         else:
-            interests = eval(v.interests)
-            contact_info.append([profile.display_name,
-                                 profile.phone,
-                                 profile.contact_email,
-                                 ','.join([volunteer_categories[i]
-                                           for i in interests]),
-                                 'Application',
-                                 'Application']
+            contact_info.append(
+                [profile.display_name,
+                 profile.phone,
+                 profile.contact_email,
+                 ','.join([i.interest.interest
+                           for i in v.volunteerinterest_set.all()]),
+                 'Application',
+                 'Application']
                                 )
     return header, contact_info
 

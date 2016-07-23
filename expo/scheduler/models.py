@@ -787,12 +787,12 @@ class Event(Schedulable):
         alloc_list = [(opp['conf'].volunteer_type,
                        list(opp['sched'].resources_allocated.all()))
                       for opp in opps]
-        category = dict(volunteer_interests_options)
+        
         workers = []
         for a in alloc_list:
             for w in a[1]:
                 if w.resource.type == worker_type:
-                    workers.append((category.get(a[0], 'Blank'),
+                    workers.append((a[0].interest,
                                     Worker.objects.get(
                                         resource_ptr_id=w.resource_id)))
         return workers

@@ -127,6 +127,7 @@ class TestContactInfo(TestCase):
                 urlconf="scheduler.urls",
                 args=[context.sched_event.pk, 'Worker']),
             follow=True)
+        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
