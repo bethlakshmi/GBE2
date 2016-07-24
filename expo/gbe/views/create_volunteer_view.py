@@ -9,8 +9,12 @@ from django.template import (
 from django.shortcuts import render
 
 from expo.gbe_logging import log_func
-from gbe.forms import VolunteerBidForm
+from gbe.forms import (
+    VolunteerBidForm,
+    VolunteerInterestForm
+)
 from gbe.models import (
+    AvailableInterest,
     Conference,
     UserMessage
 )
@@ -19,7 +23,8 @@ from gbe.functions import (
     validate_profile,
 )
 from gbetext import (
-    default_volunteer_submit_msg
+    default_volunteer_submit_msg,
+    default_volunteer_no_interest_msg
 )
 
 
@@ -29,18 +34,34 @@ def CreateVolunteerView(request):
     page_title = 'Volunteer'
     view_title = "Volunteer at the Expo"
     profile = validate_profile(request, require=False)
+    formset = []
     if not profile:
         return HttpResponseRedirect(reverse('profile',
                                             urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
+    available_interests = AvailableInterest.objects.filter(
+        visible=True).order_by('interest')
     if request.method == 'POST':
         form = VolunteerBidForm(
             request.POST,
             available_windows=Conference.current_conf().windows(),
             unavailable_windows=Conference.current_conf().windows())
-        if form.is_valid():
+        valid_interests = True
+        like_one_thing = False
+        for interest in available_interests:
+            interest_form = VolunteerInterestForm(
+                request.POST,
+                initial={'interest': interest},
+                prefix=str(interest.pk))
+            formset += [interest_form]
+            if interest_form.is_valid():
+                if int(interest_form.cleaned_data.get('rank')) > 3:
+                    like_one_thing = True
+            else:
+                valid_interests = False
+        if form.is_valid() and valid_interests and like_one_thing:
             volunteer = form.save(commit=False)
             # hack TO DO: do this better
             conference = Conference.objects.filter(accepting_bids=True).first()
@@ -54,6 +75,10 @@ def CreateVolunteerView(request):
                 for window in form.cleaned_data['unavailable_windows']:
                     volunteer.unavailable_windows.add(window)
 
+                for interest_form in formset:
+                    vol_interest = interest_form.save(commit=False)
+                    vol_interest.volunteer = volunteer
+                    vol_interest.save()
                 message = loader.get_template('gbe/email/bid_submitted.tmpl')
                 c = Context({'bidder': profile.display_name,
                              'bid_type': 'volunteer',
@@ -70,24 +95,38 @@ def CreateVolunteerView(request):
                 messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
+            formset += [form]
+            if not like_one_thing:
+                user_message = UserMessage.objects.get_or_create(
+                    view='CreateVolunteerView',
+                    code="NO_INTERESTS_SUBMITTED",
+                    defaults={
+                        'summary': "Volunteer Has No Interests",
+                        'description': default_volunteer_no_interest_msg})
+                messages.error(request, user_message[0].description)
+
             return render(request,
                           'gbe/bid.tmpl',
-                          {'forms': [form],
+                          {'forms': formset,
                            'page_title': page_title,
                            'view_title': view_title,
                            'nodraft': 'Submit'})
     else:
         title = 'volunteer bid: %s' % profile.display_name
-        form = VolunteerBidForm(
+        for interest in available_interests:
+            formset += [VolunteerInterestForm(
+                initial={'interest': interest},
+                prefix=str(interest.pk))]
+        formset += [VolunteerBidForm(
             initial={'profile': profile,
                      'title': title,
                      'description': 'volunteer bid',
                      'submitted': True},
             available_windows=Conference.current_conf().windows(),
-            unavailable_windows=Conference.current_conf().windows())
+            unavailable_windows=Conference.current_conf().windows())]
         return render(request,
                       'gbe/bid.tmpl',
-                      {'forms': [form],
+                      {'forms': formset,
                        'page_title': page_title,
                        'view_title': view_title,
                        'nodraft': 'Submit'})

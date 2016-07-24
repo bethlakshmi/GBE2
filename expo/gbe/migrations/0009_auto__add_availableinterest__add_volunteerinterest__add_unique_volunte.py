@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('interest', self.gf('django.db.models.fields.CharField')(unique=True, max_length=128)),
             ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('help_text', self.gf('django.db.models.fields.TextField')(max_length=500)),
+            ('help_text', self.gf('django.db.models.fields.TextField')(max_length=500, blank=True)),
         ))
         db.send_create_signal('gbe', ['AvailableInterest'])
 
@@ -22,7 +22,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('interest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.AvailableInterest'])),
             ('volunteer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Volunteer'])),
-            ('rank', self.gf('django.db.models.fields.IntegerField')(default=2, blank=True)),
+            ('rank', self.gf('django.db.models.fields.IntegerField')(blank=True)),
         ))
         db.send_create_signal('gbe', ['VolunteerInterest'])
 

@@ -165,7 +165,7 @@ def show_potential_workers(category, start_time, conference):
       - all_volunteers - everyone who offered ... ever
     '''
     interested = list(conf.Volunteer.objects.filter(
-        volunteerinterest__rank__gt=2,
+        volunteerinterest__rank__gt=3,
         volunteerinterest__interest=category))
     all_volunteers = list(conf.Volunteer.objects.all())
     available = available_volunteers(start_time, conference)

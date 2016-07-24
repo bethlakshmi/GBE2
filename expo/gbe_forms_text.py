@@ -370,11 +370,12 @@ class_schedule_options = [('0', 'Friday Afternoon'),
                           ('3', 'Sunday Morning'),
                           ('4', 'Sunday Afternoon')]
 
-rank_interest_options = [(0, 'Not interested'),
-                         (1, 'Slightly interested'),
-                         (2, 'Neither interested nor disinterested'),
-                         (3, 'Somewhat interested'),
-                         (4, 'Strongly interested')]
+rank_interest_options = [(0, '--------------'),
+                         (1, 'Not interested'),
+                         (2, 'Slightly interested'),
+                         (3, 'Neither interested nor disinterested'),
+                         (4, 'Somewhat interested'),
+                         (5, 'Strongly interested')]
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
 space_type_error1 = ('''A workshop has seating in a ring around the room, \

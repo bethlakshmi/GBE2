@@ -279,18 +279,19 @@ event_labels = {'type':  'Type',
 
 overlap_location_text = ' (alt)'
 
-default_class_submit_msg = "Your class was sucessfully submitted"
-default_class_draft_msg = "Your draft was sucessfully saved"
-default_act_submit_msg = "Your act was sucessfully submitted"
-default_act_draft_msg = "Your draft was sucessfully saved"
-default_costume_submit_msg = "Your costume was sucessfully submitted"
-default_costume_draft_msg = "Your draft was sucessfully saved"
-default_propose_submit_msg = "Your idea was sucessfully submitted"
+default_class_submit_msg = "Your class was successfully submitted"
+default_class_draft_msg = "Your draft was successfully saved"
+default_act_submit_msg = "Your act was successfully submitted"
+default_act_draft_msg = "Your draft was successfully saved"
+default_costume_submit_msg = "Your costume was successfully submitted"
+default_costume_draft_msg = "Your draft was successfully saved"
+default_propose_submit_msg = "Your idea was successfully submitted"
 default_vendor_submit_msg = "Your vendor proposal was sucessfully submitted"
-default_vendor_draft_msg = "Your draft was sucessfully saved"
+default_vendor_draft_msg = "Your draft was successfully saved"
 default_volunteer_submit_msg = \
-    "Your offer to volunteer was sucessfully submitted"
+    "Your offer to volunteer was successfully submitted"
 default_volunteer_edit_msg = "You have successfully edited a volunteer."
+default_volunteer_no_interest_msg = "You must have at least one interest to volunteer."
 default_clone_msg = "You have successfully made a new copy."
 default_update_profile_msg = "Your profile has been updated."
 default_create_persona_msg = "Your persona has been created."

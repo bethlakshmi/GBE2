@@ -474,6 +474,24 @@ class VolunteerBidForm(forms.ModelForm):
         labels = volunteer_labels
         help_texts = volunteer_help_texts
 
+class VolunteerInterestForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    def __init__(self, *args, **kwargs):
+        super(VolunteerInterestForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs:
+            initial = kwargs.pop('initial')
+            self.fields['rank'] = forms.ChoiceField(
+                choices=rank_interest_options,
+                label=initial['interest'].interest,
+                help_text=initial['interest'].help_text,
+                required=False)
+
+    class Meta:
+        model = VolunteerInterest
+        fields = ['rank',
+                  'interest']
+        widgets = {'interest': forms.HiddenInput()}
 
 class VolunteerOpportunityForm(forms.ModelForm):
     day = forms.ChoiceField(

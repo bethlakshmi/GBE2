@@ -286,7 +286,7 @@ class VolunteerInterestFactory(DjangoModelFactory):
 
     interest = SubFactory(AvailableInterestFactory, interest='Security/usher')
     volunteer = SubFactory(VolunteerFactory)
-    rank = 3
+    rank = 4
 
 
 class VendorFactory(DjangoModelFactory):

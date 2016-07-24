@@ -1576,7 +1576,7 @@ class Volunteer(Biddable):
     def interest_list(self):
         return [
             interest.interest.interest
-            for interest in self.volunteerinterest_set.all()]
+            for interest in self.volunteerinterest_set.filter(rank__gt=3)]
 
     @property
     def bid_review_header(self):
@@ -1595,8 +1595,8 @@ class Volunteer(Biddable):
     @property
     def bid_review_summary(self):
         interest_string = ''
-        for interest in self.volunteerinterest_set.filter(rank__gt=2):
-            interest_string += interest.interest.interest + ', \n'
+        for interest in self.interest_list:
+            interest_string += interest + ', \n'
         availability_string = ''
         unavailability_string = ''
         for window in self.available_windows.all():

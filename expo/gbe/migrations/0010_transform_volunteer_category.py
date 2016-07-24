@@ -45,7 +45,7 @@ class Migration(DataMigration):
                     interests += [orm.VolunteerInterest(
                         volunteer=volunteer,
                         interest=v_avail,
-                        rank=3)]
+                        rank=4)]
                 else:
                     interests += [orm.VolunteerInterest(
                         volunteer=volunteer,
@@ -65,7 +65,7 @@ class Migration(DataMigration):
             volunteer.interests = []
             for interest in volunteer_interests.filter(
                 volunteer=volunteer,
-                rank__gt=2):
+                rank__gt=3):
                 volunteer.interests += [
                     volunteer_interests_options_dict[interest.interest.interest]]
             volunteer.save()
