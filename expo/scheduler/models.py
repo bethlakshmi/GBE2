@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
-from gbe_forms_text import volunteer_interests_options
 from scheduler.functions import set_time_format
 from django.core.exceptions import MultipleObjectsReturned
 import pytz

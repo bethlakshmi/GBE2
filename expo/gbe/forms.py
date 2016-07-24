@@ -486,8 +486,6 @@ class VolunteerOpportunityForm(forms.ModelForm):
                                       required=False)
     num_volunteers = forms.IntegerField(
         error_messages={'required': 'required'})
-    volunteer_category = forms.ChoiceField(choices=volunteer_interests_options,
-                                           required=False)
     location = forms.ModelChoiceField(
         queryset=Room.objects.all(),
         error_messages={'required': 'required'})
@@ -504,7 +502,6 @@ class VolunteerOpportunityForm(forms.ModelForm):
     class Meta:
         model = GenericEvent
         fields = ['title',
-                  'volunteer_category',
                   'num_volunteers',
                   'duration',
                   'day',

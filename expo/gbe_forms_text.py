@@ -121,18 +121,6 @@ volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH6', 'Saturday afternoon (12PM-6PM)'),
                                   ('SH7', 'Saturday night (5PM-10PM)')]
 
-volunteer_interests_options = [('VA8', 'Art Show'),
-                               ('VA4', 'Conference Staff'),
-                               ('VA7', 'Costume Exhibit'),
-                               ('VA10', 'Model/Performer'),
-                               ('VA9', 'Photography/Media'),
-                               ('VA0', 'Registration'),
-                               ('VA1', 'Security/usher'),
-                               ('VA2', 'Stage crew'),
-                               ('VA3', 'Stage Management'),
-                               ('VA5', 'Tech crew'),
-                               ('VA6', 'Vendor room')]
-
 volunteer_labels = {
     'number_shifts': 'How many hours would you like to work?',
     'interests': 'What are your particular areas of interest?',
