@@ -25,7 +25,7 @@ class TestGetPurchasedTickets(TestCase):
         purchase = TransactionFactory()
         purchase.ticket_item.title = "ZZZZ Last Title"
         purchase.ticket_item.save()
-        conference =  purchase.ticket_item.bpt_event.conference
+        conference = purchase.ticket_item.bpt_event.conference
         TransactionFactory(
             purchaser=purchase.purchaser,
             ticket_item__bpt_event__conference=conference)

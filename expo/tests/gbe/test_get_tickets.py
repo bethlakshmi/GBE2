@@ -70,12 +70,14 @@ class TestGetTickets(TestCase):
         sch_bpt_event = BrownPaperEventsFactory(
             conference=event.conference,
             include_conference=True)
-        whole_shebang = TicketItemFactory(bpt_event=ws_bpt_event,
-                          active=True,
-                          title="The Whole Shebang 2016")
-        scholar = TicketItemFactory(bpt_event=sch_bpt_event,
-                          active=True,
-                          title="The Scholar 2016")
+        whole_shebang = TicketItemFactory(
+            bpt_event=ws_bpt_event,
+            active=True,
+            title="The Whole Shebang 2016")
+        scholar = TicketItemFactory(
+            bpt_event=sch_bpt_event,
+            active=True,
+            title="The Scholar 2016")
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 2)

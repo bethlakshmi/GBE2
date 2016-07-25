@@ -14,7 +14,7 @@ from tests.factories.ticketing_factories import (
     TicketItemFactory,
     PurchaserFactory,
 )
-
+from gbe_forms_text import rank_interest_options
 
 def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
@@ -89,6 +89,17 @@ def assert_alert_exists(response, tag, label, text):
         '	</div>'
     assert alert_html % (tag, label, text) in response.content
 
+
+def assert_rank_choice_exists(response, interest):
+    assert '<label for="id_%d-rank">%s:</label>' % (
+        interest.pk,
+        interest.interest)  in response.content
+    assert '<select id="id_%d-rank" name="%d-rank">' % (
+        interest.pk,
+        interest.pk)  in response.content
+    for value, text in rank_interest_options:
+        assert '<option value="%d">%s</option>' % (
+            value, text) in response.content
 
 def make_act_app_purchase(user_object):
     purchaser = PurchaserFactory(

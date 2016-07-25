@@ -28,6 +28,7 @@ from scheduler.models import (
 )
 from tests.contexts import VolunteerContext
 
+
 class TestAssignVolunteer(TestCase):
     '''Tests for review_volunteer view'''
     view_name = 'volunteer_assign'

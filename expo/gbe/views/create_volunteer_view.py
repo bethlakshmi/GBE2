@@ -57,12 +57,12 @@ def CreateVolunteerView(request):
     try:
         conference = Conference.objects.filter(accepting_bids=True).first()
         windows = conference.windows()
+        available_interests = AvailableInterest.objects.filter(
+            visible=True).order_by('interest')
     except:
         return no_vol_bidding(request)
-    if len(windows) == 0:
+    if len(windows) == 0 or len(available_interests) == 0:
         return no_vol_bidding(request)
-    available_interests = AvailableInterest.objects.filter(
-        visible=True).order_by('interest')
     if request.method == 'POST':
         form = VolunteerBidForm(
             request.POST,
