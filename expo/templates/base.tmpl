@@ -64,11 +64,7 @@
       <div class="main-content" >
         {% if messages %}
 	{% for message in messages %}
-	{% if message.tags == "error" %}
-	<div class="alert alert-danger">
-        {% else %}
-        <div class="alert alert-{{message.tags}}">
-        {% endif %}
+	{% if message.tags == "error" %}<div class="alert alert-danger">{% else %}<div class="alert alert-{{message.tags}}">{% endif %}
           <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
           <strong>{{message.tags|capfirst}}:</strong> {{message}}
 	</div>

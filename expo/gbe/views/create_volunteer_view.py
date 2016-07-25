@@ -1,6 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import (
+    HttpResponseRedirect,
+    Http404
+)
 from django.core.urlresolvers import reverse
 from django.template import (
     loader,
@@ -24,9 +27,19 @@ from gbe.functions import (
 )
 from gbetext import (
     default_volunteer_submit_msg,
-    default_volunteer_no_interest_msg
+    default_volunteer_no_interest_msg,
+    default_volunteer_no_bid_msg
 )
 
+def no_vol_bidding(request):
+    user_message = UserMessage.objects.get_or_create(
+                    view='CreateVolunteerView',
+                    code="NO_BIDDING_ALLOWED",
+                    defaults={
+                        'summary': "Volunteer Bidding Blocked",
+                        'description': default_volunteer_no_bid_msg})
+    messages.error(request, user_message[0].description)
+    return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 @login_required
 @log_func
@@ -41,13 +54,20 @@ def CreateVolunteerView(request):
                                     '?next=' +
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
+    try:
+        conference = Conference.objects.filter(accepting_bids=True).first()
+        windows = conference.windows()
+    except:
+        return no_vol_bidding(request)
+    if len(windows) == 0:
+        return no_vol_bidding(request)
     available_interests = AvailableInterest.objects.filter(
         visible=True).order_by('interest')
     if request.method == 'POST':
         form = VolunteerBidForm(
             request.POST,
-            available_windows=Conference.current_conf().windows(),
-            unavailable_windows=Conference.current_conf().windows())
+            available_windows=windows,
+            unavailable_windows=windows)
         valid_interests = True
         like_one_thing = False
         for interest in available_interests:
@@ -63,8 +83,6 @@ def CreateVolunteerView(request):
                 valid_interests = False
         if form.is_valid() and valid_interests and like_one_thing:
             volunteer = form.save(commit=False)
-            # hack TO DO: do this better
-            conference = Conference.objects.filter(accepting_bids=True).first()
             volunteer.conference = conference
             volunteer.profile = profile
             if 'submit' in request.POST.keys():
@@ -122,8 +140,8 @@ def CreateVolunteerView(request):
                      'title': title,
                      'description': 'volunteer bid',
                      'submitted': True},
-            available_windows=Conference.current_conf().windows(),
-            unavailable_windows=Conference.current_conf().windows())]
+            available_windows=windows,
+            unavailable_windows=windows)]
         return render(request,
                       'gbe/bid.tmpl',
                       {'forms': formset,

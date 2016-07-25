@@ -3,6 +3,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    AvailableInterestFactory,
     ConferenceFactory,
     ConferenceDayFactory,
     PersonaFactory,
@@ -15,8 +16,12 @@ from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as
 )
-from gbetext import default_volunteer_submit_msg
+from gbetext import (
+    default_volunteer_submit_msg,
+    default_volunteer_no_bid_msg
+)
 from gbe.models import (
+    AvailableInterest,
     Conference,
     Volunteer,
     UserMessage
@@ -33,9 +38,11 @@ class TestCreateVolunteer(TestCase):
         self.performer = PersonaFactory()
         Conference.objects.all().delete()
         UserMessage.objects.all().delete()
+        AvailableInterest.objects.all().delete()
         self.conference = ConferenceFactory(accepting_bids=True)
         days = ConferenceDayFactory.create_batch(3, conference=self.conference)
         [VolunteerWindowFactory(day=day) for day in days]
+        self.interest = AvailableInterestFactory()
 
     def get_volunteer_form(self, submit=False, invalid=False):
         form = {'profile': 1,
@@ -44,7 +51,9 @@ class TestCreateVolunteer(TestCase):
                 'available_windows': self.conference.windows().values_list(
                     'pk', flat=True)[0:2],
                 'unavailable_windows': self.conference.windows().values_list(
-                    'pk', flat=True)[2]
+                    'pk', flat=True)[2],
+                '%d-rank' % self.interest.pk: 4,
+                '%d-interest' % self.interest.pk: self.interest.pk
                 }
         if submit:
             form['submit'] = True
@@ -115,6 +124,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_volunteer_submit_make_message(self):
         response, data = self.post_volunteer_submission()
+        print response.content
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', default_volunteer_submit_msg)
@@ -127,3 +137,30 @@ class TestCreateVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_no_biddable_conference(self):
+        self.conference.accepting_bids = False
+        self.conference.save()
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
+        assert_alert_exists(
+            response, 'danger', 'Error', default_volunteer_no_bid_msg)
+
+    def test_no_window_for_conference(self):
+        Conference.objects.all().delete()
+        ConferenceFactory(accepting_bids=True)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('home', urlconf='gbe.urls'))
+        assert_alert_exists(
+            response, 'danger', 'Error', default_volunteer_no_bid_msg)
+
