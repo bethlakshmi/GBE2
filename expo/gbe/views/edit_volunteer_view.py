@@ -72,8 +72,10 @@ def EditVolunteerView(request, volunteer_id):
                     'summary': "Volunteer Edit Success",
                     'description': default_volunteer_edit_msg})
             messages.success(request, user_message[0].description)
-            return HttpResponseRedirect(reverse('volunteer_review',
-                                                urlconf='gbe.urls'))
+            return HttpResponseRedirect("%s?conf_slug=%s" % (
+                reverse('volunteer_review', urlconf='gbe.urls'),
+                the_bid.conference.conference_slug))
+
         else:
             formset += [form]
             if not like_one_thing:
@@ -94,7 +96,8 @@ def EditVolunteerView(request, volunteer_id):
     else:
         # originally the volunteer create was supposed to save a title, there
         # was a bug and most old bids don't have a title.  This is the autocorrect
-        the_bid.title = 'volunteer bid: %s' % the_bid.profile.display_name
+        if not the_bid.title:
+            the_bid.title = 'volunteer bid: %s' % the_bid.profile.display_name
 
         for interest in the_bid.volunteerinterest_set.all():
             formset += [VolunteerInterestForm(

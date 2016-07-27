@@ -49,7 +49,6 @@ class TestCreateVolunteer(TestCase):
     def get_volunteer_form(self, submit=False, invalid=False):
         form = {'profile': 1,
                 'number_shifts': 2,
-                'interests': ['VA0'],
                 'available_windows': self.conference.windows().values_list(
                     'pk', flat=True)[0:2],
                 'unavailable_windows': self.conference.windows().values_list(

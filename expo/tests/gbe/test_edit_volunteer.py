@@ -36,12 +36,15 @@ class TestEditVolunteer(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
-    def get_form(self, conference, submit=False, invalid=False):
+    def get_form(self, context, submit=False, invalid=False):
+        interest_pk = context.bid.volunteerinterest_set.first().pk
         form = {'profile': 1,
                 'number_shifts': 2,
                 'availability': ('SH0',),
-                'interests': ('VA0',),
-                'available_windows': [conference.windows().first().pk]
+                'available_windows': [context.conference.windows().first().pk],
+                'title': 'title',
+                '%d-rank' % interest_pk: 5,
+                '%d-interest' % interest_pk: interest_pk,
                 }
         if submit:
             form['submit'] = True
@@ -57,7 +60,7 @@ class TestEditVolunteer(TestCase):
                       urlconf='gbe.urls',
                       args=[context.bid.pk])
         login_as(self.privileged_user, self)
-        form = self.get_form(context.conference)
+        form = self.get_form(context)
         form['unavailable_windows'] = add_window.pk
         response = self.client.post(
             url,
@@ -93,7 +96,7 @@ class TestEditVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(
             url,
-            self.get_form(context.conference,
+            self.get_form(context,
                           invalid=True))
 
         self.assertEqual(response.status_code, 200)
@@ -111,8 +114,7 @@ class TestEditVolunteer(TestCase):
     def test_volunteer_edit_get(self):
         volunteer = VolunteerFactory(
             availability='',
-            unavailability='',
-            interests='')
+            unavailability='')
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[volunteer.pk])
