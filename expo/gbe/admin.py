@@ -152,8 +152,16 @@ class VolunteerWindowAdmin(admin.ModelAdmin):
     def day_w_year(self, obj):
         return obj.day.day
 
+class ConferenceDayAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'day',
+                    'conference')
+    list_filter = ['conference']
+    list_editable = ('day',
+                     'conference',)
+
 admin.site.register(Conference)
-admin.site.register(ConferenceDay)
+admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
 admin.site.register(VolunteerInterest, VolunteerInterestAdmin)
 admin.site.register(AvailableInterest, AvailableInterestAdmin)

@@ -3,14 +3,10 @@ from django.shortcuts import (
     render,
     get_object_or_404,
 )
-
 from expo.gbe_logging import log_func
-from gbe.forms import (
-    ParticipantForm,
-    VolunteerBidForm,
-)
 from gbe.models import Volunteer
 from gbe.functions import validate_perms
+from gbe.views.volunteer_display_functions import get_volunteer_forms
 
 
 @login_required
@@ -25,17 +21,8 @@ def ViewVolunteerView(request, volunteer_id):
     volunteer = get_object_or_404(Volunteer, id=volunteer_id)
     if volunteer.profile != request.user.profile:
         validate_perms(request, ('Volunteer Reviewers',), require=True)
-    volunteerform = VolunteerBidForm(
-        instance=volunteer,
-        prefix='Volunteer Info',
-        available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows()
-    )
-    profile = ParticipantForm(
-        instance=volunteer.profile,
-        initial={'email': volunteer.profile.user_object.email,
-                 'first_name': volunteer.profile.user_object.first_name,
-                 'last_name': volunteer.profile.user_object.last_name},
-        prefix='Contact Info')
+
+    display_forms = get_volunteer_forms(volunteer)
+
     return render(request, 'gbe/bid_view.tmpl',
-                  {'readonlyform': [volunteerform, profile]})
+                  {'readonlyform': display_forms})

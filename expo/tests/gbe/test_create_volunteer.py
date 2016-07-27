@@ -55,7 +55,8 @@ class TestCreateVolunteer(TestCase):
                 'unavailable_windows': self.conference.windows().values_list(
                     'pk', flat=True)[2],
                 '%d-rank' % self.interest.pk: 4,
-                '%d-interest' % self.interest.pk: self.interest.pk
+                '%d-interest' % self.interest.pk: self.interest.pk,
+                'title': 'title'
                 }
         if submit:
             form['submit'] = True
@@ -134,6 +135,7 @@ class TestCreateVolunteer(TestCase):
     def test_volunteer_submit_make_message(self):
         response, data = self.post_volunteer_submission()
         self.assertEqual(response.status_code, 200)
+        print response.content
         assert_alert_exists(
             response, 'success', 'Success', default_volunteer_submit_msg)
 

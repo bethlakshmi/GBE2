@@ -464,6 +464,7 @@ class VolunteerBidForm(forms.ModelForm):
                   'opt_outs',
                   'pre_event',
                   'background',
+                  'title',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),
