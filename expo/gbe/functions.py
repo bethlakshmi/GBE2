@@ -156,6 +156,7 @@ def available_volunteers(event_start_time, conference):
             windows.append(window)
     return conf.Volunteer.objects.filter(available_windows__in=windows)
 
+
 def show_potential_workers(category, start_time, conference):
     '''
     Get lists of potential workers for this opportunity.

@@ -475,9 +475,11 @@ class VolunteerBidForm(forms.ModelForm):
         labels = volunteer_labels
         help_texts = volunteer_help_texts
 
+
 class VolunteerInterestForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+
     def __init__(self, *args, **kwargs):
         super(VolunteerInterestForm, self).__init__(*args, **kwargs)
         if 'initial' in kwargs:
@@ -493,6 +495,7 @@ class VolunteerInterestForm(forms.ModelForm):
         fields = ['rank',
                   'interest']
         widgets = {'interest': forms.HiddenInput()}
+
 
 class VolunteerOpportunityForm(forms.ModelForm):
     day = forms.ChoiceField(

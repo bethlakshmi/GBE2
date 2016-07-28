@@ -5,6 +5,7 @@ from gbe.models import (
 )
 from gbe_forms_text import rank_interest_options
 
+
 class VolunteerInterest(models.Model):
     interest = models.ForeignKey(AvailableInterest)
     volunteer = models.ForeignKey(Volunteer)

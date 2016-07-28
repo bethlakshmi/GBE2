@@ -16,6 +16,7 @@ from tests.factories.ticketing_factories import (
 )
 from gbe_forms_text import rank_interest_options
 
+
 def _user_for(user_or_profile):
     if type(user_or_profile) == Profile:
         user = user_or_profile.user_object
@@ -90,16 +91,26 @@ def assert_alert_exists(response, tag, label, text):
     assert alert_html % (tag, label, text) in response.content
 
 
-def assert_rank_choice_exists(response, interest):
+def assert_rank_choice_exists(response, interest, selection=None):
     assert '<label for="id_%d-rank">%s:</label>' % (
         interest.pk,
-        interest.interest)  in response.content
+        interest.interest) in response.content
     assert '<select id="id_%d-rank" name="%d-rank">' % (
         interest.pk,
-        interest.pk)  in response.content
+        interest.pk) in response.content
     for value, text in rank_interest_options:
-        assert '<option value="%d">%s</option>' % (
-            value, text) in response.content
+        if selection and selection == value:
+            assert '<option value="%d" selected="selected">%s</option>' % (
+                value, text) in response.content
+        else:
+            assert '<option value="%d">%s</option>' % (
+                value, text) in response.content
+
+
+def assert_hidden_value(response, field_id, name, value):
+    assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
+        field_id, name, value) in response.content
+
 
 def make_act_app_purchase(user_object):
     purchaser = PurchaserFactory(

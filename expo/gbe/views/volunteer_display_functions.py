@@ -4,9 +4,11 @@ from gbe.forms import (
     ParticipantForm
 )
 
+
 def get_volunteer_forms(volunteer):
     formset = []
-    for interest in volunteer.volunteerinterest_set.all().order_by('interest__interest'):
+    for interest in volunteer.volunteerinterest_set.all().order_by(
+            'interest__interest'):
         formset += [VolunteerInterestForm(
             instance=interest,
             initial={'interest': interest.interest})]

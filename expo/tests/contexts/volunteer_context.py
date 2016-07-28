@@ -55,6 +55,5 @@ class VolunteerContext():
         add_window = VolunteerWindowFactory(
             day=ConferenceDayFactory(
                 conference=self.conference,
-                day = date(2016, 2, 6)))
+                day=date(2016, 2, 6)))
         return add_window
-        

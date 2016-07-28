@@ -13,6 +13,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
+    assert_hidden_value,
     assert_rank_choice_exists,
     login_as
 )
@@ -130,11 +131,15 @@ class TestCreateVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('Volunteer', response.content)
         assert_rank_choice_exists(response, self.interest)
+        assert_hidden_value(
+            response,
+            "id_title",
+            "title",
+            'volunteer bid: %s' % self.profile.display_name)
 
     def test_volunteer_submit_make_message(self):
         response, data = self.post_volunteer_submission()
         self.assertEqual(response.status_code, 200)
-        print response.content
         assert_alert_exists(
             response, 'success', 'Success', default_volunteer_submit_msg)
 

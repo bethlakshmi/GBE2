@@ -31,6 +31,7 @@ from gbetext import (
     default_volunteer_no_bid_msg
 )
 
+
 def no_vol_bidding(request):
     user_message = UserMessage.objects.get_or_create(
                     view='CreateVolunteerView',
@@ -40,6 +41,7 @@ def no_vol_bidding(request):
                         'description': default_volunteer_no_bid_msg})
     messages.error(request, user_message[0].description)
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+
 
 @login_required
 @log_func

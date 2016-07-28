@@ -106,6 +106,7 @@ class EventAdmin(admin.ModelAdmin):
         except:
             return "Event"
 
+
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('view',
                     'code',
@@ -113,6 +114,7 @@ class MessageAdmin(admin.ModelAdmin):
                     'description')
     list_editable = ('summary', 'description')
     readonly_fields = ('view', 'code')
+
 
 class AvailableInterestAdmin(admin.ModelAdmin):
     list_display = ('id',
@@ -122,6 +124,7 @@ class AvailableInterestAdmin(admin.ModelAdmin):
     list_editable = ('interest',
                      'visible',
                      'help_text')
+
 
 class VolunteerInterestAdmin(admin.ModelAdmin):
     list_display = ('interest',
@@ -134,6 +137,7 @@ class VolunteerInterestAdmin(admin.ModelAdmin):
 
     def conference(self, obj):
         return obj.volunteer.conference
+
 
 class VolunteerWindowAdmin(admin.ModelAdmin):
     list_display = ('id',
@@ -152,6 +156,7 @@ class VolunteerWindowAdmin(admin.ModelAdmin):
     def day_w_year(self, obj):
         return obj.day.day
 
+
 class ConferenceDayAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'day',
@@ -159,6 +164,7 @@ class ConferenceDayAdmin(admin.ModelAdmin):
     list_filter = ['conference']
     list_editable = ('day',
                      'conference',)
+
 
 admin.site.register(Conference)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)

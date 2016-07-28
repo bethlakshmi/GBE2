@@ -291,8 +291,10 @@ default_vendor_draft_msg = "Your draft was successfully saved"
 default_volunteer_submit_msg = \
     "Your offer to volunteer was successfully submitted"
 default_volunteer_edit_msg = "You have successfully edited a volunteer."
-default_volunteer_no_interest_msg = "You must have at least one interest to volunteer."
-default_volunteer_no_bid_msg = "We are not accepting volunteer bids at this time."
+default_volunteer_no_interest_msg = \
+    "You must have at least one interest to volunteer."
+default_volunteer_no_bid_msg = \
+    "We are not accepting volunteer bids at this time."
 default_clone_msg = "You have successfully made a new copy."
 default_update_profile_msg = "Your profile has been updated."
 default_create_persona_msg = "Your persona has been created."

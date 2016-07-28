@@ -21,6 +21,7 @@ from gbe.forms import (
 from gbe.models import Volunteer
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
+
 @login_required
 @log_func
 def ReviewVolunteerView(request, volunteer_id):
@@ -48,7 +49,7 @@ def ReviewVolunteerView(request, volunteer_id):
                     urlconf='gbe.urls',
                     args=[volunteer_id]))
     conference, old_bid = get_conf(volunteer)
-    
+
     display_forms = get_volunteer_forms(volunteer)
 
     if 'Volunteer Coordinator' in request.user.profile.privilege_groups:

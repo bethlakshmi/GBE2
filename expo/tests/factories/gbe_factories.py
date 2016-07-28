@@ -19,6 +19,7 @@ from datetime import (
 )
 from pytz import utc
 
+
 class AvailableInterestFactory(DjangoModelFactory):
     class Meta:
         model = conf.AvailableInterest
