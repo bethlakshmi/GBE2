@@ -652,9 +652,9 @@ def contact_volunteers(conference):
                     parent_event = container.parent_event
                 except:
                     parent_event = allocation.event
-                
                 try:
-                    interest = allocation.event.as_subtype.volunteer_type.interest
+                    interest = \
+                        allocation.event.as_subtype.volunteer_type.interest
                 except:
                     interest = ''
 

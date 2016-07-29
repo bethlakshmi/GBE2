@@ -364,7 +364,7 @@ class TestAssignVolunteer(TestCase):
         volunteer = data['volunteer']
 
         url = reverse(self.view_name,
-                      args=[data['volunteer'].pk],
+                      args=[0],
                       urlconf="gbe.urls")
 
         login_as(self.privileged_user, self)
