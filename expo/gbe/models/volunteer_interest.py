@@ -12,6 +12,10 @@ class VolunteerInterest(models.Model):
     rank = models.IntegerField(choices=rank_interest_options,
                                blank=True)
 
+    @property
+    def rank_description(self):
+        return dict(rank_interest_options).get(self.rank, None)
+
     class Meta:
         app_label = "gbe"
         unique_together = (('interest', 'volunteer'),)
