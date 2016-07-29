@@ -2,16 +2,19 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    AvailableInterestFactory,
     ConferenceFactory,
     GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
     VolunteerFactory,
+    VolunteerInterestFactory
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
     is_login_page,
     login_as,
+    assert_interest_view,
 )
 
 
@@ -63,6 +66,8 @@ class TestReviewVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Bid Information' in response.content)
         self.assertTrue('Review Information' in response.content)
+        self.assertContains(response, '<h3> %s </h3>' %
+                            volunteer.conference.conference_name)
 
     def test_review_volunteer_coordinator(self):
         volunteer = VolunteerFactory()
@@ -132,3 +137,30 @@ class TestReviewVolunteer(TestCase):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
+
+    def test_review_volunteer_fetch_by_post(self):
+        volunteer = VolunteerFactory()
+        url = reverse(self.view_name,
+                      args=[0],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data={'volunteer': volunteer.pk})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)
+        self.assertFalse('Change Bid State:' in response.content)
+
+    def test_review_volunteer_with_interest(self):
+        volunteer = VolunteerFactory()
+        interest = VolunteerInterestFactory(
+            volunteer=volunteer,
+            interest=AvailableInterestFactory(
+                help_text="help!"
+            ))
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        assert_interest_view(response, interest)

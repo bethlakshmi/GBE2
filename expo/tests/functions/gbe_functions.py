@@ -112,6 +112,23 @@ def assert_hidden_value(response, field_id, name, value):
         field_id, name, value) in response.content
 
 
+def assert_has_help_text(response, help_text):
+    assert '<span class="dropt" title="Help">' in response.content
+    assert '<img src= "/static/img/question.png" alt="?"/>' in response.content
+    assert '<span style="width:200px;float:right;text-align:left;">' in response.content
+    assert help_text in response.content
+    assert '</span>' in response.content
+
+def assert_interest_view(response, interest):
+    assert '<label for="id_Volunteer Info-interest_id-%d">%s:</label>' % (
+        interest.pk,
+        interest.interest.interest
+        ) in response.content
+    assert interest.rank_description in response.content
+    if interest.interest.help_text:
+        assert_has_help_text(response, interest.interest.help_text)
+
+
 def make_act_app_purchase(user_object):
     purchaser = PurchaserFactory(
         matched_to_user=user_object)
