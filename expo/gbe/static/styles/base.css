@@ -590,10 +590,12 @@ tr.blank_row
 }
 
 
-div.alert 
+div.gbe-alert 
 {
     background-color: rgba(241, 221, 91, 01);
 }
+
+
 
 /* landing page layouts
     taken from:  http://matthewjamestaylor.com/blog/perfect-3-column.htm */

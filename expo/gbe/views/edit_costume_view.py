@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -18,11 +19,16 @@ from gbe.functions import validate_profile
 from gbe.models import (
     Costume,
     Persona,
+    UserMessage
 )
-from gbetext import not_yours
 from gbe_forms_text import (
     costume_proposal_form_text,
     costume_proposal_labels,
+)
+from gbetext import (
+    default_costume_submit_msg,
+    default_costume_draft_msg,
+    not_yours
 )
 
 
@@ -61,12 +67,24 @@ def EditCostumeView(request, costume_id):
             details = CostumeDetailsSubmitForm(request.POST,
                                                request.FILES,
                                                instance=costume)
+            user_message = UserMessage.objects.get_or_create(
+                view='EditCostumeView',
+                code="SUBMIT_SUCCESS",
+                defaults={
+                    'summary': "Costume Edit & Submit Success",
+                    'description': default_costume_submit_msg})
         else:
             form = CostumeBidDraftForm(request.POST,
                                        instance=costume)
             details = CostumeDetailsDraftForm(request.POST,
                                               request.FILES,
                                               instance=costume)
+            user_message = UserMessage.objects.get_or_create(
+                view='EditCostumeView',
+                code="DRAFT_SUCCESS",
+                defaults={
+                    'summary': "Costume Edit Draft Success",
+                    'description': default_costume_draft_msg})
 
         if form.is_valid() and details.is_valid():
             costume = form.save()
@@ -75,6 +93,7 @@ def EditCostumeView(request, costume_id):
                 costume.submitted = True
 
             costume.save()
+            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             fields, requiredsub = Costume().bid_fields
