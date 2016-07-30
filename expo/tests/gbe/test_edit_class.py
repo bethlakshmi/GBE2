@@ -143,6 +143,14 @@ class TestEditClass(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('I Would Prefer to Avoid' in response.content)
+        self.assertTrue('Edit Your Class Proposal' in response.content)
+
+    def test_edit_class_post_with_submit(self):
+        response, data = self.post_class_edit_submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(('http://testserver/gbe', 302)
+                        in response.redirect_chain)
+        # should test some change to class
 
     def test_class_submit_make_message(self):
         '''class_bid, not submitting and no other problems,

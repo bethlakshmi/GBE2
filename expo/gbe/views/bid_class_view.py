@@ -91,6 +91,7 @@ def BidClassView(request):
                                    'errors': [error_string],
                                    'popup_text':
                                         avoided_constraints_popup_text})
+
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
