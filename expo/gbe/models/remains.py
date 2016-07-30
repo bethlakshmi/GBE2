@@ -1372,6 +1372,7 @@ class Class(Biddable, Event):
     history = models.TextField(blank=True)
     run_before = models.TextField(blank=True)
     schedule_constraints = models.TextField(blank=True)
+    avoided_constraints = models.TextField(blank=True)
     space_needs = models.CharField(max_length=128,
                                    choices=space_options,
                                    blank=True,
@@ -1456,6 +1457,7 @@ class Class(Biddable, Event):
                  'length_minutes',
                  'history',
                  'schedule_constraints',
+                 'avoided_constraints',
                  'space_needs'],
                 ['title',
                  'teacher',
