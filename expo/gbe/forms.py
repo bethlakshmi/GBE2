@@ -516,6 +516,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
     volunteer_type = forms.ModelChoiceField(
         queryset=AvailableInterest.objects.filter(visible=True),
         required=False)
+
     def __init__(self, *args, **kwargs):
         conference = kwargs.pop('conference')
         super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)

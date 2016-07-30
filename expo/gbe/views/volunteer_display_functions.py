@@ -13,7 +13,8 @@ def get_volunteer_forms(volunteer):
         prefix='Volunteer Info',
         available_windows=volunteer.conference.windows(),
         unavailable_windows=volunteer.conference.windows())
-    for interest in volunteer.volunteerinterest_set.filter(rank__gt=0).order_by(
+    for interest in volunteer.volunteerinterest_set.filter(
+        rank__gt=0).order_by(
             'interest__interest'):
         volunteerform.fields['interest_id-%s' % interest.pk] = CharField(
             max_length=200,
