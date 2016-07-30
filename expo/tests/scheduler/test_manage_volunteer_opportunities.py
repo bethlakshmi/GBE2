@@ -16,6 +16,7 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     StaffAreaContext,
 )
+from gbe.models import AvailableInterest
 
 
 class TestEventList(TestCase):
@@ -61,6 +62,24 @@ class TestEventList(TestCase):
         data[action] = action
         return data
 
+    def assert_volunteer_type_selector(self, response, selected_interest=None):
+        if selected_interest:
+            assert '<select id="id_volunteer_type" name="volunteer_type">' \
+                in response.content
+        else:
+            assert '<select id="id_new_opp-volunteer_type" ' + \
+                               'name="new_opp-volunteer_type">' in response.content
+        assert '<option value="">---------</option>' in response.content
+        for i in AvailableInterest.objects.all():
+            if selected_interest and i == selected_interest:
+                assert '<option value="%d" selected="selected">%s</option>' % (
+                    i.pk, i.interest) in response.content
+            elif i.visible:
+                assert '<option value="%d">%s</option>' % (
+                    i.pk, i.interest) in response.content
+            else:
+                assert i.interest not in response.content
+
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
@@ -77,6 +96,7 @@ class TestEventList(TestCase):
         nt.assert_equal(response.status_code, 403)
 
     def test_good_user_get_not_post(self):
+        AvailableInterest.objects.all().delete()
         context = StaffAreaContext()
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
@@ -88,6 +108,34 @@ class TestEventList(TestCase):
                                            urlconf='scheduler.urls',
                                            args=['GenericEvent',
                                                  context.sched_event.pk]))
+        assert "Volunteer Management" in response.content
+
+    def test_good_user_get_w_interest(self):
+        context = StaffAreaContext()
+        AvailableInterestFactory()
+        AvailableInterestFactory(visible=False) 
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        response = self.client.get(url, follow=True)
+        self.assert_volunteer_type_selector(response)
+
+    def test_good_user_get_w_a_volunteer_opp(self):
+        context = StaffAreaContext()
+        opp = context.add_volunteer_opp(
+            room=self.room)
+        AvailableInterestFactory()
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        response = self.client.get(url, follow=True)
+        self.assert_volunteer_type_selector(
+            response,
+            opp.eventitem.volunteer_type)
 
     def test_create_opportunity(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
@@ -109,6 +157,9 @@ class TestEventList(TestCase):
         for opp in opps:
             nt.assert_equal(opp.child_event.eventitem.child().title,
                             'New Volunteer Opportunity')
+            self.assert_volunteer_type_selector(
+                response,
+                opp.child_event.eventitem.child().volunteer_type)
         nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)

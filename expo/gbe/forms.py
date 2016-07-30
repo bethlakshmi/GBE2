@@ -513,7 +513,9 @@ class VolunteerOpportunityForm(forms.ModelForm):
         error_messages={'required': 'required'})
     duration = DurationFormField(
         error_messages={'null': 'required'})
-
+    volunteer_type = forms.ModelChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
+        required=False)
     def __init__(self, *args, **kwargs):
         conference = kwargs.pop('conference')
         super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
@@ -524,6 +526,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
     class Meta:
         model = GenericEvent
         fields = ['title',
+                  'volunteer_type',
                   'num_volunteers',
                   'duration',
                   'day',
