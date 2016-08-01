@@ -70,6 +70,7 @@ def BidActView(request):
         If this is a draft, only a few fields are needed, use a form
         with fewer required fields (same model)
         '''
+        conference = Conference.objects.filter(accepting_bids=True).first()
         if 'submit' in request.POST.keys():
             form = ActEditForm(request.POST,
                                prefix='theact')
@@ -88,9 +89,9 @@ def BidActView(request):
                 defaults={
                     'summary': "Act Draft Success",
                     'description': default_act_draft_msg})
+
         if form.is_valid():
             # hack
-            conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
             act.conference = conference
             techinfo = TechInfo()
@@ -116,11 +117,26 @@ def BidActView(request):
                     defaults={
                         'summary': "Act Title, User, Conference Conflict",
                         'description': default_act_title_conflict})
-                #conflict = Act.objects.filter(
-                #    conference=form.data['conference'],
-                #    title=form.data['title'],
-                #    performer__contact=profile)
-                messages.warning(request, conflict_msg[0].description)
+                conflict = Act.objects.get(
+                    conference=conference,
+                    title=form.data['theact-title'],
+                    performer__contact=profile)
+                if conflict.submitted:
+                    link = reverse(
+                        'act_view',
+                        urlconf='gbe.urls',
+                        args=[conflict.pk]
+                    )
+                else:
+                    link = reverse(
+                        'act_edit',
+                        urlconf='gbe.urls',
+                        args=[conflict.pk]
+                    )
+                messages.error(
+                    request, conflict_msg[0].description % (
+                        link,
+                        conflict.title))
 
             fields, requiredsub = Act().bid_fields
             return render(
