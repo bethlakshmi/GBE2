@@ -29,12 +29,11 @@ from gbe.models import (
     TechInfo,
     UserMessage
 )
+from gbe.views.act_display_functions import display_invalid_act
 from gbe.functions import validate_profile
 from gbetext import (
     default_act_submit_msg,
     default_act_draft_msg,
-    default_act_title_conflict,
-    act_not_unique
 )
 
 
@@ -110,45 +109,19 @@ def BidActView(request):
             act.save()
 
         else:
-            if [act_not_unique] in form.errors.values():
-                conflict_msg = UserMessage.objects.get_or_create(
-                    view='BidActView',
-                    code="ACT_TITLE_CONFLICT",
-                    defaults={
-                        'summary': "Act Title, User, Conference Conflict",
-                        'description': default_act_title_conflict})
-                conflict = Act.objects.get(
-                    conference=conference,
-                    title=form.data['theact-title'],
-                    performer__contact=profile)
-                if conflict.submitted:
-                    link = reverse(
-                        'act_view',
-                        urlconf='gbe.urls',
-                        args=[conflict.pk]
-                    )
-                else:
-                    link = reverse(
-                        'act_edit',
-                        urlconf='gbe.urls',
-                        args=[conflict.pk]
-                    )
-                messages.error(
-                    request, conflict_msg[0].description % (
-                        link,
-                        conflict.title))
-
             fields, requiredsub = Act().bid_fields
-            return render(
+            return display_invalid_act(
                 request,
-                'gbe/bid.tmpl',
                 {'forms': [form],
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
                  'fee_link': fee_link,
-                 'submit_fields': requiredsub}
-            )
+                 'submit_fields': requiredsub},
+                form,
+                conference,
+                profile,
+                'BidActView')
 
         if 'submit' in request.POST.keys():
             '''
