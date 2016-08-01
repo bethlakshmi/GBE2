@@ -32,7 +32,9 @@ from gbe.models import (
 from gbe.functions import validate_profile
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
+    default_act_title_conflict,
+    act_not_unique
 )
 
 
@@ -107,6 +109,19 @@ def BidActView(request):
             act.save()
 
         else:
+            if [act_not_unique] in form.errors.values():
+                conflict_msg = UserMessage.objects.get_or_create(
+                    view='BidActView',
+                    code="ACT_TITLE_CONFLICT",
+                    defaults={
+                        'summary': "Act Title, User, Conference Conflict",
+                        'description': default_act_title_conflict})
+                #conflict = Act.objects.filter(
+                #    conference=form.data['conference'],
+                #    title=form.data['title'],
+                #    performer__contact=profile)
+                messages.warning(request, conflict_msg[0].description)
+
             fields, requiredsub = Act().bid_fields
             return render(
                 request,

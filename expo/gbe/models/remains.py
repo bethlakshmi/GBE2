@@ -7,6 +7,11 @@ from django.core.validators import (
     MinValueValidator,
     MaxValueValidator
 )
+from django.core.exceptions import (
+    ValidationError,
+    NON_FIELD_ERRORS
+)
+
 from django.contrib.auth.models import User
 from itertools import chain
 from scheduler.models import (
@@ -1027,6 +1032,18 @@ class Act (Biddable, ActItem):
                 len(self.description) > 0 and
                 len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
+
+    def validate_unique(self, *args, **kwargs):
+        # conference, title and performer contact should all be unique before
+        # the act is saved.
+        super(Act, self).validate_unique(*args, **kwargs)
+        if Act.objects.filter(
+                conference=self.conference,
+                title=self.title,
+                performer__contact=self.performer.contact).exclude(pk=self.pk).exists():
+            raise ValidationError({
+                NON_FIELD_ERRORS: [act_not_unique,]
+            })
 
     @property
     def tech_ready(self):

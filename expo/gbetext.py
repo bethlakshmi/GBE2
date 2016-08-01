@@ -297,3 +297,7 @@ default_create_persona_msg = "Your persona has been created."
 default_edit_persona_msg = "Your persona has been updated."
 default_edit_troupe_msg = "Your troupe has been updated."
 default_update_act_tech = "Your Act Technical Details have been updated."
+default_act_title_conflict = '''You've aready created a draft or made a \
+submission for this act.  View or edit that act here:  <a href="www.link.com">link</a>'''
+act_not_unique = '''Please name this act with a different title, \
+or edit the existing act.'''
