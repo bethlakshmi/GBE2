@@ -9,6 +9,7 @@ class FriendlyURLInput(URLInput):
     input_type = 'text'
     pattern = "(https?://)?\w(\.\w+?)+(/~?\w+)?"
 
+
 class DurationFormField(CharField):
     def __init__(self, *args, **kwargs):
         super(DurationFormField, self).__init__(*args, **kwargs)
