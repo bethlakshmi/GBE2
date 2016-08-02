@@ -16,7 +16,8 @@ from tests.functions.gbe_functions import (
 )
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
+    default_act_title_conflict
 )
 from gbe.models import UserMessage
 
@@ -57,6 +58,23 @@ class TestEditAct(TestCase):
             data=self.get_act_form(act, submit=True),
             follow=True)
         return response
+
+    def post_title_collision(self):
+        original = ActFactory()
+        copycat = ActFactory(conference=original.conference,
+                             performer=original.performer)
+        url = reverse(self.view_name,
+                      args=[copycat.pk],
+                      urlconf="gbe.urls")
+        login_as(copycat.performer.performer_profile, self)
+        make_act_app_purchase(copycat.performer.performer_profile.user_object)
+        data = self.get_act_form(copycat, submit=True)
+        data['theact-title'] = original.title
+        response = self.client.post(
+            url,
+            data=data,
+            follow=True)
+        return response, original
 
     def post_edit_paid_act_draft(self):
         act = ActFactory()
@@ -173,3 +191,33 @@ class TestEditAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_edit_act_title_collision(self):
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = default_act_title_conflict % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_edit_act_title_collision_w_msg(self):
+        message_string = "link: %s title: %s"
+        msg = UserMessageFactory(
+            view='EditActView',
+            code='ACT_TITLE_CONFLICT',
+            description=message_string)
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = message_string % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+   
