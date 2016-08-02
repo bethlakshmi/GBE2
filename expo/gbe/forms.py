@@ -27,8 +27,8 @@ class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    first_name = forms.CharField(required=True, label='Legal First Name')
+    last_name = forms.CharField(required=True, label='Legal Last Name')
     phone = forms.CharField(required=True)
 
     how_heard = forms.MultipleChoiceField(
