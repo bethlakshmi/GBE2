@@ -19,7 +19,8 @@ from tests.functions.gbe_functions import (
 )
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
+    default_act_title_conflict
 )
 from gbe.models import (
     Conference,
@@ -36,9 +37,7 @@ class TestBidAct(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
-        current_conference = ConferenceFactory()
-        current_conference.accepting_bids = True
-        current_conference.save()
+        self.current_conference = ConferenceFactory(accepting_bids=True)
         UserMessage.objects.all().delete()
 
     def get_act_form(self, submit=False):
@@ -71,6 +70,20 @@ class TestBidAct(TestCase):
         POST = self.get_act_form()
         response = self.client.post(url, data=POST, follow=True)
         return response, POST
+
+    def post_title_collision(self):
+        original = ActFactory(
+            conference=self.current_conference,
+            performer=self.performer)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        data = self.get_act_form()
+        data['theact-title'] = original.title
+        response = self.client.post(
+            url,
+            data=data,
+            follow=True)
+        return response, original
 
     def test_bid_act_no_profile(self):
         '''act_bid, when user has no profile, should bounce out to /profile'''
@@ -180,3 +193,32 @@ class TestBidAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_act_title_collision(self):
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = default_act_title_conflict % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_act_title_collision_w_msg(self):
+        message_string = "link: %s title: %s"
+        msg = UserMessageFactory(
+            view='BidActView',
+            code='ACT_TITLE_CONFLICT',
+            description=message_string)
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = message_string % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)

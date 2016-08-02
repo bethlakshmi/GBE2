@@ -1040,9 +1040,10 @@ class Act (Biddable, ActItem):
         if Act.objects.filter(
                 conference=self.conference,
                 title=self.title,
-                performer__contact=self.performer.contact).exclude(pk=self.pk).exists():
+                performer__contact=self.performer.contact
+                ).exclude(pk=self.pk).exists():
             raise ValidationError({
-                NON_FIELD_ERRORS: [act_not_unique,]
+                NON_FIELD_ERRORS: [act_not_unique, ]
             })
 
     @property

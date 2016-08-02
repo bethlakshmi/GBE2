@@ -10,6 +10,7 @@ from gbetext import (
     act_not_unique
 )
 
+
 def display_invalid_act(request, data, form, conference, profile, view):
     if [act_not_unique] in form.errors.values():
         conflict_msg = UserMessage.objects.get_or_create(

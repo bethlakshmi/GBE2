@@ -220,4 +220,3 @@ class TestEditAct(TestCase):
             original.title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
-   
