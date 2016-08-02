@@ -941,10 +941,6 @@ class Act (Biddable, ActItem):
         '''
         return self.performer.get_profiles()
 
-    def validation_problems_for_submit(self):
-        return [fn[1] % field[1] for (field, fn) in self.validation_list
-                if not eval(fn[0] % ('self.' + field[0]))]
-
     def typeof(self):
         return self.__class__
 
@@ -1045,12 +1041,6 @@ class Act (Biddable, ActItem):
             raise ValidationError({
                 NON_FIELD_ERRORS: [act_not_unique, ]
             })
-
-    @property
-    def tech_ready(self):
-        return (self.tech.is_complete and
-                self.performer.complete and
-                self.intro_text is not '')
 
     @property
     def alerts(self):
