@@ -31,10 +31,9 @@ class TestEditAct(TestCase):
     def setUp(self):
         UserMessage.objects.all().delete()
         self.client = Client()
-        self.performer = PersonaFactory()
 
-    def get_act_form(self, submit=False, invalid=False):
-        form_dict = {'theact-teacher': 2,
+    def get_act_form(self, act, submit=False, invalid=False):
+        form_dict = {'theact-performer': act.performer.pk,
                      'theact-title': 'An act',
                      'theact-description': 'a description',
                      'theact-length_minutes': 60,
@@ -55,7 +54,7 @@ class TestEditAct(TestCase):
         make_act_app_purchase(act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
-            data=self.get_act_form(submit=True),
+            data=self.get_act_form(act, submit=True),
             follow=True)
         return response
 
@@ -66,7 +65,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(act.performer.contact, self)
         response = self.client.post(url,
-                                    self.get_act_form(),
+                                    self.get_act_form(act),
                                     follow=True)
         return response
 
@@ -111,7 +110,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.performer_profile, self)
         response = self.client.post(
             url,
-            self.get_act_form(invalid=True))
+            self.get_act_form(act, invalid=True))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Edit Your Act Proposal' in response.content)
 
@@ -123,7 +122,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.performer_profile, self)
         response = self.client.post(
             url,
-            data=self.get_act_form(submit=True))
+            data=self.get_act_form(act, submit=True))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Act Payment' in response.content)
 
