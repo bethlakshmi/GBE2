@@ -4,7 +4,7 @@
     {{ profile.display_name }}'s
   {% else %}
     Your
-  {% endif %} 
+  {% endif %}
     Stuff
 </h3>
 
@@ -13,7 +13,7 @@
 Showing Historical Bids
 </h4>
 <div class="sidebar-text history">
-<p>  
+<p>
 These bids are not currently available for consideration. Click the "clone"
 button to re-submit an act, class, or vendor bid in the current conference.
 </p>
@@ -33,12 +33,11 @@ acts, classes, or vendors in previous years.
 {% for alert in alerts %}
   <div class='alert'>{{alert|safe}}</a> <br><br> </div>
 {% endfor %}
-{% include 'gbe/profile/incl_performer.tmpl' %}	
 {% include 'gbe/profile/incl_acts.tmpl' %}
 {% include 'gbe/profile/incl_classes.tmpl' %}
 {% include 'gbe/profile/incl_vendors.tmpl' %}
-{% include 'gbe/profile/incl_volunteering.tmpl' %}  
-{% include 'gbe/profile/incl_costumes.tmpl' %}  
+{% include 'gbe/profile/incl_volunteering.tmpl' %}
+{% include 'gbe/profile/incl_costumes.tmpl' %}
 {% include 'gbe/profile/incl_shows.tmpl' %}
 {% include 'gbe/profile/incl_bids.tmpl' %}
 </div>
