@@ -3,6 +3,8 @@
 # until I copy them over
 
 participant_labels = {
+    'legal_first_name': ('Legal First Name'),
+    'legal_last_name': ('Legal Last Name'),
     'display_name': ('Badge Name'),
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
@@ -52,6 +54,10 @@ participant_form_help_texts = {
     'offsite_preferred': ('Your preferred phone number (if different from \
     above), for communication before the Expo.  Use this if you prefer to \
     get phone calls at a phone you cannot bring to the Expo.'),
+    'legal_name': ('Please provide us with your legal first and last names.\
+     This information is only used by the event staff never shared with anyone\
+     without your prior permission.\
+     Please use your stage name in the Badge Name field.'),
 }
 
 
