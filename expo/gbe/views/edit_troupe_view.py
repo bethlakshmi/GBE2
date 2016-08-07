@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import(
@@ -11,12 +12,14 @@ from gbe.forms import TroupeForm
 from gbe.models import (
     Profile,
     Troupe,
+    UserMessage
 )
 from gbe_forms_text import (
     persona_labels,
     troupe_header_text,
 )
 from gbe.functions import validate_profile
+from gbetext import default_edit_troupe_msg
 
 
 @login_required
@@ -55,6 +58,13 @@ def EditTroupeView(request, troupe_id=None):
         form = TroupeForm(request.POST, request.FILES, instance=troupe)
         if form.is_valid():
             form.save(commit=True)
+            user_message = UserMessage.objects.get_or_create(
+                view='EditTroupeView',
+                code="UPDATE_TROUPE",
+                defaults={
+                    'summary': "Update Troupe Success",
+                    'description': default_edit_troupe_msg})
+            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             q = Profile.objects.filter(resourceitem_id=profile.resourceitem_id)

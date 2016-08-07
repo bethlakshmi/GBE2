@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template import (
@@ -9,10 +10,16 @@ from django.shortcuts import render
 
 from expo.gbe_logging import log_func
 from gbe.forms import VolunteerBidForm
-from gbe.models import Conference
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 from gbe.functions import (
     mail_to_group,
     validate_profile,
+)
+from gbetext import (
+    default_volunteer_submit_msg
 )
 
 
@@ -46,7 +53,14 @@ def CreateVolunteerView(request):
                     volunteer.available_windows.add(window)
                 for window in form.cleaned_data['unavailable_windows']:
                     volunteer.unavailable_windows.add(window)
-            notify_volunteer_reviewers(profile)
+                notify_volunteer_reviewers(profile)
+                user_message = UserMessage.objects.get_or_create(
+                    view='CreateVolunteerView',
+                    code="SUBMIT_SUCCESS",
+                    defaults={
+                        'summary': "Volunteer Submit Success",
+                        'description': default_volunteer_submit_msg})
+                messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render(request,

@@ -193,25 +193,26 @@ new_event_options = (('Special', "Special Event"),
 class_options = (('Lecture', "Lecture"),
                  ('Movement', "Movement"),
                  ('Panel', "Panel"),
-                 ('Workshop',"Workshop"))
+                 ('Workshop', "Workshop"))
 
 length_options = ((30, "30"),
                   (60, "60"),
                   (90, "90"),
-                  (120,"120"))
+                  (120, "120"))
 
-class_length_options = ( (60, "60"),
-                         (90, "90"),
-                         (120,"120"))
+class_length_options = ((60, "60"),
+                        (90, "90"),
+                        (120, "120"))
 
-space_options = (('Movement Class Floor', (("0","Don't Care about Floor"),
-                                           ("1","Carpet"),
-                                           ("2","Dance Floor"),
-                                           ("3","Both"))),
-                 ('Lecture Class Setup',(("4","Don't Care about Seating"),
-                                         ("5","Lecture Style - tables and chairs face podium"),
-                                         ("6","Conversational - seating in a ring"))))
-
+space_options = (('Movement Class Floor',
+                  (("0", "Don't Care about Floor"),
+                   ("1", "Carpet"),
+                   ("2", "Dance Floor"),
+                   ("3", "Both"))),
+                 ('Lecture Class Setup',
+                  (("4", "Don't Care about Seating"),
+                   ("5", "Lecture Style - tables and chairs face podium"),
+                   ("6", "Conversational - seating in a ring"))))
 
 schedule_options = (('Preferred Time', "Preferred Time"),
                     ('Available', "Available"),
@@ -224,45 +225,75 @@ day_options = (('Fri', "Friday"),
                ('Sun', "Sunday"))
 
 role_options = (('Teacher', "Teacher"),
-               ('Performer', "Performer"),
-               ('Volunteer', "Volunteer"),
-               ('Panelist', "Panelist"),
-               ('Moderator', "Moderator"),
-               ('Staff Lead', "Staff Lead"),
-               ('Technical Director', "Technical Director"),
-               ('Producer',"Producer"))
+                ('Performer', "Performer"),
+                ('Volunteer', "Volunteer"),
+                ('Panelist', "Panelist"),
+                ('Moderator', "Moderator"),
+                ('Staff Lead', "Staff Lead"),
+                ('Technical Director', "Technical Director"),
+                ('Producer', "Producer"))
 
-vend_time_options = ((" "," "),('Saturday & Sunday, noon to 8pm ONLY.',
-						 "Saturday & Sunday, noon to 8pm ONLY."))
-ad_type_options = (("Full Page, Premium","Full Page, Premium"),
-                   ("Full Page, Interior","Full Page, Interior"),
-                   ("Half Page, Premium","Half Page, Premium"),
-                   ("Half Page, Interior","Half Page, Interior"),
-                   ("Quarter Page, Premium","Quarter Page, Premium"),
-                   ("Quarter Page, Interior","Quarter Page, Interior"))
+vend_time_options = (
+    (" ",
+     " "),
+    ('Saturday & Sunday, noon to 8pm ONLY.',
+     "Saturday & Sunday, noon to 8pm ONLY."))
+ad_type_options = (("Full Page, Premium", "Full Page, Premium"),
+                   ("Full Page, Interior", "Full Page, Interior"),
+                   ("Half Page, Premium", "Half Page, Premium"),
+                   ("Half Page, Interior", "Half Page, Interior"),
+                   ("Quarter Page, Premium", "Quarter Page, Premium"),
+                   ("Quarter Page, Interior", "Quarter Page, Interior"))
 
-num_panel_options = (("One Panel","One Panel ($30 includes application fee)"),
-					("Two Panels","Two Panels ($75; if your work is not accepted, $45 will be refunded)"),
-					("Sculpture","My artwork is sculptural and needs to be displayed on a table ($30 includes app. fee)"))
+num_panel_options = (
+    ("One Panel",
+     "One Panel ($30 includes application fee)"),
+    ("Two Panels",
+     "Two Panels ($75; if your work is not accepted, $45 will be refunded)"),
+    ("Sculpture",
+     "My artwork is sculptural and needs to be displayed on a table " +
+     "($30 includes app. fee)"))
 
+class_proposal_choices = [
+    ('Class', 'Class'),
+    ('Panel', 'Panel'),
+    ('Either', 'Either')]
 
-
-class_proposal_choices = [ ('Class', 'Class'), ('Panel', 'Panel'), ('Either', 'Either')]
-
-#####  Static Text options for the Scheduler
- 
-###    Options for schedule blocking
+###############
+#  Static Text options for the Scheduler
+###############
+#    Options for schedule blocking
 blocking_text = (('False', False), ('Hard', 'Hard'), ('Soft', 'Soft'))
 
-###    Options for time types
-time_text = (('Start Time', 'Start Time'), ('Stop Time', 'Stop Time'),
-             ('Hard Time', 'Hard Time'), ('Soft Time', 'Soft Time'))
+#    Options for time types
+time_text = (('Start Time', 'Start Time'),
+             ('Stop Time', 'Stop Time'),
+             ('Hard Time', 'Hard Time'),
+             ('Soft Time', 'Soft Time'))
 
 event_labels = {'type':  'Type',
                 'fee': 'Materials Fee',
-                'parent_event': 'Part of', 
+                'parent_event': 'Part of',
                 'volunteer_category': 'Opportunity Category'
-                
                 }
 
 overlap_location_text = ' (alt)'
+
+default_class_submit_msg = "Your class was sucessfully submitted"
+default_class_draft_msg = "Your draft was sucessfully saved"
+default_act_submit_msg = "Your act was sucessfully submitted"
+default_act_draft_msg = "Your draft was sucessfully saved"
+default_costume_submit_msg = "Your costume was sucessfully submitted"
+default_costume_draft_msg = "Your draft was sucessfully saved"
+default_propose_submit_msg = "Your idea was sucessfully submitted"
+default_vendor_submit_msg = "Your vendor proposal was sucessfully submitted"
+default_vendor_draft_msg = "Your draft was sucessfully saved"
+default_volunteer_submit_msg = \
+    "Your offer to volunteer was sucessfully submitted"
+default_volunteer_edit_msg = "You have successfully edited a volunteer."
+default_clone_msg = "You have successfully made a new copy."
+default_update_profile_msg = "Your profile has been updated."
+default_create_persona_msg = "Your persona has been created."
+default_edit_persona_msg = "Your persona has been updated."
+default_edit_troupe_msg = "Your troupe has been updated."
+default_update_act_tech = "Your Act Technical Details have been updated."

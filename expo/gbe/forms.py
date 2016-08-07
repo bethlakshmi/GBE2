@@ -9,7 +9,14 @@ from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
-from gbetext import act_shows_options
+from gbetext import (
+    acceptance_states,
+    act_other_perf_options,
+    act_shows_options,
+    boolean_options,
+    new_event_options,
+)
+
 from expoformfields import (
     DurationFormField,
     FriendlyURLInput,
@@ -389,6 +396,11 @@ class ClassBidForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         choices=class_schedule_options,
         label=classbid_labels['schedule_constraints'])
+    avoided_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        label=classbid_labels['avoided_constraints'],
+        required=False)
 
     class Meta:
         model = Class
@@ -406,6 +418,11 @@ class ClassBidDraftForm(forms.ModelForm):
         required=False,
         label=classbid_labels['schedule_constraints']
     )
+    avoided_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        label=classbid_labels['avoided_constraints'],
+        required=False)
     ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
     description = forms.CharField(required=False,
