@@ -32,8 +32,6 @@ from scheduler.functions import (
     set_time_format,
     get_roles_from_scheduler
 )
-
-
 from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
