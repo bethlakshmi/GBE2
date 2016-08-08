@@ -453,7 +453,6 @@ class WorkerItem(ResourceItem):
         return conflicts
 
 
-
 class Worker(Resource):
     '''
     objects = InheritanceManager()
@@ -727,9 +726,9 @@ class Event(Schedulable):
         volunteers = Worker.objects.filter(allocations__event=self,
                                            role='Volunteer').count()
         if acts:
-            return str(len(self.get_acts())) + ' acts'
+            return "%d acts" % acts
         elif volunteers:
-            return str(volunteers)+' volunteers'
+            return "%d volunteers" % volunteers
         else:
             return 0
 

@@ -290,7 +290,7 @@ def schedule_acts(request, show_title=None):
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])
     forms = [ActScheduleForm(initial=details,
-                             prefix='allocation_'+str(alloc.id))
+                             prefix='allocation_%d' % alloc.id)
              for (details, alloc) in forms]
 
     template = 'scheduler/act_schedule.tmpl'
@@ -409,9 +409,7 @@ def get_worker_allocation_forms(opp, errorcontext=None):
                          'role': Worker.objects.get(
                              id=alloc.resource.id).role,
                          'label': alloc.get_label,
-                         'alloc_id': alloc.id}
-                )
-            )
+                         'alloc_id': alloc.id}))
     if errorcontext and 'new_worker_alloc_form' in errorcontext:
         forms.append(errorcontext['new_worker_alloc_form'])
     else:
