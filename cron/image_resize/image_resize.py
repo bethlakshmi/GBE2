@@ -1,7 +1,6 @@
-#!/usr/bin/python2.7
+#!/usr/local/bin/python2.7
 
-#upload_dir = '/home/gbelive/webapps/gbelivemedia/uploads'
-upload_dir = '/vagrant/uploads'
+upload_dir = '/home/gbeadmin/uploads'
 image_dir = upload_dir+'/images'
 save_dir = image_dir+'/fullsize'
 mini_dirs = ['mini', 'thumb']
@@ -78,7 +77,7 @@ def minify(files, image_dir, mini_dir, size='mini', ratio='>'):
                 aspect ratio
     '''
 
-    if not os.path.isdir(mini_dir): os.makedirs(mini_dir)
+    if not os.path.isdir(image_dir): os.makedirs(image_dir)
 
     if ratio in ('m', 'l', 's', 'e'):
         if ratio == 'm': ratio = ''
@@ -100,11 +99,13 @@ def minify(files, image_dir, mini_dir, size='mini', ratio='>'):
     if not (type(files) == type(()) or type(files) == type([])):
         files = [files]
     for f in files:
+        print f
         with Image (filename=image_dir+'/'+f) as img:
             if ratio == 'c':
                 xx, yy = size.split('x')
                 img.transform(resize=size)
                 width, height = (int(xx)-img.width)/2, (int(yy)-img.height)/2
+                print dir(img)
                 img.frame(matte=Color('#010101'), width=width, height=height)
                 if img.width != xx or img.height != yy:
                     img.transform(resize=size+'!')
