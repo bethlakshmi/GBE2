@@ -7,6 +7,11 @@ from django.core.validators import (
     MinValueValidator,
     MaxValueValidator
 )
+from django.template import (
+    loader,
+    Context,
+)
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from itertools import chain
 from scheduler.models import (
@@ -27,6 +32,8 @@ from scheduler.functions import (
     set_time_format,
     get_roles_from_scheduler
 )
+
+
 from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
@@ -346,7 +353,9 @@ class Profile(WorkerItem):
 
     def volunteer_schedule(self, conference=None):
         conference = conference or Conference.current_conf()
-        return self.workeritem.volunteer_events(conference)
+        return self.workeritem.get_bookings(role="Volunteer",
+                                            conference=conference).order_by(
+                                                'starttime')
 
     def get_roles(self, conference):
         '''
@@ -417,6 +426,14 @@ class Profile(WorkerItem):
                         if perf.pk == person._item.pk:
                             doing_it = True
         return doing_it
+
+    def notify_volunteer_schedule_change(self):
+        subject = "A change has been made to your Volunteer Schedule!"
+        message = loader.get_template('gbe/volunteer_schedule_update.tmpl')
+        c = Context({'profile': self})
+        if not settings.DEBUG:
+            mail_to_user(subject, message.render(c), self.user_object)
+
 
     def __str__(self):
         return self.display_name
@@ -1935,3 +1952,6 @@ class ProfilePreferences(models.Model):
     class Meta:
         verbose_name_plural = 'profile preferences'
         app_label = "gbe"
+
+def mail_to_user(subject, message, user):
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])

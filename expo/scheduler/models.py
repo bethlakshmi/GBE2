@@ -324,6 +324,7 @@ class LocationItem(ResourceItem):
         allocations, and avoid being subclass specific
         '''
         from scheduler.models import Event
+
         events = Event.objects.filter(
             resources_allocated__resource__location___item=self
         ).order_by(
@@ -409,13 +410,12 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
-    def get_bookings(self, role='All'):
+    def get_bookings(self, role='All', conference=None):
         '''
         Returns the events for which this Worker is booked as "role".
         should remain focused on the upward connection of resource
         allocations, and avoid being sub class specific
         '''
-
         from scheduler.models import Event
 
         if role in ['All', None]:
@@ -425,6 +425,9 @@ class WorkerItem(ResourceItem):
             events = Event.objects.filter(
                 resources_allocated__resource__worker___item=self,
                 resources_allocated__resource__worker__role=role)
+        if conference:
+
+            events = events.filter(eventitem__event__conference=conference)
         return events
 
     def get_schedule(self):
@@ -449,10 +452,6 @@ class WorkerItem(ResourceItem):
                 conflicts += [event]
         return conflicts
 
-    def volunteer_events(self, conference):
-        return Event.objects.filter(
-            resources_allocated__resource__worker___item=self,
-            eventitem__event__conference=conference).order_by('starttime')
 
 
 class Worker(Resource):

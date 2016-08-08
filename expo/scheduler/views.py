@@ -13,11 +13,7 @@ from django.db.models import (
     Count,
 )
 from django.contrib.auth.forms import UserCreationForm
-from django.template import (
-    loader,
-    Context,
-    RequestContext,
-)
+
 from django.core.mail import send_mail
 from django.conf import settings
 from scheduler.models import *
@@ -443,18 +439,6 @@ def show_potential_workers(opp):
             'available_volunteers': available}
 
 
-def mail_to_user(subject, message, user):
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
-
-
-def notify_volunteer_schedule_change(profile):
-    subject = "A change has been made to your Volunteer Schedule!"
-    message = loader.get_template('scheduler/volunteer_schedule_update.tmpl')
-    c = Context({'profile': profile})
-    if not settings.DEBUG:
-        mail_to_user(subject, message.render(c), profile.user_object)
-
-
 @login_required
 def allocate_workers(request, opp_id):
     '''
@@ -477,7 +461,7 @@ def allocate_workers(request, opp_id):
         res.delete()
         # This delete looks dangerous, considering that Event.allocate_worker
         # seems to allow us to create multiple allocations for the same Worker
-        notify_volunteer_schedule_change(profile)
+        profile.notify_volunteer_schedule_change()
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
@@ -503,7 +487,7 @@ def allocate_workers(request, opp_id):
                 data['role'],
                 data['label'],
                 data['alloc_id'])
-            notify_volunteer_schedule_change(data['worker'])
+            data['worker'].notify_volunteer_schedule_change()
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
