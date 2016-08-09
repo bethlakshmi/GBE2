@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -11,10 +10,8 @@ from gbe.forms import (
 from gbe.models import (
     Profile,
     ProfilePreferences,
-    UserMessage
 )
 from gbe.functions import validate_profile
-from gbetext import default_update_profile_msg
 
 
 @login_required
@@ -28,7 +25,6 @@ def UpdateProfileView(request):
         profile.preferences = ProfilePreferences()
         profile.preferences.save()
         profile.save()
-
     if request.method == 'POST':
         form = ParticipantForm(request.POST,
                                instance=profile,
@@ -51,13 +47,6 @@ def UpdateProfileView(request):
             profile.save()
 
             form.save()
-            user_message = UserMessage.objects.get_or_create(
-                view='UpdateProfileView',
-                code="UPDATE_PROFILE",
-                defaults={
-                    'summary': "Update Profile Success",
-                    'description': default_update_profile_msg})
-            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
             return render(request, 'gbe/update_profile.tmpl',

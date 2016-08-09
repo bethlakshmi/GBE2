@@ -136,9 +136,9 @@ INSTALLED_APPS = (
     'django_nose',
     'hijack',
     'compat',
-    'debug_toolbar',
+
 )
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 
@@ -155,7 +155,6 @@ THUMBNAIL_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -174,7 +173,6 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.language.LanguageCookieMiddleware',
     # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 TEXT_SAVE_IMAGE_FUNCTION = \

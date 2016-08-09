@@ -1,3 +1,4 @@
+import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
@@ -8,19 +9,10 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory,
     VolunteerWindowFactory,
 )
-from tests.functions.gbe_functions import (
-    assert_alert_exists,
-    login_as
-)
-from gbetext import default_volunteer_submit_msg
-from gbe.models import (
-    Conference,
-    Volunteer,
-    UserMessage
-)
+from tests.functions.gbe_functions import login_as
+from gbe.models import Conference, Volunteer
 
 
 class TestCreateVolunteer(TestCase):
@@ -32,7 +24,6 @@ class TestCreateVolunteer(TestCase):
         self.client = Client()
         self.performer = PersonaFactory()
         Conference.objects.all().delete()
-        UserMessage.objects.all().delete()
         self.conference = ConferenceFactory(accepting_bids=True)
         days = ConferenceDayFactory.create_batch(3, conference=self.conference)
         [VolunteerWindowFactory(day=day) for day in days]
@@ -52,21 +43,12 @@ class TestCreateVolunteer(TestCase):
             del(form['number_shifts'])
         return form
 
-    def post_volunteer_submission(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(ProfileFactory(), self)
-        num_volunteers_before = Volunteer.objects.count()
-        data = self.get_volunteer_form(submit=True)
-        response = self.client.post(url, data=data, follow=True)
-        return response, num_volunteers_before
-
     def test_create_volunteer_no_profile(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(UserFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_no_profile(self):
         url = reverse(self.view_name,
@@ -74,7 +56,7 @@ class TestCreateVolunteer(TestCase):
         login_as(UserFactory(), self)
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, 302)
+        nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_valid_form(self):
         url = reverse(self.view_name,
@@ -82,7 +64,7 @@ class TestCreateVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, 302)
+        nt.assert_equal(response.status_code, 302)
 
     def test_create_volunteer_post_form_invalid(self):
         url = reverse(self.view_name,
@@ -90,40 +72,30 @@ class TestCreateVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         data = self.get_volunteer_form(invalid=True)
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, 200)
+        nt.assert_equal(response.status_code, 200)
 
     def test_create_volunteer_no_post(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
+        nt.assert_equal(response.status_code, 200)
 
     def test_create_volunteer_post_with_submit_is_true(self):
-        response, num_volunteers_before = self.post_volunteer_submission()
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('Profile View', response.content)
-        self.assertEqual(num_volunteers_before + 1, Volunteer.objects.count())
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        num_volunteers_before = Volunteer.objects.count()
+        data = self.get_volunteer_form(submit=True)
+        response = self.client.post(url, data=data, follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('Profile View', response.content)
+        nt.assert_equal(num_volunteers_before + 1, Volunteer.objects.count())
 
     def test_create_volunteer_with_get_request(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('Volunteer', response.content)
-
-    def test_volunteer_submit_make_message(self):
-        response, data = self.post_volunteer_submission()
-        self.assertEqual(response.status_code, 200)
-        assert_alert_exists(
-            response, 'success', 'Success', default_volunteer_submit_msg)
-
-    def test_volunteer_submit_has_message(self):
-        msg = UserMessageFactory(
-            view='CreateVolunteerView',
-            code='SUBMIT_SUCCESS')
-        response, data = self.post_volunteer_submission()
-        self.assertEqual(response.status_code, 200)
-        assert_alert_exists(
-            response, 'success', 'Success', msg.description)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('Volunteer', response.content)

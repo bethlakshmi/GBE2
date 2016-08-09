@@ -1,3 +1,4 @@
+import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,18 +8,11 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
 )
 from tests.functions.gbe_functions import (
-    assert_alert_exists,
     login_as,
     location,
 )
-from gbetext import (
-    default_costume_submit_msg,
-    default_costume_draft_msg
-)
-from gbe.models import UserMessage
 
 
 class TestEditCostume(TestCase):
@@ -29,7 +23,6 @@ class TestEditCostume(TestCase):
     # for now, test it.
 
     def setUp(self):
-        UserMessage.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -53,32 +46,6 @@ class TestEditCostume(TestCase):
 
         return data
 
-    def post_edit_costume_submission(self):
-        persona = PersonaFactory()
-        costume = CostumeFactory(profile=persona.performer_profile,
-                                 performer=persona)
-
-        url = reverse(self.view_name,
-                      args=[costume.pk],
-                      urlconf='gbe.urls')
-        data = self.get_costume_form(submit=True)
-        login_as(costume.profile, self)
-        response = self.client.post(url, data=data, follow=True)
-        return response
-
-    def post_edit_costume_draft(self):
-        persona = PersonaFactory()
-        costume = CostumeFactory(profile=persona.performer_profile,
-                                 performer=persona)
-
-        url = reverse(self.view_name,
-                      args=[costume.pk],
-                      urlconf='gbe.urls')
-        data = self.get_costume_form(submit=False)
-        login_as(costume.profile, self)
-        response = self.client.post(url, data=data, follow=True)
-        return response
-
     def test_edit_costume_no_costume(self):
         '''Should get 404 if no valid costume ID'''
         url = reverse(self.view_name,
@@ -86,7 +53,7 @@ class TestEditCostume(TestCase):
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        nt.assert_equal(response.status_code, 404)
 
     def test_edit_costume_profile_is_not_contact(self):
         ''' Should get an error if the costume was not proposed by this user'''
@@ -96,8 +63,8 @@ class TestEditCostume(TestCase):
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue("You don&#39;t own that bid." in response.content)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true("You don&#39;t own that bid." in response.content)
 
     def test_edit_costume_no_profile(self):
         costume = CostumeFactory()
@@ -106,7 +73,7 @@ class TestEditCostume(TestCase):
                       urlconf='gbe.urls')
         login_as(UserFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        nt.assert_equal(response.status_code, 302)
 
     def test_costume_edit_post_form_not_valid(self):
         '''costume_edit, if form not valid, should return to ActEditForm'''
@@ -120,24 +87,42 @@ class TestEditCostume(TestCase):
         login_as(costume.profile, self)
         response = self.client.post(url, data=data)
         error_string = "This bid is not one of your stage names"
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(error_string in response.content)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true(error_string in response.content)
 
     def test_edit_bid_post_no_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''
-        response = self.post_edit_costume_draft()
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(('http://testserver/gbe', 302)
-                        in response.redirect_chain)
+        persona = PersonaFactory()
+        costume = CostumeFactory(profile=persona.performer_profile,
+                                 performer=persona)
+
+        url = reverse(self.view_name,
+                      args=[costume.pk],
+                      urlconf='gbe.urls')
+        data = self.get_costume_form(submit=False)
+        login_as(costume.profile, self)
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(location(response),
+                        'http://testserver/gbe')
 
     def test_edit_bid_post_submit(self):
         '''edit_costume, not submitting and no other problems,
         should redirect to home'''
-        response = self.post_edit_costume_submission()
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(('http://testserver/gbe', 302)
-                        in response.redirect_chain)
+        persona = PersonaFactory()
+        costume = CostumeFactory(profile=persona.performer_profile,
+                                 performer=persona)
+
+        url = reverse(self.view_name,
+                      args=[costume.pk],
+                      urlconf='gbe.urls')
+        data = self.get_costume_form(submit=True)
+        login_as(costume.profile, self)
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(location(response),
+                        'http://testserver/gbe')
 
     def test_edit_bid_post_invalid(self):
         '''edit_costume, not submitting and no other problems,
@@ -153,8 +138,8 @@ class TestEditCostume(TestCase):
         login_as(costume.profile, self)
         response = self.client.post(url, data=data)
         expected_string = "Costume Information"
-        self.assertTrue(expected_string in response.content)
-        self.assertEqual(response.status_code, 200)
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
 
     def test_edit_bid_not_post(self):
         '''edit_costume, not post, should take us to edit process'''
@@ -166,35 +151,5 @@ class TestEditCostume(TestCase):
         login_as(costume.profile, self)
         response = self.client.get(url)
         expected_text = "Displaying a Costume"
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(expected_text in response.content)
-
-    def test_costume_submit_make_message(self):
-        response = self.post_edit_costume_submission()
-        self.assertEqual(response.status_code, 200)
-        assert_alert_exists(
-            response, 'success', 'Success', default_costume_submit_msg)
-
-    def test_costume_draft_make_message(self):
-        response = self.post_edit_costume_draft()
-        self.assertEqual(200, response.status_code)
-        assert_alert_exists(
-            response, 'success', 'Success', default_costume_draft_msg)
-
-    def test_costume_submit_has_message(self):
-        msg = UserMessageFactory(
-            view='EditCostumeView',
-            code='SUBMIT_SUCCESS')
-        response = self.post_edit_costume_submission()
-        self.assertEqual(response.status_code, 200)
-        assert_alert_exists(
-            response, 'success', 'Success', msg.description)
-
-    def test_costume_draft_has_message(self):
-        msg = UserMessageFactory(
-            view='EditCostumeView',
-            code='DRAFT_SUCCESS')
-        response = self.post_edit_costume_draft()
-        self.assertEqual(200, response.status_code)
-        assert_alert_exists(
-            response, 'success', 'Success', msg.description)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_true(expected_text in response.content)

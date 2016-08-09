@@ -7,11 +7,9 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,
     UserFactory,
-    UserMessageFactory
 )
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
-    assert_alert_exists,
     login_as,
     is_login_page,
     is_profile_update_page,
@@ -20,8 +18,6 @@ from tests.functions.gbe_functions import (
 from scheduler.models import (
     Event as sEvent,
 )
-from gbe.models import UserMessage
-from gbetext import default_update_act_tech
 
 
 class TestEditActTechInfo(TestCase):
@@ -73,11 +69,11 @@ class TestEditActTechInfo(TestCase):
 
     def check_good_info(self, response, context, random_performer):
         labels = [
-            ('Title', 'title'),
-            ('Description', 'description'),
-            ('Performer', 'performer'),
-            ('Video link', 'video_link'),
-            ('Video choice', 'video_choice')
+            ('Title','title'),
+            ('Description','description'),
+            ('Performer','performer'),
+            ('Video link','video_link'),
+            ('Video choice','video_choice')
             ]
         html_label_format = '<td class="readonlyform form_label">' + \
             '<label for="id_act_tech_info-%s">%s:</label>'
@@ -124,24 +120,7 @@ class TestEditActTechInfo(TestCase):
             response,
             str(random_performer)
         )
-
-    def post_act_tech_info_success(self, num_cues=3):
-        context = ActTechInfoContext(schedule_rehearsal=True)
-        another_rehearsal = context._schedule_rehearsal(context.sched_event)
-        url = reverse('act_techinfo_edit',
-                      urlconf='gbe.urls',
-                      args=[context.act.pk])
-        login_as(context.performer.contact, self)
-        data = self.get_full_post(
-            another_rehearsal,
-            context.show).copy()
-        data.update(self.get_cues(context.act.tech, num_cues))
-        response = self.client.post(
-            url,
-            data=data,
-            follow=True)
-        return response, context, another_rehearsal
-
+    
     def test_edit_act_techinfo_unauthorized_user(self):
         context = ActTechInfoContext()
         url = reverse('act_techinfo_edit',
@@ -261,25 +240,27 @@ class TestEditActTechInfo(TestCase):
         self.check_good_info(response, context, random_performer)
 
     def test_edit_act_techinfo_authorized_user_post_complete_form(self):
-        response, context, another = self.post_act_tech_info_success()
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3))
+
+        response = self.client.post(
+            url,
+            data=data)
         self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
         self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
         self.assertEqual(context.act.get_scheduled_rehearsals()[0],
-                         another)
+                         another_rehearsal)
         self.assertEqual(
             context.act.tech.cueinfo_set.get(
                 cue_sequence=2).cyc_color,
-            'White')
-
-    def test_edit_act_techinfo_authorized_user_post_one_cue(self):
-        response, context, another = self.post_act_tech_info_success(1)
-        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
-        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
-        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
-                         another)
-        self.assertEqual(
-            context.act.tech.cueinfo_set.get(
-                cue_sequence=0).cyc_color,
             'White')
 
     def test_edit_act_techinfo_post_complete_alt_cues_full_rehearsal(self):
@@ -378,18 +359,3 @@ class TestEditActTechInfo(TestCase):
         self.assertContains(
             response,
             'Add text if you wish to save information for this cue.')
-
-    def test_edit_act_techinfo_make_message(self):
-        response, context, another = self.post_act_tech_info_success()
-        self.assertEqual(200, response.status_code)
-        assert_alert_exists(
-            response, 'success', 'Success', default_update_act_tech)
-
-    def test_edit_act_techinfo_has_message(self):
-        msg = UserMessageFactory(
-            view='EditActTechInfoView',
-            code='UPDATE_ACT_TECH')
-        response, context, another = self.post_act_tech_info_success()
-        self.assertEqual(response.status_code, 200)
-        assert_alert_exists(
-            response, 'success', 'Success', msg.description)

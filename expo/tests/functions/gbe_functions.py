@@ -1,19 +1,10 @@
-
 from gbe.models import (
     Conference,
     Profile,
-)
-from django.contrib.auth.models import (
-    Group,
     User,
 )
+from django.contrib.auth.models import Group
 from tests.factories.gbe_factories import ConferenceFactory
-from tests.factories.ticketing_factories import (
-    BrownPaperEventsFactory,
-    TransactionFactory,
-    TicketItemFactory,
-    PurchaserFactory,
-)
 
 
 def _user_for(user_or_profile):
@@ -79,32 +70,3 @@ def clear_conferences():
 
 def reload(object):
     return type(object).objects.get(pk=object.pk)
-
-
-def assert_alert_exists(response, tag, label, text):
-    alert_html = '<div class="alert alert-%s">\n' + \
-        '          <a href="#" class="close" data-dismiss="alert" ' + \
-        'aria-label="close">&times;</a>\n' + \
-        '          <strong>%s:</strong> %s\n' \
-        '	</div>'
-    assert alert_html % (tag, label, text) in response.content
-
-
-def make_act_app_purchase(user_object):
-    purchaser = PurchaserFactory(
-        matched_to_user=user_object)
-    transaction = TransactionFactory(purchaser=purchaser)
-    transaction.ticket_item.bpt_event.act_submission_event = True
-    transaction.ticket_item.bpt_event.bpt_event_id = "111111"
-    transaction.ticket_item.bpt_event.save()
-    return transaction
-
-
-def make_vendor_app_purchase(conference, user_object):
-    bpt_event = BrownPaperEventsFactory(conference=conference,
-                                        vendor_submission_event=True)
-    purchaser = PurchaserFactory(matched_to_user=user_object)
-    ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
-    ticket = TicketItemFactory(ticket_id=ticket_id)
-    transaction = TransactionFactory(ticket_item=ticket,
-                                     purchaser=purchaser)

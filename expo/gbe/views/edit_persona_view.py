@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import (
     get_object_or_404,
@@ -12,8 +11,6 @@ from expo.gbe_logging import log_func
 from gbe.models import Persona
 from gbe.forms import PersonaForm
 from gbe.functions import validate_profile
-from gbetext import default_edit_persona_msg
-from gbe.models import UserMessage
 
 
 @login_required
@@ -38,13 +35,6 @@ def EditPersonaView(request, persona_id):
                            instance=persona)
         if form.is_valid():
             performer = form.save(commit=True)
-            user_message = UserMessage.objects.get_or_create(
-                view='EditPersonaView',
-                code="UPDATE_PERSONA",
-                defaults={
-                    'summary': "Create Persona Success",
-                    'description': default_edit_persona_msg})
-            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home',
                                                 urlconf='gbe.urls'))
         else:
