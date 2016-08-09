@@ -9,16 +9,16 @@ from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.forms import (
     VolunteerBidForm,
-    VolunteerInterestForm
+    VolunteerInterestForm,
 )
 from gbe.functions import validate_perms
 from gbe.models import (
     UserMessage,
-    Volunteer
+    Volunteer,
 )
 from gbetext import (
     default_volunteer_edit_msg,
-    default_volunteer_no_interest_msg
+    default_volunteer_no_interest_msg,
 )
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
