@@ -3,6 +3,8 @@
 # until I copy them over
 
 participant_labels = {
+    'legal_first_name': ('Legal First Name'),
+    'legal_last_name': ('Legal Last Name'),
     'display_name': ('Badge Name'),
     'address1': ('Street Address'),
     'address2': ('Street Address (cont.)'),
@@ -52,6 +54,10 @@ participant_form_help_texts = {
     'offsite_preferred': ('Your preferred phone number (if different from \
     above), for communication before the Expo.  Use this if you prefer to \
     get phone calls at a phone you cannot bring to the Expo.'),
+    'legal_name': ('Please provide us with your legal first and last names.\
+     This information is only used by the event staff never shared with anyone\
+     without your prior permission.\
+     Please use your stage name in the Badge Name field.'),
 }
 
 
@@ -313,6 +319,13 @@ description_help_text = '''For use on the The Great Burlesque Expo website, \
     in advertising and in any schedule of events. The description should be \
     1-2 paragraphs.'''
 
+avoided_constraints_popup_text = '''<div class="alert alert-info">
+<strong>Info!</strong> We will do our best to accommodate everyone's
+    requests when scheduling classes, but please realize that is not always
+    possible. The more flexible you can be, the more likely we are to be able
+    to schedule your class. Thanks for your understanding!
+</div>'''
+
 classbid_labels = {
     'min_size': ('Minimum Size'),
     'maximum_enrollment': ('Maximum Students'),
@@ -322,6 +335,7 @@ classbid_labels = {
     'fee': 'Materials Fee',
     'space_needs': 'Room Preferences',
     'schedule_constraints': 'Preferred Teaching Times',
+    'avoided_constraints': 'I Would Prefer to Avoid',
     'multiple_run': 'Are you willing to run the class more than once?',
     'length_minutes': ('Length in Minutes'),
 }
@@ -335,6 +349,7 @@ classdisplay_labels = {
     'fee': 'Materials Fee',
     'space_needs': 'Room Preferences',
     'schedule_constraints': 'Preferred Teaching Times',
+    'avoided_constraints': 'I Would Prefer to Avoid',
     'multiple_run': 'Are you willing to run the class more than once?',
     'length_minutes': ('Length in Minutes'),
 }
@@ -353,6 +368,7 @@ classbid_help_texts = {
     'space_needs': ('Room Preferences'),
     'physical_restrictions': ('Physical Restrictions'),
     'schedule_constraints': ('Scheduling Constraints'),
+    'avoided_constraints': ('Times You Prefer To Avoid'),
     'multiple_run': ('Are you willing to run the class more than once?'),
     'length_minutes': ('Please note that classes are asked to end 10 '
                        'minutes shorter than the full slot length, '

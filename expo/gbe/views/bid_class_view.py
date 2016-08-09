@@ -18,6 +18,7 @@ from gbe.models import (
     UserMessage
 )
 from gbe.functions import validate_profile
+from gbe_forms_text import avoided_constraints_popup_text
 from gbetext import (
     default_class_submit_msg,
     default_class_draft_msg
@@ -87,7 +88,10 @@ def BidClassView(request):
                                    'page_title': page_title,
                                    'view_title': view_title,
                                    'draft_fields': draft_fields,
-                                   'errors': [error_string]})
+                                   'errors': [error_string],
+                                   'popup_text':
+                                        avoided_constraints_popup_text})
+
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
         else:
@@ -102,7 +106,8 @@ def BidClassView(request):
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
-                 'submit_fields': requiredsub}
+                 'submit_fields': requiredsub,
+                 'popup_text': avoided_constraints_popup_text}
             )
 
     else:
@@ -117,5 +122,6 @@ def BidClassView(request):
             {'forms': [form],
              'page_title': page_title,
              'view_title': view_title,
-             'draft_fields': draft_fields}
+             'draft_fields': draft_fields,
+             'popup_text': avoided_constraints_popup_text}
         )
