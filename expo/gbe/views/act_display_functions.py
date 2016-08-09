@@ -3,11 +3,11 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from gbe.models import (
     Act,
-    UserMessage
+    UserMessage,
 )
 from gbetext import (
     default_act_title_conflict,
-    act_not_unique
+    act_not_unique,
 )
 
 
