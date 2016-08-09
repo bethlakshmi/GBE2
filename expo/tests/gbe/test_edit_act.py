@@ -6,18 +6,19 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as,
     location,
-    make_act_app_purchase
+    make_act_app_purchase,
+    post_act_conflict,
 )
 from gbetext import (
     default_act_submit_msg,
     default_act_draft_msg,
-    default_act_title_conflict
+    default_act_title_conflict,
 )
 from gbe.models import UserMessage
 
@@ -61,20 +62,16 @@ class TestEditAct(TestCase):
 
     def post_title_collision(self):
         original = ActFactory()
-        copycat = ActFactory(conference=original.conference,
-                             performer=original.performer)
         url = reverse(self.view_name,
-                      args=[copycat.pk],
+                      args=[original.pk],
                       urlconf="gbe.urls")
-        login_as(copycat.performer.performer_profile, self)
-        make_act_app_purchase(copycat.performer.performer_profile.user_object)
-        data = self.get_act_form(copycat, submit=True)
-        data['theact-title'] = original.title
-        response = self.client.post(
+        make_act_app_purchase(original.performer.performer_profile.user_object)
+        return post_act_conflict(
+            original.conference,
+            original.performer,
+            self.get_act_form(original, submit=True),
             url,
-            data=data,
-            follow=True)
-        return response, original
+            self)
 
     def post_edit_paid_act_draft(self):
         act = ActFactory()

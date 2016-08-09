@@ -8,23 +8,24 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     location,
     login_as,
     current_conference,
     assert_alert_exists,
-    make_act_app_purchase
+    make_act_app_purchase,
+    post_act_conflict,
 )
 from gbetext import (
     default_act_submit_msg,
     default_act_draft_msg,
-    default_act_title_conflict
+    default_act_title_conflict,
 )
 from gbe.models import (
     Conference,
-    UserMessage
+    UserMessage,
 )
 
 
@@ -33,6 +34,7 @@ class TestBidAct(TestCase):
     view_name = 'act_create'
 
     def setUp(self):
+        self.url = reverse(self.view_name, urlconf='gbe.urls')
         Conference.objects.all().delete()
         self.factory = RequestFactory()
         self.client = Client()
@@ -55,67 +57,47 @@ class TestBidAct(TestCase):
 
     def post_paid_act_submission(self):
         current_conference()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
         POST.update({'submit': ''})
         make_act_app_purchase(self.performer.performer_profile.user_object)
-        response = self.client.post(url, data=POST, follow=True)
+        response = self.client.post(self.url, data=POST, follow=True)
         return response, POST
 
     def post_paid_act_draft(self):
         current_conference()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
-        response = self.client.post(url, data=POST, follow=True)
+        response = self.client.post(self.url, data=POST, follow=True)
         return response, POST
-
-    def post_title_collision(self):
-        original = ActFactory(
-            conference=self.current_conference,
-            performer=self.performer)
-        url = reverse(self.view_name, urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_act_form()
-        data['theact-title'] = original.title
-        response = self.client.post(
-            url,
-            data=data,
-            follow=True)
-        return response, original
 
     def test_bid_act_no_profile(self):
         '''act_bid, when user has no profile, should bounce out to /profile'''
         user = UserFactory()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(user, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
 
     def test_bid_act_no_personae(self):
         '''act_bid, when profile has no personae,
         should redirect to persona_create'''
         profile = ProfileFactory()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
 
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
         profile = ProfileFactory()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
-        response = self.client.post(url, data=self.get_act_form())
+        response = self.client.post(self.url, data=self.get_act_form())
         self.assertEqual(response.status_code, 302)
 
     def test_act_bid_post_form_not_valid(self):
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form(submit=True)
         del(POST['theact-description'])
-        response = self.client.post(url,
+        response = self.client.post(self.url,
                                     data=POST)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
@@ -123,11 +105,10 @@ class TestBidAct(TestCase):
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
         current_conference()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
         POST.update({'submit': ''})
-        response = self.client.post(url, data=POST)
+        response = self.client.post(self.url, data=POST)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Fee has not been Paid' in response.content)
 
@@ -142,9 +123,8 @@ class TestBidAct(TestCase):
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
 
@@ -195,7 +175,12 @@ class TestBidAct(TestCase):
             response, 'success', 'Success', msg.description)
 
     def test_act_title_collision(self):
-        response, original = self.post_title_collision()
+        response, original = post_act_conflict(
+            self.current_conference,
+            self.performer,
+            self.get_act_form(),
+            self.url,
+            self)
         self.assertEqual(response.status_code, 200)
         error_msg = default_act_title_conflict % (
             reverse(
@@ -212,7 +197,12 @@ class TestBidAct(TestCase):
             view='BidActView',
             code='ACT_TITLE_CONFLICT',
             description=message_string)
-        response, original = self.post_title_collision()
+        response, original = post_act_conflict(
+            self.current_conference,
+            self.performer,
+            self.get_act_form(),
+            self.url,
+            self)
         self.assertEqual(response.status_code, 200)
         error_msg = message_string % (
             reverse(
