@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import (
     HttpResponseRedirect,
-    Http404
+    Http404,
 )
 from django.core.urlresolvers import reverse
 from django.template import (
@@ -14,12 +14,12 @@ from django.shortcuts import render
 from expo.gbe_logging import log_func
 from gbe.forms import (
     VolunteerBidForm,
-    VolunteerInterestForm
+    VolunteerInterestForm,
 )
 from gbe.models import (
     AvailableInterest,
     Conference,
-    UserMessage
+    UserMessage,
 )
 from gbe.functions import (
     mail_to_group,
@@ -28,7 +28,7 @@ from gbe.functions import (
 from gbetext import (
     default_volunteer_submit_msg,
     default_volunteer_no_interest_msg,
-    default_volunteer_no_bid_msg
+    default_volunteer_no_bid_msg,
 )
 
 

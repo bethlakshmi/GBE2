@@ -20,7 +20,7 @@ from gbe.ticketing_idd_interface import (
 from gbe.models import (
     Act,
     Performer,
-    UserMessage
+    UserMessage,
 )
 from gbe.forms import (
     ActEditDraftForm,
@@ -31,7 +31,7 @@ from gbe.forms import (
 from gbe.duration import Duration
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
 )
 
 

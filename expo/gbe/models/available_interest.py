@@ -6,8 +6,7 @@ class AvailableInterest(models.Model):
         max_length=128,
         unique=True)
     visible = models.BooleanField(default=True)
-    help_text = models.TextField(max_length=500,
-                                 blank=True)
+    help_text = models.TextField(blank=True)
 
     def __str__(self):
         return self.interest
