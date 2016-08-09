@@ -1,4 +1,5 @@
 from tests.factories.gbe_factories import (
+    ConferenceDayFactory,
     GenericEventFactory,
     ProfileFactory,
     ShowFactory,
@@ -11,6 +12,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+from datetime import date
 
 
 class VolunteerContext():
@@ -45,3 +47,11 @@ class VolunteerContext():
                                                     event=self.sched_event)
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=self.opp_event)
+
+    def add_window(self):
+        add_window = VolunteerWindowFactory(
+            day=ConferenceDayFactory(
+                conference=self.conference,
+                day = date(2016, 2, 6)))
+        return add_window
+        
