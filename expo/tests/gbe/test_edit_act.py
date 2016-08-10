@@ -51,8 +51,12 @@ class TestEditAct(TestCase):
     def post_edit_paid_act_submission(self, act_form=None):
         act = ActFactory()
         if not act_form:
+<<<<<<< HEAD
             act_form = self.get_act_form(act, submit=True)
 
+=======
+            act_form = self.get_act_form(submit=True)
+>>>>>>> master
         url = reverse(self.view_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
@@ -225,6 +229,9 @@ class TestEditAct(TestCase):
     def test_edit_act_no_duration(self):
         act = ActFactory()
         act_form = self.get_act_form(act, submit=True)
+
+    def test_edit_act_no_duration(self):
+        act_form = self.get_act_form(submit=True)
         del act_form['theact-act_duration']
         response = self.post_edit_paid_act_submission(act_form)
         self.assertEqual(response.status_code, 200)
