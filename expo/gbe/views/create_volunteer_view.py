@@ -104,6 +104,7 @@ def CreateVolunteerView(request):
                                                    urlconf='gbe.urls')})
                 mail_to_group("Volunteer Offer Submitted", message.render(c),
                               'Volunteer Reviewers')
+
                 notify_volunteer_reviewers(profile)
                 user_message = UserMessage.objects.get_or_create(
                     view='CreateVolunteerView',

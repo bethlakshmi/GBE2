@@ -19,7 +19,6 @@ from gbe.forms import (
     BidEvaluationForm,
     BidStateChangeForm,
 )
-from gbe.models import Volunteer
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
 
