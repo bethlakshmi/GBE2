@@ -49,20 +49,22 @@ class TestBidAct(TestCase):
                      'theact-track_artist': 'an artist',
                      'theact-description': 'a description',
                      'theact-performer': self.performer.resourceitem_id,
+                     'theact-act_duration': '1:00'
                      }
         if submit:
             form_dict['submit'] = 1
         return form_dict
 
-    def post_paid_act_submission(self):
+    def post_paid_act_submission(self, act_form=None):
         current_conference()
+        if not act_form:
+            act_form = self.get_act_form()
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        POST = self.get_act_form()
-        POST.update({'submit': ''})
+        act_form.update({'submit': ''})
         make_act_app_purchase(self.performer.performer_profile.user_object)
-        response = self.client.post(url, data=POST, follow=True)
-        return response, POST
+        response = self.client.post(url, data=act_form, follow=True)
+        return response, act_form
 
     def post_paid_act_draft(self):
         current_conference()
@@ -180,3 +182,10 @@ class TestBidAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_act_submit_paid_act_no_duration(self):
+        form = self.get_act_form()
+        del form['theact-act_duration']
+        response, data = self.post_paid_act_submission(form)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")

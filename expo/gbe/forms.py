@@ -200,7 +200,7 @@ class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     act_duration = DurationFormField(
-        required=False,
+        required=True,
         help_text=act_help_texts['act_duration']
     )
     track_duration = DurationFormField(
