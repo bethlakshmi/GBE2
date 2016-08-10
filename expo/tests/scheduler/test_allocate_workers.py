@@ -246,6 +246,24 @@ class TestAllocateWorkers(TestCase):
             '<form method="POST" action="/scheduler/allocate/' +
             str(self.volunteer_opp.pk) + '"', count=1)
 
+    def test_post_form_valid_delete_allocation_sends_notification(self):
+        data = self.get_edit_data()
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertRedirects(
+            response,
+            reverse(
+                'edit_event',
+                urlconf='scheduler.urls',
+                args=["GenericEvent", self.volunteer_opp.pk]))
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = "A change has been made to your Volunteer Schedule!"
+        assert msg.subject == expected_subject
+
+
+
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()
         data['role'] = ''
