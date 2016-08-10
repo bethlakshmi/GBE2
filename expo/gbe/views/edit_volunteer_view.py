@@ -20,7 +20,9 @@ from gbetext import (
     default_volunteer_edit_msg,
     default_volunteer_no_interest_msg,
 )
-from gbe.views.volunteer_display_functions import get_volunteer_forms
+from gbe.views.volunteer_display_functions import (
+    validate_interests,
+)
 
 
 @login_required
@@ -39,20 +41,14 @@ def EditVolunteerView(request, volunteer_id):
             available_windows=the_bid.conference.windows(),
             unavailable_windows=the_bid.conference.windows())
 
-        valid_interests = True
-        like_one_thing = False
-        for interest in the_bid.volunteerinterest_set.all():
-            interest_form = VolunteerInterestForm(
+        formset = [
+            VolunteerInterestForm(
                 request.POST,
                 instance=interest,
                 initial={'interest': interest.interest},
-                prefix=str(interest.pk))
-            formset += [interest_form]
-            if interest_form.is_valid():
-                if int(interest_form.cleaned_data.get('rank')) > 3:
-                    like_one_thing = True
-            else:
-                valid_interests = False
+                prefix=str(interest.pk)
+                ) for interest in the_bid.volunteerinterest_set.all()]
+        valid_interests, like_one_thing = validate_interests(formset)
 
         if form.is_valid() and valid_interests and like_one_thing:
             the_bid = form.save(commit=True)

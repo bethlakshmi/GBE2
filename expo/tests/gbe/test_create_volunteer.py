@@ -207,7 +207,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_not_interested_at_all(self):
         data = self.get_volunteer_form(submit=True)
-        data['%d-rank' % self.interest.pk] = 2
+        data['%d-rank' % self.interest.pk] = 1
         response, data = self.post_volunteer_submission(data)
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
@@ -215,7 +215,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_not_interested_at_all_make_message(self):
         data = self.get_volunteer_form(submit=True)
-        data['%d-rank' % self.interest.pk] = 2
+        data['%d-rank' % self.interest.pk] = 1
         msg = UserMessageFactory(
             view='CreateVolunteerView',
             code='NO_INTERESTS_SUBMITTED')

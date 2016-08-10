@@ -187,7 +187,7 @@ class TestEditVolunteer(TestCase):
             response, 'success', 'Success', msg.description)
 
     def test_not_interested_at_all(self):
-        response, context = self.edit_volunteer(rank=2)
+        response, context = self.edit_volunteer(rank=1)
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'danger', 'Error', default_volunteer_no_interest_msg)
@@ -196,7 +196,7 @@ class TestEditVolunteer(TestCase):
         msg = UserMessageFactory(
             view='EditVolunteerView',
             code='NO_INTERESTS_SUBMITTED')
-        response, context = self.edit_volunteer(rank=2)
+        response, context = self.edit_volunteer(rank=1)
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'danger', 'Error', msg.description)

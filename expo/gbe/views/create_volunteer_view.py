@@ -30,6 +30,9 @@ from gbetext import (
     default_volunteer_no_interest_msg,
     default_volunteer_no_bid_msg,
 )
+from gbe.views.volunteer_display_functions import (
+    validate_interests,
+)
 
 
 def no_vol_bidding(request):
@@ -65,24 +68,20 @@ def CreateVolunteerView(request):
         return no_vol_bidding(request)
     if len(windows) == 0 or len(available_interests) == 0:
         return no_vol_bidding(request)
+
     if request.method == 'POST':
         form = VolunteerBidForm(
             request.POST,
             available_windows=windows,
             unavailable_windows=windows)
-        valid_interests = True
-        like_one_thing = False
-        for interest in available_interests:
-            interest_form = VolunteerInterestForm(
+        formset = [
+            VolunteerInterestForm(
                 request.POST,
                 initial={'interest': interest},
-                prefix=str(interest.pk))
-            formset += [interest_form]
-            if interest_form.is_valid():
-                if int(interest_form.cleaned_data.get('rank')) > 3:
-                    like_one_thing = True
-            else:
-                valid_interests = False
+                prefix=str(interest.pk)
+                ) for interest in available_interests]
+        valid_interests, like_one_thing = validate_interests(formset)
+
         if form.is_valid() and valid_interests and like_one_thing:
             volunteer = form.save(commit=False)
             volunteer.conference = conference
