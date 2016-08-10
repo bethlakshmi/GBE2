@@ -13,10 +13,9 @@ from django.db.models import (
     Count,
 )
 from django.contrib.auth.forms import UserCreationForm
-from django.template import (
-    loader,
-    RequestContext,
-)
+
+from django.core.mail import send_mail
+from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
 from gbe.forms import VolunteerOpportunityForm
@@ -291,7 +290,7 @@ def schedule_acts(request, show_title=None):
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])
     forms = [ActScheduleForm(initial=details,
-                             prefix='allocation_'+str(alloc.id))
+                             prefix='allocation_%d' % alloc.id)
              for (details, alloc) in forms]
 
     template = 'scheduler/act_schedule.tmpl'
@@ -410,9 +409,7 @@ def get_worker_allocation_forms(opp, errorcontext=None):
                          'role': Worker.objects.get(
                              id=alloc.resource.id).role,
                          'label': alloc.get_label,
-                         'alloc_id': alloc.id}
-                )
-            )
+                         'alloc_id': alloc.id}))
     if errorcontext and 'new_worker_alloc_form' in errorcontext:
         forms.append(errorcontext['new_worker_alloc_form'])
     else:
@@ -457,8 +454,12 @@ def allocate_workers(request, opp_id):
     if 'delete' in request.POST.keys():
         alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
         res = alloc.resource
+        profile = res.as_subtype.workeritem
         alloc.delete()
         res.delete()
+        # This delete looks dangerous, considering that Event.allocate_worker
+        # seems to allow us to create multiple allocations for the same Worker
+        profile.notify_volunteer_schedule_change()
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
@@ -484,7 +485,7 @@ def allocate_workers(request, opp_id):
                 data['role'],
                 data['label'],
                 data['alloc_id'])
-
+            data['worker'].notify_volunteer_schedule_change()
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))

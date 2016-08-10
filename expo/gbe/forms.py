@@ -1,4 +1,27 @@
-from gbe.models import *
+from gbe.models import (
+    Act,
+    AudioInfo,
+    Biddable,
+    BidEvaluation,
+    Class,
+    ClassProposal,
+    ConferenceVolunteer,
+    Combo,
+    Costume,
+    CueInfo,
+    GenericEvent,
+    LightingInfo,
+    Persona,
+    Profile,
+    ProfilePreferences,
+    Room,
+    Show,
+    StageInfo,
+    Troupe,
+    Vendor,
+    Volunteer,
+    VolunteerWindow,
+)
 from django import forms
 from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User

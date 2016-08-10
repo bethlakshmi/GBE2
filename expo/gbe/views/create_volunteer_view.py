@@ -53,14 +53,7 @@ def CreateVolunteerView(request):
                     volunteer.available_windows.add(window)
                 for window in form.cleaned_data['unavailable_windows']:
                     volunteer.unavailable_windows.add(window)
-
-                message = loader.get_template('gbe/email/bid_submitted.tmpl')
-                c = Context({'bidder': profile.display_name,
-                             'bid_type': 'volunteer',
-                             'review_url': reverse('volunteer_review',
-                                                   urlconf='gbe.urls')})
-                mail_to_group("Volunteer Offer Submitted", message.render(c),
-                              'Volunteer Reviewers')
+                notify_volunteer_reviewers(profile)
                 user_message = UserMessage.objects.get_or_create(
                     view='CreateVolunteerView',
                     code="SUBMIT_SUCCESS",
@@ -91,3 +84,13 @@ def CreateVolunteerView(request):
                        'page_title': page_title,
                        'view_title': view_title,
                        'nodraft': 'Submit'})
+
+
+def notify_volunteer_reviewers(user_profile):
+    message = loader.get_template('gbe/email/bid_submitted.tmpl')
+    c = Context({'bidder': user_profile.display_name,
+                 'bid_type': 'volunteer',
+                 'review_url': reverse('volunteer_review',
+                                       urlconf='gbe.urls')})
+    mail_to_group("Volunteer Offer Submitted", message.render(c),
+                  'Volunteer Reviewers')

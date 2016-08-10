@@ -9,9 +9,13 @@ from django.core.validators import (
 )
 from django.core.exceptions import (
     ValidationError,
-    NON_FIELD_ERRORS
+    NON_FIELD_ERRORS,
 )
-
+from django.template import (
+    loader,
+    Context,
+)
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from itertools import chain
 from scheduler.models import (
@@ -310,7 +314,7 @@ class Profile(WorkerItem):
         acts = self.get_acts()
         shows = [Show.objects.filter(
             scheduler_events__resources_allocated__resource__actresource___item=act)
-                 for act in acts if act.accepted == 3 and act.is_current]
+            for act in acts if act.accepted == 3 and act.is_current]
         return sum([list(s) for s in shows], [])
 
     def get_schedule(self, conference=None):
@@ -341,7 +345,7 @@ class Profile(WorkerItem):
         acts = self.get_acts()
         events = sum([list(sEvent.objects.filter(
             resources_allocated__resource__actresource___item=act))
-                      for act in acts if act.accepted == 3], [])
+            for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
             events += [e for e in sEvent.objects.filter(
                 resources_allocated__resource__worker___item=performer)]
@@ -349,12 +353,18 @@ class Profile(WorkerItem):
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
+    def volunteer_schedule(self, conference=None):
+        conference = conference or Conference.current_conf()
+        return self.workeritem.get_bookings(role="Volunteer",
+                                            conference=conference).order_by(
+                                                'starttime')
+
     def get_roles(self, conference):
         '''
         Gets all of a person's roles for a conference
         '''
         roles = get_roles_from_scheduler(
-            self.get_performers()+[self],
+            self.get_performers() + [self],
             conference)
         if self.get_shows():
             roles += ["Performer"]
@@ -418,6 +428,13 @@ class Profile(WorkerItem):
                         if perf.pk == person._item.pk:
                             doing_it = True
         return doing_it
+
+    def notify_volunteer_schedule_change(self):
+        subject = "A change has been made to your Volunteer Schedule!"
+        message = loader.get_template('gbe/volunteer_schedule_update.tmpl')
+        c = Context({'profile': self})
+        if not settings.DEBUG:
+            mail_to_user(subject, message.render(c), self.user_object)
 
     def __str__(self):
         return self.display_name
@@ -878,12 +895,13 @@ class CueInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return self.techinfo.act.title+' - cue ' + str(self.cue_sequence)
+            return "%s - cue %s" % (self.techinfo.act.title,
+                                    str(self.cue_sequence))
         except:
-            return "Cue: (deleted act) - " + str(self.cue_sequence)
+            return "Cue: (deleted act) - %s" % str(self.cue_sequence)
 
     class Meta:
-        verbose_name_plural = 'cue info'
+        verbose_name_plural = "cue info"
         app_label = "gbe"
 
 
@@ -1098,7 +1116,7 @@ class Act (Biddable, ActItem):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
     def __str__(self):
-        return str(self.performer) + ": "+self.title
+        return "%s: %s" % (str(self.performer), self.title)
 
     class Meta:
         app_label = "gbe"
@@ -1309,7 +1327,7 @@ class GenericEvent (Event):
             'description': self.description,
             'duration': self.duration,
             'details': {'type': types[self.type]},
-            }
+        }
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
             payload['details']['volunteer_category'] = dict(
@@ -1341,9 +1359,9 @@ class GenericEvent (Event):
         from ticketing.models import TicketItem
         if self.type in ["Special", "Drop-In"]:
             most_events = TicketItem.objects.filter(
-                                        bpt_event__include_most=True,
-                                        active=True,
-                                        bpt_event__conference=self.conference)
+                bpt_event__include_most=True,
+                active=True,
+                bpt_event__conference=self.conference)
         else:
             most_events = []
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
@@ -1542,7 +1560,7 @@ class BidEvaluation(models.Model):
     bid = models.ForeignKey(Biddable)
 
     def __unicode__(self):
-        return self.bid.title+": "+self.evaluator.display_name
+        return "%s: %s" % (self.bid.title, self.evaluator.display_name)
 
     class Meta:
         app_label = "gbe"
@@ -1821,7 +1839,7 @@ class Costume(Biddable):
         if self.performer:
             name += self.performer.name + " "
 
-        name += "("+self.creator+")"
+        name += "(" + self.creator + ")"
         return (name,
                 self.title,
                 self.act_title,
@@ -1904,7 +1922,7 @@ class ConferenceVolunteer(models.Model):
     volunteering = models.BooleanField(default=True, blank='True')
 
     def __unicode__(self):
-        return self.bid.title+": "+self.presenter.name
+        return "%s: %s" % (self.bid.title, self.presenter.name)
 
     @property
     def bid_fields(self):
@@ -1939,3 +1957,7 @@ class ProfilePreferences(models.Model):
     class Meta:
         verbose_name_plural = 'profile preferences'
         app_label = "gbe"
+
+
+def mail_to_user(subject, message, user):
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
