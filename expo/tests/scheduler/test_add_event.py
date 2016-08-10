@@ -183,6 +183,23 @@ class TestAddEvent(TestCase):
                       '\t\t03:00\n          \t\t</td>',
                       response.content)
 
+    def test_no_duration(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = ClassContext()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", context.bid.eventitem_id])
+        form_data = get_sched_event_form(context)
+        del form_data['event-duration']
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+        self.assertIn("This field is required.",
+                      response.content)
+
     def test_good_user_with_teacher(self):
         Conference.objects.all().delete()
         Room.objects.all().delete()

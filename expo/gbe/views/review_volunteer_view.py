@@ -13,6 +13,7 @@ from gbe.functions import (
 from gbe.models import (
     BidEvaluation,
     Conference,
+    Volunteer,
 )
 from gbe.forms import (
     BidEvaluationForm,

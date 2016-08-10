@@ -39,6 +39,7 @@ class TestEditAct(TestCase):
                      'theact-description': 'a description',
                      'theact-length_minutes': 60,
                      'theact-shows_preferences': [0],
+                     'theact-act_duration': '1:00'
                      }
         if submit:
             form_dict['submit'] = 1
@@ -46,8 +47,10 @@ class TestEditAct(TestCase):
             del(form_dict['theact-title'])
         return form_dict
 
-    def post_edit_paid_act_submission(self):
+    def post_edit_paid_act_submission(self, act_form=None):
         act = ActFactory()
+        if not act_form:
+            act_form = self.get_act_form(submit=True)
         url = reverse(self.view_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
@@ -55,7 +58,7 @@ class TestEditAct(TestCase):
         make_act_app_purchase(act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
-            data=self.get_act_form(submit=True),
+            data=act_form,
             follow=True)
         return response
 
@@ -174,3 +177,10 @@ class TestEditAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_edit_act_no_duration(self):
+        act_form = self.get_act_form(submit=True)
+        del act_form['theact-act_duration']
+        response = self.post_edit_paid_act_submission(act_form)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")

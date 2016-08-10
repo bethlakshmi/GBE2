@@ -22,3 +22,16 @@ def display_track_title(title, truncated_length):
         return title
     else:
         return title[:truncated_length] + "..."
+
+
+@register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
+def volunteer_schedule(profile):
+    events = profile.volunteer_schedule()
+    schedule = [
+        {'event': str(event),
+         'time': "%s - %s" % (event.starttime.strftime("%a, %I:%M %p"),
+                              (event.starttime + event.duration).strftime(
+                                  "%a, %I:%M %p")),
+         'location': str(event.location)}
+        for event in events]
+    return {'schedule': schedule}

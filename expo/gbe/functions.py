@@ -1,6 +1,15 @@
 import pytz
 from datetime import datetime, timedelta
-import gbe.models as conf
+from gbe.models import (
+    Class,
+    Conference,
+    ConferenceDay,
+    Event,
+    GenericEvent,
+    Profile,
+    Show,
+    Volunteer,
+)
 from django.http import Http404
 from django.core.mail import send_mail
 from django.core.exceptions import PermissionDenied
@@ -21,7 +30,7 @@ def validate_profile(request, require=False):
     if request.user.is_authenticated():
         try:
             return request.user.profile
-        except conf.Profile.DoesNotExist:
+        except Profile.DoesNotExist:
             if require:
                 raise Http404
     else:
@@ -86,11 +95,11 @@ def get_conf(biddable):
 
 
 def get_current_conference():
-    return conf.Conference.current_conf()
+    return Conference.current_conf()
 
 
 def get_conference_by_slug(slug):
-    return conf.Conference.by_slug(slug)
+    return Conference.by_slug(slug)
 
 
 def get_conference_days(conference):
@@ -98,41 +107,41 @@ def get_conference_days(conference):
 
 
 def get_conference_day(conference, date):
-    return conf.ConferenceDay.objects.get(conference=conference, day=date)
+    return ConferenceDay.objects.get(conference=conference, day=date)
 
 
 def conference_list():
-    return conf.Conference.objects.all()
+    return Conference.objects.all()
 
 
 def conference_slugs():
-    return conf.Conference.all_slugs()
+    return Conference.all_slugs()
 
 
 def get_events_list_by_type(event_type, conference):
     event_type = event_type.lower()
     items = []
     if event_type == "all":
-        return conf.Event.get_all_events(conference)
+        return Event.get_all_events(conference)
 
     event_types = dict(event_options)
     class_types = dict(class_options)
     if event_type in map(lambda x: x.lower(), event_types.keys()):
-        items = conf.GenericEvent.objects.filter(
+        items = GenericEvent.objects.filter(
             type__iexact=event_type,
             visible=True,
             conference=conference).order_by('title')
     elif event_type in map(lambda x: x.lower, class_types.keys()):
-        items = conf.Class.objects.filter(
+        items = Class.objects.filter(
             accepted='3',
             visible=True,
             type__iexact=event_type,
             conference=conference).order_by('title')
     elif event_type == 'show':
-        items = conf.Show.objects.filter(
+        items = Show.objects.filter(
             conference=conference).order_by('title')
     elif event_type == 'class':
-        items = conf.Class.objects.filter(
+        items = Class.objects.filter(
             accepted='3',
             visible=True,
             conference=conference).exclude(
@@ -154,7 +163,7 @@ def available_volunteers(event_start_time, conference):
                                      endtime=endtime)
         if event_start_time in window_range:
             windows.append(window)
-    return conf.Volunteer.objects.filter(available_windows__in=windows)
+    return Volunteer.objects.filter(available_windows__in=windows)
 
 
 def show_potential_workers(category, start_time, conference):
@@ -165,10 +174,10 @@ def show_potential_workers(category, start_time, conference):
       - available_volunteers - have the time available
       - all_volunteers - everyone who offered ... ever
     '''
-    interested = list(conf.Volunteer.objects.filter(
+    interested = list(Volunteer.objects.filter(
         volunteerinterest__rank__gt=3,
         volunteerinterest__interest=category))
-    all_volunteers = list(conf.Volunteer.objects.all())
+    all_volunteers = list(Volunteer.objects.all())
     available = available_volunteers(start_time, conference)
     return {'interested_volunteers': interested,
             'all_volunteers': all_volunteers,
