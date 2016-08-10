@@ -13,6 +13,7 @@ from gbe.functions import (
 from gbe.models import (
     BidEvaluation,
     Conference,
+    Volunteer,
 )
 from gbe.forms import (
     BidEvaluationForm,
@@ -20,7 +21,6 @@ from gbe.forms import (
     ParticipantForm,
     VolunteerBidForm,
 )
-from gbe.models import Volunteer
 
 
 @login_required
