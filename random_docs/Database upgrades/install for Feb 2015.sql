@@ -1,1 +1,0 @@
-ALTER TABLE `ticketing_ticketitem2` ADD `badgeable` TINYINT NOT NULL DEFAULT '0' , ADD `ticket_style` VARCHAR(50) NOT NULL ; 
