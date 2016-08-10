@@ -1,1 +1,0 @@
-ALTER TABLE `scheduler_event` ADD `max_volunteer` INT(11) NOT NULL ; 
