@@ -13,7 +13,7 @@ from tests.factories.gbe_factories import(
     ProfileFactory,
     VendorFactory,
     VolunteerFactory,
-    )
+)
 from tests.contexts import StaffAreaContext
 from tests.factories.scheduler_factories import(
     ResourceAllocationFactory,
@@ -109,8 +109,7 @@ class TestDeleteEvent(TestCase):
 
         workers = [WorkerFactory.create(
             _item=volunteer.workeritem_ptr,
-            role="Volunteer")
-                for volunteer in volunteers]
+            role="Volunteer") for volunteer in volunteers]
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     conference=conference)
@@ -133,8 +132,7 @@ class TestDeleteEvent(TestCase):
         volunteers = ProfileFactory.create_batch(5)
         workers = [WorkerFactory.create(
             _item=volunteer.workeritem_ptr,
-            role="Volunteer")
-                   for volunteer in volunteers]
+            role="Volunteer") for volunteer in volunteers]
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     conference=previous_conf)

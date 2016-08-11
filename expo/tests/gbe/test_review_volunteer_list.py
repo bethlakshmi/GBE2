@@ -165,10 +165,8 @@ class TestReviewVolunteerList(TestCase):
 
     def test_review_volunteer_has_old_commitments(self):
         ''' when a volunteer is booked in old conference, it should not show'''
-        past_conference = ConferenceFactory(
-            accepting_bids=False,
-            status='completed'
-            )
+        past_conference = ConferenceFactory(accepting_bids=False,
+                                            status='completed')
         past_opportunity = GenericEventFactory(
             conference=past_conference,
             volunteer_type=AvailableInterestFactory(interest='Security/usher'),

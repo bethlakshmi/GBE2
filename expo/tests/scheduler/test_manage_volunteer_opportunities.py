@@ -32,7 +32,7 @@ class TestEventList(TestCase):
         self.room = RoomFactory()
 
     def get_new_opp_data(self, context):
-        data={
+        data = {
             'create': 'create',
             'new_opp-title': 'New Volunteer Opportunity',
             'new_opp-volunteer_type': self.avail_interest.pk,
@@ -44,7 +44,7 @@ class TestEventList(TestCase):
         return data
 
     def get_basic_data(self, context):
-        data={
+        data = {
             'title': 'Copied Volunteer Opportunity',
             'volunteer_type': self.avail_interest.pk,
             'num_volunteers': '1',
@@ -64,11 +64,11 @@ class TestEventList(TestCase):
 
     def assert_volunteer_type_selector(self, response, selected_interest=None):
         if selected_interest:
-            assert '<select id="id_volunteer_type" name="volunteer_type">' \
-                in response.content
+            assert ('<select id="id_volunteer_type" name="volunteer_type">'
+                    in response.content)
         else:
-            assert '<select id="id_new_opp-volunteer_type" ' + \
-                               'name="new_opp-volunteer_type">' in response.content
+            assert ('<select id="id_new_opp-volunteer_type" '
+                    'name="new_opp-volunteer_type">') in response.content
         assert '<option value="">---------</option>' in response.content
         for i in AvailableInterest.objects.all():
             if selected_interest and i == selected_interest:
@@ -113,7 +113,7 @@ class TestEventList(TestCase):
     def test_good_user_get_w_interest(self):
         context = StaffAreaContext()
         AvailableInterestFactory()
-        AvailableInterestFactory(visible=False) 
+        AvailableInterestFactory(visible=False)
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
