@@ -132,23 +132,6 @@ class TestEditVolunteer(TestCase):
         self.assertTrue('Edit Volunteer Bid' in response.content)
         assert_hidden_value(response, "id_title", "title", volunteer.title)
 
-    def test_volunteer_edit_get_title_empty(self):
-        volunteer = VolunteerFactory(
-            availability='',
-            unavailability='')
-        url = reverse('volunteer_edit',
-                      urlconf='gbe.urls',
-                      args=[volunteer.pk])
-        login_as(self.privileged_user, self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
-        assert_hidden_value(
-            response,
-            "id_title",
-            "title",
-            'volunteer bid: %s' % volunteer.profile.display_name)
-
     def test_volunteer_edit_get_rank(self):
         volunteer = VolunteerFactory(
             availability='',

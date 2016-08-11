@@ -30,6 +30,7 @@ def get_volunteer_forms(volunteer):
         prefix='Contact Info')]
     return formset
 
+
 def validate_interests(formset):
     valid_interests = True
     like_one_thing = False

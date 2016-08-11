@@ -27,6 +27,7 @@ from tests.contexts import (
 )
 from gbe.models import Conference
 
+
 class TestAssignVolunteer(TestCase):
     '''Tests for review_volunteer view'''
     view_name = 'volunteer_assign'

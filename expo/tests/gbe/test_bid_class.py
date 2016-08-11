@@ -149,7 +149,8 @@ class TestBidClass(TestCase):
         login_as(self.performer.performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('We will do our best to accommodate' in response.content)
+        self.assertTrue(
+            'We will do our best to accommodate' in response.content)
 
     def test_class_bid_verify_avoided_constraints(self):
         url = reverse(self.view_name,

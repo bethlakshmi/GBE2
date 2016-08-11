@@ -132,7 +132,8 @@ class TestEditClass(TestCase):
         login_as(klass.teacher.performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('We will do our best to accommodate' in response.content)
+        self.assertTrue(
+            'We will do our best to accommodate' in response.content)
 
     def test_edit_bid_verify_avoided_constraints(self):
         klass = ClassFactory()
