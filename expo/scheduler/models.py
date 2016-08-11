@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
-from gbe_forms_text import volunteer_interests_options
 from scheduler.functions import set_time_format
 from django.core.exceptions import MultipleObjectsReturned
 import pytz
@@ -735,21 +734,21 @@ class Event(Schedulable):
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
-        filtered by type if volunteer_type is specified
+        filtered by type if worker_type is specified
         returns the Worker Resource assigned. Calling function has to
         drill down to get to profile
         '''
         worker_type = worker_type or 'Volunteer'
         opps = self.get_volunteer_opps()
-        alloc_list = [(opp['conf'].volunteer_category,
+        alloc_list = [(opp['conf'].volunteer_type,
                        list(opp['sched'].resources_allocated.all()))
                       for opp in opps]
-        category = dict(volunteer_interests_options)
+
         workers = []
         for a in alloc_list:
             for w in a[1]:
                 if w.resource.type == worker_type:
-                    workers.append((category.get(a[0], 'Blank'),
+                    workers.append((a[0].interest,
                                     Worker.objects.get(
                                         resource_ptr_id=w.resource_id)))
         return workers

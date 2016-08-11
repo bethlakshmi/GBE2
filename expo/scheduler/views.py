@@ -34,7 +34,6 @@ import csv
 
 from table import table
 from gbe_forms_text import (
-    volunteer_interests_options,
     list_titles,
 )
 from gbetext import acceptance_states
@@ -58,7 +57,7 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
-    available_volunteers,
+    show_potential_workers,
 )
 
 
@@ -420,23 +419,6 @@ def get_worker_allocation_forms(opp, errorcontext=None):
             'opp_id': opp.id}
 
 
-def show_potential_workers(opp):
-    '''
-    Get lists of potential workers for this opportunity. These will be
-    inserted into the edit_event template directly.
-    Returns a dictionary, we'll update the context dictionary on return
-    Opp is a sched.Event
-    '''
-    import gbe.models as conf
-    interested = list(conf.Volunteer.objects.filter(
-        interests__contains=opp.as_subtype.volunteer_category))
-    all_volunteers = list(conf.Volunteer.objects.all())
-    available = available_volunteers(opp.start_time)
-    return {'interested_volunteers': interested,
-            'all_volunteers': all_volunteers,
-            'available_volunteers': available}
-
-
 @login_required
 def allocate_workers(request, opp_id):
     '''
@@ -652,7 +634,6 @@ def contact_volunteers(conference):
               'Volunteer Category',
               'Volunteer Role',
               'Event']
-    volunteer_categories = dict(volunteer_interests_options)
     from gbe.models import Volunteer
     contacts = filter(lambda worker: worker.allocations.count() > 0,
                       [vol.profile.workeritem_ptr.worker_set.first() for vol in
@@ -662,7 +643,6 @@ def contact_volunteers(conference):
     volunteers = Volunteer.objects.filter(conference=conference).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
             '-profile__workeritem_ptr__worker__count')
-
     contact_info = []
     for v in volunteers:
         profile = v.profile
@@ -673,23 +653,28 @@ def contact_volunteers(conference):
                     parent_event = container.parent_event
                 except:
                     parent_event = allocation.event
+                try:
+                    interest = \
+                        allocation.event.as_subtype.volunteer_type.interest
+                except:
+                    interest = ''
+
                 contact_info.append(
                     [profile.display_name,
                      profile.phone,
                      profile.contact_email,
-                     volunteer_categories.get(
-                         allocation.event.as_subtype.volunteer_category, ''),
+                     interest,
                      str(allocation.event),
                      str(parent_event)])
         else:
-            interests = eval(v.interests)
-            contact_info.append([profile.display_name,
-                                 profile.phone,
-                                 profile.contact_email,
-                                 ','.join([volunteer_categories[i]
-                                           for i in interests]),
-                                 'Application',
-                                 'Application']
+            contact_info.append(
+                [profile.display_name,
+                 profile.phone,
+                 profile.contact_email,
+                 ','.join([i.interest.interest
+                           for i in v.volunteerinterest_set.all()]),
+                 'Application',
+                 'Application']
                                 )
     return header, contact_info
 
@@ -950,7 +935,10 @@ def edit_event_display(request, item, errorcontext=None):
                 item.as_subtype.type == 'Volunteer'):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
-            context.update(show_potential_workers(item))
+            context.update(show_potential_workers(
+                item.as_subtype.volunteer_type,
+                item.start_time,
+                item.eventitem.get_conference()))
         else:
             context.update(get_manage_opportunity_forms(item,
                                                         initial,

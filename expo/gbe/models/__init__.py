@@ -1,4 +1,5 @@
 from user_message import UserMessage
+from available_interest import AvailableInterest
 from remains import (
     Conference,
     Biddable,
@@ -31,3 +32,4 @@ from remains import (
     ConferenceVolunteer,
     ProfilePreferences
 )
+from volunteer_interest import VolunteerInterest

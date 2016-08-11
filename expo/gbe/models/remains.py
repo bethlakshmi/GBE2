@@ -40,6 +40,7 @@ from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
 import pytz
+from gbe.models import AvailableInterest
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -1305,18 +1306,19 @@ class GenericEvent (Event):
                             choices=event_options,
                             blank=False,
                             default="Special")
-    volunteer_category = models.CharField(max_length=128,
-                                          choices=volunteer_interests_options,
-                                          blank=True,
-                                          default="")
+    volunteer_type = models.ForeignKey(AvailableInterest,
+                                       blank=True,
+                                       null=True)
 
     def __str__(self):
         return self.title
 
     @property
     def volunteer_category_description(self):
-        return dict(
-            volunteer_interests_options).get(self.volunteer_category, None)
+        if self.volunteer_type:
+            return self.volunteer_type.interest
+        else:
+            return ''
 
     @property
     def sched_payload(self):
@@ -1330,8 +1332,8 @@ class GenericEvent (Event):
         }
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
-            payload['details']['volunteer_category'] = dict(
-                volunteer_interests_options).get(self.volunteer_category, None)
+            if self.volunteer_type:
+                payload['details']['volunteer_category'] = self.volunteer_category_description
         return payload
 
     @property
@@ -1587,8 +1589,6 @@ class Volunteer(Biddable):
                                         default=1)
     availability = models.TextField(blank=True)
     unavailability = models.TextField(blank=True)
-
-    interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
@@ -1606,8 +1606,9 @@ class Volunteer(Biddable):
 
     @property
     def interest_list(self):
-        return [interest for code, interest in volunteer_interests_options if
-                code in self.interests]
+        return [
+            interest.interest.interest
+            for interest in self.volunteerinterest_set.filter(rank__gt=3)]
 
     @property
     def bid_review_header(self):
@@ -1626,9 +1627,8 @@ class Volunteer(Biddable):
     @property
     def bid_review_summary(self):
         interest_string = ''
-        for option_id, option_value in volunteer_interests_options:
-            if option_id in self.interests:
-                interest_string += option_value + ', \n'
+        for interest in self.interest_list:
+            interest_string += interest + ', \n'
         availability_string = ''
         unavailability_string = ''
         for window in self.available_windows.all():

@@ -5,6 +5,7 @@ from tests.factories.gbe_factories import (
     ShowFactory,
     VolunteerFactory,
     VolunteerWindowFactory,
+    VolunteerInterestFactory
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
@@ -34,6 +35,8 @@ class VolunteerContext():
             self.bid = VolunteerFactory(
                 conference=self.conference)
             self.profile = self.bid.profile
+        VolunteerInterestFactory(
+            volunteer=self.bid)
         self.opportunity = opportunity or GenericEventFactory()
         self.event = event or ShowFactory()
         self.role = role or "Volunteer"
@@ -52,6 +55,5 @@ class VolunteerContext():
         add_window = VolunteerWindowFactory(
             day=ConferenceDayFactory(
                 conference=self.conference,
-                day = date(2016, 2, 6)))
+                day=date(2016, 2, 6)))
         return add_window
-        

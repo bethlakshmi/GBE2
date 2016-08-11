@@ -18,6 +18,7 @@ from tests.factories.ticketing_factories import (
     TicketItemFactory,
     PurchaserFactory,
 )
+from gbe_forms_text import rank_interest_options
 
 
 def _user_for(user_or_profile):
@@ -92,6 +93,44 @@ def assert_alert_exists(response, tag, label, text):
         '          <strong>%s:</strong> %s\n' \
         '	</div>'
     assert alert_html % (tag, label, text) in response.content
+
+
+def assert_rank_choice_exists(response, interest, selection=None):
+    assert '<label for="id_%d-rank">%s:</label>' % (
+        interest.pk,
+        interest.interest) in response.content
+    assert '<select id="id_%d-rank" name="%d-rank">' % (
+        interest.pk,
+        interest.pk) in response.content
+    for value, text in rank_interest_options:
+        if selection and selection == value:
+            assert '<option value="%d" selected="selected">%s</option>' % (
+                value, text) in response.content
+        else:
+            assert '<option value="%d">%s</option>' % (
+                value, text) in response.content
+
+
+def assert_hidden_value(response, field_id, name, value):
+    assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
+        field_id, name, value) in response.content
+
+
+def assert_has_help_text(response, help_text):
+    assert '<span class="dropt" title="Help">' in response.content
+    assert '<img src= "/static/img/question.png" alt="?"/>' in response.content
+    assert '<span style="width:200px;float:right;text-align:left;">' in response.content
+    assert help_text in response.content
+    assert '</span>' in response.content
+
+def assert_interest_view(response, interest):
+    assert '<label for="id_Volunteer Info-interest_id-%d">%s:</label>' % (
+        interest.pk,
+        interest.interest.interest
+        ) in response.content
+    assert interest.rank_description in response.content
+    if interest.interest.help_text:
+        assert_has_help_text(response, interest.interest.help_text)
 
 
 def make_act_app_purchase(user_object):

@@ -151,12 +151,11 @@ def get_events_list_by_type(event_type, conference):
     return items
 
 
-def available_volunteers(event_start_time):
+def available_volunteers(event_start_time, conference):
     one_minute = timedelta(0, 60)
     tz = pytz.utc
     event_start_time = event_start_time + one_minute
     windows = []
-    conference = get_current_conference()
     for window in conference.windows():
         starttime = tz.localize(datetime.combine(window.day.day, window.start))
         endtime = tz.localize(datetime.combine(window.day.day, window.end))
@@ -165,3 +164,21 @@ def available_volunteers(event_start_time):
         if event_start_time in window_range:
             windows.append(window)
     return Volunteer.objects.filter(available_windows__in=windows)
+
+
+def show_potential_workers(category, start_time, conference):
+    '''
+    Get lists of potential workers for this opportunity.
+      - interested_volunteers - rated the interest above "neither interested
+         or disinterested"
+      - available_volunteers - have the time available
+      - all_volunteers - everyone who offered ... ever
+    '''
+    interested = list(Volunteer.objects.filter(
+        volunteerinterest__rank__gt=3,
+        volunteerinterest__interest=category))
+    all_volunteers = list(Volunteer.objects.all())
+    available = available_volunteers(start_time, conference)
+    return {'interested_volunteers': interested,
+            'all_volunteers': all_volunteers,
+            'available_volunteers': available}

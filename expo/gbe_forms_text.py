@@ -127,18 +127,6 @@ volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH6', 'Saturday afternoon (12PM-6PM)'),
                                   ('SH7', 'Saturday night (5PM-10PM)')]
 
-volunteer_interests_options = [('VA8', 'Art Show'),
-                               ('VA4', 'Conference Staff'),
-                               ('VA7', 'Costume Exhibit'),
-                               ('VA10', 'Model/Performer'),
-                               ('VA9', 'Photography/Media'),
-                               ('VA0', 'Registration'),
-                               ('VA1', 'Security/usher'),
-                               ('VA2', 'Stage crew'),
-                               ('VA3', 'Stage Management'),
-                               ('VA5', 'Tech crew'),
-                               ('VA6', 'Vendor room')]
-
 volunteer_labels = {
     'number_shifts': 'How many hours would you like to work?',
     'interests': 'What are your particular areas of interest?',
@@ -398,6 +386,12 @@ class_schedule_options = [('0', 'Friday Afternoon'),
                           ('3', 'Sunday Morning'),
                           ('4', 'Sunday Afternoon')]
 
+rank_interest_options = [(0, '--------------'),
+                         (1, 'Not interested'),
+                         (2, 'Slightly interested'),
+                         (3, 'Neither interested nor disinterested'),
+                         (4, 'Somewhat interested'),
+                         (5, 'Strongly interested')]
 
 space_error1 = ('''A class of workshop type cannot have space choices.''')
 space_type_error1 = ('''A workshop has seating in a ring around the room, \
