@@ -7,7 +7,11 @@ from django.contrib.auth.models import (
     Group,
     User,
 )
-from tests.factories.gbe_factories import ConferenceFactory
+from tests.factories.gbe_factories import (
+    ActFactory,
+    ConferenceFactory,
+)
+
 from tests.factories.ticketing_factories import (
     BrownPaperEventsFactory,
     TransactionFactory,
@@ -137,6 +141,19 @@ def make_act_app_purchase(user_object):
     transaction.ticket_item.bpt_event.bpt_event_id = "111111"
     transaction.ticket_item.bpt_event.save()
     return transaction
+
+
+def post_act_conflict(conference, performer, data, url, testcase):
+    original = ActFactory(
+        conference=conference,
+        performer=performer)
+    login_as(performer.performer_profile, testcase)
+    data['theact-title'] = original.title
+    response = testcase.client.post(
+        url,
+        data=data,
+        follow=True)
+    return response, original
 
 
 def make_vendor_app_purchase(conference, user_object):

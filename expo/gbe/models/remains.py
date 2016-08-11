@@ -7,6 +7,10 @@ from django.core.validators import (
     MinValueValidator,
     MaxValueValidator
 )
+from django.core.exceptions import (
+    ValidationError,
+    NON_FIELD_ERRORS,
+)
 from django.template import (
     loader,
     Context,
@@ -956,10 +960,6 @@ class Act (Biddable, ActItem):
         '''
         return self.performer.get_profiles()
 
-    def validation_problems_for_submit(self):
-        return [fn[1] % field[1] for (field, fn) in self.validation_list
-                if not eval(fn[0] % ('self.' + field[0]))]
-
     def typeof(self):
         return self.__class__
 
@@ -1048,11 +1048,18 @@ class Act (Biddable, ActItem):
                 len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
 
-    @property
-    def tech_ready(self):
-        return (self.tech.is_complete and
-                self.performer.complete and
-                self.intro_text is not '')
+    def validate_unique(self, *args, **kwargs):
+        # conference, title and performer contact should all be unique before
+        # the act is saved.
+        super(Act, self).validate_unique(*args, **kwargs)
+        if Act.objects.filter(
+                conference=self.conference,
+                title=self.title,
+                performer__contact=self.performer.contact
+                ).exclude(pk=self.pk).exists():
+            raise ValidationError({
+                NON_FIELD_ERRORS: [act_not_unique, ]
+            })
 
     @property
     def alerts(self):
