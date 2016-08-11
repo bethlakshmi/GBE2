@@ -90,12 +90,6 @@ def EditVolunteerView(request, volunteer_id):
                            'view_title': view_title,
                            'nodraft': 'Submit'})
     else:
-        # originally the volunteer create was supposed to save a title, there
-        # was a bug and most old bids don't have a title.
-        # This is the autocorrect
-        if not the_bid.title:
-            the_bid.title = 'volunteer bid: %s' % the_bid.profile.display_name
-
         for interest in the_bid.volunteerinterest_set.all():
             formset += [VolunteerInterestForm(
                 instance=interest,
