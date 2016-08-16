@@ -1,26 +1,46 @@
-from django.shortcuts import get_object_or_404
-import gbe.models as conf
-import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 from django.test import Client
-from gbe.views import create_vendor
-from tests.factories import gbe_factories as factories
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import (
+    ProfileFactory,
+    UserFactory,
+    UserMessageFactory,
+    VendorFactory
+)
+from tests.functions.gbe_functions import (
+    current_conference,
+    login_as,
+    location,
+    assert_alert_exists,
+    make_vendor_app_purchase
+)
+from gbetext import (
+    default_vendor_submit_msg,
+    default_vendor_draft_msg
+)
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 
 
 class TestCreateVendor(TestCase):
     '''Tests for create_vendor view'''
+    view_name = 'vendor_create'
 
     def setUp(self):
-        self.factory = RequestFactory()
+        Conference.objects.all().delete()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.profile = ProfileFactory()
+        self.conference = current_conference()
+        UserMessage.objects.all().delete()
 
-    def get_vendor_form(self, submit=False, invalid=False):
+    def get_form(self, submit=False, invalid=False):
         form = {'profile': 1,
                 'title': 'title here',
                 'description': 'description here',
-                'physical address': '123 Maple St.',
+                'physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
@@ -28,34 +48,128 @@ class TestCreateVendor(TestCase):
             del(form['description'])
         return form
 
-    def test_create_vendor_no_profile(self):
-        request = self.factory.get('vendor/bid/')
-        request.user = factories.UserFactory.create()
-        response = create_vendor(request)
-        nt.assert_equal(response.status_code, 302)
+    def post_paid_vendor_submission(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        username = self.profile.user_object.username
+        make_vendor_app_purchase(self.conference, self.profile.user_object)
+        login_as(self.profile, self)
+        data = self.get_form(submit=True)
+        data['profile'] = self.profile.pk
+        data['username'] = username
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        return response, data
 
-    def t_create_vendor_post_no_submit(self):
-        request = self.factory.get('vendor/bid/')
-        request.method = 'POST'
-        request.user = factories.ProfileFactory.create().user_object
-        request.POST = self.get_vendor_form()
-        nt.set_trace()
-        response = create_vendor(request)
-        # form ends up invalid - why?
-        nt.assert_equal(response.status_code, 302)
+    def post_paid_vendor_draft(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.profile, self)
+        data = self.get_form()
+        data['profile'] = self.profile.pk
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        return response, data
+
+    def test_create_vendor_no_profile(self):
+        url = reverse('vendor_create', urlconf='gbe.urls')
+        login_as(UserFactory(), self)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Update Your Profile' in response.content)
+
+    def test_create_vendor_post_form_valid(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        response, data = self.post_paid_vendor_draft()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Profile View' in response.content)
+        self.assertContains(response, "(Click to edit)")
+        self.assertContains(response, data['title'])
+
+    def test_create_vendor_post_form_valid_submit(self):
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(self.profile, self)
+        data = self.get_form(submit=True)
+        data['profile'] = self.profile.pk
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Vendor Payment' in response.content)
 
     def test_create_vendor_post_form_invalid(self):
-        request = self.factory.get('vendor/bid/')
-        request.method = 'POST'
-        request.user = factories.ProfileFactory.create().user_object
-        request.POST = self.get_vendor_form(invalid=True)
-        request.session = {'cms_admin_site':1}
-        response = create_vendor(request)
-        nt.assert_equal(response.status_code, 200)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        data = self.get_form(invalid=True)
+        response = self.client.post(
+            url, data=data)
+        self.assertEqual(response.status_code, 200)
 
     def test_create_vendor_no_post(self):
-        request = self.factory.get('vendor/bid/')
-        request.user = factories.ProfileFactory.create().user_object
-        request.session = {'cms_admin_site':1}
-        response = create_vendor(request)
-        nt.assert_equal(response.status_code, 200)
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_vendor_with_get_request(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Vendor Application', response.content)
+
+    def test_create_vendor_post_with_vendor_app_paid(self):
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['title'])
+
+    def test_create_vendor_post_with_second_vendor_app_paid(self):
+        prev_vendor = VendorFactory(
+            submitted=True,
+            profile=self.profile
+        )
+        make_vendor_app_purchase(self.conference, self.profile.user_object)
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['title'])
+
+    def test_vendor_submit_make_message(self):
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_vendor_submit_msg)
+
+    def test_vendor_draft_make_message(self):
+        response, data = self.post_paid_vendor_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', default_vendor_draft_msg)
+
+    def test_vendor_submit_has_message(self):
+        msg = UserMessageFactory(
+            view='CreateVendorView',
+            code='SUBMIT_SUCCESS')
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_vendor_draft_has_message(self):
+        msg = UserMessageFactory(
+            view='CreateVendorView',
+            code='DRAFT_SUCCESS')
+        response, data = self.post_paid_vendor_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)

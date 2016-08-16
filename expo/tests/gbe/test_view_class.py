@@ -1,25 +1,27 @@
-import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.test import TestCase
 from django.test import Client
-from gbe.views import view_class
-from tests.factories import gbe_factories as factories
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import ClassFactory
+from tests.functions.gbe_functions import login_as
 
 
 class TestViewClass(TestCase):
     '''Tests for view_class view'''
+    view_name = 'class_view'
+
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.class_string = 'Tell Us About Your Class'
 
     def test_view_class(self):
         '''view_class view, success
         '''
-        klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/view/%d' % klass.pk)
-        request.user = klass.teacher.performer_profile.user_object
-        request.session = {'cms_admin_site':1}
-        response = view_class(request, klass.pk)
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

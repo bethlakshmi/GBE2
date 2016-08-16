@@ -1,14 +1,46 @@
-from gbe.models import *
+from gbe.models import (
+    Act,
+    AudioInfo,
+    AvailableInterest,
+    Biddable,
+    BidEvaluation,
+    Class,
+    ClassProposal,
+    ConferenceVolunteer,
+    Combo,
+    Costume,
+    CueInfo,
+    GenericEvent,
+    LightingInfo,
+    Persona,
+    Profile,
+    ProfilePreferences,
+    Room,
+    Show,
+    StageInfo,
+    Troupe,
+    Vendor,
+    Volunteer,
+    VolunteerInterest,
+    VolunteerWindow,
+)
 from django import forms
 from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-import datetime
+from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
+from gbetext import (
+    acceptance_states,
+    act_other_perf_options,
+    act_shows_options,
+    boolean_options,
+    new_event_options,
+)
 from expoformfields import (
     DurationFormField,
     FriendlyURLInput,
@@ -18,6 +50,7 @@ from scheduler.functions import (
     conference_days,
     conference_times,
 )
+from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
@@ -26,8 +59,14 @@ class ParticipantForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    first_name = forms.CharField(
+                        required=True,
+                        label=participant_labels['legal_first_name'],
+                        help_text=participant_form_help_texts['legal_name'])
+    last_name = forms.CharField(
+                        required=True,
+                        label=participant_labels['legal_last_name'],
+                        help_text=participant_form_help_texts['legal_name'])
     phone = forms.CharField(required=True)
 
     how_heard = forms.MultipleChoiceField(
@@ -186,7 +225,7 @@ class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     act_duration = DurationFormField(
-        required=False,
+        required=True,
         help_text=act_help_texts['act_duration']
     )
     track_duration = DurationFormField(
@@ -303,7 +342,10 @@ class EventCheckBox(ModelMultipleChoiceField):
 
 class VolunteerBidStateChangeForm(BidStateChangeForm):
     from scheduler.models import Event
-    qset = Event.objects.filter(max_volunteer__gt=0).order_by('starttime')
+    conference = get_current_conference()
+    qset = Event.objects.filter(
+        max_volunteer__gt=0,
+        eventitem__event__conference=conference).order_by('starttime')
     events = EventCheckBox(queryset=qset,
                            widget=forms.CheckboxSelectMultiple(),
                            required=False,
@@ -331,7 +373,7 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
                 Worker.objects.filter(_item=volform.profile,
                                       role='Volunteer').delete()
 
-            # if the act has been accepted, set the show.
+            # if the volunteer has been accepted, set the events.
             if self.cleaned_data['accepted'] == 3:
                 worker = Worker(_item=volform.profile, role='Volunteer')
                 worker.save()
@@ -384,6 +426,11 @@ class ClassBidForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         choices=class_schedule_options,
         label=classbid_labels['schedule_constraints'])
+    avoided_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        label=classbid_labels['avoided_constraints'],
+        required=False)
 
     class Meta:
         model = Class
@@ -401,6 +448,11 @@ class ClassBidDraftForm(forms.ModelForm):
         required=False,
         label=classbid_labels['schedule_constraints']
     )
+    avoided_constraints = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=class_schedule_options,
+        label=classbid_labels['avoided_constraints'],
+        required=False)
     ''' Needed this to override forced required value in Biddable.
     Not sure why - it's allowed to be blank '''
     description = forms.CharField(required=False,
@@ -419,30 +471,41 @@ class VolunteerBidForm(forms.ModelForm):
     error_css_class = 'error'
     title = forms.HiddenInput()
     description = forms.HiddenInput()
-    availability = forms.MultipleChoiceField(
+    available_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
         label=volunteer_labels['availability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=True)
-    unavailability = forms.MultipleChoiceField(
+    unavailable_windows = forms.ModelMultipleChoiceField(
+        queryset=VolunteerWindow.objects.none(),
         widget=forms.CheckboxSelectMultiple,
-        choices=volunteer_availability_options,
         label=volunteer_labels['unavailability'],
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
-    interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                          choices=volunteer_interests_options)
+
+    def __init__(self, *args, **kwargs):
+        if 'available_windows' in kwargs:
+            available_windows = kwargs.pop('available_windows')
+        else:
+            available_windows = None
+        if 'unavailable_windows' in kwargs:
+            unavailable_windows = kwargs.pop('unavailable_windows')
+        else:
+            unavailable_windows = None
+        super(VolunteerBidForm, self).__init__(*args, **kwargs)
+        self.fields['available_windows'].queryset = available_windows
+        self.fields['unavailable_windows'].queryset = unavailable_windows
 
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
-                  'availability',
-                  'unavailability',
-                  'interests',
+                  'available_windows',
+                  'unavailable_windows',
                   'opt_outs',
                   'pre_event',
                   'background',
+                  'title',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),
@@ -454,23 +517,58 @@ class VolunteerBidForm(forms.ModelForm):
         help_texts = volunteer_help_texts
 
 
+class VolunteerInterestForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        super(VolunteerInterestForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs:
+            initial = kwargs.pop('initial')
+            self.fields['rank'] = forms.ChoiceField(
+                choices=rank_interest_options,
+                label=initial['interest'].interest,
+                help_text=initial['interest'].help_text,
+                required=False)
+
+    class Meta:
+        model = VolunteerInterest
+        fields = ['rank',
+                  'interest']
+        widgets = {'interest': forms.HiddenInput()}
+
+
 class VolunteerOpportunityForm(forms.ModelForm):
-    day = forms.ChoiceField(choices=conference_days)
+    day = forms.ChoiceField(
+        choices=['No Days Specified'],
+        error_messages={'required': 'required'})
     time = forms.ChoiceField(choices=conference_times)
     opp_event_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
     opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(),
                                       required=False)
-    num_volunteers = forms.IntegerField()
-    volunteer_category = forms.ChoiceField(choices=volunteer_interests_options,
-                                           required=False)
-    location = forms.ModelChoiceField(queryset=Room.objects.all())
-    duration = DurationFormField()
+    num_volunteers = forms.IntegerField(
+        error_messages={'required': 'required'})
+    location = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        error_messages={'required': 'required'})
+    duration = DurationFormField(
+        error_messages={'null': 'required'})
+    volunteer_type = forms.ModelChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
+        required=False)
+
+    def __init__(self, *args, **kwargs):
+        conference = kwargs.pop('conference')
+        super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
+        self.fields['day'] = forms.ModelChoiceField(
+            queryset=conference.conferenceday_set.all(),
+            error_messages={'required': 'required'})
 
     class Meta:
         model = GenericEvent
         fields = ['title',
-                  'volunteer_category',
+                  'volunteer_type',
                   'num_volunteers',
                   'duration',
                   'day',
@@ -478,6 +576,17 @@ class VolunteerOpportunityForm(forms.ModelForm):
                   'location',
                   ]
         hidden_fields = ['opp_event_id']
+
+    def save(self, commit=True):
+        data = self.cleaned_data
+        event = super(VolunteerOpportunityForm, self).save(commit=False)
+        day = data.get('day').day
+        time_parts = map(int, data.get('time').split(":"))
+        starttime = time(*time_parts)
+        event.starttime = datetime.combine(day, starttime)
+        super(VolunteerOpportunityForm, self).save(commit=commit)
+
+        return event
 
 
 class RehearsalSelectionForm(forms.Form):
@@ -487,8 +596,13 @@ class RehearsalSelectionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
-        self.fields['rehearsal'] = forms.ChoiceField(choices=kwargs['initial']
-                                                     ['rehearsal_choices'])
+        if 'rehearsal' in kwargs['initial']:
+            self.fields['rehearsal'] = forms.ChoiceField(
+                choices=kwargs['initial']['rehearsal_choices'],
+                initial=kwargs['initial']['rehearsal'])
+        else:
+            self.fields['rehearsal'] = forms.ChoiceField(
+                choices=kwargs['initial']['rehearsal_choices'])
 
     class Meta:
         fields = ['show', 'rehearsal']
@@ -798,3 +912,139 @@ class ContactForm(forms.Form):
     email = forms.EmailField(required=True)
     subject = forms.CharField(required=True)
     message = forms.CharField(widget=forms.Textarea)
+
+
+class CostumeBidDraftForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    active_use = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['active_use'],
+        required=False)
+    debut_date = forms.CharField(
+        label=costume_proposal_labels['debut_date'],
+        help_text=costume_proposal_help_texts['debut_date'],
+        widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
+        required=False)
+
+    class Meta:
+
+        model = Costume
+        fields = ['title',
+                  'performer',
+                  'creator',
+                  'act_title',
+                  'debut_date',
+                  'active_use']
+        help_texts = costume_proposal_help_texts
+        labels = costume_proposal_labels
+
+
+class CostumeBidSubmitForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    active_use = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['active_use'])
+    debut_date = forms.CharField(
+        label=costume_proposal_labels['debut_date'],
+        help_text=costume_proposal_help_texts['debut_date'],
+        widget=forms.TextInput(attrs={'placeholder': 'MM/YYYY'}),
+        required=False)
+
+    class Meta:
+
+        model = Costume
+        fields = ['title',
+                  'performer',
+                  'creator',
+                  'act_title',
+                  'debut_date',
+                  'active_use']
+        help_texts = costume_proposal_help_texts
+        labels = costume_proposal_labels
+
+
+class CostumeDetailsDraftForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    form_title = "Costume Information"
+
+    pasties = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['pasties'],
+        required=False)
+    pieces = forms.ChoiceField(choices=[(x, x) for x in range(1, 21)],
+                               label=costume_proposal_labels['pieces'],
+                               required=False)
+    dress_size = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['dress_size'],
+        help_text=costume_proposal_help_texts['dress_size'],
+        required=False)
+    description = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea,
+        label=costume_proposal_labels['description'],
+        required=False)
+    more_info = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea,
+        label=costume_proposal_labels['more_info'],
+        required=False)
+
+    class Meta:
+
+        model = Costume
+        fields = ['pieces',
+                  'description',
+                  'pasties',
+                  'dress_size',
+                  'more_info',
+                  'picture']
+        help_texts = costume_proposal_help_texts
+        labels = costume_proposal_labels
+
+
+class CostumeDetailsSubmitForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+    form_title = "Costume Information"
+
+    pasties = forms.TypedChoiceField(
+        widget=forms.RadioSelect,
+        choices=boolean_options,
+        label=costume_proposal_labels['pasties'])
+    pieces = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['pieces'])
+    dress_size = forms.ChoiceField(
+        choices=[(x, x) for x in range(1, 21)],
+        label=costume_proposal_labels['dress_size'],
+        help_text=costume_proposal_help_texts['dress_size'])
+    description = forms.CharField(max_length=500,
+                                  widget=forms.Textarea,
+                                  label=costume_proposal_labels['description'])
+    more_info = forms.CharField(max_length=500,
+                                widget=forms.Textarea,
+                                label=costume_proposal_labels['more_info'],
+                                required=False)
+    picture = forms.FileField(label=costume_proposal_labels['picture'],
+                              help_text=costume_proposal_help_texts['picture'])
+
+    class Meta:
+
+        model = Costume
+        fields = ['pieces',
+                  'description',
+                  'pasties',
+                  'dress_size',
+                  'more_info',
+                  'picture']
+        help_texts = costume_proposal_help_texts
+        labels = costume_proposal_labels

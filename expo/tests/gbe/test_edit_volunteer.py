@@ -1,36 +1,57 @@
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
-import gbe.models as conf
-import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.test import TestCase
 from django.test import Client
-from django.contrib.auth.models import Group
-from gbe.views import edit_volunteer
-from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import (
+    PersonaFactory,
+    ProfileFactory,
+    UserMessageFactory,
+    VolunteerFactory,
+    VolunteerInterestFactory
+)
+from tests.contexts import VolunteerContext
+from tests.functions.gbe_functions import (
+    assert_alert_exists,
+    assert_hidden_value,
+    assert_rank_choice_exists,
+    clear_conferences,
+    login_as,
+    grant_privilege,
+)
+from gbetext import (
+    default_volunteer_edit_msg,
+    default_volunteer_no_interest_msg
+)
+from gbe.models import UserMessage
 
 
 class TestEditVolunteer(TestCase):
     '''Tests for edit_volunteer view'''
+    view_name = 'volunteer_edit'
 
     # this test case should be unnecessary, since edit_volunteer should go away
     # for now, test it.
 
     def setUp(self):
-        self.factory = RequestFactory()
+        UserMessage.objects.all().delete()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.privileged_profile = factories.ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Volunteer Coordinator')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
-    def get_volunteer_form(self, submit=False, invalid=False):
+    def get_form(self, context, submit=False, invalid=False, rank=5):
+        interest_pk = context.bid.volunteerinterest_set.first().pk
+        avail_pk = context.bid.volunteerinterest_set.first().interest.pk
         form = {'profile': 1,
                 'number_shifts': 2,
                 'availability': ('SH0',),
-                'interests': ('VA0',),
+                'available_windows': [context.conference.windows().first().pk],
+                'title': 'title',
+                '%d-rank' % interest_pk: rank,
+                '%d-interest' % interest_pk: avail_pk,
                 }
         if submit:
             form['submit'] = True
@@ -38,50 +59,137 @@ class TestEditVolunteer(TestCase):
             del(form['number_shifts'])
         return form
 
-    @nt.raises(PermissionDenied)
+    def edit_volunteer(self, rank=5):
+        clear_conferences()
+        context = VolunteerContext()
+        add_window = context.add_window()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(self.privileged_user, self)
+        form = self.get_form(context, rank=rank)
+        form['unavailable_windows'] = add_window.pk
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        return response, context
+
     def test_edit_volunteer_no_volunteer(self):
-        '''Should get 404 if no valid volunteer ID'''
-        profile = factories.ProfileFactory.create()
-        request = self.factory.get('/volunteer/edit/-1')
-        request.user = profile.user_object
-        response = edit_volunteer(request, -1)
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[0])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(403, response.status_code)
 
-    @nt.raises(PermissionDenied)
     def test_edit_volunteer_profile_is_not_coordinator(self):
-        user = factories.ProfileFactory.create().user_object
-        volunteer = factories.VolunteerFactory.create()
-        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-        request.user = user
-        response = edit_volunteer(request, volunteer.pk)
+        user = ProfileFactory().user_object
+        volunteer = VolunteerFactory()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(403, response.status_code)
 
-#    def test_volunteer_edit_post_form_not_valid(self):
-#        '''volunteer_edit, if form not valid, should return
-#        to VolunteerEditForm'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        request.POST = {}
-#        request.POST.update(self.get_volunteer_form())
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 200)
-#        nt.assert_true('Edit Your Volunteer Proposal' in response.content)
+    def test_volunteer_edit_post_form_not_valid(self):
+        '''volunteer_edit, if form not valid, should return
+        to VolunteerEditForm'''
+        context = VolunteerContext()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.post(
+            url,
+            self.get_form(context,
+                          invalid=True))
 
-#    def test_volunteer_edit_post_form_valid(self):
-#        '''volunteer_edit, if form not valid, should return to ActEditForm'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        request.POST = {}
-#        request.POST.update(self.get_volunteer_form())
-#        nt.set_trace()
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
 
-#    def test_edit_bid_not_post(self):
-#        '''edit_bid, not post, should take us to edit process'''
-#        volunteer = factories.VolunteerFactory.create()
-#        request = self.factory.get('/volunteer/edit/%d' % volunteer.pk)
-#        request.user = self.privileged_user
-#        response = edit_volunteer(request, volunteer.pk)
-#        nt.assert_equal(response.status_code, 200)
-#        nt.assert_true('Edit Your Volunteer Proposal' in response.content)
+    def test_volunteer_edit_post_form_valid(self):
+        '''volunteer_edit, if form not valid, should return
+        to VolunteerEditForm'''
+        response, context = self.edit_volunteer()
+        expected_string = ("Bid Information for %s" %
+                           context.conference.conference_name)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(expected_string in response.content)
+
+    def test_volunteer_edit_get(self):
+        volunteer = VolunteerFactory(
+            availability='',
+            unavailability='',
+            title="title")
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+        assert_hidden_value(response, "id_title", "title", volunteer.title)
+
+    def test_volunteer_edit_get_rank(self):
+        volunteer = VolunteerFactory(
+            availability='',
+            unavailability='')
+        interest = VolunteerInterestFactory(volunteer=volunteer)
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        assert_rank_choice_exists(response, interest, interest.rank)
+
+    def test_volunteer_edit_get_with_stuff(self):
+        volunteer = VolunteerFactory()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+
+    def test_volunteer_submit_make_message(self):
+        response, context = self.edit_volunteer()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_volunteer_edit_msg)
+
+    def test_volunteer_submit_has_message(self):
+        msg = UserMessageFactory(
+            view='EditVolunteerView',
+            code='SUBMIT_SUCCESS')
+        response, context = self.edit_volunteer()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_not_interested_at_all(self):
+        response, context = self.edit_volunteer(rank=1)
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'danger', 'Error', default_volunteer_no_interest_msg)
+
+    def test_not_interested_at_all_make_message(self):
+        msg = UserMessageFactory(
+            view='EditVolunteerView',
+            code='NO_INTERESTS_SUBMITTED')
+        response, context = self.edit_volunteer(rank=1)
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'danger', 'Error', msg.description)
+
+    def test_interest_bad_data(self):
+        response, context = self.edit_volunteer(rank='bad_data')
+        print response.content
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<font color="red"><ul class="errorlist">' +
+            '<li>Select a valid choice. bad_data is not one of ' +
+            'the available choices.</li></ul></font>')

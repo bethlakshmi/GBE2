@@ -61,7 +61,6 @@ class SpecialMenu(Menu):
         populate for users based on profile.
         Users must have special privileges to use this
         """
-#        import pdb; pdb.set_trace()
         nodes = []
         user = request.user
         if validate_perms(request, 'any', require=False):

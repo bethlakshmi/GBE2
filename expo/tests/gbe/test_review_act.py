@@ -1,32 +1,144 @@
-import gbe.models as conf
+from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import review_act
-from django.contrib.auth.models import Group
-from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from tests.factories.gbe_factories import (
+    ActFactory,
+    ConferenceFactory,
+    PersonaFactory,
+    ProfileFactory,
+)
+from tests.functions.gbe_functions import (
+    clear_conferences,
+    current_conference,
+    grant_privilege,
+    login_as,
+    reload,
+)
 
 
 class TestReviewAct(TestCase):
-    '''Tests for revview_act view'''
+    '''Tests for review_act view'''
 
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.privileged_profile = factories.ProfileFactory.create()
+        self.performer = PersonaFactory()
+        self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
-        group, nil = Group.objects.get_or_create(name='Act Reviewers')
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Act Reviewers')
+        grant_privilege(self.privileged_user, 'Act Coordinator')
 
     def test_review_act_all_well(self):
-        act = factories.ActFactory.create()
-        request = self.factory.get('act/review/%d' % act.pk)
-        request.session = {'cms_admin_site':1}
-        request.user = self.privileged_user
-        login_as(request.user, self)
-        response = review_act(request, act.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Bid Information' in response.content)
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)
+
+    def test_review_act_act_reviewer(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        staff_user = ProfileFactory()
+        grant_privilege(staff_user, 'Act Reviewers')
+        login_as(staff_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)
+        self.assertTrue('Review Information' in response.content)
+
+    def test_hidden_fields_are_populated(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        staff_user = ProfileFactory()
+        grant_privilege(staff_user, 'Act Reviewers')
+        login_as(staff_user, self)
+        response = self.client.get(url)
+        evaluator_input = ('<input id="id_evaluator" name="evaluator" '
+                           'type="hidden" value="%d" />') % staff_user.pk
+        bid_id_input = ('<input id="id_bid" name="bid" type="hidden" '
+                        'value="%d" />') % act.pk
+        self.assertTrue(evaluator_input in response.content)
+        self.assertTrue(bid_id_input in response.content)
+
+    def test_review_act_old_act(self):
+        conference = ConferenceFactory(status="completed",
+                                       accepting_bids=False)
+        act = ActFactory(conference=conference)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('act_view', urlconf='gbe.urls', args=[act.pk]))
+        self.assertTrue('Review Bids' in response.content)
+
+    def test_review_act_non_privileged_user(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(403, response.status_code)
+
+    def test_review_act_act_post(self):
+        clear_conferences()
+        conference = ConferenceFactory(accepting_bids=True,
+                                       status='upcoming')
+        # conference = current_conference()
+        act = ActFactory(accepted=1,
+                         conference=conference)
+        profile = ProfileFactory()
+        user = profile.user_object
+        grant_privilege(user, 'Act Reviewers')
+        login_as(user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        response = self.client.post(url,
+                                    {'vote': 3,
+                                     'notes': "blah blah",
+                                     'evaluator': profile.pk,
+                                     'bid': act.pk},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        expected_string = ("Bid Information for %s" %
+                           conference.conference_name)
+        error_string = "There is an error on the form"
+        self.assertTrue(expected_string in response.content)
+        self.assertFalse(error_string in response.content)
+
+    def test_review_act_act_post_invalid_form(self):
+        clear_conferences()
+        conference = ConferenceFactory(accepting_bids=True,
+                                       status='upcoming')
+        # conference = current_conference()
+        act = ActFactory(accepted=1,
+                         conference=conference)
+        profile = ProfileFactory()
+        user = profile.user_object
+        grant_privilege(user, 'Act Reviewers')
+        login_as(user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        response = self.client.post(url,
+                                    {'vote': 3,
+                                     'notes': "blah blah",
+                                     'bid': act.pk},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        expected_string = "There is an error on the form."
+        self.assertTrue(expected_string in response.content)

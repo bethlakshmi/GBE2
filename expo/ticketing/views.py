@@ -37,8 +37,7 @@ def ticket_items(request, conference_choice=None):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     if 'Import' in request.POST:
         import_ticket_items()
@@ -49,7 +48,7 @@ def ticket_items(request, conference_choice=None):
     else:
         events = BrownPaperEvents.objects.exclude(
             conference__status='completed')
-        
+
     conferences = Conference.objects.all()
     context = {'events': events,
                'conferences': conferences,
@@ -62,18 +61,13 @@ def transactions(request):
     Represents the view for working with ticket items.  This will have a
     list of current ticket items, and the ability to synch them.
     '''
-    if not validate_perms(request, ('Ticketing - Transactions', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Transactions', ))
 
     count = -1
     error = ''
 
     if ('Sync' in request.POST):
-        try:
-            count = process_bpt_order_list()
-        except Exception as e:
-            error = 'Error processing transactions:  ' + str(e)
-            logger.error(error)
+        count = process_bpt_order_list()
 
     transactions = Transaction.objects.all()
     purchasers = Purchaser.objects.all()
@@ -105,8 +99,7 @@ def ticket_item_edit(request, item_id=None):
     '''
     Used to display a form for editing ticket, adding or removing ticket items.
     '''
-    if not validate_perms(request, ('Ticketing - Admin', )):
-        raise Http404
+    validate_perms(request, ('Ticketing - Admin', ))
 
     error = ''
 
@@ -127,9 +120,11 @@ def ticket_item_edit(request, item_id=None):
 
             if (not trans_exists):
                 item.delete()
-                return HttpResponseRedirect(reverse('ticket_items',
-                                urlconf='ticketing.urls',
-                                args=[str(item.bpt_event.conference.conference_slug)]))
+                return HttpResponseRedirect(
+                    reverse(
+                        'ticket_items',
+                        urlconf='ticketing.urls',
+                        args=[str(item.bpt_event.conference.conference_slug)]))
             else:
                 error = 'Cannot remove Ticket Item: %s \
                         It is used in a Transaction.' % item.ticket_id
@@ -143,9 +138,11 @@ def ticket_item_edit(request, item_id=None):
             if form.is_valid():
                 item = form.save(str(request.user))
                 form.save_m2m()
-                return HttpResponseRedirect(reverse('ticket_items',
-                                urlconf='ticketing.urls',
-                                args=[str(item.bpt_event.conference.conference_slug)]))
+                return HttpResponseRedirect(
+                    reverse(
+                        'ticket_items',
+                        urlconf='ticketing.urls',
+                        args=[str(item.bpt_event.conference.conference_slug)]))
     else:
         if (item_id is not None):
             item = get_object_or_404(TicketItem, id=item_id)
@@ -180,7 +177,7 @@ def bptevent_edit(request, event_id):
                           r'ticketing/ticket_item_edit.tmpl',
                           {'forms': [form], 'can_delete': False})
 
-            #return render(request, r'ticketing/ticket_item_edit.tmpl')
+            # return render(request, r'ticketing/ticket_item_edit.tmpl')
 
     else:
         form = BPTEventForm(instance=event)

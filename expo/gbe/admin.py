@@ -5,17 +5,17 @@ from model_utils.managers import InheritanceManager
 
 class BidAdmin(admin.ModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ClassAdmin(BidAdmin):
-    list_display = (str,
+    list_display = ('__unicode__',
                     'teacher',
                     'submitted',
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -24,11 +24,16 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted']
+    list_filter = ['submitted', 'accepted', 'conference']
 
 
 class PerformerAdmin(admin.ModelAdmin):
     list_display = ('name', 'contact')
+
+
+class TroupeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact')
+    filter_horizontal = ("membership",)
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -81,8 +86,18 @@ class RoomAdmin(admin.ModelAdmin):
     list_display = ('name', 'capacity', 'overbook_size')
 
 
+class ShowAdmin(admin.ModelAdmin):
+    list_filter = ['conference']
+
+
+class GenericAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type')
+    list_filter = ['conference']
+
+
 class EventAdmin(admin.ModelAdmin):
     list_display = ('title', 'subclass')
+    list_filter = ['conference']
 
     def subclass(self, obj):
         try:
@@ -91,14 +106,79 @@ class EventAdmin(admin.ModelAdmin):
         except:
             return "Event"
 
+
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('view',
+                    'code',
+                    'summary',
+                    'description')
+    list_editable = ('summary', 'description')
+    readonly_fields = ('view', 'code')
+
+
+class AvailableInterestAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'interest',
+                    'visible',
+                    'help_text')
+    list_editable = ('interest',
+                     'visible',
+                     'help_text')
+
+
+class VolunteerInterestAdmin(admin.ModelAdmin):
+    list_display = ('interest',
+                    'volunteer',
+                    'rank',
+                    'conference')
+    list_filter = ['interest',
+                   'rank',
+                   'volunteer__conference']
+
+    def conference(self, obj):
+        return obj.volunteer.conference
+
+
+class VolunteerWindowAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'day_w_year',
+                    'start',
+                    'end',
+                    'conference')
+    list_filter = ['day',
+                   'day__conference']
+    list_editable = ('start',
+                     'end',)
+
+    def conference(self, obj):
+        return obj.day.conference
+
+    def day_w_year(self, obj):
+        return obj.day.day
+
+
+class ConferenceDayAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'day',
+                    'conference')
+    list_filter = ['conference']
+    list_editable = ('day',
+                     'conference',)
+
+
 admin.site.register(Conference)
+admin.site.register(ConferenceDay, ConferenceDayAdmin)
+admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
+admin.site.register(VolunteerInterest, VolunteerInterestAdmin)
+admin.site.register(AvailableInterest, AvailableInterestAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Biddable, BidAdmin)
 admin.site.register(Act, ActAdmin)
 admin.site.register(Class, ClassAdmin)
 admin.site.register(Vendor, BidAdmin)
 admin.site.register(Volunteer, BidAdmin)
-admin.site.register(Show)
+admin.site.register(Costume, BidAdmin)
+admin.site.register(Show, ShowAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(ClassProposal, ClassProposalAdmin)
 admin.site.register(BidEvaluation, BidEvalAdmin)
@@ -112,7 +192,8 @@ admin.site.register(ProfilePreferences, ProfilePreferencesAdmin)
 admin.site.register(Persona, PerformerAdmin)
 admin.site.register(Performer, PerformerAdmin)
 admin.site.register(Combo, PerformerAdmin)
-admin.site.register(Troupe, PerformerAdmin)
+admin.site.register(Troupe, TroupeAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
-admin.site.register(GenericEvent)
+admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(UserMessage, MessageAdmin)

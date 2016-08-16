@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
-from gbe_forms_text import volunteer_interests_options
 from scheduler.functions import set_time_format
 from django.core.exceptions import MultipleObjectsReturned
 import pytz
@@ -117,6 +116,11 @@ class Resource(models.Model):
         child = Resource.objects.get_subclass(id=self.id)
         return child._item
 
+    @property
+    def as_subtype(self):
+        child = Resource.objects.get_subclass(id=self.id)
+        return child
+
     def __str__(self):
         allocated_resource = Resource.objects.get_subclass(id=self.id)
         if allocated_resource:
@@ -142,7 +146,11 @@ class ActItem(ResourceItem):
         allocs = sum([list(res.allocations.all()) for res in resources], [])
 
         for a in allocs:
-            if a.event.as_subtype.type == 'Rehearsal Slot' and a.event.container_event.parent_event == show:
+            is_rehearsal_for_this_show = (
+                a.event.as_subtype.type == 'Rehearsal Slot' and
+                a.event.container_event.parent_event == show)
+
+            if is_rehearsal_for_this_show:
                 a.delete()
                 a.resource.delete()
         resource = ActResource(_item=self)
@@ -280,6 +288,7 @@ class ActResource(Resource):
         except:
             return "No Act Item"
 
+
 class LocationItem(ResourceItem):
     '''
     "Payload" object for a Location
@@ -314,6 +323,7 @@ class LocationItem(ResourceItem):
         allocations, and avoid being subclass specific
         '''
         from scheduler.models import Event
+
         events = Event.objects.filter(
             resources_allocated__resource__location___item=self
         ).order_by(
@@ -399,13 +409,12 @@ class WorkerItem(ResourceItem):
     def __unicode__(self):
         return unicode(self.describe)
 
-    def get_bookings(self, role='All'):
+    def get_bookings(self, role='All', conference=None):
         '''
         Returns the events for which this Worker is booked as "role".
         should remain focused on the upward connection of resource
         allocations, and avoid being sub class specific
         '''
-
         from scheduler.models import Event
 
         if role in ['All', None]:
@@ -415,6 +424,9 @@ class WorkerItem(ResourceItem):
             events = Event.objects.filter(
                 resources_allocated__resource__worker___item=self,
                 resources_allocated__resource__worker__role=role)
+        if conference:
+
+            events = events.filter(eventitem__event__conference=conference)
         return events
 
     def get_schedule(self):
@@ -440,7 +452,7 @@ class WorkerItem(ResourceItem):
         return conflicts
 
 
-class Worker (Resource):
+class Worker(Resource):
     '''
     objects = InheritanceManager()
     An allocatable person
@@ -472,67 +484,27 @@ class Worker (Resource):
             return "No Worker Item"
 
 
-class EquipmentItem(ResourceItem):
-    '''
-    Payload object for an allocatable item
-    Not currently used
-    '''
-    objects = InheritanceManager()
-
-    def get_resource(self):
-        '''
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
-        try:
-            equip = Equipment.objects.select_subclasses().get(_item=self)
-        except:
-            equip = Equipment(_item=self)
-            equip.save()
-        return equip
-
-    @property
-    def contact_email(self):
-        return ""
-
-    @property
-    def describe(self):
-        return "Equipment Item"
-
-    def __str__(self):
-        return str(self.describe)
-
-    def __unicode__(self):
-        return unicode(self.describe)
-
-
-
-class Equipment(Resource):
-    '''
-    An allocatable thing
-    Not currently used. Probably needs a good bit of development before we can
-    really use it (we'd like to be able to allocate single objects, sets of
-    objects, and quantities of objects at the very least - this requires a bit
-    of design)
-    '''
-    objects = InheritanceManager()
-    _item = models.ForeignKey(EquipmentItem)
-
-    @property
-    def type(self):
-        return "equipment"
-
-
 class EventItem (models.Model):
     '''
     The payload for an event (ie, a class, act, show, or generic event)
-    The EventItem MUST NOT impose any DB usage on its implementing model
+    The EventItem must not impose any DB usage on its implementing model
     classes.
-    ALL requirements must be stated as properties.
     '''
     objects = InheritanceManager()
     eventitem_id = models.AutoField(primary_key=True)
     visible = models.BooleanField(default=True)
+
+    def child(self):
+        return EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+
+    def get_conference(self):
+        return self.child().conference
+
+    def day_options(self):
+        return self.get_conference().conferenceday_set.all()
+
+    def volunteer_options(self):
+        return VolunteerWindow.objects.filter(day__in=self.day_options())
 
     @property
     def bios(self):
@@ -546,34 +518,28 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
-    @property
-    def roles(self):
+    def roles(self, roles=['Teacher',
+                           'Panelist',
+                           'Moderator',
+                           'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
                 child_event__eventitem=self.eventitem_id).first()
             people = Worker.objects.filter(
                 (Q(allocations__event__eventitem=self.eventitem_id) &
-                 Q(role__in=['Teacher',
-                             'Panelist',
-                             'Moderator',
-                             'Staff Lead'])) |
+                 Q(role__in=roles)) |
                 (Q(allocations__event=container.parent_event) &
-                 Q(role__in=['Teacher',
-                             'Panelist',
-                             'Moderator',
-                             'Staff Lead']))).distinct().order_by('role')
+                 Q(role__in=roles))).distinct().order_by(
+                'role', '_item')
         except:
             people = Worker.objects.filter(
                 allocations__event__eventitem=self.eventitem_id,
-                role__in=['Teacher',
-                          'Panelist',
-                          'Moderator',
-                          'Staff Lead']
-            ).distinct().order_by('role')
+                role__in=roles
+            ).distinct().order_by('role', '_item')
         return people
 
     def set_duration(self, duration):
-        child = EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
+        child = self.child()
         child.duration = duration
         child.save(update_fields=('duration',))
 
@@ -588,15 +554,13 @@ class EventItem (models.Model):
 
     @property
     def duration(self):
-        child = EventItem.objects.filter(
-            eventitem_id=self.eventitem_id).select_subclasses().first()
+        child = self.child()
         return child.sched_duration
 
     @property
     def describe(self):
         try:
-            child = EventItem.objects.get_subclass(
-                eventitem_id=self.eventitem_id)
+            child = self.child()
             '''
             ids = "event - " + str(child.event_id)
             try:
@@ -628,8 +592,8 @@ class Event(Schedulable):
         rehearsals = [
             ec.child_event
             for ec in EventContainer.objects.filter(parent_event=self)
-            if (ec.child_event.confitem.type == 'Rehearsal Slot'
-                and ec.child_event.has_act_opening())
+            if (ec.child_event.confitem.type == 'Rehearsal Slot' and
+                ec.child_event.has_act_opening())
         ]
         return sorted(rehearsals,
                       key=lambda sched_event: sched_event.starttime)
@@ -673,7 +637,7 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
-        if self.location == location:
+        if self.location == location.item:
             pass   # already set
         elif self.location is None:
             ra = ResourceAllocation(resource=location, event=self)
@@ -686,7 +650,7 @@ class Event(Schedulable):
                     allocation.resource = location
                     allocation.save()
 
-    def allocate_worker(self, worker, role, label=None):
+    def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''
         worker can be an instance of WorkerItem or of Worker
         role is a string, must be one of the role types.
@@ -700,11 +664,16 @@ class Event(Schedulable):
         else:
             worker.role = role
         worker.save()
-        allocation = ResourceAllocation(event=self, resource=worker)
+        if alloc_id < 0:
+            allocation = ResourceAllocation(event=self,
+                                            resource=worker)
+        else:
+            allocation = ResourceAllocation.objects.get(
+                id=alloc_id)
+            allocation.resource = worker
         allocation.save()
         if label:
-            l = Label(allocation=allocation, text=label)
-            l.save()
+            allocation.set_label(label)
 
     def unallocate_role(self, role):
         '''
@@ -747,8 +716,8 @@ class Event(Schedulable):
         elif resource_type == 'Act':
             return self.act_contact_info(status=status)
         else:
-            return self.worker_contact_info(worker_type=worker_type) + self.act_contact_info(status=status)
-
+            return (self.worker_contact_info(worker_type=worker_type) +
+                    self.act_contact_info(status=status))
 
     @property
     def volunteer_count(self):
@@ -756,29 +725,30 @@ class Event(Schedulable):
         volunteers = Worker.objects.filter(allocations__event=self,
                                            role='Volunteer').count()
         if acts:
-            return str(len(self.get_acts())) + ' acts'
+            return "%d acts" % acts
         elif volunteers:
-            return str(volunteers)+' volunteers'
+            return "%d volunteers" % volunteers
         else:
-            return ''
+            return 0
 
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
-        filtered by type if volunteer_type is specified
+        filtered by type if worker_type is specified
         returns the Worker Resource assigned. Calling function has to
         drill down to get to profile
         '''
+        worker_type = worker_type or 'Volunteer'
         opps = self.get_volunteer_opps()
-        alloc_list = [(opp['conf'].volunteer_category,
+        alloc_list = [(opp['conf'].volunteer_type,
                        list(opp['sched'].resources_allocated.all()))
                       for opp in opps]
-        category = dict(volunteer_interests_options)
+
         workers = []
         for a in alloc_list:
             for w in a[1]:
-                if w.resource.type == 'Volunteer':
-                    workers.append((category.get(a[0], 'Blank'),
+                if w.resource.type == worker_type:
+                    workers.append((a[0].interest,
                                     Worker.objects.get(
                                         resource_ptr_id=w.resource_id)))
         return workers
@@ -834,8 +804,44 @@ class Event(Schedulable):
             )
         return info
 
+    def class_contacts2(self):
+        '''
+        To do: reconcile the two class_contacts functions
+        '''
+        allocations = self.resources_allocated.filter(
+            resource__in=Worker.objects.all())
+        info = []
+        for allocation in allocations:
+            try:
+                persona = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
+                info.append(
+                    (persona.contact_email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     persona.name,
+                     persona.contact.display_name,
+                     persona.contact_phone)
+                )
+            except:
+                profile = WorkerItem.objects.get_subclass(
+                    resourceitem_id=allocation.resource.item.resourceitem_id)
+
+                info.append(
+                    (profile.user_object.email,
+                     str(self),
+                     allocation.resource.worker.role,
+                     "No Performer Name",
+                     profile.display_name,
+                     profile.phone)
+                )
+        return info
+
     def act_contact_info(self, status=None):
-        return [(act.contact_info for act in self.get_acts(status))]
+        info = []
+        for act in self.get_acts(status):
+            info.append(act.contact_info)
+        return info
 
     def worker_contact_info(self, worker_type=None):
         '''
@@ -895,9 +901,6 @@ class Event(Schedulable):
 
         return bio_list
 
-    def worker_list(self, role):
-        workers = Worker.objects.filter(allocations__event=self, role=role)
-
     def __str__(self):
         try:
             return self.eventitem.describe
@@ -947,9 +950,11 @@ class Event(Schedulable):
         is_conflict = False
         if self.start_time == other_event.starttime:
             is_conflict = True
-        elif self.start_time > other_event.start_time and self.start_time < other_event.end_time:
+        elif (self.start_time > other_event.start_time and
+              self.start_time < other_event.end_time):
             is_conflict = True
-        elif self.start_time < other_event.start_time and self.end_time > other_event.start_time:
+        elif (self.start_time < other_event.start_time and
+              self.end_time > other_event.start_time):
             is_conflict = True
         return is_conflict
 
@@ -981,20 +986,16 @@ class ResourceAllocation(Schedulable):
         l.save()
 
     def __str__(self):
-        try:
-            return str(self.start_time.astimezone(pytz.timezone('UTC'))) + \
-                   " :: Event: " + str(self.event) + " == " + \
-                   str(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
-                   ": " + str(Resource.objects.get_subclass(id=self.resource.id))
-        except:
-            return "Missing an Item"
+        return self.__unicode__()
 
     def __unicode__(self):
         try:
-            return unicode(self.start_time.astimezone(pytz.timezone('UTC'))) + \
-                   " :: Event: " + unicode(self.event) + " == " + \
-                   unicode(Resource.objects.get_subclass(id=self.resource.id).__class__.__name__) + \
-                   ": " + unicode(Resource.objects.get_subclass(id=self.resource.id))
+            return "%s :: Event: %s == %s : %s" % (
+                unicode(self.start_time.astimezone(pytz.timezone('UTC'))),
+                unicode(self.event),
+                unicode(Resource.objects.get_subclass(
+                    id=self.resource.id).__class__.__name__),
+                unicode(Resource.objects.get_subclass(id=self.resource.id)))
         except:
             return "Missing an Item"
 

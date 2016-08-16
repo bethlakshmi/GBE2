@@ -1,88 +1,192 @@
-from django.http import Http404
-import gbe.models as conf
-import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.test import TestCase
 from django.test import Client
-from gbe.views import edit_class
-from tests.factories import gbe_factories as factories
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import (
+    ClassFactory,
+    PersonaFactory,
+    ProfileFactory,
+    UserMessageFactory
+)
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     login_as,
     location,
+)
+from gbetext import (
+    default_class_submit_msg,
+    default_class_draft_msg
+)
+from gbe.models import (
+    Conference,
+    UserMessage
 )
 
 
 class TestEditClass(TestCase):
     '''Tests for edit_class view'''
-
-    # this test case should be unnecessary, since edit_class should go away
-    # for now, test it.
+    view_name = 'class_edit'
 
     def setUp(self):
-        self.factory = RequestFactory()
+        Conference.objects.all().delete()
+        UserMessage.objects.all().delete()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        self.teacher = factories.PersonaFactory.create()
+        self.performer = PersonaFactory()
+        self.teacher = PersonaFactory()
 
-    def get_class_form(self):
-        return {"teacher": self.teacher.pk,
+    def get_form(self, submit=True, invalid=False):
+        data = {"teacher": self.teacher.pk,
                 "title": 'A class',
                 "description": 'a description',
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
-                'schedule_constraints': ['0'],            
+                'schedule_constraints': ['0'],
                 }
+        if submit:
+            data['submit'] = 1
+        if invalid:
+            del(data['title'])
+        return data
 
-    @nt.raises(Http404)
+    def post_class_edit_submit(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        data = self.get_form()
+        response = self.client.post(url, data=data, follow=True)
+        return response, data
+
+    def post_class_edit_draft(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        data = self.get_form(submit=False)
+        response = self.client.post(url, data=data, follow=True)
+        return response, data
+
     def test_edit_class_no_class(self):
         '''Should get 404 if no valid class ID'''
-        profile = factories.ProfileFactory.create()
-        request = self.factory.get('/class/edit/-1')
-        request.user = profile.user_object
-        response = edit_class(request, -1)
+        url = reverse(self.view_name,
+                      args=[0],
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(404, response.status_code)
 
-    @nt.raises(Http404)
     def test_edit_class_profile_is_not_contact(self):
-        user = factories.ProfileFactory.create().user_object
-        klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/edit/%d' % klass.pk)
-        request.user = user
-        response = edit_class(request, klass.pk)
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        self.assertEqual(404, response.status_code)
 
     def test_class_edit_post_form_not_valid(self):
         '''class_edit, if form not valid, should return to ActEditForm'''
-        klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/edit/%d' % klass.pk)
-        request.user = klass.teacher.performer_profile.user_object
-        request.POST = {}
-        request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
-        del(request.POST['title'])
-        response = edit_class(request, klass.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Class Proposal' in response.content)
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        data = self.get_form(invalid=True)
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Class Proposal' in response.content)
 
     def test_edit_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
         should redirect to home'''
-        klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/edit/%d' % klass.pk)
-        request.user = klass.teacher.contact.user_object
-        request.method = 'POST'
-        request.POST = {}
-        request.POST.update(self.get_class_form())
-        request.session = {'cms_admin_site':1}
-        response = edit_class(request, klass.pk)
-        nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/gbe')
+        response, data = self.post_class_edit_draft()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(('http://testserver/gbe', 302)
+                        in response.redirect_chain)
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
-        klass = factories.ClassFactory.create()
-        request = self.factory.get('/class/edit/%d' % klass.pk)
-        request.user = klass.teacher.contact.user_object
-        request.session = {'cms_admin_site':1}
-        response = edit_class(request, klass.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Class Proposal' in response.content)
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Class Proposal' in response.content)
+
+    def test_edit_class_post_with_submit(self):
+        response, data = self.post_class_edit_submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(('http://testserver/gbe', 302)
+                        in response.redirect_chain)
+        # should test some change to class
+
+    def test_edit_bid_verify_info_popup_text(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            'We will do our best to accommodate' in response.content)
+
+    def test_edit_bid_verify_avoided_constraints(self):
+        klass = ClassFactory()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+        login_as(klass.teacher.performer_profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('I Would Prefer to Avoid' in response.content)
+        self.assertTrue('Edit Your Class Proposal' in response.content)
+
+    def test_edit_class_post_with_submit(self):
+        response, data = self.post_class_edit_submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(('http://testserver/gbe', 302)
+                        in response.redirect_chain)
+        # should test some change to class
+
+    def test_class_submit_make_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        response, data = self.post_class_edit_submit()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_class_submit_msg)
+
+    def test_class_draft_make_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        response, data = self.post_class_edit_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', default_class_draft_msg)
+
+    def test_class_submit_has_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        msg = UserMessageFactory(
+            view='EditClassView',
+            code='SUBMIT_SUCCESS')
+        response, data = self.post_class_edit_submit()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_class_draft_has_message(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        msg = UserMessageFactory(
+            view='EditClassView',
+            code='DRAFT_SUCCESS')
+        response, data = self.post_class_edit_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)

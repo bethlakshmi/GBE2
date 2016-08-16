@@ -1,16 +1,26 @@
-from django.http import Http404
-import gbe.models as conf
-import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 from django.test import Client
-from gbe.views import edit_act
-import mock
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    ActFactory,
+    PersonaFactory,
+    ProfileFactory,
+    UserFactory,
+    UserMessageFactory,
+)
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     login_as,
     location,
+    make_act_app_purchase,
+    post_act_conflict,
 )
+from gbetext import (
+    default_act_submit_msg,
+    default_act_draft_msg,
+    default_act_title_conflict,
+)
+from gbe.models import UserMessage
 
 
 class TestEditAct(TestCase):
@@ -18,70 +28,204 @@ class TestEditAct(TestCase):
 
     # this test case should be unnecessary, since edit_act should go away
     # for now, test it.
+    view_name = 'act_edit'
 
     def setUp(self):
-        self.factory = RequestFactory()
+        UserMessage.objects.all().delete()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
 
-    def get_act_form(self):
-        return {'teacher': 2,
-                'title': 'A act',
-                'description': 'a description',
-                'length_minutes': 60,
-                'maximum_enrollment': 20,
-                'fee': 0,
-                }
+    def get_act_form(self, act, submit=False, invalid=False):
+        form_dict = {'theact-performer': act.performer.pk,
+                     'theact-title': 'An act',
+                     'theact-description': 'a description',
+                     'theact-length_minutes': 60,
+                     'theact-shows_preferences': [0],
+                     'theact-act_duration': '1:00'
+                     }
+        if submit:
+            form_dict['submit'] = 1
+        if invalid:
+            del(form_dict['theact-title'])
+        return form_dict
 
-    @nt.raises(Http404)
+    def post_edit_paid_act_submission(self, act_form=None):
+        act = ActFactory()
+        if not act_form:
+            act_form = self.get_act_form(act, submit=True)
+
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(act.performer.performer_profile, self)
+        make_act_app_purchase(act.performer.performer_profile.user_object)
+        response = self.client.post(
+            url,
+            data=act_form,
+            follow=True)
+        return response
+
+    def post_title_collision(self):
+        original = ActFactory()
+        url = reverse(self.view_name,
+                      args=[original.pk],
+                      urlconf="gbe.urls")
+        make_act_app_purchase(original.performer.performer_profile.user_object)
+        return post_act_conflict(
+            original.conference,
+            original.performer,
+            self.get_act_form(original, submit=True),
+            url,
+            self)
+
+    def post_edit_paid_act_draft(self):
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(act.performer.contact, self)
+        response = self.client.post(url,
+                                    self.get_act_form(act),
+                                    follow=True)
+        return response
+
     def test_edit_act_no_act(self):
         '''Should get 404 if no valid act ID'''
-        profile = factories.ProfileFactory.create()
-        request = self.factory.get('/act/edit/-1')
-        request.user = profile.user_object
-        response = edit_act(request, -1)
+        profile = ProfileFactory()
+        url = reverse(self.view_name,
+                      args=[0],
+                      urlconf="gbe.urls")
+        login_as(profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
-    @nt.raises(Http404)
     def test_edit_act_profile_is_not_contact(self):
-        user = factories.ProfileFactory.create().user_object
-        act = factories.ActFactory.create()
-        request = self.factory.get('/act/edit/%d' % act.pk)
-        request.user = user
-        response = edit_act(request, act.pk)
+        user = ProfileFactory().user_object
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+
+        login_as(user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_act_user_has_no_profile(self):
+        user = UserFactory()
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(user, self)
+        response = self.client.get(url, follow=True)
+        self.assertTrue(('http://testserver/profile', 302)
+                        in response.redirect_chain)
 
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''
-        act = factories.ActFactory.create()
-        request = self.factory.get('/act/edit/%d' % act.pk)
-        request.user = act.performer.performer_profile.user_object
-        request.POST = {}
-        request.POST.update(self.get_act_form())
-        request.session = {'cms_admin_site':1}
-        del(request.POST['title'])
-        response = edit_act(request, act.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Act Proposal' in response.content)
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(act.performer.performer_profile, self)
+        response = self.client.post(
+            url,
+            self.get_act_form(act, invalid=True))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Act Proposal' in response.content)
 
-    def t_edit_bid_post_no_submit(self):
-        '''act_bid, not submitting and no other problems,
-        should redirect to home
-        have to solve the mocking problem to get submit paid'''
-        act = factories.ActFactory.create()
-        request = self.factory.get('/act/edit/%d' % act.pk)
-        request.user = act.performer.contact.user_object
-        request.method = 'POST'
-        request.POST = {}
-        request.POST.update(self.get_act_form())
-        response = edit_act(request, act.pk)
-        nt.assert_equal(response.status_code, 302)
-        nt.assert_equal(location(response), '/')
+    def test_act_edit_post_form_submit_unpaid(self):
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(act.performer.performer_profile, self)
+        response = self.client.post(
+            url,
+            data=self.get_act_form(act, submit=True))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Act Payment' in response.content)
+
+    def test_edit_bid_post_no_submit(self):
+        response = self.post_edit_paid_act_draft()
+        redirect_tuple = ('http://testserver/gbe', 302)
+        self.assertTrue(redirect_tuple in response.redirect_chain)
+        self.assertTrue('Profile View' in response.content)
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
-        act = factories.ActFactory.create()
-        request = self.factory.get('/act/edit/%d' % act.pk)
-        request.user = act.performer.contact.user_object
-        request.session = {'cms_admin_site':1}
-        response = edit_act(request, act.pk)
-        nt.assert_equal(response.status_code, 200)
-        nt.assert_true('Edit Your Act Proposal' in response.content)
+        act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+
+        login_as(act.performer.contact, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Your Act Proposal' in response.content)
+
+    def test_edit_act_submit_make_message(self):
+        response = self.post_edit_paid_act_submission()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', default_act_submit_msg)
+
+    def test_edit_act_draft_make_message(self):
+        response = self.post_edit_paid_act_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', default_act_draft_msg)
+
+    def test_edit_act_submit_has_message(self):
+        msg = UserMessageFactory(
+            view='EditActView',
+            code='SUBMIT_SUCCESS')
+        response = self.post_edit_paid_act_submission()
+        self.assertEqual(response.status_code, 200)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_edit_act_draft_has_message(self):
+        msg = UserMessageFactory(
+            view='EditActView',
+            code='DRAFT_SUCCESS')
+        response = self.post_edit_paid_act_draft()
+        self.assertEqual(200, response.status_code)
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)
+
+    def test_edit_act_title_collision(self):
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = default_act_title_conflict % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_edit_act_title_collision_w_msg(self):
+        message_string = "link: %s title: %s"
+        msg = UserMessageFactory(
+            view='EditActView',
+            code='ACT_TITLE_CONFLICT',
+            description=message_string)
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = message_string % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_edit_act_no_duration(self):
+        act = ActFactory()
+        act_form = self.get_act_form(act, submit=True)
+        del act_form['theact-act_duration']
+        response = self.post_edit_paid_act_submission(act_form)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")

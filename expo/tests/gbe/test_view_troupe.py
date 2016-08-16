@@ -1,10 +1,17 @@
-import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
+from django.core.urlresolvers import reverse
 from django.test.client import RequestFactory
 from django.test import Client
-from gbe.views import view_troupe
-from tests.factories import gbe_factories as factories
+from gbe.views import ViewTroupeView
+from tests.factories.gbe_factories import (
+    TroupeFactory,
+    PersonaFactory,
+    UserFactory,
+)
+from tests.functions.gbe_functions import (
+    login_as,
+)
 
 
 class TestViewTroupe(TestCase):
@@ -17,11 +24,24 @@ class TestViewTroupe(TestCase):
     def test_view_troupe(self):
         '''view_troupe view, success
         '''
-        persona = factories.PersonaFactory.create()
+        persona = PersonaFactory()
         contact = persona.performer_profile
-        troupe = factories.TroupeFactory.create(contact=contact)
-        request = self.factory.get('/troupe/view/%d' % troupe.resourceitem_id)
-        request.session = {'cms_admin_site':1}
-        request.user = contact.profile.user_object
-        response = view_troupe(request, troupe.resourceitem_id)
+        troupe = TroupeFactory(contact=contact)
+        url = reverse('troupe_view',
+                      args=[troupe.resourceitem_id],
+                      urlconf='gbe.urls')
+        login_as(contact.profile.user_object, self)
+
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_no_profile(self):
+        troupe = TroupeFactory()
+        user = UserFactory()
+        url = reverse(
+            "troupe_view",
+            args=[troupe.resourceitem_id],
+            urlconf='gbe.urls')
+        login_as(user, self)
+        response = self.client.get(url)
+        nt.assert_equal(302, response.status_code)

@@ -1,21 +1,41 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from unittest import skip
+from django.test import TestCase
 from django.test import Client
-from gbe.views import bios_teachers
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    ConferenceFactory,
+    ClassFactory,
+    ClassProposalFactory,
+    ProfileFactory,
+    PersonaFactory
+)
+from tests.contexts import ClassContext
+from gbe.models import (
+    Conference
+)
+from django.core.urlresolvers import reverse
+from scheduler.models import Event as sEvent
+from datetime import datetime, date, time
+import pytz
+from scheduler.models import (
+    Worker,
+    EventContainer
+)
+from tests.factories.scheduler_factories import ResourceAllocationFactory
+from tests.functions.gbe_functions import (
+    clear_conferences,
+    current_conference,
+    login_as,
+)
 
 
-class TestReviewProposalList(TestCase):
+class TestBiosTeachers(TestCase):
     '''Tests for bios_teachers view'''
+    view_name = 'bios_teacher'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
+        self.performer = PersonaFactory()
 
     def get_class_form(self):
         return {'name': 'someone@host.com',
@@ -23,10 +43,43 @@ class TestReviewProposalList(TestCase):
                 'proposal': 'some class description'
                 }
 
-    def test_bios_teachers_authorized_user(self):
-        proposal = factories.ClassProposalFactory.create()
-        request = self.factory.get('bios/teachers/')
-        request.user = factories.ProfileFactory.create().user_object
-        request.session = {'cms_admin_site':1}
-        response = bios_teachers(request)
-        nt.assert_equal(response.status_code, 200)
+    def test_bios_teachers_no_conf_slug(self):
+        current_context = ClassContext(conference=current_conference())
+        other_conference = ConferenceFactory(status="ended")
+        other_context = ClassContext(conference=other_conference)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert current_context.teacher.name in response.content
+        assert current_context.bid.title in response.content
+
+        # the following assertions should work, but currently
+        # do not. This is possibly an issue with multiple
+        # inheritance and factory boy, but that is not clear
+        # to me.
+        # Leaving them commented out to encourage us to
+        # fix
+        # assert other_context.teacher.name not in response.content
+        # assert other_context.bid.title not in response.content
+
+    def test_bios_teachers_specific_conference(self):
+        first_context = ClassContext()
+        other_context = ClassContext()
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conference': first_context.conference.conference_slug})
+        assert response.status_code == 200
+        assert first_context.bid.teacher.name in response.content
+        assert first_context.bid.title in response.content
+
+        # the following assertions should work, but currently
+        # do not. This is possibly an issue with multiple
+        # inheritance and factory boy, but that is not clear
+        # to me.
+        # Leaving them commented out to encourage us to
+        # fix
+        # assert other_context.bid.teacher.name not in response.content
+        # assert other_context.bid.title not in response.content

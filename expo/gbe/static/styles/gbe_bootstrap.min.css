@@ -3251,6 +3251,16 @@ input[type="submit"].btn-block,input[type="reset"].btn-block,input[type="button"
 	background-clip:padding-box
 }
 
+.dropdown-menu > li.dropdown > ul.dropdown-menu{
+	left: 98%;
+	top: 0px
+}
+
+.navbar > li.dropdown > .dropdown-menu{
+	top:100%;
+	left:0;
+}
+
 .dropdown-menu.pull-right{
 	right:0;
 	left:auto

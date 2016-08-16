@@ -20,8 +20,9 @@ class TicketItemForm(forms.ModelForm):
     error_css_class = 'error'
 
     bpt_event = forms.ModelChoiceField(
-                            queryset = BrownPaperEvents.objects.all(),
+                            queryset=BrownPaperEvents.objects.all(),
                             empty_label=None)
+
     class Meta:
         model = TicketItem
         fields = ['ticket_id',
@@ -55,13 +56,14 @@ class BPTEventForm(forms.ModelForm):
     error_css_class = 'error'
     shows = Show.objects.all()
     genericevents = GenericEvent.objects.exclude(type="Volunteer")
-    event_set = Event.objects.filter(Q(show__in=shows) |
-                                     Q(genericevent__in=genericevents)) \
-                             .exclude(conference__status="completed")
-    linked_events = forms.ModelMultipleChoiceField \
-                               (queryset=event_set,
-                                required=False,
-                                label=bpt_event_labels['linked_events'])
+    event_set = Event.objects.filter(
+        Q(show__in=shows) |
+        Q(genericevent__in=genericevents)).exclude(
+        conference__status="completed")
+    linked_events = forms.ModelMultipleChoiceField(
+        queryset=event_set,
+        required=False,
+        label=bpt_event_labels['linked_events'])
 
     class Meta:
         model = BrownPaperEvents

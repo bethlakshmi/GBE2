@@ -102,5 +102,21 @@
         "name": "Tech Crew", 
         "permissions": []
     }
-}
+},
+{
+    "pk": 14, 
+    "model": "auth.group", 
+    "fields": {
+        "name": "Costume Coordinator", 
+        "permissions": []
+    }
+},
+{
+    "pk": 15, 
+    "model": "auth.group", 
+    "fields": {
+        "name": "Costume Reviewers", 
+        "permissions": []
+    }
+},
 ]

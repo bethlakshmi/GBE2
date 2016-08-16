@@ -1,49 +1,126 @@
-import gbe.models as conf
-import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
+from django.test import Client
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
-from gbe.views import register_persona
-from tests.factories import gbe_factories as factories
+from tests.factories.gbe_factories import (
+    UserFactory,
+    UserMessageFactory,
+    ProfileFactory,
+)
+from tests.functions.gbe_functions import (
+    assert_alert_exists,
+    location,
+    login_as,
+)
+from gbetext import default_create_persona_msg
+from gbe.models import UserMessage
 
 
 class TestRegisterPersona(TestCase):
     '''Tests for index view'''
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user_factory = factories.UserFactory
+    view_name = 'persona_create'
 
-    def test_register_persona(self):
-        '''register_persona view should load and return:
-        302 if user but no profile
-        200 if profile but no form
-        302 if profile and valid form - need to write this
-        '''
-        request = self.factory.get('/')
-        request.session = {'cms_admin_site': 1}
-        user = factories.UserFactory.create()
-        request.user = user
-        response = register_persona(request)
+    def setUp(self):
+        UserMessage.objects.all().delete()
+        self.factory = RequestFactory()
+        self.client = Client()
+        self.profile = ProfileFactory()
+
+    def submit_persona(self):
+        login_as(self.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.get(url)
+
+        persona_count = self.profile.personae.count()
+        response = self.client.post(
+            url,
+            data={'performer_profile': self.profile.pk,
+                  'contact': self.profile.pk,
+                  'name': 'persona for %s' % self.profile.display_name,
+                  'homepage': 'foo.bar.com/~quux',
+                  'bio': 'bio bio bio',
+                  'experience': 3,
+                  'awards': 'Generic string here'
+                  },
+            follow=True)
+        return response, persona_count
+
+    def test_register_persona_no_profile(self):
+        login_as(UserFactory(), self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
-        profile = factories.ProfileFactory.create()
-        request.user = profile.user_object
-        request.method = 'POST'
-        response = register_persona(request)
+
+    def test_register_persona_profile(self):
+        login_as(self.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_register_persona_friendly_urls(self):
-        profile = factories.ProfileFactory.create()
-        request = self.factory.post(
-            reverse('persona_create', urlconf='gbe.urls'),
-            data={'performer_profile': profile.pk,
-                  'contact': profile.pk,
-                  'name': 'persona name',
+        response, persona_count = self.submit_persona()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(1, self.profile.personae.count()-persona_count)
+
+    def test_register_persona_invalid_post(self):
+        login_as(self.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.get(url)
+
+        persona_count = self.profile.personae.count()
+        response = self.client.post(
+            url,
+            data={'performer_profile': self.profile.pk,
+                  'contact': self.profile.pk,
+                  'name': '',
                   'homepage': 'foo.bar.com/~quux',
                   'bio': 'bio bio bio',
                   'experience': 3,
                   'awards': 'Generic string here'
                   })
-        request.session = {'cms_admin_site': 1}
-        request.user = profile.user_object
-        response = register_persona(request)
-        nt.assert_equal(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        assert "This field is required." in response.content
+
+    def test_redirect(self):
+        login_as(self.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.post(
+            url + '?next=/troupe/create',
+            data={'performer_profile': self.profile.pk,
+                  'contact': self.profile.pk,
+                  'name': 'persona name',
+                  'homepage': 'foo.bar.com/~quux',
+                  'bio': 'bio bio bio',
+                  'experience': 3,
+                  'awards': 'Generic string here',
+                  },
+            follow=True)
+        assert response.status_code == 200
+        redirect = ('http://testserver/troupe/create', 302)
+        assert redirect in response.redirect_chain
+        assert "Tell Us About Your Troupe" in response.content
+        self.assertNotIn('<div class="alert alert-success">', response.content)
+
+    def test_get(self):
+        login_as(self.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+
+        response = self.client.get(
+            reverse('persona_create', urlconf='gbe.urls'),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Tell Us About Your Stage Persona" in response.content)
+
+    def test_create_persona_make_message(self):
+        response, persona_count = self.submit_persona()
+        assert_alert_exists(
+            response, 'success', 'Success', default_create_persona_msg)
+
+    def test_create_persona_has_message(self):
+        msg = UserMessageFactory(
+            view='RegisterPersonaView',
+            code='CREATE_PERSONA')
+        response, persona_count = self.submit_persona()
+        assert_alert_exists(
+            response, 'success', 'Success', msg.description)

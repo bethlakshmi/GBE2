@@ -42,9 +42,16 @@ class TicketItemAdmin(admin.ModelAdmin):
                     'active',
                     'cost',
                     'datestamp',
-                    'modified_by')
-    list_filter = ['active', 'datestamp', 'modified_by', 'bpt_event']
+                    'modified_by',
+                    'conference')
+    list_filter = ['active',
+                   'datestamp',
+                   'modified_by',
+                   'bpt_event']
     search_fields = ['title']
+
+    def conference(self, obj):
+            return obj.bpt_event.conference
 
 
 class BPTEventsAdmin(admin.ModelAdmin):
@@ -63,8 +70,44 @@ class BPTEventsAdmin(admin.ModelAdmin):
                    'badgeable',
                    'conference']
 
+
+class TicketingExclusionInline(admin.TabularInline):
+    model = TicketingExclusion
+    filter_horizontal = ("tickets",)
+
+
+class RoleExclusionInline(admin.TabularInline):
+    model = RoleExclusion
+
+
+class EligibilityConditionAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__',
+                    'checklistitem')
+    list_filter = ['checklistitem']
+    inlines = [
+        TicketingExclusionInline,
+        RoleExclusionInline
+    ]
+
+
+class TicketEligibilityConditionAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tickets",)
+    list_display = ('__unicode__',
+                    'checklistitem')
+    list_filter = ['checklistitem']
+    inlines = [
+        TicketingExclusionInline,
+        RoleExclusionInline
+    ]
+
+
 admin.site.register(BrownPaperSettings)
 admin.site.register(BrownPaperEvents, BPTEventsAdmin)
 admin.site.register(TicketItem, TicketItemAdmin)
 admin.site.register(Purchaser, PurchaserAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(TicketingEligibilityCondition,
+                    TicketEligibilityConditionAdmin)
+admin.site.register(RoleEligibilityCondition,
+                    EligibilityConditionAdmin)
+admin.site.register(CheckListItem)

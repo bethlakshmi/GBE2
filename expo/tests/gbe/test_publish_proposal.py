@@ -1,26 +1,27 @@
-from django.shortcuts import get_object_or_404
-from django.http import Http404
-import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
-from django.test.client import RequestFactory
+from django.test import TestCase
 from django.test import Client
-from gbe.views import publish_proposal
-from django.contrib.auth.models import Group
-from tests.factories import gbe_factories as factories
-from tests.functions.gbe_functions import login_as
+from django.core.urlresolvers import reverse
+from tests.factories.gbe_factories import (
+    ClassProposalFactory,
+    PersonaFactory,
+    ProfileFactory,
+)
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 
 class TestPublishProposal(TestCase):
     '''Tests for publish_proposal view'''
+    view_name = 'proposal_publish'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
-        self.performer = factories.PersonaFactory.create()
-        group, nil = Group.objects.get_or_create(name='Class Coordinator')
-        self.privileged_user = factories.ProfileFactory.create().user_object
-        self.privileged_user.groups.add(group)
+        self.performer = PersonaFactory()
+        self.privileged_user = ProfileFactory().user_object
+        grant_privilege(self.privileged_user, 'Class Coordinator')
 
     def get_class_form(self):
         return {'name': 'someone@host.com',
@@ -29,28 +30,23 @@ class TestPublishProposal(TestCase):
                 }
 
     def test_publish_proposal_not_post(self):
-        proposal = factories.ClassProposalFactory.create()
-        request = self.factory.get('classpropose/edit/%d' % proposal.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site':1}
-        response = publish_proposal(request, proposal.pk)
+        proposal = ClassProposalFactory()
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[proposal.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
 
-    def test_publish_proposal_post_invalid_form(self):
-        proposal = factories.ClassProposalFactory.create()
-        request = self.factory.get('classpropose/edit/%d' % proposal.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site':1}
-        request.method = "POST"
-        response = publish_proposal(request,  proposal.pk)
+    def test_publish_proposal_post_no_form(self):
+        proposal = ClassProposalFactory()
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[proposal.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.post(url)
         nt.assert_equal(response.status_code, 200)
 
     def test_publish_proposal_post_valid_form(self):
-        proposal = factories.ClassProposalFactory.create()
-        request = self.factory.get('classpropose/edit/%d' % proposal.pk)
-        request.user = self.privileged_user
-        request.session = {'cms_admin_site':1}
-        request.method = "POST"
-        request.POST = self.get_class_form()
-        response = publish_proposal(request, proposal.pk)
+        proposal = ClassProposalFactory()
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[proposal.pk])
+        login_as(self.privileged_user, self)
+        data = self.get_class_form()
+        response = self.client.post(url, data=data)
         nt.assert_equal(response.status_code, 200)

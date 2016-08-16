@@ -35,7 +35,8 @@ class EventContainerAdmin(admin.ModelAdmin):
 
 class WorkerAdmin(admin.ModelAdmin):
     list_display = ('_item','role')
-    list_filter = ['_item','role']
+    list_filter = ['role', '_item']
+
 
 admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)
