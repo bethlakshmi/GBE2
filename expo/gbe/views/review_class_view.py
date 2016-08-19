@@ -46,6 +46,46 @@ class ReviewClassView(View):
         else:
                 self.actionform = False
                 self.actionURL = False
+        try:
+            self.bid_eval = BidEvaluation.objects.filter(
+                bid_id=self.object.id,
+                evaluator_id=self.reviewer.resourceitem_id)[0]
+        except:
+            self.bid_eval = BidEvaluation(evaluator=self.reviewer,
+                                     bid=self.object)
+        self.conference, self.old_bid = get_conf(self.object)
+        self.classform = ClassBidForm(instance=self.object, prefix='The Class')
+        self.teacher = PersonaForm(instance=self.object.teacher,
+                                   prefix='The Teacher(s)')
+        self.contact = ParticipantForm(
+            instance=self.object.teacher.performer_profile,
+            prefix='Teacher Contact Info',
+            initial={
+                'email': self.object.teacher.performer_profile.user_object.email,
+                'first_name':
+                    self.object.teacher.performer_profile.user_object.first_name,
+                'last_name':
+                    self.object.teacher.performer_profile.user_object.last_name})
+        self.form = BidEvaluationForm(instance=self.bid_eval)
+
+
+    def bid_review_response(self, request):
+        return render(request,
+                      'gbe/bid_review.tmpl',
+                      {'readonlyform': [self.classform, self.teacher, self.contact],
+                       'reviewer': self.reviewer,
+                       'form': self.form,
+                       'actionform': self.actionform,
+                       'actionURL': self.actionURL,
+                       'conference': self.conference,
+                       'old_bid': self.old_bid,
+                       })
+
+    def process_form(self):
+        evaluation = self.form.save(commit=False)
+        evaluation.evaluator = self.reviewer
+        evaluation.bid = self.object
+        evaluation.save()
 
 
     def get(self, request, *args, **kwargs):
@@ -58,42 +98,8 @@ class ReviewClassView(View):
         if not self.object.is_current:
             return HttpResponseRedirect(
                 reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
-        conference, old_bid = get_conf(self.object)
-        classform = ClassBidForm(instance=self.object, prefix='The Class')
-        teacher = PersonaForm(instance=self.object.teacher,
-                              prefix='The Teacher(s)')
-        contact = ParticipantForm(
-            instance=self.object.teacher.performer_profile,
-            prefix='Teacher Contact Info',
-            initial={
-                'email': self.object.teacher.performer_profile.user_object.email,
-                'first_name':
-                    self.object.teacher.performer_profile.user_object.first_name,
-                'last_name':
-                    self.object.teacher.performer_profile.user_object.last_name})
 
-        '''
-        if user has previously reviewed the class, provide their review for update
-        '''
-        try:
-            bid_eval = BidEvaluation.objects.filter(
-                bid_id=self.object.id,
-                evaluator_id=self.reviewer.resourceitem_id)[0]
-        except:
-            bid_eval = BidEvaluation(evaluator=self.reviewer,
-                                     bid=self.object)
-
-        form = BidEvaluationForm(instance=bid_eval)
-        return render(request,
-                      'gbe/bid_review.tmpl',
-                      {'readonlyform': [classform, teacher, contact],
-                       'reviewer': self.reviewer,
-                       'form': form,
-                       'actionform': self.actionform,
-                       'actionURL': self.actionURL,
-                       'conference': conference,
-                       'old_bid': old_bid,
-                       })
+        return self.bid_review_response(request)
 
 
     def post(self, request, *args, **kwargs):
@@ -101,50 +107,10 @@ class ReviewClassView(View):
         if not self.object.is_current:
             return HttpResponseRedirect(
                 reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
-        conference, old_bid = get_conf(self.object)
-        classform = ClassBidForm(instance=self.object, prefix='The Class')
-        teacher = PersonaForm(instance=self.object.teacher,
-                              prefix='The Teacher(s)')
-        contact = ParticipantForm(
-            instance=self.object.teacher.performer_profile,
-            prefix='Teacher Contact Info',
-            initial={
-                'email': self.object.teacher.performer_profile.user_object.email,
-                'first_name':
-                    self.object.teacher.performer_profile.user_object.first_name,
-                'last_name':
-                    self.object.teacher.performer_profile.user_object.last_name})
 
-        '''
-        if user has previously reviewed the class, provide their review for update
-        '''
-        try:
-            bid_eval = BidEvaluation.objects.filter(
-                bid_id=self.object.id,
-                evaluator_id=self.reviewer.resourceitem_id)[0]
-        except:
-            bid_eval = BidEvaluation(evaluator=self.reviewer,
-                                     bid=self.object)
-
-    # show class info and inputs for review
-
-        form = BidEvaluationForm(request.POST,
-                                 instance=bid_eval)
-        if form.is_valid():
-            evaluation = form.save(commit=False)
-            evaluation.evaluator = self.reviewer
-            evaluation.bid = self.object
-            evaluation.save()
+        if self.form.is_valid():
+            self.process_form()
             return HttpResponseRedirect(reverse('class_review_list',
                                                 urlconf='gbe.urls'))
         else:
-            return render(request,
-                          'gbe/bid_review.tmpl',
-                          {'readonlyform': [classform, teacher, contact],
-                           'reviewer': self.reviewer,
-                           'form': form,
-                           'actionform': self.actionform,
-                           'actionURL': self.actionURL,
-                           'conference': conference,
-                           'old_bid': old_bid,
-                           })
+            return self.bid_review_response(request)
