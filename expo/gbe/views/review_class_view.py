@@ -1,3 +1,5 @@
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     render,
@@ -24,64 +26,122 @@ from gbe.functions import (
 )
 
 
-@login_required
-@log_func
-def ReviewClassView(request, class_id):
-    '''
-    Show a bid  which needs to be reviewed by the current user.
-    To show: display all information about the bid, and a standard
-    review form.
-    If user is not a reviewer, politely decline to show anything.
-    '''
-    reviewer = validate_perms(request, ('Class Reviewers',))
-    aclass = get_object_or_404(
-        Class,
-        id=class_id,
-    )
-    if not aclass.is_current:
-        return HttpResponseRedirect(
-            reverse('class_view', urlconf='gbe.urls', args=[class_id]))
-    conference, old_bid = get_conf(aclass)
-    classform = ClassBidForm(instance=aclass, prefix='The Class')
-    teacher = PersonaForm(instance=aclass.teacher,
-                          prefix='The Teacher(s)')
-    contact = ParticipantForm(
-        instance=aclass.teacher.performer_profile,
-        prefix='Teacher Contact Info',
-        initial={
-            'email': aclass.teacher.performer_profile.user_object.email,
-            'first_name':
-                aclass.teacher.performer_profile.user_object.first_name,
-            'last_name':
-                aclass.teacher.performer_profile.user_object.last_name})
+class ReviewClassView(View):
 
-    if validate_perms(request, ('Class Coordinator',), require=False):
-        actionform = BidStateChangeForm(instance=aclass)
-        actionURL = reverse('class_changestate',
-                            urlconf='gbe.urls',
-                            args=[aclass.id])
-    else:
-            actionform = False
-            actionURL = False
-    '''
-    if user has previously reviewed the class, provide their review for update
-    '''
-    try:
-        bid_eval = BidEvaluation.objects.filter(
-            bid_id=class_id,
-            evaluator_id=reviewer.resourceitem_id)[0]
-    except:
-        bid_eval = BidEvaluation(evaluator=reviewer,
-                                 bid=aclass)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        class_id = kwargs['class_id']
+        self.object = self.get_object(class_id)
+
+        return super(ReviewClassView, self).dispatch(*args, **kwargs)
+
+    def get_object(self, id):
+        object = get_object_or_404(Class,id=id)
+        return object
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Show a bid  which needs to be reviewed by the current user.
+        To show: display all information about the bid, and a standard
+        review form.
+        If user is not a reviewer, politely decline to show anything.
+        '''
+        reviewer = validate_perms(request, ('Class Reviewers',))
+        if not self.object.is_current:
+            return HttpResponseRedirect(
+                reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
+        conference, old_bid = get_conf(self.object)
+        classform = ClassBidForm(instance=self.object, prefix='The Class')
+        teacher = PersonaForm(instance=self.object.teacher,
+                              prefix='The Teacher(s)')
+        contact = ParticipantForm(
+            instance=self.object.teacher.performer_profile,
+            prefix='Teacher Contact Info',
+            initial={
+                'email': self.object.teacher.performer_profile.user_object.email,
+                'first_name':
+                    self.object.teacher.performer_profile.user_object.first_name,
+                'last_name':
+                    self.object.teacher.performer_profile.user_object.last_name})
+
+        if validate_perms(request, ('Class Coordinator',), require=False):
+            actionform = BidStateChangeForm(instance=self.object)
+            actionURL = reverse('class_changestate',
+                                urlconf='gbe.urls',
+                                args=[self.object.id])
+        else:
+                actionform = False
+                actionURL = False
+        '''
+        if user has previously reviewed the class, provide their review for update
+        '''
+        try:
+            bid_eval = BidEvaluation.objects.filter(
+                bid_id=self.object.id,
+                evaluator_id=reviewer.resourceitem_id)[0]
+        except:
+            bid_eval = BidEvaluation(evaluator=reviewer,
+                                     bid=self.object)
+
+        form = BidEvaluationForm(instance=bid_eval)
+        return render(request,
+                      'gbe/bid_review.tmpl',
+                      {'readonlyform': [classform, teacher, contact],
+                       'reviewer': reviewer,
+                       'form': form,
+                       'actionform': actionform,
+                       'actionURL': actionURL,
+                       'conference': conference,
+                       'old_bid': old_bid,
+                       })
+
+
+    def post(self, request, *args, **kwargs):
+        reviewer = validate_perms(request, ('Class Reviewers',))
+        if not self.object.is_current:
+            return HttpResponseRedirect(
+                reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
+        conference, old_bid = get_conf(self.object)
+        classform = ClassBidForm(instance=self.object, prefix='The Class')
+        teacher = PersonaForm(instance=self.object.teacher,
+                              prefix='The Teacher(s)')
+        contact = ParticipantForm(
+            instance=self.object.teacher.performer_profile,
+            prefix='Teacher Contact Info',
+            initial={
+                'email': self.object.teacher.performer_profile.user_object.email,
+                'first_name':
+                    self.object.teacher.performer_profile.user_object.first_name,
+                'last_name':
+                    self.object.teacher.performer_profile.user_object.last_name})
+
+        if validate_perms(request, ('Class Coordinator',), require=False):
+            actionform = BidStateChangeForm(instance=self.object)
+            actionURL = reverse('class_changestate',
+                                urlconf='gbe.urls',
+                                args=[self.object.id])
+        else:
+                actionform = False
+                actionURL = False
+        '''
+        if user has previously reviewed the class, provide their review for update
+        '''
+        try:
+            bid_eval = BidEvaluation.objects.filter(
+                bid_id=self.object.id,
+                evaluator_id=reviewer.resourceitem_id)[0]
+        except:
+            bid_eval = BidEvaluation(evaluator=reviewer,
+                                     bid=self.object)
 
     # show class info and inputs for review
-    if request.method == 'POST':
+
         form = BidEvaluationForm(request.POST,
                                  instance=bid_eval)
         if form.is_valid():
             evaluation = form.save(commit=False)
             evaluation.evaluator = reviewer
-            evaluation.bid = aclass
+            evaluation.bid = self.object
             evaluation.save()
             return HttpResponseRedirect(reverse('class_review_list',
                                                 urlconf='gbe.urls'))
@@ -96,15 +156,3 @@ def ReviewClassView(request, class_id):
                            'conference': conference,
                            'old_bid': old_bid,
                            })
-    else:
-        form = BidEvaluationForm(instance=bid_eval)
-        return render(request,
-                      'gbe/bid_review.tmpl',
-                      {'readonlyform': [classform, teacher, contact],
-                       'reviewer': reviewer,
-                       'form': form,
-                       'actionform': actionform,
-                       'actionURL': actionURL,
-                       'conference': conference,
-                       'old_bid': old_bid,
-                       })
