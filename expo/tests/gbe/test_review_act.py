@@ -119,26 +119,3 @@ class TestReviewAct(TestCase):
         error_string = "There is an error on the form"
         self.assertTrue(expected_string in response.content)
         self.assertFalse(error_string in response.content)
-
-    def test_review_act_act_post_invalid_form(self):
-        clear_conferences()
-        conference = ConferenceFactory(accepting_bids=True,
-                                       status='upcoming')
-        # conference = current_conference()
-        act = ActFactory(accepted=1,
-                         conference=conference)
-        profile = ProfileFactory()
-        user = profile.user_object
-        grant_privilege(user, 'Act Reviewers')
-        login_as(user, self)
-        url = reverse('act_review',
-                      urlconf='gbe.urls',
-                      args=[act.pk])
-        response = self.client.post(url,
-                                    {'vote': 3,
-                                     'notes': "blah blah",
-                                     'bid': act.pk},
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        expected_string = "There is an error on the form."
-        self.assertTrue(expected_string in response.content)
