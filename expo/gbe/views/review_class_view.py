@@ -46,13 +46,12 @@ class ReviewClassView(View):
         else:
                 self.actionform = False
                 self.actionURL = False
-        try:
-            self.bid_eval = BidEvaluation.objects.filter(
-                bid_id=self.object.id,
-                evaluator_id=self.reviewer.resourceitem_id)[0]
-        except:
+        self.bid_eval = BidEvaluation.objects.filter(
+            bid_id=self.object.id,
+            evaluator_id=self.reviewer.resourceitem_id).first()
+        if self.bid_eval is None:
             self.bid_eval = BidEvaluation(evaluator=self.reviewer,
-                                     bid=self.object)
+                                          bid=self.object)
         self.conference, self.old_bid = get_conf(self.object)
         self.classform = ClassBidForm(instance=self.object, prefix='The Class')
         self.teacher = PersonaForm(instance=self.object.teacher,
