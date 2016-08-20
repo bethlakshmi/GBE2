@@ -38,147 +38,74 @@ class ReviewActView(View):
         return super(ReviewActView, self).dispatch(*args, **kwargs)
 
 
-    def get(self, request, *args, **kwargs):
-        reviewer = validate_perms(request, ('Act Reviewers', ))
-
-        act_id = kwargs['act_id']
-        act = get_object_or_404(Act,
-                                id=act_id)
-        if not act.is_current:
-            return HttpResponseRedirect(
-                reverse('act_view', urlconf='gbe.urls', args=[act_id]))
-        conference, old_bid = get_conf(act)
-        audio_info = act.tech.audio
-        stage_info = act.tech.stage
-        actform = ActEditForm(instance=act,
+    def groundwork(self, request, args, kwargs):
+        self.act_id = kwargs['act_id']
+        self.act = get_object_or_404(Act,
+                                     id=self.act_id)
+        self.reviewer = validate_perms(request, ('Act Reviewers', ))
+        self.conference, self.old_bid = get_conf(self.act)
+        self.audio_info = self.act.tech.audio
+        self.stage_info = self.act.tech.stage
+        self.actform = ActEditForm(instance=self.act,
                               prefix='The Act',
                               initial={
-                                  'track_title': audio_info.track_title,
-                                  'track_artist': audio_info.track_artist,
-                                  'track_duration': audio_info.track_duration,
-                                  'act_duration': stage_info.act_duration
+                                  'track_title': self.audio_info.track_title,
+                                  'track_artist': self.audio_info.track_artist,
+                                  'track_duration': self.audio_info.track_duration,
+                                  'act_duration': self.stage_info.act_duration
                               })
-        performer = PersonaForm(instance=act.performer,
-                                prefix='The Performer(s)')
-
+        self.bid_eval = BidEvaluation.objects.filter(
+            bid_id=self.act_id,
+            evaluator_id=self.reviewer.resourceitem_id).first()
+        if self.bid_eval is None:
+            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.act)
         if validate_perms(request, ('Act Coordinator',), require=False):
-            actionform, actionURL = _create_action_form(act)
+            self.actionform, self.actionURL = _create_action_form(self.act)
         else:
-                actionform = False
-                actionURL = False
+            self.actionform = False
+            self.actionURL = False
+        self.performer = PersonaForm(instance=self.act.performer,
+                                     prefix='The Performer(s)')
 
-        '''
-        if user has previously reviewed the act, provide their review for update
-        '''
-        bid_eval = BidEvaluation.objects.filter(
-            bid_id=act_id,
-            evaluator_id=reviewer.resourceitem_id).first()
-        if bid_eval is None:
-            bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
+    def bid_review_response(self, request, form):
+        return render(request,
+                      'gbe/bid_review.tmpl',
+                      {'readonlyform': [self.actform, self.performer],
+                       'reviewer': self.reviewer,
+                       'form': form,
+                       'actionform': self.actionform,
+                       'actionURL': self.actionURL,
+                       'conference': self.conference,
+                       'old_bid': self.old_bid,
+                       })
 
-        # show act info and inputs for review
-        if request.method == 'POST':
-            form = BidEvaluationForm(request.POST, instance=bid_eval)
-            if form.is_valid():
-                evaluation = form.save(commit=False)
-                evaluation.evaluator = reviewer
-                evaluation.bid = act
-                evaluation.save()
-                return HttpResponseRedirect(reverse('act_review_list',
-                                                    urlconf='gbe.urls'))
-            else:
-                return render(request, 'gbe/bid_review.tmpl',
-                              {'readonlyform': [actform, performer],
-                               'reviewer': reviewer,
-                               'form': form,
-                               'actionform': actionform,
-                               'actionURL': actionURL,
-                               'conference': conference,
-                               'old_bid': old_bid,
-                               })
-        else:
-            form = BidEvaluationForm(instance=bid_eval)
-            return render(request,
-                          'gbe/bid_review.tmpl',
-                          {'readonlyform': [actform, performer],
-                           'reviewer': reviewer,
-                           'form': form,
-                           'actionform': actionform,
-                           'actionURL': actionURL,
-                           'conference': conference,
-                           'old_bid': old_bid,
-                           })
+
+    def get(self, request, *args, **kwargs):
+        self.groundwork(request, args, kwargs)
+        if not self.act.is_current:
+            return HttpResponseRedirect(
+                reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
+
+
+        form = BidEvaluationForm(instance=self.bid_eval)
+        return self.bid_review_response(request, form)
 
     def post(self, request, *args, **kwargs):
-        act_id = kwargs['act_id']
-        reviewer = validate_perms(request, ('Act Reviewers', ))
-        act = get_object_or_404(Act,
-                                id=act_id)
-        if not act.is_current:
+        self.groundwork(request, args, kwargs)
+        if not self.act.is_current:
             return HttpResponseRedirect(
-                reverse('act_view', urlconf='gbe.urls', args=[act_id]))
-        conference, old_bid = get_conf(act)
-        audio_info = act.tech.audio
-        stage_info = act.tech.stage
-        actform = ActEditForm(instance=act,
-                              prefix='The Act',
-                              initial={
-                                  'track_title': audio_info.track_title,
-                                  'track_artist': audio_info.track_artist,
-                                  'track_duration': audio_info.track_duration,
-                                  'act_duration': stage_info.act_duration
-                              })
-        performer = PersonaForm(instance=act.performer,
-                                prefix='The Performer(s)')
+                reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
 
-        if validate_perms(request, ('Act Coordinator',), require=False):
-            actionform, actionURL = _create_action_form(act)
+        form = BidEvaluationForm(request.POST, instance=self.bid_eval)
+        if form.is_valid():
+            evaluation = form.save(commit=False)
+            evaluation.evaluator = self.reviewer
+            evaluation.bid = self.act
+            evaluation.save()
+            return HttpResponseRedirect(reverse('act_review_list',
+                                                urlconf='gbe.urls'))
         else:
-                actionform = False
-                actionURL = False
-
-        '''
-        if user has previously reviewed the act, provide their review for update
-        '''
-        bid_eval = BidEvaluation.objects.filter(
-            bid_id=act_id,
-            evaluator_id=reviewer.resourceitem_id).first()
-        if bid_eval is None:
-            bid_eval = BidEvaluation(evaluator=reviewer, bid=act)
-
-        # show act info and inputs for review
-        if request.method == 'POST':
-            form = BidEvaluationForm(request.POST, instance=bid_eval)
-            if form.is_valid():
-                evaluation = form.save(commit=False)
-                evaluation.evaluator = reviewer
-                evaluation.bid = act
-                evaluation.save()
-                return HttpResponseRedirect(reverse('act_review_list',
-                                                    urlconf='gbe.urls'))
-            else:
-                return render(request, 'gbe/bid_review.tmpl',
-                              {'readonlyform': [actform, performer],
-                               'reviewer': reviewer,
-                               'form': form,
-                               'actionform': actionform,
-                               'actionURL': actionURL,
-                               'conference': conference,
-                               'old_bid': old_bid,
-                               })
-        else:
-            form = BidEvaluationForm(instance=bid_eval)
-            return render(request,
-                          'gbe/bid_review.tmpl',
-                          {'readonlyform': [actform, performer],
-                           'reviewer': reviewer,
-                           'form': form,
-                           'actionform': actionform,
-                           'actionURL': actionURL,
-                           'conference': conference,
-                           'old_bid': old_bid,
-                           })
-
+            return self.bid_review_response(request, form)
 
 def _create_action_form(act):
     actionform = BidStateChangeForm(instance=act)
