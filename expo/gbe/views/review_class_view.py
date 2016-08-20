@@ -41,12 +41,6 @@ class ReviewClassView(ReviewBidView):
         return super(ReviewClassView, self).dispatch(*args, **kwargs)
 
 
-    def create_action_form(self, object):
-        self.actionform = BidStateChangeForm(instance=self.object)
-        self.actionURL = reverse('class_changestate',
-                                 urlconf='gbe.urls',
-                                 args=[self.object.id])
-
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
         self.create_object_form()
