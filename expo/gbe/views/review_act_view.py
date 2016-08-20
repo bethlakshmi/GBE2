@@ -33,6 +33,13 @@ class ReviewActView(View):
     To show: display all information about the bid, and a standard
     review form.
     '''
+    reviewer_permissions = ('Act Reviewers', )
+    coordinator_permissions = ('Act Coordinator',)
+    bid_prefix = "The Act"
+    bidder_prefix = "The Performer(s)"
+    bidder_form_type = PersonaForm
+    bid_form_type = ActEditForm
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ReviewActView, self).dispatch(*args, **kwargs)
@@ -42,30 +49,31 @@ class ReviewActView(View):
         self.act_id = kwargs['act_id']
         self.act = get_object_or_404(Act,
                                      id=self.act_id)
-        self.reviewer = validate_perms(request, ('Act Reviewers', ))
+        self.reviewer = validate_perms(request, self.reviewer_permissions)
+        self.performer = self.bidder_form_type(instance=self.act.performer,
+                                     prefix=self.bidder_prefix)
+
         self.conference, self.old_bid = get_conf(self.act)
-        self.audio_info = self.act.tech.audio
-        self.stage_info = self.act.tech.stage
-        self.actform = ActEditForm(instance=self.act,
-                              prefix='The Act',
-                              initial={
-                                  'track_title': self.audio_info.track_title,
-                                  'track_artist': self.audio_info.track_artist,
-                                  'track_duration': self.audio_info.track_duration,
-                                  'act_duration': self.stage_info.act_duration
-                              })
+        audio_info = self.act.tech.audio
+        stage_info = self.act.tech.stage
+        self.actform = self.bid_form_type(instance=self.act,
+                                          prefix=self.bid_prefix,
+                                          initial={
+                                              'track_title': audio_info.track_title,
+                                              'track_artist': audio_info.track_artist,
+                                              'track_duration': audio_info.track_duration,
+                                              'act_duration': stage_info.act_duration
+                                          })
         self.bid_eval = BidEvaluation.objects.filter(
             bid_id=self.act_id,
             evaluator_id=self.reviewer.resourceitem_id).first()
         if self.bid_eval is None:
             self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.act)
-        if validate_perms(request, ('Act Coordinator',), require=False):
+        if validate_perms(request, self.coordinator_permissions, require=False):
             self.actionform, self.actionURL = _create_action_form(self.act)
         else:
             self.actionform = False
             self.actionURL = False
-        self.performer = PersonaForm(instance=self.act.performer,
-                                     prefix='The Performer(s)')
 
 
     def bid_review_response(self, request):

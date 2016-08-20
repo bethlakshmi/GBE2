@@ -28,6 +28,12 @@ from gbe.functions import (
 
 class ReviewClassView(View):
     reviewer_permissions = ('Class Reviewers',)
+    coordinator_permissions = ('Class Coordinator',)
+    bid_prefix = "The Class"
+    bidder_prefix = "The Teacher(s)"
+    bidder_form_type = PersonaForm
+    bid_form_type = ClassBidForm
+
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -38,7 +44,9 @@ class ReviewClassView(View):
         class_id = kwargs['class_id']
         self.object = get_object_or_404(Class,id=class_id)
         self.reviewer = validate_perms(request, self.reviewer_permissions)
-        if validate_perms(request, ('Class Coordinator',), require=False):
+        if validate_perms(request,
+                          self.coordinator_permissions,
+                          require=False):
             self.actionform = BidStateChangeForm(instance=self.object)
             self.actionURL = reverse('class_changestate',
                                 urlconf='gbe.urls',
@@ -53,9 +61,10 @@ class ReviewClassView(View):
             self.bid_eval = BidEvaluation(evaluator=self.reviewer,
                                           bid=self.object)
         self.conference, self.old_bid = get_conf(self.object)
-        self.classform = ClassBidForm(instance=self.object, prefix='The Class')
-        self.teacher = PersonaForm(instance=self.object.teacher,
-                                   prefix='The Teacher(s)')
+        self.classform = self.bid_form_type(instance=self.object,
+                                            prefix=self.bid_prefix)
+        self.teacher = self.bidder_form_type(instance=self.object.teacher,
+                                             prefix=self.bidder_prefix)
         self.contact = ParticipantForm(
             instance=self.object.teacher.performer_profile,
             prefix='Teacher Contact Info',
