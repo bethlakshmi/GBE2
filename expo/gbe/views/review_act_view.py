@@ -1,5 +1,6 @@
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from gbe.models import (
     Act,
@@ -9,9 +10,11 @@ from gbe.models import (
 from gbe.forms import (
     ActEditForm,
     BidEvaluationForm,
+    BidStateChangeForm,
     PersonaForm,
 )
 from gbe.views import ReviewBidView
+
 
 class ReviewActView(ReviewBidView):
     '''
@@ -32,7 +35,6 @@ class ReviewActView(ReviewBidView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ReviewActView, self).dispatch(*args, **kwargs)
-
 
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
@@ -64,10 +66,10 @@ class ReviewActView(ReviewBidView):
 
     def create_action_form(self, act):
         self.actionform = BidStateChangeForm(instance=act)
-        try:
-            start = Show.objects.filter(
-                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
-        except:
+
+        start = Show.objects.filter(
+            scheduler_events__resources_allocated__resource__actresource___item=act).first()
+        if start is None:
             start = ""
         q = Show.objects.filter(
             conference=act.conference,
@@ -79,5 +81,5 @@ class ReviewActView(ReviewBidView):
             label='Pick a Show',
             initial=start)
         self.actionURL = reverse('act_changestate',
-                            urlconf='gbe.urls',
-                            args=[act.id])
+                                 urlconf='gbe.urls',
+                                 args=[act.id])

@@ -23,7 +23,6 @@ class ReviewVolunteerView(ReviewBidView):
             object_id = int(request.POST['volunteer'])
         super(ReviewVolunteerView, self).get_object(request, object_id)
 
-
     def groundwork(self, request, args, kwargs):
         super(ReviewVolunteerView, self).groundwork(request, args, kwargs)
 
@@ -34,7 +33,6 @@ class ReviewVolunteerView(ReviewBidView):
         self.form = BidEvaluationForm(instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.bid_review_response(request))
-
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)

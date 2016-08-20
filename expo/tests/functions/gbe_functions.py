@@ -1,4 +1,3 @@
-
 from gbe.models import (
     Conference,
     Profile,
@@ -119,15 +118,16 @@ def assert_hidden_value(response, field_id, name, value):
 def assert_has_help_text(response, help_text):
     assert '<span class="dropt" title="Help">' in response.content
     assert '<img src= "/static/img/question.png" alt="?"/>' in response.content
-    assert '<span style="width:200px;float:right;text-align:left;">' in response.content
+    assert ('<span style="width:200px;float:right;text-align:left;">'
+            in response.content)
     assert help_text in response.content
     assert '</span>' in response.content
 
+
 def assert_interest_view(response, interest):
-    assert '<label for="id_Volunteer Info-interest_id-%d">%s:</label>' % (
-        interest.pk,
-        interest.interest.interest
-        ) in response.content
+    assert ('<label for="id_Volunteer Info-interest_id-%d">%s:</label>' %
+            (interest.pk, interest.interest.interest)
+            in response.content)
     assert interest.rank_description in response.content
     if interest.interest.help_text:
         assert_has_help_text(response, interest.interest.help_text)
@@ -164,3 +164,10 @@ def make_vendor_app_purchase(conference, user_object):
     ticket = TicketItemFactory(ticket_id=ticket_id)
     transaction = TransactionFactory(ticket_item=ticket,
                                      purchaser=purchaser)
+
+
+def bad_id_for(cls):
+    objects = cls.objects.all()
+    if objects.exists():
+        return objects.latest('pk').pk + 1
+    return 1

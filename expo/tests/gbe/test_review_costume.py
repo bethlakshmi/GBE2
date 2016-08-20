@@ -8,11 +8,13 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
 )
 from tests.functions.gbe_functions import (
+    bad_id_for,
     grant_privilege,
     is_login_page,
     login_as,
 )
 from gbe.models import Costume
+
 
 class TestReviewCostume(TestCase):
     '''Tests for review_costume view'''
@@ -56,8 +58,7 @@ class TestReviewCostume(TestCase):
 
     def test_bad_costume_id(self):
         login_as(ProfileFactory(), self)
-        CostumeFactory()
-        bad_id = Costume.objects.latest('pk').pk + 1
+        bad_id = bad_id_for(Costume)
         url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)

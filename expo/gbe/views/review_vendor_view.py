@@ -7,6 +7,7 @@ from gbe.forms import (
 )
 from gbe.views import ReviewBidView
 
+
 class ReviewVendorView(ReviewBidView):
     reviewer_permissions = ('Vendor Reviewers',)
     coordinator_permissions = ('Vendor Coordinator')
@@ -22,9 +23,9 @@ class ReviewVendorView(ReviewBidView):
 
     def groundwork(self, request, args, kwargs):
         super(ReviewVendorView, self).groundwork(request, args, kwargs)
-        self.object_form = self.bid_form_type(instance=self.object, prefix=self.bid_prefix )
+        self.object_form = self.bid_form_type(instance=self.object,
+                                              prefix=self.bid_prefix)
         self.readonlyform_pieces = [self.object_form]
-
 
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)

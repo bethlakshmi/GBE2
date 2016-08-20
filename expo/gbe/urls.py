@@ -254,7 +254,8 @@ urlpatterns = patterns(
         name="password_reset"),
     url(r'^accounts/password/reset/done/?$',
         password_reset_done, name='password_reset_done'),
-    url(r'^accounts/password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$',
+    url(r'^accounts/password/confirm/'
+        r'(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$',
         password_reset_confirm,
         {'post_reset_redirect':
          '/accounts/password/reset/complete/'},

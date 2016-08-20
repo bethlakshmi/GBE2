@@ -10,8 +10,9 @@ from gbe.forms import (
 from gbe.models import Costume
 from gbe.views import ReviewBidView
 
+
 class ReviewCostumeView(ReviewBidView):
-    reviewer_permissions =  ('Costume Reviewers', )
+    reviewer_permissions = ('Costume Reviewers',)
     coordinator_permissions = ('Costume Coordinator',)
     performer_prefix = "The Performer"
     bidder_prefix = "The Owner"
@@ -30,7 +31,7 @@ class ReviewCostumeView(ReviewBidView):
         super(ReviewCostumeView, self).groundwork(request, args, kwargs)
         self.details = CostumeDetailsSubmitForm(instance=self.object)
         self.performer = self.bidder_form_type(instance=self.object.performer,
-                                     prefix=self.performer_prefix)
+                                               prefix=self.performer_prefix)
         self.create_object_form()
 
         self.profile = ParticipantForm(
