@@ -1,26 +1,8 @@
-from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from expo.gbe_logging import log_func
-from gbe.functions import (
-    validate_perms,
-    get_conf,
-)
-from gbe.models import (
-    BidEvaluation,
-    Conference,
-    Volunteer,
-)
-from gbe.forms import (
-    BidEvaluationForm,
-    BidStateChangeForm,
-)
+from gbe.models import Volunteer
+
+from gbe.forms import BidEvaluationForm
 from gbe.views import ReviewBidView
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
@@ -46,11 +28,6 @@ class ReviewVolunteerView(ReviewBidView):
         super(ReviewVolunteerView, self).groundwork(request, args, kwargs)
 
         self.readonlyform_pieces = get_volunteer_forms(self.object)
-        self.bid_eval = BidEvaluation.objects.filter(
-            bid_id=self.object.pk,
-            evaluator_id=self.reviewer.resourceitem_id).first()
-        if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.object)
 
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)

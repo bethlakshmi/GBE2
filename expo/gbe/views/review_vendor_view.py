@@ -1,26 +1,9 @@
-from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-
-from expo.gbe_logging import log_func
-from gbe.models import (
-    BidEvaluation,
-    Vendor,
-)
+from gbe.models import Vendor
 from gbe.forms import (
     BidEvaluationForm,
-    BidStateChangeForm,
     VendorBidForm,
-)
-from gbe.functions import (
-    get_conf,
-    validate_perms,
 )
 from gbe.views import ReviewBidView
 

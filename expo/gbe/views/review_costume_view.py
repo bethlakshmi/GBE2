@@ -1,29 +1,13 @@
-from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.shortcuts import (
-    render,
-    get_object_or_404,
-)
-from expo.gbe_logging import log_func
-from gbe.functions import (
-    validate_perms,
-    get_conf,
-)
 from gbe.forms import (
     CostumeBidSubmitForm,
     CostumeDetailsSubmitForm,
     ParticipantForm,
     PersonaForm,
-    BidStateChangeForm,
     BidEvaluationForm,
 )
-from gbe.models import (
-    BidEvaluation,
-    Costume,
-)
+from gbe.models import Costume
 from gbe.views import ReviewBidView
 
 class ReviewCostumeView(ReviewBidView):

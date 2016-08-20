@@ -1,15 +1,6 @@
-from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
-from django.http import HttpResponseRedirect
-
-from expo.gbe_logging import log_func
 from gbe.models import (
     Act,
     BidEvaluation,
@@ -18,15 +9,9 @@ from gbe.models import (
 from gbe.forms import (
     ActEditForm,
     BidEvaluationForm,
-    BidStateChangeForm,
     PersonaForm,
 )
 from gbe.views import ReviewBidView
-from gbe.functions import (
-    get_conf,
-    validate_perms,
-)
-
 
 class ReviewActView(ReviewBidView):
     '''
