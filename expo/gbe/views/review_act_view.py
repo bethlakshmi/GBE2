@@ -67,12 +67,13 @@ class ReviewActView(View):
         self.performer = PersonaForm(instance=self.act.performer,
                                      prefix='The Performer(s)')
 
-    def bid_review_response(self, request, form):
+
+    def bid_review_response(self, request):
         return render(request,
                       'gbe/bid_review.tmpl',
                       {'readonlyform': [self.actform, self.performer],
                        'reviewer': self.reviewer,
-                       'form': form,
+                       'form': self.form,
                        'actionform': self.actionform,
                        'actionURL': self.actionURL,
                        'conference': self.conference,
@@ -85,33 +86,27 @@ class ReviewActView(View):
         if not self.act.is_current:
             return HttpResponseRedirect(
                 reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
-
-
-        form = BidEvaluationForm(instance=self.bid_eval)
-        return self.bid_review_response(request, form)
+        self.form = BidEvaluationForm(instance=self.bid_eval)
+        return self.bid_review_response(request)
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         if not self.act.is_current:
             return HttpResponseRedirect(
                 reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
-
-        form = BidEvaluationForm(request.POST, instance=self.bid_eval)
-        if form.is_valid():
-            evaluation = form.save(commit=False)
+        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
+        if self.form.is_valid():
+            evaluation = self.form.save(commit=False)
             evaluation.evaluator = self.reviewer
             evaluation.bid = self.act
             evaluation.save()
             return HttpResponseRedirect(reverse('act_review_list',
                                                 urlconf='gbe.urls'))
         else:
-            return self.bid_review_response(request, form)
+            return self.bid_review_response(request)
 
 def _create_action_form(act):
     actionform = BidStateChangeForm(instance=act)
-    # This requires that the show be scheduled - seems reasonable in
-    # current workflow and lets me order by date.  Also - assumes
-    # that shows are only scheduled once
     try:
         start = Show.objects.filter(
             scheduler_events__resources_allocated__resource__actresource___item=act)[0]
