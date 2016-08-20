@@ -26,6 +26,19 @@ class TestReviewCostume(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Costume Reviewers')
+        self.coordinator = ProfileFactory()
+        grant_privilege(self.coordinator, 'Costume Reviewers')
+        grant_privilege(self.coordinator, 'Costume Coordinator')
+
+    def get_form(self, bid, evaluator, invalid=False):
+        data = {'vote': 3,
+                'notes': "Foo",
+                'bid': bid.pk,
+                'evaluator': evaluator.pk}
+        if invalid:
+            del(data['vote'])
+        return data
+
 
     def test_review_costume_all_well(self):
         costume = CostumeFactory()
@@ -62,3 +75,18 @@ class TestReviewCostume(TestCase):
         url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_review_costume_post_valid(self):
+        bid = CostumeFactory()
+        url = reverse(self.view_name,
+                      args=[bid.pk],
+                      urlconf='gbe.urls')
+        login_as(self.coordinator, self)
+        data = self.get_form(bid, self.coordinator)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        html_tag = '<h2 class="review-title">%s</h2>'
+        title_string = ("Bid Information for %s" %
+                        bid.conference.conference_name)
+        html_title = html_tag % title_string
+        assert html_title in response.content

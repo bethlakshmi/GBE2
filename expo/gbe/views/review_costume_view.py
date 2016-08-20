@@ -42,7 +42,6 @@ class ReviewCostumeView(ReviewBidView):
                 'first_name': self.object.profile.user_object.first_name,
                 'last_name': self.object.profile.user_object.last_name})
 
-        self.form = BidEvaluationForm(instance=self.bid_eval)
         self.readonlyform_pieces = [
             self.object_form,
             self.details,
@@ -51,10 +50,12 @@ class ReviewCostumeView(ReviewBidView):
 
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.bid_review_response(request))
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.post_response_for_form(request))
