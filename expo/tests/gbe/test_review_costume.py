@@ -12,7 +12,7 @@ from tests.functions.gbe_functions import (
     is_login_page,
     login_as,
 )
-
+from gbe.models import Costume
 
 class TestReviewCostume(TestCase):
     '''Tests for review_costume view'''
@@ -47,15 +47,17 @@ class TestReviewCostume(TestCase):
         self.assertTrue('Bid Information' in response.content)
         self.assertFalse('Review Information' in response.content)
 
-    def test_no_login_gives_error(self):
+    def test_no_login_redirects_to_login(self):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
-    def test_bad_user(self):
+    def test_bad_costume_id(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        CostumeFactory()
+        bad_id = Costume.objects.latest('pk').pk + 1
+        url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

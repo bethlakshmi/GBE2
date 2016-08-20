@@ -23,7 +23,6 @@ from gbe.functions import (
     validate_perms,
 )
 
-
 class ReviewVendorView(View):
     reviewer_permissions = ('Vendor Reviewers',)
     coordinator_permissions = ('Vendor Coordinator')
@@ -35,28 +34,28 @@ class ReviewVendorView(View):
         return super(ReviewVendorView, self).dispatch(*args, **kwargs)
 
     def groundwork(self, request, args, kwargs):
-        self.vendor_id = kwargs['vendor_id']
+        object_id = kwargs['object_id']
         self.reviewer = validate_perms(request, self.reviewer_permissions)
-        self.vendor = get_object_or_404(
+        self.object = get_object_or_404(
             Vendor,
-            id=self.vendor_id,
+            id=object_id,
         )
-        self.conference, self.old_bid = get_conf(self.vendor)
-        self.volform = self.bid_form_type(instance=self.vendor, prefix=self.bid_prefix )
+        self.conference, self.old_bid = get_conf(self.object)
+        self.volform = self.bid_form_type(instance=self.object, prefix=self.bid_prefix )
         if validate_perms(request, self.coordinator_permissions, require=False):
-            self.actionform = BidStateChangeForm(instance=self.vendor)
+            self.actionform = BidStateChangeForm(instance=self.object)
             self.actionURL = reverse('vendor_changestate',
                                 urlconf='gbe.urls',
-                                args=[self.vendor_id])
+                                args=[object_id])
         else:
                 self.actionform = False
                 self.actionURL = False
 
         self.bid_eval = BidEvaluation.objects.filter(
-            bid_id=self.vendor_id,
+            bid_id=object_id,
             evaluator_id=self.reviewer.resourceitem_id).first()
         if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.vendor)
+            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.object)
 
 
     def bid_review_response(self, request):
@@ -74,9 +73,9 @@ class ReviewVendorView(View):
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
 
-        if not self.vendor.is_current:
+        if not self.object.is_current:
             return HttpResponseRedirect(
-                reverse('vendor_view', urlconf='gbe.urls', args=[self.vendor_id]))
+                reverse('vendor_view', urlconf='gbe.urls', args=[self.object.id]))
 
         # show act info and inputs for review
         self.form = BidEvaluationForm(instance=self.bid_eval)
@@ -84,15 +83,15 @@ class ReviewVendorView(View):
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if not self.vendor.is_current:
+        if not self.object.is_current:
             return HttpResponseRedirect(
-                reverse('vendor_view', urlconf='gbe.urls', args=[self.vendor_id]))
+                reverse('vendor_view', urlconf='gbe.urls', args=[self.object.id]))
         self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
 
         if self.form.is_valid():
             evaluation = self.form.save(commit=False)
             evaluation.evaluator = self.reviewer
-            evaluation.bid = self.vendor
+            evaluation.bid = self.object
             evaluation.save()
             return HttpResponseRedirect(reverse('vendor_review_list',
                                                 urlconf='gbe.urls'))

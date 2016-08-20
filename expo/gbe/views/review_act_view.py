@@ -21,13 +21,14 @@ from gbe.forms import (
     BidStateChangeForm,
     PersonaForm,
 )
+from gbe.views import ReviewBidView
 from gbe.functions import (
     get_conf,
     validate_perms,
 )
 
 
-class ReviewActView(View):
+class ReviewActView(ReviewBidView):
     '''
     Show a bid  which needs to be reviewed by the current user.
     To show: display all information about the bid, and a standard
@@ -39,6 +40,9 @@ class ReviewActView(View):
     bidder_prefix = "The Performer(s)"
     bidder_form_type = PersonaForm
     bid_form_type = ActEditForm
+    object_type = Act
+    review_list_view_name = 'act_review_list'
+    bid_view_name = 'act_view'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -46,90 +50,49 @@ class ReviewActView(View):
 
 
     def groundwork(self, request, args, kwargs):
-        self.act_id = kwargs['act_id']
-        self.act = get_object_or_404(Act,
-                                     id=self.act_id)
-        self.reviewer = validate_perms(request, self.reviewer_permissions)
-        self.performer = self.bidder_form_type(instance=self.act.performer,
-                                     prefix=self.bidder_prefix)
+        super(ReviewActView, self).groundwork(request, args, kwargs)
+        self.bidder = self.bidder_form_type(instance=self.object.performer,
+                                            prefix=self.bidder_prefix)
 
-        self.conference, self.old_bid = get_conf(self.act)
-        audio_info = self.act.tech.audio
-        stage_info = self.act.tech.stage
-        self.actform = self.bid_form_type(instance=self.act,
-                                          prefix=self.bid_prefix,
-                                          initial={
-                                              'track_title': audio_info.track_title,
-                                              'track_artist': audio_info.track_artist,
-                                              'track_duration': audio_info.track_duration,
-                                              'act_duration': stage_info.act_duration
-                                          })
-        self.bid_eval = BidEvaluation.objects.filter(
-            bid_id=self.act_id,
-            evaluator_id=self.reviewer.resourceitem_id).first()
-        if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.act)
-        if validate_perms(request, self.coordinator_permissions, require=False):
-            self.actionform, self.actionURL = _create_action_form(self.act)
-        else:
-            self.actionform = False
-            self.actionURL = False
-
-
-    def bid_review_response(self, request):
-        return render(request,
-                      'gbe/bid_review.tmpl',
-                      {'readonlyform': [self.actform, self.performer],
-                       'reviewer': self.reviewer,
-                       'form': self.form,
-                       'actionform': self.actionform,
-                       'actionURL': self.actionURL,
-                       'conference': self.conference,
-                       'old_bid': self.old_bid,
-                       })
-
+        audio_info = self.object.tech.audio
+        stage_info = self.object.tech.stage
+        initial = {
+            'track_title': audio_info.track_title,
+            'track_artist': audio_info.track_artist,
+            'track_duration': audio_info.track_duration,
+            'act_duration': stage_info.act_duration
+        }
+        self.create_object_form(initial=initial)
+        self.readonlyform_pieces = [self.object_form, self.bidder]
 
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if not self.act.is_current:
-            return HttpResponseRedirect(
-                reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
         self.form = BidEvaluationForm(instance=self.bid_eval)
-        return self.bid_review_response(request)
+        return (self.object_not_current_redirect() or
+                self.bid_review_response(request))
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if not self.act.is_current:
-            return HttpResponseRedirect(
-                reverse('act_view', urlconf='gbe.urls', args=[self.act_id]))
         self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
-        if self.form.is_valid():
-            evaluation = self.form.save(commit=False)
-            evaluation.evaluator = self.reviewer
-            evaluation.bid = self.act
-            evaluation.save()
-            return HttpResponseRedirect(reverse('act_review_list',
-                                                urlconf='gbe.urls'))
-        else:
-            return self.bid_review_response(request)
+        return (self.object_not_current_redirect() or
+                self.post_response_for_form(request))
 
-def _create_action_form(act):
-    actionform = BidStateChangeForm(instance=act)
-    try:
-        start = Show.objects.filter(
-            scheduler_events__resources_allocated__resource__actresource___item=act)[0]
-    except:
-        start = ""
-    q = Show.objects.filter(
-        conference=act.conference,
-        scheduler_events__isnull=False).order_by(
-            'scheduler_events__starttime')
-    actionform.fields['show'] = ModelChoiceField(
-        queryset=q,
-        empty_label=None,
-        label='Pick a Show',
-        initial=start)
-    actionURL = reverse('act_changestate',
-                        urlconf='gbe.urls',
-                        args=[act.id])
-    return actionform, actionURL
+    def create_action_form(self, act):
+        self.actionform = BidStateChangeForm(instance=act)
+        try:
+            start = Show.objects.filter(
+                scheduler_events__resources_allocated__resource__actresource___item=act)[0]
+        except:
+            start = ""
+        q = Show.objects.filter(
+            conference=act.conference,
+            scheduler_events__isnull=False).order_by(
+                'scheduler_events__starttime')
+        self.actionform.fields['show'] = ModelChoiceField(
+            queryset=q,
+            empty_label=None,
+            label='Pick a Show',
+            initial=start)
+        self.actionURL = reverse('act_changestate',
+                            urlconf='gbe.urls',
+                            args=[act.id])

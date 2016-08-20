@@ -24,45 +24,32 @@ from gbe.functions import (
     validate_perms,
     get_conf,
 )
+from gbe.views import ReviewBidView
 
-
-class ReviewClassView(View):
+class ReviewClassView(ReviewBidView):
     reviewer_permissions = ('Class Reviewers',)
     coordinator_permissions = ('Class Coordinator',)
     bid_prefix = "The Class"
     bidder_prefix = "The Teacher(s)"
     bidder_form_type = PersonaForm
     bid_form_type = ClassBidForm
-
+    object_type = Class
+    bid_view_name = 'class_view'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ReviewClassView, self).dispatch(*args, **kwargs)
 
 
+    def create_action_form(self, object):
+        self.actionform = BidStateChangeForm(instance=self.object)
+        self.actionURL = reverse('class_changestate',
+                                 urlconf='gbe.urls',
+                                 args=[self.object.id])
+
     def groundwork(self, request, args, kwargs):
-        class_id = kwargs['class_id']
-        self.object = get_object_or_404(Class,id=class_id)
-        self.reviewer = validate_perms(request, self.reviewer_permissions)
-        if validate_perms(request,
-                          self.coordinator_permissions,
-                          require=False):
-            self.actionform = BidStateChangeForm(instance=self.object)
-            self.actionURL = reverse('class_changestate',
-                                urlconf='gbe.urls',
-                                args=[self.object.id])
-        else:
-                self.actionform = False
-                self.actionURL = False
-        self.bid_eval = BidEvaluation.objects.filter(
-            bid_id=self.object.id,
-            evaluator_id=self.reviewer.resourceitem_id).first()
-        if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(evaluator=self.reviewer,
-                                          bid=self.object)
-        self.conference, self.old_bid = get_conf(self.object)
-        self.classform = self.bid_form_type(instance=self.object,
-                                            prefix=self.bid_prefix)
+        super(ReviewClassView, self).groundwork(request, args, kwargs)
+        self.create_object_form()
         self.teacher = self.bidder_form_type(instance=self.object.teacher,
                                              prefix=self.bidder_prefix)
         self.contact = ParticipantForm(
@@ -75,25 +62,7 @@ class ReviewClassView(View):
                 'last_name':
                     self.object.teacher.performer_profile.user_object.last_name})
         self.form = BidEvaluationForm(instance=self.bid_eval)
-
-
-    def bid_review_response(self, request):
-        return render(request,
-                      'gbe/bid_review.tmpl',
-                      {'readonlyform': [self.classform, self.teacher, self.contact],
-                       'reviewer': self.reviewer,
-                       'form': self.form,
-                       'actionform': self.actionform,
-                       'actionURL': self.actionURL,
-                       'conference': self.conference,
-                       'old_bid': self.old_bid,
-                       })
-
-    def process_form(self):
-        evaluation = self.form.save(commit=False)
-        evaluation.evaluator = self.reviewer
-        evaluation.bid = self.object
-        evaluation.save()
+        self.readonlyform_pieces = [self.object_form, self.teacher, self.contact]
 
 
     def get(self, request, *args, **kwargs):
@@ -103,22 +72,11 @@ class ReviewClassView(View):
         review form.
         '''
         self.groundwork(request, args, kwargs)
-        if not self.object.is_current:
-            return HttpResponseRedirect(
-                reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
-
-        return self.bid_review_response(request)
+        return (self.object_not_current_redirect() or
+                self.bid_review_response(request))
 
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if not self.object.is_current:
-            return HttpResponseRedirect(
-                reverse('class_view', urlconf='gbe.urls', args=[self.object.id]))
-
-        if self.form.is_valid():
-            self.process_form()
-            return HttpResponseRedirect(reverse('class_review_list',
-                                                urlconf='gbe.urls'))
-        else:
-            return self.bid_review_response(request)
+        return (self.object_not_current_redirect() or
+                self.post_response_for_form(request))
