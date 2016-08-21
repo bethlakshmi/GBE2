@@ -39,7 +39,6 @@ class TestReviewCostume(TestCase):
             del(data['vote'])
         return data
 
-
     def test_review_costume_all_well(self):
         costume = CostumeFactory()
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
