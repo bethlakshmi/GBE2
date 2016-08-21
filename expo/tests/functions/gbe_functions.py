@@ -1,10 +1,24 @@
+
 from gbe.models import (
     Conference,
     Profile,
+)
+from django.contrib.auth.models import (
+    Group,
     User,
 )
-from django.contrib.auth.models import Group
-from tests.factories.gbe_factories import ConferenceFactory
+from tests.factories.gbe_factories import (
+    ActFactory,
+    ConferenceFactory,
+)
+
+from tests.factories.ticketing_factories import (
+    BrownPaperEventsFactory,
+    TransactionFactory,
+    TicketItemFactory,
+    PurchaserFactory,
+)
+from gbe_forms_text import rank_interest_options
 
 
 def _user_for(user_or_profile):
@@ -42,7 +56,7 @@ def grant_privilege(user_or_profile, privilege):
 
 
 def is_login_page(response):
-    return 'I forgot my password!' in response.content
+    return 'I forgot my username or password!' in response.content
 
 
 def is_profile_update_page(response):
@@ -70,3 +84,83 @@ def clear_conferences():
 
 def reload(object):
     return type(object).objects.get(pk=object.pk)
+
+
+def assert_alert_exists(response, tag, label, text):
+    alert_html = '<div class="alert alert-%s">\n' + \
+        '          <a href="#" class="close" data-dismiss="alert" ' + \
+        'aria-label="close">&times;</a>\n' + \
+        '          <strong>%s:</strong> %s\n' \
+        '	</div>'
+    assert alert_html % (tag, label, text) in response.content
+
+
+def assert_rank_choice_exists(response, interest, selection=None):
+    assert '<label for="id_%d-rank">%s:</label>' % (
+        interest.pk,
+        interest.interest) in response.content
+    assert '<select id="id_%d-rank" name="%d-rank">' % (
+        interest.pk,
+        interest.pk) in response.content
+    for value, text in rank_interest_options:
+        if selection and selection == value:
+            assert '<option value="%d" selected="selected">%s</option>' % (
+                value, text) in response.content
+        else:
+            assert '<option value="%d">%s</option>' % (
+                value, text) in response.content
+
+
+def assert_hidden_value(response, field_id, name, value):
+    assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
+        field_id, name, value) in response.content
+
+
+def assert_has_help_text(response, help_text):
+    assert '<span class="dropt" title="Help">' in response.content
+    assert '<img src= "/static/img/question.png" alt="?"/>' in response.content
+    assert '<span style="width:200px;float:right;text-align:left;">' in response.content
+    assert help_text in response.content
+    assert '</span>' in response.content
+
+def assert_interest_view(response, interest):
+    assert '<label for="id_Volunteer Info-interest_id-%d">%s:</label>' % (
+        interest.pk,
+        interest.interest.interest
+        ) in response.content
+    assert interest.rank_description in response.content
+    if interest.interest.help_text:
+        assert_has_help_text(response, interest.interest.help_text)
+
+
+def make_act_app_purchase(user_object):
+    purchaser = PurchaserFactory(
+        matched_to_user=user_object)
+    transaction = TransactionFactory(purchaser=purchaser)
+    transaction.ticket_item.bpt_event.act_submission_event = True
+    transaction.ticket_item.bpt_event.bpt_event_id = "111111"
+    transaction.ticket_item.bpt_event.save()
+    return transaction
+
+
+def post_act_conflict(conference, performer, data, url, testcase):
+    original = ActFactory(
+        conference=conference,
+        performer=performer)
+    login_as(performer.performer_profile, testcase)
+    data['theact-title'] = original.title
+    response = testcase.client.post(
+        url,
+        data=data,
+        follow=True)
+    return response, original
+
+
+def make_vendor_app_purchase(conference, user_object):
+    bpt_event = BrownPaperEventsFactory(conference=conference,
+                                        vendor_submission_event=True)
+    purchaser = PurchaserFactory(matched_to_user=user_object)
+    ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
+    ticket = TicketItemFactory(ticket_id=ticket_id)
+    transaction = TransactionFactory(ticket_item=ticket,
+                                     purchaser=purchaser)

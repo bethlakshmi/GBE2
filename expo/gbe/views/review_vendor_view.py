@@ -22,6 +22,7 @@ from gbe.functions import (
 )
 
 
+@login_required
 @log_func
 def ReviewVendorView(request, vendor_id):
     '''
@@ -40,7 +41,7 @@ def ReviewVendorView(request, vendor_id):
             reverse('vendor_view', urlconf='gbe.urls', args=[vendor_id]))
     conference, old_bid = get_conf(vendor)
     volform = VendorBidForm(instance=vendor, prefix='The Vendor')
-    if 'Vendor Coordinator' in request.user.profile.privilege_groups:
+    if validate_perms(request, ('Vendor Coordinator'), require=False):
         actionform = BidStateChangeForm(instance=vendor)
         actionURL = reverse('vendor_changestate',
                             urlconf='gbe.urls',

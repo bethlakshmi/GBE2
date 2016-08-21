@@ -11,7 +11,7 @@ from tests.factories.ticketing_factories import (
     TicketItemFactory
 )
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from ticketing.views import process_bpt_order_list
 from tests.factories.gbe_factories import (
     ProfileFactory,

@@ -5,7 +5,6 @@ from django.shortcuts import (
     render,
     get_object_or_404,
 )
-
 from expo.gbe_logging import log_func
 from gbe.functions import (
     validate_perms,
@@ -40,7 +39,8 @@ def ReviewCostumeView(request, costume_id):
         id=costume_id
     )
     if not costume.is_current:
-        return view_costume(request, costume_id)
+        return HttpResponseRedirect(
+            reverse('costume_view', urlconf='gbe.urls', args=[costume_id]))
     conference, old_bid = get_conf(costume)
     costume_form = CostumeBidSubmitForm(instance=costume,
                                         prefix='Costume Proposal')

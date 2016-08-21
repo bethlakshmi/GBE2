@@ -21,9 +21,6 @@ included in event edit flow. Show WorkerAllocationForms
         {% csrf_token %}
 	{% for field in form.visible_fields %}
 	  <td>
-          {% if field.errors %}
-            <font color="red">!</font>&nbsp;&nbsp;
-          {% endif %}
             {{ field }}
           {% if field.errors %}
             </br>
@@ -35,8 +32,8 @@ included in event edit flow. Show WorkerAllocationForms
 	  {{field}}
 	{% endfor %}
 	  <td>  <input type = "submit" name="edit" value="Edit/Create Allocation"></td>
-	  {% if form.alloc_id.value > 0  %}
-	  <td>  <input type = "submit" name="delete" value="Delete Allocation"></td>
+	  {% if form.alloc_id.value > 0 %}
+	  <td><input type = "submit" name="delete" value="Delete Allocation"></td>
 	  {% endif %}
       </form>	      
     </tr>

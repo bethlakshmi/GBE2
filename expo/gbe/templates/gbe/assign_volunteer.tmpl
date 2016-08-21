@@ -23,8 +23,12 @@
       <tr>
         <td class="form_label">Interests:</td>
         <td>
-          {% for interest in volunteer.interest_list %}
-            {{interest}}{% if not forloop.last %}, <br>{% endif %}
+          {% for interest in volunteer.volunteerinterest_set.all %}
+            {% if interest.rank > 0 %}
+              {% if interest.rank > 3 %}<b>{% endif %}
+                {{interest.interest}} - {{interest.rank_description}}{% if not forloop.last %},<br>{% endif %}
+              {% if interest.rank > 3 %}</b>{% endif %}
+            {% endif %}
           {% endfor %}
         </td>
       </tr>

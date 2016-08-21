@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 import gbe.models as conf
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -33,9 +33,10 @@ class TestReviewVendorList(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Vendor Reviewers')
         self.conference = current_conference()
-        VendorFactory.create_batch(4,
-                                   conference=self.conference,
-                                   submitted=True)
+        self.vendors = VendorFactory.create_batch(
+            4,
+            conference=self.conference,
+            submitted=True)
 
     def test_review_vendor_all_well(self):
         url = reverse('vendor_review',
@@ -59,3 +60,15 @@ class TestReviewVendorList(TestCase):
         login_as(UserFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(403, response.status_code)
+
+    def test_review_vendor_with_conf_slug(self):
+        url = reverse('vendor_review',
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+
+        nt.assert_equal(200, response.status_code)
+        assert all([vendor.title in response.content
+                    for vendor in self.vendors])

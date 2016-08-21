@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 
@@ -17,6 +17,7 @@ from tests.functions.scheduler_functions import (
     book_act_item_for_show,
     book_worker_item_for_role)
 from scheduler.functions import get_roles_from_scheduler
+
 
 class TestGetRolesFromScheduler(TestCase):
     '''Tests that a profile will return all the possible roles'''

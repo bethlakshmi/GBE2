@@ -1,5 +1,6 @@
+from django.core import mail
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -42,3 +43,28 @@ class TestVolunteerChangestate(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 403)
+
+    def test_volunteer_changestate_authorized_user_post(self):
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.conference,
+                'events': [],
+                'accepted': 3}
+        response = self.client.post(url, data=data)
+        nt.assert_equal(response.status_code, 302)
+
+    def test_volunteer_changestate_sends_notification(self):
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.conference,
+                'events': [],
+                'accepted': 3}
+        response = self.client.post(url, data=data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = "A change has been made to your Volunteer Schedule!"
+        assert msg.subject == expected_subject

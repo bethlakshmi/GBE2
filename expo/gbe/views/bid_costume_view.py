@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import (
     render,
     get_object_or_404,
@@ -20,10 +21,15 @@ from gbe.models import (
     Conference,
     Costume,
     Persona,
+    UserMessage
 )
 from gbe_forms_text import (
     costume_proposal_labels,
     costume_proposal_form_text,
+)
+from gbetext import (
+    default_costume_submit_msg,
+    default_costume_draft_msg
 )
 
 
@@ -72,11 +78,23 @@ def BidCostumeView(request):
             details = CostumeDetailsSubmitForm(request.POST,
                                                request.FILES,
                                                instance=new_costume)
+            user_message = UserMessage.objects.get_or_create(
+                view='BidCostumeView',
+                code="SUBMIT_SUCCESS",
+                defaults={
+                    'summary': "Costume Submit Success",
+                    'description': default_costume_submit_msg})
         else:
             form = CostumeBidDraftForm(request.POST, instance=new_costume)
             details = CostumeDetailsDraftForm(request.POST,
                                               request.FILES,
                                               instance=new_costume)
+            user_message = UserMessage.objects.get_or_create(
+                view='BidCostumeView',
+                code="DRAFT_SUCCESS",
+                defaults={
+                    'summary': "Costume Draft Success",
+                    'description': default_costume_draft_msg})
         if form.is_valid() and details.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
             new_costume.profile = owner
@@ -85,11 +103,18 @@ def BidCostumeView(request):
                 new_costume.submitted = True
             new_costume = form.save()
             new_costume = details.save()
-
+            messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home',
                                                 urlconf='gbe.urls'))
         else:
             fields, requiredsub = Costume().bid_fields
+            q = Persona.objects.filter(
+                performer_profile_id=owner.resourceitem_id)
+            form.fields['performer'] = ModelChoiceField(
+                queryset=q,
+                label=costume_proposal_labels['performer'],
+                required=False)
+
             return render(
                 request,
                 'gbe/bid.tmpl',

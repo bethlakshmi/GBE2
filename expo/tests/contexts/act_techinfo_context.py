@@ -50,17 +50,19 @@ class ActTechInfoContext():
             event=self.sched_event,
             resource=ActResourceFactory(_item=self.act.actitem_ptr))
         if schedule_rehearsal:
-            self.rehearsal = _schedule_rehearsal(self.sched_event, self.act)
+            self.rehearsal = self._schedule_rehearsal(
+                self.sched_event,
+                self.act)
 
-
-def _schedule_rehearsal(s_event, act):
-    rehearsal = GenericEventFactory(type="Rehearsal Slot")
-    rehearsal_event = SchedEventFactory(eventitem=rehearsal.eventitem_ptr,
-                                        max_volunteer=10)
-    event_container = EventContainerFactory(
-        child_event=rehearsal_event,
-        parent_event=s_event)
-    ResourceAllocationFactory(resource=ActResourceFactory(
-        _item=act.actitem_ptr),
-                              event=s_event)
-    return rehearsal_event
+    def _schedule_rehearsal(self, s_event, act=None):
+        rehearsal = GenericEventFactory(type="Rehearsal Slot")
+        rehearsal_event = SchedEventFactory(eventitem=rehearsal.eventitem_ptr,
+                                            max_volunteer=10)
+        event_container = EventContainerFactory(
+            child_event=rehearsal_event,
+            parent_event=s_event)
+        if act:
+            ResourceAllocationFactory(
+                resource=ActResourceFactory(_item=act.actitem_ptr),
+                event=rehearsal_event)
+        return rehearsal_event

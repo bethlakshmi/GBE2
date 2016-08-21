@@ -13,14 +13,13 @@ from gbe.functions import (
 from gbe.models import (
     BidEvaluation,
     Conference,
+    Volunteer,
 )
 from gbe.forms import (
     BidEvaluationForm,
     BidStateChangeForm,
-    ParticipantForm,
-    VolunteerBidForm,
 )
-from gbe.models import Volunteer
+from gbe.views.volunteer_display_functions import get_volunteer_forms
 
 
 @login_required
@@ -45,20 +44,14 @@ def ReviewVolunteerView(request, volunteer_id):
         id=volunteer_id,
     )
     if not volunteer.is_current:
-        return view_volunteer(request, volunteer_id)
+        return HttpResponseRedirect(
+            reverse('volunteer_view',
+                    urlconf='gbe.urls',
+                    args=[volunteer_id]))
     conference, old_bid = get_conf(volunteer)
-    volunteer_prof = volunteer.profile
-    volform = VolunteerBidForm(
-        instance=volunteer,
-        prefix='The Volunteer',
-        available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows())
-    profile = ParticipantForm(
-        instance=volunteer_prof,
-        initial={'email': volunteer_prof.user_object.email,
-                 'first_name': volunteer_prof.user_object.first_name,
-                 'last_name': volunteer_prof.user_object.last_name},
-        prefix='Contact Info')
+
+    display_forms = get_volunteer_forms(volunteer)
+
     if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
         actionform = BidStateChangeForm(instance=volunteer)
         actionURL = reverse('volunteer_changestate',
@@ -89,7 +82,7 @@ def ReviewVolunteerView(request, volunteer_id):
                                                 urlconf='gbe.urls'))
         else:
             return render(request, 'gbe/bid_review.tmpl',
-                          {'readonlyform': [volform],
+                          {'readonlyform': display_forms,
                            'form': form,
                            'actionform': actionform,
                            'actionURL': actionURL,
@@ -100,7 +93,7 @@ def ReviewVolunteerView(request, volunteer_id):
         form = BidEvaluationForm(instance=bid_eval)
         return render(request,
                       'gbe/bid_review.tmpl',
-                      {'readonlyform': [volform, profile],
+                      {'readonlyform': display_forms,
                        'reviewer': reviewer,
                        'form': form,
                        'actionform': actionform,

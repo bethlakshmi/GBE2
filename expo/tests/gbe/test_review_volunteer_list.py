@@ -1,8 +1,9 @@
 import nose.tools as nt
-from unittest import TestCase
+from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    AvailableInterestFactory,
     ConferenceFactory,
     GenericEventFactory,
     PersonaFactory,
@@ -11,6 +12,7 @@ from tests.factories.gbe_factories import (
     UserFactory,
     VolunteerFactory,
     VolunteerWindowFactory,
+    VolunteerInterestFactory
 )
 from tests.factories.scheduler_factories import ResourceAllocationFactory
 from tests.functions.gbe_functions import (
@@ -61,7 +63,9 @@ class TestReviewVolunteerList(TestCase):
         ''' when a specific conf has specific bids, check bid details'''
         volunteer = VolunteerFactory(
             submitted=True)
-
+        interest = VolunteerInterestFactory(
+            volunteer=self.volunteer
+        )
         volunteer.profile.user_object.email = "review_vol@testemail.com"
         volunteer.profile.user_object.save()
         prefs = ProfilePreferencesFactory(
@@ -82,6 +86,7 @@ class TestReviewVolunteerList(TestCase):
         nt.assert_true(str(self.volunteer.number_shifts) in response.content)
         nt.assert_true(self.volunteer.background in response.content)
         nt.assert_true(self.volunteer.profile.display_name in response.content)
+        nt.assert_true(interest.interest.interest in response.content)
         nt.assert_true(
             self.volunteer.profile.user_object.email in response.content)
         nt.assert_true(self.prefs.in_hotel in response.content)
@@ -119,7 +124,7 @@ class TestReviewVolunteerList(TestCase):
 
         current_opportunity = GenericEventFactory(
             conference=self.volunteer.conference,
-            volunteer_category='VA1',
+            volunteer_type=AvailableInterestFactory(interest='Security/usher'),
             type='Volunteer')
         current_opportunity.save()
         booked_sched = sEvent(
@@ -160,13 +165,11 @@ class TestReviewVolunteerList(TestCase):
 
     def test_review_volunteer_has_old_commitments(self):
         ''' when a volunteer is booked in old conference, it should not show'''
-        past_conference = ConferenceFactory(
-            accepting_bids=False,
-            status='completed'
-            )
+        past_conference = ConferenceFactory(accepting_bids=False,
+                                            status='completed')
         past_opportunity = GenericEventFactory(
             conference=past_conference,
-            volunteer_category='VA1',
+            volunteer_type=AvailableInterestFactory(interest='Security/usher'),
             type='Volunteer')
         past_opportunity.save()
         booked_sched = sEvent(

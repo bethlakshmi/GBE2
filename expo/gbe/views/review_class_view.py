@@ -3,6 +3,7 @@ from django.shortcuts import (
     render,
     get_object_or_404,
 )
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.forms import (
@@ -38,7 +39,8 @@ def ReviewClassView(request, class_id):
         id=class_id,
     )
     if not aclass.is_current:
-        return view_class(request, class_id)
+        return HttpResponseRedirect(
+            reverse('class_view', urlconf='gbe.urls', args=[class_id]))
     conference, old_bid = get_conf(aclass)
     classform = ClassBidForm(instance=aclass, prefix='The Class')
     teacher = PersonaForm(instance=aclass.teacher,

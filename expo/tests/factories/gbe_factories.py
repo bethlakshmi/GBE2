@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from factory import (
     Sequence,
     DjangoModelFactory,
@@ -6,6 +7,7 @@ from factory import (
     LazyAttribute
 )
 import gbe.models as conf
+from django.contrib.auth.models import User
 import scheduler.models as sched
 from gbe.duration import Duration
 from django.utils.text import slugify
@@ -16,6 +18,13 @@ from datetime import (
     timedelta,
 )
 from pytz import utc
+
+
+class AvailableInterestFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.AvailableInterest
+        django_get_or_create = ('interest',)
+    interest = 'Registration'
 
 
 class ConferenceFactory(DjangoModelFactory):
@@ -52,7 +61,7 @@ class WorkerItemFactory(DjangoModelFactory):
 
 class UserFactory(DjangoModelFactory):
     class Meta:
-        model = conf.User
+        model = User
     first_name = Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
     username = LazyAttribute(lambda a: "%s" % (a.first_name))
@@ -210,7 +219,7 @@ class GenericEventFactory(DjangoModelFactory):
     title = Sequence(lambda n: 'Test Generic Event %d' % n)
     duration = Duration(hours=1)
     type = 'Special'
-    volunteer_category = 'VA0'
+    volunteer_type = SubFactory(AvailableInterestFactory)
     conference = SubFactory(ConferenceFactory)
 
 
@@ -218,6 +227,7 @@ class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class
     title = Sequence(lambda x: "Test Class #%d" % x)
+    duration = Duration(hours=1)
     teacher = SubFactory(PersonaFactory)
     minimum_enrollment = 1
     maximum_enrollment = 20
@@ -261,7 +271,6 @@ class VolunteerFactory(DjangoModelFactory):
     unavailability = LazyAttribute(
         lambda a: ("Unavailability for test Volunteer #%s" %
                    a.profile.display_name))
-    interests = "['VA1']"
     opt_outs = LazyAttribute(
         lambda a: ("Opt-outs for test Volunteer #%s" %
                    a.profile.display_name))
@@ -270,6 +279,15 @@ class VolunteerFactory(DjangoModelFactory):
         lambda a: ("Background for test Volunteer #%s" %
                    a.profile.display_name))
     conference = SubFactory(ConferenceFactory)
+
+
+class VolunteerInterestFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.VolunteerInterest
+
+    interest = SubFactory(AvailableInterestFactory, interest='Security/usher')
+    volunteer = SubFactory(VolunteerFactory)
+    rank = 4
 
 
 class VendorFactory(DjangoModelFactory):
@@ -286,8 +304,7 @@ class VendorFactory(DjangoModelFactory):
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = LazyAttribute(
-        lambda a: "Help times for test Volunteer")
+    help_times = "['VSH0']"
     conference = SubFactory(ConferenceFactory)
 
 
@@ -355,3 +372,12 @@ class VolunteerWindowFactory(DjangoModelFactory):
     day = SubFactory(ConferenceDayFactory)
     start = time(10)
     end = time(14)
+
+
+class UserMessageFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.UserMessage
+    view = Sequence(lambda x: "View%d" % x)
+    code = Sequence(lambda x: "CODE_%d" % x)
+    summary = Sequence(lambda x: "Message Summary #%d" % x)
+    description = Sequence(lambda x: "Description #%d" % x)

@@ -135,7 +135,8 @@ def init_time_blocks(events,
         pass  # TO DO
 
     events = [event for event in events
-              if event['stop_time'] > cal_start and event['start_time'] < cal_stop]
+              if event['stop_time'] > cal_start and
+              event['start_time'] < cal_stop]
     events = sorted(events, key=lambda event: event['start_time'])
     if not events:
         return [], cal_start, cal_stop
@@ -306,13 +307,14 @@ def table_prep(events,
                                                          time_format,
                                                          cal_start,
                                                          cal_stop)
+    events = filter(lambda e: ((cal_start <= e['start_time'] < cal_stop)) or
+                    ((cal_start < e['stop_time'] <= cal_stop)), events)
+
     if not col_heads:
         col_heads = init_column_heads(events)
     cal_table = table(rows=block_labels,
                       columns=col_heads,
                       default='<td></td>')
-    events = filter(lambda e: ((cal_start <= e['start_time'] < cal_stop)) or
-                    ((cal_start < e['stop_time'] <= cal_stop)), events)
 
     for event in events:
         normalize(event, cal_start, cal_stop, block_labels, block_size)
@@ -395,32 +397,6 @@ def event_info(confitem_type='Show',
     return events
 
 
-def day_to_cal_time(day='Saturday',
-                    week=datetime(2015, 02, 19, tzinfo=pytz.timezone('UTC'))):
-    '''
-    Accepts a day of the week, and returns the hours for that day as a
-    datetime tuple.
-    Can also accept a datetime for a particular week.
-    '''
-    conference_days = ['Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday']
-    # Eventually change this to a call to the master conference event to
-    # determine its first day we are dealing w/ ISO 8601 week, which start
-    # on Monday at 0, so Thursday is 3
-    if week.weekday() < 3:
-        shift = 3 - week.weekday()
-        week = week + Duration(0, shift * 60 * 60 * 24)
-    elif week.weekday() > 3:
-        shift = week.weekday() - 3
-        week = week - Duration(0, shift * 60 * 60 * 24)
-
-    return_day = week + Duration(
-        days=[i for i, x in enumerate(conference_days) if x == day][0])
-
-    cal_times = (return_day + Duration(hours=8),
-                 return_day + Duration(hours=28))
-    return cal_times
-
-
 def select_day(days, day_name):
     '''
     Take a list of conference_days, return the one whose name is day_name
@@ -435,15 +411,22 @@ def date_to_datetime(the_date):
     return utc.localize(datetime.combine(the_date, zero_hour))
 
 
+def get_default_range():
+    today = date_to_datetime(date.today())
+    return (today + Duration(hours=8), today + Duration(hours=28))
+
+
 def cal_times_for_conf(conference, day_name):
     from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
 
     if not days.exists():
-        today = date_to_datetime(date.today())
-        return (today + Duration(hours=8), today + Duration(hours=28))
+        return get_default_range()
     if day_name:
-        day = date_to_datetime(select_day(days, day_name).day)
+        selected_day = select_day(days, day_name)
+        if not selected_day:
+            return get_default_range()
+        day = date_to_datetime(selected_day.day)
         if day:
             return day + Duration(hours=8), day + Duration(hours=28)
 
@@ -451,35 +434,6 @@ def cal_times_for_conf(conference, day_name):
         first_day = date_to_datetime(days.first().day)
         last_day = date_to_datetime(days.last().day)
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
-
-
-def volunteer_shift_info(
-    profile_id,
-    filter_type=None,
-    cal_times=(datetime(2015, 02, 20, 18, 00,
-               tzinfo=pytz.timezone('UTC')),
-               datetime(2015, 02, 23, 00, 00, tzinfo=pytz.timezone('UTC')))):
-    '''
-    Accepts a username or profile id number, a filter type, and a set of
-    times.  Prepares a schedule of commitments that user has, filtered
-    on filter_type, filter_type = None shows everything they are scheduled
-    for (does not work yet).
-    '''
-
-    from scheduler.models import Location
-    from scheduler.models import WorkerItem, Worker
-
-    volunteer = Worker.objects.filter(id=profile_id)[0]
-
-    scheduled_shifts = volunteer.item.get_bookings(role=filter_type)
-
-    for shift in scheduled_shifts:
-        start_t = shift.start_time
-        stop_t = shift.start_time + shift.duration
-        if start_t > cal_times[1] or stop_t < cal_times[0]:
-            scheduled_shift.remove(shift)
-
-    return scheduled_shifts
 
 
 def get_events_and_windows(conference):
