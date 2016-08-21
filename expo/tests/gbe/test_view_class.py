@@ -1,4 +1,3 @@
-import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -24,4 +23,4 @@ class TestViewClass(TestCase):
 
         login_as(klass.teacher.performer_profile, self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
