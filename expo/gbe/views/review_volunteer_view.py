@@ -1,103 +1,43 @@
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from expo.gbe_logging import log_func
-from gbe.functions import (
-    validate_perms,
-    get_conf,
-)
-from gbe.models import (
-    BidEvaluation,
-    Conference,
-    Volunteer,
-)
-from gbe.forms import (
-    BidEvaluationForm,
-    BidStateChangeForm,
-)
+from gbe.models import Volunteer
+
+from gbe.forms import BidEvaluationForm
+from gbe.views import ReviewBidView
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
 
-@login_required
-@log_func
-def ReviewVolunteerView(request, volunteer_id):
-    '''
-    Show a bid  which needs to be reviewed by the current user.
-    To show: display all information about the bid, and a standard
-    review form.
-    If user is not a reviewer, politely decline to show anything.
-    '''
-    reviewer = validate_perms(request, ('Volunteer Reviewers',))
-    if request.GET and request.GET.get('conf_slug'):
-        conference = Conference.by_slug(request.GET['conf_slug'])
-    else:
-        conference = Conference.current_conf()
+class ReviewVolunteerView(ReviewBidView):
+    reviewer_permissions = ('Volunteer Reviewers',)
+    coordinator_permissions = ('Volunteer Coordinator',)
+    object_type = Volunteer
+    review_list_view_name = 'volunteer_review_list'
+    bid_view_name = 'volunteer_view'
 
-    if int(volunteer_id) == 0 and request.method == 'POST':
-        volunteer_id = int(request.POST['volunteer'])
-    volunteer = get_object_or_404(
-        Volunteer,
-        id=volunteer_id,
-    )
-    if not volunteer.is_current:
-        return HttpResponseRedirect(
-            reverse('volunteer_view',
-                    urlconf='gbe.urls',
-                    args=[volunteer_id]))
-    conference, old_bid = get_conf(volunteer)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ReviewVolunteerView, self).dispatch(*args, **kwargs)
 
-    display_forms = get_volunteer_forms(volunteer)
+    def get_object(self, request, object_id):
+        if int(object_id) == 0:
+            object_id = int(request.POST['volunteer'])
+        super(ReviewVolunteerView, self).get_object(request, object_id)
 
-    if 'Volunteer Coordinator' in request.user.profile.privilege_groups:
-        actionform = BidStateChangeForm(instance=volunteer)
-        actionURL = reverse('volunteer_changestate',
-                            urlconf='gbe.urls',
-                            args=[volunteer_id])
-    else:
-        actionform = False
-        actionURL = False
-    '''
-    if user has previously reviewed the bid, provide his review for update
-    '''
-    try:
-        bid_eval = BidEvaluation.objects.filter(
-            bid_id=volunteer_id,
-            evaluator_id=reviewer.resourceitem_id)[0]
-    except:
-        bid_eval = BidEvaluation(evaluator=reviewer, bid=volunteer)
-    # show info and inputs for review
-    if request.method == 'POST':
-        form = BidEvaluationForm(request.POST,
-                                 instance=bid_eval)
-        if form.is_valid():
-            evaluation = form.save(commit=False)
-            evaluation.evaluator = reviewer
-            evaluation.bid = volunteer
-            evaluation.save()
-            return HttpResponseRedirect(reverse('volunteer_review_list',
-                                                urlconf='gbe.urls'))
-        else:
-            return render(request, 'gbe/bid_review.tmpl',
-                          {'readonlyform': display_forms,
-                           'form': form,
-                           'actionform': actionform,
-                           'actionURL': actionURL,
-                           'conference': conference,
-                           'old_bid': old_bid,
-                           })
-    else:
-        form = BidEvaluationForm(instance=bid_eval)
-        return render(request,
-                      'gbe/bid_review.tmpl',
-                      {'readonlyform': display_forms,
-                       'reviewer': reviewer,
-                       'form': form,
-                       'actionform': actionform,
-                       'actionURL': actionURL,
-                       'conference': conference,
-                       'old_bid': old_bid,
-                       })
+    def groundwork(self, request, args, kwargs):
+        super(ReviewVolunteerView, self).groundwork(request, args, kwargs)
+
+        self.readonlyform_pieces = get_volunteer_forms(self.object)
+
+    def get(self, request, *args, **kwargs):
+        self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(instance=self.bid_eval)
+        return (self.object_not_current_redirect() or
+                self.bid_review_response(request))
+
+    def post(self, request, *args, **kwargs):
+        self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(request.POST,
+                                      instance=self.bid_eval)
+
+        return (self.object_not_current_redirect() or
+                self.post_response_for_form(request))
