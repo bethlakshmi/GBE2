@@ -1,16 +1,16 @@
-# literal text here. Please use good names, meaning short and sensible. Use 
-# as much comment as you need to detail where the stuff is used and for what. 
-# Scratch may edit this file to his heart's content. 
+# literal text here. Please use good names, meaning short and sensible. Use
+# as much comment as you need to detail where the stuff is used and for what.
+# Scratch may edit this file to his heart's content.
 # use triple-quotes to allow text to run across lines. The rules of triple-quotes in python:
 #    three ''' or """ on either end create a multiline string
 #    newlines are preserved unless backslash-escaped
 #    special characters can be interpolated according to the standard python rules. But there's
-#    no real reason why we'd want to put in, for example, newlines and such, so let's don't. 
+#    no real reason why we'd want to put in, for example, newlines and such, so let's don't.
 
-# ??? I think this file should also contain options bundles, since they're pretty much literal 
-# text. But if it gets too unweildy, we can move stuff around. 
+# ??? I think this file should also contain options bundles, since they're pretty much literal
+# text. But if it gets too unweildy, we can move stuff around.
 
-example_string = '''this is a multiline string. a newline 
+example_string = '''this is a multiline string. a newline
                   will be included after the word "newline" \
                   on the first line, but not after the one \
                   on the second.'''
@@ -46,22 +46,22 @@ profile_alerts = {'onsite_phone':  '''We need a number to reach you at during th
                   }
 
 act_alerts = {
-    'act_complete_not_submitted': 
+    'act_complete_not_submitted':
     '''This act is complete and can be submitted whenever you like. \
     <a href = '{% url 'gbe:act_edit' act_id %}'> Review and Submit Now </a>''',
-    'act_complete_submitted': 
+    'act_complete_submitted':
     'This act is complete and has been submitted for review.',
-    'act_incomplete_not_submitted': 
-    'This act is not complete and cannot be submitted for a show. ', 
-    'act_incomplete_submitted': 
+    'act_incomplete_not_submitted':
+    'This act is not complete and cannot be submitted for a show. ',
+    'act_incomplete_submitted':
     'This act is not complete but it has been submitted for a show. WTF???'
 
     }
-   
 
-act_shows_options = [ (0, 'The Bordello (Fri. Late)'), 
+
+act_shows_options = [ (0, 'The Bordello (Fri. Late)'),
                       (1, 'The Main Event, in competition'),
-                      (2, 'The Main Event, not in competition'), 
+                      (2, 'The Main Event, not in competition'),
                       (3, 'The Newcomer\'s Showcase'),
                     ]
 
@@ -131,31 +131,31 @@ cyc_color_options = (('Blue', 'Blue'), ('Green', 'Green'), ('OFF', 'OFF'),
                      ('White', 'White'), ('Yellow', 'Yellow'))
 
 
-vendor_lighting_options = (('White', 'White'), 
-                          ('Blue', 'Blue'), 
+vendor_lighting_options = (('White', 'White'),
+                          ('Blue', 'Blue'),
                           ('Red', 'Red'),
                           ('No lights (not recommended)', 'No lights'))
 
 
 acceptance_states = ((0,'No Decision'),
                      (1,'Reject'),
-                     (2,'Wait List'), 
+                     (2,'Wait List'),
                      (3,'Accepted'),
                      (4,'Withdrawn'),
                      (5,'Duplicate'))
 
 class_acceptance_states = (
                      (1,'Reject'),
-                     (2,'Wait List'), 
+                     (2,'Wait List'),
                      (3,'Accepted'))
 
-vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"), 
-                (4, "No Comment"), (5, "Weak No"), (6, "No"), 
-                (7, "Strong No"), (0, "Undecided"), (-1, "Author"))
+vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"),
+                (4, "No Comment"), (5, "Weak No"), (6, "No"),
+                (7, "Strong No"), (-1, "Abstain"))
 
 
-festival_list = (('GBE', 'The Great Burlesque Exposition'), 
-                 ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'), 
+festival_list = (('GBE', 'The Great Burlesque Exposition'),
+                 ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'),
                  ('NYBF', 'New York Burlesque Festival'),
                  ('NOBF','New Orleans Burlesque Festival'),
                  ('TBF','Texas Burlesque Festival'))
@@ -166,7 +166,7 @@ yesno_options = (("Yes", "Yes"), ("No", "No"))
 yes_no_maybe_options = (("Yes", "Yes"), ("No", "No"), ('Maybe', 'Maybe'))
 boolean_options = ((True, "Yes"), (False, "No"))
 
-video_options = (('0', "I don't have any video of myself performing"), 
+video_options = (('0', "I don't have any video of myself performing"),
                  ('1', "This is video of me but not the act I'm submitting"),
                  ('2', "This is video of the act I would like to perform"))
 participate_options = (('Yes', 'Yes'), ('No', 'No'), ('Not Sure', 'Not Sure'))
@@ -181,7 +181,7 @@ event_options = (('Special', "Special Event"),
                  ('Volunteer',"Volunteer Opportunity"),
                  ('Master',"Master Class"),
                  ('Drop-In',"Drop-In Class"),
-                 ('Staff Area', 'Staff Area'), 
+                 ('Staff Area', 'Staff Area'),
                  ('Rehearsal Slot', 'Rehearsal Slot'))
 
 new_event_options = (('Special', "Special Event"),
