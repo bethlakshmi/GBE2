@@ -19,6 +19,7 @@ class ReviewClassView(ReviewBidView):
     bid_form_type = ClassBidForm
     object_type = Class
     bid_view_name = 'class_view'
+    review_list_view_name = 'class_review_list'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -38,21 +39,17 @@ class ReviewClassView(ReviewBidView):
         self.contact = ParticipantForm(
             instance=self.object.teacher.performer_profile,
             prefix='Teacher Contact Info', initial=initial)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
         self.readonlyform_pieces = (self.object_form,
                                     self.teacher, self.contact)
 
     def get(self, request, *args, **kwargs):
-        '''
-        Show a bid  which needs to be reviewed by the current user.
-        To show: display all information about the bid, and a standard
-        review form.
-        '''
         self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.bid_review_response(request))
 
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
+        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.post_response_for_form(request))
