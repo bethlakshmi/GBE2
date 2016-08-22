@@ -3,9 +3,9 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.core.validators import (
-    RegexValidator,
     MinValueValidator,
-    MaxValueValidator
+    MaxValueValidator,
+    RegexValidator,
 )
 from django.core.exceptions import (
     ValidationError,
@@ -40,12 +40,13 @@ from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
 import pytz
-from gbe.models import AvailableInterest
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
+
+
 
 
 class Conference(models.Model):
@@ -81,6 +82,39 @@ class Conference(models.Model):
     class Meta:
         verbose_name = "conference"
         verbose_name_plural = "conferences"
+        app_label = "gbe"
+
+
+
+
+class ConferenceDay(models.Model):
+    day = models.DateField(blank=True)
+    conference = models.ForeignKey(Conference)
+
+    def __unicode__(self):
+        return self.day.strftime("%a, %b %d")
+
+    class Meta:
+        ordering = ['day']
+        verbose_name = "Conference Day"
+        verbose_name_plural = "Conference Days"
+        app_label = "gbe"
+
+
+class VolunteerWindow(models.Model):
+    start = models.TimeField(blank=True)
+    end = models.TimeField(blank=True)
+    day = models.ForeignKey(ConferenceDay)
+
+    def __unicode__(self):
+        return "%s, %s to %s" % (str(self.day),
+                                 self.start.strftime("%I:%M %p"),
+                                 self.end.strftime("%I:%M %p"))
+
+    class Meta:
+        ordering = ['day', 'start']
+        verbose_name = "Volunteer Window"
+        verbose_name_plural = "Volunteer Windows"
         app_label = "gbe"
 
 
@@ -909,8 +943,6 @@ class CueInfo(models.Model):
 #######
 # Act #
 #######
-
-
 class Act (Biddable, ActItem):
     '''
     A performance, either scheduled or proposed.
@@ -1123,52 +1155,6 @@ class Act (Biddable, ActItem):
         app_label = "gbe"
 
 
-class Room(LocationItem):
-    '''
-    A room at the expo center
-    '''
-    name = models.CharField(max_length=50)
-    capacity = models.IntegerField()
-    overbook_size = models.IntegerField()
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        app_label = "gbe"
-
-
-class ConferenceDay(models.Model):
-    day = models.DateField(blank=True)
-    conference = models.ForeignKey(Conference)
-
-    def __unicode__(self):
-        return self.day.strftime("%a, %b %d")
-
-    class Meta:
-        ordering = ['day']
-        verbose_name = "Conference Day"
-        verbose_name_plural = "Conference Days"
-        app_label = "gbe"
-
-
-class VolunteerWindow(models.Model):
-    start = models.TimeField(blank=True)
-    end = models.TimeField(blank=True)
-    day = models.ForeignKey(ConferenceDay)
-
-    def __unicode__(self):
-        return "%s, %s to %s" % (str(self.day),
-                                 self.start.strftime("%I:%M %p"),
-                                 self.end.strftime("%I:%M %p"))
-
-    class Meta:
-        ordering = ['day', 'start']
-        verbose_name = "Volunteer Window"
-        verbose_name_plural = "Volunteer Windows"
-        app_label = "gbe"
-
-
 class Event(EventItem):
     '''
     Event is the base class for any scheduled happening at the expo.
@@ -1235,6 +1221,7 @@ class Event(EventItem):
         app_label = "gbe"
 
 
+
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
@@ -1242,7 +1229,6 @@ class Show (Event):
     and scheduling through scheduler  (post 2015)
     '''
     acts = models.ManyToManyField(Act, related_name="appearing_in", blank=True)
-    mc = models.ManyToManyField(Persona, related_name="mc_for", blank=True)
     cue_sheet = models.CharField(max_length=128,
                                  choices=cue_options,
                                  blank=False,
@@ -1293,83 +1279,6 @@ class Show (Event):
                              (self.conference.conference_slug,
                               self.title.replace(" ", "_").replace("/", "_"))))
         return path
-
-    class Meta:
-        app_label = "gbe"
-
-
-class GenericEvent (Event):
-    '''
-    Any event except for a show or a class
-    '''
-    type = models.CharField(max_length=128,
-                            choices=event_options,
-                            blank=False,
-                            default="Special")
-    volunteer_type = models.ForeignKey(AvailableInterest,
-                                       blank=True,
-                                       null=True)
-
-    def __str__(self):
-        return self.title
-
-    @property
-    def volunteer_category_description(self):
-        if self.volunteer_type:
-            return self.volunteer_type.interest
-        else:
-            return ''
-
-    @property
-    def sched_payload(self):
-        types = dict(event_options)
-        payload = {
-            'type': self.type,
-            'title': self.title,
-            'description': self.description,
-            'duration': self.duration,
-            'details': {'type': types[self.type]},
-        }
-        if self.parent_event:
-            payload['details']['parent_event'] = self.parent_event.detail_link
-            if self.volunteer_type:
-                payload['details']['volunteer_category'] = self.volunteer_category_description
-        return payload
-
-    @property
-    def parent_event(self):
-        if self.type != 'Volunteer':
-            return None
-        sevent = self.eventitem_ptr.scheduler_events.first()
-        from scheduler.models import EventContainer
-        query = EventContainer.objects.filter(child_event=sevent)
-        if query.count() == 0:
-            return None
-        parent = query.first().parent_event
-        return parent
-
-    @property
-    def schedule_ready(self):
-        return True
-
-    # tickets that apply to generic events are:
-    #   - any ticket that applies to "most" iff this is not a master class
-    #   - any ticket that links this event specifically
-    # but for all tickets - iff the ticket is active
-    #
-    def get_tickets(self):
-        from ticketing.models import TicketItem
-        if self.type in ["Special", "Drop-In"]:
-            most_events = TicketItem.objects.filter(
-                bpt_event__include_most=True,
-                active=True,
-                bpt_event__conference=self.conference)
-        else:
-            most_events = []
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                              active=True)
-        tickets = list(chain(my_events, most_events))
-        return tickets
 
     class Meta:
         app_label = "gbe"
@@ -1568,18 +1477,6 @@ class BidEvaluation(models.Model):
         app_label = "gbe"
 
 
-class PerformerFestivals(models.Model):
-    festival = models.CharField(max_length=20, choices=festival_list)
-    experience = models.CharField(max_length=20,
-                                  choices=festival_experience,
-                                  default='No')
-    act = models.ForeignKey(Act)
-
-    class Meta:
-        verbose_name_plural = 'performer festivals'
-        app_label = "gbe"
-
-
 class Volunteer(Biddable):
     '''
     Represents a conference attendee's participation as a volunteer.
@@ -1736,38 +1633,6 @@ class Vendor(Biddable):
         app_label = "gbe"
 
 
-class AdBid(Biddable):
-    '''
-    A bid for an ad. What sort of ad? Don't know yet. To do:
-    use this
-    '''
-    company = models.CharField(max_length=128, blank=True)
-    type = models.CharField(max_length=128, choices=ad_type_options)
-
-    def __unicode__(self):
-        return self.company
-
-    class Meta:
-        app_label = "gbe"
-
-
-class ArtBid(Biddable):
-    '''
-    Not used in 2015. Possibly in 2016
-    '''
-    bio = models.TextField(blank=True)
-    works = models.TextField(blank=True)
-    art1 = models.FileField(upload_to="uploads/images", blank=True)
-    art2 = models.FileField(upload_to="uploads/images", blank=True)
-    art3 = models.FileField(upload_to="uploads/images", blank=True)
-
-    def __unicode__(self):
-        return self.bidder.display_name
-
-    class Meta:
-        app_label = "gbe"
-
-
 class Costume(Biddable):
     '''
     An offer to display a costume at the Expo's costume display
@@ -1855,109 +1720,6 @@ class Costume(Biddable):
 
     class Meta:
         app_label = "gbe"
-
-
-class ClassProposal(models.Model):
-    '''
-    A proposal for a class that someone else ought to teach.
-    This is NOT a class bid, this is just a request that someone
-    implement this idea.
-    '''
-    title = models.CharField(max_length=128)
-    name = models.CharField(max_length=128, blank=True)
-    email = models.EmailField(blank=True)
-    proposal = models.TextField()
-    type = models.CharField(max_length=20,
-                            choices=class_proposal_choices,
-                            default='Class')
-    display = models.BooleanField(default=False)
-    conference = models.ForeignKey(
-        Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
-
-    def __unicode__(self):
-        return self.title
-
-    @property
-    def bid_review_header(self):
-        return (['Title',
-                 'Proposal',
-                 'Type',
-                 'Submitter',
-                 'Published',
-                 'Action'])
-
-    @property
-    def bid_review_summary(self):
-        if self.display:
-            published = "Yes"
-        else:
-            published = ""
-        return (self.title, self.proposal, self.type, self.name, published)
-
-    @property
-    def presenter_bid_header(self):
-        return (['Title', 'Proposal'])
-
-    @property
-    def presenter_bid_info(self):
-        return (self.title, self.proposal, self.type)
-
-    class Meta:
-        app_label = "gbe"
-
-
-class ConferenceVolunteer(models.Model):
-    '''
-    An individual wishing to participate in the conference as a volunteer
-    (fits with the class proposal above)
-    '''
-    presenter = models.ForeignKey(Persona,
-                                  related_name='conf_volunteer')
-    bid = models.ForeignKey(ClassProposal)
-    how_volunteer = models.CharField(max_length=20,
-                                     choices=conference_participation_types,
-                                     default='Any of the Above')
-    qualification = models.TextField(blank='True')
-    volunteering = models.BooleanField(default=True, blank='True')
-
-    def __unicode__(self):
-        return "%s: %s" % (self.bid.title, self.presenter.name)
-
-    @property
-    def bid_fields(self):
-        return (['volunteering',
-                 'presenter',
-                 'bid',
-                 'how_volunteer',
-                 'qualification'],
-                ['presenter', 'bid', 'how_volunteer'])
-
-    @property
-    def presenter_bid_header(self):
-        return (['Interested', 'Presenter', 'Role', 'Qualification'])
-
-    class Meta:
-        app_label = "gbe"
-
-
-class ProfilePreferences(models.Model):
-    '''
-    User-settable preferences controlling interaction with the
-    Expo and with the site.
-    '''
-    profile = models.OneToOneField(Profile,
-                                   related_name='preferences')
-    in_hotel = models.CharField(max_length=10,
-                                blank=True,
-                                choices=yes_no_maybe_options)
-    inform_about = models.TextField(blank=True)
-    show_hotel_infobox = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name_plural = 'profile preferences'
-        app_label = "gbe"
-
 
 def mail_to_user(subject, message, user):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
