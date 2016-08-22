@@ -361,10 +361,9 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
         super(VolunteerBidStateChangeForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        from scheduler.models import Worker, ResourceAllocation, Event
+        from scheduler.models import Worker, Event
 
         volform = super(VolunteerBidStateChangeForm, self).save(commit=False)
-        time_format = set_time_format(days=2)
 
         if commit:
             # Clear out previous assignments, deletes
@@ -375,46 +374,14 @@ class VolunteerBidStateChangeForm(BidStateChangeForm):
 
             # if the volunteer has been accepted, set the events.
             if self.cleaned_data['accepted'] == 3:
-                worker = Worker(_item=volform.profile, role='Volunteer')
-                worker.save()
-
-                # Cast the act into the show by adding it to
-                # the schedule resource allocation
                 for assigned_event in self.cleaned_data['events']:
                     event = get_object_or_404(Event, pk=assigned_event)
-                    conflicts = worker._item.get_conflicts(event)
-                    for problem in conflicts:
+                    warnings = event.allocate_worker(
+                        volform.profile,
+                        'Volunteer')
+                    for warning in warnings:
                         messages.warning(self.request,
-                                         "Found event conflict, new booking " +
-                                         str(event) +
-                                         " - " +
-                                         event.starttime.
-                                         strftime(time_format) +
-                                         " conflicts with " +
-                                         str(problem) +
-                                         " - " +
-                                         problem.starttime.
-                                         strftime(time_format)
-                                         )
-                    volunteer_assignment = ResourceAllocation()
-                    volunteer_assignment.event = event
-                    volunteer_assignment.resource = worker
-                    volunteer_assignment.save()
-                    if event.extra_volunteers() > 0:
-                        warn = "%s - %s is overfull. Over by %d volunteer%s."
-                        warn = warn % (str(event),
-                                       event.starttime.strftime(time_format),
-                                       event.extra_volunteers(),
-                                       's' * event.extra_volunteers() > 1
-                                       )
-                        messages.warning(
-                            self.request,
-                            str(event) +
-                            " - " +
-                            event.starttime.strftime(time_format) +
-                            " is overfull.  Over by " +
-                            str(event.extra_volunteers()) +
-                            " volunteer.")
+                                         warning)
             volform.save()
         return self
 

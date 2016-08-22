@@ -359,8 +359,6 @@ class TestAssignVolunteer(TestCase):
 
     def test_post(self):
         ''' test that the post style of request works '''
-    def test_volunteer_details(self):
-        '''volunteer details show up'''
         data = self.set_basic_opportunity()
         volunteer = data['volunteer']
 
