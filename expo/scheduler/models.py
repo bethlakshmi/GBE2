@@ -688,11 +688,10 @@ class Event(Schedulable):
             allocation.resource = worker
         allocation.save()
         if self.extra_volunteers() > 0:
-            warnings += ["%s - %s is overfull. Over by %d volunteer%s." % (
+            warnings += ["%s - %s is overfull. Over by %d volunteer." % (
                 str(self),
                 self.starttime.strftime(time_format),
-                self.extra_volunteers(),
-                's' * self.extra_volunteers() > 1)]
+                self.extra_volunteers())]
         if label:
             allocation.set_label(label)
         return warnings
