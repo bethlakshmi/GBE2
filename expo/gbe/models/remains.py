@@ -483,11 +483,27 @@ class Performer (WorkerItem):
         '''
         return alerts
 
-    @property
-    def promo_small(self):
+    '''
+    gets the URL for images that have been sized specifically to
+    suit GBE layouts
+       mini = the size for show/act and fashion fair grids - height = 125p
+       thumb = the size for the /gbe page -  height 75-100p
+    There is a timebased script that minifies uploaded images.  When using
+    this function, always check first that the image exists, and if it
+    does not, default to the profile_image.name
+    '''
+    def get_promo_image_sizes(self, size):
         pieces = self.promo_image.name.split('/')
-        pieces.insert(-1, 'mini')
+        pieces.insert(-1, size)
         return '/'.join(pieces)
+
+    @property
+    def promo_mini(self):
+        return self.get_promo_image_sizes('mini')
+
+    @property
+    def promo_thumb(self):
+        return self.get_promo_image_sizes('thumb')
 
     @property
     def get_schedule(self):

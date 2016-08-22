@@ -58,8 +58,8 @@
             <span class="perfhover">
 	    <div class="vimg font_regular">
 	      <a href="{{bio.homepage}}">
-	   	{% if bio.promo_small %}
-	   	<img src="{{MEDIA_URL}}{{bio.promo_small}}" class="vimage">
+	   	{% if bio.promo_mini %}
+	   	<img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="vimage">
 		{% else %}
 		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" class="vimage">
 		{% endif %}
@@ -71,7 +71,7 @@
 	   	  {% if bio.promo_image %}
 		  <div style="float:right">
                   <a href="{{MEDIA_URL}}{{bio.promo_image}}">
-		    <img src="{{MEDIA_URL}}{{bio.promo_small}}" alt="Photo" width=200 style="float:right">
+		    <img src="{{MEDIA_URL}}{{bio.promo_mini}}" alt="Photo" width=200 style="float:right">
 		  </a></div><BR>
 		  {%endif%}
                   <div class="vdesc">
@@ -107,7 +107,7 @@
       </div>
         {% if worker.workeritem.promo_image %}
           <div class="bio_name bio_image_block">
-          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_small}}" class="sched_bio_image">
+          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}" class="sched_bio_image">
           </div>
         {% endif %}
       {%endifchanged%}
@@ -125,7 +125,7 @@
 
        {% if bio.promo_image %}
           <div class="bio_image_block">
-            <img src="{{MEDIA_URL}}{{bio.promo_small}}" class="sched_bio_image">
+            <img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
