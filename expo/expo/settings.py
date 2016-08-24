@@ -88,7 +88,7 @@ except:
     LOGIN_REDIRECT_URL = '/'
 
 # Application definition
-
+ 
 INSTALLED_APPS = (
     'cms',  # django CMS itself
     'mptt',  # utilities for implementing a tree
@@ -136,7 +136,6 @@ INSTALLED_APPS = (
     'ticketing',
     'scheduler',
     'pagination',
-    'djangobb_forum',
     'django_nose',
     'hijack',
     'compat',
@@ -199,7 +198,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'sekizai.context_processors.sekizai',
     'django.core.context_processors.static',
     'cms.context_processors.cms_settings',
-    'djangobb_forum.context_processors.forum_settings',
 )
 
 MIGRATION_MODULES = {
@@ -364,35 +362,84 @@ except:
 # DJANGO-HIJACK
 
 
-# HAYSTACK settings, for DjangoBB_Forum
-HAYSTACK_DEFAULT_OPERATOR = 'OR'
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': '/vagrant/expo/whoosh/whoosh_index',
-        'TIMEOUT': 60 * 5,
-        'INCLUDE_SPELLING': True,
-        'BATCH_SIZE': 100,
-        'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
-    },
-    'autocomplete': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': '/vagrant/expo/whoosh_index',
-        'STORAGE': 'file',
-        'POST_LIMIT': 128 * 1024 * 1024,
-        'INCLUDE_SPELLING': True,
-        'BATCH_SIZE': 100,
-        'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
-    },
-#    'slave': {
-#        'ENGINE': 'xapian_backend.XapianEngine',
-#        'PATH': '/home/search/xapian_index',
-#        'INCLUDE_SPELLING': True,
-#        'BATCH_SIZE': 100,
-#        'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
-#    },
-    'db': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
+
+###  This block is for using local_settings.py to control which external
+###  apps are setup and configured to execute within this installation
+###  of GBE2.  Only alter this if you read through local_settings.py
+###  and urls.py to see how this works.
+
+try:
+    APP_DJANGOBB
+except:
+    APP_DJANGOBB = False
+
+if APP_DJANGOBB == True:
+    print "Is True!!!!!"
+    INSTALLED_APPS=INSTALLED_APPS+('djangobb_forum',)
+    TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
+                ('djangobb_forum.context_processors.forum_settings',)
+
+    # HAYSTACK settings, for DjangoBB_Forum
+    HAYSTACK_DEFAULT_OPERATOR = 'OR'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh/whoosh_index',
+            'TIMEOUT': 60 * 5,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [ \
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        'autocomplete': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh_index',
+            'STORAGE': 'file',
+            'POST_LIMIT': 128 * 1024 * 1024,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [ \
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+    #    'slave': {
+    #        'ENGINE': 'xapian_backend.XapianEngine',
+    #        'PATH': '/home/search/xapian_index',
+    #        'INCLUDE_SPELLING': True,
+    #        'BATCH_SIZE': 100,
+    #        'EXCLUDED_INDEXES': [ \
+    #                'thirdpartyapp.search_indexes.BarIndex'],
+    #    },
+        'db': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+            'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
+        }
     }
-}
+
+
+
+#if APP_DJANGOCMS:
+#    LOCAL_APPS=LOCAL_APPS+(
+#        'cms',
+#        'djangocms_admin_style',
+#        'cmsplugin_nivoslider',
+#        'djangocms-placeholder-attr',
+#        'djangocms_style',
+#        'djangocms_column',
+#        'djangocms_snippet',
+#       #     'djangocms_file',
+#        'djangocms_flash',
+#        'djangocms_googlemap',
+#        'djangocms_inherit',
+#        'cmsplugin_filer_file',
+#        'cmsplugin_filer_folder',
+#        'cmsplugin_filer_link',
+#        'cmsplugin_filer_image',
+#        'cmsplugin_filer_teaser',
+#        'cmsplugin_filer_video',
+       #     'djangocms_link',
+       #     'djangocms_picture',
+       #     'djangocms_teaser',
+       #     'djangocms_video',
+#        'reversion',  # for versioning in cms -- use easy install
+#        )
+

@@ -3,6 +3,7 @@
 
 
 $bootstrap = <<BOOTSTRAP
+  ifmkdir() { if [ ! -d $1 ]; then mkdir $1; fi }
   sudo -s -H
   sudo apt-get update -y
   sudo apt-get install -y build-essential
@@ -15,7 +16,6 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-get install -y cachefilesd
   sudo echo "RUN=yes" > /etc/default/cachefilesd
   sudo apt-get install -y nfs-common portmap
-  sudo apt-fast -y install git openssh-server li
   sudo apt-fast -y install git openssh-server libfreetype6-dev pkg-config
   sudo echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
   sudo echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
@@ -26,8 +26,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox
-
+  sudo apt-fast -y install emacs24-nox findutils realpath
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -75,13 +74,17 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install gettext
   sudo pip install --requirement /vagrant/config/requirements.txt
   sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
-  mkdir /vagrant/tmp; cd /vagrant/tmp
-  wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz
+  ifmkdir /vagrant/tmp; cd /vagrant/tmp
+  ###  For current version of Django and DjangoBB_Forums
+  ###  After migrations to >=Django 1.7, update DjangoBB_Forums
+  if [ -f /vagrant/config/stable.tar.gz ]
+      then cp /vagrant/config/stable.tar.gz /vagrant/tmp
+      else wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz ; fi
   tar -zxvf stable.tar.gz
   cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
-  mkdir /vagrant/expo/expo/static; mkdir /vagrant/expo/logs
-  cd /vagrant/expo
-  cp /vagrant/aliases /home/vagrant ;chown vagrant:vagrant /home/vagrant/aliases
+  ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
+  cp /vagrant/aliases /vagrant/dbreset /home/vagrant
+  chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 
 ###  The next four lines will have to be done by hand, until we get a good test DB setup 
@@ -89,6 +92,12 @@ $bootstrap = <<BOOTSTRAP
 ###  python manage.py syncdb --all
 ###  python manage.py migrate --all
 ###  python manage.py collectstatic
+
+  if [ -f /vagrant/config/local_settings.py -a `ls -1 /vagrant/config/gbe_*.sql | wc -l` != '0' ]
+  then
+      cp /vagrant/config/local_settings.py /vagrant/expo/expo
+      ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+  fi 
 
 ###  This is a good way to run the server for basic level testing
 ###  python manage.py runserver 0.0.0.0:8111 > logs/runserver.log 2>&1
