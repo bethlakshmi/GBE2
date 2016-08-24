@@ -105,7 +105,7 @@
 	{%endif%}
       <br><br>
       </div>
-        {% if worker.workeritem.promo_image %}
+        {% if worker.workeritem.promo_mini %}
           <div class="bio_name bio_image_block">
           <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}" class="sched_bio_image">
           </div>
@@ -123,7 +123,7 @@
 	
       </div>
 
-       {% if bio.promo_image %}
+       {% if bio.promo_mini %}
           <div class="bio_image_block">
             <img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="sched_bio_image">
           </div>

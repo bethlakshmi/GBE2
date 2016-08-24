@@ -7,7 +7,7 @@
     {% if personae or troupes or combos %}
       {% for performer in personae %}
         <div class='performer'>
-	{% if performer.promo_image %}
+	{% if performer.promo_thumb %}
           <div class="gbe_thumb_block">
 	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
 	  </div>
@@ -27,7 +27,7 @@
       {% endfor %}
       {% for performer in troupes %}
         <div class='performer'>
-	{% if performer.promo_image %}
+	{% if performer.promo_thumb %}
           <div class="gbe_thumb_block">
 	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
 	  </div>
@@ -54,7 +54,7 @@
        {% endfor %}
        {% for performer in combos %}
         <div class='performer'>
-	{% if performer.promo_image %}
+	{% if performer.promo_thumb %}
           <div class="gbe_thumb_block">
 	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
 	  </div>
