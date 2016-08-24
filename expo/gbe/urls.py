@@ -169,11 +169,8 @@ urlpatterns = patterns(
         EditVolunteerView, name='volunteer_edit'),
     url(r'^volunteer/assign/(\d+)/?$',
         AssignVolunteerView, name='volunteer_assign'),
-
     url(r'^volunteer/review/(?P<object_id>\d+)/?$',
         ReviewVolunteerView.as_view(), name='volunteer_review'),
-    url(r'^volunteer/review/(\d+)/?$',
-        ReviewVolunteerView, name='volunteer_review'),
     url(r'^volunteer/review/?$',
         ReviewVolunteerListView,
         name='volunteer_review'),
