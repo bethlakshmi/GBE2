@@ -1,4 +1,5 @@
 from django.views.generic import View
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     render,
@@ -26,12 +27,13 @@ from gbe.functions import (
 
 
 class ReviewBidView(View):
+    bid_state_change_form = BidStateChangeForm
 
-    def create_action_form(self, object):
-        self.actionform = BidStateChangeForm(instance=self.object)
-        self.actionURL = reverse('class_changestate',
+    def create_action_form(self, bid):
+        self.actionform = self.bid_state_change_form(instance=bid)
+        self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
-                                 args=[self.object.id])
+                                 args=[bid.id])
 
 
     def bid_review_response(self, request):
@@ -87,3 +89,7 @@ class ReviewBidView(View):
             evaluator_id=self.reviewer.resourceitem_id).first()
         if self.bid_eval is None:
             self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.object)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ReviewBidView, self).dispatch(*args, **kwargs)

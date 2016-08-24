@@ -1,5 +1,3 @@
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from gbe.models import (
@@ -31,10 +29,8 @@ class ReviewActView(ReviewBidView):
     object_type = Act
     review_list_view_name = 'act_review_list'
     bid_view_name = 'act_view'
+    changestate_view_name = 'act_changestate'
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ReviewActView, self).dispatch(*args, **kwargs)
 
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)

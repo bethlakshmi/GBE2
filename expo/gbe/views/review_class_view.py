@@ -1,5 +1,3 @@
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from gbe.forms import (
     BidEvaluationForm,
     PersonaForm,
@@ -20,10 +18,8 @@ class ReviewClassView(ReviewBidView):
     object_type = Class
     bid_view_name = 'class_view'
     review_list_view_name = 'class_review_list'
+    changestate_view_name = 'class_changestate'
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ReviewClassView, self).dispatch(*args, **kwargs)
 
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
