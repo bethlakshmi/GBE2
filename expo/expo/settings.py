@@ -374,7 +374,6 @@ except:
     APP_DJANGOBB = False
 
 if APP_DJANGOBB == True:
-    print "Is True!!!!!"
     INSTALLED_APPS=INSTALLED_APPS+('djangobb_forum',)
     TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
                 ('djangobb_forum.context_processors.forum_settings',)
