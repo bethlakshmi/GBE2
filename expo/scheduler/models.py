@@ -659,7 +659,7 @@ class Event(Schedulable):
         duplicate allocations, it will always just create the requested
         allocation
         
-        It returns the any warnings.  Warnings include:
+        It returns any warnings.  Warnings include:
            - conflicts found with the worker item's existing schedule
            - any case where the event is already booked with the maximum
              number of volunteers
