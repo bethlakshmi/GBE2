@@ -26,7 +26,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox findutils realpath
+  sudo apt-fast -y install emacs24-nox findutils realpath libmagickwand-dev
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
