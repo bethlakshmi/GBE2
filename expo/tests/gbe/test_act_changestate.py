@@ -9,8 +9,11 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,
 )
-
-from tests.factories.scheduler_factories import SchedEventFactory
+from tests.factories.scheduler_factories import (
+    ResourceAllocationFactory,
+    SchedEventFactory,
+    WorkerFactory,
+)
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
     grant_privilege,
@@ -65,10 +68,6 @@ class TestActChangestate(TestCase):
 
     def test_act_changestate_unauthorized_user(self):
         context = ActTechInfoContext()
-        prev_count1 = ResourceAllocation.objects.filter(
-            event=context.sched_event).count()
-        prev_count2 = ResourceAllocation.objects.filter(
-            event=self.sched_event).count()
         # url = reverse('%s/%d' % (self.view_name, context.act.pk),
         #               urlconf='gbe.urls')
         url = reverse(self.view_name,
@@ -82,3 +81,26 @@ class TestActChangestate(TestCase):
                                     data=data)
 
         nt.assert_equal(403, response.status_code)
+
+    def test_act_changestate_book_act_with_conflict(self):
+        context = ActTechInfoContext()
+        grant_privilege(self.privileged_user, 'Act Reviewers')
+        conflict = SchedEventFactory(
+            starttime=context.sched_event.starttime)
+        ResourceAllocationFactory(
+            event=conflict,
+            resource=WorkerFactory(_item=context.performer.performer_profile)
+        )
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        data = {'show': self.show.pk,
+                'accepted': '2'}
+        login_as(self.privileged_user, self)
+        response = self.client.post(url,
+                                    data=data,
+                                    follow=True)
+        self.assertContains(
+            response,
+            "is booked for"
+        )
