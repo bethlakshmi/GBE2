@@ -1,5 +1,3 @@
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from gbe.forms import (
     CostumeBidSubmitForm,
     CostumeDetailsSubmitForm,
@@ -22,10 +20,7 @@ class ReviewCostumeView(ReviewBidView):
     bid_form_type = CostumeBidSubmitForm
     bid_view_name = "costume_view"
     review_list_view_name = 'costume_review_list'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ReviewCostumeView, self).dispatch(*args, **kwargs)
+    changestate_view_name = 'costume_changestate'
 
     def groundwork(self, request, args, kwargs):
         super(ReviewCostumeView, self).groundwork(request, args, kwargs)
