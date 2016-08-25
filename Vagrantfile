@@ -3,7 +3,7 @@
 
 
 $bootstrap = <<BOOTSTRAP
-  ifmkdir() { if [ ! -d $1 ]; then mkdir $1;fi; }
+  ifmkdir() { if [ ! -d $1 ]; then mkdir $1; fi }
   sudo -s -H
   sudo apt-get update -y
   sudo apt-get install -y build-essential
@@ -16,7 +16,6 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-get install -y cachefilesd
   sudo echo "RUN=yes" > /etc/default/cachefilesd
   sudo apt-get install -y nfs-common portmap
-  sudo apt-fast -y install git openssh-server li
   sudo apt-fast -y install git openssh-server libfreetype6-dev pkg-config
   sudo echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
   sudo echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
@@ -27,8 +26,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox
-  sudo apt-fast -y install libmagickwand-dev
+  sudo apt-fast -y install emacs24-nox findutils realpath
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -57,30 +55,50 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R mysql /var/lib/mysql/
   sudo /etc/init.d/mysql start
   #service mysql restart
-  mysql -u root -proot -e "CREATE USER 'django_user' IDENTIFIED BY 'secret'"
-  mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
-  mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
-  mysql -u root -proot  -e "USE gbe_dev"
-  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
-  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
-  mysql -u root -proot  -e "GRANT ALL ON test_gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
-  mysql -u root -proot  -e "flush privileges"
+  #mysql -u root -proot -e "CREATE USER 'django_user' IDENTIFIED BY 'secret'"
+  #mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
+  #mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
+  #mysql -u root -proot  -e "USE gbe_dev"
+  #mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
+  #mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
+  #mysql -u root -proot  -e "GRANT ALL ON test_gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
+  #mysql -u root -proot  -e "flush privileges"
  
   echo "your initialization shell scripts go here"
   sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
   sudo apt-fast -y install libjpeg-dev
-  sudo apt-fast -y  install libjpeg8-dev
+  sudo apt-fast -y install libjpeg8-dev
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
+  sudo apt-fast -y install gettext
   sudo pip install --requirement /vagrant/config/requirements.txt
-  cp /vagrant/aliases /vagrant/dbreset /home/vagrant/
+  ifmkdir /vagrant/tmp; cd /vagrant/tmp
+  ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
+  cp /vagrant/aliases /vagrant/dbreset /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
-  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc
-  ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/uploads
-  ifmkdir /vagrant/uploads/images; ifmkdir /vagrant/uploads/images/fullsize
-  ifmkdir /vagrant/uploads/images/mini; ifmkdir /vagrant/uploads/images/thumb
-  chown -R vagrant:vagrant /vagrant
+  echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
+
+###  The next four lines will have to be done by hand, until we get a good test DB setup 
+###  cat /vagrant/config/gbe2016test_data.sql | python manage.py dbshell
+###  python manage.py syncdb --all
+###  python manage.py migrate --all
+###  python manage.py collectstatic
+
+  if [ -f /vagrant/config/local_settings.py ]
+  then
+      cp /vagrant/config/local_settings.py /vagrant/expo/expo
+  fi
+  if [ -f /vagrant/config/gbe_*.sql ]
+  then
+      ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+  else
+      /home/vagrant/dbreset -
+  fi 
+
+###  This is a good way to run the server for basic level testing
+###  python manage.py runserver 0.0.0.0:8111 > logs/runserver.log 2>&1
+
 BOOTSTRAP
 
 
