@@ -135,9 +135,9 @@ class TestReviewAct(TestCase):
                       urlconf='gbe.urls',
                       args=[act.pk])
         response = self.client.post(url,
-                                    {'vote': 3,
-                                     'notes': "blah blah",
-                                     'bid': act.pk},
+                                    {'notes': "blah blah",
+                                     'bid': act.pk,
+                                     'evaluator': user.id},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         expected_string = "There is an error on the form."
