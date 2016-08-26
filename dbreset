@@ -221,15 +221,15 @@ fi
 
 settings=(`load_settings $local_path`)
 #  Want to find a less brain dead way of overriding non-default settings
-if [ ${settings[0]} != '' ]
+if [ "${settings[0]}" != '' ]
 then
     db=${settings[0]}
 fi
-if [ ${settings[1]} != '' ]
+if [ "${settings[1]}" != '' ]
 then
     user=${settings[1]}
 fi
-if [ ${settings[2]} != '' ]
+if [ "${settings[2]}" != '' ]
 then
     secret=${settings[2]}
 fi
@@ -239,7 +239,7 @@ reset_db $db $user $secret
 
 if $restore
 then
-    echo "Restoring DB", $filepath, $dbfile, $db
+    echo "Restoring DB", $user, $dbfile, $db
     restore_db $filepath/$dbfile $db
 fi
 
