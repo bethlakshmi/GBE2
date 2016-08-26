@@ -29,7 +29,6 @@ class ReviewActView(ReviewBidView):
     bid_view_name = 'act_view'
     changestate_view_name = 'act_changestate'
 
-
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
         self.bidder = self.bidder_form_type(instance=self.object.performer,

@@ -1,8 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from gbe.models import Volunteer
-
 from gbe.forms import BidStateChangeForm
-
 from gbe.views import ReviewBidView
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
@@ -15,7 +13,6 @@ class ReviewVolunteerView(ReviewBidView):
     bid_view_name = 'volunteer_view'
     changestate_view_name = 'volunteer_changestate'
     bid_change_state_form = BidStateChangeForm
-
 
     def get_object(self, request, object_id):
         if int(object_id) == 0:

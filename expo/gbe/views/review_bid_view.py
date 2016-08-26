@@ -35,7 +35,6 @@ class ReviewBidView(View):
                                  urlconf='gbe.urls',
                                  args=[bid.id])
 
-
     def bid_review_response(self, request):
         return render(request,
                       'gbe/bid_review.tmpl',
@@ -50,8 +49,8 @@ class ReviewBidView(View):
 
     def create_object_form(self, initial={}):
         self.object_form = self.bid_form_type(instance=self.object,
-                                  prefix=self.bid_prefix,
-                                  initial=initial)
+                                              prefix=self.bid_prefix,
+                                              initial=initial)
 
     def post_response_for_form(self, request):
         if self.form.is_valid():
@@ -68,17 +67,21 @@ class ReviewBidView(View):
         if self.object.is_current:
             return None
         return HttpResponseRedirect(
-            reverse(self.bid_view_name, urlconf='gbe.urls', args=[self.object.id]))
+            reverse(self.bid_view_name,
+                    urlconf='gbe.urls',
+                    args=[self.object.id]))
 
     def get_object(self, request, object_id):
         self.object = get_object_or_404(self.object_type,
-                                     id=object_id)
+                                        id=object_id)
 
     def groundwork(self, request, args, kwargs):
         object_id = kwargs['object_id']
         self.get_object(request, object_id)
         self.reviewer = validate_perms(request, self.reviewer_permissions)
-        if validate_perms(request, self.coordinator_permissions, require=False):
+        if validate_perms(request,
+                          self.coordinator_permissions,
+                          require=False):
             self.create_action_form(self.object)
         else:
             self.actionform = False
@@ -88,8 +91,8 @@ class ReviewBidView(View):
             bid_id=self.object.pk,
             evaluator_id=self.reviewer.resourceitem_id).first()
         if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(evaluator=self.reviewer, bid=self.object)
-
+            self.bid_eval = BidEvaluation(
+                evaluator=self.reviewer, bid=self.object)
 
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
@@ -104,7 +107,6 @@ class ReviewBidView(View):
 
         return (self.object_not_current_redirect() or
                 self.post_response_for_form(request))
-
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
