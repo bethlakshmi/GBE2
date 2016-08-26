@@ -1,10 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from gbe.models import Volunteer
 
-from gbe.forms import (
-    BidEvaluationForm,
-    BidStateChangeForm,
-)
+from gbe.forms import BidStateChangeForm
+
 from gbe.views import ReviewBidView
 from gbe.views.volunteer_display_functions import get_volunteer_forms
 
@@ -28,17 +26,3 @@ class ReviewVolunteerView(ReviewBidView):
         super(ReviewVolunteerView, self).groundwork(request, args, kwargs)
 
         self.readonlyform_pieces = get_volunteer_forms(self.object)
-
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.bid_review_response(request))
-
-    def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(request.POST,
-                                      instance=self.bid_eval)
-
-        return (self.object_not_current_redirect() or
-                self.post_response_for_form(request))
