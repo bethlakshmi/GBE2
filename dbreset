@@ -73,6 +73,10 @@ reset_db(){
     #  $2 is name of user
     #  $3 is secret password
 
+    #  Leave "drop database test_foo" in place, it is used for py.test,
+    #  nose, and other testing procedures.
+    mysql -u root -proot -e "DROP DATABASE IF EXISTS test_$1"
+    mysql -u root -proot -e "DROP DATABASE IF EXISTS TEST_$1"
     mysql -u root -proot -e "DROP DATABASE IF EXISTS $1"
     mysql -u root -proot -e "CREATE DATABASE $1"
     mysql -u root -proot -e "USE $1"
