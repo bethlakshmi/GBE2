@@ -26,7 +26,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox findutils realpath
+  sudo apt-fast -y install emacs24-nox findutils realpath libmagickwand-dev
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -93,11 +93,16 @@ $bootstrap = <<BOOTSTRAP
 ###  python manage.py migrate --all
 ###  python manage.py collectstatic
 
-  if [ -f /vagrant/config/local_settings.py -a `ls -1 /vagrant/config/gbe_*.sql | wc -l` != '0' ]
+  if [ -f /vagrant/config/local_settings.py ]
   then
       cp /vagrant/config/local_settings.py /vagrant/expo/expo
+  fi
+  if [ -f /vagrant/config/gbe_*.sql ]
+  then
       ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
-  fi 
+  else
+      /home/vagrant/dbreset -
+  fi
 
 ###  This is a good way to run the server for basic level testing
 ###  python manage.py runserver 0.0.0.0:8111 > logs/runserver.log 2>&1

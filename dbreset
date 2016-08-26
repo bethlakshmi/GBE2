@@ -4,16 +4,24 @@ set_defaults(){
 db='gbe_dev'
 user='django_user'
 secret='secret'
-dbfile='gbe_08172016.sql'
 filepath='/vagrant/config'
 setfilepath=false
-restore=true
 migration=false
 migrations=''
 local_path=false
+
+if [ -r $filepath/gbe*.sql ]
+then
+    restore=true
+    dbfile=`ls -1t $filepath/gbe*.sql | head -n 1 | xargs basename`
+else
+    restore=false
+    dbfile='gbe_08172016.sql'
+fi
+
 }
 set_defaults
-
+    
 print_help(){
 echo "
 Usage: dbreset [-] [-h] [-d database name] [-s secret] [-u username] 
@@ -30,11 +38,12 @@ Usage: dbreset [-] [-h] [-d database name] [-s secret] [-u username]
                the command line over-ride these setting
     -f  -  name of file containing SQL statements and data to be restored
                can accept filename, fully qualified path, or relative path,
-               default: gbe_08172016.sql
+               default is most recent of filename format gbe_*.sql
     -p  -  path to SQL file, may be fully qualified or relative, with throw
                an error is path is both specified with -p and -f,
                default: /vagrant/expo
     -r  -  DO NOT restore database from file, default is to restore from file
+               if a database file is present
     -m  -  run migrations (and an optional space separate list of migrations
                to run, currently accepts 'gbe scheduler ticketing', precede
                with 'fake' to run them as --fake, does not run as default,
@@ -66,6 +75,7 @@ reset_db(){
 
     mysql -u root -proot -e "DROP DATABASE IF EXISTS $1"
     mysql -u root -proot -e "CREATE DATABASE $1"
+    mysql -u root -proot -e "USE $1"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\' WITH GRANT OPTION\"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\'\"
     mysql -u root -proot -e "flush privileges"
