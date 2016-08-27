@@ -3,21 +3,33 @@ from django.conf import settings
 from django.conf.urls.static import static
 from cms.sitemaps import CMSSitemap
 
+from expo.local_settings import APP_DJANGOBB
+
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-                       url(r'^', include('gbe.urls', namespace = 'gbe')), 
-                       url(r'^admin/', include(admin.site.urls)),
-                       url(r'^', include('ticketing.urls', namespace = 'ticketing')),
-                       url(r'^', include('scheduler.urls', namespace = 'scheduler')),
-                       url(r'^', include('gbe.report_urls', namespace = 'reporting')),
-                       url(r'^tinymce/', include('tinymce.urls')),
-                       url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
-                           {'sitemaps': {'cmspages': CMSSitemap}}),
-                       url(r'^hijack/', include('hijack.urls')),
-                       url(r'^', include('cms.urls'))
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+LOCAL_APPS_URLS=()
+
+if APP_DJANGOBB == True:
+    LOCAL_APPS_URLS=LOCAL_APPS_URLS+(url(r'^forum/', 
+            include('djangobb_forum.urls', namespace = 'djangobb')),)
+
+urlpatterns = ('',\
+        url(r'^', include('gbe.urls', namespace = 'gbe')), 
+        url(r'^admin/', include(admin.site.urls)),
+        url(r'^', include('ticketing.urls', namespace = 'ticketing')),
+        url(r'^', include('scheduler.urls', namespace = 'scheduler')),
+        url(r'^', include('gbe.report_urls', namespace = 'reporting')),
+        url(r'^tinymce/', include('tinymce.urls')),
+        url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
+                {'sitemaps': {'cmspages': CMSSitemap}}),
+        url(r'^hijack/', include('hijack.urls')),
+                ) + LOCAL_APPS_URLS + (
+        url(r'^', include('cms.urls')),
+)
+
+urlpatterns=patterns(*urlpatterns) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 # always, always leave the last two lines as the last two lines.
 # The cms.urls are grabby and must always be the last include.

@@ -43,6 +43,7 @@ CMS_TEMPLATES = (
 
 LANGUAGES = [
     ('en-us', gettext('en-us')),
+    ('en', gettext('en')),
 
 ]
 
@@ -87,7 +88,7 @@ except:
     LOGIN_REDIRECT_URL = '/'
 
 # Application definition
-
+ 
 INSTALLED_APPS = (
     'cms',  # django CMS itself
     'mptt',  # utilities for implementing a tree
@@ -109,14 +110,14 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-    #    'aldryn_bootstrap3',
-    'image_gallery',  # I forked this and extended a little.
+   #     'aldryn_bootstrap3',
+    'image_gallery',  #I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-    #    'djangocms_file',
+   #     'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -125,20 +126,24 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',  # 'djangocms_link',
-    #    'djangocms_picture',
-    #    'djangocms_teaser',
-    #    'djangocms_video',
+    'cmsplugin_filer_video',
+   #     'djangocms_link',
+   #     'djangocms_picture',
+   #     'djangocms_teaser',
+   #     'djangocms_video',
     'reversion',  # for versioning in cms -- use easy install
     'gbe',
     'ticketing',
     'scheduler',
+    'pagination',
     'django_nose',
     'hijack',
     'compat',
     'debug_toolbar',
 )
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+#  TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 
@@ -149,7 +154,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
-    # 'easy_thumbnails.processors.scale_and_crop',
+   #    'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
@@ -163,7 +168,7 @@ MIDDLEWARE_CLASSES = (
     'hijack.middleware.HijackRemoteUserMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # added for django-cms
+   #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -172,8 +177,9 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
-    # end of add for django-cms
+   #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'pagination.middleware.PaginationMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
@@ -316,6 +322,13 @@ CMS_LANGUAGES = {
             'name': gettext('en-us'),
             'redirect_on_fallback': True,
         },
+        {
+            'public': True,
+            'code': 'en',
+            'hide_untranslated': False,
+            'name': gettext('en'),
+            'redirect_on_fallback': True,
+        },
     ],
 }
 
@@ -348,3 +361,85 @@ except:
 
 
 # DJANGO-HIJACK
+
+
+
+###  This block is for using local_settings.py to control which external
+###  apps are setup and configured to execute within this installation
+###  of GBE2.  Only alter this if you read through local_settings.py
+###  and urls.py to see how this works.
+
+try:
+    APP_DJANGOBB
+except:
+    APP_DJANGOBB = False
+
+if APP_DJANGOBB == True:
+    INSTALLED_APPS=INSTALLED_APPS+('djangobb_forum',)
+    TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
+                ('djangobb_forum.context_processors.forum_settings',)
+
+    # HAYSTACK settings, for DjangoBB_Forum
+    HAYSTACK_DEFAULT_OPERATOR = 'OR'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh/whoosh_index',
+            'TIMEOUT': 60 * 5,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [ \
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        'autocomplete': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh_index',
+            'STORAGE': 'file',
+            'POST_LIMIT': 128 * 1024 * 1024,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [ \
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+    #    'slave': {
+    #        'ENGINE': 'xapian_backend.XapianEngine',
+    #        'PATH': '/home/search/xapian_index',
+    #        'INCLUDE_SPELLING': True,
+    #        'BATCH_SIZE': 100,
+    #        'EXCLUDED_INDEXES': [ \
+    #                'thirdpartyapp.search_indexes.BarIndex'],
+    #    },
+        'db': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+            'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
+        }
+    }
+
+
+
+#if APP_DJANGOCMS:
+#    LOCAL_APPS=LOCAL_APPS+(
+#        'cms',
+#        'djangocms_admin_style',
+#        'cmsplugin_nivoslider',
+#        'djangocms-placeholder-attr',
+#        'djangocms_style',
+#        'djangocms_column',
+#        'djangocms_snippet',
+#       #     'djangocms_file',
+#        'djangocms_flash',
+#        'djangocms_googlemap',
+#        'djangocms_inherit',
+#        'cmsplugin_filer_file',
+#        'cmsplugin_filer_folder',
+#        'cmsplugin_filer_link',
+#        'cmsplugin_filer_image',
+#        'cmsplugin_filer_teaser',
+#        'cmsplugin_filer_video',
+       #     'djangocms_link',
+       #     'djangocms_picture',
+       #     'djangocms_teaser',
+       #     'djangocms_video',
+#        'reversion',  # for versioning in cms -- use easy install
+#        )
+
