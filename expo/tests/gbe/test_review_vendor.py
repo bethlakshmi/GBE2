@@ -88,16 +88,23 @@ class TestReviewVendor(TestCase):
 
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()
-        user = ProfileFactory().user_object
-        grant_privilege(user, 'Vendor Reviewers')
-        grant_privilege(user, 'Vendor Coordinator')
-        login_as(user, self)
+        login_as(self.coordinator, self)
         url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Bid Information' in response.content)
+
+    def test_coordinator_sees_control(self):
+        vendor = VendorFactory()
+        login_as(self.coordinator, self)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        assert "<h2>Bid Control for Coordinator</h2>" in response.content
 
     def test_no_login_gives_error(self):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
