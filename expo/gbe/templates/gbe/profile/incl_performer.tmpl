@@ -7,38 +7,67 @@
     {% if personae or troupes or combos %}
       {% for performer in personae %}
         <div class='performer'>
-          <a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>
+	{% if performer.promo_thumb %}
+          <div class="gbe_thumb_block">
+	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
+	  </div>
+	{% else %}
+	  <div class="gbe_no_pic">&nbsp;</div>
+	{% endif %}
+	  <div class="performer_text">
+  	    <a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>
             {{ performer }}
-     	  </a> (Click to edit) 
-          <br>
-        </div>
+     	    </a><br>
+	    (Click to edit) 
+          </div>
+	</div>
         {% for alert in performer.alerts %}
           <span class='alert'>{{alert | safe}} </span><br>
         {% endfor %}
       {% endfor %}
       {% for performer in troupes %}
         <div class='performer'>
+	{% if performer.promo_thumb %}
+          <div class="gbe_thumb_block">
+	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
+	  </div>
+	{% else %}
+	  <div class="gbe_no_pic">&nbsp;</div>
+	{% endif %}
+	  <div class="performer_text">
           {% if performer.contact = profile %}
-             <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
+            <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
 		  {{ performer }}
-	     </a> 
-        </div>(Click to edit) <br>
+	    </a><br>
+	    (Click to edit) 
 	  {% else %}
 	    <a href='{% url 'gbe:troupe_view' performer.resourceitem_id %}'>
               {{ performer }}
-	    </a> 
-         </div>(Click to view) <br>
-           {% endif %}  
+	    </a><br>
+	    (Click to view)
+           {% endif %}
+	  </div>
+        </div>
              {% for alert in performer.alerts %}
            <span class='alert'>{{alert | safe}} </span><br>
              {% endfor %}
        {% endfor %}
        {% for performer in combos %}
-         <div class='performer'>
+        <div class='performer'>
+	{% if performer.promo_thumb %}
+          <div class="gbe_thumb_block">
+	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
+	  </div>
+	{% else %}
+	  <div class="gbe_no_pic">&nbsp;</div>
+	{% endif %}
+	  <div class="performer_text">
            <a href='{% url 'gbe:persona_edit' performer.resourceitemid %}'>
              {{ performer }}
-       	   </a> 
-         </div>(Click to edit) <br>
+       	   </a><br>
+	   (Click to edit)
+	  </div>
+        </div>
          {% for alert in performer.alerts %}
            <span class='alert'>{{alert | safe}} </span><br>
          {% endfor %}

@@ -9,6 +9,7 @@ class FriendlyURLInput(URLInput):
     input_type = 'text'
     pattern = "(https?://)?\w(\.\w+?)+(/~?\w+)?"
 
+
 class DurationFormField(CharField):
     def __init__(self, *args, **kwargs):
         super(DurationFormField, self).__init__(*args, **kwargs)
@@ -16,7 +17,12 @@ class DurationFormField(CharField):
     def clean(self, value):
         super(CharField, self).clean(value)
         try:
-            return self.parse_to_duration(value)
+            duration = self.parse_to_duration(value)
+            if duration == Duration(0) and self.required:
+                raise FormValidationError(
+                    self.error_messages['required'],
+                    code='required')
+            return duration
         except ValueError:
             raise FormValidationError('Data entered must be in format MM:SS')
 

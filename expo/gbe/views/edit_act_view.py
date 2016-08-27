@@ -20,7 +20,7 @@ from gbe.ticketing_idd_interface import (
 from gbe.models import (
     Act,
     Performer,
-    UserMessage
+    UserMessage,
 )
 from gbe.forms import (
     ActEditDraftForm,
@@ -31,8 +31,9 @@ from gbe.forms import (
 from gbe.duration import Duration
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
 )
+from gbe.views.act_display_functions import display_invalid_act
 
 
 @login_required
@@ -112,16 +113,18 @@ def EditActView(request, act_id):
             form.save()
         else:
             fields, requiredsub = Act().bid_fields
-            return render(
+            return display_invalid_act(
                 request,
-                'gbe/bid.tmpl',
                 {'forms': [form],
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
                  'fee_link': fee_link,
-                 'submit_fields': requiredsub}
-            )
+                 'submit_fields': requiredsub},
+                form,
+                act.conference,
+                profile,
+                'EditActView')
 
         if 'submit' in request.POST.keys():
             '''

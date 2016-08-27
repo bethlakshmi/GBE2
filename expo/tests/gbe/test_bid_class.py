@@ -55,7 +55,27 @@ class TestBidClass(TestCase):
             data['title'] = ''
         return data
 
-    def post_class_submit(self):
+    def test_bid_class_no_personae(self):
+        '''class_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = ProfileFactory()
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.get(
+            url,
+            follow=True)
+        redirect = (('http://testserver/performer/create'
+                     '?next=/class/create',
+                     302))
+        nt.assert_true(redirect in response.redirect_chain)
+        expected_string = "Tell Us About Your Stage Persona"
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
+
+    def test_class_bid_post_with_submit(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
@@ -63,11 +83,11 @@ class TestBidClass(TestCase):
         response = self.client.post(url, data=data, follow=True)
         return response, data
 
-    def post_class_draft(self):
+    def post_bid(self, submit=True):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=False)
+        data = self.get_class_form(submit=submit)
         response = self.client.post(url, data=data, follow=True)
         return response, data
 
@@ -91,7 +111,7 @@ class TestBidClass(TestCase):
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        response, data = self.post_class_submit()
+        response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
         # stricter test required here
 
@@ -113,7 +133,7 @@ class TestBidClass(TestCase):
     def test_class_bid_post_no_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        response, data = self.post_class_draft()
+        response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
         self.assertTrue('Profile View' in response.content)
 
@@ -149,7 +169,8 @@ class TestBidClass(TestCase):
         login_as(self.performer.performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('We will do our best to accommodate' in response.content)
+        self.assertTrue(
+            'We will do our best to accommodate' in response.content)
 
     def test_class_bid_verify_avoided_constraints(self):
         url = reverse(self.view_name,
@@ -162,7 +183,7 @@ class TestBidClass(TestCase):
     def test_class_submit_make_message(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        response, data = self.post_class_submit()
+        response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', default_class_submit_msg)
@@ -170,7 +191,7 @@ class TestBidClass(TestCase):
     def test_class_draft_make_message(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
-        response, data = self.post_class_draft()
+        response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', default_class_draft_msg)
@@ -181,7 +202,7 @@ class TestBidClass(TestCase):
         msg = UserMessageFactory(
             view='BidClassView',
             code='SUBMIT_SUCCESS')
-        response, data = self.post_class_submit()
+        response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
@@ -192,7 +213,7 @@ class TestBidClass(TestCase):
         msg = UserMessageFactory(
             view='BidClassView',
             code='DRAFT_SUCCESS')
-        response, data = self.post_class_draft()
+        response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)

@@ -3,6 +3,7 @@
 
 
 $bootstrap = <<BOOTSTRAP
+  ifmkdir() { if [ ! -d $1 ]; then mkdir $1;fi; }
   sudo -s -H
   sudo apt-get update -y
   sudo apt-get install -y build-essential
@@ -27,7 +28,7 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
   sudo apt-fast -y install emacs24-nox
-
+  sudo apt-fast -y install libmagickwand-dev
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -76,7 +77,10 @@ $bootstrap = <<BOOTSTRAP
   cp /vagrant/aliases /vagrant/dbreset /home/vagrant/
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc
-  mkdir /vagrant/expo/logs; chown vagrant:vagrant /vagrant/expo/logs
+  ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/uploads
+  ifmkdir /vagrant/uploads/images; ifmkdir /vagrant/uploads/images/fullsize
+  ifmkdir /vagrant/uploads/images/mini; ifmkdir /vagrant/uploads/images/thumb
+  chown -R vagrant:vagrant /vagrant
 BOOTSTRAP
 
 

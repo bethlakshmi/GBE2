@@ -29,10 +29,11 @@ from gbe.models import (
     TechInfo,
     UserMessage
 )
+from gbe.views.act_display_functions import display_invalid_act
 from gbe.functions import validate_profile
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
 )
 
 
@@ -68,6 +69,7 @@ def BidActView(request):
         If this is a draft, only a few fields are needed, use a form
         with fewer required fields (same model)
         '''
+        conference = Conference.objects.filter(accepting_bids=True).first()
         if 'submit' in request.POST.keys():
             form = ActEditForm(request.POST,
                                prefix='theact')
@@ -86,9 +88,9 @@ def BidActView(request):
                 defaults={
                     'summary': "Act Draft Success",
                     'description': default_act_draft_msg})
+
         if form.is_valid():
             # hack
-            conference = Conference.objects.filter(accepting_bids=True).first()
             act = form.save(commit=False)
             act.conference = conference
             techinfo = TechInfo()
@@ -108,16 +110,18 @@ def BidActView(request):
 
         else:
             fields, requiredsub = Act().bid_fields
-            return render(
+            return display_invalid_act(
                 request,
-                'gbe/bid.tmpl',
                 {'forms': [form],
                  'page_title': page_title,
                  'view_title': view_title,
                  'draft_fields': draft_fields,
                  'fee_link': fee_link,
-                 'submit_fields': requiredsub}
-            )
+                 'submit_fields': requiredsub},
+                form,
+                conference,
+                profile,
+                'BidActView')
 
         if 'submit' in request.POST.keys():
             '''
