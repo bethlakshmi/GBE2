@@ -7,9 +7,17 @@ from django.core.validators import (
     MinValueValidator,
     MaxValueValidator
 )
+from django.core.exceptions import (
+    ValidationError,
+    NON_FIELD_ERRORS,
+)
+from django.template import (
+    loader,
+    Context,
+)
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from itertools import chain
-from django.db.models import Q
 from scheduler.models import (
     Schedulable,
     EventItem,
@@ -22,17 +30,17 @@ from gbetext import *
 from gbe_forms_text import *
 from datetime import datetime
 from datetime import timedelta
-from expomodelfields import DurationField
+from gbe.expomodelfields import DurationField
 from django.core.urlresolvers import reverse
 from scheduler.functions import (
     set_time_format,
     get_roles_from_scheduler
 )
 from model_utils.managers import InheritanceManager
-from duration import Duration
-import gbetext
+from gbe.duration import Duration
 import gbe
 import pytz
+from gbe.models import AvailableInterest
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -73,6 +81,7 @@ class Conference(models.Model):
     class Meta:
         verbose_name = "conference"
         verbose_name_plural = "conferences"
+        app_label = "gbe"
 
 
 class Biddable(models.Model):
@@ -96,6 +105,7 @@ class Biddable(models.Model):
     class Meta:
         verbose_name = "biddable item"
         verbose_name_plural = "biddable items"
+        app_label = "gbe"
 
     def __unicode__(self):
         return self.b_title
@@ -215,7 +225,7 @@ class Profile(WorkerItem):
 
     @property
     def special_privs(self):
-        from special_privileges import special_privileges
+        from gbe.special_privileges import special_privileges
         privs = [special_privileges.get(group, None) for group in
                  self.privilege_groups]
         return filter(lambda x: x is not None, privs)
@@ -229,31 +239,32 @@ class Profile(WorkerItem):
     def alerts(self, historical=False):
         if historical:
             return []
-        profile_alerts = []
+        p_alerts = []
         if (len(self.display_name.strip()) == 0 or
                 len(self.purchase_email.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['empty_profile'] %
-                                  reverse('profile_update',
-                                          urlconf='gbe.urls'))
+            p_alerts.append(profile_alerts['empty_profile'] %
+                            reverse('profile_update',
+                                    urlconf='gbe.urls'))
         expo_commitments = []
         expo_commitments += self.get_shows()
         expo_commitments += self.is_teaching()
         if (len(expo_commitments) > 0 and len(self.phone.strip()) == 0):
-            profile_alerts.append(gbetext.profile_alerts['onsite_phone'] %
-                                  reverse('profile_update',
-                                          urlconf='gbe.urls'))
+            p_alerts.append(profile_alerts['onsite_phone'] %
+                            reverse('profile_update',
+                                    urlconf='gbe.urls'))
         for act in self.get_acts():
             if act.accepted == 3 and \
                act.is_current and \
                (len(act.get_scheduled_rehearsals()) == 0 or
                     not act.tech.is_complete):
-                profile_alerts.append(
-                    gbetext.profile_alerts['schedule_rehearsal'] %
-                    (act.b_title,
+                p_alerts.append(
+                    profile_alerts['schedule_rehearsal'] %
+                    (act.title,
+                     (act.b_title,
                      reverse('act_techinfo_edit',
                              urlconf='gbe.urls',
                              args=[act.id])))
-        return profile_alerts
+        return p_alerts
 
     def get_costumebids(self, historical=False):
         costumes = self.costumes.all()
@@ -306,7 +317,7 @@ class Profile(WorkerItem):
         acts = self.get_acts()
         shows = [Show.objects.filter(
             scheduler_events__resources_allocated__resource__actresource___item=act)
-                 for act in acts if act.accepted == 3 and act.is_current]
+            for act in acts if act.accepted == 3 and act.is_current]
         return sum([list(s) for s in shows], [])
 
     def get_schedule(self, conference=None):
@@ -337,7 +348,7 @@ class Profile(WorkerItem):
         acts = self.get_acts()
         events = sum([list(sEvent.objects.filter(
             resources_allocated__resource__actresource___item=act))
-                      for act in acts if act.accepted == 3], [])
+            for act in acts if act.accepted == 3], [])
         for performer in self.get_performers():
             events += [e for e in sEvent.objects.filter(
                 resources_allocated__resource__worker___item=performer)]
@@ -345,12 +356,18 @@ class Profile(WorkerItem):
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
 
+    def volunteer_schedule(self, conference=None):
+        conference = conference or Conference.current_conf()
+        return self.workeritem.get_bookings(role="Volunteer",
+                                            conference=conference).order_by(
+                                                'starttime')
+
     def get_roles(self, conference):
         '''
         Gets all of a person's roles for a conference
         '''
         roles = get_roles_from_scheduler(
-            self.get_performers()+[self],
+            self.get_performers() + [self],
             conference)
         if self.get_shows():
             roles += ["Performer"]
@@ -415,6 +432,13 @@ class Profile(WorkerItem):
                             doing_it = True
         return doing_it
 
+    def notify_volunteer_schedule_change(self):
+        subject = "A change has been made to your Volunteer Schedule!"
+        message = loader.get_template('gbe/volunteer_schedule_update.tmpl')
+        c = Context({'profile': self})
+        if not settings.DEBUG:
+            mail_to_user(subject, message.render(c), self.user_object)
+
     def __str__(self):
         return self.display_name
 
@@ -427,6 +451,7 @@ class Profile(WorkerItem):
 
     class Meta:
         ordering = ['display_name']
+        app_label = "gbe"
 
 
 class Performer (WorkerItem):
@@ -460,11 +485,29 @@ class Performer (WorkerItem):
         '''
         return alerts
 
+    def get_promo_image_sizes(self, size):
+        '''
+        gets the URL for images that have been sized specifically to
+        suit GBE layouts
+            mini = the size for show/act and fashion fair grids - height = 125p
+            thumb = the size for the /gbe page -  height 75-100p
+        There is a timebased script that minifies uploaded images in these
+        two formats
+        '''
+        resized = None
+        if self.promo_image:
+           pieces = self.promo_image.name.split('/')
+           pieces.insert(-1, size)
+           resized = '/'.join(pieces)
+        return resized
+
     @property
-    def promo_small(self):
-        pieces = self.promo_image.name.split('/')
-        pieces.insert(-1, 'mini')
-        return '/'.join(pieces)
+    def promo_mini(self):
+        return self.get_promo_image_sizes('mini')
+
+    @property
+    def promo_thumb(self):
+        return self.get_promo_image_sizes('thumb')
 
     @property
     def get_schedule(self):
@@ -499,6 +542,7 @@ class Performer (WorkerItem):
 
     class Meta:
         ordering = ['name']
+        app_label = "gbe"
 
 
 class Persona (Performer):
@@ -536,6 +580,7 @@ class Persona (Performer):
 
     class Meta:
         verbose_name_plural = 'personae'
+        app_label = "gbe"
 
 
 class Troupe(Performer):
@@ -569,6 +614,9 @@ class Troupe(Performer):
         alerts = super(Troupe, self).append_alerts()
         return alerts
 
+    class Meta:
+        app_label = "gbe"
+
 
 class Combo (Performer):
     '''
@@ -599,6 +647,9 @@ class Combo (Performer):
         '''
         alerts = super(Combo, self).append_alerts()
         return alerts
+
+    class Meta:
+        app_label = "gbe"
 
 
 ###################
@@ -665,6 +716,7 @@ class AudioInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'audio info'
+        app_label = "gbe"
 
 
 class LightingInfo (models.Model):
@@ -705,6 +757,7 @@ class LightingInfo (models.Model):
 
     class Meta:
         verbose_name_plural = 'lighting info'
+        app_label = "gbe"
 
 
 class StageInfo(models.Model):
@@ -764,6 +817,7 @@ class StageInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'stage info'
+        app_label = "gbe"
 
 
 class TechInfo(models.Model):
@@ -813,6 +867,7 @@ class TechInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'tech info'
+        app_label = "gbe"
 
 
 class CueInfo(models.Model):
@@ -861,12 +916,15 @@ class CueInfo(models.Model):
 
     def __unicode__(self):
         try:
-            return self.techinfo.act.b_title+' - cue ' + str(self.cue_sequence)
+            return "%s - cue %s" % (self.techinfo.act.title,
+                                    str(self.cue_sequence))
         except:
-            return "Cue: (deleted act) - " + str(self.cue_sequence)
+            return "Cue: (deleted act) - %s" % str(self.cue_sequence)
 
     class Meta:
-        verbose_name_plural = 'cue info'
+        verbose_name_plural = "cue info"
+        app_label = "gbe"
+
 
 #######
 # Act #
@@ -921,10 +979,6 @@ class Act (Biddable, ActItem):
         Gets all of the performers involved in the act.
         '''
         return self.performer.get_profiles()
-
-    def validation_problems_for_submit(self):
-        return [fn[1] % field[1] for (field, fn) in self.validation_list
-                if not eval(fn[0] % ('self.' + field[0]))]
 
     def typeof(self):
         return self.__class__
@@ -1014,11 +1068,18 @@ class Act (Biddable, ActItem):
                 len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
 
-    @property
-    def tech_ready(self):
-        return (self.tech.is_complete and
-                self.performer.complete and
-                self.intro_text is not '')
+    def validate_unique(self, *args, **kwargs):
+        # conference, title and performer contact should all be unique before
+        # the act is saved.
+        super(Act, self).validate_unique(*args, **kwargs)
+        if Act.objects.filter(
+                conference=self.conference,
+                title=self.title,
+                performer__contact=self.performer.contact
+                ).exclude(pk=self.pk).exists():
+            raise ValidationError({
+                NON_FIELD_ERRORS: [act_not_unique, ]
+            })
 
     @property
     def alerts(self):
@@ -1076,7 +1137,10 @@ class Act (Biddable, ActItem):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
     def __str__(self):
-        return str(self.performer) + ": "+self.b_title
+        return "%s: %s" % (str(self.performer), self.title)
+
+    class Meta:
+        app_label = "gbe"
 
 
 class Room(LocationItem):
@@ -1090,6 +1154,9 @@ class Room(LocationItem):
     def __str__(self):
         return self.name
 
+    class Meta:
+        app_label = "gbe"
+
 
 class ConferenceDay(models.Model):
     day = models.DateField(blank=True)
@@ -1102,6 +1169,7 @@ class ConferenceDay(models.Model):
         ordering = ['day']
         verbose_name = "Conference Day"
         verbose_name_plural = "Conference Days"
+        app_label = "gbe"
 
 
 class VolunteerWindow(models.Model):
@@ -1118,6 +1186,7 @@ class VolunteerWindow(models.Model):
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
         verbose_name_plural = "Volunteer Windows"
+        app_label = "gbe"
 
 
 class Event(EventItem):
@@ -1184,6 +1253,7 @@ class Event(EventItem):
 
     class Meta:
         ordering = ['e_title']
+        app_label = "gbe"
 
 
 class Show (Event):
@@ -1245,6 +1315,9 @@ class Show (Event):
                               self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 
+    class Meta:
+        app_label = "gbe"
+
 
 class GenericEvent (Event):
     '''
@@ -1254,18 +1327,19 @@ class GenericEvent (Event):
                             choices=event_options,
                             blank=False,
                             default="Special")
-    volunteer_category = models.CharField(max_length=128,
-                                          choices=volunteer_interests_options,
-                                          blank=True,
-                                          default="")
+    volunteer_type = models.ForeignKey(AvailableInterest,
+                                       blank=True,
+                                       null=True)
 
     def __str__(self):
         return self.e_title
 
     @property
     def volunteer_category_description(self):
-        return dict(
-            volunteer_interests_options).get(self.volunteer_category, None)
+        if self.volunteer_type:
+            return self.volunteer_type.interest
+        else:
+            return ''
 
     @property
     def sched_payload(self):
@@ -1276,11 +1350,11 @@ class GenericEvent (Event):
             'description': self.e_description,
             'duration': self.duration,
             'details': {'type': types[self.type]},
-            }
+        }
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
-            payload['details']['volunteer_category'] = dict(
-                volunteer_interests_options).get(self.volunteer_category, None)
+            if self.volunteer_type:
+                payload['details']['volunteer_category'] = self.volunteer_category_description
         return payload
 
     @property
@@ -1308,15 +1382,18 @@ class GenericEvent (Event):
         from ticketing.models import TicketItem
         if self.type in ["Special", "Drop-In"]:
             most_events = TicketItem.objects.filter(
-                                        bpt_event__include_most=True,
-                                        active=True,
-                                        bpt_event__conference=self.e_conference)
+                bpt_event__include_most=True,
+                active=True,
+                bpt_event__conference=self.e_conference)
         else:
             most_events = []
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
                                               active=True)
         tickets = list(chain(my_events, most_events))
         return tickets
+
+    class Meta:
+        app_label = "gbe"
 
 
 class Class(Biddable, Event):
@@ -1344,6 +1421,7 @@ class Class(Biddable, Event):
     history = models.TextField(blank=True)
     run_before = models.TextField(blank=True)
     schedule_constraints = models.TextField(blank=True)
+    avoided_constraints = models.TextField(blank=True)
     space_needs = models.CharField(max_length=128,
                                    choices=space_options,
                                    blank=True,
@@ -1433,6 +1511,7 @@ class Class(Biddable, Event):
                  'length_minutes',
                  'history',
                  'schedule_constraints',
+                 'avoided_constraints',
                  'space_needs'],
                 ['b_title',
                  'teacher',
@@ -1496,6 +1575,7 @@ class Class(Biddable, Event):
 
     class Meta:
         verbose_name_plural = 'classes'
+        app_label = "gbe"
 
 
 class BidEvaluation(models.Model):
@@ -1508,7 +1588,10 @@ class BidEvaluation(models.Model):
     bid = models.ForeignKey(Biddable)
 
     def __unicode__(self):
-        return self.bid.b_title+": "+self.evaluator.display_name
+        return "%s: %s" % (self.bid.b_title, self.evaluator.display_name)
+
+    class Meta:
+        app_label = "gbe"
 
 
 class PerformerFestivals(models.Model):
@@ -1520,6 +1603,7 @@ class PerformerFestivals(models.Model):
 
     class Meta:
         verbose_name_plural = 'performer festivals'
+        app_label = "gbe"
 
 
 class Volunteer(Biddable):
@@ -1531,8 +1615,6 @@ class Volunteer(Biddable):
                                         default=1)
     availability = models.TextField(blank=True)
     unavailability = models.TextField(blank=True)
-
-    interests = models.TextField()
     opt_outs = models.TextField(blank=True)
     pre_event = models.BooleanField(choices=boolean_options, default=False)
     background = models.TextField(blank=True)
@@ -1550,8 +1632,9 @@ class Volunteer(Biddable):
 
     @property
     def interest_list(self):
-        return [interest for code, interest in volunteer_interests_options if
-                code in self.interests]
+        return [
+            interest.interest.interest
+            for interest in self.volunteerinterest_set.filter(rank__gt=3)]
 
     @property
     def bid_review_header(self):
@@ -1570,9 +1653,8 @@ class Volunteer(Biddable):
     @property
     def bid_review_summary(self):
         interest_string = ''
-        for option_id, option_value in volunteer_interests_options:
-            if option_id in self.interests:
-                interest_string += option_value + ', \n'
+        for interest in self.interest_list:
+            interest_string += interest + ', \n'
         availability_string = ''
         unavailability_string = ''
         for window in self.available_windows.all():
@@ -1612,6 +1694,9 @@ class Volunteer(Biddable):
             submitted=True,
             accepted=0)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class Vendor(Biddable):
     '''
@@ -1632,9 +1717,6 @@ class Vendor(Biddable):
 
     def __unicode__(self):
         return self.b_title  # "title" here is company name
-
-    def validation_problems_for_submit(self):
-        return []
 
     def clone(self):
         vendor = Vendor(profile=self.profile,
@@ -1676,6 +1758,9 @@ class Vendor(Biddable):
             submitted=True,
             accepted=0)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class AdBid(Biddable):
     '''
@@ -1687,6 +1772,9 @@ class AdBid(Biddable):
 
     def __unicode__(self):
         return self.company
+
+    class Meta:
+        app_label = "gbe"
 
 
 class ArtBid(Biddable):
@@ -1701,6 +1789,9 @@ class ArtBid(Biddable):
 
     def __unicode__(self):
         return self.bidder.display_name
+
+    class Meta:
+        app_label = "gbe"
 
 
 class Costume(Biddable):
@@ -1774,7 +1865,7 @@ class Costume(Biddable):
         if self.performer:
             name += self.performer.name + " "
 
-        name += "("+self.creator+")"
+        name += "(" + self.creator + ")"
         return (name,
                 self.b_title,
                 self.act_title,
@@ -1787,6 +1878,9 @@ class Costume(Biddable):
             visible_bid_query,
             submitted=True,
             accepted=0)
+
+    class Meta:
+        app_label = "gbe"
 
 
 class ClassProposal(models.Model):
@@ -1835,6 +1929,9 @@ class ClassProposal(models.Model):
     def presenter_bid_info(self):
         return (self.title, self.proposal, self.type)
 
+    class Meta:
+        app_label = "gbe"
+
 
 class ConferenceVolunteer(models.Model):
     '''
@@ -1851,7 +1948,7 @@ class ConferenceVolunteer(models.Model):
     volunteering = models.BooleanField(default=True, blank='True')
 
     def __unicode__(self):
-        return self.bid.b_title+": "+self.presenter.name
+        return "%s: %s" % (self.bid.b_title, self.presenter.name)
 
     @property
     def bid_fields(self):
@@ -1865,6 +1962,9 @@ class ConferenceVolunteer(models.Model):
     @property
     def presenter_bid_header(self):
         return (['Interested', 'Presenter', 'Role', 'Qualification'])
+
+    class Meta:
+        app_label = "gbe"
 
 
 class ProfilePreferences(models.Model):
@@ -1882,3 +1982,8 @@ class ProfilePreferences(models.Model):
 
     class Meta:
         verbose_name_plural = 'profile preferences'
+        app_label = "gbe"
+
+
+def mail_to_user(subject, message, user):
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])

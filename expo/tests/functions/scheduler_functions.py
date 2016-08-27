@@ -44,6 +44,7 @@ def get_sched_event_form(context, room=None):
                  'event-location': room.pk,
                  'event-max_volunteer': 3,
                  'event-title': 'New Title',
+                 'event-duration': '1:00:00',
                  'event-description': 'New Description'}
     return form_dict
 

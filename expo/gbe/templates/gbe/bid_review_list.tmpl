@@ -13,11 +13,6 @@
   <br/>
       {% include "conference_picker.tmpl" %}
   <br/>
-  {% if messages %}
-      <script>
-    alert("{% for message in messages %}{{message.tags|capfirst}}: {{message}}\n{% endfor %}");
-      </script>
-  {% endif %}
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>
   <br/>

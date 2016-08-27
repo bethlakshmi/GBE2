@@ -1,9 +1,11 @@
 from tests.factories.gbe_factories import (
+    ConferenceDayFactory,
     GenericEventFactory,
     ProfileFactory,
     ShowFactory,
     VolunteerFactory,
     VolunteerWindowFactory,
+    VolunteerInterestFactory
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
@@ -11,6 +13,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+from datetime import date
 
 
 class VolunteerContext():
@@ -32,6 +35,8 @@ class VolunteerContext():
             self.bid = VolunteerFactory(
                 b_conference=self.conference)
             self.profile = self.bid.profile
+        VolunteerInterestFactory(
+            volunteer=self.bid)
         self.opportunity = opportunity or GenericEventFactory()
         self.event = event or ShowFactory()
         self.role = role or "Volunteer"
@@ -45,3 +50,10 @@ class VolunteerContext():
                                                     event=self.sched_event)
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=self.opp_event)
+
+    def add_window(self):
+        add_window = VolunteerWindowFactory(
+            day=ConferenceDayFactory(
+                conference=self.conference,
+                day=date(2016, 2, 6)))
+        return add_window

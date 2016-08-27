@@ -10,13 +10,13 @@ db.sqlite3
 
 *.sqlite3
 
-*.pyc
-
 *.css~
 
 *.bak
 
 *.log
+
+*.sql
 
 expo/gbe/static/img/GBE_PageBanner.png
 expo/gbe/static/admin
