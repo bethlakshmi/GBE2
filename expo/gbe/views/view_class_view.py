@@ -1,32 +1,24 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from expo.gbe_logging import log_func
 from gbe.models import Class
 from gbe.forms import (
     ClassBidForm,
     PersonaForm,
 )
-from gbe.functions import validate_perms
+from gbe.views import ViewBidView
 
 
-@login_required
-@log_func
-def ViewClassView(request, class_id):
-    '''
-    Show a bid  which needs to be reviewed by the current user.
-    To show: display all information about the bid, and a standard
-    review form.
-    If user is not a reviewer, politely decline to show anything.
-    '''
-    classbid = get_object_or_404(Class, id=class_id)
-    if classbid.teacher.contact != request.user.profile:
-        validate_perms(request, ('Class Reviewers',), require=True)
-    classform = ClassBidForm(instance=classbid, prefix='The Class')
-    teacher = PersonaForm(instance=classbid.teacher,
-                          prefix='The Teacher(s)')
+class ViewClassView(ViewBidView):
+    bid_type = Class
+    object_form_type = ClassBidForm
+    viewer_permissions = ('Class Reviewers',)
+    bid_prefix = 'The Class'
+    owner_prefix = 'The Teacher(s)'
 
-    return render(request, 'gbe/bid_view.tmpl',
-                  {'readonlyform': [classform, teacher]})
+    def get_display_forms(self):
+        bid_form = self.object_form_type(instance=self.bid,
+                                         prefix=self.bid_prefix)
+        persona_form = PersonaForm(instance=self.bid.teacher,
+                                   prefix=self.owner_prefix)
+        return (bid_form, persona_form)
+
+    def get_owner_profile(self):
+        return self.bid.teacher.contact

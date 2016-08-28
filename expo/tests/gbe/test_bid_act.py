@@ -1,3 +1,4 @@
+import nose.tools as nt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -8,22 +9,24 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     location,
     login_as,
     current_conference,
     assert_alert_exists,
-    make_act_app_purchase
+    make_act_app_purchase,
+    post_act_conflict,
 )
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
+    default_act_title_conflict,
 )
 from gbe.models import (
     Conference,
-    UserMessage
+    UserMessage,
 )
 
 
@@ -32,13 +35,12 @@ class TestBidAct(TestCase):
     view_name = 'act_create'
 
     def setUp(self):
+        self.url = reverse(self.view_name, urlconf='gbe.urls')
         Conference.objects.all().delete()
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
-        current_conference = ConferenceFactory()
-        current_conference.accepting_bids = True
-        current_conference.save()
+        self.current_conference = ConferenceFactory(accepting_bids=True)
         UserMessage.objects.all().delete()
 
     def get_act_form(self, submit=False):
@@ -49,60 +51,68 @@ class TestBidAct(TestCase):
                      'theact-track_artist': 'an artist',
                      'theact-description': 'a description',
                      'theact-performer': self.performer.resourceitem_id,
+                     'theact-act_duration': '1:00'
                      }
         if submit:
             form_dict['submit'] = 1
         return form_dict
 
-    def post_paid_act_submission(self):
+    def post_paid_act_submission(self, act_form=None):
         current_conference()
+        if not act_form:
+            act_form = self.get_act_form()
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        POST = self.get_act_form()
-        POST.update({'submit': ''})
+        act_form.update({'submit': ''})
         make_act_app_purchase(self.performer.performer_profile.user_object)
-        response = self.client.post(url, data=POST, follow=True)
-        return response, POST
+        response = self.client.post(url, data=act_form, follow=True)
+        return response, act_form
 
     def post_paid_act_draft(self):
         current_conference()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
-        response = self.client.post(url, data=POST, follow=True)
+        response = self.client.post(self.url, data=POST, follow=True)
         return response, POST
 
     def test_bid_act_no_profile(self):
         '''act_bid, when user has no profile, should bounce out to /profile'''
         user = UserFactory()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(user, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
 
     def test_bid_act_no_personae(self):
         '''act_bid, when profile has no personae,
         should redirect to persona_create'''
         profile = ProfileFactory()
+        login_as(profile, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_bid_act_get_with_persona(self):
+        '''act_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = PersonaFactory().performer_profile
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        expected_string = "Propose an Act"
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
 
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
         profile = ProfileFactory()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(profile, self)
-        response = self.client.post(url, data=self.get_act_form())
+        response = self.client.post(self.url, data=self.get_act_form())
         self.assertEqual(response.status_code, 302)
 
     def test_act_bid_post_form_not_valid(self):
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form(submit=True)
         del(POST['theact-description'])
-        response = self.client.post(url,
+        response = self.client.post(self.url,
                                     data=POST)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
@@ -110,13 +120,15 @@ class TestBidAct(TestCase):
     def test_act_bid_post_submit_no_payment(self):
         '''act_bid, if user has not paid, should take us to please_pay'''
         current_conference()
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         POST = self.get_act_form()
         POST.update({'submit': ''})
-        response = self.client.post(url, data=POST)
+        response = self.client.post(self.url, data=POST)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Fee has not been Paid' in response.content)
+
+    def fake_verify_performer_app_paid(user_name):
+        return True
 
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
@@ -131,9 +143,8 @@ class TestBidAct(TestCase):
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
-        url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
 
@@ -182,3 +193,49 @@ class TestBidAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_act_title_collision(self):
+        response, original = post_act_conflict(
+            self.current_conference,
+            self.performer,
+            self.get_act_form(),
+            self.url,
+            self)
+        self.assertEqual(response.status_code, 200)
+        error_msg = default_act_title_conflict % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_act_title_collision_w_msg(self):
+        message_string = "link: %s title: %s"
+        msg = UserMessageFactory(
+            view='BidActView',
+            code='ACT_TITLE_CONFLICT',
+            description=message_string)
+        response, original = post_act_conflict(
+            self.current_conference,
+            self.performer,
+            self.get_act_form(),
+            self.url,
+            self)
+        self.assertEqual(response.status_code, 200)
+        error_msg = message_string % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_act_submit_paid_act_no_duration(self):
+        form = self.get_act_form()
+        del form['theact-act_duration']
+        response, data = self.post_paid_act_submission(form)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")

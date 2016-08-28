@@ -11,6 +11,7 @@ from gbe.functions import (
 )
 from gbe.models import Volunteer
 from scheduler.functions import get_events_and_windows
+from django.http import HttpResponseRedirect
 
 
 @login_required
@@ -31,7 +32,7 @@ def AssignVolunteerView(request, volunteer_id):
     )
     if not volunteer.is_current:
         return HttpResponseRedirect(reverse(
-            'volunteer_view', urlconf='gbe.urls'))
+            'volunteer_view', urlconf='gbe.urls', args=[volunteer_id]))
     conference, old_bid = get_conf(volunteer)
 
     actionURL = reverse('volunteer_changestate',

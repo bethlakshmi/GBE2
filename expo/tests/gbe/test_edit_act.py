@@ -6,17 +6,19 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    UserMessageFactory
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as,
     location,
-    make_act_app_purchase
+    make_act_app_purchase,
+    post_act_conflict,
 )
 from gbetext import (
     default_act_submit_msg,
-    default_act_draft_msg
+    default_act_draft_msg,
+    default_act_title_conflict,
 )
 from gbe.models import UserMessage
 
@@ -31,14 +33,14 @@ class TestEditAct(TestCase):
     def setUp(self):
         UserMessage.objects.all().delete()
         self.client = Client()
-        self.performer = PersonaFactory()
 
-    def get_act_form(self, submit=False, invalid=False):
-        form_dict = {'theact-teacher': 2,
+    def get_act_form(self, act, submit=False, invalid=False):
+        form_dict = {'theact-performer': act.performer.pk,
                      'theact-title': 'An act',
                      'theact-description': 'a description',
                      'theact-length_minutes': 60,
                      'theact-shows_preferences': [0],
+                     'theact-act_duration': '1:00'
                      }
         if submit:
             form_dict['submit'] = 1
@@ -46,8 +48,11 @@ class TestEditAct(TestCase):
             del(form_dict['theact-title'])
         return form_dict
 
-    def post_edit_paid_act_submission(self):
+    def post_edit_paid_act_submission(self, act_form=None):
         act = ActFactory()
+        if not act_form:
+            act_form = self.get_act_form(act, submit=True)
+
         url = reverse(self.view_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
@@ -55,9 +60,22 @@ class TestEditAct(TestCase):
         make_act_app_purchase(act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
-            data=self.get_act_form(submit=True),
+            data=act_form,
             follow=True)
         return response
+
+    def post_title_collision(self):
+        original = ActFactory()
+        url = reverse(self.view_name,
+                      args=[original.pk],
+                      urlconf="gbe.urls")
+        make_act_app_purchase(original.performer.performer_profile.user_object)
+        return post_act_conflict(
+            original.conference,
+            original.performer,
+            self.get_act_form(original, submit=True),
+            url,
+            self)
 
     def post_edit_paid_act_draft(self):
         act = ActFactory()
@@ -66,7 +84,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(act.performer.contact, self)
         response = self.client.post(url,
-                                    self.get_act_form(),
+                                    self.get_act_form(act),
                                     follow=True)
         return response
 
@@ -111,7 +129,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.performer_profile, self)
         response = self.client.post(
             url,
-            self.get_act_form(invalid=True))
+            self.get_act_form(act, invalid=True))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Edit Your Act Proposal' in response.content)
 
@@ -123,7 +141,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.performer_profile, self)
         response = self.client.post(
             url,
-            data=self.get_act_form(submit=True))
+            data=self.get_act_form(act, submit=True))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Act Payment' in response.content)
 
@@ -174,3 +192,40 @@ class TestEditAct(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_edit_act_title_collision(self):
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = default_act_title_conflict % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_edit_act_title_collision_w_msg(self):
+        message_string = "link: %s title: %s"
+        msg = UserMessageFactory(
+            view='EditActView',
+            code='ACT_TITLE_CONFLICT',
+            description=message_string)
+        response, original = self.post_title_collision()
+        self.assertEqual(response.status_code, 200)
+        error_msg = message_string % (
+            reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[original.pk]),
+            original.title)
+        assert_alert_exists(
+            response, 'danger', 'Error', error_msg)
+
+    def test_edit_act_no_duration(self):
+        act = ActFactory()
+        act_form = self.get_act_form(act, submit=True)
+        del act_form['theact-act_duration']
+        response = self.post_edit_paid_act_submission(act_form)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")

@@ -8,6 +8,7 @@ from south.modelsinspector import add_introspection_rules
 
 add_introspection_rules([], ["^gbe\.expomodelfields\.DurationField"])
 
+
 class DurationField(IntegerField):
     __metaclass__ = models.SubfieldBase
 
@@ -31,7 +32,7 @@ class DurationField(IntegerField):
                 return Duration(seconds=(seconds + minutes*60))
             except:
                 raise ValidationError("That didn't look like a" +
-                                       "duration to me")
+                                      "duration to me")
         elif not isinstance(value, timedelta):
             raise ValidationError('Unable to convert %s to Duration.'
                                   % value)
@@ -60,7 +61,6 @@ class DurationField(IntegerField):
             minutes, seconds = divmod(timedelta.seconds, 60)
             return "%02d:%02d" % (minutes, seconds)
         return None
-
 
     def formfield(self, form_class=DurationFormField, **kwargs):
         defaults = {"help_text": "Enter duration in the format: HH:MM:SS"}

@@ -1,4 +1,29 @@
-from gbe.models import *
+from gbe.models import (
+    Act,
+    AudioInfo,
+    AvailableInterest,
+    Biddable,
+    BidEvaluation,
+    Class,
+    ClassProposal,
+    ConferenceVolunteer,
+    Combo,
+    Costume,
+    CueInfo,
+    GenericEvent,
+    LightingInfo,
+    Persona,
+    Profile,
+    ProfilePreferences,
+    Room,
+    Show,
+    StageInfo,
+    Troupe,
+    Vendor,
+    Volunteer,
+    VolunteerInterest,
+    VolunteerWindow,
+)
 from django import forms
 from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
@@ -200,7 +225,7 @@ class ActEditForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     act_duration = DurationFormField(
-        required=False,
+        required=True,
         help_text=act_help_texts['act_duration']
     )
     track_duration = DurationFormField(
@@ -459,9 +484,6 @@ class VolunteerBidForm(forms.ModelForm):
         help_text=volunteer_help_texts['volunteer_availability_options'],
         required=False)
 
-    interests = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                          choices=volunteer_interests_options)
-
     def __init__(self, *args, **kwargs):
         if 'available_windows' in kwargs:
             available_windows = kwargs.pop('available_windows')
@@ -480,10 +502,10 @@ class VolunteerBidForm(forms.ModelForm):
         fields = ['number_shifts',
                   'available_windows',
                   'unavailable_windows',
-                  'interests',
                   'opt_outs',
                   'pre_event',
                   'background',
+                  'title',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),
@@ -493,6 +515,27 @@ class VolunteerBidForm(forms.ModelForm):
                    'profile': forms.HiddenInput()}
         labels = volunteer_labels
         help_texts = volunteer_help_texts
+
+
+class VolunteerInterestForm(forms.ModelForm):
+    required_css_class = 'required'
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        super(VolunteerInterestForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs:
+            initial = kwargs.pop('initial')
+            self.fields['rank'] = forms.ChoiceField(
+                choices=rank_interest_options,
+                label=initial['interest'].interest,
+                help_text=initial['interest'].help_text,
+                required=False)
+
+    class Meta:
+        model = VolunteerInterest
+        fields = ['rank',
+                  'interest']
+        widgets = {'interest': forms.HiddenInput()}
 
 
 class VolunteerOpportunityForm(forms.ModelForm):
@@ -506,13 +549,14 @@ class VolunteerOpportunityForm(forms.ModelForm):
                                       required=False)
     num_volunteers = forms.IntegerField(
         error_messages={'required': 'required'})
-    volunteer_category = forms.ChoiceField(choices=volunteer_interests_options,
-                                           required=False)
     location = forms.ModelChoiceField(
         queryset=Room.objects.all(),
         error_messages={'required': 'required'})
     duration = DurationFormField(
         error_messages={'null': 'required'})
+    volunteer_type = forms.ModelChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
+        required=False)
 
     def __init__(self, *args, **kwargs):
         conference = kwargs.pop('conference')
@@ -524,7 +568,7 @@ class VolunteerOpportunityForm(forms.ModelForm):
     class Meta:
         model = GenericEvent
         fields = ['title',
-                  'volunteer_category',
+                  'volunteer_type',
                   'num_volunteers',
                   'duration',
                   'day',
