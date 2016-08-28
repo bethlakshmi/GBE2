@@ -100,7 +100,7 @@ class TestEditCostume(TestCase):
                         in response.redirect_chain)
         self.assertTrue("Your Account" in response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_costume_bid_post_draft(self):
         '''costume_bid, submit draft and no other problems,
@@ -111,7 +111,7 @@ class TestEditCostume(TestCase):
                         in response.redirect_chain)
         self.assertTrue("Your Account" in response.content)
         self.assertContains(response, "(Click to edit)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_costume_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''

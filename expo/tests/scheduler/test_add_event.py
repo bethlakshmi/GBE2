@@ -10,7 +10,10 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     RoomFactory
 )
-from gbe.models import Room
+from gbe.models import (
+    Conference,
+    Room,
+)
 from scheduler.models import Worker
 from tests.functions.gbe_functions import (
     clear_conferences,

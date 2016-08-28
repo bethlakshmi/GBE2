@@ -259,7 +259,6 @@ class Profile(WorkerItem):
                     not act.tech.is_complete):
                 p_alerts.append(
                     profile_alerts['schedule_rehearsal'] %
-                    (act.title,
                      (act.b_title,
                      reverse('act_techinfo_edit',
                              urlconf='gbe.urls',
@@ -1073,8 +1072,8 @@ class Act (Biddable, ActItem):
         # the act is saved.
         super(Act, self).validate_unique(*args, **kwargs)
         if Act.objects.filter(
-                conference=self.conference,
-                title=self.title,
+                b_conference=self.b_conference,
+                b_title=self.b_title,
                 performer__contact=self.performer.contact
                 ).exclude(pk=self.pk).exists():
             raise ValidationError({

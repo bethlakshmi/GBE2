@@ -11,8 +11,8 @@ def get_volunteer_forms(volunteer):
     volunteerform = VolunteerBidForm(
         instance=volunteer,
         prefix='Volunteer Info',
-        available_windows=volunteer.conference.windows(),
-        unavailable_windows=volunteer.conference.windows())
+        available_windows=volunteer.b_conference.windows(),
+        unavailable_windows=volunteer.b_conference.windows())
     for interest in volunteer.volunteerinterest_set.filter(
         rank__gt=0).order_by(
             'interest__interest'):

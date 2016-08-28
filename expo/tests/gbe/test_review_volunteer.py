@@ -69,7 +69,7 @@ class TestReviewVolunteer(TestCase):
         self.assertTrue('Bid Information' in response.content)
         self.assertTrue('Review Information' in response.content)
         self.assertContains(response, '<h3> %s </h3>' %
-                            volunteer.conference.conference_name)
+                            volunteer.b_conference.conference_name)
 
     def test_review_volunteer_coordinator(self):
         volunteer = VolunteerFactory()

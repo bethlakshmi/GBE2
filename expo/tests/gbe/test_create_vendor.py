@@ -87,7 +87,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Profile View' in response.content)
         self.assertContains(response, "(Click to edit)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
@@ -129,7 +129,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
@@ -141,7 +141,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_vendor_submit_make_message(self):
         response, data = self.post_paid_vendor_submission()

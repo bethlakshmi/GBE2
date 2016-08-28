@@ -112,9 +112,10 @@ class TestBidAct(TestCase):
 
     def test_act_bid_post_form_not_valid(self):
         login_as(self.performer.performer_profile, self)
-        POST = self.get_act_form(submit=True, valid=False)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        data = self.get_act_form(submit=True, valid=False)
         response = self.client.post(url,
-                                    data=POST)
+                                    data=data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
 
@@ -138,7 +139,7 @@ class TestBidAct(TestCase):
         response, data = self.post_paid_act_draft()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "(Click to edit)")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
@@ -151,7 +152,7 @@ class TestBidAct(TestCase):
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
@@ -161,7 +162,7 @@ class TestBidAct(TestCase):
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_make_message(self):
         response, data = self.post_paid_act_submission()
@@ -206,7 +207,7 @@ class TestBidAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 
@@ -228,7 +229,7 @@ class TestBidAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 

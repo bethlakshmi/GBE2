@@ -123,7 +123,7 @@ class TestReviewVolunteerList(TestCase):
         ''' when a volunteer is already booked somewhere, it should show up'''
 
         current_opportunity = GenericEventFactory(
-            conference=self.volunteer.b_conference,
+            e_conference=self.volunteer.b_conference,
             volunteer_type=AvailableInterestFactory(interest='Security/usher'),
             type='Volunteer')
         current_opportunity.save()

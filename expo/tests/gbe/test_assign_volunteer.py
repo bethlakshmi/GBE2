@@ -55,7 +55,7 @@ class TestAssignVolunteer(TestCase):
             day__conference=context.conference)
 
         volunteer = VolunteerFactory(
-            conference=context.conference,
+            b_conference=context.conference,
             submitted=True)
         volunteer.available_windows.add(current_window)
         volunteer.save()
@@ -181,7 +181,7 @@ class TestAssignVolunteer(TestCase):
             max_volunteer=10)
 
         volunteer = VolunteerFactory(
-            e_conference=data['context'].conference,
+            b_conference=data['context'].conference,
             submitted=True)
         url = reverse(self.view_name,
                       args=[volunteer.pk],
@@ -290,7 +290,7 @@ class TestAssignVolunteer(TestCase):
             end=time(15))
 
         volunteer = VolunteerFactory(
-            conference=data['context'].conference,
+            b_conference=data['context'].conference,
             submitted=True)
         VolunteerInterestFactory(
             volunteer=data['volunteer'])

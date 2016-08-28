@@ -70,7 +70,7 @@ def EditVolunteerView(request, volunteer_id):
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect("%s?conf_slug=%s" % (
                 reverse('volunteer_review', urlconf='gbe.urls'),
-                the_bid.conference.conference_slug))
+                the_bid.b_conference.conference_slug))
 
         else:
             formset += [form]
@@ -99,7 +99,7 @@ def EditVolunteerView(request, volunteer_id):
         formset += [VolunteerBidForm(
             instance=the_bid,
             available_windows=the_bid.b_conference.windows(),
-            unavailable_windows=the_bid.b_conference.windows())
+            unavailable_windows=the_bid.b_conference.windows())]
 
         return render(request,
                       'gbe/bid.tmpl',

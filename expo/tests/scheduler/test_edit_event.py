@@ -194,11 +194,12 @@ class TestEditEvent(TestCase):
                       response.content)
 
     def test_no_duration(self):
+        context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
-                      args=["Class", self.context.sched_event.pk])
-        form_data = get_sched_event_form(self.context)
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
         del form_data['event-duration']
         response = self.client.post(
             url,

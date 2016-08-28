@@ -145,10 +145,10 @@ def make_act_app_purchase(user_object):
 
 def post_act_conflict(conference, performer, data, url, testcase):
     original = ActFactory(
-        conference=conference,
+        b_conference=conference,
         performer=performer)
     login_as(performer.performer_profile, testcase)
-    data['theact-title'] = original.title
+    data['theact-b_title'] = original.b_title
     response = testcase.client.post(
         url,
         data=data,

@@ -86,6 +86,6 @@ class TestReviewCostume(TestCase):
         self.assertEqual(response.status_code, 200)
         html_tag = '<h2 class="review-title">%s</h2>'
         title_string = ("Bid Information for %s" %
-                        bid.conference.conference_name)
+                        bid.b_conference.conference_name)
         html_title = html_tag % title_string
         assert html_title in response.content

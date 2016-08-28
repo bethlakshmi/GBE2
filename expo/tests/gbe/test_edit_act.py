@@ -71,7 +71,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         make_act_app_purchase(original.performer.performer_profile.user_object)
         return post_act_conflict(
-            original.conference,
+            original.b_conference,
             original.performer,
             self.get_act_form(original, submit=True),
             url,
@@ -201,7 +201,7 @@ class TestEditAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 
@@ -218,7 +218,7 @@ class TestEditAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 

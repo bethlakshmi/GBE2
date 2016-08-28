@@ -426,7 +426,8 @@ class WorkerItem(ResourceItem):
                 resources_allocated__resource__worker__role=role)
         if conference:
 
-            events = events.filter(eventitem__event__conference=conference)
+            events = events.filter(
+                eventitem__event__e_conference=conference)
         return events
 
     def get_schedule(self):

@@ -20,8 +20,8 @@ def display_invalid_act(request, data, form, conference, profile, view):
                 'summary': "Act Title, User, Conference Conflict",
                 'description': default_act_title_conflict})
         conflict = Act.objects.filter(
-            conference=conference,
-            title=form.data['theact-title'],
+            b_conference=conference,
+            b_title=form.data['theact-b_title'],
             performer__contact=profile).first()
         if conflict.submitted:
             link = reverse(
@@ -38,7 +38,7 @@ def display_invalid_act(request, data, form, conference, profile, view):
         messages.error(
             request, conflict_msg[0].description % (
                 link,
-                conflict.title))
+                conflict.b_title))
     return render(
         request,
         'gbe/bid.tmpl',

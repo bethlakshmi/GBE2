@@ -27,7 +27,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from django.core.files.uploadedfile import SimpleUploadedFile
-
+from unittest import skip
 
 
 class TestIndex(TestCase):

@@ -89,15 +89,12 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
-    'cms',  # django CMS itself
     'mptt',  # utilities for implementing a tree
     'menus',
     'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
-    'djangocms_admin_style',
     'django.contrib.messages',
     'treebeard',
-    'djangocms_text_ckeditor',  # tutorial ... hmm...
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -110,25 +107,6 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     #    'aldryn_bootstrap3',
-    'image_gallery',  # I forked this and extended a little.
-    'cmsplugin_nivoslider',
-    'djangocms-placeholder-attr',
-    'djangocms_style',
-    'djangocms_column',
-    'djangocms_snippet',
-    #    'djangocms_file',
-    'djangocms_flash',
-    'djangocms_googlemap',
-    'djangocms_inherit',
-    'cmsplugin_filer_file',
-    'cmsplugin_filer_folder',
-    'cmsplugin_filer_link',
-    'cmsplugin_filer_image',
-    'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',  # 'djangocms_link',
-    #    'djangocms_picture',
-    #    'djangocms_teaser',
-    #    'djangocms_video',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
     'ticketing',
@@ -138,7 +116,7 @@ INSTALLED_APPS = (
     'compat',
     'debug_toolbar',
 )
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 

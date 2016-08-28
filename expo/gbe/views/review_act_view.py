@@ -45,63 +45,16 @@ class ReviewActView(ReviewBidView):
         self.create_object_form(initial=initial)
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
-    def create_action_form(self, act):
-        self.actionform = BidStateChangeForm(instance=act)
 
-<<<<<<< HEAD
-def _create_action_form(act):
-    actionform = BidStateChangeForm(instance=act)
-    # This requires that the show be scheduled - seems reasonable in
-    # current workflow and lets me order by date.  Also - assumes
-    # that shows are only scheduled once
-    start = Show.objects.filter(
-        scheduler_events__resources_allocated__resource__actresource___item=act).first()
-    if not start:
-        start = ""
-    q = Show.objects.filter(
-        e_conference=act.b_conference,
-        scheduler_events__isnull=False).order_by(
-            'scheduler_events__starttime')
-    actionform.fields['show'] = ModelChoiceField(
-        queryset=q,
-        empty_label=None,
-        label='Pick a Show',
-        initial=start)
-    actionURL = reverse('act_changestate',
-                        urlconf='gbe.urls',
-                        args=[act.id])
-    return actionform, actionURL
-||||||| merged common ancestors
-def _create_action_form(act):
-    actionform = BidStateChangeForm(instance=act)
-    # This requires that the show be scheduled - seems reasonable in
-    # current workflow and lets me order by date.  Also - assumes
-    # that shows are only scheduled once
-    try:
-        start = Show.objects.filter(
-            scheduler_events__resources_allocated__resource__actresource___item=act)[0]
-    except:
-        start = ""
-    q = Show.objects.filter(
-        conference=act.conference,
-        scheduler_events__isnull=False).order_by(
-            'scheduler_events__starttime')
-    actionform.fields['show'] = ModelChoiceField(
-        queryset=q,
-        empty_label=None,
-        label='Pick a Show',
-        initial=start)
-    actionURL = reverse('act_changestate',
-                        urlconf='gbe.urls',
-                        args=[act.id])
-    return actionform, actionURL
-=======
+    def create_action_form(self, act):
+
+        self.actionform = BidStateChangeForm(instance=act)
         start = Show.objects.filter(
             scheduler_events__resources_allocated__resource__actresource___item=act).first()
-        if start is None:
+        if not start:
             start = ""
         q = Show.objects.filter(
-            conference=act.conference,
+            e_conference=act.b_conference,
             scheduler_events__isnull=False).order_by(
                 'scheduler_events__starttime')
         self.actionform.fields['show'] = ModelChoiceField(
@@ -112,4 +65,3 @@ def _create_action_form(act):
         self.actionURL = reverse('act_changestate',
                                  urlconf='gbe.urls',
                                  args=[act.id])
->>>>>>> master

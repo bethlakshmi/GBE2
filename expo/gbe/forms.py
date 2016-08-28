@@ -505,13 +505,12 @@ class VolunteerBidForm(forms.ModelForm):
                   'opt_outs',
                   'pre_event',
                   'background',
-                  'title',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),
                    'submitted': forms.HiddenInput(),
-                   'title': forms.HiddenInput(),
-                   'description': forms.HiddenInput(),
+                   'b_title': forms.HiddenInput(),
+                   'b_description': forms.HiddenInput(),
                    'profile': forms.HiddenInput()}
         labels = volunteer_labels
         help_texts = volunteer_help_texts

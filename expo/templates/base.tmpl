@@ -1,10 +1,12 @@
-{% load cms_tags staticfiles sekizai_tags menu_tags gbe_tags hijack_tags %}
+{% comment %}{% load cms_tags staticfiles sekizai_tags menu_tags gbe_tags hijack_tags %}
+{% endcomment %}
+{% load  staticfiles  menu_tags gbe_tags hijack_tags %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{% block title %}This is my new project home page{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% render_block "css" %}
+
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">-->
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet"
@@ -39,9 +41,8 @@
   </head>
   <body style="background-image: url({% static "img/curtains.jpeg" %})">
     <div class="container">
-    {% cms_toolbar %}
 
-    <div class='banner'>{% static_placeholder 'banner' %}
+    <div class='banner'>
     </div>
 
       <div class="navbar navbar-default" role="navigation">
@@ -74,9 +75,8 @@
         {% block content %}
         {% endblock content %}
       </div>
-      <div class='footer'>{% static_placeholder 'footer'%}</div>
+      <div class='footer'></div>
     </div>
-    {% render_block "js" %}
 
   </body>
 </html>

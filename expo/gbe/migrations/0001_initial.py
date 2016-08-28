@@ -8,6 +8,28 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'UserMessage'
+        db.create_table(u'gbe_usermessage', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('summary', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('description', self.gf('django.db.models.fields.TextField')(max_length=500)),
+            ('view', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('code', self.gf('django.db.models.fields.CharField')(max_length=128)),
+        ))
+        db.send_create_signal('gbe', ['UserMessage'])
+
+        # Adding unique constraint on 'UserMessage', fields ['view', 'code']
+        db.create_unique(u'gbe_usermessage', ['view', 'code'])
+
+        # Adding model 'AvailableInterest'
+        db.create_table(u'gbe_availableinterest', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('interest', self.gf('django.db.models.fields.CharField')(unique=True, max_length=128)),
+            ('visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('help_text', self.gf('django.db.models.fields.TextField')(blank=True)),
+        ))
+        db.send_create_signal('gbe', ['AvailableInterest'])
+
         # Adding model 'Conference'
         db.create_table(u'gbe_conference', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -16,20 +38,20 @@ class Migration(SchemaMigration):
             ('status', self.gf('django.db.models.fields.CharField')(default='upcoming', max_length=50)),
             ('accepting_bids', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
-        db.send_create_signal(u'gbe', ['Conference'])
+        db.send_create_signal('gbe', ['Conference'])
 
         # Adding model 'Biddable'
         db.create_table(u'gbe_biddable', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('b_title', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('b_description', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('submitted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('accepted', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('conference', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['gbe.Conference'])),
+            ('b_conference', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='b_conference_set', to=orm['gbe.Conference'])),
         ))
-        db.send_create_signal(u'gbe', ['Biddable'])
+        db.send_create_signal('gbe', ['Biddable'])
 
         # Adding model 'Profile'
         db.create_table(u'gbe_profile', (
@@ -47,7 +69,7 @@ class Migration(SchemaMigration):
             ('best_time', self.gf('django.db.models.fields.CharField')(default='Any', max_length=50, blank=True)),
             ('how_heard', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['Profile'])
+        db.send_create_signal('gbe', ['Profile'])
 
         # Adding model 'Performer'
         db.create_table(u'gbe_performer', (
@@ -61,27 +83,27 @@ class Migration(SchemaMigration):
             ('promo_image', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
             ('festivals', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['Performer'])
+        db.send_create_signal('gbe', ['Performer'])
 
         # Adding model 'Persona'
         db.create_table(u'gbe_persona', (
             (u'performer_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Performer'], unique=True, primary_key=True)),
             ('performer_profile', self.gf('django.db.models.fields.related.ForeignKey')(related_name='personae', to=orm['gbe.Profile'])),
         ))
-        db.send_create_signal(u'gbe', ['Persona'])
+        db.send_create_signal('gbe', ['Persona'])
 
         # Adding model 'Troupe'
         db.create_table(u'gbe_troupe', (
             (u'performer_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Performer'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal(u'gbe', ['Troupe'])
+        db.send_create_signal('gbe', ['Troupe'])
 
         # Adding M2M table for field membership on 'Troupe'
         m2m_table_name = db.shorten_name(u'gbe_troupe_membership')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('troupe', models.ForeignKey(orm[u'gbe.troupe'], null=False)),
-            ('persona', models.ForeignKey(orm[u'gbe.persona'], null=False))
+            ('troupe', models.ForeignKey(orm['gbe.troupe'], null=False)),
+            ('persona', models.ForeignKey(orm['gbe.persona'], null=False))
         ))
         db.create_unique(m2m_table_name, ['troupe_id', 'persona_id'])
 
@@ -89,14 +111,14 @@ class Migration(SchemaMigration):
         db.create_table(u'gbe_combo', (
             (u'performer_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Performer'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal(u'gbe', ['Combo'])
+        db.send_create_signal('gbe', ['Combo'])
 
         # Adding M2M table for field membership on 'Combo'
         m2m_table_name = db.shorten_name(u'gbe_combo_membership')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('combo', models.ForeignKey(orm[u'gbe.combo'], null=False)),
-            ('persona', models.ForeignKey(orm[u'gbe.persona'], null=False))
+            ('combo', models.ForeignKey(orm['gbe.combo'], null=False)),
+            ('persona', models.ForeignKey(orm['gbe.persona'], null=False))
         ))
         db.create_unique(m2m_table_name, ['combo_id', 'persona_id'])
 
@@ -112,15 +134,16 @@ class Migration(SchemaMigration):
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('confirm_no_music', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
-        db.send_create_signal(u'gbe', ['AudioInfo'])
+        db.send_create_signal('gbe', ['AudioInfo'])
 
         # Adding model 'LightingInfo'
         db.create_table(u'gbe_lightinginfo', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('costume', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('specific_needs', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['LightingInfo'])
+        db.send_create_signal('gbe', ['LightingInfo'])
 
         # Adding model 'StageInfo'
         db.create_table(u'gbe_stageinfo', (
@@ -133,7 +156,7 @@ class Migration(SchemaMigration):
             ('clear_props', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['StageInfo'])
+        db.send_create_signal('gbe', ['StageInfo'])
 
         # Adding model 'TechInfo'
         db.create_table(u'gbe_techinfo', (
@@ -142,7 +165,7 @@ class Migration(SchemaMigration):
             ('lighting', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.LightingInfo'], unique=True, blank=True)),
             ('stage', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.StageInfo'], unique=True, blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['TechInfo'])
+        db.send_create_signal('gbe', ['TechInfo'])
 
         # Adding model 'CueInfo'
         db.create_table(u'gbe_cueinfo', (
@@ -157,7 +180,7 @@ class Migration(SchemaMigration):
             ('sound_note', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('techinfo', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.TechInfo'])),
         ))
-        db.send_create_signal(u'gbe', ['CueInfo'])
+        db.send_create_signal('gbe', ['CueInfo'])
 
         # Adding model 'Act'
         db.create_table(u'gbe_act', (
@@ -171,7 +194,7 @@ class Migration(SchemaMigration):
             ('other_performance', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('why_you', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['Act'])
+        db.send_create_signal('gbe', ['Act'])
 
         # Adding model 'Room'
         db.create_table(u'gbe_room', (
@@ -180,33 +203,51 @@ class Migration(SchemaMigration):
             ('capacity', self.gf('django.db.models.fields.IntegerField')()),
             ('overbook_size', self.gf('django.db.models.fields.IntegerField')()),
         ))
-        db.send_create_signal(u'gbe', ['Room'])
+        db.send_create_signal('gbe', ['Room'])
+
+        # Adding model 'ConferenceDay'
+        db.create_table(u'gbe_conferenceday', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('day', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('conference', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Conference'])),
+        ))
+        db.send_create_signal('gbe', ['ConferenceDay'])
+
+        # Adding model 'VolunteerWindow'
+        db.create_table(u'gbe_volunteerwindow', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('start', self.gf('django.db.models.fields.TimeField')(blank=True)),
+            ('end', self.gf('django.db.models.fields.TimeField')(blank=True)),
+            ('day', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.ConferenceDay'])),
+        ))
+        db.send_create_signal('gbe', ['VolunteerWindow'])
 
         # Adding model 'Event'
         db.create_table(u'gbe_event', (
             (u'eventitem_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['scheduler.EventItem'], unique=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
+            ('e_title', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('e_description', self.gf('django.db.models.fields.TextField')()),
             ('blurb', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('duration', self.gf('gbe.expomodelfields.DurationField')()),
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('event_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('conference', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['gbe.Conference'])),
+            ('e_conference', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='e_conference_set', to=orm['gbe.Conference'])),
         ))
-        db.send_create_signal(u'gbe', ['Event'])
+        db.send_create_signal('gbe', ['Event'])
 
         # Adding model 'Show'
         db.create_table(u'gbe_show', (
             (u'event_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Event'], unique=True, primary_key=True)),
+            ('cue_sheet', self.gf('django.db.models.fields.CharField')(default='Theater', max_length=128)),
         ))
-        db.send_create_signal(u'gbe', ['Show'])
+        db.send_create_signal('gbe', ['Show'])
 
         # Adding M2M table for field acts on 'Show'
         m2m_table_name = db.shorten_name(u'gbe_show_acts')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('show', models.ForeignKey(orm[u'gbe.show'], null=False)),
-            ('act', models.ForeignKey(orm[u'gbe.act'], null=False))
+            ('show', models.ForeignKey(orm['gbe.show'], null=False)),
+            ('act', models.ForeignKey(orm['gbe.act'], null=False))
         ))
         db.create_unique(m2m_table_name, ['show_id', 'act_id'])
 
@@ -214,8 +255,8 @@ class Migration(SchemaMigration):
         m2m_table_name = db.shorten_name(u'gbe_show_mc')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('show', models.ForeignKey(orm[u'gbe.show'], null=False)),
-            ('persona', models.ForeignKey(orm[u'gbe.persona'], null=False))
+            ('show', models.ForeignKey(orm['gbe.show'], null=False)),
+            ('persona', models.ForeignKey(orm['gbe.persona'], null=False))
         ))
         db.create_unique(m2m_table_name, ['show_id', 'persona_id'])
 
@@ -223,9 +264,9 @@ class Migration(SchemaMigration):
         db.create_table(u'gbe_genericevent', (
             (u'event_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Event'], unique=True, primary_key=True)),
             ('type', self.gf('django.db.models.fields.CharField')(default='Special', max_length=128)),
-            ('volunteer_category', self.gf('django.db.models.fields.CharField')(default='', max_length=128, blank=True)),
+            ('volunteer_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.AvailableInterest'], null=True, blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['GenericEvent'])
+        db.send_create_signal('gbe', ['GenericEvent'])
 
         # Adding model 'Class'
         db.create_table(u'gbe_class', (
@@ -242,11 +283,12 @@ class Migration(SchemaMigration):
             ('history', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('run_before', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('schedule_constraints', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('avoided_constraints', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('space_needs', self.gf('django.db.models.fields.CharField')(default='Please Choose an Option', max_length=128, blank=True)),
             ('physical_restrictions', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('multiple_run', self.gf('django.db.models.fields.CharField')(default='No', max_length=20)),
         ))
-        db.send_create_signal(u'gbe', ['Class'])
+        db.send_create_signal('gbe', ['Class'])
 
         # Adding model 'BidEvaluation'
         db.create_table(u'gbe_bidevaluation', (
@@ -256,7 +298,7 @@ class Migration(SchemaMigration):
             ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('bid', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Biddable'])),
         ))
-        db.send_create_signal(u'gbe', ['BidEvaluation'])
+        db.send_create_signal('gbe', ['BidEvaluation'])
 
         # Adding model 'PerformerFestivals'
         db.create_table(u'gbe_performerfestivals', (
@@ -265,21 +307,38 @@ class Migration(SchemaMigration):
             ('experience', self.gf('django.db.models.fields.CharField')(default='No', max_length=20)),
             ('act', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Act'])),
         ))
-        db.send_create_signal(u'gbe', ['PerformerFestivals'])
+        db.send_create_signal('gbe', ['PerformerFestivals'])
 
         # Adding model 'Volunteer'
         db.create_table(u'gbe_volunteer', (
             (u'biddable_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Biddable'], unique=True, primary_key=True)),
             ('profile', self.gf('django.db.models.fields.related.ForeignKey')(related_name='volunteering', to=orm['gbe.Profile'])),
             ('number_shifts', self.gf('django.db.models.fields.IntegerField')(default=1)),
-            ('availability', self.gf('django.db.models.fields.TextField')()),
-            ('unavailability', self.gf('django.db.models.fields.TextField')()),
-            ('interests', self.gf('django.db.models.fields.TextField')()),
+            ('availability', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('unavailability', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('opt_outs', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('pre_event', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('background', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['Volunteer'])
+        db.send_create_signal('gbe', ['Volunteer'])
+
+        # Adding M2M table for field available_windows on 'Volunteer'
+        m2m_table_name = db.shorten_name(u'gbe_volunteer_available_windows')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('volunteer', models.ForeignKey(orm['gbe.volunteer'], null=False)),
+            ('volunteerwindow', models.ForeignKey(orm['gbe.volunteerwindow'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['volunteer_id', 'volunteerwindow_id'])
+
+        # Adding M2M table for field unavailable_windows on 'Volunteer'
+        m2m_table_name = db.shorten_name(u'gbe_volunteer_unavailable_windows')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('volunteer', models.ForeignKey(orm['gbe.volunteer'], null=False)),
+            ('volunteerwindow', models.ForeignKey(orm['gbe.volunteerwindow'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['volunteer_id', 'volunteerwindow_id'])
 
         # Adding model 'Vendor'
         db.create_table(u'gbe_vendor', (
@@ -293,7 +352,7 @@ class Migration(SchemaMigration):
             ('help_description', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('help_times', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['Vendor'])
+        db.send_create_signal('gbe', ['Vendor'])
 
         # Adding model 'AdBid'
         db.create_table(u'gbe_adbid', (
@@ -301,7 +360,7 @@ class Migration(SchemaMigration):
             ('company', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
             ('type', self.gf('django.db.models.fields.CharField')(max_length=128)),
         ))
-        db.send_create_signal(u'gbe', ['AdBid'])
+        db.send_create_signal('gbe', ['AdBid'])
 
         # Adding model 'ArtBid'
         db.create_table(u'gbe_artbid', (
@@ -312,7 +371,24 @@ class Migration(SchemaMigration):
             ('art2', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
             ('art3', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
         ))
-        db.send_create_signal(u'gbe', ['ArtBid'])
+        db.send_create_signal('gbe', ['ArtBid'])
+
+        # Adding model 'Costume'
+        db.create_table(u'gbe_costume', (
+            (u'biddable_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Biddable'], unique=True, primary_key=True)),
+            ('profile', self.gf('django.db.models.fields.related.ForeignKey')(related_name='costumes', to=orm['gbe.Profile'])),
+            ('performer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Persona'], null=True, blank=True)),
+            ('creator', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('act_title', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
+            ('debut_date', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
+            ('active_use', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('pieces', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('pasties', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('dress_size', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('more_info', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('picture', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
+        ))
+        db.send_create_signal('gbe', ['Costume'])
 
         # Adding model 'ClassProposal'
         db.create_table(u'gbe_classproposal', (
@@ -325,7 +401,7 @@ class Migration(SchemaMigration):
             ('display', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('conference', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['gbe.Conference'])),
         ))
-        db.send_create_signal(u'gbe', ['ClassProposal'])
+        db.send_create_signal('gbe', ['ClassProposal'])
 
         # Adding model 'ConferenceVolunteer'
         db.create_table(u'gbe_conferencevolunteer', (
@@ -336,7 +412,7 @@ class Migration(SchemaMigration):
             ('qualification', self.gf('django.db.models.fields.TextField')(blank='True')),
             ('volunteering', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
-        db.send_create_signal(u'gbe', ['ConferenceVolunteer'])
+        db.send_create_signal('gbe', ['ConferenceVolunteer'])
 
         # Adding model 'ProfilePreferences'
         db.create_table(u'gbe_profilepreferences', (
@@ -346,10 +422,34 @@ class Migration(SchemaMigration):
             ('inform_about', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('show_hotel_infobox', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
-        db.send_create_signal(u'gbe', ['ProfilePreferences'])
+        db.send_create_signal('gbe', ['ProfilePreferences'])
+
+        # Adding model 'VolunteerInterest'
+        db.create_table(u'gbe_volunteerinterest', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('interest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.AvailableInterest'])),
+            ('volunteer', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Volunteer'])),
+            ('rank', self.gf('django.db.models.fields.IntegerField')(blank=True)),
+        ))
+        db.send_create_signal('gbe', ['VolunteerInterest'])
+
+        # Adding unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
+        db.create_unique(u'gbe_volunteerinterest', ['interest_id', 'volunteer_id'])
 
 
     def backwards(self, orm):
+        # Removing unique constraint on 'VolunteerInterest', fields ['interest', 'volunteer']
+        db.delete_unique(u'gbe_volunteerinterest', ['interest_id', 'volunteer_id'])
+
+        # Removing unique constraint on 'UserMessage', fields ['view', 'code']
+        db.delete_unique(u'gbe_usermessage', ['view', 'code'])
+
+        # Deleting model 'UserMessage'
+        db.delete_table(u'gbe_usermessage')
+
+        # Deleting model 'AvailableInterest'
+        db.delete_table(u'gbe_availableinterest')
+
         # Deleting model 'Conference'
         db.delete_table(u'gbe_conference')
 
@@ -398,6 +498,12 @@ class Migration(SchemaMigration):
         # Deleting model 'Room'
         db.delete_table(u'gbe_room')
 
+        # Deleting model 'ConferenceDay'
+        db.delete_table(u'gbe_conferenceday')
+
+        # Deleting model 'VolunteerWindow'
+        db.delete_table(u'gbe_volunteerwindow')
+
         # Deleting model 'Event'
         db.delete_table(u'gbe_event')
 
@@ -425,6 +531,12 @@ class Migration(SchemaMigration):
         # Deleting model 'Volunteer'
         db.delete_table(u'gbe_volunteer')
 
+        # Removing M2M table for field available_windows on 'Volunteer'
+        db.delete_table(db.shorten_name(u'gbe_volunteer_available_windows'))
+
+        # Removing M2M table for field unavailable_windows on 'Volunteer'
+        db.delete_table(db.shorten_name(u'gbe_volunteer_unavailable_windows'))
+
         # Deleting model 'Vendor'
         db.delete_table(u'gbe_vendor')
 
@@ -434,6 +546,9 @@ class Migration(SchemaMigration):
         # Deleting model 'ArtBid'
         db.delete_table(u'gbe_artbid')
 
+        # Deleting model 'Costume'
+        db.delete_table(u'gbe_costume')
+
         # Deleting model 'ClassProposal'
         db.delete_table(u'gbe_classproposal')
 
@@ -442,6 +557,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'ProfilePreferences'
         db.delete_table(u'gbe_profilepreferences')
+
+        # Deleting model 'VolunteerInterest'
+        db.delete_table(u'gbe_volunteerinterest')
 
 
     models = {
@@ -481,34 +599,34 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'gbe.act': {
-            'Meta': {'object_name': 'Act', '_ormbases': [u'gbe.Biddable', u'scheduler.ActItem']},
+        'gbe.act': {
+            'Meta': {'object_name': 'Act', '_ormbases': ['gbe.Biddable', u'scheduler.ActItem']},
             u'actitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['scheduler.ActItem']", 'unique': 'True'}),
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'other_performance': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'performer': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'acts'", 'null': 'True', 'to': u"orm['gbe.Performer']"}),
+            'performer': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'acts'", 'null': 'True', 'to': "orm['gbe.Performer']"}),
             'shows_preferences': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'tech': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.TechInfo']", 'unique': 'True', 'blank': 'True'}),
+            'tech': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.TechInfo']", 'unique': 'True', 'blank': 'True'}),
             'video_choice': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             'video_link': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
             'why_you': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
-        u'gbe.adbid': {
-            'Meta': {'object_name': 'AdBid', '_ormbases': [u'gbe.Biddable']},
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+        'gbe.adbid': {
+            'Meta': {'object_name': 'AdBid', '_ormbases': ['gbe.Biddable']},
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'company': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
-        u'gbe.artbid': {
-            'Meta': {'object_name': 'ArtBid', '_ormbases': [u'gbe.Biddable']},
+        'gbe.artbid': {
+            'Meta': {'object_name': 'ArtBid', '_ormbases': ['gbe.Biddable']},
             'art1': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
             'art2': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
             'art3': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'bio': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'works': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
-        u'gbe.audioinfo': {
+        'gbe.audioinfo': {
             'Meta': {'object_name': 'AudioInfo'},
             'confirm_no_music': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -520,29 +638,37 @@ class Migration(SchemaMigration):
             'track_duration': ('gbe.expomodelfields.DurationField', [], {'blank': 'True'}),
             'track_title': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'})
         },
-        u'gbe.biddable': {
+        'gbe.availableinterest': {
+            'Meta': {'object_name': 'AvailableInterest'},
+            'help_text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'interest': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '128'}),
+            'visible': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
+        },
+        'gbe.biddable': {
             'Meta': {'object_name': 'Biddable'},
             'accepted': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
+            'b_conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'b_conference_set'", 'to': "orm['gbe.Conference']"}),
+            'b_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'b_title': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'submitted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
-        u'gbe.bidevaluation': {
+        'gbe.bidevaluation': {
             'Meta': {'object_name': 'BidEvaluation'},
-            'bid': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Biddable']"}),
-            'evaluator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Profile']"}),
+            'bid': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Biddable']"}),
+            'evaluator': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Profile']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'vote': ('django.db.models.fields.IntegerField', [], {})
         },
-        u'gbe.class': {
-            'Meta': {'object_name': 'Class', '_ormbases': [u'gbe.Biddable', u'gbe.Event']},
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
-            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Event']", 'unique': 'True'}),
+        'gbe.class': {
+            'Meta': {'object_name': 'Class', '_ormbases': ['gbe.Biddable', 'gbe.Event']},
+            'avoided_constraints': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True'}),
             'fee': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'history': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'length_minutes': ('django.db.models.fields.IntegerField', [], {'default': '60', 'blank': 'True'}),
@@ -555,12 +681,12 @@ class Migration(SchemaMigration):
             'run_before': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'schedule_constraints': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'space_needs': ('django.db.models.fields.CharField', [], {'default': "'Please Choose an Option'", 'max_length': '128', 'blank': 'True'}),
-            'teacher': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'is_teaching'", 'to': u"orm['gbe.Persona']"}),
+            'teacher': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'is_teaching'", 'to': "orm['gbe.Persona']"}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'Lecture'", 'max_length': '128', 'blank': 'True'})
         },
-        u'gbe.classproposal': {
+        'gbe.classproposal': {
             'Meta': {'object_name': 'ClassProposal'},
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['gbe.Conference']"}),
             'display': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -569,12 +695,12 @@ class Migration(SchemaMigration):
             'title': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'Class'", 'max_length': '20'})
         },
-        u'gbe.combo': {
-            'Meta': {'ordering': "['name']", 'object_name': 'Combo', '_ormbases': [u'gbe.Performer']},
-            'membership': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'combos'", 'symmetrical': 'False', 'to': u"orm['gbe.Persona']"}),
-            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
+        'gbe.combo': {
+            'Meta': {'ordering': "['name']", 'object_name': 'Combo', '_ormbases': ['gbe.Performer']},
+            'membership': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'combos'", 'symmetrical': 'False', 'to': "orm['gbe.Persona']"}),
+            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
         },
-        u'gbe.conference': {
+        'gbe.conference': {
             'Meta': {'object_name': 'Conference'},
             'accepting_bids': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'conference_name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
@@ -582,16 +708,37 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'upcoming'", 'max_length': '50'})
         },
-        u'gbe.conferencevolunteer': {
+        'gbe.conferenceday': {
+            'Meta': {'ordering': "['day']", 'object_name': 'ConferenceDay'},
+            'conference': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Conference']"}),
+            'day': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
+        'gbe.conferencevolunteer': {
             'Meta': {'object_name': 'ConferenceVolunteer'},
-            'bid': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.ClassProposal']"}),
+            'bid': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.ClassProposal']"}),
             'how_volunteer': ('django.db.models.fields.CharField', [], {'default': "'Any of the Above'", 'max_length': '20'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'presenter': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'conf_volunteer'", 'to': u"orm['gbe.Persona']"}),
+            'presenter': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'conf_volunteer'", 'to': "orm['gbe.Persona']"}),
             'qualification': ('django.db.models.fields.TextField', [], {'blank': "'True'"}),
             'volunteering': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
-        u'gbe.cueinfo': {
+        'gbe.costume': {
+            'Meta': {'object_name': 'Costume', '_ormbases': ['gbe.Biddable']},
+            'act_title': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'active_use': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+            'creator': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'debut_date': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'dress_size': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'more_info': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'pasties': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'performer': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Persona']", 'null': 'True', 'blank': 'True'}),
+            'picture': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
+            'pieces': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'costumes'", 'to': "orm['gbe.Profile']"})
+        },
+        'gbe.cueinfo': {
             'Meta': {'object_name': 'CueInfo'},
             'backlight': ('django.db.models.fields.CharField', [], {'default': "'OFF'", 'max_length': '20'}),
             'center_spot': ('django.db.models.fields.CharField', [], {'default': "'OFF'", 'max_length': '20'}),
@@ -601,37 +748,38 @@ class Migration(SchemaMigration):
             'follow_spot': ('django.db.models.fields.CharField', [], {'default': "('White', 'White')", 'max_length': '25'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'sound_note': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'techinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.TechInfo']"}),
+            'techinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.TechInfo']"}),
             'wash': ('django.db.models.fields.CharField', [], {'default': "('White', 'White')", 'max_length': '25'})
         },
-        u'gbe.event': {
-            'Meta': {'ordering': "['title']", 'object_name': 'Event', '_ormbases': [u'scheduler.EventItem']},
+        'gbe.event': {
+            'Meta': {'ordering': "['e_title']", 'object_name': 'Event', '_ormbases': [u'scheduler.EventItem']},
             'blurb': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['gbe.Conference']"}),
-            'description': ('django.db.models.fields.TextField', [], {}),
             'duration': ('gbe.expomodelfields.DurationField', [], {}),
+            'e_conference': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'e_conference_set'", 'to': "orm['gbe.Conference']"}),
+            'e_description': ('django.db.models.fields.TextField', [], {}),
+            'e_title': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'event_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             u'eventitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['scheduler.EventItem']", 'unique': 'True'}),
-            'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+            'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
-        u'gbe.genericevent': {
-            'Meta': {'ordering': "['title']", 'object_name': 'GenericEvent', '_ormbases': [u'gbe.Event']},
-            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
+        'gbe.genericevent': {
+            'Meta': {'ordering': "['e_title']", 'object_name': 'GenericEvent', '_ormbases': ['gbe.Event']},
+            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'Special'", 'max_length': '128'}),
-            'volunteer_category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'})
+            'volunteer_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']", 'null': 'True', 'blank': 'True'})
         },
-        u'gbe.lightinginfo': {
+        'gbe.lightinginfo': {
             'Meta': {'object_name': 'LightingInfo'},
             'costume': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'})
+            'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'specific_needs': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
-        u'gbe.performer': {
+        'gbe.performer': {
             'Meta': {'ordering': "['name']", 'object_name': 'Performer', '_ormbases': [u'scheduler.WorkerItem']},
             'awards': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'bio': ('django.db.models.fields.TextField', [], {}),
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact'", 'to': u"orm['gbe.Profile']"}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'contact'", 'to': "orm['gbe.Profile']"}),
             'experience': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'festivals': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'homepage': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
@@ -639,19 +787,19 @@ class Migration(SchemaMigration):
             'promo_image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
             u'workeritem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['scheduler.WorkerItem']", 'unique': 'True', 'primary_key': 'True'})
         },
-        u'gbe.performerfestivals': {
+        'gbe.performerfestivals': {
             'Meta': {'object_name': 'PerformerFestivals'},
-            'act': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Act']"}),
+            'act': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Act']"}),
             'experience': ('django.db.models.fields.CharField', [], {'default': "'No'", 'max_length': '20'}),
             'festival': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
-        u'gbe.persona': {
-            'Meta': {'ordering': "['name']", 'object_name': 'Persona', '_ormbases': [u'gbe.Performer']},
-            'performer_profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'personae'", 'to': u"orm['gbe.Profile']"}),
-            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
+        'gbe.persona': {
+            'Meta': {'ordering': "['name']", 'object_name': 'Persona', '_ormbases': ['gbe.Performer']},
+            'performer_profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'personae'", 'to': "orm['gbe.Profile']"}),
+            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
         },
-        u'gbe.profile': {
+        'gbe.profile': {
             'Meta': {'ordering': "['display_name']", 'object_name': 'Profile', '_ormbases': [u'scheduler.WorkerItem']},
             'address1': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
             'address2': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
@@ -667,28 +815,29 @@ class Migration(SchemaMigration):
             u'workeritem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['scheduler.WorkerItem']", 'unique': 'True', 'primary_key': 'True'}),
             'zip_code': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'})
         },
-        u'gbe.profilepreferences': {
+        'gbe.profilepreferences': {
             'Meta': {'object_name': 'ProfilePreferences'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'in_hotel': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
             'inform_about': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'profile': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'preferences'", 'unique': 'True', 'to': u"orm['gbe.Profile']"}),
+            'profile': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'preferences'", 'unique': 'True', 'to': "orm['gbe.Profile']"}),
             'show_hotel_infobox': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
-        u'gbe.room': {
+        'gbe.room': {
             'Meta': {'object_name': 'Room', '_ormbases': [u'scheduler.LocationItem']},
             'capacity': ('django.db.models.fields.IntegerField', [], {}),
             u'locationitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['scheduler.LocationItem']", 'unique': 'True', 'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'overbook_size': ('django.db.models.fields.IntegerField', [], {})
         },
-        u'gbe.show': {
-            'Meta': {'ordering': "['title']", 'object_name': 'Show', '_ormbases': [u'gbe.Event']},
-            'acts': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'appearing_in'", 'blank': 'True', 'to': u"orm['gbe.Act']"}),
-            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
-            'mc': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'mc_for'", 'blank': 'True', 'to': u"orm['gbe.Persona']"})
+        'gbe.show': {
+            'Meta': {'ordering': "['e_title']", 'object_name': 'Show', '_ormbases': ['gbe.Event']},
+            'acts': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'appearing_in'", 'blank': 'True', 'to': "orm['gbe.Act']"}),
+            'cue_sheet': ('django.db.models.fields.CharField', [], {'default': "'Theater'", 'max_length': '128'}),
+            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True', 'primary_key': 'True'}),
+            'mc': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'mc_for'", 'blank': 'True', 'to': "orm['gbe.Persona']"})
         },
-        u'gbe.stageinfo': {
+        'gbe.stageinfo': {
             'Meta': {'object_name': 'StageInfo'},
             'act_duration': ('gbe.expomodelfields.DurationField', [], {'blank': 'True'}),
             'clear_props': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -699,41 +848,64 @@ class Migration(SchemaMigration):
             'notes': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'set_props': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
-        u'gbe.techinfo': {
+        'gbe.techinfo': {
             'Meta': {'object_name': 'TechInfo'},
-            'audio': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.AudioInfo']", 'unique': 'True', 'blank': 'True'}),
+            'audio': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.AudioInfo']", 'unique': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'lighting': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.LightingInfo']", 'unique': 'True', 'blank': 'True'}),
-            'stage': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.StageInfo']", 'unique': 'True', 'blank': 'True'})
+            'lighting': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.LightingInfo']", 'unique': 'True', 'blank': 'True'}),
+            'stage': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.StageInfo']", 'unique': 'True', 'blank': 'True'})
         },
-        u'gbe.troupe': {
-            'Meta': {'ordering': "['name']", 'object_name': 'Troupe', '_ormbases': [u'gbe.Performer']},
-            'membership': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'troupes'", 'symmetrical': 'False', 'to': u"orm['gbe.Persona']"}),
-            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
+        'gbe.troupe': {
+            'Meta': {'ordering': "['name']", 'object_name': 'Troupe', '_ormbases': ['gbe.Performer']},
+            'membership': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'troupes'", 'symmetrical': 'False', 'to': "orm['gbe.Persona']"}),
+            u'performer_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Performer']", 'unique': 'True', 'primary_key': 'True'})
         },
-        u'gbe.vendor': {
-            'Meta': {'object_name': 'Vendor', '_ormbases': [u'gbe.Biddable']},
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
+        'gbe.usermessage': {
+            'Meta': {'unique_together': "(('view', 'code'),)", 'object_name': 'UserMessage'},
+            'code': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'description': ('django.db.models.fields.TextField', [], {'max_length': '500'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'summary': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'view': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+        },
+        'gbe.vendor': {
+            'Meta': {'object_name': 'Vendor', '_ormbases': ['gbe.Biddable']},
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'help_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'help_times': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'logo': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'blank': 'True'}),
             'physical_address': ('django.db.models.fields.TextField', [], {}),
-            'profile': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gbe.Profile']"}),
+            'profile': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Profile']"}),
             'publish_physical_address': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'want_help': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'website': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         },
-        u'gbe.volunteer': {
-            'Meta': {'object_name': 'Volunteer', '_ormbases': [u'gbe.Biddable']},
-            'availability': ('django.db.models.fields.TextField', [], {}),
+        'gbe.volunteer': {
+            'Meta': {'object_name': 'Volunteer', '_ormbases': ['gbe.Biddable']},
+            'availability': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'available_windows': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'availablewindow_set'", 'blank': 'True', 'to': "orm['gbe.VolunteerWindow']"}),
             'background': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
-            'interests': ('django.db.models.fields.TextField', [], {}),
+            u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             'number_shifts': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'opt_outs': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'pre_event': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'volunteering'", 'to': u"orm['gbe.Profile']"}),
-            'unavailability': ('django.db.models.fields.TextField', [], {})
+            'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'volunteering'", 'to': "orm['gbe.Profile']"}),
+            'unavailability': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'unavailable_windows': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'unavailablewindow_set'", 'blank': 'True', 'to': "orm['gbe.VolunteerWindow']"})
+        },
+        'gbe.volunteerinterest': {
+            'Meta': {'unique_together': "(('interest', 'volunteer'),)", 'object_name': 'VolunteerInterest'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'interest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.AvailableInterest']"}),
+            'rank': ('django.db.models.fields.IntegerField', [], {'blank': 'True'}),
+            'volunteer': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.Volunteer']"})
+        },
+        'gbe.volunteerwindow': {
+            'Meta': {'ordering': "['day', 'start']", 'object_name': 'VolunteerWindow'},
+            'day': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['gbe.ConferenceDay']"}),
+            'end': ('django.db.models.fields.TimeField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'start': ('django.db.models.fields.TimeField', [], {'blank': 'True'})
         },
         u'scheduler.actitem': {
             'Meta': {'object_name': 'ActItem', '_ormbases': [u'scheduler.ResourceItem']},

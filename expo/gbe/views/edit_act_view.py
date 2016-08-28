@@ -122,7 +122,7 @@ def EditActView(request, act_id):
                  'fee_link': fee_link,
                  'submit_fields': requiredsub},
                 form,
-                act.conference,
+                act.b_conference,
                 profile,
                 'EditActView')
 
