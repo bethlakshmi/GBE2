@@ -11,11 +11,13 @@ from tests.factories.gbe_factories import (
     VolunteerInterestFactory
 )
 from tests.functions.gbe_functions import (
+    assert_interest_view,
+    bad_id_for,
     grant_privilege,
     is_login_page,
     login_as,
-    assert_interest_view,
 )
+from gbe.models import Volunteer
 
 
 class TestReviewVolunteer(TestCase):
@@ -132,18 +134,18 @@ class TestReviewVolunteer(TestCase):
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
-    def test_bad_user(self):
+    def test_bad_vendor_id(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        bad_id = bad_id_for(Volunteer)
+        url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_review_volunteer_fetch_by_post(self):
         volunteer = VolunteerFactory()
         url = reverse(self.view_name,
                       args=[0],
                       urlconf='gbe.urls')
-
         login_as(self.privileged_user, self)
         response = self.client.post(url, data={'volunteer': volunteer.pk})
         self.assertEqual(response.status_code, 200)

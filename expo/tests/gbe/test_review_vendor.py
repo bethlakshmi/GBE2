@@ -9,14 +9,12 @@ from tests.factories.gbe_factories import (
     VendorFactory,
 )
 from tests.functions.gbe_functions import (
+    bad_id_for,
     grant_privilege,
     is_login_page,
     login_as,
 )
-
-
-def refresh_from_db(item):
-    return type(item).objects.get(pk=item.pk)
+from gbe.models import Vendor
 
 
 class TestReviewVendor(TestCase):
@@ -108,8 +106,9 @@ class TestReviewVendor(TestCase):
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
-    def test_bad_user(self):
+    def test_bad_vendor_id(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        bad_id = bad_id_for(Vendor)
+        url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
