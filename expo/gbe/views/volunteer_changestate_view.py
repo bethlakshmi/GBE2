@@ -27,7 +27,7 @@ def VolunteerChangeStateView(request, bid_id):
 
     if request.method == 'POST':
         volunteer = get_object_or_404(Volunteer, id=bid_id)
-        
+
         # Clear all commitments
         Worker.objects.filter(
             _item=volunteer.profile,

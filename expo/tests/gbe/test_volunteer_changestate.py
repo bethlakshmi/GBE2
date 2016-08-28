@@ -18,6 +18,7 @@ from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
 
+
 class TestVolunteerChangestate(TestCase):
     '''Tests for volunteer_changestate view'''
     view_name = 'volunteer_changestate'
@@ -27,7 +28,6 @@ class TestVolunteerChangestate(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.volunteer = VolunteerFactory(submitted=True)
-        
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Volunteer Reviewers')
