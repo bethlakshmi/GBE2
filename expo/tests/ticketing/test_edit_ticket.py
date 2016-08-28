@@ -59,7 +59,6 @@ class TestEditTicketItem(TestCase):
         '''
         request = self.factory.get('/ticketing/ticket_item_edit')
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_item_edit(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -71,7 +70,6 @@ class TestEditTicketItem(TestCase):
         request = self.factory.get('/ticketing/ticket_item_edit/%d' %
                                    self.ticketitem.pk)
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_item_edit(request, self.ticketitem.pk)
         nt.assert_equal(response.status_code, 200)
 
@@ -115,7 +113,6 @@ class TestEditTicketItem(TestCase):
                                     self.ticketitem.pk,
                                     error_form)
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_item_edit(request, self.ticketitem.pk)
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Edit Ticketing' in response.content)
@@ -165,7 +162,6 @@ class TestEditTicketItem(TestCase):
         request = self.factory.post('/ticketing/ticket_item_edit/%d' %
                                     transaction.ticket_item.pk,
                                     delete_ticket)
-        request.session = {'cms_admin_site': 1}
         request.user = self.privileged_user
         response = ticket_item_edit(request, transaction.ticket_item.pk)
         nt.assert_equal(response.status_code, 200)

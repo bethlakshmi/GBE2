@@ -57,7 +57,6 @@ class TestListTickets(TestCase):
         request = self.factory.get(
             reverse('ticket_items', urlconf='ticketing.urls'),)
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -84,7 +83,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
         ticket = get_object_or_404(
@@ -106,7 +104,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -128,7 +125,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -151,7 +147,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -176,7 +171,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -198,7 +192,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -220,7 +213,6 @@ class TestListTickets(TestCase):
             reverse('ticket_items', urlconf='ticketing.urls'),
             {'Import': 'Import'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -234,7 +226,6 @@ class TestListTickets(TestCase):
                     urlconf='ticketing.urls',
                     args=[str(ticket.bpt_event.conference.conference_slug)]))
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = ticket_items(
             request,
             ticket.bpt_event.conference.conference_slug)

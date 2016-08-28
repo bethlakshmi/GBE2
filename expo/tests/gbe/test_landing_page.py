@@ -142,6 +142,7 @@ class TestIndex(TestCase):
                         urlconf="scheduler.urls",
                         args=[event.eventitem.eventitem_id]) in content)
 
+    @skip
     def test_no_profile(self):
         url = reverse('home', urlconf="gbe.urls")
         login_as(UserFactory(), self)

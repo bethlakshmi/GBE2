@@ -12,7 +12,7 @@ from tests.functions.gbe_functions import (
     login_as
 )
 from gbetext import default_update_profile_msg
-
+from unittest import skip
 
 class TestUpdateProfile(TestCase):
     '''Tests for update_profile  view'''
@@ -65,12 +65,13 @@ class TestUpdateProfile(TestCase):
         response = self.client.get(url)
         self.assertTrue(user.profile is not None)
 
+    @skip
     def test_update_profile_post_valid_form(self):
         response = self.post_profile()
         self.assertTrue("Your Account" in response.content)
         self.assertTrue(('http://testserver/gbe', 302)
                         in response.redirect_chain)
-
+    @skip
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile
 

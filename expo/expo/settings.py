@@ -90,7 +90,6 @@ except:
 
 INSTALLED_APPS = (
     'mptt',  # utilities for implementing a tree
-    'menus',
     'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
     'django.contrib.messages',
@@ -125,7 +124,6 @@ THUMBNAIL_HIGH_RESOLUTION = True
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
-    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
     # 'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
@@ -146,48 +144,16 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',
     # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
-TEXT_SAVE_IMAGE_FUNCTION = \
-    'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
-# all django-cms
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.debug',  # used in tutorial
-    'django.core.context_processors.request',
-    'django.core.context_processors.media',
-    'django.core.context_processors.csrf',   # tutorial
-    'django.core.context_processors.tz',     # tutorial
-    'sekizai.context_processors.sekizai',
-    'django.core.context_processors.static',
-    'cms.context_processors.cms_settings',
-)
 
 MIGRATION_MODULES = {
-    'cms': 'cms.migrations_django',
-    'menus': 'menus.migrations_django',
 
     # Add also the following modules if you're using these plugins:
-    'djangocms_file': 'djangocms_file.migrations_django',
-    'djangocms_flash': 'djangocms_flash.migrations_django',
-    'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
-    'djangocms_inherit': 'djangocms_inherit.migrations_django',
-    'djangocms_link': 'djangocms_link.migrations_django',
-    'djangocms_picture': 'djangocms_picture.migrations_django',
-    'djangocms_snippet': 'djangocms_snippet.migrations_django',
-    'djangocms_teaser': 'djangocms_teaser.migrations_django',
-    'djangocms_video': 'djangocms_video.migrations_django',
-    'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
 }
 
 SOUTH_MIGRATION_MODULES = {
