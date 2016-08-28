@@ -327,18 +327,6 @@ class BidStateChangeForm(forms.ModelForm):
         help_texts = acceptance_help_texts
 
 
-class EventCheckBox(ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        time_format = set_time_format(days=2)
-        return (str(obj) +
-                " - " +
-                obj.starttime.strftime(time_format) +
-                ' (' +
-                obj.volunteer_count +
-                '/' +
-                str(obj.max_volunteer) + ')')
-
-
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
