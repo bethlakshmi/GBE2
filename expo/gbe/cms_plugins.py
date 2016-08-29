@@ -65,6 +65,12 @@ class FollowOnFacebookPlugin(CMSPluginBase):
     render_template = loader.get_template('gbe/facebook_follow.tmpl')
 
 
+class AdRotatorPlugin(CMSPluginBase):
+    model = CMSPlugin
+    module = _("GBE Plugins")
+    name = _("Ad Rotator")
+    render_template = loader.get_template('gbe/ad-rotator.tmpl')
+
 # register the plugins
 plugin_pool.register_plugin(ClassIdeaPlugin)
 plugin_pool.register_plugin(ContactFormPlugin)
@@ -72,3 +78,4 @@ plugin_pool.register_plugin(SubscribeEmailPlugin)
 plugin_pool.register_plugin(GoFundMePlugin)
 plugin_pool.register_plugin(ShareOnFacebookPlugin)
 plugin_pool.register_plugin(FollowOnFacebookPlugin)
+plugin_pool.register_plugin(AdRotatorPlugin)
