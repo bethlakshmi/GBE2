@@ -5,7 +5,7 @@ from django.template import loader
 from gbe.forms import (
     ContactForm,
     ClassProposalForm,
-    )
+)
 
 from cms.models.pluginmodel import CMSPlugin
 from django.core.urlresolvers import reverse
