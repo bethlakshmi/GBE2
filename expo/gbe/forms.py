@@ -867,7 +867,7 @@ class GenericEventScheduleForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title', 'description', 'duration', 'type']
+        fields = ['title', 'description', 'duration', 'type', 'default_location',]
         help_texts = event_help_texts
 
 
@@ -877,7 +877,7 @@ class ShowScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Show
-        fields = ['title', 'description', 'duration']
+        fields = ['title', 'description', 'duration', 'default_location',]
         help_texts = event_help_texts
 
 
@@ -899,6 +899,7 @@ class ClassScheduleForm(forms.ModelForm):
                   'space_needs',
                   'teacher',
                   'accepted',
+                  'default_location',
                   ]
         help_texts = classbid_help_texts
         labels = classbid_labels

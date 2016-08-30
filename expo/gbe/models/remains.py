@@ -1205,6 +1205,10 @@ class Event(EventItem):
     conference = models.ForeignKey(
         Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
+    default_location = models.ForeignKey(
+        Room,
+        blank=True,
+        null=True)
 
     def __str__(self):
         return self.title
