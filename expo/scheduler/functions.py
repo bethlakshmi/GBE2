@@ -438,7 +438,6 @@ def cal_times_for_conf(conference, day_name):
 
 def get_events_and_windows(conference):
     from scheduler.models import Event
-
     events = Event.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__e_conference=conference

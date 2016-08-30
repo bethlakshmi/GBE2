@@ -4,13 +4,16 @@ from expoformfields import DurationFormField
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 from duration import Duration
-from south.modelsinspector import add_introspection_rules
+from django.utils import six
+from django .db.models.fields import Field
 
-add_introspection_rules([], ["^gbe\.expomodelfields\.DurationField"])
 
-
-class DurationField(IntegerField):
+#class DurationField(IntegerField):
+class DurationField(six.with_metaclass(models.SubfieldBase, Field)):
     __metaclass__ = models.SubfieldBase
+
+    def __init__(self, *args, **kwargs):
+        super(DurationField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
         super(DurationField, self).contribute_to_class(cls, name)
@@ -24,6 +27,8 @@ class DurationField(IntegerField):
     def to_python(self, value):
         if not value:
             return None
+        if isinstance(value, Duration):
+            return value
         if isinstance(value, (int, long)):
             return Duration(seconds=value)
         elif isinstance(value, (basestring, unicode)):
@@ -48,8 +53,7 @@ class DurationField(IntegerField):
         if isinstance(value, timedelta):
             return value.seconds + (86400 * value.days)
         try:
-            value = int(value)
-            return value
+            return int(value)
         except:
             return 0
 #            raise ValueError('%s is not a reasonable value for a duration'
@@ -66,3 +70,33 @@ class DurationField(IntegerField):
         defaults = {"help_text": "Enter duration in the format: HH:MM:SS"}
         defaults.update(kwargs)
         return form_class(**defaults)
+
+    # def to_python(self, value):
+    #     try:
+    #         return self.parse_to_duration(value)
+    #     except ValueError:
+    #         raise FormValidationError('Please enter your duration as mm:ss')
+
+
+
+    # def parse_to_duration(self, value):
+    #     '''
+    #     Attempt to make a value out of this string
+    #     For now the rules are: '' => zero-duration timedelta
+    #     'mm:ss' || 'hh:mm:ss' => timedelta of this value
+    #     else: ValueError
+    #     '''
+    #     if value is None:
+    #         return Duration(0)
+    #     if isinstance(value, Duration):
+    #         return value
+
+    #     if len(value) == 0:
+    #         return Duration(0)
+    #     vs = [int(v) for v in value.split(':')]
+    #     if len(vs) < 2 or len(vs) > 4:
+    #         raise ValueError('Format error with value: %s' % value)
+    #     time = vs[-1] + 60 * vs[-2]
+    #     if len(vs) == 3:
+    #         time += 60 * 60 * vs[0]
+    #     return Duration(seconds=time)

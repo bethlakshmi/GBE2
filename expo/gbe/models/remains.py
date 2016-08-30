@@ -100,7 +100,8 @@ class Biddable(models.Model):
     b_conference = models.ForeignKey(
         Conference,
         related_name="b_conference_set",
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        blank=True,
+        null=True)
 
     class Meta:
         verbose_name = "biddable item"
@@ -1206,7 +1207,8 @@ class Event(EventItem):
     e_conference = models.ForeignKey(
         Conference,
         related_name="e_conference_set",
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        blank=True,
+        null=True)
 
     def __str__(self):
         return self.e_title
@@ -1898,7 +1900,8 @@ class ClassProposal(models.Model):
     display = models.BooleanField(default=False)
     conference = models.ForeignKey(
         Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         return self.title

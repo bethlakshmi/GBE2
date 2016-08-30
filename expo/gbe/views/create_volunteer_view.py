@@ -84,7 +84,7 @@ def CreateVolunteerView(request):
 
         if form.is_valid() and valid_interests and like_one_thing:
             volunteer = form.save(commit=False)
-            volunteer.conference = conference
+            volunteer.b_conference = conference
             volunteer.profile = profile
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True

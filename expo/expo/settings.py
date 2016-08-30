@@ -90,7 +90,6 @@ except:
 
 INSTALLED_APPS = (
     'mptt',  # utilities for implementing a tree
-    'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
     'django.contrib.messages',
     'treebeard',

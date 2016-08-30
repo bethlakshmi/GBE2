@@ -49,8 +49,7 @@ class BrownPaperEvents(models.Model):
     ticket_style = models.CharField(max_length=50, blank=True)
     conference = models.ForeignKey('gbe.Conference',
                                    related_name='ticketing_item',
-                                   default=lambda: Conference.objects.filter(
-                                    status="upcoming").first())
+                                   blank=True, null=True)
 
     def __unicode__(self):
         return self.bpt_event_id

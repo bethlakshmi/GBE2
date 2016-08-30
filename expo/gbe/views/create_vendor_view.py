@@ -40,7 +40,7 @@ def CreateVendorView(request):
         if form.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
             vendor = form.save(commit=False)
-            vendor.conference = conference
+            vendor.b_conference = conference
             vendor = form.save()
         else:
             return render(request,

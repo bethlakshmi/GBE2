@@ -133,10 +133,10 @@ class VolunteerInterestAdmin(admin.ModelAdmin):
                     'conference')
     list_filter = ['interest',
                    'rank',
-                   'volunteer__conference']
+                   'volunteer__b_conference']
 
     def conference(self, obj):
-        return obj.volunteer.conference
+        return obj.volunteer.b_conference
 
 
 class VolunteerWindowAdmin(admin.ModelAdmin):
