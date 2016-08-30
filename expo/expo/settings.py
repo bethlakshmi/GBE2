@@ -88,7 +88,7 @@ except:
     LOGIN_REDIRECT_URL = '/'
 
 # Application definition
- 
+
 INSTALLED_APPS = (
     'cms',  # django CMS itself
     'mptt',  # utilities for implementing a tree
@@ -110,14 +110,14 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-   #     'aldryn_bootstrap3',
-    'image_gallery',  #I forked this and extended a little.
+    #    'aldryn_bootstrap3',
+    'image_gallery',  #  I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-   #     'djangocms_file',
+    #    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -127,11 +127,11 @@ INSTALLED_APPS = (
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
     'cmsplugin_filer_video',
-   #     'djangocms_link',
-   #     'djangocms_picture',
-   #     'djangocms_teaser',
-   #     'djangocms_video',
-    'reversion',  # for versioning in cms -- use easy install
+    #    'djangocms_link',
+    #    'djangocms_picture',
+    #    'djangocms_teaser',
+    #    'djangocms_video',
+    'reversion',  #  for versioning in cms -- use easy install
     'gbe',
     'ticketing',
     'scheduler',
@@ -360,24 +360,20 @@ except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
 
 
-# DJANGO-HIJACK
-
-
-
-###  This block is for using local_settings.py to control which external
-###  apps are setup and configured to execute within this installation
-###  of GBE2.  Only alter this if you read through local_settings.py
-###  and urls.py to see how this works.
+#  This block is for using local_settings.py to control which external
+#  apps are setup and configured to execute within this installation
+#  of GBE2.  Only alter this if you read through local_settings.py
+#  and urls.py to see how this works.
 
 try:
     APP_DJANGOBB
 except:
     APP_DJANGOBB = False
 
-if APP_DJANGOBB == True:
-    INSTALLED_APPS=INSTALLED_APPS+('djangobb_forum',)
+if APP_DJANGOBB is True:
+    INSTALLED_APPS = INSTALLED_APPS+('djangobb_forum',)
     TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
-                ('djangobb_forum.context_processors.forum_settings',)
+            ('djangobb_forum.context_processors.forum_settings',)
 
     # HAYSTACK settings, for DjangoBB_Forum
     HAYSTACK_DEFAULT_OPERATOR = 'OR'
@@ -388,7 +384,7 @@ if APP_DJANGOBB == True:
             'TIMEOUT': 60 * 5,
             'INCLUDE_SPELLING': True,
             'BATCH_SIZE': 100,
-            'EXCLUDED_INDEXES': [ \
+            'EXCLUDED_INDEXES': [
                     'thirdpartyapp.search_indexes.BarIndex'],
         },
         'autocomplete': {
@@ -398,48 +394,19 @@ if APP_DJANGOBB == True:
             'POST_LIMIT': 128 * 1024 * 1024,
             'INCLUDE_SPELLING': True,
             'BATCH_SIZE': 100,
-            'EXCLUDED_INDEXES': [ \
+            'EXCLUDED_INDEXES': [
                     'thirdpartyapp.search_indexes.BarIndex'],
         },
-    #    'slave': {
-    #        'ENGINE': 'xapian_backend.XapianEngine',
-    #        'PATH': '/home/search/xapian_index',
-    #        'INCLUDE_SPELLING': True,
-    #        'BATCH_SIZE': 100,
-    #        'EXCLUDED_INDEXES': [ \
-    #                'thirdpartyapp.search_indexes.BarIndex'],
-    #    },
+        #'slave': {
+        #    'ENGINE': 'xapian_backend.XapianEngine',
+        #    'PATH': '/home/search/xapian_index',
+        #    'INCLUDE_SPELLING': True,
+        #    'BATCH_SIZE': 100,
+        #    'EXCLUDED_INDEXES': [ \
+        #        'thirdpartyapp.search_indexes.BarIndex'],
+        #},
         'db': {
             'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
             'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
         }
     }
-
-
-
-#if APP_DJANGOCMS:
-#    LOCAL_APPS=LOCAL_APPS+(
-#        'cms',
-#        'djangocms_admin_style',
-#        'cmsplugin_nivoslider',
-#        'djangocms-placeholder-attr',
-#        'djangocms_style',
-#        'djangocms_column',
-#        'djangocms_snippet',
-#       #     'djangocms_file',
-#        'djangocms_flash',
-#        'djangocms_googlemap',
-#        'djangocms_inherit',
-#        'cmsplugin_filer_file',
-#        'cmsplugin_filer_folder',
-#        'cmsplugin_filer_link',
-#        'cmsplugin_filer_image',
-#        'cmsplugin_filer_teaser',
-#        'cmsplugin_filer_video',
-       #     'djangocms_link',
-       #     'djangocms_picture',
-       #     'djangocms_teaser',
-       #     'djangocms_video',
-#        'reversion',  # for versioning in cms -- use easy install
-#        )
-
