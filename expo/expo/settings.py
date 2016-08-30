@@ -111,7 +111,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     #    'aldryn_bootstrap3',
-    'image_gallery',  #  I forked this and extended a little.
+    'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
     'djangocms_style',
@@ -131,7 +131,7 @@ INSTALLED_APPS = (
     #    'djangocms_picture',
     #    'djangocms_teaser',
     #    'djangocms_video',
-    'reversion',  #  for versioning in cms -- use easy install
+    'reversion',  # for versioning in cms -- use easy install
     'gbe',
     'ticketing',
     'scheduler',
@@ -154,7 +154,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
-   #    'easy_thumbnails.processors.scale_and_crop',
+    #    'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
@@ -168,7 +168,7 @@ MIDDLEWARE_CLASSES = (
     'hijack.middleware.HijackRemoteUserMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-   #    added for django-cms
+    #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -177,7 +177,7 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
-   #    end of add for django-cms
+    #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
@@ -373,7 +373,7 @@ except:
 if APP_DJANGOBB is True:
     INSTALLED_APPS = INSTALLED_APPS+('djangobb_forum',)
     TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
-            ('djangobb_forum.context_processors.forum_settings',)
+        ('djangobb_forum.context_processors.forum_settings',)
 
     # HAYSTACK settings, for DjangoBB_Forum
     HAYSTACK_DEFAULT_OPERATOR = 'OR'
@@ -397,14 +397,14 @@ if APP_DJANGOBB is True:
             'EXCLUDED_INDEXES': [
                     'thirdpartyapp.search_indexes.BarIndex'],
         },
-        #'slave': {
-        #    'ENGINE': 'xapian_backend.XapianEngine',
-        #    'PATH': '/home/search/xapian_index',
-        #    'INCLUDE_SPELLING': True,
-        #    'BATCH_SIZE': 100,
-        #    'EXCLUDED_INDEXES': [ \
-        #        'thirdpartyapp.search_indexes.BarIndex'],
-        #},
+        # 'slave': {
+        #     'ENGINE': 'xapian_backend.XapianEngine',
+        #     'PATH': '/home/search/xapian_index',
+        #     'INCLUDE_SPELLING': True,
+        #     'BATCH_SIZE': 100,
+        #     'EXCLUDED_INDEXES': [ \
+        #         'thirdpartyapp.search_indexes.BarIndex'],
+        #     },
         'db': {
             'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
             'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],

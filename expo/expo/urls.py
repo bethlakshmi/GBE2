@@ -10,23 +10,25 @@ admin.autodiscover()
 
 LOCAL_APPS_URLS = ()
 
+# The indentation on this is FUGLY and BAD, but PEP8
 if APP_DJANGOBB is True:
     LOCAL_APPS_URLS = LOCAL_APPS_URLS+(url(r'^forum/',
-                    include('djangobb_forum.urls', namespace = 'djangobb')),)
+                                           include('djangobb_forum.urls',
+                                                   namespace='djangobb')),)
 
-urlpatterns = ('',\
-            url(r'^', include('gbe.urls', namespace='gbe')), 
-            url(r'^admin/', include(admin.site.urls)),
-            url(r'^', include('ticketing.urls', namespace='ticketing')),
-            url(r'^', include('scheduler.urls', namespace='scheduler')),
-            url(r'^', include('gbe.report_urls', namespace='reporting')),
-            url(r'^tinymce/', include('tinymce.urls')),
-            url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
-                    {'sitemaps': {'cmspages': CMSSitemap}}),
-            url(r'^hijack/', include('hijack.urls')),
-                    ) + LOCAL_APPS_URLS + (
-            url(r'^', include('cms.urls')),
-)
+urlpatterns = ('',
+               url(r'^', include('gbe.urls', namespace='gbe')),
+               url(r'^admin/', include(admin.site.urls)),
+               url(r'^', include('ticketing.urls', namespace='ticketing')),
+               url(r'^', include('scheduler.urls', namespace='scheduler')),
+               url(r'^', include('gbe.report_urls', namespace='reporting')),
+               url(r'^tinymce/', include('tinymce.urls')),
+               url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
+                   {'sitemaps': {'cmspages': CMSSitemap}}),
+               url(r'^hijack/', include('hijack.urls')),
+                   ) + LOCAL_APPS_URLS + (
+               url(r'^', include('cms.urls')),
+                   )
 
 urlpatterns = patterns(*urlpatterns) + \
                 static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
