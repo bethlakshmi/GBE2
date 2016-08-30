@@ -494,9 +494,9 @@ class Performer (WorkerItem):
         '''
         resized = None
         if self.promo_image:
-           pieces = self.promo_image.name.split('/')
-           pieces.insert(-1, size)
-           resized = '/'.join(pieces)
+            pieces = self.promo_image.name.split('/')
+            pieces.insert(-1, size)
+            resized = '/'.join(pieces)
         return resized
 
     @property
@@ -1355,7 +1355,9 @@ class GenericEvent (Event):
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
             if self.volunteer_type:
-                payload['details']['volunteer_category'] = self.volunteer_category_description
+                payload[
+                    'details'][
+                    'volunteer_category'] = self.volunteer_category_description
         return payload
 
     @property

@@ -825,7 +825,7 @@ def add_event(request, eventitem_id, event_type='Class'):
         initial_form_info = {'duration': item.duration,
                              'description': item.sched_payload['description'],
                              'title': item.sched_payload['title'],
-                             'location': item.default_location,}
+                             'location': item.default_location, }
         if item.__class__.__name__ == 'Class':
             initial_form_info['teacher'] = item.teacher
             initial_form_info['duration'] = Duration(item.duration.days,
