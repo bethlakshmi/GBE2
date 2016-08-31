@@ -882,7 +882,7 @@ class ShowScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Show
-        fields = ['title', 'description', 'duration', 'default_location', ]
+        fields = ['title', 'description', 'duration', ]
         help_texts = event_help_texts
 
 
@@ -904,7 +904,6 @@ class ClassScheduleForm(forms.ModelForm):
                   'space_needs',
                   'teacher',
                   'accepted',
-                  'default_location',
                   ]
         help_texts = classbid_help_texts
         labels = classbid_labels
