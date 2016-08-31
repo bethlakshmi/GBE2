@@ -900,7 +900,7 @@ class ClassScheduleForm(forms.ModelForm):
                   'maximum_enrollment',
                   'type',
                   'fee',
-                  'length_minutes',
+                  'duration',
                   'space_needs',
                   'teacher',
                   'accepted',
