@@ -1,7 +1,5 @@
 import nose.tools as nt
 from django.test import TestCase
-from django.core.exceptions import PermissionDenied
-from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
@@ -27,7 +25,6 @@ class TestActChangestate(TestCase):
     view_name = 'act_changestate'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.act = ActFactory()
         self.show = ShowFactory()
@@ -43,7 +40,6 @@ class TestActChangestate(TestCase):
 
         login_as(self.privileged_user, self)
         response = self.client.get(url, args=[self.act.pk])
-#        import pdb; pdb.set_trace()
         nt.assert_equal(response.status_code, 302)
 
     def test_act_changestate_post_accepted_act(self):
