@@ -140,13 +140,12 @@ INSTALLED_APPS = (
     'hijack',
     'compat',
     'debug_toolbar',
+    'ad_rotator',
 )
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
-#  TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
-
 
 THUMBNAIL_HIGH_RESOLUTION = True
 
