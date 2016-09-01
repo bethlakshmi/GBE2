@@ -74,7 +74,7 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install gettext
   sudo pip install --requirement /vagrant/config/requirements.txt
   sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
-  ifmkdir /vagrant/tmp; cd /vagrant/tmp
+  ifmkdir /vagrant/tmp; cd /vagrant/tmp; rm -rf /vagrant/tmp/*
   ###  For current version of Django and DjangoBB_Forums
   ###  After migrations to >=Django 1.7, update DjangoBB_Forums
   if [ -f /vagrant/config/stable.tar.gz ]
@@ -102,7 +102,7 @@ $bootstrap = <<BOOTSTRAP
   then
       ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
   else
-      /home/vagrant/dbreset -
+      /home/vagrant/dbreset -r
   fi
 
 ###  This is a good way to run the server for basic level testing
