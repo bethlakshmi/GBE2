@@ -137,8 +137,9 @@ INSTALLED_APPS = (
     'hijack',
     'compat',
     'debug_toolbar',
+    'ad_rotator',
 )
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 

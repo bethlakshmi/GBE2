@@ -108,3 +108,5 @@ htmlcov
 expo/.coverage
 
 .cache/v/cache/lastfailed
+
+expo/src/cmsplugin-image-gallery-master/
