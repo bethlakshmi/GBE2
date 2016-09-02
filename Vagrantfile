@@ -26,7 +26,9 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox findutils realpath libmagickwand-dev
+  sudo apt-fast -y install findutils
+  sudo apt-fast -y install realpath
+  sudo apt-fast -y install libmagickwand-dev
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -70,8 +72,8 @@ $bootstrap = <<BOOTSTRAP
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 
-###  The next four lines will have to be done by hand, until we get a good test DB setup 
-###  cat /vagrant/config/gbe2016test_data.sql | python manage.py dbshell
+###  The next three lines will have to be done by hand, until we get
+###      a good test DB setup 
 ###  python manage.py syncdb --all
 ###  python manage.py migrate --all
 ###  python manage.py collectstatic
@@ -80,12 +82,12 @@ $bootstrap = <<BOOTSTRAP
   then
       cp /vagrant/config/local_settings.py /vagrant/expo/expo
   fi
-  if [ -f /vagrant/config/gbe_*.sql ]
+  if [ -f /vagrant/config/DB_backup_gbelive_*.sql ]
   then
-      ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+      ls -1t /vagrant/config/DB_backup_gbelive_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
   else
-      /home/vagrant/dbreset -
-  fi 
+      /home/vagrant/dbreset -r
+  fi
 
 ###  This is a good way to run the server for basic level testing
 ###  python manage.py runserver 0.0.0.0:8111 > logs/runserver.log 2>&1
