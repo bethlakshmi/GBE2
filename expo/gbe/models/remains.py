@@ -47,8 +47,6 @@ visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
 
 
-
-
 class Conference(models.Model):
     conference_name = models.CharField(max_length=128)
     conference_slug = models.SlugField()
@@ -83,8 +81,6 @@ class Conference(models.Model):
         verbose_name = "conference"
         verbose_name_plural = "conferences"
         app_label = "gbe"
-
-
 
 
 class ConferenceDay(models.Model):
@@ -528,9 +524,9 @@ class Performer (WorkerItem):
         '''
         resized = None
         if self.promo_image:
-           pieces = self.promo_image.name.split('/')
-           pieces.insert(-1, size)
-           resized = '/'.join(pieces)
+            pieces = self.promo_image.name.split('/')
+            pieces.insert(-1, size)
+            resized = '/'.join(pieces)
         return resized
 
     @property
@@ -1239,7 +1235,6 @@ class Event(EventItem):
         app_label = "gbe"
 
 
-
 class Show (Event):
     '''
     A Show is an Event consisting of a sequence of Acts.
@@ -1738,6 +1733,7 @@ class Costume(Biddable):
 
     class Meta:
         app_label = "gbe"
+
 
 def mail_to_user(subject, message, user):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])

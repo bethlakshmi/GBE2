@@ -9,17 +9,19 @@ from gbe.models import (
 )
 from scheduler.models import EventContainer
 from gbetext import event_options
+
+
 class GenericEvent (Event):
     '''
     Any event except for a show or a class
     '''
     type = CharField(max_length=128,
-                            choices=event_options,
-                            blank=False,
-                            default="Special")
+                     choices=event_options,
+                     blank=False,
+                     default="Special")
     volunteer_type = ForeignKey(AvailableInterest,
-                                       blank=True,
-                                       null=True)
+                                blank=True,
+                                null=True)
 
     def __str__(self):
         return self.title
@@ -44,7 +46,8 @@ class GenericEvent (Event):
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
             if self.volunteer_type:
-                payload['details']['volunteer_category'] = self.volunteer_category_description
+                desc = self.volunteer_category_description
+                payload['details']['volunteer_category'] = desc
         return payload
 
     @property

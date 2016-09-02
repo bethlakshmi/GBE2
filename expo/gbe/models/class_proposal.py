@@ -11,6 +11,8 @@ from gbe.models import (
 )
 
 from gbetext import class_proposal_choices
+
+
 class ClassProposal(Model):
     '''
     A proposal for a class that someone else ought to teach.
@@ -22,8 +24,8 @@ class ClassProposal(Model):
     email = EmailField(blank=True)
     proposal = TextField()
     type = CharField(max_length=20,
-                            choices=class_proposal_choices,
-                            default='Class')
+                     choices=class_proposal_choices,
+                     default='Class')
     display = BooleanField(default=False)
     conference = ForeignKey(
         Conference,

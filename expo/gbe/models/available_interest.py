@@ -5,6 +5,7 @@ from django.db.models import (
     TextField,
 )
 
+
 class AvailableInterest(Model):
     interest = CharField(
         max_length=128,

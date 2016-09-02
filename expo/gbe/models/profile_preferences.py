@@ -8,6 +8,7 @@ from django.db.models import (
 from gbe.models import Profile
 from gbetext import yes_no_maybe_options
 
+
 class ProfilePreferences(Model):
     '''
     User-settable preferences controlling interaction with the

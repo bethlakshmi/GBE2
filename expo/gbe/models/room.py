@@ -4,6 +4,7 @@ from django.db.models import (
 )
 from scheduler.models import LocationItem
 
+
 class Room(LocationItem):
     '''
     A room at the expo center
