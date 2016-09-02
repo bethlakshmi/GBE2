@@ -21,7 +21,8 @@ class ViewBidView(View):
         return self.bid.profile
 
     def get_display_forms(self):
-        bid_form = self.object_form_type(instance=self.bid, prefix=self.bid_prefix)
+        bid_form = self.object_form_type(instance=self.bid,
+                                         prefix=self.bid_prefix)
         profile_form = ParticipantForm(instance=self.owner_profile,
                                        prefix=self.owner_prefix)
         return (bid_form, profile_form)

@@ -65,12 +65,13 @@ class TestBidClass(TestCase):
         response = self.client.get(
             url,
             follow=True)
-        redirect = (('http://testserver/performer/create?next=/class/create', 302))
+        redirect = (('http://testserver/performer/create'
+                     '?next=/class/create',
+                     302))
         nt.assert_true(redirect in response.redirect_chain)
         expected_string = "Tell Us About Your Stage Persona"
         nt.assert_true(expected_string in response.content)
         nt.assert_equal(response.status_code, 200)
-
 
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,

@@ -2,12 +2,10 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from gbe.models import (
     Act,
-    BidEvaluation,
     Show,
 )
 from gbe.forms import (
     ActEditForm,
-    BidEvaluationForm,
     BidStateChangeForm,
     PersonaForm,
 )
@@ -31,7 +29,6 @@ class ReviewActView(ReviewBidView):
     bid_view_name = 'act_view'
     changestate_view_name = 'act_changestate'
 
-
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
         self.bidder = self.bidder_form_type(instance=self.object.performer,
@@ -47,18 +44,6 @@ class ReviewActView(ReviewBidView):
         }
         self.create_object_form(initial=initial)
         self.readonlyform_pieces = [self.object_form, self.bidder]
-
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.bid_review_response(request))
-
-    def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.post_response_for_form(request))
 
     def create_action_form(self, act):
         self.actionform = BidStateChangeForm(instance=act)

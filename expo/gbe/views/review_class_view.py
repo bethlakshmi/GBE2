@@ -1,5 +1,4 @@
 from gbe.forms import (
-    BidEvaluationForm,
     PersonaForm,
     ClassBidForm,
     ParticipantForm,
@@ -20,7 +19,6 @@ class ReviewClassView(ReviewBidView):
     review_list_view_name = 'class_review_list'
     changestate_view_name = 'class_changestate'
 
-
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
         self.create_object_form()
@@ -37,15 +35,3 @@ class ReviewClassView(ReviewBidView):
             prefix='Teacher Contact Info', initial=initial)
         self.readonlyform_pieces = (self.object_form,
                                     self.teacher, self.contact)
-
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.bid_review_response(request))
-
-    def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.post_response_for_form(request))

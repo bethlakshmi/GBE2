@@ -136,7 +136,9 @@ class TestBidAct(TestCase):
         current_conference()
         response, data = self.post_paid_act_draft()
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "(Click to edit)")
+        act_name = data['theact-title']
+        expected_string = "%s - Not submitted" % act_name
+        assert expected_string in response.content
         self.assertContains(response, data['theact-title'])
 
     def test_act_bid_not_post(self):

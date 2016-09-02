@@ -1,8 +1,6 @@
 from gbe.models import Vendor
-from gbe.forms import (
-    BidEvaluationForm,
-    VendorBidForm,
-)
+from gbe.forms import VendorBidForm
+
 from gbe.views import ReviewBidView
 
 
@@ -21,15 +19,3 @@ class ReviewVendorView(ReviewBidView):
         self.object_form = self.bid_form_type(instance=self.object,
                                               prefix=self.bid_prefix)
         self.readonlyform_pieces = [self.object_form]
-
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.bid_review_response(request))
-
-    def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(request.POST, instance=self.bid_eval)
-        return (self.object_not_current_redirect() or
-                self.post_response_for_form(request))
