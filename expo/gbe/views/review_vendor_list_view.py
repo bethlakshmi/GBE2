@@ -8,10 +8,6 @@ class ReviewVendorListView(ReviewBidListView):
     bid_review_view_name = 'vendor_review'
     bid_review_list_view_name = 'vendor_review_list'
 
-    def get_bid_list(self):
-        bids = self.get_bids()
-        review_query = self.review_query(bids)
-        self.rows = self.get_rows(bids, review_query)
 
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,
