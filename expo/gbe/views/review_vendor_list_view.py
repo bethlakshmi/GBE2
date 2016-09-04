@@ -1,14 +1,5 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.core.urlresolvers import reverse
-
-from expo.gbe_logging import log_func
-from gbe.models import (
-    BidEvaluation,
-    Conference,
-    Vendor,
-)
-from gbe.functions import validate_perms
+from gbe.models import Vendor
 from review_bid_list_view import ReviewBidListView
 
 class ReviewVendorListView(ReviewBidListView):

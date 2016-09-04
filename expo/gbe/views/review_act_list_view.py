@@ -1,16 +1,8 @@
-from django.views.generic import View
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
 
-from expo.gbe_logging import log_func
-from gbe.functions import validate_perms
 from gbe.models import (
     Act,
     BidEvaluation,
-    Conference,
 )
 from review_bid_list_view import ReviewBidListView
 
