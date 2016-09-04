@@ -82,9 +82,10 @@ $bootstrap = <<BOOTSTRAP
   then
       cp /vagrant/config/local_settings.py /vagrant/expo/expo
   fi
-  if [ -f `ls -1t /vagrant/config/DB_backup_gbelive_*.sql | head -n 1` ]
+  dbfile=`ls -1t /vagrant/config/DB_backup_gbelive_*.sql 2> /dev/null | head -n 1`
+  if [ -f $dbfile ]
   then
-      ls -1t /vagrant/config/DB_backup_gbelive_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+      /home/vagrant/dbreset -f $dbfile
   else
       /home/vagrant/dbreset -r
   fi
