@@ -193,12 +193,14 @@ do
         if [ `echo $2 | grep -c '/'` == '0' ]
 	then
             dbfile=$2
+	    restore=true
             shift
 	elif $setfilepath
 	then
 	    echo 'File path set explicitly by -u flag, exiting.'
 	    exit 7
         else
+	    restore=true
 	    setfilepath=true
             dbfile=`basename $2`
 	    filepath=`dirname $2| xargs realpath`
