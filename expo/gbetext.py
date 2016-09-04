@@ -153,9 +153,14 @@ class_acceptance_states = ((1, 'Reject'),
                            (2, 'Wait List'),
                            (3, 'Accepted'))
 
-vote_options = ((1, "Strong yes"), (2, "Yes"), (3, "Weak Yes"),
-                (4, "No Comment"), (5, "Weak No"), (6, "No"),
-                (7, "Strong No"), (-1, "Abstain"))
+vote_options = ((1, "Strong yes"),
+                (2, "Yes"),
+                (3, "Weak Yes"),
+                (4, "No Comment"),
+                (5, "Weak No"),
+                (6, "No"),
+                (7, "Strong No"),
+                (-1, "Abstain"))
 
 
 festival_list = (('GBE', 'The Great Burlesque Exposition'),

@@ -41,7 +41,7 @@ from gbetext import (
     boolean_options,
     new_event_options,
 )
-from expoformfields import (
+from gbe.expoformfields import (
     DurationFormField,
     FriendlyURLInput,
 )
@@ -303,17 +303,6 @@ class ActEditDraftForm(forms.ModelForm):
         required = Act().bid_draft_fields
         labels = act_bid_labels
         help_texts = act_help_texts
-
-
-class BidEvaluationForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = BidEvaluation
-        fields = '__all__'
-        widgets = {'evaluator': forms.HiddenInput(),
-                   'bid': forms.HiddenInput()}
 
 
 class BidStateChangeForm(forms.ModelForm):

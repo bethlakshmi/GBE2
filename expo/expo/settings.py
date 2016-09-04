@@ -347,5 +347,4 @@ try:
 except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
 
-
-# DJANGO-HIJACK
+#

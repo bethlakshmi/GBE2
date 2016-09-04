@@ -2,9 +2,11 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from gbe.models import (
     Act,
+    ActBidEvaluation,
     Show,
 )
 from gbe.forms import (
+    ActBidEvaluationForm,
     ActEditForm,
     BidStateChangeForm,
     PersonaForm,
@@ -28,6 +30,8 @@ class ReviewActView(ReviewBidView):
     review_list_view_name = 'act_review_list'
     bid_view_name = 'act_view'
     changestate_view_name = 'act_changestate'
+    bid_evaluation_type = ActBidEvaluation
+    bid_evaluation_form_type = ActBidEvaluationForm
 
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)

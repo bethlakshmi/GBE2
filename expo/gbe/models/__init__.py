@@ -18,7 +18,6 @@ from remains import (
     Show,
     Class,
     Costume,
-    BidEvaluation,
     Vendor,
     Volunteer,
 )
@@ -31,3 +30,6 @@ from profile_preferences import ProfilePreferences
 from room import Room
 from user_message import UserMessage
 from volunteer_interest import VolunteerInterest
+from bid_evaluation import BidEvaluation
+from show_vote import ShowVote
+from act_bid_evaluation import ActBidEvaluation

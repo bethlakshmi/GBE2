@@ -1,4 +1,8 @@
 import os
+from datetime import (
+    datetime,
+    timedelta
+)
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -11,11 +15,12 @@ from django.core.exceptions import (
     ValidationError,
     NON_FIELD_ERRORS,
 )
+from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 from django.template import (
     loader,
     Context,
 )
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from itertools import chain
 from scheduler.models import (
@@ -28,10 +33,7 @@ from scheduler.models import (
 )
 from gbetext import *
 from gbe_forms_text import *
-from datetime import datetime
-from datetime import timedelta
 from gbe.expomodelfields import DurationField
-from django.core.urlresolvers import reverse
 from scheduler.functions import (
     set_time_format,
     get_roles_from_scheduler
@@ -1471,22 +1473,6 @@ class Class(Biddable, Event):
 
     class Meta:
         verbose_name_plural = 'classes'
-        app_label = "gbe"
-
-
-class BidEvaluation(models.Model):
-    '''
-    A response to a bid, cast by a privileged GBE staff member
-    '''
-    evaluator = models.ForeignKey(Profile)
-    vote = models.IntegerField(choices=vote_options)
-    notes = models.TextField(blank=True)
-    bid = models.ForeignKey(Biddable)
-
-    def __unicode__(self):
-        return "%s: %s" % (self.bid.title, self.evaluator.display_name)
-
-    class Meta:
         app_label = "gbe"
 
 
