@@ -19,7 +19,7 @@ class ShowVoteField(MultiValueField):
             ModelChoiceField(
                 queryset=Show.objects.filter(
                     conference=get_current_conference()),
-                empty_label=None),
+                empty_label="---------"),
             ChoiceField(choices=vote_options))
         super(ShowVoteField, self).__init__(
             fields=fields,

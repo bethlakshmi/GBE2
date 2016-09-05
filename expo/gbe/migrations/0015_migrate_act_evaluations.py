@@ -6,72 +6,39 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+    no_dry_run = True
 
     def forwards(self, orm):
-        # Deleting model 'AdBid'
-        db.delete_table(u'gbe_adbid')
-
-        # Deleting model 'ArtBid'
-        db.delete_table(u'gbe_artbid')
-
-        # Adding model 'ShowVote'
-        db.create_table(u'gbe_showvote', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('show', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Show'], null=True, blank=True)),
-            ('vote', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('gbe', ['ShowVote'])
-
-        # Adding model 'ActBidEvaluation'
-        db.create_table(u'gbe_actbidevaluation', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('evaluator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Profile'])),
-            ('primary_vote', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='primary__vote', null=True, to=orm['gbe.ShowVote'])),
-            ('secondary_vote', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='secondary_vote', null=True, to=orm['gbe.ShowVote'])),
-            ('notes', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('bid', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Act'])),
-        ))
-        db.send_create_signal('gbe', ['ActBidEvaluation'])
-
-        # Removing M2M table for field mc on 'Show'
-        db.delete_table(db.shorten_name(u'gbe_show_mc'))
+        BidEvaluation = orm.BidEvaluation
+        ActBidEvaluation = orm.ActBidEvaluation
+        Act = orm.Act
+        ShowVote = orm.ShowVote
+        act_evaluations = BidEvaluation.objects.filter(
+            bid__in=Act.objects.all())
+        for evaluation in act_evaluations:
+            new_eval = ActBidEvaluation.objects.create(
+                primary_vote=ShowVote.objects.create(vote=evaluation.vote),
+                notes=evaluation.notes,
+                evaluator=evaluation.evaluator,
+                bid=evaluation.bid.act)
+            evaluation.delete()
 
 
     def backwards(self, orm):
-        # Adding model 'AdBid'
-        db.create_table(u'gbe_adbid', (
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('company', self.gf('django.db.models.fields.CharField')(max_length=128, blank=True)),
-            (u'biddable_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Biddable'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal('gbe', ['AdBid'])
-
-        # Adding model 'ArtBid'
-        db.create_table(u'gbe_artbid', (
-            ('art1', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
-            ('bio', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('art3', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
-            ('art2', self.gf('django.db.models.fields.files.FileField')(max_length=100, blank=True)),
-            (u'biddable_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gbe.Biddable'], unique=True, primary_key=True)),
-            ('works', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal('gbe', ['ArtBid'])
-
-        # Deleting model 'ShowVote'
-        db.delete_table(u'gbe_showvote')
-
-        # Deleting model 'ActBidEvaluation'
-        db.delete_table(u'gbe_actbidevaluation')
-
-        # Adding M2M table for field mc on 'Show'
-        m2m_table_name = db.shorten_name(u'gbe_show_mc')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('show', models.ForeignKey(orm['gbe.show'], null=False)),
-            ('persona', models.ForeignKey(orm['gbe.persona'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['show_id', 'persona_id'])
-
+        BidEvaluation = orm.BidEvaluation
+        ActBidEvaluation = orm.ActBidEvaluation
+        Act = orm.Act
+        act_evaluations = ActBidEvaluation.objects.all()
+        for evaluation in act_evaluations:
+            try:
+                new_eval = BidEvaluation.objects.create(
+                    vote=evaluation.primary_vote.vote,
+                    notes=evaluation.notes,
+                    evaluator=evaluation.evaluator,
+                    bid=evaluation.bid.biddable_ptr)
+            except:
+                pass
+            evaluation.delete()
 
     models = {
         u'auth.group': {

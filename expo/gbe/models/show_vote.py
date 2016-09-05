@@ -13,8 +13,12 @@ from gbetext import vote_options
 
 class ShowVote(Model):
 
-    show = ForeignKey(Show)
-    vote = IntegerField(choices=vote_options)
+    show = ForeignKey(Show,
+                      blank=True,
+                      null=True)
+    vote = IntegerField(choices=vote_options,
+                        blank=True,
+                        null=True)
 
     class Meta:
         verbose_name = "show vote"

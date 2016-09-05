@@ -9,6 +9,7 @@ from gbe.models import (
 from gbe.functions import get_current_conference
 from gbetext import vote_options
 
+
 class ShowVoteWidget(MultiWidget):
     def __init__(self, attrs=None):
         shows = Show.objects.filter(
@@ -27,7 +28,6 @@ class ShowVoteWidget(MultiWidget):
             object = ShowVote.objects.get(pk=value)
             return (object.show, object.vote)
 
-
     def format_output(self, rendered_widgets):
         return "-".join(rendered_widgets)
 
@@ -35,8 +35,6 @@ class ShowVoteWidget(MultiWidget):
         vals = [
             widget.value_from_datadict(data, files, name + "_%s" % i)
             for i, widget in enumerate(self.widgets)]
-
-
         try:
             show_vote = ShowVote(show=Show.objects.get(pk=vals[0]),
                                  vote=vals[1])
