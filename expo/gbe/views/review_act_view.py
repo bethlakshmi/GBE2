@@ -65,6 +65,6 @@ class ReviewActView(ReviewBidView):
             empty_label=None,
             label='Pick a Show',
             initial=start)
-        self.actionURL = reverse('act_changestate',
+        self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
                                  args=[act.id])

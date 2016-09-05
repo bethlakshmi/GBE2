@@ -1,6 +1,11 @@
 # widgets
 from show_vote_widget import ShowVoteWidget
 
+
+# fields
+from show_vote_field import ShowVoteField
+
+
 # forms
 from remains import (
     ActEditDraftForm,
@@ -45,8 +50,3 @@ from remains import (
 
 from bid_evaluation_form import BidEvaluationForm
 from act_bid_evaluation_form import ActBidEvaluationForm
-
-
-
-# fields
-from show_vote_field import ShowVoteField
