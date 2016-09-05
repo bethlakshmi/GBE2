@@ -1104,7 +1104,7 @@ class Act (Biddable, ActItem):
                 conference=self.conference,
                 title=self.title,
                 performer__contact=self.performer.contact
-                ).exclude(pk=self.pk).exists():
+        ).exclude(pk=self.pk).exists():
             raise ValidationError({
                 NON_FIELD_ERRORS: [act_not_unique, ]
             })

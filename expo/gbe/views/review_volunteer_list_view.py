@@ -9,7 +9,7 @@ class ReviewVolunteerListView(ReviewBidListView):
     coordinator_permissions = ('Volunteer Coordinator', )
 
     object_type = Volunteer
-    bid_review_view_name ='volunteer_review'
+    bid_review_view_name = 'volunteer_review'
     bid_review_list_view_name = 'volunteer_review_list'
     bid_edit_view_name = 'volunteer_edit'
     bid_assign_view_name = 'volunteer_assign'
@@ -21,7 +21,6 @@ class ReviewVolunteerListView(ReviewBidListView):
                                require=False) and
                 volunteer.is_current)
 
-
     def row_hook(self, bid, bid_row):
         if self._show_edit(bid):
             bid_row['edit_url'] = reverse(self.bid_edit_view_name,
@@ -31,14 +30,13 @@ class ReviewVolunteerListView(ReviewBidListView):
                                             urlconf='gbe.urls',
                                             args=[bid.id])
 
-
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,
                 'rows': self.rows,
                 'action1_text': 'Review',
                 'action1_link': reverse(self.bid_review_list_view_name,
                                         urlconf='gbe.urls'),
-                   'return_link': reverse(self.bid_review_list_view_name,
-                                          urlconf='gbe.urls'),
+                'return_link': reverse(self.bid_review_list_view_name,
+                                       urlconf='gbe.urls'),
                 'conference_slugs': self.conference_slugs,
                 'conference': self.conference}

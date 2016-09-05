@@ -17,13 +17,11 @@ from gbe.models import (
 class ReviewBidListView(View):
     bid_evaluation_type = BidEvaluation
     template = 'gbe/bid_review_list.tmpl'
-    bid_order_fields =('accepted', 'title')
-
+    bid_order_fields = ('accepted', 'title')
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ReviewBidListView, self).dispatch(*args, **kwargs)
-
 
     def get_bids(self):
         return self.object_type.objects.filter(
@@ -33,13 +31,11 @@ class ReviewBidListView(View):
     def review_query(self, bids):
         return self.bid_evaluation_type.objects.filter(
             bid=bids).select_related(
-                'evaluator'
-            ).order_by('bid', 'evaluator')
+                'evaluator').order_by('bid', 'evaluator')
 
     def row_hook(self, bid, row):
         # override on subclass
         pass
-
 
     def get_rows(self, bids, review_query):
         rows = []
@@ -62,7 +58,6 @@ class ReviewBidListView(View):
         bids = self.get_bids()
         review_query = self.review_query(bids)
         self.rows = self.get_rows(bids, review_query)
-
 
     def get(self, request, *args, **kwargs):
         reviewer = validate_perms(request, self.reviewer_permissions)

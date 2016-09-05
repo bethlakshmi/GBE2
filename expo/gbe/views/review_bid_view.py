@@ -104,8 +104,7 @@ class ReviewBidView(View):
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         self.form = self.bid_evaluation_form_type(request.POST,
-                                      instance=self.bid_eval)
-
+                                                  instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.post_response_for_form(request))
 

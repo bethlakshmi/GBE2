@@ -1,10 +1,10 @@
 from django.core.urlresolvers import reverse
-
 from gbe.models import (
     Act,
     ActBidEvaluation,
 )
 from review_bid_list_view import ReviewBidListView
+
 
 class ReviewActListView(ReviewBidListView):
     reviewer_permissions = ('Act Reviewers', )

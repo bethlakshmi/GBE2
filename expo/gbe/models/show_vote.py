@@ -9,6 +9,8 @@ from gbe.models import (
     Show,
 )
 from gbetext import vote_options
+
+
 class ShowVote(Model):
 
     show = ForeignKey(Show)

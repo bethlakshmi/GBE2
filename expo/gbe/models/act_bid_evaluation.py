@@ -3,12 +3,12 @@ from django.db.models import (
     ForeignKey,
     TextField,
 )
-
 from gbe.models import (
     Act,
     Profile,
     ShowVote,
 )
+
 
 class ActBidEvaluation(Model):
     evaluator = ForeignKey(Profile)
