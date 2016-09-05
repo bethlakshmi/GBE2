@@ -2,14 +2,15 @@ from django.core.urlresolvers import reverse
 
 from gbe.models import (
     Act,
-    BidEvaluation,
+    ActBidEvaluation,
 )
 from review_bid_list_view import ReviewBidListView
 
 class ReviewActListView(ReviewBidListView):
     reviewer_permissions = ('Act Reviewers', )
     object_type = Act
-    bid_evaluation_type = BidEvaluation
+    bid_evaluation_type = ActBidEvaluation
+    template = 'gbe/act_bid_review_list.tmpl'
     bid_review_view_name = 'act_review'
     bid_review_list_view_name = 'act_review_list'
     bid_order_fields = ('accepted', 'performer')
