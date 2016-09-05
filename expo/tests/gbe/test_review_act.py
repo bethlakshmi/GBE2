@@ -9,6 +9,7 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
+    ShowFactory,
 )
 from tests.functions.gbe_functions import (
     clear_conferences,
@@ -30,6 +31,24 @@ class TestReviewAct(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Act Reviewers')
         grant_privilege(self.privileged_user, 'Act Coordinator')
+
+    def get_post_data(self,
+                      bid,
+                      show=None,
+                      reviewer=None,
+                      invalid=False):
+        reviewer = reviewer or self.privileged_profile
+        show = show or ShowFactory()
+        data = {'primary_vote_0': show.pk,
+                'primary_vote_1': 3,
+                'secondary_vote_0': show.pk,
+                'secondary_vote_1': 1,
+                'notes': "blah blah",
+                'evaluator': reviewer.pk,
+                'bid': bid.pk}
+        if invalid:
+            del(data['bid'])
+        return data
 
     def test_review_act_all_well(self):
         act = ActFactory()
@@ -107,11 +126,9 @@ class TestReviewAct(TestCase):
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
+        data = self.get_post_data(act)
         response = self.client.post(url,
-                                    {'vote': 3,
-                                     'notes': "blah blah",
-                                     'evaluator': profile.pk,
-                                     'bid': act.pk},
+                                    data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         expected_string = ("Bid Information for %s" %
@@ -134,10 +151,9 @@ class TestReviewAct(TestCase):
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
+        data = self.get_post_data(act, invalid=True)
         response = self.client.post(url,
-                                    {'notes': "blah blah",
-                                     'bid': act.pk,
-                                     'evaluator': user.id},
+                                    data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         expected_string = "There is an error on the form."

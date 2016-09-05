@@ -19,10 +19,14 @@ class ShowVoteWidget(MultiWidget):
         super(ShowVoteWidget, self).__init__(_widgets, attrs)
 
     def decompress(self, value):
-        if value:
+        if not value:
+            return (None, None)
+        elif isinstance(value, ShowVote):
+            return (value.show, value.vote)
+        else:
             object = ShowVote.objects.get(pk=value)
             return (object.show, object.vote)
-        return (None, None)
+
 
     def format_output(self, rendered_widgets):
         return "-".join(rendered_widgets)
