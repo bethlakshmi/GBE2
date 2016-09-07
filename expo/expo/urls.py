@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from cms.sitemaps import CMSSitemap
 
-from expo.local_settings import APP_DJANGOBB
+from expo.settings import APP_DJANGOBB
 
 from django.contrib import admin
 admin.autodiscover()
@@ -12,9 +12,9 @@ LOCAL_APPS_URLS = ()
 
 # The indentation on this is FUGLY and BAD, but PEP8
 if APP_DJANGOBB is True:
-    LOCAL_APPS_URLS = LOCAL_APPS_URLS+(url(r'^forum/',
-                                           include('djangobb_forum.urls',
-                                                   namespace='djangobb')),)
+    LOCAL_APPS_URLS = LOCAL_APPS_URLS + (url(r'^forum/',
+                                         include('djangobb_forum.urls',
+                                                 namespace='djangobb')),)
 
 urlpatterns = ('',
                url(r'^', include('gbe.urls', namespace='gbe')),
@@ -26,12 +26,12 @@ urlpatterns = ('',
                url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
                    {'sitemaps': {'cmspages': CMSSitemap}}),
                url(r'^hijack/', include('hijack.urls')),
-                   ) + LOCAL_APPS_URLS + (
+               ) + LOCAL_APPS_URLS + (
                url(r'^', include('cms.urls')),
-                   )
+               )
 
 urlpatterns = patterns(*urlpatterns) + \
-                static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+        static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 # always, always leave the last two lines as the last two lines.

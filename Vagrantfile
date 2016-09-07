@@ -3,7 +3,7 @@
 
 
 $bootstrap = <<BOOTSTRAP
-  ifmkdir() { if [ ! -d $1 ]; then mkdir $1; fi }
+  ifmkdir() { if [ ! -d $1 ]; then mkdir -p $1; fi }
   sudo -s -H
   sudo apt-get update -y
   sudo apt-get install -y build-essential
@@ -84,6 +84,7 @@ $bootstrap = <<BOOTSTRAP
   cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
   ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
   ln -s /vagrant/static /vagrant/expo/expo/static
+  ifmkdir /vagrant/expo/media/djangobb_forum/attachments
   cp /vagrant/aliases /vagrant/dbreset /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 

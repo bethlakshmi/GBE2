@@ -240,10 +240,10 @@ try:
     DATABASES
 except:
     DATABASES = {
-       'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-       }
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
 
 # Internationalization
@@ -370,7 +370,7 @@ except:
     APP_DJANGOBB = False
 
 if APP_DJANGOBB is True:
-    INSTALLED_APPS = INSTALLED_APPS+('djangobb_forum',)
+    INSTALLED_APPS = INSTALLED_APPS + ('djangobb_forum',)
     TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
         ('djangobb_forum.context_processors.forum_settings',)
 
