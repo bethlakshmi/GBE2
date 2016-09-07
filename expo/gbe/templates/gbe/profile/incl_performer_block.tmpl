@@ -1,0 +1,18 @@
+<div class='performer'>
+  {% if performer.promo_thumb %}
+    <div class="gbe_thumb_block">
+      <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
+    </div>
+  {% else %}
+    <div class="gbe_no_pic">&nbsp;</div>
+  {% endif %}
+  <div class="performer_text">
+    <a href='{% url edit_view_name performer.resourceitem_id %}'>
+      {{ performer }}
+    </a><br>
+    (Click to edit)
+  </div>
+</div>
+{% for alert in performer.alerts %}
+  <span class='alert'>{{alert | safe}} </span><br>
+{% endfor %}

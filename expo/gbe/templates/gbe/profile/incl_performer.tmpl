@@ -1,78 +1,26 @@
 <div class='performer_section'>
   {% if personae or troupes or combos %}
-    <span class='heading performers'> 
+    <span class='heading performers'>
       <b>Performer Items</b>
     </span>
-    <br>
+  <br>
     {% if personae or troupes or combos %}
       {% for performer in personae %}
-        <div class='performer'>
-	{% if performer.promo_thumb %}
-          <div class="gbe_thumb_block">
-	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
-	  </div>
-	{% else %}
-	  <div class="gbe_no_pic">&nbsp;</div>
-	{% endif %}
-	  <div class="performer_text">
-  	    <a href='{% url 'gbe:persona_edit' performer.resourceitem_id %}'>
-            {{ performer }}
-     	    </a><br>
-	    (Click to edit) 
-          </div>
-	</div>
-        {% for alert in performer.alerts %}
-          <span class='alert'>{{alert | safe}} </span><br>
-        {% endfor %}
+        {% with 'gbe:persona_edit' as edit_view_name %}
+        {% include 'gbe/profile/incl_performer_block.tmpl' %}
+	{% endwith %}
       {% endfor %}
       {% for performer in troupes %}
-        <div class='performer'>
-	{% if performer.promo_thumb %}
-          <div class="gbe_thumb_block">
-	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
-	  </div>
-	{% else %}
-	  <div class="gbe_no_pic">&nbsp;</div>
-	{% endif %}
-	  <div class="performer_text">
-          {% if performer.contact = profile %}
-            <a href='{% url 'gbe:troupe_edit' performer.resourceitem_id %}'>
-		  {{ performer }}
-	    </a><br>
-	    (Click to edit) 
-	  {% else %}
-	    <a href='{% url 'gbe:troupe_view' performer.resourceitem_id %}'>
-              {{ performer }}
-	    </a><br>
-	    (Click to view)
-           {% endif %}
-	  </div>
-        </div>
-             {% for alert in performer.alerts %}
-           <span class='alert'>{{alert | safe}} </span><br>
-             {% endfor %}
-       {% endfor %}
-       {% for performer in combos %}
-        <div class='performer'>
-	{% if performer.promo_thumb %}
-          <div class="gbe_thumb_block">
-	    <img src="{{MEDIA_URL}}{{performer.promo_thumb}}" class="gbe_thumbnail">
-	  </div>
-	{% else %}
-	  <div class="gbe_no_pic">&nbsp;</div>
-	{% endif %}
-	  <div class="performer_text">
-           <a href='{% url 'gbe:persona_edit' performer.resourceitemid %}'>
-             {{ performer }}
-       	   </a><br>
-	   (Click to edit)
-	  </div>
-        </div>
-         {% for alert in performer.alerts %}
-           <span class='alert'>{{alert | safe}} </span><br>
-         {% endfor %}
-       {% endfor %}
-     {%endif%}
+        {% with 'gbe:troupe_edit' as edit_view_name %}
+          {% include 'gbe/profile/incl_performer_block.tmpl' %}
+	{% endwith %}
+      {% endfor %}
+      {% for performer in combos %}
+        {% with 'gbe:combo_edit' as edit_view_name %}
+          {% include 'gbe/profile/incl_performer_block.tmpl' %}
+	{% endwith %}
+      {% endfor %}
+    {%endif%}
   {% else %}
     {{ profile.display_name }} has no stage personae listed.<br>
   {% endif %}
