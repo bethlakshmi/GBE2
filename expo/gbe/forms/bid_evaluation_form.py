@@ -4,6 +4,7 @@ from django.forms import (
 )
 from gbe.models import BidEvaluation
 
+
 class BidEvaluationForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'

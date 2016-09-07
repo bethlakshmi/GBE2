@@ -6,7 +6,8 @@ from gbe.models import ActBidEvaluation
 from gbe.forms import (
     ShowVoteField,
     ShowVoteWidget,
-    )
+)
+
 
 class ActBidEvaluationForm(ModelForm):
     required_css_class = 'required'
@@ -14,7 +15,6 @@ class ActBidEvaluationForm(ModelForm):
 
     primary_vote = ShowVoteField()
     secondary_vote = ShowVoteField()
-
 
     class Meta:
         model = ActBidEvaluation

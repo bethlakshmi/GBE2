@@ -12,8 +12,10 @@ from gbe.models import (
 )
 from gbetext import vote_options
 
+
 class ShowVoteField(MultiValueField):
     widget = ShowVoteWidget
+
     def __init__(self, *args, **kwargs):
         fields = (
             ModelChoiceField(
@@ -41,5 +43,5 @@ class ShowVoteField(MultiValueField):
             if any([datum in self.empty_values for datum in data_list]):
                 raise ValidationError()
             return ShowVote(show_pk=data_list[0],
-                             vote=data_list[1])
+                            vote=data_list[1])
         return None

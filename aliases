@@ -1,6 +1,6 @@
 #!/bin/bash
-alias pepdiff='pushd /vagrant/; git diff --name-only master | grep ".py" | xargs pep8; popd'
+alias pepdiff='pushd /vagrant/; git diff --name-only master | grep ".py" | grep -v migrations | xargs pep8; popd'
 alias rmpyc='find . -name "*.pyc" | xargs rm'
 alias runcoverage='cd /vagrant/expo; py.test --reuse-db --cov-report html --cov=. tests/'
-alias runserver='/usr/bin/python /vagrant/expo/manage.py runserver 0.0.0.0:8111 &> /vagrant/expo/logs/runserver.log'
+alias runserver='/usr/bin/python /vagrant/expo/manage.py runserver 0.0.0.0:8111 '
 alias dbreset='/home/vagrant/dbreset'

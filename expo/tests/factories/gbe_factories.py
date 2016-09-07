@@ -382,6 +382,7 @@ class UserMessageFactory(DjangoModelFactory):
     summary = Sequence(lambda x: "Message Summary #%d" % x)
     description = Sequence(lambda x: "Description #%d" % x)
 
+
 class ShowVoteFactory(DjangoModelFactory):
     show = SubFactory(ShowFactory)
     vote = 3
@@ -389,13 +390,13 @@ class ShowVoteFactory(DjangoModelFactory):
     class Meta:
         model = conf.ShowVote
 
+
 class ActBidEvaluationFactory(DjangoModelFactory):
     evaluator = SubFactory(ProfileFactory)
     primary_vote = SubFactory(ShowVoteFactory)
     secondary_vote = SubFactory(ShowVoteFactory)
     notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
     bid = SubFactory(ActFactory)
-
 
     class Meta:
         model = conf.ActBidEvaluation

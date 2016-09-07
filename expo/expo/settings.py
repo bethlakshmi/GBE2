@@ -236,10 +236,10 @@ try:
     DATABASES
 except:
     DATABASES = {
-       'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-       }
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
 
 # Internationalization
@@ -346,5 +346,3 @@ try:
     from expo.local_settings import LOG_FORMAT
 except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
-
-#
