@@ -54,8 +54,8 @@
                 <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
                 <b>First Recommendation:</b> {{ review.primary_vote.show }}:
 		{{review.primary_vote.get_vote_display }}<br>
-                 <b>Second Recommendation:</b> {{ review.primary_vote.show }}:
-		{{review.primary_vote.get_vote_display }}<br>
+                 <b>Second Recommendation:</b> {{ review.secondary_vote.show }}:
+		{{review.secondary_vote.get_vote_display }}<br>
 
                 <b>Comment:</b> {{ review.notes }}<br>
  	  {% endfor %}
