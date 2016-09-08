@@ -1306,6 +1306,7 @@ class Show (Event):
     class Meta:
         app_label = "gbe"
 
+
 class Class(Biddable, Event):
     '''
     A Class is an Event where one or a few people

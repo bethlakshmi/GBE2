@@ -21,7 +21,7 @@ class ShowVote(Model):
                         null=True)
 
     def __str__(self):
-        return "ShowVote %s - %s" %(str(self.show), str(self.vote))
+        return "<ShowVote %s - %s>" % (str(self.show), str(self.vote))
 
     class Meta:
         verbose_name = "show vote"
