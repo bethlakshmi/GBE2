@@ -9,14 +9,15 @@ setfilepath=false
 migration=false
 migrations=''
 local_path=false
+fileprefix='DB_backup_gbelive_'
 
-if [ -r $filepath/gbe*.sql ]
+dbfile=`ls -1t $filepath/$fileprefix*.sql 2> /dev/null| head -n 1 | \
+        xargs basename 2> /dev/null`
+if [ -r $dbfile ]
 then
     restore=true
-    dbfile=`ls -1t $filepath/gbe*.sql | head -n 1 | xargs basename`
 else
     restore=false
-    dbfile='gbe_08172016.sql'
 fi
 
 }
@@ -81,18 +82,20 @@ reset_db(){
     mysql -u root -proot -e "USE $1"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\' WITH GRANT OPTION\"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\'\"
+    eval mysql -u root -proot -e \"GRANT ALL ON test_$1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\' WITH GRANT OPTION\"
+    eval mysql -u root -proot -e \"GRANT ALL ON test_$1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\'\"
     mysql -u root -proot -e "flush privileges"
 }
 
 restore_db(){
-    cat $1 | mysql -u root -proot $2
+    cat $1 | /vagrant/expo/manage.py dbshell
 }
 
 default_migrations(){
-    python /vagrant/expo/manage.py migrate --fake gbe 0001
-    python /vagrant/expo/manage.py migrate scheduler
-    python /vagrant/expo/manage.py migrate ticketing
-    python /vagrant/expo/manage.py migrate gbe
+    /vagrant/expo/manage.py migrate --fake gbe 0001
+    /vagrant/expo/manage.py migrate scheduler
+    /vagrant/expo/manage.py migrate ticketing
+    /vagrant/expo/manage.py migrate gbe
 }
 
 migrations(){
@@ -190,12 +193,14 @@ do
         if [ `echo $2 | grep -c '/'` == '0' ]
 	then
             dbfile=$2
+	    restore=true
             shift
 	elif $setfilepath
 	then
 	    echo 'File path set explicitly by -u flag, exiting.'
 	    exit 7
         else
+	    restore=true
 	    setfilepath=true
             dbfile=`basename $2`
 	    filepath=`dirname $2| xargs realpath`
@@ -242,8 +247,9 @@ reset_db $db $user $secret
 
 if $restore
 then
-    echo "Restoring DB", $filepath, $dbfile, $db
-    restore_db $filepath/$dbfile $db
+    echo "Restoring DB: User: $user, DB: $db"
+    echo "        DB file: $filepath/$dbfile"
+    restore_db $filepath/$dbfile
 fi
 
 if $migration

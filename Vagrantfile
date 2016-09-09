@@ -83,25 +83,27 @@ $bootstrap = <<BOOTSTRAP
   tar -zxvf stable.tar.gz
   cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
   ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
-  ln -s /vagrant/static /vagrant/expo/expo/static
+  if [ ! -h /vagrant/expo/expo/static ]
+      then ln -s /vagrant/static /vagrant/expo/expo/static; fi
   ifmkdir /vagrant/expo/media/djangobb_forum/attachments
   cp /vagrant/aliases /vagrant/dbreset /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 
-###  The next four lines will have to be done by hand, until we get a good test DB setup 
-###  cat /vagrant/config/gbe2016test_data.sql | python manage.py dbshell
-###  python manage.py syncdb --all
+###  The next four lines will have to be done by hand, until we get a good
+###      test DB setup 
+###  python manage.py migrate --delete-ghost-migrations
 ###  python manage.py migrate --all
+###  python manage.py syncdb --all
 ###  python manage.py collectstatic
 
   if [ -f /vagrant/config/local_settings.py ]
   then
       cp /vagrant/config/local_settings.py /vagrant/expo/expo
   fi
-  if [ -f /vagrant/config/gbe_*.sql ]
+  if [ -f /vagrant/config/DB_backup_gbelive_*.sql ]
   then
-      ls -1t /vagrant/config/gbe_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+      ls -1t /vagrant/config/DB_backup_gbelive_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
   else
       /home/vagrant/dbreset -r
   fi
