@@ -8,6 +8,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+
+        # Changing field 'Class.fee'
+        db.alter_column(u'gbe_class', 'fee', self.gf('django.db.models.fields.IntegerField')(null=True))
+
+        # Changing field 'Class.maximum_enrollment'
+        db.alter_column(u'gbe_class', 'maximum_enrollment', self.gf('django.db.models.fields.IntegerField')(null=True))
         # Adding field 'Event.default_location'
         db.add_column(u'gbe_event', 'default_location',
                       self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gbe.Room'], null=True, blank=True),
@@ -15,6 +21,12 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+
+        # Changing field 'Class.fee'
+        db.alter_column(u'gbe_class', 'fee', self.gf('django.db.models.fields.IntegerField')())
+
+        # Changing field 'Class.maximum_enrollment'
+        db.alter_column(u'gbe_class', 'maximum_enrollment', self.gf('django.db.models.fields.IntegerField')())
         # Deleting field 'Event.default_location'
         db.delete_column(u'gbe_event', 'default_location_id')
 
@@ -126,10 +138,10 @@ class Migration(SchemaMigration):
             'avoided_constraints': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'biddable_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Biddable']", 'unique': 'True', 'primary_key': 'True'}),
             u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['gbe.Event']", 'unique': 'True'}),
-            'fee': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
+            'fee': ('django.db.models.fields.IntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
             'history': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'length_minutes': ('django.db.models.fields.IntegerField', [], {'default': '60', 'blank': 'True'}),
-            'maximum_enrollment': ('django.db.models.fields.IntegerField', [], {'default': '20', 'blank': 'True'}),
+            'maximum_enrollment': ('django.db.models.fields.IntegerField', [], {'default': '20', 'null': 'True', 'blank': 'True'}),
             'minimum_enrollment': ('django.db.models.fields.IntegerField', [], {'default': '1', 'blank': 'True'}),
             'multiple_run': ('django.db.models.fields.CharField', [], {'default': "'No'", 'max_length': '20'}),
             'organization': ('django.db.models.fields.CharField', [], {'max_length': '128', 'blank': 'True'}),
