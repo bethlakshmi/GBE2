@@ -262,8 +262,6 @@ class TestAllocateWorkers(TestCase):
         expected_subject = "A change has been made to your Volunteer Schedule!"
         assert msg.subject == expected_subject
 
-
-
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()
         data['role'] = ''
