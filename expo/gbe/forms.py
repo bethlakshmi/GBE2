@@ -29,7 +29,6 @@ from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
-from django.contrib import messages
 from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
@@ -326,97 +325,6 @@ class BidStateChangeForm(forms.ModelForm):
         required = ['accepted']
         labels = acceptance_labels
         help_texts = acceptance_help_texts
-
-
-class EventCheckBox(ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        time_format = set_time_format(days=2)
-        return (str(obj) +
-                " - " +
-                obj.starttime.strftime(time_format) +
-                ' (' +
-                obj.volunteer_count +
-                '/' +
-                str(obj.max_volunteer) + ')')
-
-
-class VolunteerBidStateChangeForm(BidStateChangeForm):
-    from scheduler.models import Event
-    conference = get_current_conference()
-    qset = Event.objects.filter(
-        max_volunteer__gt=0,
-        eventitem__event__conference=conference).order_by('starttime')
-    events = EventCheckBox(queryset=qset,
-                           widget=forms.CheckboxSelectMultiple(),
-                           required=False,
-                           label='Choose Volunteer Schedule')
-
-    class Meta:
-        model = Biddable
-        fields = ['accepted', 'events']
-
-    # the request is now available, add it to the instance data
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        super(VolunteerBidStateChangeForm, self).__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        from scheduler.models import Worker, ResourceAllocation, Event
-
-        volform = super(VolunteerBidStateChangeForm, self).save(commit=False)
-        time_format = set_time_format(days=2)
-
-        if commit:
-            # Clear out previous assignments, deletes
-            # Worker and ResourceAllocation
-            if not self.cleaned_data['accepted'] == 5:
-                Worker.objects.filter(_item=volform.profile,
-                                      role='Volunteer').delete()
-
-            # if the volunteer has been accepted, set the events.
-            if self.cleaned_data['accepted'] == 3:
-                worker = Worker(_item=volform.profile, role='Volunteer')
-                worker.save()
-
-                # Cast the act into the show by adding it to
-                # the schedule resource allocation
-                for assigned_event in self.cleaned_data['events']:
-                    event = get_object_or_404(Event, pk=assigned_event)
-                    conflicts = worker._item.get_conflicts(event)
-                    for problem in conflicts:
-                        messages.warning(self.request,
-                                         "Found event conflict, new booking " +
-                                         str(event) +
-                                         " - " +
-                                         event.starttime.
-                                         strftime(time_format) +
-                                         " conflicts with " +
-                                         str(problem) +
-                                         " - " +
-                                         problem.starttime.
-                                         strftime(time_format)
-                                         )
-                    volunteer_assignment = ResourceAllocation()
-                    volunteer_assignment.event = event
-                    volunteer_assignment.resource = worker
-                    volunteer_assignment.save()
-                    if event.extra_volunteers() > 0:
-                        warn = "%s - %s is overfull. Over by %d volunteer%s."
-                        warn = warn % (str(event),
-                                       event.starttime.strftime(time_format),
-                                       event.extra_volunteers(),
-                                       's' * event.extra_volunteers() > 1
-                                       )
-                        messages.warning(
-                            self.request,
-                            str(event) +
-                            " - " +
-                            event.starttime.strftime(time_format) +
-                            " is overfull.  Over by " +
-                            str(event.extra_volunteers()) +
-                            " volunteer.")
-            volform.save()
-        return self
 
 
 class ClassBidForm(forms.ModelForm):

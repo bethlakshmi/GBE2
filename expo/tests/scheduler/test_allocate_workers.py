@@ -23,9 +23,9 @@ class TestAllocateWorkers(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        context = StaffAreaContext()
-        self.volunteer_opp = context.add_volunteer_opp()
-        self.volunteer, self.alloc = context.book_volunteer(
+        self.context = StaffAreaContext()
+        self.volunteer_opp = self.context.add_volunteer_opp()
+        self.volunteer, self.alloc = self.context.book_volunteer(
             self.volunteer_opp)
         self.url = reverse(
             self.view_name,
@@ -298,3 +298,25 @@ class TestAllocateWorkers(TestCase):
         msg = mail.outbox[0]
         expected_subject = "A change has been made to your Volunteer Schedule!"
         assert msg.subject == expected_subject
+
+    def test_post_form_valid_make_new_allocation_w_confict(self):
+        data = self.get_create_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Found event conflict")
+
+    def test_post_form_valid_make_new_allocation_w_overfull(self):
+        data = self.get_create_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Over by 1 volunteer.")
+
+    def test_post_form_edit_w_conflict(self):
+        overbook_opp = self.context.add_volunteer_opp()
+        self.context.book_volunteer(
+            volunteer_sched_event=overbook_opp,
+            volunteer=self.volunteer)
+        data = self.get_edit_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Found event conflict")

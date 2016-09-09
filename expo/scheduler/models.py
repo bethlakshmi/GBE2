@@ -658,12 +658,27 @@ class Event(Schedulable):
         multiple times in the same role, this will not attempt to reject
         duplicate allocations, it will always just create the requested
         allocation
+
+        It returns any warnings.  Warnings include:
+           - conflicts found with the worker item's existing schedule
+           - any case where the event is already booked with the maximum
+             number of volunteers
         '''
+        warnings = []
+        time_format = set_time_format(days=2)
         if isinstance(worker, WorkerItem):
             worker = Worker(_item=worker, role=role)
         else:
             worker.role = role
         worker.save()
+        for conflict in worker.workeritem.get_conflicts(self):
+            warnings += [
+                ("Found event conflict, new booking %s - " +
+                 "%s conflicts with %s - %s") % (
+                    str(self),
+                    self.starttime.strftime(time_format),
+                    str(conflict),
+                    conflict.starttime.strftime(time_format))]
         if alloc_id < 0:
             allocation = ResourceAllocation(event=self,
                                             resource=worker)
@@ -672,8 +687,14 @@ class Event(Schedulable):
                 id=alloc_id)
             allocation.resource = worker
         allocation.save()
+        if self.extra_volunteers() > 0:
+            warnings += ["%s - %s is overfull. Over by %d volunteer." % (
+                str(self),
+                self.starttime.strftime(time_format),
+                self.extra_volunteers())]
         if label:
             allocation.set_label(label)
+        return warnings
 
     def unallocate_role(self, role):
         '''
