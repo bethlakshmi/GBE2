@@ -59,6 +59,7 @@ from gbe.functions import (
     conference_list,
     show_potential_workers,
 )
+from django.contrib import messages
 
 
 def get_events_display_info(event_type='Class', time_format=None):
@@ -462,11 +463,15 @@ def allocate_workers(request, opp_id):
         data = form.cleaned_data
 
         if data.get('worker', None):
-            opp.allocate_worker(
+            warnings = opp.allocate_worker(
                 data['worker'].workeritem,
                 data['role'],
                 data['label'],
                 data['alloc_id'])
+            for warning in warnings:
+                messages.warning(
+                    request,
+                    warning)
             data['worker'].notify_volunteer_schedule_change()
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',

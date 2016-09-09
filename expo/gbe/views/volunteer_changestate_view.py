@@ -9,8 +9,9 @@ from django.http import HttpResponseRedirect
 
 from gbe.functions import validate_perms
 from gbe.models import Volunteer
-
-from gbe.forms import VolunteerBidStateChangeForm
+from gbe.views import BidChangeStateView
+from scheduler.models import Worker, Event
+from django.contrib import messages
 
 
 @login_required
@@ -26,18 +27,21 @@ def VolunteerChangeStateView(request, bid_id):
 
     if request.method == 'POST':
         volunteer = get_object_or_404(Volunteer, id=bid_id)
-        form = VolunteerBidStateChangeForm(request.POST,
-                                           request=request,
-                                           instance=volunteer)
-        if form.is_valid():
-            form.save()
-            volunteer.profile.notify_volunteer_schedule_change()
-            return HttpResponseRedirect(reverse('volunteer_review_list',
-                                                urlconf='gbe.urls'))
-        else:
-            return render(request,
-                          'gbe/bid_review.tmpl',
-                          {'actionform': False,
-                           'actionURL': False})
-    return HttpResponseRedirect(reverse('volunteer_review_list',
-                                        urlconf='gbe.urls'))
+
+        # Clear all commitments
+        Worker.objects.filter(
+            _item=volunteer.profile,
+            role='Volunteer').delete()
+
+        # if the volunteer has been accepted, set the events.
+        if request.POST['accepted'] == '3':
+            for assigned_event in request.POST.getlist('events'):
+                event = get_object_or_404(Event, pk=assigned_event)
+                warnings = event.allocate_worker(
+                        volunteer.profile,
+                        'Volunteer')
+                for warning in warnings:
+                    messages.warning(request,
+                                     warning)
+        volunteer.profile.notify_volunteer_schedule_change()
+    return BidChangeStateView(request, bid_id, 'volunteer_review_list')
