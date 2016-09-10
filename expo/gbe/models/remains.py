@@ -1647,7 +1647,7 @@ class Volunteer(Biddable):
         return (['Name',
                  'Email',
                  'Hotel',
-                 '# Shifts',
+                 '# of Hours',
                  'Scheduling Info',
                  'Interests',
                  'Pre-event',
