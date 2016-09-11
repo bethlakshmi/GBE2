@@ -53,7 +53,9 @@ class StaffAreaContext:
             sched_event = SchedEventFactory(eventitem=self.area.eventitem_ptr)
         ResourceAllocationFactory(
             event=sched_event,
-            resource=WorkerFactory(_item=staff_lead.workeritem_ptr))
+            resource=WorkerFactory(
+                _item=staff_lead.workeritem_ptr,
+                role='Staff Lead'))
         return sched_event
 
     def add_volunteer_opp(self,

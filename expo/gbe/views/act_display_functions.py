@@ -19,10 +19,10 @@ def display_invalid_act(request, data, form, conference, profile, view):
             defaults={
                 'summary': "Act Title, User, Conference Conflict",
                 'description': default_act_title_conflict})
-        conflict = Act.objects.get(
+        conflict = Act.objects.filter(
             conference=conference,
             title=form.data['theact-title'],
-            performer__contact=profile)
+            performer__contact=profile).first()
         if conflict.submitted:
             link = reverse(
                 'act_view',

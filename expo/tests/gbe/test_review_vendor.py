@@ -9,14 +9,12 @@ from tests.factories.gbe_factories import (
     VendorFactory,
 )
 from tests.functions.gbe_functions import (
+    bad_id_for,
     grant_privilege,
     is_login_page,
     login_as,
 )
-
-
-def refresh_from_db(item):
-    return type(item).objects.get(pk=item.pk)
+from gbe.models import Vendor
 
 
 class TestReviewVendor(TestCase):
@@ -90,16 +88,23 @@ class TestReviewVendor(TestCase):
 
     def test_review_vendor_all_well_vendor_coordinator(self):
         vendor = VendorFactory()
-        user = ProfileFactory().user_object
-        grant_privilege(user, 'Vendor Reviewers')
-        grant_privilege(user, 'Vendor Coordinator')
-        login_as(user, self)
+        login_as(self.coordinator, self)
         url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf='gbe.urls')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Bid Information' in response.content)
+
+    def test_coordinator_sees_control(self):
+        vendor = VendorFactory()
+        login_as(self.coordinator, self)
+        url = reverse(self.view_name,
+                      args=[vendor.pk],
+                      urlconf='gbe.urls')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        assert "<h2>Bid Control for Coordinator</h2>" in response.content
 
     def test_no_login_gives_error(self):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
@@ -108,8 +113,9 @@ class TestReviewVendor(TestCase):
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
-    def test_bad_user(self):
+    def test_bad_vendor_id(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        bad_id = bad_id_for(Vendor)
+        url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)

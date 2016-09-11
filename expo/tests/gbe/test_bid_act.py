@@ -1,3 +1,4 @@
+import nose.tools as nt
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -89,6 +90,17 @@ class TestBidAct(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
 
+    def test_bid_act_get_with_persona(self):
+        '''act_bid, when profile has no personae,
+        should redirect to persona_create'''
+        profile = PersonaFactory().performer_profile
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        login_as(profile, self)
+        response = self.client.get(url)
+        expected_string = "Propose an Act"
+        nt.assert_true(expected_string in response.content)
+        nt.assert_equal(response.status_code, 200)
+
     def test_act_bid_post_no_performer(self):
         '''act_bid, user has no performer, should redirect to persona_create'''
         profile = ProfileFactory()
@@ -115,13 +127,18 @@ class TestBidAct(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Fee has not been Paid' in response.content)
 
+    def fake_verify_performer_app_paid(user_name):
+        return True
+
     def test_act_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
         should redirect to home'''
         current_conference()
         response, data = self.post_paid_act_draft()
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "(Click to edit)")
+        act_name = data['theact-title']
+        expected_string = "%s - Not submitted" % act_name
+        assert expected_string in response.content
         self.assertContains(response, data['theact-title'])
 
     def test_act_bid_not_post(self):

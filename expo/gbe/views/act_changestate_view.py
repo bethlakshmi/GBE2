@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from expo.gbe_logging import log_func
 from gbe.functions import validate_perms
