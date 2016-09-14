@@ -347,18 +347,10 @@ try:
     from expo.local_settings import LOG_FORMAT
 except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
-<<<<<<< HEAD
-||||||| merged common ancestors
 
 
 # DJANGO-HIJACK
-=======
-
-
-# DJANGO-HIJACK
-
 
 HIJACK_LOGIN_REDIRECT_URL = '/profile/'
 HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user/'
 HIJACK_ALLOW_GET_REQUESTS = True
->>>>>>> master
