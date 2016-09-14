@@ -43,6 +43,7 @@ CMS_TEMPLATES = (
 
 LANGUAGES = [
     ('en-us', gettext('en-us')),
+    ('en', gettext('en')),
 
 ]
 
@@ -125,7 +126,8 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',  # 'djangocms_link',
+    'cmsplugin_filer_video',
+    #    'djangocms_link',
     #    'djangocms_picture',
     #    'djangocms_teaser',
     #    'djangocms_video',
@@ -133,6 +135,7 @@ INSTALLED_APPS = (
     'gbe',
     'ticketing',
     'scheduler',
+    'pagination',
     'django_nose',
     'hijack',
     'hijack_admin',
@@ -140,10 +143,10 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'ad_rotator',
 )
+
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
-
 
 THUMBNAIL_HIGH_RESOLUTION = True
 
@@ -151,7 +154,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
-    # 'easy_thumbnails.processors.scale_and_crop',
+    #    'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
@@ -165,7 +168,7 @@ MIDDLEWARE_CLASSES = (
     'hijack.middleware.HijackRemoteUserMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # added for django-cms
+    #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -174,8 +177,9 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
-    # end of add for django-cms
+    #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'pagination.middleware.PaginationMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
@@ -237,10 +241,10 @@ try:
     DATABASES
 except:
     DATABASES = {
-       'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-       }
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
 
 # Internationalization
@@ -318,6 +322,13 @@ CMS_LANGUAGES = {
             'name': gettext('en-us'),
             'redirect_on_fallback': True,
         },
+        {
+            'public': True,
+            'code': 'en',
+            'hide_untranslated': False,
+            'name': gettext('en'),
+            'redirect_on_fallback': True,
+        },
     ],
 }
 
@@ -349,8 +360,59 @@ except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
 
 
-# DJANGO-HIJACK
+#  This block is for using local_settings.py to control which external
+#  apps are setup and configured to execute within this installation
+#  of GBE2.  Only alter this if you read through local_settings.py
+#  and urls.py to see how this works.
 
+try:
+    APP_DJANGOBB
+except:
+    APP_DJANGOBB = False
+
+if APP_DJANGOBB is True:
+    INSTALLED_APPS = INSTALLED_APPS + ('djangobb_forum',)
+    TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
+        ('djangobb_forum.context_processors.forum_settings',)
+
+    # HAYSTACK settings, for DjangoBB_Forum
+    HAYSTACK_DEFAULT_OPERATOR = 'OR'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh/whoosh_index',
+            'TIMEOUT': 60 * 5,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        'autocomplete': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh_index',
+            'STORAGE': 'file',
+            'POST_LIMIT': 128 * 1024 * 1024,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        # 'slave': {
+        #     'ENGINE': 'xapian_backend.XapianEngine',
+        #     'PATH': '/home/search/xapian_index',
+        #     'INCLUDE_SPELLING': True,
+        #     'BATCH_SIZE': 100,
+        #     'EXCLUDED_INDEXES': [ \
+        #         'thirdpartyapp.search_indexes.BarIndex'],
+        #     },
+        'db': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+            'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
+        }
+    }
+
+    
+# DJANGO-HIJACK
 
 HIJACK_LOGIN_REDIRECT_URL = '/profile/'
 HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user/'

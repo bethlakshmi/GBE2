@@ -78,7 +78,12 @@ expo/src/image-gallery/
 
 *.good
 
-
+config/local_settings.py
+config/stable.tar.gz
+expo/djangobb_forum/*
+expo/expo/static/*
+static/*
+tmp/*
 
 expo/media/cms_page_media/1/GBE_PageBanner.png
 
