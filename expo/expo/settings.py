@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'pagination',
     'django_nose',
     'hijack',
+    'hijack_admin',
     'compat',
     'debug_toolbar',
     'ad_rotator',
@@ -409,3 +410,10 @@ if APP_DJANGOBB is True:
             'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
         }
     }
+
+    
+# DJANGO-HIJACK
+
+HIJACK_LOGIN_REDIRECT_URL = '/profile/'
+HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user/'
+HIJACK_ALLOW_GET_REQUESTS = True

@@ -26,7 +26,9 @@ $bootstrap = <<BOOTSTRAP
   sudo chown -R vagrant /var/lib/
   sudo chown -R mysql /var/log/mysql
   sudo chown -R mysql /var/log/mysql
-  sudo apt-fast -y install emacs24-nox findutils realpath libmagickwand-dev
+  sudo apt-fast -y install findutils
+  sudo apt-fast -y install realpath
+  sudo apt-fast -y install libmagickwand-dev
   sudo ssh-keyscan ssh-keygen -t rsa  -H github.com >> ~/.ssh/known_hosts
   sudo chmod 700 ~/.ssh
   # enable ssh agent forwarding
@@ -54,21 +56,12 @@ $bootstrap = <<BOOTSTRAP
   port=3306" >> /etc/my.cnf
   sudo chown -R mysql /var/lib/mysql/
   sudo /etc/init.d/mysql start
-  #service mysql restart
-  mysql -u root -proot -e "CREATE USER 'django_user' IDENTIFIED BY 'secret'"
-  mysql -u root -proot -e "DROP DATABASE IF EXISTS gbe_dev"
-  mysql -u root -proot  -e "CREATE DATABASE gbe_dev"
-  mysql -u root -proot  -e "USE gbe_dev"
-  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION"
-  mysql -u root -proot  -e "GRANT ALL ON gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
-  mysql -u root -proot  -e "GRANT ALL ON test_gbe_dev.* to 'django_user'@'%' IDENTIFIED BY 'secret'"
-  mysql -u root -proot  -e "flush privileges"
  
   echo "your initialization shell scripts go here"
   sudo apt-fast -y install python-dev
   sudo apt-fast -y install python-pip
   sudo apt-fast -y install libjpeg-dev
-  sudo apt-fast -y  install libjpeg8-dev
+  sudo apt-fast -y install libjpeg8-dev
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
   sudo apt-fast -y install gettext
@@ -101,9 +94,10 @@ $bootstrap = <<BOOTSTRAP
   then
       cp /vagrant/config/local_settings.py /vagrant/expo/expo
   fi
-  if [ -f /vagrant/config/DB_backup_gbelive_*.sql ]
+  dbfile=`ls -1t /vagrant/config/DB_backup_gbelive_*.sql 2> /dev/null | head -n 1`
+  if [ -f $dbfile ]
   then
-      ls -1t /vagrant/config/DB_backup_gbelive_*.sql | head -n 1 | xargs -n 1 /home/vagrant/dbreset -f
+      /home/vagrant/dbreset -f $dbfile
   else
       /home/vagrant/dbreset -r
   fi

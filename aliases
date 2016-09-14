@@ -2,6 +2,6 @@
 alias pepdiff='pushd /vagrant/; git diff --name-only master | grep ".py" | xargs pep8; popd'
 alias pepreport='pushd `pwd`; cd /vagrant; git diff refs/remotes/origin/master --name-only | grep .py$ | xargs pep8; popd'
 alias rmpyc='find . -name "*.pyc" | xargs rm'
-alias runcoverage='pushd `pwd`; cd /vagrant/expo; py.test --reuse-db --cov-report html --cov=. tests/ 2>&1 | tee /vagrant/expo/logs/test-errors.log; popd'
-alias runserver='pushd `pwd`; /vagrant/expo/manage.py runserver 0.0.0.0:8111 2>&1 | tee /vagrant/expo/logs/runserver.log; popd'
+alias runcoverage='pushd `pwd` 1>/dev/null; cd /vagrant/expo; py.test --reuse-db --cov-report html --cov=. tests/ |& tee /vagrant/expo/logs/test-errors.log; popd 1>/dev/null'
+alias runserver='pushd `pwd` 1>/dev/null; cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 |& tee /vagrant/expo/logs/runserver.log; popd 1>/dev/null'
 alias dbreset='/home/vagrant/dbreset'
