@@ -36,10 +36,12 @@
      <div class="gbe_no_pic">&nbsp;</div>
   {% endif %}
   <div class="performer_text">
-    <a href='{% url edit_view_name performer.resourceitem_id %}'>
-      {{ performer }}
-    </a><br>
+    {% if performer.contact = profile %}
+      <a href='{% url edit_view_name performer.resourceitem_id %}'>
+        {{ performer }}
+      </a><br>
     (Click to edit)
+    {% endif %}
   </div>
 </div>
 {% for alert in performer.alerts %}
