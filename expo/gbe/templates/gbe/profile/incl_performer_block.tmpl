@@ -41,6 +41,10 @@
         {{ performer }}
       </a><br>
     (Click to edit)
+    {% else %}
+      <a href='{% url view_name performer.resourceitem_id %}'>
+        {{ performer }}
+      </a><br>
     {% endif %}
   </div>
 </div>
