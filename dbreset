@@ -4,15 +4,28 @@ set_defaults(){
 db='gbe_dev'
 user='django_user'
 secret='secret'
-dbfile='gbe_1025.mysql'
 filepath='/vagrant/config'
-restore=True
-migration=False
+setfilepath=false
+migration=false
 migrations=''
-local_path=False
+local_path=false
+fileprefix='DB_backup_gbelive_'
+staticlocation='false'
+collectstatic=false
+syncdb=false
+
+dbfile=`ls -1t $filepath/$fileprefix*.sql 2> /dev/null| head -n 1 | \
+        xargs basename 2> /dev/null`
+if [ -r $dbfile ]
+then
+    restore=true
+else
+    restore=false
+fi
+
 }
 set_defaults
-
+    
 print_help(){
 echo "
 Usage: dbreset [-] [-h] [-d database name] [-s secret] [-u username] 
@@ -29,23 +42,18 @@ Usage: dbreset [-] [-h] [-d database name] [-s secret] [-u username]
                the command line over-ride these setting
     -f  -  name of file containing SQL statements and data to be restored
                can accept filename, fully qualified path, or relative path,
-               default: gbe_1025.mysql
+               default is most recent of database backup with filename format
+               DB_backup_gbelive_*.sql
     -p  -  path to SQL file, may be fully qualified or relative, with throw
                an error is path is both specified with -p and -f,
                default: /vagrant/expo
     -r  -  DO NOT restore database from file, default is to restore from file
+               if a database file is present
     -m  -  run migrations (and an optional space separate list of migrations
                to run, currently accepts 'gbe scheduler ticketing', precede
-               with 'fake' to run them as --fake, does not run as default,
-               default migrations are currently:
-	           --fake gbe 0001
-		   scheduler
-		   ticketing
-		   gbe
-            WARNING:  Due to a limitation in Django and manage.py, migrations
-                currently only work on the database with the user and secret
-                listed in the local_settings.py file.
-
+               with 'fake' to run them as --fake), does not run as default,
+               currently deletes ghost migrations, then migrates all.
+    -b  -  syncronize db after restoring and running migrations
 "
 }
 
@@ -63,22 +71,29 @@ reset_db(){
     #  $2 is name of user
     #  $3 is secret password
 
+    #  Keep DROP DATABASE test-foo in place, as test- is used by py.test.
+    mysql -u root -proot -e "DROP DATABASE IF EXISTS TEST_$1"
+    mysql -u root -proot -e "DROP DATABASE IF EXISTS test_$1"
     mysql -u root -proot -e "DROP DATABASE IF EXISTS $1"
     mysql -u root -proot -e "CREATE DATABASE $1"
+    mysql -u root -proot -e "USE $1"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\' WITH GRANT OPTION\"
     eval mysql -u root -proot -e \"GRANT ALL ON $1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\'\"
+    eval mysql -u root -proot -e \"GRANT ALL ON test_$1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\' WITH GRANT OPTION\"
+    eval mysql -u root -proot -e \"GRANT ALL ON test_$1.\* to \'$2\'@\'%\' IDENTIFIED BY \'$3\'\"
     mysql -u root -proot -e "flush privileges"
 }
 
 restore_db(){
-    cat $1 | mysql -u root -proot $2
+    cat $1 | /vagrant/expo/manage.py dbshell
 }
 
 default_migrations(){
-    python /vagrant/expo/manage.py migrate --fake gbe 0001
-    python /vagrant/expo/manage.py migrate scheduler
-    python /vagrant/expo/manage.py migrate ticketing
-    python /vagrant/expo/manage.py migrate gbe
+    pushd `pwd`
+    cd /vagrant/expo
+    /vagrant/expo/manage.py migrate --delete-ghost-migrations --noinput
+    /vagrant/expo/manage.py migrate --all --noinput
+    popd
 }
 
 migrations(){
@@ -94,13 +109,57 @@ migrations(){
 	    migration=$1
 	fi
 	shift
-        python /vagrant/expo/manage.py migrate $migration
+        /vagrant/expo/manage.py migrate --noinput $migration
     done
 }
 
+sync_db(){
+    pushd `pwd`
+    cd /vagrant/expo
+    /vagrant/expo/manage.py syncdb --all --noinput
+    popd
+    }
+
+#  This block does not work, because manage.py gets the location wrong
+#collect_static(){
+#    pushd `pwd`
+#    cd /vagrant/expo
+#    /vagrant/expo/manage.py collectstatic --noinput --settings=expo.expo.local_settings
+#    popd
+#    }
+
 load_settings(){
-    db_settings=(`awk '/DATABASES =/,/}/ {pass}; /default/,/}/ {print}' $1 | egrep -e 'NAME|USER|PASSWORD' | awk '{ print $2 }' | sed -e s#,##g -e s#\'##g`)
-    echo $db_settings
+    db_settings=('' '' '')
+    staticlocation=''
+    lcl=$1/local_settings.py
+    if [ -f $lcl ]
+        then
+            db_settings=(`awk '/DATABASES =/,/}/ {pass}; /default/,/}/ {print}' $lcl | egrep -e 'NAME|USER|PASSWORD' | awk '{ print $2 }' | sed -e s#,##g -e s#\'##g`)
+            staticlocation=`grep 'STATIC_ROOT' $lcl | awk '{ print $3 }' | sed -e s#,##g -e s#\'##g`
+    fi
+
+    lcl=$1/settings.py
+    if [ -f $lcl ]
+    then
+        if [ ${db_settings[0]} = '' ]
+        then
+	    ${db_settings[0]}=`awk '/DATABASES =/,/}/ {pass}; /default/,/}/ {print}' $lcl | grep 'NAME' | awk '{ print $2 }' | sed -e s#,##g -e s#\'##g`
+	fi
+	if [ ${db_settings[1]} = '' ]
+	then
+	    ${db_settings[1]}=`awk '/DATABASES =/,/}/ {pass}; /default/,/}/ {print}' $lcl | grep 'USER' | awk '{ print $2 }' | sed -e s#,##g -e s#\'##g`
+	fi
+	if [ ${db_settings[2]} = '' ]
+	then
+	    ${db_settings[2]}=`awk '/DATABASES =/,/}/ {pass}; /default/,/}/ {print}' $lcl | grep 'PASSWORD' | awk '{ print $2 }' | sed -e s#,##g -e s#\'##g`
+        fi
+	if [ $staticlocation = '' ]
+	then
+            staticlocation=`grep 'STATIC_ROOT' $lcl | awk '{ print $3 }' | sed -e s#,##g -e s#\'##g`
+	fi
+    fi
+
+    echo ${db_settings[0]} ${db_settings[1]} ${db_settings[2]} $staticlocation
 }
 
 if [ $# == '0' ]
@@ -127,8 +186,15 @@ do
         shift
     elif [ $1 == '-u' ]
     then
-        user=$2
-	shift
+	if $setfilepath
+	then
+	    echo 'Filepath already set by explict path in filename.'
+	    exit 8
+	else
+	    setfilepath=true
+            user=$2
+            shift
+	fi
     elif [ $1 == '-s' ]
     then
         secret=$2
@@ -139,7 +205,7 @@ do
         shift
     elif [ $1 == '-l' ]
     then
-	if [ `echo $2 | sed s#'^$'#'-'# | grep -c '^-'` == '1' ]
+	if [ `echo $2 | sed s#'^$'#'-'# | grep -c '^-'` == '0' ]
 	then
 	    local_path='/vagrant/expo/expo/local_settings.py'
 	else
@@ -157,30 +223,40 @@ do
 	fi
     elif [ $1 == '-r' ]
     then
-	restore=False
+	restore=false
     elif [ $1 == '-f' ]
     then
-        if [ `grep -c '/' $2` == '0' ]
+        if [ `echo $2 | grep -c '/'` == '0' ]
 	then
             dbfile=$2
+	    restore=true
             shift
-	elif [ $filepath != '/vagrant/expo' ]
+	elif $setfilepath
 	then
-	    echo "Setting the path twice is ambiguous.  Exiting.  Please pick one."
+	    echo 'File path set explicitly by -u flag, exiting.'
 	    exit 7
         else
-            dbfile=`echo $2 | basename`
-	    filepath=`echo $2 | xargs dirname | xargs realpath`
+	    restore=true
+	    setfilepath=true
+            dbfile=`basename $2`
+	    filepath=`dirname $2| xargs realpath`
+            shift
         fi
     elif [ $1 == '-m' ]
     then
-        migration=True
-	while [ `echo $2 | sed s#'^$'#'-'# | grep -c '^-'` == '0' ]
+        migration=true
+	while [ `echo ${2:0:1} | grep -c '^-'` != '0' ]
 	do
     	    migrations="$migrations $2"
 	    shift
         done
 	shift
+    elif [ $1 == '-c' ]
+    then
+	collectstatic=true
+    elif [ $1 == '-b' ]
+    then
+	syncdb=true
     else
         echo 'Syntax error: Check options for correctness and retry.'
         exit 1
@@ -188,33 +264,42 @@ do
     shift
 done
 
-if [ $local_path != 'False' ]
+if ! $local_path
 then
-    settings=`load_settings $local_path`    
-    #  Want to find a less brain dead way of overriding non-default settings
-    if [ $db == 'gbe_dev' ]
-    then
-        db=${settings[0]}
-    fi
-    if [ $user == 'django_user' ]
-    then
-	user=${settings[1]}
-    fi
-    if [ $secret == 'secret' ]
-    then
-        secret=${settings[2]}
-    fi
-    unset settings
+    local_path='/vagrant/expo/expo'
 fi
+
+settings=(`load_settings $local_path`)
+#  Want to find a less brain dead way of overriding non-default settings
+if [ "${settings[0]}" != '' ]
+then
+    db=${settings[0]}
+fi
+if [ "${settings[1]}" != '' ]
+then
+    user=${settings[1]}
+fi
+if [ "${settings[2]}" != '' ]
+then
+    secret=${settings[2]}
+fi
+
+if [ "${settings[3]}" != '' ]
+then
+    staticlocation=${settings[3]}
+fi
+unset settings
 
 reset_db $db $user $secret
 
-if [ $restore == 'True' ]
+if $restore
 then
-    restore_db $filepath/$dbfile $db
+    echo "Restoring DB: User: $user, DB: $db"
+    echo "        DB file: $filepath/$dbfile"
+    restore_db $filepath/$dbfile
 fi
 
-if [ $migration == 'True' ]
+if $migration
 then
     if [ `echo $migrations | wc -w` != '0' ]
     then
@@ -223,3 +308,21 @@ then
 	default_migrations
     fi
 fi
+
+if $syncdb
+then
+    sync_db
+fi
+
+if [ $staticlocation != 'false' ]
+    then
+    if [ ! -d $staticlocation ]
+    then
+        mkdir $staticlocation
+    fi
+fi
+
+#if $collectstatic
+#then
+#    collect_static 
+#fi
