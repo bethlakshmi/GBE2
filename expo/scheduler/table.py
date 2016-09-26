@@ -20,20 +20,20 @@ class table:
 
         if columns is None:
             self.collist = []
-        elif columns.isinstance(''):
+        elif isinstance(columns, type('')):
             self.collist = [columns]
-        elif type(columns) in self.itemtypes:
+        elif isinstance(columns, self.itemtypes):
             self.collist = []
             for item in columns:
                 self.collist.append(item)
         else:
             '''Error condition'''
 
-        if rows.isinstance(None):
+        if isinstance(rows, type(None)):
             self.rowlist = []
-        elif rows.isinstance(''):
+        elif isinstance(rows, type('')):
             self.rowlist = [rows]
-        elif type(rows) in self.itemtypes:
+        elif isinstance(rows, self.itemtypes):
             self.rowlist = []
             for item in rows:
                 self.rowlist.append(item)
@@ -91,10 +91,10 @@ class table:
             if item is None:
                 for row in self.rowlist:
                     self.table[column][row] = None
-            if item.isinstance(''):
+            if isinstance(item, type('')):
                 for row in self.rowlist:
                     self.table[column][row] = item
-            elif item.isinstance({}):
+            elif isinstance(item, type({})):
                 for row in self.rowlist:
                     if row in item.keys():
                         self.table[column][row] = item[row]
@@ -103,7 +103,7 @@ class table:
 
             #  This method of adding a column is not recommended, use
             #  a dictionary instead.
-            elif type(item) in (type([]), type(())):
+            elif isinstance(item, (type([]), type(()))):
                 for row in self.rowlist:
                     if len(item) >= 1:
                         self.table[column][row] = item.pop(0)
@@ -139,9 +139,9 @@ class table:
         for column in self.collist:
             if item is None:
                 self.table[column][row] = None
-            elif item.isinstance(''):
+            elif isinstance(item, type('')):
                 self.table[column][row] = item
-            elif item.isinstance({}):
+            elif isinstance(itme, type({})):
                 if column in item.keys():
                     self.table[column][row] = item[column]
                 else:
@@ -149,7 +149,7 @@ class table:
 
             #  This method of adding a row is not recommended.  Use a
             #  dictionary instead.
-            elif type(item) in (type([]), type(())):
+            elif isinstance(item, (type([]), type(()))):
                 if len(item) >= 1:
                     self.table[column][row] = item[0]
                     item = item[1:]
