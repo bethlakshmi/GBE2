@@ -61,6 +61,7 @@ def noon(day):
     return datetime.combine(day.day,
                             time(12, 0, 0, tzinfo=pytz.utc))
 
+
 def assert_selected(response, value, display):
     selection = '<option value="%s" selected="selected">%s</option>' % (
         value,
