@@ -8,7 +8,7 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
     ProfileFactory,
     PersonaFactory,
-    RoomFactory
+    RoomFactory,
 )
 from gbe.models import (
     Conference,
@@ -27,6 +27,7 @@ from tests.contexts import (
 )
 from tests.functions.scheduler_functions import (
     assert_good_sched_event_form,
+    assert_selected,
     get_sched_event_form
 )
 import pytz
@@ -87,9 +88,10 @@ class TestAddEvent(TestCase):
 
     def test_good_user_get_bad_event(self):
         login_as(self.privileged_profile, self)
-        url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=["GenericEvent", self.eventitem.eventitem_id+1])
+        url = reverse(
+            self.view_name,
+            urlconf="scheduler.urls",
+            args=["GenericEvent", self.eventitem.eventitem_id + 1])
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
 
@@ -100,6 +102,18 @@ class TestAddEvent(TestCase):
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, self.eventitem)
+
+    def test_good_user_get_default_location(self):
+        room = RoomFactory()
+        self.eventitem.default_location = room
+        self.eventitem.save()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["GenericEvent", self.eventitem.eventitem_id])
+        response = self.client.get(url)
+        assert_good_sched_event_form(response, self.eventitem)
+        assert_selected(response, str(room.pk), str(room))
 
     def test_good_user_get_class(self):
         Conference.objects.all().delete()
@@ -153,8 +167,8 @@ class TestAddEvent(TestCase):
         self.assertIn('<option value="12:00:00" selected="selected">' +
                       '12:00 PM</option>',
                       response.content)
-        self.assertIn('<option value="'+str(context.days[0].pk) +
-                      '" selected="selected">'+str(context.days[0]) +
+        self.assertIn('<option value="' + str(context.days[0].pk) +
+                      '" selected="selected">' + str(context.days[0]) +
                       '</option>',
                       response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
