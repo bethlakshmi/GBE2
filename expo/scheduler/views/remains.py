@@ -32,7 +32,7 @@ from datetime import time as dttime
 import pytz
 import csv
 
-from table import table
+from scheduler.table import table
 from gbe_forms_text import (
     list_titles,
 )
@@ -41,7 +41,7 @@ from gbe.duration import (
     Duration,
     DateTimeRange,
 )
-from functions import (
+from scheduler.functions import (
     table_prep,
     event_info,
     cal_times_for_conf,
@@ -796,10 +796,11 @@ def add_event(request, eventitem_id, event_type='Class'):
     eventitem_view = get_event_display_info(eventitem_id)
 
     if request.method == 'POST':
+
         event_form = EventScheduleForm(request.POST,
                                        prefix='event')
 
-        if (event_form.is_valid() and True):
+        if event_form.is_valid():
             s_event = event_form.save(commit=False)
             s_event.eventitem = item
             data = event_form.cleaned_data
