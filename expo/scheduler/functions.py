@@ -11,7 +11,6 @@ from gbe.duration import (
     DateTimeRange,
     timedelta_to_duration
 )
-from random import choice
 
 import math
 try:

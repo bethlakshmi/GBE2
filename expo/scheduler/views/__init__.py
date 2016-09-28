@@ -18,9 +18,10 @@ from remains import (
     contact_by_role,
     set_single_role,
     set_multi_role,
-    add_event,
     edit_event,
     edit_event_display,
     view_list,
     calendar_view,
 )
+
+from scheduler.views.add_event import add_event
