@@ -680,7 +680,7 @@ def contact_volunteers(conference):
                            for i in v.volunteerinterest_set.all()]),
                  'Application',
                  'Application']
-                                )
+            )
     return header, contact_info
 
 

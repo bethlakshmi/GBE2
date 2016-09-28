@@ -125,7 +125,7 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
@@ -134,7 +134,7 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
