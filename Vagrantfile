@@ -3,7 +3,7 @@
 
 
 $bootstrap = <<BOOTSTRAP
-  ifmkdir() { if [ ! -d $1 ]; then mkdir $1; fi }
+  ifmkdir() { if [ ! -d $1 ]; then mkdir -p $1; fi }
   sudo -s -H
   sudo apt-get update -y
   sudo apt-get install -y build-essential
@@ -66,16 +66,28 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install libfreetype6-dev
   sudo apt-fast -y install gettext
   sudo pip install --requirement /vagrant/config/requirements.txt
-  ifmkdir /vagrant/tmp; cd /vagrant/tmp
+  sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
+  ifmkdir /vagrant/tmp; cd /vagrant/tmp; rm -rf /vagrant/tmp/*
+  ###  For current version of Django and DjangoBB_Forums
+  ###  After migrations to >=Django 1.7, update DjangoBB_Forums
+  if [ -f /vagrant/config/stable.tar.gz ]
+      then cp /vagrant/config/stable.tar.gz /vagrant/tmp
+      else wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz ; fi
+  tar -zxvf stable.tar.gz
+  cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
   ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
+  if [ ! -h /vagrant/expo/expo/static ]
+      then ln -s /vagrant/static /vagrant/expo/expo/static; fi
+  ifmkdir /vagrant/expo/media/djangobb_forum/attachments
   cp /vagrant/aliases /vagrant/dbreset /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 
-###  The next three lines will have to be done by hand, until we get
-###      a good test DB setup 
-###  python manage.py syncdb --all
+###  The next four lines will have to be done by hand, until we get a good
+###      test DB setup 
+###  python manage.py migrate --delete-ghost-migrations
 ###  python manage.py migrate --all
+###  python manage.py syncdb --all
 ###  python manage.py collectstatic
 
   if [ -f /vagrant/config/local_settings.py ]

@@ -1197,6 +1197,10 @@ class Event(EventItem):
     conference = models.ForeignKey(
         Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
+    default_location = models.ForeignKey(
+        Room,
+        blank=True,
+        null=True)
 
     def __str__(self):
         return self.title
@@ -1319,13 +1323,13 @@ class Class(Biddable, Event):
     #                                      related_name='classes',
     #                                      blank=True)
     minimum_enrollment = models.IntegerField(blank=True, default=1)
-    maximum_enrollment = models.IntegerField(blank=True, default=20)
+    maximum_enrollment = models.IntegerField(blank=True, default=20, null=True)
     organization = models.CharField(max_length=128, blank=True)
     type = models.CharField(max_length=128,
                             choices=class_options,
                             blank=True,
                             default="Lecture")
-    fee = models.IntegerField(blank=True, default=0)
+    fee = models.IntegerField(blank=True, default=0, null=True)
     other_teachers = models.CharField(max_length=128, blank=True)
     length_minutes = models.IntegerField(choices=class_length_options,
                                          default=60, blank=True)

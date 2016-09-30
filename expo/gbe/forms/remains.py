@@ -764,7 +764,12 @@ class GenericEventScheduleForm(forms.ModelForm):
 
     class Meta:
         model = GenericEvent
-        fields = ['title', 'description', 'duration', 'type']
+        fields = [
+            'title',
+            'description',
+            'duration',
+            'type',
+            'default_location', ]
         help_texts = event_help_texts
 
 
@@ -774,7 +779,7 @@ class ShowScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Show
-        fields = ['title', 'description', 'duration']
+        fields = ['title', 'description', 'duration', ]
         help_texts = event_help_texts
 
 
@@ -792,7 +797,7 @@ class ClassScheduleForm(forms.ModelForm):
                   'maximum_enrollment',
                   'type',
                   'fee',
-                  'length_minutes',
+                  'duration',
                   'space_needs',
                   'teacher',
                   'accepted',

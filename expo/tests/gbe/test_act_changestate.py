@@ -60,7 +60,7 @@ class TestActChangestate(TestCase):
                                     data=data)
         nt.assert_equal(1,
                         ResourceAllocation.objects.filter(
-                            event=self.sched_event).count()-prev_count2)
+                            event=self.sched_event).count() - prev_count2)
 
     def test_act_changestate_unauthorized_user(self):
         context = ActTechInfoContext()

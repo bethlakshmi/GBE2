@@ -13,6 +13,7 @@ from tests.factories.gbe_factories import(
     GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
+    TroupeFactory,
     UserFactory,
     VendorFactory,
     VolunteerFactory,
@@ -125,7 +126,7 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
@@ -134,7 +135,7 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
@@ -286,3 +287,12 @@ class TestIndex(TestCase):
         response = self.client.get(url)
         self.assertContains(response, self.performer.name)
         self.assertContains(response, self.performer.promo_thumb)
+
+    def test_cannot_edit_troupe_if_not_contact(self):
+        troupe = TroupeFactory()
+        member = PersonaFactory()
+        troupe.membership.add(member)
+        url = reverse("home", urlconf="gbe.urls")
+        login_as(member.performer_profile, self)
+        response = self.client.get(url)
+        assert response.content.count("(Click to edit)") == 1
