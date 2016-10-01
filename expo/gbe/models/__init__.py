@@ -1,3 +1,4 @@
+from room import Room
 from remains import (
     Conference,
     ConferenceDay,
@@ -27,7 +28,6 @@ from conference_volunteer import ConferenceVolunteer
 from generic_event import GenericEvent
 from performer_festivals import PerformerFestivals
 from profile_preferences import ProfilePreferences
-from room import Room
 from user_message import UserMessage
 from volunteer_interest import VolunteerInterest
 from bid_evaluation import BidEvaluation

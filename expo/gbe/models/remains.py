@@ -42,6 +42,7 @@ from model_utils.managers import InheritanceManager
 from gbe.duration import Duration
 import gbe
 import pytz
+from gbe.models import Room
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
