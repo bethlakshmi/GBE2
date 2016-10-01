@@ -12,9 +12,12 @@ from gbetext import vote_options
 
 class ShowVoteWidget(MultiWidget):
     def __init__(self, attrs=None):
+        import pdb;  pdb.set_trace()
+    
         shows = Show.objects.filter(
             conference=get_current_conference())
         show_choices = [(show.pk, show) for show in shows]
+        print str(show_choices)
         _widgets = (Select(attrs=attrs, choices=show_choices),
                     Select(attrs=attrs, choices=vote_options))
         super(ShowVoteWidget, self).__init__(_widgets, attrs)

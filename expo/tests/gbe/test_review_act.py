@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
+    ActBidEvaluationFactory,
     ActFactory,
     ConferenceFactory,
     PersonaFactory,
@@ -18,7 +19,9 @@ from tests.functions.gbe_functions import (
     login_as,
     reload,
 )
-
+from tests.functions.scheduler_functions import assert_selected
+from gbe.functions import get_current_conference
+from gbe.models import Conference, Show
 
 class TestReviewAct(TestCase):
     '''Tests for review_act view'''
@@ -158,3 +161,35 @@ class TestReviewAct(TestCase):
         self.assertEqual(response.status_code, 200)
         expected_string = "There is an error on the form."
         self.assertTrue(expected_string in response.content)
+
+    def test_review_act_load_existing_review(self):
+        Conference.objects.all().delete()
+        eval = ActBidEvaluationFactory(
+            evaluator=self.privileged_profile
+        )
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[eval.bid.pk])
+        login_as(self.privileged_user, self)
+        import pdb;  pdb.set_trace()
+
+        response = self.client.get(url)
+        
+        shows = ''
+        for show in Show.objects.filter(conference=get_current_conference()):
+            shows += str(show.title)+', '
+        
+        print shows
+        print(response.content)
+        assert_selected(
+            response,
+            eval.primary_vote.vote,
+            "Weak Yes")
+        assert_selected(
+            response,
+            eval.primary_vote.show.pk,
+            str(eval.primary_vote.show))
+        assert_selected(
+            response,
+            eval.secondary_vote.show.pk,
+            str(eval.secondary_vote.show))

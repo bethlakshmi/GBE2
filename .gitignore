@@ -115,3 +115,5 @@ expo/.coverage
 .cache/v/cache/lastfailed
 
 expo/src/cmsplugin-image-gallery-master/
+
+.DS_Store
