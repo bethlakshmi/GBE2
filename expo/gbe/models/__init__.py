@@ -3,33 +3,34 @@ from available_interest import AvailableInterest
 from remains import (
     Conference,
     Biddable,
-    Profile,
-    Performer,
-    Persona,
-    Troupe,
-    Combo,
     AudioInfo,
     LightingInfo,
     StageInfo,
     TechInfo,
     CueInfo,
-    Act,
+
     Room,
     ConferenceDay,
     VolunteerWindow,
     Event,
-    Show,
     GenericEvent,
-    Class,
-    BidEvaluation,
-    PerformerFestivals,
-    Volunteer,
-    Vendor,
     AdBid,
     ArtBid,
-    Costume,
     ClassProposal,
-    ConferenceVolunteer,
-    ProfilePreferences
 )
+from show import Show
 from volunteer_interest import VolunteerInterest
+from profile import Profile
+from performer import Performer
+from persona import Persona
+from troupe import Troupe
+from combo import Combo
+from act import Act
+from class_model import Class
+from bid_evaluation import BidEvaluation
+from performer_festivals import PerformerFestivals
+from volunteer import Volunteer
+from vendor import Vendor
+from costume import Costume
+from conference_volunteer import ConferenceVolunteer
+from profile_preferences import ProfilePreferences
