@@ -5,7 +5,6 @@ from django.forms import (
 from gbe.models import ActBidEvaluation
 from gbe.forms import (
     ShowVoteField,
-    ShowVoteWidget,
 )
 
 
@@ -20,6 +19,4 @@ class ActBidEvaluationForm(ModelForm):
         model = ActBidEvaluation
         fields = '__all__'
         widgets = {'evaluator': HiddenInput(),
-                   'bid': HiddenInput(),
-                   'primary_vote': ShowVoteWidget,
-                   'secondary_vote': ShowVoteWidget}
+                   'bid': HiddenInput()}

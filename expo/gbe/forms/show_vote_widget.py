@@ -23,13 +23,13 @@ class ShowVoteWidget(MultiWidget):
         if not value:
             return (None, None)
         elif isinstance(value, ShowVote):
-            return (value.show, value.vote)
+            return (value.show.pk, value.vote)
         else:
             object = ShowVote.objects.get(pk=value)
-            return (object.show, object.vote)
+            return (object.show.pk, object.vote)
 
     def format_output(self, rendered_widgets):
-        return "-".join(rendered_widgets)
+        return "".join(rendered_widgets)
 
     def value_from_datadict(self, data, files, name):
         vals = [
