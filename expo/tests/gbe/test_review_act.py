@@ -20,6 +20,8 @@ from tests.functions.gbe_functions import (
     reload,
 )
 from tests.functions.scheduler_functions import assert_selected
+from gbe.models import ActBidEvaluation
+
 
 class TestReviewAct(TestCase):
     '''Tests for review_act view'''
@@ -169,7 +171,7 @@ class TestReviewAct(TestCase):
                       args=[eval.bid.pk])
         login_as(self.privileged_user, self)
 
-        response = self.client.get(url, follow=True)
+        response = self.client.get(url)
         
         assert_selected(
             response,
@@ -183,3 +185,29 @@ class TestReviewAct(TestCase):
             response,
             eval.secondary_vote.show.pk,
             str(eval.secondary_vote.show))
+
+    def test_review_act_update_review(self):
+        eval = ActBidEvaluationFactory(
+            evaluator=self.privileged_profile
+        )
+        show = ShowFactory()
+        login_as(self.privileged_user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[eval.bid.pk])
+        data = self.get_post_data(
+            eval.bid,
+            reviewer=self.privileged_user,
+            show=show
+            )
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        evals = ActBidEvaluation.objects.filter(
+            evaluator=self.privileged_profile,
+            bid=eval.bid
+        )
+        self.assertTrue(len(evals), 1)
+        self.assertTrue(evals[0].secondary_vote.vote, 1)
+        self.assertTrue(evals[0].primary_vote.show, show)
