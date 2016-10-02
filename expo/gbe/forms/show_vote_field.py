@@ -5,24 +5,18 @@ from django.forms.fields import (
 
 from django.forms.models import ModelChoiceField
 from gbe.forms import ShowVoteWidget
-from gbe.functions import get_current_conference
-from gbe.models import (
-    Show,
-    ShowVote,
-)
-from gbetext import vote_options
+from gbe.models import ShowVote
 
 
 class ShowVoteField(MultiValueField):
     widget = ShowVoteWidget
 
     def __init__(self, *args, **kwargs):
-        fields = (
+        fields = [
             ModelChoiceField(
-                queryset=Show.objects.filter(
-                    conference=get_current_conference()),
+                queryset=[],
                 empty_label="---------"),
-            ChoiceField(choices=vote_options))
+            ChoiceField()]
         super(ShowVoteField, self).__init__(
             fields=fields,
             *args,

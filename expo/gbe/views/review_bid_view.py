@@ -88,6 +88,7 @@ class ReviewBidView(View):
             self.actionform = False
             self.actionURL = False
         self.conference, self.old_bid = get_conf(self.object)
+
         self.bid_eval = self.bid_evaluation_type.objects.filter(
             bid_id=self.object.pk,
             evaluator_id=self.reviewer.resourceitem_id).first()
