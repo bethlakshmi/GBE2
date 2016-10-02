@@ -24,8 +24,9 @@ class TestReviewActList(TestCase):
     view_name = 'act_review'
 
     def setUp(self):
-        self.url = reverse(self.view_name,
-                      urlconf='gbe.urls')
+        self.url = reverse(
+            self.view_name,
+            urlconf='gbe.urls')
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
@@ -33,9 +34,10 @@ class TestReviewActList(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Act Reviewers')
         self.conference = current_conference()
-        self.acts = ActFactory.create_batch(4,
-                                conference=self.conference,
-                                submitted=True)
+        self.acts = ActFactory.create_batch(
+            4,
+            conference=self.conference,
+            submitted=True)
 
     def test_review_act_list_all_well(self):
         login_as(self.privileged_user, self)

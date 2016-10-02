@@ -22,7 +22,7 @@ class ActBidEvaluationForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ActBidEvaluationForm, self).__init__(*args, **kwargs)
-        shows=Show.objects.filter(conference=get_current_conference())
+        shows = Show.objects.filter(conference=get_current_conference())
         show_choices = [(show.pk, show) for show in shows]
 
         self.fields['primary_vote'].widget.widgets[0].choices = show_choices
@@ -32,4 +32,4 @@ class ActBidEvaluationForm(ModelForm):
         model = ActBidEvaluation
         fields = '__all__'
         widgets = {'evaluator': HiddenInput(),
-                   'bid': HiddenInput(),}
+                   'bid': HiddenInput(), }

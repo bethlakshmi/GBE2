@@ -10,7 +10,7 @@ from gbetext import vote_options
 
 
 class ShowVoteWidget(MultiWidget):
-    def __init__(self, attrs=None):    
+    def __init__(self, attrs=None):
         _widgets = [Select(attrs=attrs),
                     Select(attrs=attrs, choices=vote_options)]
         super(ShowVoteWidget, self).__init__(_widgets, attrs)

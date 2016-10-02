@@ -172,7 +172,7 @@ class TestReviewAct(TestCase):
         login_as(self.privileged_user, self)
 
         response = self.client.get(url)
-        
+
         assert_selected(
             response,
             eval.primary_vote.vote,
