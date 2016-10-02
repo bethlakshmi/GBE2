@@ -100,7 +100,7 @@ def get_events_display_info(event_type='Class', time_format=None):
                 'delete_event',
                 urlconf='scheduler.urls',
                 args=[event_type, entry['eventitem'].eventitem_id])
-            eventinfo['location'] = None
+            eventinfo['location'] = entry['confitem'].default_location
             eventinfo['datetime'] = None
             eventinfo['max_volunteer'] = None
         eventslist.append(eventinfo)

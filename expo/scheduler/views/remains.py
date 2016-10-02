@@ -585,7 +585,7 @@ def contact_volunteers(conference):
                            for i in v.volunteerinterest_set.all()]),
                  'Application',
                  'Application']
-                                )
+            )
     return header, contact_info
 
 
@@ -651,16 +651,6 @@ def contact_by_role(request, participant_type):
         writer.writerow(row)
     return response
 
-
-#
-# Takes data in the form of a POST of name value pairs
-# and optionally a list of role tuples, (X, Y) where
-#    X = the key in the data
-#    Y = the role name in the worker allocation
-#
-# and clears and sets the role in the event.
-# Event should be scheduled event (scheduler.Event)
-#
 
 @login_required
 def edit_event(request, scheduler_event_id, event_type='class'):

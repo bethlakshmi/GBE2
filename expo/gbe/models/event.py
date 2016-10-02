@@ -9,6 +9,7 @@ from django.db.models import (
 from gbe.expomodelfields import DurationField
 from scheduler.models import EventItem
 from remains import Conference
+from room import Room
 
 
 class Event(EventItem):
@@ -29,6 +30,9 @@ class Event(EventItem):
     conference = ForeignKey(
         Conference,
         default=lambda: Conference.objects.filter(status="upcoming").first())
+    default_location = ForeignKey(Room,
+                                  blank=True,
+                                  null=True)
 
     def __str__(self):
         return self.title
