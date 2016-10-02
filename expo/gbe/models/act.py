@@ -11,11 +11,11 @@ from django.core.exceptions import (
     ValidationError,
 )
 from remains import (
-    Biddable,
     Conference,
     TechInfo,
     visible_bid_query,
 )
+from biddable import Biddable
 from gbetext import (
     acceptance_states,
     act_not_unique,

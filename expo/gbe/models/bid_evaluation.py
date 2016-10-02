@@ -4,7 +4,7 @@ from django.db.models import (
     ForeignKey,
     TextField,
 )
-from remains import Biddable
+from biddable import Biddable
 from profile import Profile
 
 from gbetext import vote_options

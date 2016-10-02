@@ -7,7 +7,7 @@ from django.db.models import (
 )
 from persona import Persona
 from gbe_forms_text import conference_participation_types
-from remains import ClassProposal
+from class_proposal import ClassProposal
 
 class ConferenceVolunteer(Model):
     '''

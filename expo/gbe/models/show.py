@@ -4,7 +4,7 @@ from django.db.models import (
     CharField,
 )
 from django.conf import settings
-from remains import Event
+from event import Event
 from persona import Persona
 from act import Act
 

@@ -12,10 +12,8 @@ from django.core.validators import (
     MaxValueValidator
 )
 
-from remains import (
-    Biddable,
-    visible_bid_query,
-)
+from remains import visible_bid_query
+from biddable import Biddable
 from profile import Profile
 from persona import Persona
 

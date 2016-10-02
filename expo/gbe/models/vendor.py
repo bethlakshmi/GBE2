@@ -7,10 +7,8 @@ from django.db.models import (
     BooleanField,
 )
 from profile import Profile
-from remains import (
-    Biddable,
-    visible_bid_query,
-)
+from remains import visible_bid_query
+from biddable import Biddable
 from gbetext import (
     acceptance_states,
     boolean_options,

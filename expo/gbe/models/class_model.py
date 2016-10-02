@@ -10,11 +10,11 @@ from django.db.models import (
 )
 from gbe.duration import Duration
 from remains import (
-    Biddable,
     Conference,
-    Event,
     visible_bid_query,
 )
+from biddable import Biddable
+from event import Event
 from persona import Persona
 from profile import Profile
 

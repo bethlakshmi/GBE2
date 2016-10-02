@@ -12,10 +12,11 @@ from gbetext import (
 )
 from profile import Profile
 from remains import (
-    Biddable,
-    VolunteerWindow,
     visible_bid_query,
+    VolunteerWindow,
 )
+from biddable import Biddable
+
 
 class Volunteer(Biddable):
     '''
