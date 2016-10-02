@@ -1,14 +1,15 @@
 from django.db.models import (
-    Model,
+    BooleanField,
     CharField,
     EmailField,
-    TextField,
-    BooleanField,
     ForeignKey,
+    Model,
+    TextField,
 )
 
 from gbetext import class_proposal_choices
 from remains import Conference
+
 
 class ClassProposal(Model):
     '''
@@ -21,8 +22,8 @@ class ClassProposal(Model):
     email = EmailField(blank=True)
     proposal = TextField()
     type = CharField(max_length=20,
-                            choices=class_proposal_choices,
-                            default='Class')
+                     choices=class_proposal_choices,
+                     default='Class')
     display = BooleanField(default=False)
     conference = ForeignKey(
         Conference,

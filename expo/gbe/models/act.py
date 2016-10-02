@@ -1,10 +1,10 @@
 import pytz
 from django.db.models import(
+    CharField,
     ForeignKey,
     OneToOneField,
-    CharField,
-    URLField,
     TextField,
+    URLField,
 )
 from django.core.exceptions import (
     NON_FIELD_ERRORS,
@@ -22,8 +22,8 @@ from gbetext import (
     video_options,
 )
 from scheduler.models import ActItem
-
 from performer import Performer
+
 
 class Act (Biddable, ActItem):
     '''

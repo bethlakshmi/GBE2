@@ -5,8 +5,8 @@ from django.template import (
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db.models import (
-    OneToOneField,
     CharField,
+    OneToOneField,
     TextField,
 )
 from django.core.validators import RegexValidator
@@ -16,19 +16,20 @@ from django.contrib.auth.models import User
 from remains import Conference
 from scheduler.models import WorkerItem
 from gbetext import (
-    states_options,
-    phone_number_format_error,
     best_time_to_call_options,
+    phone_number_format_error,
     profile_alerts,
-
+    states_options,
 )
 from scheduler.functions import get_roles_from_scheduler
+
 
 def mail_to_user(subject, message, user):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
+
 
 class Profile(WorkerItem):
     '''
@@ -50,20 +51,20 @@ class Profile(WorkerItem):
     address2 = CharField(max_length=128, blank=True)
     city = CharField(max_length=128, blank=True)
     state = CharField(max_length=2,
-                             choices=states_options,
-                             blank=True)
+                      choices=states_options,
+                      blank=True)
     zip_code = CharField(max_length=10, blank=True)  # allow for ext ZIP
     country = CharField(max_length=128, blank=True)
     # must have = a way to contact teachers & performers on site
     # want to have = any other primary phone that may be preferred offsite
     phone = CharField(max_length=50,
-                             validators=[RegexValidator(
-                                 regex=phone_regex,
-                                 message=phone_number_format_error)])
+                      validators=[RegexValidator(
+                          regex=phone_regex,
+                          message=phone_number_format_error)])
     best_time = CharField(max_length=50,
-                                 choices=best_time_to_call_options,
-                                 default='Any',
-                                 blank=True)
+                          choices=best_time_to_call_options,
+                          default='Any',
+                          blank=True)
     how_heard = TextField(blank=True)
 
     @property

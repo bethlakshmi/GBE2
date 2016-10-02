@@ -1,12 +1,13 @@
 from django.db.models import (
+    BooleanField,
+    CharField,
     Model,
     OneToOneField,
-    CharField,
     TextField,
-    BooleanField,
 )
 from gbetext import yes_no_maybe_options
 from profile import Profile
+
 
 class ProfilePreferences(Model):
     '''
@@ -14,10 +15,10 @@ class ProfilePreferences(Model):
     Expo and with the site.
     '''
     profile = OneToOneField(Profile,
-                                   related_name='preferences')
+                            related_name='preferences')
     in_hotel = CharField(max_length=10,
-                                blank=True,
-                                choices=yes_no_maybe_options)
+                         blank=True,
+                         choices=yes_no_maybe_options)
     inform_about = TextField(blank=True)
     show_hotel_infobox = BooleanField(default=True)
 

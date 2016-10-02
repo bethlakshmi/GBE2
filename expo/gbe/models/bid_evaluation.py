@@ -1,13 +1,13 @@
 from django.db.models import (
-    Model,
-    IntegerField,
     ForeignKey,
+    IntegerField,
+    Model,
     TextField,
 )
 from biddable import Biddable
 from profile import Profile
-
 from gbetext import vote_options
+
 
 class BidEvaluation(Model):
     '''

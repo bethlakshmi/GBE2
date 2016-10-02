@@ -24,7 +24,7 @@ class Volunteer(Biddable):
     '''
     profile = ForeignKey(Profile, related_name="volunteering")
     number_shifts = IntegerField(choices=volunteer_shift_options,
-                                        default=1)
+                                 default=1)
     availability = TextField(blank=True)
     unavailability = TextField(blank=True)
     opt_outs = TextField(blank=True)

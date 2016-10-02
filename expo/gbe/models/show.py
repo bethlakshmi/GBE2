@@ -7,8 +7,8 @@ from django.conf import settings
 from event import Event
 from persona import Persona
 from act import Act
-
 from gbetext import cue_options
+
 
 class Show (Event):
     '''
@@ -19,9 +19,9 @@ class Show (Event):
     acts = ManyToManyField(Act, related_name="appearing_in", blank=True)
     mc = ManyToManyField(Persona, related_name="mc_for", blank=True)
     cue_sheet = CharField(max_length=128,
-                                 choices=cue_options,
-                                 blank=False,
-                                 default="Theater")
+                          choices=cue_options,
+                          blank=False,
+                          default="Theater")
     type = "Show"
 
     def __str__(self):

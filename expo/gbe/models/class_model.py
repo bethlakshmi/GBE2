@@ -3,10 +3,10 @@ from itertools import chain
 from django.db.models import (
     CharField,
     ForeignKey,
-    ManyToManyField,
     IntegerField,
-    TextField,
+    ManyToManyField,
     Q,
+    TextField,
 )
 from gbe.duration import Duration
 from remains import (
@@ -20,12 +20,13 @@ from profile import Profile
 
 from gbetext import (
     acceptance_states,
-    class_options,
     class_length_options,
+    class_options,
     space_options,
     yesno_options,
 )
 from gbe_forms_text import calendar_types
+
 
 class Class(Biddable, Event):
     '''

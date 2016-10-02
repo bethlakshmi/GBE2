@@ -14,7 +14,9 @@ from django.db.models import (
     TimeField,
 )
 
-from gbetext import *
+from gbetext import (
+    conference_statuses,
+)
 from gbe_forms_text import *
 from gbe.expomodelfields import DurationField
 
@@ -27,8 +29,8 @@ class Conference(Model):
     conference_name = CharField(max_length=128)
     conference_slug = SlugField()
     status = CharField(choices=conference_statuses,
-                              max_length=50,
-                              default='upcoming')
+                       max_length=50,
+                       default='upcoming')
     accepting_bids = BooleanField(default=False)
 
     def __unicode__(self):
@@ -71,6 +73,7 @@ class ConferenceDay(Model):
         verbose_name = "Conference Day"
         verbose_name_plural = "Conference Days"
         app_label = "gbe"
+
 
 class VolunteerWindow(Model):
     start = TimeField(blank=True)

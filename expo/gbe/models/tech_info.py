@@ -10,10 +10,14 @@ from django.db.models import (
     TextField,
 )
 
-from gbetext import *
+from gbetext import (
+    cyc_color_options,
+    offon_options,
+    follow_spot_options,
+    stage_lighting_options,
+)
 from gbe_forms_text import *
 from gbe.expomodelfields import DurationField
-
 
 
 ###################
@@ -24,6 +28,7 @@ from gbe.expomodelfields import DurationField
 # LightingInfo   #
 # CueInfo        #
 ###################
+
 
 class AudioInfo(Model):
     '''
@@ -188,6 +193,7 @@ class StageInfo(Model):
         verbose_name_plural = 'stage info'
         app_label = "gbe"
 
+
 class TechInfo(Model):
     '''
     Gathers up technical info about an act in a show.
@@ -237,6 +243,7 @@ class TechInfo(Model):
         verbose_name_plural = 'tech info'
         app_label = "gbe"
 
+
 class CueInfo(Model):
     '''
     Information about the lighting needs of a particular Act as they
@@ -247,22 +254,22 @@ class CueInfo(Model):
     cue_off_of = TextField()
 
     follow_spot = CharField(max_length=25,
-                                   choices=follow_spot_options,
-                                   default=follow_spot_options[0])
+                            choices=follow_spot_options,
+                            default=follow_spot_options[0])
 
     center_spot = CharField(max_length=20,
-                                   choices=offon_options, default="OFF")
+                            choices=offon_options, default="OFF")
 
     backlight = CharField(max_length=20,
-                                 choices=offon_options, default="OFF")
+                          choices=offon_options, default="OFF")
 
     cyc_color = CharField(max_length=25,
-                                 choices=cyc_color_options,
-                                 default=cyc_color_options[0])
+                          choices=cyc_color_options,
+                          default=cyc_color_options[0])
 
     wash = CharField(max_length=25,
-                            choices=stage_lighting_options,
-                            default=stage_lighting_options[0])
+                     choices=stage_lighting_options,
+                     default=stage_lighting_options[0])
     sound_note = TextField(blank=True)
     techinfo = ForeignKey(TechInfo)
 

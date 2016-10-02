@@ -8,17 +8,18 @@ from event import Event
 from available_interest import AvailableInterest
 from gbetext import event_options
 
+
 class GenericEvent (Event):
     '''
     Any event except for a show or a class
     '''
     type = CharField(max_length=128,
-                            choices=event_options,
-                            blank=False,
-                            default="Special")
+                     choices=event_options,
+                     blank=False,
+                     default="Special")
     volunteer_type = ForeignKey(AvailableInterest,
-                                       blank=True,
-                                       null=True)
+                                blank=True,
+                                null=True)
 
     def __str__(self):
         return self.title

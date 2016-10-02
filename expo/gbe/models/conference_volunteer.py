@@ -9,6 +9,7 @@ from persona import Persona
 from gbe_forms_text import conference_participation_types
 from class_proposal import ClassProposal
 
+
 class ConferenceVolunteer(Model):
     '''
     An individual wishing to participate in the conference as a volunteer

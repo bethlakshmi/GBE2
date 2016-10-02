@@ -1,14 +1,15 @@
 from django.db.models import (
-    Model,
-    CharField,
-    TextField,
     BooleanField,
-    IntegerField,
+    CharField,
     DateTimeField,
     ForeignKey,
+    IntegerField,
+    Model,
+    TextField,
 )
 from remains import Conference
 from gbetext import acceptance_states
+
 
 class Biddable(Model):
     '''
@@ -19,8 +20,8 @@ class Biddable(Model):
     description = TextField(blank=True)
     submitted = BooleanField(default=False)
     accepted = IntegerField(choices=acceptance_states,
-                                   default=0,
-                                   blank=False)
+                            default=0,
+                            blank=False)
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now=True)
     conference = ForeignKey(

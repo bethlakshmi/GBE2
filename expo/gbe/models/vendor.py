@@ -1,10 +1,10 @@
 import pytz
 from django.db.models import (
-    ForeignKey,
-    URLField,
-    FileField,
-    TextField,
     BooleanField,
+    FileField,
+    ForeignKey,
+    TextField,
+    URLField,
 )
 from profile import Profile
 from remains import visible_bid_query
@@ -13,6 +13,7 @@ from gbetext import (
     acceptance_states,
     boolean_options,
 )
+
 
 class Vendor(Biddable):
     '''
@@ -26,8 +27,8 @@ class Vendor(Biddable):
     publish_physical_address = BooleanField(default=False)
     logo = FileField(upload_to="uploads/images", blank=True)
     want_help = BooleanField(choices=boolean_options,
-                                    blank=True,
-                                    default=False)
+                             blank=True,
+                             default=False)
     help_description = TextField(blank=True)
     help_times = TextField(blank=True)
 

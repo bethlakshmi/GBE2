@@ -11,6 +11,7 @@ from django.db.models import (
 from profile import Profile
 from scheduler.models import WorkerItem
 
+
 class Performer (WorkerItem):
     '''
     Abstract base class for any solo, group, or troupe - anything that
@@ -26,13 +27,13 @@ class Performer (WorkerItem):
     objects = InheritanceManager()
     contact = ForeignKey(Profile, related_name='contact')
     name = CharField(max_length=100,     # How this Performer is listed
-                            unique=True)        # in a playbill.
+                     unique=True)        # in a playbill.
     homepage = URLField(blank=True)
     bio = TextField()
     experience = PositiveIntegerField()       # in years
     awards = TextField(blank=True)
     promo_image = FileField(upload_to="uploads/images",
-                                   blank=True)
+                            blank=True)
     festivals = TextField(blank=True)     # placeholder only
 
     # looks dead -jpk

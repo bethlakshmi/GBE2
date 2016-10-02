@@ -2,6 +2,7 @@ from django.db.models import ManyToManyField
 from persona import Persona
 from performer import Performer
 
+
 class Troupe(Performer):
     '''
     Two or more performers working together as an established entity. A troupe

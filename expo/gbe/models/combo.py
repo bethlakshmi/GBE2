@@ -3,6 +3,7 @@ from performer import Performer
 from persona import Persona
 from profile import Profile
 
+
 class Combo (Performer):
     '''
     Two or more performers (Personae), working together, on a temporary

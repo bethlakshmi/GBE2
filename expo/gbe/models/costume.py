@@ -22,6 +22,7 @@ from gbetext import (
     boolean_options,
 )
 
+
 class Costume(Biddable):
     '''
     An offer to display a costume at the Expo's costume display
@@ -37,9 +38,9 @@ class Costume(Biddable):
     debut_date = CharField(max_length=128, blank=True, null=True)
     active_use = BooleanField(choices=boolean_options, default=True)
     pieces = PositiveIntegerField(blank=True,
-                                         null=True,
-                                         validators=[MinValueValidator(1),
-                                                     MaxValueValidator(20)])
+                                  null=True,
+                                  validators=[MinValueValidator(1),
+                                              MaxValueValidator(20)])
     pasties = BooleanField(choices=boolean_options, default=False)
     dress_size = PositiveIntegerField(
         blank=True,

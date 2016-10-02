@@ -2,6 +2,7 @@ from django.db.models import ForeignKey
 from profile import Profile
 from performer import Performer
 
+
 class Persona (Performer):
     '''
     The public persona of one person who performs or teaches.

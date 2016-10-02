@@ -10,6 +10,7 @@ from gbe.expomodelfields import DurationField
 from scheduler.models import EventItem
 from remains import Conference
 
+
 class Event(EventItem):
     '''
     Event is the base class for any scheduled happening at the expo.
