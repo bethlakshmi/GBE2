@@ -12,9 +12,9 @@ from django.core.exceptions import (
 )
 from remains import (
     Conference,
-    TechInfo,
     visible_bid_query,
 )
+from tech_info import TechInfo
 from biddable import Biddable
 from gbetext import (
     acceptance_states,

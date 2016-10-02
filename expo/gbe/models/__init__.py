@@ -2,11 +2,6 @@ from user_message import UserMessage
 from available_interest import AvailableInterest
 from remains import (
     Conference,
-    AudioInfo,
-    TechInfo,
-    CueInfo,
-    LightingInfo,
-    StageInfo,
     ConferenceDay,
     VolunteerWindow,
 )
@@ -31,3 +26,10 @@ from conference_volunteer import ConferenceVolunteer
 from profile_preferences import ProfilePreferences
 from class_proposal import ClassProposal
 from room import Room
+from tech_info import (
+    AudioInfo,
+    TechInfo,
+    CueInfo,
+    LightingInfo,
+    StageInfo,
+)
