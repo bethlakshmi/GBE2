@@ -89,10 +89,14 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
+    'cms',
     'mptt',  # utilities for implementing a tree
+    'menus',
     'sekizai',  # for javascript and css management
+    'djangocms_admin_style',
     'django.contrib.messages',
     'treebeard',
+    'djangocms_text_ckeditor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -104,7 +108,21 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-    #    'aldryn_bootstrap3',
+    'image_gallery',  # I forked this and extended a little.
+    'cmsplugin_nivoslider',
+    'djangocms-placeholder-attr',
+    'djangocms_style',
+    'djangocms_column',
+    'djangocms_snippet',
+    'djangocms_flash',
+    'djangocms_googlemap',
+    'djangocms_inherit',
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_link',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
     'ticketing',
@@ -124,6 +142,7 @@ THUMBNAIL_HIGH_RESOLUTION = True
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'easy_thumbnails.processors.autocrop',
+    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     # 'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
@@ -143,16 +162,43 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+    'cms.middleware.language.LanguageCookieMiddleware',
     # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
+TEXT_SAVE_IMAGE_FUNCTION = \
+    'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
+# all django-cms
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.debug',  # used in tutorial
+    'django.core.context_processors.request',
+    'django.core.context_processors.media',
+    'django.core.context_processors.csrf',   # tutorial
+    'django.core.context_processors.tz',     # tutorial
+    'sekizai.context_processors.sekizai',
+    'django.core.context_processors.static',
+    'cms.context_processors.cms_settings',
+)
 
 MIGRATION_MODULES = {
 
     # Add also the following modules if you're using these plugins:
+    'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
+    'cmsplugin_filer_folder': 'cmsplugin_filer_folder.migrations_django',
+    'cmsplugin_filer_link': 'cmsplugin_filer_link.migrations_django',
+    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
+    'cmsplugin_filer_teaser': 'cmsplugin_filer_teaser.migrations_django',
+    'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
+
 }
 
 SOUTH_MIGRATION_MODULES = {
