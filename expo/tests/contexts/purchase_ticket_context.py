@@ -14,6 +14,10 @@ class PurchasedTicketContext:
         self.transaction = TransactionFactory(
             ticket_item__bpt_event__badgeable=True
         )
-        self.profile = ProfileFactory(
-            user_object = self.transaction.purchaser.matched_to_user
-        )
+        if profile:
+            self.profile = profile
+            self.profile.user_object = self.transaction.purchaser.matched_to_user
+        else:
+            self.profile = ProfileFactory(
+                user_object = self.transaction.purchaser.matched_to_user
+            )
