@@ -108,9 +108,9 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-    'image_gallery',  # I forked this and extended a little.
-    'cmsplugin_nivoslider',
     'djangocms-placeholder-attr',
+    #'image_gallery',  # I forked this and extended a little.
+    'cmsplugin_nivoslider',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
@@ -201,9 +201,11 @@ MIGRATION_MODULES = {
 
 }
 
+'''
 SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
 }
+'''
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
