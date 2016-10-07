@@ -4,7 +4,8 @@ from factory import (
     DjangoModelFactory,
     SubFactory,
     RelatedFactory,
-    LazyAttribute
+    LazyAttribute,
+    SelfAttribute
 )
 import gbe.models as conf
 from django.contrib.auth.models import User
@@ -381,3 +382,26 @@ class UserMessageFactory(DjangoModelFactory):
     code = Sequence(lambda x: "CODE_%d" % x)
     summary = Sequence(lambda x: "Message Summary #%d" % x)
     description = Sequence(lambda x: "Description #%d" % x)
+
+
+class ShowVoteFactory(DjangoModelFactory):
+    show = SubFactory(ShowFactory)
+    vote = 3
+
+    class Meta:
+        model = conf.ShowVote
+
+
+class ActBidEvaluationFactory(DjangoModelFactory):
+    evaluator = SubFactory(ProfileFactory)
+    bid = SubFactory(ActFactory)
+    primary_vote = SubFactory(
+        ShowVoteFactory,
+        show__conference=SelfAttribute('...bid.conference'))
+    secondary_vote = SubFactory(
+        ShowVoteFactory,
+        show__conference=SelfAttribute('...bid.conference'))
+    notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
+
+    class Meta:
+        model = conf.ActBidEvaluation
