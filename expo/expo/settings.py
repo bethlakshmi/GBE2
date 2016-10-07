@@ -109,7 +109,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     'djangocms-placeholder-attr',
-    #'image_gallery',  # I forked this and extended a little.
+    'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
     'djangocms_style',
     'djangocms_column',

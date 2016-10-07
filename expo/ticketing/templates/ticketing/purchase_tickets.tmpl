@@ -1,6 +1,6 @@
 {% extends "base.tmpl" %}
 {% load ticketing_filters %}
-{% load staticfiles  %}
+{% load staticfiles cms_tags %}
 
 {% block title %}
   Great Burlesque Exposition
@@ -49,6 +49,7 @@ please read the descriptions carefully.
 {% endfor %}
 
 <tr><td>
+{% static_placeholder "separator" %}
 </td>
 </tr>
 </table>
