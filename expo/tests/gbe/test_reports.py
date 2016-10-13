@@ -47,6 +47,7 @@ from tests.contexts import (
     ActTechInfoContext,
     ClassContext,
     VolunteerContext,
+    PurchasedTicketContext,
 )
 import ticketing.models as tix
 
@@ -214,7 +215,9 @@ class TestReports(TestCase):
         '''env_stuff view should load with no conf choice
         '''
         profile = ProfileFactory()
-        transaction = self.create_transaction()
+        # transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        transaction = ticket_context.transaction
         request = self.factory.get('reports/stuffing')
         login_as(profile, self)
         request.user = profile.user_object
@@ -238,8 +241,9 @@ class TestReports(TestCase):
     def test_env_stuff_succeed_w_conf(self):
         '''env_stuff view should load for a selected conference slug
         '''
-        profile = ProfileFactory()
-        transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        profile = ticket_context.profile
+        transaction = ticket_context.transaction #self.create_transaction()
         request = self.factory.get(
             'reports/stuffing/%s/'
             % transaction.ticket_item.bpt_event.conference.conference_slug)
