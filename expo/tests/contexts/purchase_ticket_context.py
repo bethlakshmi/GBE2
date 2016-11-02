@@ -16,8 +16,13 @@ class PurchasedTicketContext:
         )
         if profile:
             self.profile = profile
-            self.profile.user_object = self.transaction.purchaser.matched_to_user
+            self.profile.user_object = \
+                self.transaction.purchaser.matched_to_user
         else:
             self.profile = ProfileFactory(
-                user_object = self.transaction.purchaser.matched_to_user
+                user_object=self.transaction.purchaser.matched_to_user
             )
+        if conference:
+            self.conference = conference
+        else:
+            self.conference = ConferenceFactory()
