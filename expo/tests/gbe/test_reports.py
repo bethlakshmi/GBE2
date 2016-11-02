@@ -82,17 +82,6 @@ class TestReports(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
 
-    # def create_transaction(self):
-    #     transaction = TransactionFactory()
-    #     transaction.ticket_item.bpt_event.badgeable = True
-    #     transaction.save()
-    #     transaction.ticket_item.bpt_event.save()
-    #     profile_buyer = ProfileFactory()
-    #     profile_buyer.user_object = transaction.purchaser.matched_to_user
-    #     profile_buyer.save()
-    #
-    #     return transaction
-
     def test_list_reports_by_conference(self):
         Conference.objects.all().delete()
         conf = ConferenceFactory()
