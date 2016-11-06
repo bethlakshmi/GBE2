@@ -144,8 +144,8 @@ def init_time_blocks(events,
     events = sorted(events, key=lambda event: event['stop_time'])
     if strip_empty_blocks in ('both', 'stop'):
         cal_stop = min(cal_stop, events[-1]['stop_time'])
-    schedule_duration = timedelta_to_duration(cal_stop-cal_start)
-    blocks_count = int(math.ceil(schedule_duration/block_size))
+    schedule_duration = timedelta_to_duration(cal_stop - cal_start)
+    blocks_count = int(math.ceil(schedule_duration / block_size))
     block_labels = [(cal_start + block_size * b).strftime(time_format)
                     for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
@@ -178,7 +178,7 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
     event['rowspan'] = int(
-        math.ceil(working_stop_time / block_size))-event['startblock']
+        math.ceil(working_stop_time / block_size)) - event['startblock']
 
 
 def overlap_check(events):
@@ -226,7 +226,8 @@ def overlap_clear(events):
         for event in location_events[1:]:
             if event['start_time'] < prev_stop:
                 if event['location'] == prev_event['location']:
-                    event['location'] = event['location']+overlap_location_text
+                    event['location'] = (event['location'] +
+                                         overlap_location_text)
             prev_stop = event['stop_time']
             prev_event = event
     return events
@@ -253,7 +254,7 @@ def add_to_table(event, table, block_labels):
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'],
-              block_labels[event['startblock']+i]
+              block_labels[event['startblock'] + i]
               ] = '&nbsp;'
 
 
@@ -267,7 +268,7 @@ def html_prep(event):
     html = '<li><a href=\'%s\'>%s</a></li>' % (event['link'], event['title'])
     if 'short_desc' in event.keys():
         #  short_desc is a short description, which is optional
-        html = html+event['short_desc']
+        html = html + event['short_desc']
     event['html'] = html
 
 
@@ -352,7 +353,7 @@ def event_info(confitem_type='Show',
     from scheduler.models import Location
     if not conference:
         conference = conf.Conference.current_conf()
-    confitem_class = eval('conf.'+confitem_type)
+    confitem_class = eval('conf.%s' % confitem_type)
     confitems_list = confitem_class.objects.filter(conference=conference)
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
@@ -441,9 +442,9 @@ def get_events_and_windows(conference):
     events = Event.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__conference=conference
-        ).exclude(
-            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
-                'starttime')
+    ).exclude(
+        eventitem__event__genericevent__type='Rehearsal Slot').order_by(
+            'starttime')
     conf_windows = conference.windows()
     volunteer_event_windows = []
 

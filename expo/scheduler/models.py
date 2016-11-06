@@ -548,8 +548,6 @@ class EventItem (models.Model):
         self.visible = False
         self.save()
 
-
-
     @property
     def payload(self):
         return self.sched_payload

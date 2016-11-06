@@ -1,3 +1,9 @@
+import os
+from datetime import (
+    datetime,
+    timedelta
+)
+
 from django.conf import settings
 from django.db.models import (
     BooleanField,
@@ -18,8 +24,6 @@ from gbetext import (
     conference_statuses,
 )
 from gbe_forms_text import *
-from gbe.expomodelfields import DurationField
-
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))

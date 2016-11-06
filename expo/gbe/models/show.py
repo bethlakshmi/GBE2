@@ -17,7 +17,6 @@ class Show (Event):
     and scheduling through scheduler  (post 2015)
     '''
     acts = ManyToManyField(Act, related_name="appearing_in", blank=True)
-    mc = ManyToManyField(Persona, related_name="mc_for", blank=True)
     cue_sheet = CharField(max_length=128,
                           choices=cue_options,
                           blank=False,

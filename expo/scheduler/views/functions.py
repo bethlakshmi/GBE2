@@ -106,6 +106,7 @@ def get_events_display_info(event_type='Class', time_format=None):
         eventslist.append(eventinfo)
     return eventslist
 
+
 def set_single_role(event, data, roles=None):
     if not roles:
         roles = [('teacher', 'Teacher'),

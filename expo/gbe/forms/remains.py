@@ -40,7 +40,7 @@ from gbetext import (
     boolean_options,
     new_event_options,
 )
-from expoformfields import (
+from gbe.expoformfields import (
     DurationFormField,
     FriendlyURLInput,
 )
@@ -59,13 +59,13 @@ class ParticipantForm(forms.ModelForm):
     error_css_class = 'error'
     email = forms.EmailField(required=True)
     first_name = forms.CharField(
-                        required=True,
-                        label=participant_labels['legal_first_name'],
-                        help_text=participant_form_help_texts['legal_name'])
+        required=True,
+        label=participant_labels['legal_first_name'],
+        help_text=participant_form_help_texts['legal_name'])
     last_name = forms.CharField(
-                        required=True,
-                        label=participant_labels['legal_last_name'],
-                        help_text=participant_form_help_texts['legal_name'])
+        required=True,
+        label=participant_labels['legal_last_name'],
+        help_text=participant_form_help_texts['legal_name'])
     phone = forms.CharField(required=True)
 
     how_heard = forms.MultipleChoiceField(
@@ -302,17 +302,6 @@ class ActEditDraftForm(forms.ModelForm):
         required = Act().bid_draft_fields
         labels = act_bid_labels
         help_texts = act_help_texts
-
-
-class BidEvaluationForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = BidEvaluation
-        fields = '__all__'
-        widgets = {'evaluator': forms.HiddenInput(),
-                   'bid': forms.HiddenInput()}
 
 
 class BidStateChangeForm(forms.ModelForm):

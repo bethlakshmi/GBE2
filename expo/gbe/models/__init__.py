@@ -1,12 +1,20 @@
-from user_message import UserMessage
-from available_interest import AvailableInterest
+from room import Room
 from remains import (
     Conference,
     ConferenceDay,
     VolunteerWindow,
 )
+
 from show import Show
+from available_interest import AvailableInterest
+from class_proposal import ClassProposal
+from conference_volunteer import ConferenceVolunteer
+from generic_event import GenericEvent
+from performer_festivals import PerformerFestivals
+from profile_preferences import ProfilePreferences
+from user_message import UserMessage
 from volunteer_interest import VolunteerInterest
+
 from profile import Profile
 from performer import Performer
 from persona import Persona
@@ -33,3 +41,6 @@ from tech_info import (
     LightingInfo,
     StageInfo,
 )
+from bid_evaluation import BidEvaluation
+from show_vote import ShowVote
+from act_bid_evaluation import ActBidEvaluation
