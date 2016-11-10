@@ -35,7 +35,6 @@ from gbetext import *
 from gbe_forms_text import *
 from gbe.expomodelfields import DurationField
 from scheduler.functions import (
-    set_time_format,
     get_roles_from_scheduler
 )
 from model_utils.managers import InheritanceManager

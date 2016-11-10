@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from expo.gbe_logging import log_func
 from gbe.functions import validate_perms
@@ -8,9 +7,11 @@ from scheduler.models import (
     Event as sEvent,
     ResourceAllocation,
 )
-from scheduler.functions import (
-    set_time_format,
-)
+from expo.settings import (
+    DATETIME_FORMAT,
+    DAY_FORMAT,
+    )
+from django.utils.formats import date_format
 from gbe.views import BidChangeStateView
 from gbe.models import Act
 
@@ -45,7 +46,6 @@ def ActChangeStateView(request, bid_id):
         if act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
-            allocation_format = set_time_format(days=2)
             show = get_object_or_404(sEvent,
                                      eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
@@ -60,7 +60,7 @@ def ActChangeStateView(request, bid_id):
                         "%s is booked for - %s - %s" % (
                             str(worker),
                             str(problem),
-                            problem.starttime.strftime(allocation_format)
+                            date_format(problem.starttime, "DATETIME_FORMAT")
                         )
                     )
 

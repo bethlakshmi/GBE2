@@ -259,6 +259,38 @@ USE_L10N = True
 
 USE_TZ = True
 
+# TIME_FORMAT is often used for ending times of events, or when you
+# do not need to give the date, such as in calendar grids
+try:
+    TIME_FORMAT
+except:
+    TIME_FORMAT = "%-I:%M %p"
+
+try:
+    DATE_FORMAT
+except:
+    DATE_FORMAT = "%a, %b %-d"
+try:
+    DATETIME_FORMAT
+except:
+    # Default DATETIME_FORMAT - see 'man date' for format options
+    # DATETIME_FORMAT = "%I:%M %p"
+    DATETIME_FORMAT = DATE_FORMAT+" "+TIME_FORMAT
+
+try:
+    SHORT_DATETIME_FORMAT
+except:
+    SHORT_DATETIME_FORMAT = "%F"
+
+try:
+    DURATION_FORMAT
+except:
+    DURATION_FORMAT = "%-I:%M"
+
+try:
+    DAY_FORMAT
+except:
+    DAY_FORMAT = "%A"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -282,8 +314,6 @@ except:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
-
-DATETIME_FORMAT = "%I:%M %p"
 
 # new for django-cms.  Don't know why yet.
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
