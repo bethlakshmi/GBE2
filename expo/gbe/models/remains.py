@@ -3,6 +3,11 @@ from datetime import (
     datetime,
     timedelta
 )
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
+from django.utils.formats import date_format
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -90,7 +95,7 @@ class ConferenceDay(models.Model):
     conference = models.ForeignKey(Conference)
 
     def __unicode__(self):
-        return self.day.strftime("%a, %b %d")
+        return date_format(self.day, "DATE_FORMAT")
 
     class Meta:
         ordering = ['day']
@@ -106,8 +111,8 @@ class VolunteerWindow(models.Model):
 
     def __unicode__(self):
         return "%s, %s to %s" % (str(self.day),
-                                 self.start.strftime("%I:%M %p"),
-                                 self.end.strftime("%I:%M %p"))
+                                 date_format(self.start, "TIME_FORMAT"),
+                                 date_format(self.end, "TIME_FORMAT"))
 
     class Meta:
         ordering = ['day', 'start']
@@ -1547,8 +1552,8 @@ class Volunteer(Biddable):
         commitments = ''
 
         for event in self.profile.get_schedule(self.conference):
-            start_time = event.start_time.strftime("%a, %b %d, %-I:%M %p")
-            end_time = event.end_time.strftime("%-I:%M %p")
+            start_time = date_format(event.start_time, "DATETIME_FORMAT")
+            end_time = date_format(event.end_time, "TIME_FORMAT")
 
             commitment_string = "%s - %s to %s, \n " % (
                 str(event),
