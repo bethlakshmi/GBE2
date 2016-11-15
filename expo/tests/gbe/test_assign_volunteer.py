@@ -5,6 +5,12 @@ from django.test import Client
 from django.core.exceptions import PermissionDenied
 from datetime import datetime, date, time
 from django.core.urlresolvers import reverse
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+    SHORT_DATETIME_FORMAT,
+)
+from django.utils.formats import date_format
 import pytz
 import re
 from tests.factories.gbe_factories import (
@@ -133,17 +139,20 @@ class TestAssignVolunteer(TestCase):
 
         # start and end times
         nt.assert_in(
-            data['current_sched'].start_time.strftime("%a, %-I %p"),
+            date_format(data['current_sched'].start_time, \
+                    "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="start time for current_sched didn't show up")
         nt.assert_in(
-            data['current_sched'].end_time.strftime("%a, %-I %p"),
+            date_format(data['current_sched'].end_time, \
+                    "TIME_FORMAT"),
             response.content,
             msg="end time for current_sched didn't show up")
 
         # check for volunteer windows
         nt.assert_is_not_none(
-            re.search("Fri,\s+10 AM -\s+2 PM", response.content),
+            re.search(date_format(data['current_sched'].start_time, \
+                    "SHORT_DATETIME_FORMAT"), response.content),
             msg="current_window shows with current_sched is not found")
 
         nt.assert_equal(
@@ -195,7 +204,7 @@ class TestAssignVolunteer(TestCase):
             msg="Event Title for rehearsal should not show up")
 
         nt.assert_not_in(
-            rehearsal_slot.starttime.strftime("%a, %-I %p"),
+            date_format(rehearsal_slot.starttime, "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="end time for rehearsal shouldn't show up")
 
@@ -228,7 +237,7 @@ class TestAssignVolunteer(TestCase):
             response.content,
             msg="Event Title for past_opportunity should not show up")
         nt.assert_not_in(
-            past_opp.starttime.strftime("%a, %-I %p"),
+            date_format(past_opp.starttime, "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="start time for past_sched shouldn't show up")
 
@@ -251,11 +260,11 @@ class TestAssignVolunteer(TestCase):
         response = self.client.get(url)
 
         nt.assert_in(
-            booked_sched.start_time.strftime("%a, %-I %p"),
+            date_format(booked_sched.start_time, "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="start time for booked_sched didn't show up")
         nt.assert_in(
-            booked_sched.end_time.strftime("%a, %-I %p"),
+            date_format(booked_sched.end_time, "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="end time for booked_sched didn't show up")
 
@@ -313,16 +322,17 @@ class TestAssignVolunteer(TestCase):
             msg="There should be 2 schedule items for current_sched.eventitem")
 
         nt.assert_in(
-            unavail_sched.start_time.strftime("%a, %-I %p"),
+            date_format(unavail_sched.start_time, "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="start time for unavail_sched didn't show up")
         nt.assert_in(
-            unavail_sched.end_time.strftime("%a, %-I %p"),
+            date_format(unavail_sched.end_time, "TIME_FORMAT"),
             response.content,
             msg="end time for unavail_sched didn't show up")
 
         nt.assert_is_not_none(
-            re.search("Sun,\s+11 AM -\s+3 PM", response.content),
+            re.search(date_format(unavail_sched.start_time, \
+                    "SHORT_DATETIME_FORMAT"), response.content),
             msg="unavail_window shows with unavail_sched is not found")
 
         nt.assert_equal(

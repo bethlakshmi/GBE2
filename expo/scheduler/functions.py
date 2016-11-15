@@ -60,7 +60,7 @@ monday = datetime(2015, 2, 23)
 
 def init_time_blocks(events,
                      block_size,
-                     time_format = DATETIME_FORMAT,
+                     time_format = "DATETIME_FORMAT",
                      cal_start=None,
                      cal_stop=None,
                      trim_to_block_size=True,
@@ -111,7 +111,7 @@ def init_time_blocks(events,
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = int(math.ceil(schedule_duration/block_size))
     block_labels = [date_format((cal_start + block_size * b), \
-                                "time_format")
+                                time_format)
                     for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
 
@@ -365,7 +365,7 @@ def select_day(days, day_name):
     Behavior is undefined if conference has more than one instance of a
     given day of week. This is a bug.
     '''
-    return {d.day.strftime("%A"): d for d in days}.get(day_name, None)
+    return {date_format(d.day, "DAY_FORMAT"): d for d in days}.get(day_name, None)
 
 
 def date_to_datetime(the_date):

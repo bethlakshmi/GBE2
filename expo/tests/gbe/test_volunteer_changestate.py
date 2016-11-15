@@ -17,7 +17,12 @@ from django.core.exceptions import PermissionDenied
 from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
-
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+    DATE_FORMAT,
+)
+from django.utils.formats import date_format
 
 class TestVolunteerChangestate(TestCase):
     '''Tests for volunteer_changestate view'''

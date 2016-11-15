@@ -21,6 +21,11 @@ from tests.functions.gbe_functions import (
 )
 from scheduler.models import Event as sEvent
 from datetime import datetime, date, time
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
+from django.utils.formats import date_format
 import pytz
 from scheduler.models import (
     Worker,
@@ -153,15 +158,15 @@ class TestReviewVolunteerList(TestCase):
             msg="The commitment %s is not showing up" % (
                 str(current_opportunity)))
         nt.assert_in(
-            booked_sched.start_time.strftime("%a, %b %d, %-I:%M %p"),
+            date_format(booked_sched.start_time, "DATETIME_FORMAT"),
             response.content,
             msg="start time for commitment (%s) didn't show up" % (
-                booked_sched.start_time.strftime("%a, %b %d, %-I:%M %p")))
+                date_format(booked_sched.start_time, "DATETIME_FORMAT")))
         nt.assert_in(
-            booked_sched.end_time.strftime("%-I:%M %p"),
+            date_format( booked_sched.end_time, "TIME_FORMAT"),
             response.content,
             msg="end time for commitment (%s) didn't show up" % (
-                booked_sched.end_time.strftime("%-I:%M %p")))
+                date_format(booked_sched.end_time, "TIME_FORMAT")))
 
     def test_review_volunteer_has_old_commitments(self):
         ''' when a volunteer is booked in old conference, it should not show'''

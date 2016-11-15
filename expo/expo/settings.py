@@ -280,7 +280,7 @@ except:
 try:
     SHORT_DATETIME_FORMAT
 except:
-    SHORT_DATETIME_FORMAT = "%F"
+    SHORT_DATETIME_FORMAT = "%a, "+TIME_FORMAT
 
 try:
     DURATION_FORMAT
