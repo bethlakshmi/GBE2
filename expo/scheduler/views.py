@@ -59,6 +59,7 @@ from gbe.functions import (
     conference_list,
     show_potential_workers,
 )
+from django.contrib import messages
 
 
 def get_events_display_info(event_type='Class', time_format=None):
@@ -133,7 +134,7 @@ def get_events_display_info(event_type='Class', time_format=None):
                 'delete_event',
                 urlconf='scheduler.urls',
                 args=[event_type, entry['eventitem'].eventitem_id])
-            eventinfo['location'] = None
+            eventinfo['location'] = entry['confitem'].default_location
             eventinfo['datetime'] = None
             eventinfo['max_volunteer'] = None
         eventslist.append(eventinfo)
@@ -462,11 +463,15 @@ def allocate_workers(request, opp_id):
         data = form.cleaned_data
 
         if data.get('worker', None):
-            opp.allocate_worker(
+            warnings = opp.allocate_worker(
                 data['worker'].workeritem,
                 data['role'],
                 data['label'],
                 data['alloc_id'])
+            for warning in warnings:
+                messages.warning(
+                    request,
+                    warning)
             data['worker'].notify_volunteer_schedule_change()
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
@@ -675,7 +680,7 @@ def contact_volunteers(conference):
                            for i in v.volunteerinterest_set.all()]),
                  'Application',
                  'Application']
-                                )
+            )
     return header, contact_info
 
 
@@ -824,7 +829,8 @@ def add_event(request, eventitem_id, event_type='Class'):
     else:
         initial_form_info = {'duration': item.duration,
                              'description': item.sched_payload['description'],
-                             'title': item.sched_payload['title']}
+                             'title': item.sched_payload['title'],
+                             'location': item.default_location, }
         if item.__class__.__name__ == 'Class':
             initial_form_info['teacher'] = item.teacher
             initial_form_info['duration'] = Duration(item.duration.days,
