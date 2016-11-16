@@ -156,7 +156,7 @@ class TestEditEvent(TestCase):
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
         self.assertIn('<option value="12:00:00" selected="selected">' +
-                      '12:00 PM</option>',
+                      '12:00 p.m.</option>',
                       response.content)
         self.assertIn('<option value="'+str(self.context.days[0].pk) +
                       '" selected="selected">'+str(self.context.days[0]) +

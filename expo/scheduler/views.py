@@ -994,7 +994,7 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  time_format=TIME_FORMAT,
+                  time_format="TIME_FORMAT",
                   duration=Duration(minutes=60)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:

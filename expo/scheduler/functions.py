@@ -257,7 +257,7 @@ def html_headers(table, headerStart='<TH>', headerEnd='</TH>'):
 
 def table_prep(events,
                block_size,
-               time_format=DATETIME_FORMAT,
+               time_format="DATETIME_FORMAT",
                cal_start=None,
                cal_stop=None,
                col_heads=None):
