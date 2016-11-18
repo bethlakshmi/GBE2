@@ -4,14 +4,13 @@ Pillow==3.3.0
 cmsplugin-filer==1.0.1
 cmsplugin-image-gallery==0.7.2
 cmsplugin-nivoslider==0.5.9
-django-classy-tags==0.8.0
 django-cms==3.2.5
 django-model-utils==2.2
 django-mptt==0.6.1
 django-nose==1.4.1
 django-polymorphic==0.6.1
 django-polymorphic-tree==1.0.1
-django-filer==1.2.5
+django-filer==0.9.11
 django-reversion==1.10.0
 django-sekizai==0.8.2
 django-tinymce==1.5.3
@@ -19,7 +18,7 @@ django-treebeard==4.0
 djangocms-admin-style==1.2.4
 djangocms-column==1.6
 djangocms-flash==0.3.0
-djangocms-googlemap==0.5.2
+djangocms-googlemap==0.4.0
 djangocms-inherit==0.2.2
 djangocms-placeholder-attr==1.0.3
 djangocms-snippet==1.8.2
