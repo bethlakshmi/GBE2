@@ -89,11 +89,8 @@ restore_db(){
 }
 
 default_migrations(){
-    pushd `pwd`
-    cd /vagrant/expo
     /vagrant/expo/manage.py migrate --delete-ghost-migrations --noinput
     /vagrant/expo/manage.py migrate --all --noinput
-    popd
 }
 
 migrations(){
@@ -245,12 +242,11 @@ do
     elif [ $1 == '-m' ]
     then
         migration=true
-	while [ `echo ${2:0:1} | grep -c '^-'` != '0' ]
+	while [ `echo $2 | grep -c '^-'` == '0' ]
 	do
     	    migrations="$migrations $2"
 	    shift
         done
-	shift
     elif [ $1 == '-c' ]
     then
 	collectstatic=true

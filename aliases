@@ -30,5 +30,5 @@ function runcoverage() {
         exit 4
     fi
 }
-alias runserver='pushd `pwd`;cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 2>&1 | tee /vagrant/expo/logs/runserver.log; popd'
+alias runserver='cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 2>&1 | tee /vagrant/expo/logs/runserver.log'
 alias dbreset='/home/vagrant/dbreset'
