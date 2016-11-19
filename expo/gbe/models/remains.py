@@ -110,6 +110,23 @@ class VolunteerWindow(models.Model):
                                  self.start.strftime("%I:%M %p"),
                                  self.end.strftime("%I:%M %p"))
 
+    def check_conflict(self, start, end):
+        tz = pytz.utc
+        starttime = tz.localize(datetime.combine(self.day.day, self.start))
+        endtime = tz.localize(datetime.combine(self.day.day, self.end))
+        has_conflict = False
+
+        if start == starttime:
+            has_conflict = True
+        elif (start > starttime and
+              start < endtime):
+            has_conflict.append(window)
+        elif (start < starttime and
+              end > starttime):
+            has_conflict.append(window)
+            
+        return has_conflict
+
     class Meta:
         ordering = ['day', 'start']
         verbose_name = "Volunteer Window"
