@@ -110,20 +110,25 @@ class VolunteerWindow(models.Model):
                                  self.start.strftime("%I:%M %p"),
                                  self.end.strftime("%I:%M %p"))
 
+    def start_timestamp(self):
+        return pytz.utc.localize(datetime.combine(self.day.day, self.start))
+
+    def end_timestamp(self):
+        return pytz.utc.localize(datetime.combine(self.day.day, self.end))
+
     def check_conflict(self, start, end):
-        tz = pytz.utc
-        starttime = tz.localize(datetime.combine(self.day.day, self.start))
-        endtime = tz.localize(datetime.combine(self.day.day, self.end))
+        starttime = self.start_timestamp()
+        endtime = self.end_timestamp()
         has_conflict = False
 
         if start == starttime:
             has_conflict = True
         elif (start > starttime and
               start < endtime):
-            has_conflict.append(window)
+            has_conflict = True
         elif (start < starttime and
               end > starttime):
-            has_conflict.append(window)
+            has_conflict = True
             
         return has_conflict
 
@@ -1593,6 +1598,21 @@ class Volunteer(Biddable):
             visible_bid_query,
             submitted=True,
             accepted=0)
+
+    def check_available(self, start, end):
+        available = "Not Available"
+        for window in self.available_windows.all():
+            starttime = window.start_timestamp()
+            endtime = window.end_timestamp()
+            if start == starttime:
+                available = "Available"
+            elif (start > starttime and
+                  start < endtime):
+                available = "Available"
+            elif (start < starttime and
+                   end > starttime):
+                available = "Available"
+        return available
 
     class Meta:
         app_label = "gbe"

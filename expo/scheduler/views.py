@@ -57,7 +57,7 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
-    show_potential_workers,
+    eligible_volunteers,
 )
 from django.contrib import messages
 
@@ -420,6 +420,33 @@ def get_worker_allocation_forms(opp, errorcontext=None):
             'opp_id': opp.id}
 
 
+def get_volunteer_info(opp, errorcontext=None):
+    volunteer_set = []
+    for volunteer in eligible_volunteers(
+            opp.start_time,
+            opp.end_time,
+            opp.eventitem.get_conference()):
+        assign_form = WorkerAllocationForm(
+            initial={'role': 'Volunteer',
+                     'worker': volunteer.profile,
+                     'alloc_id': -1})
+        assign_form.fields['worker'].widget = forms.HiddenInput()
+        assign_form.fields['label'].widget = forms.HiddenInput()
+        volunteer_set += [{
+            'display_name': volunteer.profile.display_name,
+            'interest': rank_interest_options[
+                volunteer.volunteerinterest_set.get(
+                    interest=opp.as_subtype.volunteer_type).rank],
+            'available': volunteer.check_available(
+                opp.start_time,
+                opp.end_time),
+            'conflicts': volunteer.profile.get_conflicts(opp),
+            'id': volunteer.pk,
+            'assign_form': assign_form
+        }]
+
+    return {'eligible_volunteers': volunteer_set}
+
 @login_required
 def allocate_workers(request, opp_id):
     '''
@@ -434,6 +461,7 @@ def allocate_workers(request, opp_id):
     opp = get_object_or_404(Event, id=opp_id)
     form = WorkerAllocationForm(request.POST)
 
+
     if 'delete' in request.POST.keys():
         alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
         res = alloc.resource
@@ -446,7 +474,6 @@ def allocate_workers(request, opp_id):
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
-            form.data['alloc_id'] = -1
             return edit_event_display(
                 request,
                 opp,
@@ -941,11 +968,7 @@ def edit_event_display(request, item, errorcontext=None):
                 item.as_subtype.type == 'Volunteer'):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
-            context.update(show_potential_workers(
-                item.as_subtype.volunteer_type,
-                item.start_time,
-                item.end_time,
-                item.eventitem.get_conference()))
+            context.update(get_volunteer_info(item))
         else:
             context.update(get_manage_opportunity_forms(item,
                                                         initial,

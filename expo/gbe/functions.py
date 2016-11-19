@@ -163,17 +163,3 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
     return Volunteer.objects.filter(
         conference=conference).exclude(
         unavailable_windows__in=windows)
-
-
-def show_potential_workers(category, start_time, end_time, conference):
-    '''
-    Get lists of potential workers for this opportunity.
-      - interested_volunteers - rated the interest above "neither interested
-         or disinterested"
-      - available_volunteers - have the time available
-      - all_volunteers - everyone who offered ... ever
-    '''
-    eligible = eligible_volunteers(start_time, end_time, conference)
-    return {'interested_volunteers': eligible,
-            'all_volunteers': eligible,
-            'available_volunteers': eligible}
