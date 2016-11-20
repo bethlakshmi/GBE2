@@ -2,33 +2,6 @@
 alias pepdiff='pushd /vagrant/; git diff --name-only master | grep ".py" | xargs pep8; popd'
 alias pepreport='pushd `pwd`; cd /vagrant; git diff refs/remotes/origin/master --name-only | grep .py$ | xargs pep8; popd'
 alias rmpyc='find . -name "*.pyc" | xargs rm'
-function runcoverage() {
-    pushd `pwd` 1>/dev/null
-    cd /vagrant/expo
-    db=`/vagrant/expo/manage.py diffsettings 2>/dev/null`
-    if [ $? == '0' ]
-    then
-        db=`echo $db | grep 'DATABASES ='| sed s#,#'\n'#g | sed s#"'"##g | grep ' NAME:' | awk ' {print $3}'`
-        db=`echo 'show databases;'| mysql -u root -proot| grep -c "test_$db"`
-        if [ $db == '0' ]
-        then
-            db='--create-db'
-        else
-            db='--reuse-db'
-        fi
-
-        if [ $# == '0' ]
-        then
-            py.test $db --cov-report html --cov=. tests/ 2>&1 | tee /vagrant/expo/logs/test-errors.log
-        else
-            py.test $db $@ 2>&1 | tee /vagrant/expo/logs/test-tmp.log
-        fi
-        popd 1>/dev/null
-    else
-        echo 'manage.py did not return settings, check configuration.'
-        popd 1>/dev/null
-        exit 4
-    fi
-}
-alias runserver='cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 2>&1 | tee /vagrant/expo/logs/runserver.log'
+alias runcoverage='pushd `pwd` 1>/dev/null; cd /vagrant/expo; py.test --reuse-db --cov-report html --cov=. tests/ |& tee /vagrant/expo/logs/test-errors.log; popd 1>/dev/null'
+alias runserver='pushd `pwd` 1>/dev/null; cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 |& tee /vagrant/expo/logs/runserver.log; popd 1>/dev/null'
 alias dbreset='/home/vagrant/dbreset'
