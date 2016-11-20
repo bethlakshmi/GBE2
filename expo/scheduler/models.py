@@ -679,9 +679,9 @@ class Event(Schedulable):
                 ("Found event conflict, new booking %s - " +
                  "%s conflicts with %s - %s") % (
                     str(self),
-                    date_format(self.starttime, time_format),
+                    self.starttime.strftime(time_format),
                     str(conflict),
-                    date_format(conflict.starttime, time_format))]
+                    conflict.starttime.strftime(time_format))]
         if alloc_id < 0:
             allocation = ResourceAllocation(event=self,
                                             resource=worker)
@@ -693,7 +693,7 @@ class Event(Schedulable):
         if self.extra_volunteers() > 0:
             warnings += ["%s - %s is overfull. Over by %d volunteer." % (
                 str(self),
-                date_format(self.starttime, time_format),
+                self.starttime.strftime(time_format),
                 self.extra_volunteers())]
         if label:
             allocation.set_label(label)
