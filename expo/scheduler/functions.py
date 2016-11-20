@@ -365,7 +365,7 @@ def select_day(days, day_name):
     Behavior is undefined if conference has more than one instance of a
     given day of week. This is a bug.
     '''
-    return {date_format(d.day, "DAY_FORMAT"): d for d in days}.get(day_name, None)
+    return {d.day.strftime("%A"): d for d in days}.get(day_name, None)
 
 
 def date_to_datetime(the_date):
