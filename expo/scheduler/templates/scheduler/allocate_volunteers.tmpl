@@ -116,7 +116,11 @@ included in event edit flow. Show WorkerAllocationForms
 
   <script>
   $(document).ready(function() {
-    var table = $('#volunteer_info').DataTable();
+    var table = $('#volunteer_info').DataTable( {
+        "order": [[ 3, "desc" ],
+		  [ 1, "desc" ],
+		  [ 2, "asc" ]]
+    } );
 
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
