@@ -474,6 +474,7 @@ def allocate_workers(request, opp_id):
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
+            form.data['alloc_id'] = -1
             return edit_event_display(
                 request,
                 opp,
