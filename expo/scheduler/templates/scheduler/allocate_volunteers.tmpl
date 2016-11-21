@@ -41,6 +41,7 @@ included in event edit flow. Show WorkerAllocationForms
 
   </table>
   <hr>
+  {% if eligible_volunteers %}
   <h2>Volunteers for {{ eventitem.event.get_conference }}</h2>
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>
@@ -112,6 +113,9 @@ included in event edit flow. Show WorkerAllocationForms
     </tbody>
   </table>
   <br><br>
+{% else %}
+  There are no available volunteers in the current set of volunteer bids.
+{% endif %}
 </div>
 
   <script>
