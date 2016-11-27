@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -81,6 +82,7 @@ def set_rehearsal_forms(shows, act):
 
 @login_required
 @log_func
+@never_cache
 def EditActTechInfoView(request, act_id):
     '''
     Modify tech info for an existing act
@@ -128,7 +130,8 @@ def EditActTechInfoView(request, act_id):
                                           id=request.POST['rehearsal'])
             show = get_object_or_404(
                 Show,
-                title=request.POST['show']).scheduler_events.first()
+                title=request.POST['show'],
+                conference=act.conference).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
         audioform = AudioInfoSubmitForm(request.POST,
                                         request.FILES,
