@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -17,6 +18,7 @@ from gbe.models import Act
 
 @login_required
 @log_func
+@never_cache
 def ActChangeStateView(request, bid_id):
     '''
     Fairly specific to act - removes the act from all shows, and resets
