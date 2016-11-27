@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import (
@@ -34,6 +35,7 @@ from gbetext import (
 
 @login_required
 @log_func
+@never_cache
 def EditCostumeView(request, costume_id):
     '''
     Edit an existing costume display proposal.
