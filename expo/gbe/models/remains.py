@@ -129,7 +129,6 @@ class VolunteerWindow(models.Model):
         elif (start < starttime and
               end > starttime):
             has_conflict = True
-            
         return has_conflict
 
     class Meta:
@@ -1610,7 +1609,7 @@ class Volunteer(Biddable):
                   start < endtime):
                 available = "Available"
             elif (start < starttime and
-                   end > starttime):
+                  end > starttime):
                 available = "Available"
         return available
 

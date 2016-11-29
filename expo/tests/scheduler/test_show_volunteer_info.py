@@ -27,6 +27,8 @@ from gbe.models import AvailableInterest
 #    are covered elsewhere (ie, privileges and basic bad data)
 #
 '''
+
+
 class TestShowVolunteers(TestCase):
     view_name = 'edit_event'
 
@@ -47,13 +49,13 @@ class TestShowVolunteers(TestCase):
         context = StaffAreaContext()
         volunteer_opp = context.add_volunteer_opp()
         volunteer, alloc = context.book_volunteer(
-        volunteer_opp)
+            volunteer_opp)
         login_as(self.privileged_profile, self)
         response = self.client.get(
             reverse(
                 self.view_name,
                 args=["GenericEvent", volunteer_opp.pk],
-            urlconf="scheduler.urls"),
+                urlconf="scheduler.urls"),
             follow=True)
         assert ("no available volunteers" in response.content)
 

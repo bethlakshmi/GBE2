@@ -42,8 +42,8 @@ class VolunteerContext():
             volunteer=self.bid)
         self.opportunity = opportunity or GenericEventFactory(
             conference=self.conference,
-            type = 'Volunteer',
-            volunteer_type = self.interest.interest)
+            type='Volunteer',
+            volunteer_type=self.interest.interest)
         self.event = event or ShowFactory(
             conference=self.conference)
         self.role = role or "Volunteer"

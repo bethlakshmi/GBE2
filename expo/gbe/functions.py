@@ -148,12 +148,6 @@ def get_events_list_by_type(event_type, conference):
     return items
 
 
-'''
-#  eligible = not unavailable.  VolunteerBid lets the user select available
-#     and unavailable times.  Eligible volunteers have said they were
-#     unavailable in the volunteer time window(s) that correspond to this
-#     event AND bid their time for this conference.
-'''
 def eligible_volunteers(event_start_time, event_end_time, conference):
     windows = []
     for window in conference.windows():

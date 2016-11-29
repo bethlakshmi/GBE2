@@ -447,6 +447,7 @@ def get_volunteer_info(opp, errorcontext=None):
 
     return {'eligible_volunteers': volunteer_set}
 
+
 @login_required
 def allocate_workers(request, opp_id):
     '''
@@ -460,7 +461,6 @@ def allocate_workers(request, opp_id):
 
     opp = get_object_or_404(Event, id=opp_id)
     form = WorkerAllocationForm(request.POST)
-
 
     if 'delete' in request.POST.keys():
         alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
