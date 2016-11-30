@@ -3,7 +3,20 @@ from gbe.forms import (
     VolunteerInterestForm,
     ParticipantForm
 )
-from django.forms import CharField
+from django.forms import (
+    CharField,
+    ModelMultipleChoiceField,
+    MultipleChoiceField,
+)
+from gbe_forms_text import (
+    how_heard_options,
+    participant_labels,
+    volunteer_help_texts,
+    volunteer_labels
+)
+from gbetext import (
+    states_options,
+)
 
 
 def get_volunteer_forms(volunteer):
@@ -13,6 +26,16 @@ def get_volunteer_forms(volunteer):
         prefix='Volunteer Info',
         available_windows=volunteer.conference.windows(),
         unavailable_windows=volunteer.conference.windows())
+    volunteerform.fields['available_windows'] = ModelMultipleChoiceField(
+        queryset=volunteer.available_windows.all(),
+        label=volunteer_labels['availability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=True)
+    volunteerform.fields['unavailable_windows'] = ModelMultipleChoiceField(
+        queryset=volunteer.unavailable_windows.all(),
+        label=volunteer_labels['unavailability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=True)
     for interest in volunteer.volunteerinterest_set.filter(
         rank__gt=0).order_by(
             'interest__interest'):
@@ -21,14 +44,26 @@ def get_volunteer_forms(volunteer):
             help_text=interest.interest.help_text,
             label=interest.interest.interest,
             initial=interest.rank_description)
-    formset += [volunteerform]
-    formset += [ParticipantForm(
+    participantform = ParticipantForm(
         instance=volunteer.profile,
         initial={'email': volunteer.profile.user_object.email,
                  'first_name': volunteer.profile.user_object.first_name,
                  'last_name': volunteer.profile.user_object.last_name},
-        prefix='Contact Info')]
-    return formset
+        prefix='Contact Info')
+    
+    participantform.fields['state'] = MultipleChoiceField(
+        choices=[(volunteer.profile.state,
+                  dict(states_options)[volunteer.profile.state])],
+    )
+    how_heard_selected = []
+    for option in how_heard_options:
+        if option[0] in volunteer.profile.how_heard:
+            how_heard_selected += [option]
+    participantform.fields['how_heard'] = MultipleChoiceField(
+        choices=how_heard_selected,
+        required=False,
+        label=participant_labels['how_heard'])
+    return [volunteerform, participantform]
 
 
 def validate_interests(formset):
