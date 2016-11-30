@@ -21,6 +21,7 @@ from tests.contexts.volunteer_context import VolunteerContext
 from gbe.models import Volunteer
 from gbetext import states_options
 
+
 class TestReviewVolunteer(TestCase):
     '''Tests for review_volunteer view'''
     view_name = 'volunteer_review'
@@ -205,7 +206,8 @@ class TestReviewVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         state_dict = dict(states_options)
-        self.assertTrue(state_dict[volunteer.profile.state] in response.content)
+        self.assertTrue(
+            state_dict[volunteer.profile.state] in response.content)
         self.assertTrue(state_dict["CA"] not in response.content)
 
     def test_review_volunteer_clean_how_heard(self):

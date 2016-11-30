@@ -50,7 +50,7 @@ def get_volunteer_forms(volunteer):
                  'first_name': volunteer.profile.user_object.first_name,
                  'last_name': volunteer.profile.user_object.last_name},
         prefix='Contact Info')
-    
+
     participantform.fields['state'] = MultipleChoiceField(
         choices=[(volunteer.profile.state,
                   dict(states_options)[volunteer.profile.state])],
