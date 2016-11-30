@@ -12,10 +12,6 @@ from gbe.functions import (
 from gbe.models import Volunteer
 from scheduler.functions import get_events_and_windows
 from django.http import HttpResponseRedirect
-from expo.settings import (
-    SHORT_DATETIME_FORMAT,
-    DAY_FORMAT,)
-from django.utils.formats import date_format
 
 
 @login_required

@@ -441,7 +441,6 @@ if APP_DJANGOBB is True:
         }
     }
 
-    
 # DJANGO-HIJACK
 
 HIJACK_LOGIN_REDIRECT_URL = '/profile/'

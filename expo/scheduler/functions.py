@@ -44,7 +44,7 @@ time_start = 8 * 60
 time_stop = 24 * 60
 
 conference_times = [(time(mins / 60, mins % 60),
-                     date_format(time(mins / 60, mins % 60), \
+                     date_format(time(mins / 60, mins % 60),
                                  "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
 
@@ -60,7 +60,7 @@ monday = datetime(2015, 2, 23)
 
 def init_time_blocks(events,
                      block_size,
-                     time_format = "DATETIME_FORMAT",
+                     time_format="DATETIME_FORMAT",
                      cal_start=None,
                      cal_stop=None,
                      trim_to_block_size=True,
@@ -110,7 +110,7 @@ def init_time_blocks(events,
         cal_stop = min(cal_stop, events[-1]['stop_time'])
     schedule_duration = timedelta_to_duration(cal_stop-cal_start)
     blocks_count = int(math.ceil(schedule_duration/block_size))
-    block_labels = [date_format((cal_start + block_size * b), \
+    block_labels = [date_format((cal_start + block_size * b),
                                 time_format)
                     for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop

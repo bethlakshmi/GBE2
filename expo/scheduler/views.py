@@ -118,7 +118,7 @@ def get_events_display_info(event_type='Class'):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = date_format( \
+            eventinfo['datetime'] = date_format(
                         entry['schedule_event'].starttime, "DATETIME_FORMAT")
 
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
@@ -914,9 +914,6 @@ def edit_event_display(request, item, errorcontext=None):
         conference=item.eventitem.get_conference(),
         date=item.starttime.date())
     initial['time'] = item.starttime.strftime("%H:%M:%S")
-    #initial['time'] = item.starttime.strftime("%T")
-    #initial['time'] = date_format(item.starttime, "TIME_FORMAT")
-    #initial['time'] = item.starttime
     initial['description'] = item.as_subtype.sched_payload['description']
     initial['title'] = item.as_subtype.sched_payload['title']
     initial['location'] = item.location
@@ -997,7 +994,6 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  time_format="TIME_FORMAT",
                   duration=Duration(minutes=60)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:

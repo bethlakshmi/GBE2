@@ -28,10 +28,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from django.core.files.uploadedfile import SimpleUploadedFile
-from expo.settings import (
-    DATETIME_FORMAT,
-    TIME_FORMAT,
-)
+from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
 
 

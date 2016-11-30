@@ -36,7 +36,7 @@ def volunteer_schedule(profile):
         {'event': str(event),
          'time': "%s - %s" % (date_format(event.starttime, "DATETIME_FORMAT"),
                               date_format(event.starttime + event.duration,
-                                  "DATETIME_FORMAT")),
+                                          "TIME_FORMAT")),
          'location': str(event.location)}
         for event in events]
     return {'schedule': schedule}

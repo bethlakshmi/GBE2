@@ -139,20 +139,20 @@ class TestAssignVolunteer(TestCase):
 
         # start and end times
         nt.assert_in(
-            date_format(data['current_sched'].start_time, \
-                    "SHORT_DATETIME_FORMAT"),
+            date_format(data['current_sched'].start_time,
+                        "SHORT_DATETIME_FORMAT"),
             response.content,
             msg="start time for current_sched didn't show up")
         nt.assert_in(
-            date_format(data['current_sched'].end_time, \
-                    "TIME_FORMAT"),
+            date_format(data['current_sched'].end_time,
+                        "TIME_FORMAT"),
             response.content,
             msg="end time for current_sched didn't show up")
 
         # check for volunteer windows
         nt.assert_is_not_none(
-            re.search(date_format(data['current_sched'].start_time, \
-                    "SHORT_DATETIME_FORMAT"), response.content),
+            re.search(date_format(data['current_sched'].start_time,
+                                  "SHORT_DATETIME_FORMAT"), response.content),
             msg="current_window shows with current_sched is not found")
 
         nt.assert_equal(
@@ -331,8 +331,8 @@ class TestAssignVolunteer(TestCase):
             msg="end time for unavail_sched didn't show up")
 
         nt.assert_is_not_none(
-            re.search(date_format(unavail_sched.start_time, \
-                    "SHORT_DATETIME_FORMAT"), response.content),
+            re.search(date_format(unavail_sched.start_time,
+                                  "SHORT_DATETIME_FORMAT"), response.content),
             msg="unavail_window shows with unavail_sched is not found")
 
         nt.assert_equal(

@@ -163,7 +163,7 @@ class TestReviewVolunteerList(TestCase):
             msg="start time for commitment (%s) didn't show up" % (
                 date_format(booked_sched.start_time, "DATETIME_FORMAT")))
         nt.assert_in(
-            date_format( booked_sched.end_time, "TIME_FORMAT"),
+            date_format(booked_sched.end_time, "TIME_FORMAT"),
             response.content,
             msg="end time for commitment (%s) didn't show up" % (
                 date_format(booked_sched.end_time, "TIME_FORMAT")))

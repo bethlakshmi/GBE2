@@ -22,10 +22,7 @@ from scheduler.models import (
 )
 from gbe.models import UserMessage
 from gbetext import default_update_act_tech
-from expo.settings import (
-    DATETIME_FORMAT,
-    TIME_FORMAT,
-)
+from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
 
 
@@ -201,8 +198,8 @@ class TestEditActTechInfo(TestCase):
             '<option value="' + str(context.rehearsal.id) +
             '" selected="selected">' +
             "%s: %s" % (context.rehearsal.as_subtype.title,
-                        date_format(context.rehearsal.starttime, \
-                        "TIME_FORMAT")) + '</option>')
+                        date_format(context.rehearsal.starttime,
+                                    "TIME_FORMAT")) + '</option>')
 
     def test_edit_act_techinfo_good_readonly_on_get(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
