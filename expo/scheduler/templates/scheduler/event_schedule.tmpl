@@ -59,7 +59,7 @@
     {% if event_type == 'Show' %}
     <td><a href="{%url 'scheduler:contact_info' event_id 'Act' %}">Contact acts</a> |
     </td>
-    <td><a href="{%url 'scheduler:schedule_acts' eventitem.event.payload.title %}">Schedule acts</a>
+    <td><a href="{%url 'scheduler:schedule_acts' eventitem.event.pk %}">Schedule acts</a>
     </td>
 
     {% elif event_type == 'Class' %}
