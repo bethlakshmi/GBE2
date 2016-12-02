@@ -81,7 +81,7 @@ class TestScheduleActs(TestCase):
         bad_url = reverse(
             self.view_name,
             urlconf="scheduler.urls",
-            args=["-1"])
+            args=[self.context.show.pk+1])
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 404)
 
@@ -126,7 +126,7 @@ class TestScheduleActs(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.post(
             self.url,
-            data={'event_type': self.context.show.title})
+            data={'show_id': self.context.show.pk})
         self.assert_good_form_display(response)
 
     def test_good_user_post_success(self):

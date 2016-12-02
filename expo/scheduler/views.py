@@ -265,7 +265,6 @@ def schedule_acts(request, show_id=None):
             alloc = get_object_or_404(ResourceAllocation,
                                       id=prefix.split('_')[1])
             alloc.event = data['show']
-            show_id = alloc.event.eventitem.child().pk
             alloc.save()
             try:
                 ordering = alloc.ordering
@@ -274,11 +273,7 @@ def schedule_acts(request, show_id=None):
                 ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
 
-        return HttpResponseRedirect(
-            reverse(
-                'schedule_acts',
-                urlconf='scheduler.urls',
-                args=[show_id]))
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     # get allocations involving the show we want
     show = get_object_or_404(conf.Show, pk=show_id)
