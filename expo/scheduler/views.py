@@ -234,7 +234,7 @@ def schedule_acts(request, show_id=None):
     Display a list of acts available for scheduling, allows setting show/order
     '''
     validate_perms(request, ('Scheduling Mavens',))
-    
+
     import gbe.models as conf
 
     # came from the schedule selector
@@ -248,11 +248,10 @@ def schedule_acts(request, show_id=None):
         show_options = filter(
             lambda event: (
                 type(event) == conf.Show) and (
-                event.get_conference().status != 'completed'),
-                              show_options)
+                event.get_conference().status != 'completed'), show_options)
         return render(request, template, {'show_options': show_options})
 
-     # came from an ActSchedulerForm
+    # came from an ActSchedulerForm
     if show_id == 'POST':
         alloc_prefixes = set([key.split('-')[0] for key in request.POST.keys()
                               if key.startswith('allocation_')])
