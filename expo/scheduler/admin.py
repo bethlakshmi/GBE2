@@ -29,7 +29,7 @@ class EventItemAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('eventitem', 'starttime', ' max_volunteer')
+    list_display = ('eventitem', 'starttime', 'max_volunteer')
     list_filter = ['eventitem', 'starttime', 'max_volunteer']
 
 
