@@ -31,6 +31,13 @@
         {% endfor %}
 
        </div>
+   
+  {% if form %}
+  <form method="POST" action="{{event_edit_url}}" enctype="multipart/form-data">
+
+  {% include "form_table.tmpl" %}
+  <input type = "submit" name="submit" value="Submit">
+  </form>
       </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
@@ -42,17 +49,8 @@
 	  {% endfor %}
       </div>
       {% endif %}
+  </div>
 
-    </div>
-   
-
-
-  {% if form %}
-  <form method="POST" action="{{event_edit_url}}" enctype="multipart/form-data">
-
-  {% include "form_table.tmpl" %}
-  <input type = "submit" name="submit" value="Submit">
-  </form>
     {% if event_id %}
     <table> 
     <tr>
@@ -69,6 +67,7 @@
     </table>
     {% endif %}
   {% endif %}
+
 
   {% if worker_alloc_forms %}
   {% include "scheduler/allocate_volunteers.tmpl" %}

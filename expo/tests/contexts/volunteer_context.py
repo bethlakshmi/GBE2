@@ -13,7 +13,10 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
-from datetime import date
+from datetime import (
+    date,
+    datetime,
+)
 
 
 class VolunteerContext():
@@ -35,19 +38,28 @@ class VolunteerContext():
             self.bid = VolunteerFactory(
                 conference=self.conference)
             self.profile = self.bid.profile
-        VolunteerInterestFactory(
+        self.interest = VolunteerInterestFactory(
             volunteer=self.bid)
-        self.opportunity = opportunity or GenericEventFactory()
-        self.event = event or ShowFactory()
+        self.opportunity = opportunity or GenericEventFactory(
+            conference=self.conference,
+            type='Volunteer',
+            volunteer_type=self.interest.interest)
+        self.event = event or ShowFactory(
+            conference=self.conference)
         self.role = role or "Volunteer"
         self.sched_event = SchedEventFactory(
-            eventitem=self.event.eventitem_ptr)
+            eventitem=self.event.eventitem_ptr,
+            starttime=datetime.combine(self.window.day.day,
+                                       self.window.start))
         self.opp_event = SchedEventFactory(
-            eventitem=self.opportunity.eventitem_ptr)
+            eventitem=self.opportunity.eventitem_ptr,
+            starttime=datetime.combine(self.window.day.day,
+                                       self.window.start),
+            max_volunteer=2)
         self.worker = WorkerFactory(_item=self.profile.workeritem,
                                     role=self.role)
         self.allocation = ResourceAllocationFactory(resource=self.worker,
-                                                    event=self.sched_event)
+                                                    event=self.opp_event)
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=self.opp_event)
 
