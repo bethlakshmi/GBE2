@@ -20,7 +20,10 @@ from tests.functions.gbe_functions import (
 )
 from django.test.client import RequestFactory
 from django.core.urlresolvers import reverse
-
+from expo.settings import (
+    SHORT_DATETIME_FORMAT,
+)
+from django.utils.formats import date_format
 from scheduler.views import edit_event
 import nose.tools as nt
 
@@ -54,6 +57,6 @@ def _test_scheduled_volunteer_opportunity_shows_day():
     request.session = {'cms_admin_site': 1}
     response = edit_event(request, show_sevent.pk, event_type='Show')
     nt.assert_true(opp.title in response.content)
-    show_date = show_sevent.start_time.strftime("%a, %b %d")
+    show_date = date_format(show_sevent.start_time, "SHORT_DATETIME_FORMAT")
     expected_string = 'selected="selected">%s</option>' % show_date
     nt.assert_true(expected_string in response.content)

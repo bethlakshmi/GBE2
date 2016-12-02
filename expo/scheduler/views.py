@@ -1,3 +1,4 @@
+from expo.gbe_logging import logger
 from django.shortcuts import (
     render,
     get_object_or_404,
@@ -30,6 +31,11 @@ from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from datetime import time as dttime
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
+from django.utils.formats import date_format
 import pytz
 import csv
 
@@ -47,7 +53,6 @@ from functions import (
     event_info,
     cal_times_for_conf,
     overlap_clear,
-    set_time_format,
     conference_dates,
 )
 from gbe.functions import (
@@ -63,7 +68,7 @@ from gbe.functions import (
 from django.contrib import messages
 
 
-def get_events_display_info(event_type='Class', time_format=None):
+def get_events_display_info(event_type='Class'):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
     items and munges them into displayable shape
@@ -72,8 +77,6 @@ def get_events_display_info(event_type='Class', time_format=None):
     could be Events
     '''
     import gbe.models as gbe
-    if time_format is None:
-        time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
     confitems = event_class.objects.filter(visible=True,
@@ -116,8 +119,9 @@ def get_events_display_info(event_type='Class', time_format=None):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
-                time_format)
+            eventinfo['datetime'] = date_format(
+                        entry['schedule_event'].starttime, "DATETIME_FORMAT")
+
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry[
                 'schedule_event'].volunteer_count
@@ -495,7 +499,6 @@ def manage_volunteer_opportunities(request, event_id):
     '''
     coordinator = validate_perms(request, ('Volunteer Coordinator',))
     from gbe.models import GenericEvent
-    set_time_format()
     template = 'scheduler/event_schedule.tmpl'
 
     event = get_object_or_404(Event, id=event_id)
@@ -1000,7 +1003,6 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  time_format=None,
                   duration=Duration(minutes=60)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
@@ -1041,8 +1043,6 @@ def calendar_view(request=None,
                             conference=conf)
 
     events = overlap_clear(events)
-    if time_format is None:
-        time_format = set_time_format()
 
     table = {}
 

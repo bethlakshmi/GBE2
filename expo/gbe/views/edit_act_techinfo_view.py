@@ -23,7 +23,7 @@ from gbe.models import (
     Performer,
     Show,
     UserMessage
-)
+    )
 from gbe.forms import (
     RehearsalSelectionForm,
     ActTechInfoForm,
@@ -32,10 +32,10 @@ from gbe.forms import (
     LightingInfoForm,
     CueInfoForm,
     VendorCueInfoForm,
-
-)
+    )
 from scheduler.models import Event as sEvent
 from gbetext import default_update_act_tech
+from django.utils.formats import date_format
 
 
 def set_rehearsal_forms(shows, act):
@@ -71,7 +71,8 @@ def set_rehearsal_forms(shows, act):
                 'rehearsal_choices':
                     [(r.id, "%s: %s" % (
                         r.as_subtype.title,
-                        r.starttime.strftime("%I:%M:%p"))) for r in r_set]}
+                        (date_format(r.starttime, "TIME_FORMAT"))))
+                     for r in r_set]}
             if show in existing_rehearsals:
                 initial['rehearsal'] = existing_rehearsals[show].id
             rehearsal_forms += [
