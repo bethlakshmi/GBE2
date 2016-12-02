@@ -229,7 +229,7 @@ def detail_view(request, eventitem_id):
 
 @login_required
 @never_cache
-def schedule_acts(request, show_title=None):
+def schedule_acts(request, show_id=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
     '''
