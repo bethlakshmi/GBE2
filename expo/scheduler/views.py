@@ -237,6 +237,11 @@ def schedule_acts(request, show_id=None):
     
     import gbe.models as conf
 
+    # came from the schedule selector
+    if request.method == "POST":
+        show_id = request.POST.get('show_id', 'POST')
+
+    # no show selected yet
     if show_id is None or show_id.strip() == '':
         template = 'scheduler/select_event_type.tmpl'
         show_options = EventItem.objects.all().select_subclasses()
@@ -245,12 +250,10 @@ def schedule_acts(request, show_id=None):
                 type(event) == conf.Show) and (
                 event.get_conference().status != 'completed'),
                               show_options)
-        return render(request, template, {'type_options': show_options})
+        return render(request, template, {'show_options': show_options})
 
-    show = get_object_or_404(conf.Show, pk=show_id)
-
-    if request.method == "POST":
-      # we're coming from an ActSchedulerForm
+     # came from an ActSchedulerForm
+    if show_id == 'POST':
         alloc_prefixes = set([key.split('-')[0] for key in request.POST.keys()
                               if key.startswith('allocation_')])
         for prefix in alloc_prefixes:
@@ -262,6 +265,7 @@ def schedule_acts(request, show_id=None):
             alloc = get_object_or_404(ResourceAllocation,
                                       id=prefix.split('_')[1])
             alloc.event = data['show']
+            show_id = alloc.event.eventitem.child().pk
             alloc.save()
             try:
                 ordering = alloc.ordering
@@ -270,10 +274,14 @@ def schedule_acts(request, show_id=None):
                 ordering = Ordering(allocation=alloc, order=data['order'])
             ordering.save()
 
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-
+        return HttpResponseRedirect(
+            reverse(
+                'schedule_acts',
+                urlconf='scheduler.urls',
+                args=[show_id]))
 
     # get allocations involving the show we want
+    show = get_object_or_404(conf.Show, pk=show_id)
     event = show.scheduler_events.first()
 
     allocations = ResourceAllocation.objects.filter(event=event)
