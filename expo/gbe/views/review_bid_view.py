@@ -1,4 +1,5 @@
 from django.views.generic import View
+from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
@@ -96,12 +97,14 @@ class ReviewBidView(View):
             self.bid_eval = self.bid_evaluation_type(
                 evaluator=self.reviewer, bid=self.object)
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         self.form = self.bid_evaluation_form_type(instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.bid_review_response(request))
 
+    @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         self.form = self.bid_evaluation_form_type(request.POST,

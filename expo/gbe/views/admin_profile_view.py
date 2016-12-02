@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import (
@@ -16,6 +17,7 @@ from gbe.models import Profile
 
 @login_required
 @log_func
+@never_cache
 def AdminProfileView(request, profile_id):
     admin_profile = validate_perms(request, ('Registrar',))
     user_profile = get_object_or_404(Profile, resourceitem_id=profile_id)

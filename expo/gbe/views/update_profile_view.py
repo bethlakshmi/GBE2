@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -19,6 +20,7 @@ from gbetext import default_update_profile_msg
 
 @login_required
 @log_func
+@never_cache
 def UpdateProfileView(request):
     profile = validate_profile(request, require=False)
     if not profile:

@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -9,6 +10,7 @@ from gbe.functions import validate_perms
 
 @login_required
 @log_func
+@never_cache
 def ReviewProfilesView(request):
     admin_profile = validate_perms(request, ('Registrar',
                                              'Volunteer Coordinator',

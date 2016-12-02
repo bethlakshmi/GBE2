@@ -1,3 +1,4 @@
+from expo.gbe_logging import logger
 from django.shortcuts import (
     render,
     get_object_or_404,
@@ -25,10 +26,16 @@ from django.contrib.auth import (
     logout,
     authenticate,
 )
+from django.views.decorators.cache import never_cache
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from datetime import time as dttime
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
+from django.utils.formats import date_format
 import pytz
 import csv
 
@@ -46,7 +53,6 @@ from functions import (
     event_info,
     cal_times_for_conf,
     overlap_clear,
-    set_time_format,
     conference_dates,
 )
 from gbe.functions import (
@@ -57,12 +63,12 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
-    show_potential_workers,
+    eligible_volunteers,
 )
 from django.contrib import messages
 
 
-def get_events_display_info(event_type='Class', time_format=None):
+def get_events_display_info(event_type='Class'):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
     items and munges them into displayable shape
@@ -71,8 +77,6 @@ def get_events_display_info(event_type='Class', time_format=None):
     could be Events
     '''
     import gbe.models as gbe
-    if time_format is None:
-        time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
     confitems = event_class.objects.filter(visible=True,
@@ -115,8 +119,9 @@ def get_events_display_info(event_type='Class', time_format=None):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
-                time_format)
+            eventinfo['datetime'] = date_format(
+                        entry['schedule_event'].starttime, "DATETIME_FORMAT")
+
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry[
                 'schedule_event'].volunteer_count
@@ -164,6 +169,7 @@ def get_event_display_info(eventitem_id):
 
 
 @login_required
+@never_cache
 def event_list(request, event_type=''):
     '''
     List of events (all, or by type)
@@ -222,7 +228,8 @@ def detail_view(request, eventitem_id):
 
 
 @login_required
-def schedule_acts(request, show_id=None):
+@never_cache
+def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
     '''
@@ -422,7 +429,36 @@ def get_worker_allocation_forms(opp, errorcontext=None):
             'opp_id': opp.id}
 
 
+def get_volunteer_info(opp, errorcontext=None):
+    volunteer_set = []
+    for volunteer in eligible_volunteers(
+            opp.start_time,
+            opp.end_time,
+            opp.eventitem.get_conference()):
+        assign_form = WorkerAllocationForm(
+            initial={'role': 'Volunteer',
+                     'worker': volunteer.profile,
+                     'alloc_id': -1})
+        assign_form.fields['worker'].widget = forms.HiddenInput()
+        assign_form.fields['label'].widget = forms.HiddenInput()
+        volunteer_set += [{
+            'display_name': volunteer.profile.display_name,
+            'interest': rank_interest_options[
+                volunteer.volunteerinterest_set.get(
+                    interest=opp.as_subtype.volunteer_type).rank],
+            'available': volunteer.check_available(
+                opp.start_time,
+                opp.end_time),
+            'conflicts': volunteer.profile.get_conflicts(opp),
+            'id': volunteer.pk,
+            'assign_form': assign_form
+        }]
+
+    return {'eligible_volunteers': volunteer_set}
+
+
 @login_required
+@never_cache
 def allocate_workers(request, opp_id):
     '''
     Process a worker allocation form
@@ -481,6 +517,7 @@ def allocate_workers(request, opp_id):
 
 
 @login_required
+@never_cache
 def manage_volunteer_opportunities(request, event_id):
     '''
     Create or edit volunteer opportunities for an event.
@@ -492,7 +529,6 @@ def manage_volunteer_opportunities(request, event_id):
     '''
     coordinator = validate_perms(request, ('Volunteer Coordinator',))
     from gbe.models import GenericEvent
-    set_time_format()
     template = 'scheduler/event_schedule.tmpl'
 
     event = get_object_or_404(Event, id=event_id)
@@ -576,6 +612,7 @@ def manage_volunteer_opportunities(request, event_id):
 
 
 @login_required
+@never_cache
 def contact_info(request,
                  event_id,
                  resource_type='All',
@@ -725,6 +762,7 @@ def contact_vendors(conference):
 
 
 @login_required
+@never_cache
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
     conference = get_current_conference()
@@ -782,6 +820,7 @@ def set_multi_role(event, data, roles=None):
 
 
 @login_required
+@never_cache
 def add_event(request, eventitem_id, event_type='Class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
@@ -848,6 +887,7 @@ def add_event(request, eventitem_id, event_type='Class'):
 
 
 @login_required
+@never_cache
 def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
@@ -943,10 +983,7 @@ def edit_event_display(request, item, errorcontext=None):
                 item.as_subtype.type == 'Volunteer'):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
-            context.update(show_potential_workers(
-                item.as_subtype.volunteer_type,
-                item.start_time,
-                item.eventitem.get_conference()))
+            context.update(get_volunteer_info(item))
         else:
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
@@ -993,7 +1030,6 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  time_format=None,
                   duration=Duration(minutes=60)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
@@ -1034,8 +1070,6 @@ def calendar_view(request=None,
                             conference=conf)
 
     events = overlap_clear(events)
-    if time_format is None:
-        time_format = set_time_format()
 
     table = {}
 

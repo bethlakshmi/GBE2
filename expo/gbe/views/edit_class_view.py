@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import (
@@ -29,6 +30,7 @@ from gbetext import (
 
 @login_required
 @log_func
+@never_cache
 def EditClassView(request, class_id):
     '''
     Edit an existing class.
