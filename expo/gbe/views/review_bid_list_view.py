@@ -1,4 +1,5 @@
 from django.views.generic import View
+from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -59,6 +60,7 @@ class ReviewBidListView(View):
         review_query = self.review_query(bids)
         self.rows = self.get_rows(bids, review_query)
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         reviewer = validate_perms(request, self.reviewer_permissions)
         self.user = request.user

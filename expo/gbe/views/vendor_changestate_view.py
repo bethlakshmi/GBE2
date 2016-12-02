@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from expo.gbe_logging import log_func
 
@@ -7,6 +8,7 @@ from gbe.views import BidChangeStateView
 
 @login_required
 @log_func
+@never_cache
 def VendorChangeStateView(request, bid_id):
     '''
     The generic function to change a bid to a new state (accepted,

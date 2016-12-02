@@ -25,6 +25,7 @@ from django.contrib.auth import (
     logout,
     authenticate,
 )
+from django.views.decorators.cache import never_cache
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
 from datetime import datetime
@@ -164,6 +165,7 @@ def get_event_display_info(eventitem_id):
 
 
 @login_required
+@never_cache
 def event_list(request, event_type=''):
     '''
     List of events (all, or by type)
@@ -222,6 +224,7 @@ def detail_view(request, eventitem_id):
 
 
 @login_required
+@never_cache
 def schedule_acts(request, show_title=None):
     '''
     Display a list of acts available for scheduling, allows setting show/order
@@ -421,6 +424,7 @@ def get_worker_allocation_forms(opp, errorcontext=None):
 
 
 @login_required
+@never_cache
 def allocate_workers(request, opp_id):
     '''
     Process a worker allocation form
@@ -479,6 +483,7 @@ def allocate_workers(request, opp_id):
 
 
 @login_required
+@never_cache
 def manage_volunteer_opportunities(request, event_id):
     '''
     Create or edit volunteer opportunities for an event.
@@ -574,6 +579,7 @@ def manage_volunteer_opportunities(request, event_id):
 
 
 @login_required
+@never_cache
 def contact_info(request,
                  event_id,
                  resource_type='All',
@@ -723,6 +729,7 @@ def contact_vendors(conference):
 
 
 @login_required
+@never_cache
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
     conference = get_current_conference()
@@ -780,6 +787,7 @@ def set_multi_role(event, data, roles=None):
 
 
 @login_required
+@never_cache
 def add_event(request, eventitem_id, event_type='Class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
@@ -846,6 +854,7 @@ def add_event(request, eventitem_id, event_type='Class'):
 
 
 @login_required
+@never_cache
 def edit_event(request, scheduler_event_id, event_type='class'):
     '''
     Add an item to the conference schedule and/or set its schedule details

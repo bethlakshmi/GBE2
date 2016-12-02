@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     get_object_or_404,
@@ -13,6 +14,7 @@ from gbe.forms import BidStateChangeForm
 
 @login_required
 @log_func
+@never_cache
 def BidChangeStateView(request, bid_id, redirectURL):
     '''
     The generic function to change a bid to a new state (accepted,
