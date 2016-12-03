@@ -9,23 +9,26 @@ from calendar import timegm
 from gbe.duration import (
     Duration,
     DateTimeRange,
-    timedelta_to_duration
+    timedelta_to_duration,
 )
+from random import choice
 
 import math
-try:
-    from expo.settings import DATETIME_FORMAT
-except:
-    DATETIME_FORMAT = None
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+    DAY_FORMAT,
+)
+from django.utils.formats import date_format
 
 from django.core.urlresolvers import reverse
 import pytz
 
 conference_days = (
-    (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
+    (date_format(datetime(2015, 02, 19), "DAY_FORMAT"), 'Thursday'),
+    (date_format(datetime(2015, 02, 20), "DAY_FORMAT"), 'Friday'),
+    (date_format(datetime(2015, 02, 21), "DAY_FORMAT"), 'Saturday'),
+    (date_format(datetime(2015, 02, 22), "DAY_FORMAT"), 'Sunday'),
 )
 
 utc = pytz.timezone('UTC')
@@ -41,7 +44,8 @@ time_start = 8 * 60
 time_stop = 24 * 60
 
 conference_times = [(time(mins / 60, mins % 60),
-                     time(mins / 60, mins % 60).strftime("%I:%M %p"))
+                     date_format(time(mins / 60, mins % 60),
+                                 "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
 
 conference_dates = {"Thursday": "2015-02-19",
@@ -54,49 +58,9 @@ hour = Duration(seconds=3600)
 monday = datetime(2015, 2, 23)
 
 
-def set_time_format(events=None, days=0):
-    '''
-    Returns a default time format which prepends a day if day, date,
-    etc is not included AND a test for included days is greater then
-    one.  Uses the default set in settings.py, and if that is absent,
-    set it to 12 hour and min with AM and PM (%I:%M %p).  Can accept a
-    dictionary of events with the datetime info in it, or a number of
-    days covered by the format.  Numbers greater then 2 cause the name
-    of the day to be prepended to the format.  Will add similar for
-    months later.
-    '''
-    try:
-        from expo.settings import DATETIME_FORMAT
-    except:
-        DATETIME_FORMAT = None
-
-    if type(events) == type({}) and days == 0:
-        for event in events:
-            day = event['start_time'].day
-            if day not in days:
-                days.append(day)
-        days = len(days)
-
-    if days <= 1:
-        if DATETIME_FORMAT is None:
-            DATETIME_FORMAT = "%I:%M %p"
-    else:
-        if DATETIME_FORMAT is None:
-            DATETIME_FORMAT = "%a, %I:%M %p"
-        else:
-            testValue = False
-            for dayValue in ('%a', '%A', '%w', '%d', '%j'):
-                # Test for formats that print the day
-                if dayValue in DATETIME_FORMAT:
-                    testValue = True
-            if not testValue:
-                DATETIME_FORMAT = '%a, ' + DATETIME_FORMAT
-    return DATETIME_FORMAT
-
-
 def init_time_blocks(events,
                      block_size,
-                     time_format,
+                     time_format="DATETIME_FORMAT",
                      cal_start=None,
                      cal_stop=None,
                      trim_to_block_size=True,
@@ -293,15 +257,13 @@ def html_headers(table, headerStart='<TH>', headerEnd='</TH>'):
 
 def table_prep(events,
                block_size,
-               time_format=None,
+               time_format="DATETIME_FORMAT",
                cal_start=None,
                cal_stop=None,
                col_heads=None):
     '''
     Generate a calendar table based on submitted events
     '''
-    if time_format is None:
-        time_format = set_time_format(events)
     block_labels, cal_start, cal_stop = init_time_blocks(events,
                                                          block_size,
                                                          time_format,
