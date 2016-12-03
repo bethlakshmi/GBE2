@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 
 from scheduler.models import EventItem
-from scheduler.functions import set_time_format
 from gbetext import event_labels
 from gbe.functions import eligible_volunteers
 
@@ -29,7 +28,7 @@ def get_event_display_info(eventitem_id):
     return eventitem_view
 
 
-def get_events_display_info(event_type='Class', time_format=None):
+def get_events_display_info(event_type='Class'):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
     items and munges them into displayable shape
@@ -38,8 +37,6 @@ def get_events_display_info(event_type='Class', time_format=None):
     could be Events
     '''
     import gbe.models as gbe
-    if time_format is None:
-        time_format = set_time_format(days=2)
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
     confitems = event_class.objects.filter(visible=True,
@@ -83,7 +80,7 @@ def get_events_display_info(event_type='Class', time_format=None):
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
             eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
-                time_format)
+                "DATETIME_FORMAT")
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry[
                 'schedule_event'].volunteer_count

@@ -16,6 +16,10 @@ from remains import (
     VolunteerWindow,
 )
 from biddable import Biddable
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
 
 
 class Volunteer(Biddable):
@@ -77,8 +81,8 @@ class Volunteer(Biddable):
         commitments = ''
 
         for event in self.profile.get_schedule(self.conference):
-            start_time = event.start_time.strftime("%a, %b %d, %-I:%M %p")
-            end_time = event.end_time.strftime("%-I:%M %p")
+            start_time = date_format(event.start_time, "DATETIME_FORMAT")
+            end_time = date_format(event.end_time, "TIME_FORMAT")
 
             commitment_string = "%s - %s to %s, \n " % (
                 str(event),
@@ -105,6 +109,21 @@ class Volunteer(Biddable):
             visible_bid_query,
             submitted=True,
             accepted=0)
+
+    def check_available(self, start, end):
+        available = "Not Available"
+        for window in self.available_windows.all():
+            starttime = window.start_timestamp()
+            endtime = window.end_timestamp()
+            if start == starttime:
+                available = "Available"
+            elif (start > starttime and
+                  start < endtime):
+                available = "Available"
+            elif (start < starttime and
+                  end > starttime):
+                available = "Available"
+        return available
 
     class Meta:
         app_label = "gbe"

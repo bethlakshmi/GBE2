@@ -630,6 +630,7 @@ def contact_vendors(conference):
 
 
 @login_required
+@never_cache
 def contact_by_role(request, participant_type):
     validate_perms(request, "any", require=True)
     conference = get_current_conference()
