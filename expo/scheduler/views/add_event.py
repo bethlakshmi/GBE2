@@ -21,6 +21,7 @@ from gbe.duration import Duration
 
 
 @login_required
+@never_cache
 def add_event(request, eventitem_id, event_type='Class'):
     '''
     Add an item to the conference schedule and/or set its schedule details
