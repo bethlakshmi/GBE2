@@ -45,7 +45,6 @@ from scheduler.functions import (
     conference_dates,
     event_info,
     overlap_clear,
-    set_time_format,
     table_prep,
 )
 from scheduler.views.functions import (
@@ -398,7 +397,6 @@ def manage_volunteer_opportunities(request, event_id):
     '''
     coordinator = validate_perms(request, ('Volunteer Coordinator',))
     from gbe.models import GenericEvent
-    set_time_format()
     template = 'scheduler/event_schedule.tmpl'
 
     event = get_object_or_404(Event, id=event_id)
