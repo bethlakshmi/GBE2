@@ -18,6 +18,7 @@ from scheduler.models import (
 )
 from gbe.functions import validate_perms
 from gbe.duration import Duration
+from django.views.decorators.cache import never_cache
 
 
 @login_required

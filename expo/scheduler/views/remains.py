@@ -50,7 +50,6 @@ from scheduler.functions import (
 from scheduler.views.functions import (
     get_event_display_info,
     get_events_display_info,
-    get_volunteer_info,
     set_single_role,
     set_multi_role,
 )
@@ -62,6 +61,7 @@ from gbe.functions import (
     validate_profile,
     get_events_list_by_type,
     conference_list,
+    eligible_volunteers,
 )
 from django.contrib import messages
 
@@ -703,6 +703,32 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
 
+def get_volunteer_info(opp, errorcontext=None):
+    volunteer_set = []
+    for volunteer in eligible_volunteers(
+            opp.start_time,
+            opp.end_time,
+            opp.eventitem.get_conference()):
+        assign_form = WorkerAllocationForm(
+            initial={'role': 'Volunteer',
+                     'worker': volunteer.profile,
+                     'alloc_id': -1})
+        assign_form.fields['worker'].widget = forms.HiddenInput()
+        assign_form.fields['label'].widget = forms.HiddenInput()
+        volunteer_set += [{
+            'display_name': volunteer.profile.display_name,
+            'interest': rank_interest_options[
+                volunteer.volunteerinterest_set.get(
+                    interest=opp.as_subtype.volunteer_type).rank],
+            'available': volunteer.check_available(
+                opp.start_time,
+                opp.end_time),
+            'conflicts': volunteer.profile.get_conflicts(opp),
+            'id': volunteer.pk,
+            'assign_form': assign_form
+        }]
+
+    return {'eligible_volunteers': volunteer_set}
 
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer

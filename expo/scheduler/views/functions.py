@@ -3,7 +3,6 @@ from django.http import Http404
 
 from scheduler.models import EventItem
 from gbetext import event_labels
-from gbe.functions import eligible_volunteers
 
 
 def get_event_display_info(eventitem_id):
@@ -127,30 +126,3 @@ def set_multi_role(event, data, roles=None):
                 event.allocate_worker(worker.workeritem, role)
     event.save()
 
-
-def get_volunteer_info(opp, errorcontext=None):
-    volunteer_set = []
-    for volunteer in eligible_volunteers(
-            opp.start_time,
-            opp.end_time,
-            opp.eventitem.get_conference()):
-        assign_form = WorkerAllocationForm(
-            initial={'role': 'Volunteer',
-                     'worker': volunteer.profile,
-                     'alloc_id': -1})
-        assign_form.fields['worker'].widget = forms.HiddenInput()
-        assign_form.fields['label'].widget = forms.HiddenInput()
-        volunteer_set += [{
-            'display_name': volunteer.profile.display_name,
-            'interest': rank_interest_options[
-                volunteer.volunteerinterest_set.get(
-                    interest=opp.as_subtype.volunteer_type).rank],
-            'available': volunteer.check_available(
-                opp.start_time,
-                opp.end_time),
-            'conflicts': volunteer.profile.get_conflicts(opp),
-            'id': volunteer.pk,
-            'assign_form': assign_form
-        }]
-
-    return {'eligible_volunteers': volunteer_set}
