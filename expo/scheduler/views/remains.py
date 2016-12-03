@@ -753,10 +753,7 @@ def edit_event_display(request, item, errorcontext=None):
                 item.as_subtype.type == 'Volunteer'):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
-            context.update(show_potential_workers(
-                item.as_subtype.volunteer_type,
-                item.start_time,
-                item.eventitem.get_conference()))
+            context.update(get_volunteer_info(item))
         else:
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
