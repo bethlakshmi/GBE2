@@ -800,7 +800,6 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  time_format=None,
                   duration=Duration(minutes=60)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
@@ -841,8 +840,6 @@ def calendar_view(request=None,
                             conference=conf)
 
     events = overlap_clear(events)
-    if time_format is None:
-        time_format = set_time_format()
 
     table = {}
 
