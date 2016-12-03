@@ -45,7 +45,6 @@ from gbe.expoformfields import (
     FriendlyURLInput,
 )
 from scheduler.functions import (
-    set_time_format,
     conference_days,
     conference_times,
 )

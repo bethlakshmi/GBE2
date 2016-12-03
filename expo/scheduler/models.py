@@ -6,7 +6,10 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
-from scheduler.functions import set_time_format
+from expo.settings import (
+    DATETIME_FORMAT,
+    DAY_FORMAT,)
+from django.utils.formats import date_format
 from django.core.exceptions import MultipleObjectsReturned
 import pytz
 
@@ -665,7 +668,7 @@ class Event(Schedulable):
              number of volunteers
         '''
         warnings = []
-        time_format = set_time_format(days=2)
+        time_format = DATETIME_FORMAT
         if isinstance(worker, WorkerItem):
             worker = Worker(_item=worker, role=role)
         else:
