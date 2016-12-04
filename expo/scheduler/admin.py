@@ -34,7 +34,10 @@ class EventAdmin(admin.ModelAdmin):
 
 
 class EventContainerAdmin(admin.ModelAdmin):
-    list_display = ('parent_event', 'child_event')
+    list_display = ('parent_event', 'child_event', 'parent_conf')
+    
+    def parent_conf(self, obj):
+        return obj.parent_event.eventitem.get_conference()
 
 
 class WorkerAdmin(admin.ModelAdmin):
