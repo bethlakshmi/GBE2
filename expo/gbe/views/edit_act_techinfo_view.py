@@ -68,7 +68,7 @@ def set_rehearsal_forms(shows, act):
         for (show, r_set) in rehearsal_sets.items():
             initial = {
                 'show': show,
-                'show_id': show.eventitem_id,
+                'show_private': show.eventitem_id,
                 'rehearsal_choices':
                     [(r.id, "%s: %s" % (
                         r.as_subtype.title,
@@ -132,7 +132,7 @@ def EditActTechInfoView(request, act_id):
                                           id=request.POST['rehearsal'])
             show = get_object_or_404(
                 Show,
-                eventitem_id=request.POST['show_id']).scheduler_events.first()
+                eventitem_id=request.POST['show_private']).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
         audioform = AudioInfoSubmitForm(request.POST,
                                         request.FILES,

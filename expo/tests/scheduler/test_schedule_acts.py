@@ -106,6 +106,12 @@ class TestScheduleActs(TestCase):
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
 
+    def test_good_user_get_two_shows_same_title(self):
+        ShowFactory(title=self.context)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assert_good_form_display(response)
+
     def test_good_user_get_success_not_scheduled(self):
         show = ShowFactory()
         login_as(self.privileged_profile, self)

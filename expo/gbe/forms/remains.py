@@ -489,7 +489,7 @@ class RehearsalSelectionForm(forms.Form):
     show = forms.CharField(widget=forms.TextInput(
         attrs={'readonly': 'readonly'})
     )
-    show_id = forms.IntegerField(widget=forms.HiddenInput)
+    show_private = forms.IntegerField(widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
@@ -502,7 +502,7 @@ class RehearsalSelectionForm(forms.Form):
                 choices=kwargs['initial']['rehearsal_choices'])
 
     class Meta:
-        fields = ['show_id', 'show', 'rehearsal']
+        fields = ['show_private', 'show', 'rehearsal']
 
 
 class VendorBidForm(forms.ModelForm):
