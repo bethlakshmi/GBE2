@@ -56,6 +56,7 @@ class TestEditActTechInfo(TestCase):
             'stage_info-set_props': 'checked'}
         if rehearsal:
             data['rehearsal'] = str(rehearsal.pk)
+            data['show_private'] = str(show.eventitem_id)
         return data
 
     def get_cues(self, techinfo, num_cues, full_set=True):
@@ -292,6 +293,32 @@ class TestEditActTechInfo(TestCase):
         context.rehearsal.save()
 
         another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3, False))
+        response = self.client.post(
+            url,
+            data=data)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
+        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
+                         another_rehearsal)
+
+    def test_edit_act_techinfo_post_two_shows_same_title(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "Alternate"
+        context.show.save()
+        context.rehearsal.max_volunteer = 1
+        context.rehearsal.save()
+
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        ShowFactory(title=context.show.title)
+
         url = reverse('act_techinfo_edit',
                       urlconf='gbe.urls',
                       args=[context.act.pk])
