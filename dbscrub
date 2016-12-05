@@ -1,0 +1,198 @@
+#!/usr/bin/python
+
+from os import (path,
+                listdir,
+               )
+from sys import (argv,
+                 exit,
+                )
+from django.utils.crypto import pbkdf2
+from random import randint, choice
+from string import digits, letters
+
+
+argv=argv[1:]
+dbPrefix='DB_backup_gbelive_'
+dbFile=False
+dbNewFile=False
+dbPath='/vagrant/config'
+
+repPasswd= False
+shaIterations=12000
+shaSalt=''.join( [choice(digits+letters+'/+') for i in \
+                  range(0, 11)] )
+
+repURL=True
+URLs={'http://www.burlesque-expo.com': 'http://localhost:8282',
+      'http://gbelive.webfactional.com': 'http://localhost:8282',
+      'http://burlesque-expo.com': 'http://localhost:8282',
+      'http://www.Burlesque-expo.com': 'http://localhost:8282',
+      'http://www.Burlesque-Expo.com': 'http://localhost:8282',
+      'http://gbeadmin.webfactional.com': 'http://localhost:8282',
+      }
+
+repEMail=False
+repRLName=False
+
+shorthelp='''
+Usage: dbscrub [-] [-h] [-f SQL filename] [-p file path] [-P [password]]
+        [-s SHA256 Salt] [-n NEW filename] [-e [local domain]] [-u]
+    '''
+helptext='''
+        dbscrub sanitizes (scrubs) MYSQL sql files (commonly used for database 
+    backup) of personal information and hardcoded URLs.  Its purpose is to
+    allow developer teams to use database backup files with realworld data,
+    while preserving end user privacy and data integrity, and making certain
+    development tasks easier by preventing URL redirects to websites outside
+    of the development environment.  This goal is far from achieved, but any
+    progress towards it is a good thing.  Currently, it globally replaces a
+    known list of static URLs, and replaces all passwords with a standard
+    'dev environment' password.  Future versions will replace email addresses,
+    username and RL names, postal addresses, etc, with 'Edible Poet' text or
+    similar constructs.  The currently supported options are:
+
+    -  - Run dbscrub completely default values for everything
+    -h - Print help text (this text)
+    -f - Filename of the MYSQL sql file to scrub.  Can optionally include
+             path, but will generate an error if path is set both here and
+             with -p.
+    -p - Path to the SQL file to be scrubbed.
+    -P - Password to set all website user passwords to, default is bra!@#123.
+    -i - Number of SHA256 iterations in the PBKDF2 hash generator (default
+             is 12,000).
+    -s - SHA256 salt.  If option is not specified, a random salt is generated.
+    -n - New filename of the sanitized SQL file.
+    -e - Replace email with one based on username and a specified local domain.
+             default domain is '@burlesque-info.com'.
+    -u - Do NOT replace URLs.  Default is to replace them.
+'''
+
+if len(argv) == 0:
+    print shorthelp
+    exit(0)
+if argv[0] == '-':
+    argv=[]
+else:
+    while '-' in argv:
+        argv.remove('-')
+argv.append(' ')
+while len(argv) != 0:
+    if argv[0][0] == '-':
+        if argv[0] == '-f':
+            dbFile=argv[1]
+            if dbFile[0] == '/':
+                if dbPath:
+                    print 'Path is ambiguous, set multiple times.'
+                    exit(10)
+                if path.isfile(dbFile):
+                    pathlen = -1*len(path.relpath(dbFile))+1
+                    dbPath = path.realpath(dbFile)[0:pathlen]
+                    dbFile = path.relpath(dbFile)
+                    del pathlen
+                else:
+                    print 'File %s does not exist.  Exiting.' % (dbFile)
+                    exit(5)
+            argv=argv[2:]
+        elif argv[0] == '-p':
+            if dbPath:
+                print 'Path is ambiguous, set multiple times.'
+                exit(10)
+            dbPath == path.realpath(argv[1])
+            if not path.isdir(dbPath):
+                print 'Path %s does not exist, exiting.' % (dbPath)
+                exit(7)
+            argv=argv[2:]
+        elif argv[0] == '-P':
+            if argv[1][0] == '-':
+                repPasswd = 'bra!@#123'
+            else:
+                repPasswd = argv[1]
+                argv=argv[1:]
+            argv=argv[1:]
+        elif argv[0] == '-n':
+            if argv[1][0] == '-':
+                print 'A new filename needs to be provided to use the "-n" option.'
+                exit(12)
+            else:
+                dbNewFile = argv[1]
+                argv = argv[2:]
+        elif argv[0] == '-s':
+            if argv[1][0] == '-':
+                print "SHA256 Salt must be specified."
+                exit(9)
+            elif argv[1][0] != '-':
+                shaSalt=argv[1]
+                argv=argv[2:]
+        elif argv[0] == '-e':
+            repEMail=True
+            if argv[1][0] == '-':
+                localdomain='@burlesque-expo.com'
+            else:
+                localdomain=argv[1]
+                if localdomain[0] != '@':
+                    localdomain='@'+localdomain
+                argv=argv[1:]
+            argv=argv[1:]
+        elif argv[0] == '-u':
+            repURL=False
+            argv=argv[1:]
+        elif argv[0] == '-h':
+            print shorthelp
+            print
+            print helptext
+            exit(0)
+        else:
+            print 'Ambiguous arguements, exiting.'
+            exit(6)
+    elif argv[0] == ' ':
+        argv = []
+    else:
+        print 'Ambiguous arguements, exiting.'
+        exit(6)
+
+editLine = repPasswd or repEMail or repRLName
+if repPasswd:
+    repPasswd = 'pbkdf2_sha256$'+str(shaIterations)+'$'+str(shaSalt)+'$'+ \
+            pbkdf2(repPasswd, shaSalt, shaIterations).encode('base64')[:-1]
+
+if not dbFile:
+    files = listdir(dbPath)
+    newfiles = []
+    for tmpfile in files:
+        if tmpfile[-4:] == '.sql' and tmpfile[:len(dbPrefix)] == dbPrefix and \
+           'clean' not in tmpfile:
+            newfiles.append(tmpfile)
+    newfiles.sort()
+    dbFile = newfiles[0]
+    del newfiles, files
+
+if not dbNewFile:
+    dbNewFile=dbFile[0:-4]+'_clean.sql'
+
+if path.isfile(dbPath+'/'+dbFile):
+    newfile = open(dbPath+'/'+dbNewFile, 'w')
+    for dbline in open(dbPath+'/'+dbFile, "r").readlines():
+        if repURL:
+            for url in URLs.keys():
+                dbline=dbline.replace(url, URLs[url])
+        if editLine:
+            newline='INSERT INTO `auth_user` VALUES ('
+            if dbline.startswith(newline):
+                dbline=dbline[len(newline):]
+                for user in dbline.split('),('):
+                    userinfo=user.split(',')
+                    if repPasswd:
+                        userinfo[1]="'"+repPasswd+"'"
+                    if repEMail and not userinfo[7].endswith(localdomain):
+                        userinfo[7]=userinfo[4][:-1]+localdomain+"'"
+                    for entry in userinfo:
+                        newline=newline+entry+','
+                    newline=newline[:-1]+'),('
+                dbline=newline[:-3]
+            del newline
+        newfile.write(dbline)
+    newfile.close()
+else:
+    print "File %s is not at location %s, or does not exist.  Exiting." \
+        % (dbFile, dbPath)
+    exit(14)
