@@ -33,5 +33,5 @@ function runcoverage() {
 }
 alias runserver='cd /vagrant/expo; /vagrant/expo/manage.py runserver 0.0.0.0:8111 2>&1 | tee /vagrant/expo/logs/runserver.log'
 alias dbreset='/home/vagrant/dbreset'
-alias dbscrub='/home/vagrant/dbscrubber'
+alias dbscrub='/home/vagrant/dbscrub'
 alias rmpyc='find /vagrant/expo | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf'
