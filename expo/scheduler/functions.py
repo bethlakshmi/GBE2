@@ -465,6 +465,7 @@ def calendar_export(conference=None,
         TIME_FORMAT,
         SITE_URL,
         )
+    import csv
 
     if conference == None:
         conference = conf.Conference.current_conf()
@@ -495,29 +496,30 @@ def calendar_export(conference=None,
         events = events + event_info(confitem_type=event_type,
                                      cal_times=cal_times,
                                      conference=conference)
-    return_file = ''
     if cal_format == 'gbook':
-        return_file = return_file + \
-                      "'Session Title','Date','Time Start','Time End',"+ \
-                      "'Room/Location','Schedule Track (Optional)',"+ \
-                      "'Description (Optional)',''\r\n"
+        return_file = '"Session Title","Date","Time Start","Time End",'+ \
+                      '"Room/Location","Schedule Track (Optional)",'+ \
+                      '"Description (Optional)",""'
+
         for event in events:
-            return_file = return_file+"'%s'," % (event['title'])
-            return_file = return_file+"'%s'," % \
-                         (date_format(event['start_time'], 'DATE_FORMAT'))
-            return_file = return_file+"'%s'," % \
+            csv_line = '"%s",' % (event['title'])
+            csv_line = csv_line+'"%s",' % \
+                         (date_format(event['start_time'], 'DATE_FORMAT') \
+                          .replace(',', ''))
+            csv_line = csv_line+'"%s",' % \
                          (date_format(event['start_time'], 'TIME_FORMAT'))
-            return_file = return_file+"'%s'," % \
+            csv_line = csv_line+'"%s",' % \
                          (date_format(event['stop_time'], 'TIME_FORMAT'))
-            return_file = return_file+"'%s'," % (event['location'])
-            return_file = return_file+"'%s'," % (event['type'].split('.')[0])
-            return_file = return_file+"'%s'," % \
+            csv_line = csv_line+'"%s",' % (event['location'])
+            csv_line = csv_line+'"%s",' % (event['type'].split('.')[0])
+            csv_line = csv_line+'"%s",' % \
                           (event['description'].replace('\n', '') \
                            .replace('\r', ''))
-            return_file = return_file+"'%s%s'\r\n" % (SITE_URL, event['link'])
+            csv_line = csv_line+'"%s%s"' % (SITE_URL, event['link'])
+            return_file=return_file+'\r\n'+csv_line
 
     if cal_format == 'ical':
-        return_file=return_file+'''
+        return_file='''
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
@@ -532,12 +534,11 @@ PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
                             )
             return_file=return_file+'DTSTAMP:%s\n' % \
                          (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
-            return_file=return_file+'TZID:%s\n' % \
-                         (event['start_time'].strftime('%Z'))
+            return_file=return_file+'TZID:EST\n'
             return_file=return_file+'DTSTART:%s\n' % \
-                         (date_format(event['start_time'], 'DATETIME_FORMAT'))
+                         (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
             return_file=return_file+'DTEND:%s\n' % \
-                         (date_format(event['stop_time'], 'DATETIME_FORMAT'))
+                          (event['stop_time'].strftime('%Y%m%dT%H%M%SZ'))
             return_file=return_file+'SUMMARY:%s\n' % \
                          (event['title'])
             return_file=return_file+'URL:%s%s\n' % (SITE_URL, event['link'])

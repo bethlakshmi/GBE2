@@ -2,6 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from scheduler.functions import calendar_export
+from gbe.functions import get_current_conference_slug
+import csv
+
 
 @login_required
 @never_cache
@@ -22,6 +25,19 @@ def export_calendar(request):
     if day == 'All':
         day = None
 
+    if cal_format == 'ical':
+        filetype = 'ics'
+    else:
+        filetype = 'csv'
+
+    slug=get_current_conference_slug()
+
+    if day != None:
+        slug=slug+'_'+day
+
     calendar = calendar_export(conference, cal_format, event_types, day)
 
-    return HttpResponse(calendar, content_type='text/csv')
+    response = HttpResponse(calendar, content_type='text/csv')
+    response['Content-Disposition'] = \
+        'attachment; filename=%s_calendar.%s' % (slug, filetype)
+    return response
