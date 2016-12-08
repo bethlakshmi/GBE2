@@ -18,6 +18,7 @@ from expo.settings import (
     DATETIME_FORMAT,
     TIME_FORMAT,
     DAY_FORMAT,
+    TIME_ZONE,
 )
 from django.utils.formats import date_format
 
@@ -534,7 +535,8 @@ PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
                             )
             return_file=return_file+'DTSTAMP:%s\n' % \
                          (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
-            return_file=return_file+'TZID:EST\n'
+            return_file=return_file+'TZID:%s\n' % \
+                         (event['start_time'].strftime('%Z'))
             return_file=return_file+'DTSTART:%s\n' % \
                          (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
             return_file=return_file+'DTEND:%s\n' % \
