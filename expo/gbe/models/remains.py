@@ -281,13 +281,6 @@ class Profile(WorkerItem):
                                                  self.country))
 
     @property
-    def special_privs(self):
-        from gbe.special_privileges import special_privileges
-        privs = [special_privileges.get(group, None) for group in
-                 self.privilege_groups]
-        return filter(lambda x: x is not None, privs)
-
-    @property
     def privilege_groups(self):
         groups = [group.name for
                   group in self.user_object.groups.all().order_by('name')]
