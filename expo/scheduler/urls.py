@@ -68,6 +68,4 @@ urlpatterns = patterns(
         views.contact_by_role, name='contact_by_role'),
     url(r'^scheduler/export_calendar/?$',
         views.export_calendar, name='export_calendar'),
-    url(r'^scheduler/export_calendar/([-\w]+)/?$',
-        views.export_calendar, name='export_calendar'),
 )
