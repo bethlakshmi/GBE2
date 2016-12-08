@@ -378,7 +378,7 @@ def get_default_range():
     return (today + Duration(hours=8), today + Duration(hours=28))
 
 
-def cal_times_for_conf(conference, day_name):
+def cal_times_for_conf(conference, day_name=None):
     from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
 

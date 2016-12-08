@@ -125,4 +125,3 @@ def set_multi_role(event, data, roles=None):
             for worker in data[role_key]:
                 event.allocate_worker(worker.workeritem, role)
     event.save()
-
