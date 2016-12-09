@@ -9,7 +9,7 @@ special_menu_tree = [
                 'Class Coordinator',
                 'Costume Coordinator',
                 'Vendor Coordinator',
-                'Volunteer Coordinator'
+                'Volunteer Coordinator',
                 'Tech Crew',
                 'Scheduling Mavens',
                 'Ticketing - Admin',
@@ -85,7 +85,7 @@ special_menu_tree = [
                 'Class Coordinator',
                 'Costume Coordinator',
                 'Vendor Coordinator',
-                'Volunteer Coordinator'
+                'Volunteer Coordinator',
                 'Tech Crew',
                 'Scheduling Mavens',
                 'Ticketing - Admin',
@@ -104,7 +104,7 @@ special_menu_tree = [
                 'Vendor Reviewers',
                 'Vendor Coordinator',
                 'Volunteer Reviewers',
-                'Volunteer Coordinator'
+                'Volunteer Coordinator',
                 'Tech Crew']},
     {'title': 'Acts',
      'url': reverse('act_review_list', urlconf='gbe.urls'),
