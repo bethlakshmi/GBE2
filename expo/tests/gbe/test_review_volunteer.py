@@ -17,7 +17,9 @@ from tests.functions.gbe_functions import (
     is_login_page,
     login_as,
 )
+from tests.contexts.volunteer_context import VolunteerContext
 from gbe.models import Volunteer
+from gbetext import states_options
 
 
 class TestReviewVolunteer(TestCase):
@@ -166,3 +168,56 @@ class TestReviewVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         assert_interest_view(response, interest)
+
+    def test_review_volunteer_clean_available_windows(self):
+        context = VolunteerContext()
+        context.bid.available_windows.add(context.window)
+        context.bid.save()
+        not_there = context.add_window()
+        url = reverse(self.view_name,
+                      args=[context.bid.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertTrue(str(context.window) in response.content)
+        self.assertTrue(str(not_there) not in response.content)
+
+    def test_review_volunteer_clean_unavailable_windows(self):
+        context = VolunteerContext()
+        context.bid.unavailable_windows.add(context.window)
+        context.bid.save()
+        not_there = context.add_window()
+        url = reverse(self.view_name,
+                      args=[context.bid.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertTrue(str(context.window) in response.content)
+        self.assertTrue(str(not_there) not in response.content)
+
+    def test_review_volunteer_clean_state(self):
+        volunteer = VolunteerFactory()
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        state_dict = dict(states_options)
+        self.assertTrue(
+            state_dict[volunteer.profile.state] in response.content)
+        self.assertTrue(state_dict["CA"] not in response.content)
+
+    def test_review_volunteer_clean_how_heard(self):
+        profile = ProfileFactory(how_heard=['Word of mouth'])
+        volunteer = VolunteerFactory(profile=profile)
+        url = reverse(self.view_name,
+                      args=[volunteer.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertTrue(profile.how_heard[0] in response.content)
+        self.assertTrue("Attended Previously" not in response.content)

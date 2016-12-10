@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import (
@@ -16,6 +17,7 @@ from django.http import HttpResponseRedirect
 
 @login_required
 @log_func
+@never_cache
 def AssignVolunteerView(request, volunteer_id):
     '''
     Show a bid  which needs to be assigned to shifts by the coordinator.

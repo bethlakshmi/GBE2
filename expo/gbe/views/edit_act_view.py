@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -36,6 +37,7 @@ from gbetext import (
 from gbe.views.act_display_functions import display_invalid_act
 
 
+@never_cache
 @login_required
 @log_func
 def EditActView(request, act_id):

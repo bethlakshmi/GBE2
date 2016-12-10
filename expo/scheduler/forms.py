@@ -13,10 +13,10 @@ from gbe.functions import get_current_conference
 import pytz
 
 conference_days = (
-    (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime(2016, 02, 5).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime(2016, 02, 6).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime(2016, 02, 7).strftime('%Y-%m-%d'), 'Sunday'),
+    (date_format(datetime(2016, 02, 4), "DAY_FORMAT"), 'Thursday'),
+    (date_format(datetime(2016, 02, 5), "DAY_FORMAT"), 'Friday'),
+    (date_format(datetime(2016, 02, 6), "DAY_FORMAT"), 'Saturday'),
+    (date_format(datetime(2016, 02, 7), "DAY_FORMAT"), 'Sunday'),
 )
 
 
@@ -24,7 +24,7 @@ time_start = 8 * 60
 time_stop = 24 * 60
 
 conference_times = [(time(mins/60, mins % 60),
-                     time(mins/60, mins % 60).strftime("%I:%M %p"))
+                     date_format(time(mins/60, mins % 60), "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
 
 

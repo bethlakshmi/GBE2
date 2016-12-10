@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from expo.gbe_logging import log_func
 from django.shortcuts import (
@@ -16,6 +17,7 @@ from django.contrib import messages
 
 @login_required
 @log_func
+@never_cache
 def VolunteerChangeStateView(request, bid_id):
     '''
     Fairly specific to volunteer - removes the profile from all volunteer

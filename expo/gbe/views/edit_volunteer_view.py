@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import (
@@ -27,6 +28,7 @@ from gbe.views.volunteer_display_functions import (
 
 @login_required
 @log_func
+@never_cache
 def EditVolunteerView(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"

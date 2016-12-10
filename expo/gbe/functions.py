@@ -1,5 +1,3 @@
-import pytz
-from datetime import datetime, timedelta
 from gbe.models import (
     Class,
     Conference,
@@ -19,7 +17,6 @@ from gbetext import (
     event_options,
     class_options,
 )
-from gbe.duration import DateTimeRange
 from scheduler.models import Event as sEvent
 
 
@@ -151,34 +148,12 @@ def get_events_list_by_type(event_type, conference):
     return items
 
 
-def available_volunteers(event_start_time, conference):
-    one_minute = timedelta(0, 60)
-    tz = pytz.utc
-    event_start_time = event_start_time + one_minute
+def eligible_volunteers(event_start_time, event_end_time, conference):
     windows = []
     for window in conference.windows():
-        starttime = tz.localize(datetime.combine(window.day.day, window.start))
-        endtime = tz.localize(datetime.combine(window.day.day, window.end))
-        window_range = DateTimeRange(starttime=starttime,
-                                     endtime=endtime)
-        if event_start_time in window_range:
+        if window.check_conflict(event_start_time, event_end_time):
             windows.append(window)
-    return Volunteer.objects.filter(available_windows__in=windows)
 
-
-def show_potential_workers(category, start_time, conference):
-    '''
-    Get lists of potential workers for this opportunity.
-      - interested_volunteers - rated the interest above "neither interested
-         or disinterested"
-      - available_volunteers - have the time available
-      - all_volunteers - everyone who offered ... ever
-    '''
-    interested = list(Volunteer.objects.filter(
-        volunteerinterest__rank__gt=3,
-        volunteerinterest__interest=category))
-    all_volunteers = list(Volunteer.objects.all())
-    available = available_volunteers(start_time, conference)
-    return {'interested_volunteers': interested,
-            'all_volunteers': all_volunteers,
-            'available_volunteers': available}
+    return Volunteer.objects.filter(
+        conference=conference).exclude(
+        unavailable_windows__in=windows)
