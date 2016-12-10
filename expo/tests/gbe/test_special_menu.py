@@ -8,6 +8,7 @@ from tests.functions.gbe_functions import (
 )
 from gbe.special_privileges import special_menu_tree
 
+
 class TestSpecialMenu(TestCase):
     '''Tests for special menu display'''
     special_roles = [
@@ -27,6 +28,7 @@ class TestSpecialMenu(TestCase):
         'Ticketing - Transactions',
         'Registrar'
     ]
+
     def setUp(self):
         self.client = Client()
         self.url = reverse(
@@ -70,7 +72,7 @@ class TestSpecialMenu(TestCase):
                             privilege, menu_item['title']))
 
     def test_regular_users_get_nothing(self):
-        ''' no group privilege, no special menus 
+        ''' no group privilege, no special menus
         '''
         unprivileged_profile = ProfileFactory()
         login_as(unprivileged_profile, self)
