@@ -110,8 +110,8 @@ def init_time_blocks(events,
         cal_stop = min(cal_stop, events[-1]['stop_time'])
     schedule_duration = timedelta_to_duration(cal_stop - cal_start)
     blocks_count = int(math.ceil(schedule_duration / block_size))
-    block_labels = [(cal_start + block_size * b).strftime(time_format)
-                    for b in range(blocks_count)]
+    block_labels = [date_format((cal_start + block_size * b),
+        time_format) for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
 
 
