@@ -358,6 +358,12 @@ class Profile(WorkerItem):
                     rank=3
                 )
                 vol_interest.save()
+        else:
+            volunteer = self.volunteering.all().filter(
+                conference=conference).first()
+            volunteer.submitted = True
+            volunteer.accepted = 3
+            volunteer.save()
 
     def get_performers(self):
         performers = self.get_personae()
