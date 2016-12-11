@@ -17,7 +17,7 @@ from tests.functions.gbe_functions import (
 from tests.contexts import ShowContext
 
 
-class TestDeleteEvent(TestCase):
+class TestScheduleActs(TestCase):
     view_name = 'schedule_acts'
 
     def setUp(self):
@@ -29,7 +29,7 @@ class TestDeleteEvent(TestCase):
         self.context = ShowContext()
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
-                           args=[self.context.show.title])
+                           args=[self.context.show.pk])
 
     def get_basic_post(self):
         allocation = self.context.sched_event.resources_allocated.filter(
@@ -81,7 +81,7 @@ class TestDeleteEvent(TestCase):
         bad_url = reverse(
             self.view_name,
             urlconf="scheduler.urls",
-            args=["Bad bad event name"])
+            args=[self.context.show.pk+1])
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 404)
 
@@ -92,15 +92,22 @@ class TestDeleteEvent(TestCase):
             urlconf="scheduler.urls")
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Select event type to schedule")
+        self.assertContains(response,
+                            "Select a current or upcoming show to schedule")
         self.assertContains(
             response,
             '<option value="%s">%s</option>' % (
-                self.context.show.title,
+                self.context.show.pk,
                 self.context.show.title)
             )
 
     def test_good_user_get_success(self):
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assert_good_form_display(response)
+
+    def test_good_user_get_two_shows_same_title(self):
+        ShowFactory(title=self.context)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
@@ -125,7 +132,7 @@ class TestDeleteEvent(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.post(
             self.url,
-            data={'event_type': self.context.show.title})
+            data={'show_id': self.context.show.pk})
         self.assert_good_form_display(response)
 
     def test_good_user_post_success(self):

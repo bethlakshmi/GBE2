@@ -35,7 +35,7 @@
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
 	  {% for sched_event in eventitem.scheduled_events %}
-	    <label class="sched_detail">Time:</label>  {{ sched_event.start_time}} - {{ sched_event.end_time|time}}<br>
+	    <label class="sched_detail">Time:</label>  {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
 	      <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
             {% if not forloop.last %}
 	    <br>

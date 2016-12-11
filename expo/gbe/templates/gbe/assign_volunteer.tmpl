@@ -129,9 +129,9 @@
             </td>
             <td class="bid-table">
               {% if event_window.window %}
-                {{event_window.window.day.day|date:"D"}},
-                {{event_window.window.start|date:"f A"}} -
-                {{event_window.window.end|date:"f A"}}
+                {{event_window.window.day.day|date:_("DATE_FORMAT")}},
+                {{event_window.window.start|date:_("TIME_FORMAT") }} -
+                {{event_window.window.end|date:_("TIME_FORMAT")}}
               {% endif %}
             </td>
             <td class="bid-table">
@@ -149,8 +149,8 @@
 <a href="{% url 'scheduler:detail_view' event_window.event.eventitem.eventitem_id%}">
                 {{event_window.event}}
               </a></td>
-            <td class="bid-table">{{event_window.event.start_time|date:"D, f A" }}</td>
-            <td class="bid-table">{{event_window.event.end_time|date:"D, f A" }}</td>
+            <td class="bid-table">{{event_window.event.start_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
+            <td class="bid-table">{{event_window.event.end_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">
               {% if event_window.event.container_event.parent_event %}
 <a href="{% url 'scheduler:detail_view' event_window.event.container_event.parent_event.eventitem.eventitem_id%}">

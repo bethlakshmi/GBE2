@@ -45,7 +45,6 @@ from gbe.expoformfields import (
     FriendlyURLInput,
 )
 from scheduler.functions import (
-    set_time_format,
     conference_days,
     conference_times,
 )
@@ -490,6 +489,7 @@ class RehearsalSelectionForm(forms.Form):
     show = forms.CharField(widget=forms.TextInput(
         attrs={'readonly': 'readonly'})
     )
+    show_private = forms.IntegerField(widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
@@ -502,7 +502,7 @@ class RehearsalSelectionForm(forms.Form):
                 choices=kwargs['initial']['rehearsal_choices'])
 
     class Meta:
-        fields = ['show', 'rehearsal']
+        fields = ['show_private', 'show', 'rehearsal']
 
 
 class VendorBidForm(forms.ModelForm):

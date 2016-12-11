@@ -28,6 +28,8 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from django.core.files.uploadedfile import SimpleUploadedFile
+from expo.settings import TIME_FORMAT
+from django.utils.formats import date_format
 
 
 class TestIndex(TestCase):
@@ -140,8 +142,7 @@ class TestIndex(TestCase):
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
         return (unicode(event) in content and
-                event.start_time.strftime(
-                    "%b. %-d, %Y, %-I:%M") in content and
+                date_format(event.start_time, "DATETIME_FORMAT") in content and
                 reverse('detail_view',
                         urlconf="scheduler.urls",
                         args=[event.eventitem.eventitem_id]) in content)

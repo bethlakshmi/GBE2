@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -18,6 +19,7 @@ from gbe.models import UserMessage
 
 @login_required
 @log_func
+@never_cache
 def EditPersonaView(request, persona_id):
     '''
     Modify an existing Persona object.
