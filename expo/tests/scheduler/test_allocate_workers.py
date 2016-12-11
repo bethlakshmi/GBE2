@@ -18,6 +18,7 @@ from tests.functions.gbe_functions import (
 from django.shortcuts import get_object_or_404
 from gbe.models import Volunteer
 
+
 class TestAllocateWorkers(TestCase):
     view_name = "allocate_workers"
 
@@ -185,7 +186,7 @@ class TestAllocateWorkers(TestCase):
         assert len(volunteer.profile.volunteering.all().filter(
             conference=volunteer_opp.eventitem.get_conference())) == 1
         updated = get_object_or_404(Volunteer, pk=volunteer.pk)
-        assert updated.submitted == True
+        assert updated.submitted
         assert updated.accepted == 3
 
     def test_post_form_edit_exiting_allocation(self):
