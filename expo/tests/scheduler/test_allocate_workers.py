@@ -4,14 +4,19 @@ from django.test import (
     Client
 )
 from django.core.urlresolvers import reverse
-from tests.factories.gbe_factories import ProfileFactory
+from tests.factories.gbe_factories import (
+    ProfileFactory,
+    VolunteerFactory,
+    VolunteerInterestFactory,
+)
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     is_login_page,
     login_as,
 )
-
+from django.shortcuts import get_object_or_404
+from gbe.models import Volunteer
 
 class TestAllocateWorkers(TestCase):
     view_name = "allocate_workers"
@@ -54,7 +59,8 @@ class TestAllocateWorkers(TestCase):
                              volunteer,
                              alloc,
                              notes,
-                             role="Volunteer"):
+                             role="Volunteer",
+                             allocations=2):
         if volunteer == -1:
             self.assertContains(
                 response,
@@ -80,7 +86,7 @@ class TestAllocateWorkers(TestCase):
         self.assertContains(
             response,
             '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=2)
+            str(volunteer_opp.pk) + '"', count=allocations)
 
     def assert_good_post(self,
                          response,
@@ -88,7 +94,8 @@ class TestAllocateWorkers(TestCase):
                          volunteer,
                          alloc,
                          notes,
-                         role="Volunteer"):
+                         role="Volunteer",
+                         allocations=2):
         self.assertRedirects(response,
                              reverse('edit_event',
                                      urlconf='scheduler.urls',
@@ -98,7 +105,8 @@ class TestAllocateWorkers(TestCase):
                                   volunteer,
                                   alloc,
                                   notes,
-                                  role)
+                                  role,
+                                  allocations,)
         self.assertNotContains(response, '<ul class="errorlist">')
 
     def test_no_login_gives_error(self):
@@ -140,7 +148,45 @@ class TestAllocateWorkers(TestCase):
             volunteer_opp,
             volunteer,
             alloc,
-            'Do these notes work?')
+            'Do these notes work?',
+            allocations=3)
+        assert len(volunteer.volunteering.all().filter(
+            conference=volunteer_opp.eventitem.get_conference())) == 1
+
+    def test_post_form_valid_make_new_allocation_volunteer_exists(self):
+        context = StaffAreaContext()
+        volunteer_opp = context.add_volunteer_opp()
+        allocations = volunteer_opp.resources_allocated.all()
+        volunteer = VolunteerFactory(
+            submitted=False,
+            accepted=2,
+            conference=context.conference)
+        VolunteerInterestFactory(
+            volunteer=volunteer,
+            interest=volunteer_opp.as_subtype.volunteer_type)
+        url = reverse(self.view_name,
+                      args=[volunteer_opp.pk],
+                      urlconf="scheduler.urls")
+        data = self.get_create_data()
+        data['worker'] = volunteer.profile.pk,
+
+        login_as(self.privileged_profile, self)
+        response = self.client.post(url, data=data, follow=True)
+        alloc = volunteer_opp.resources_allocated.all().first()
+
+        self.assertIsNotNone(alloc)
+        self.assert_good_post(
+            response,
+            volunteer_opp,
+            volunteer.profile,
+            alloc,
+            'Do these notes work?',
+            allocations=3)
+        assert len(volunteer.profile.volunteering.all().filter(
+            conference=volunteer_opp.eventitem.get_conference())) == 1
+        updated = get_object_or_404(Volunteer, pk=volunteer.pk)
+        assert updated.submitted == True
+        assert updated.accepted == 3
 
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
