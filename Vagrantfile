@@ -79,7 +79,7 @@ $bootstrap = <<BOOTSTRAP
   if [ ! -h /vagrant/expo/expo/static ]
       then ln -s /vagrant/static /vagrant/expo/expo/static; fi
   ifmkdir /vagrant/expo/media/djangobb_forum/attachments
-  cp /vagrant/aliases /vagrant/dbreset /home/vagrant
+  cp /vagrant/aliases /vagrant/dbreset /vagrant/dbscrub /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
 
