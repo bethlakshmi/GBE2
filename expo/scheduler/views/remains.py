@@ -371,8 +371,10 @@ def allocate_workers(request, opp_id):
 
     else:
         data = form.cleaned_data
-
         if data.get('worker', None):
+            if data['role'] == "Volunteer":
+                data['worker'].workeritem.as_subtype.check_vol_bid(
+                    opp.eventitem.get_conference())
             warnings = opp.allocate_worker(
                 data['worker'].workeritem,
                 data['role'],
