@@ -592,8 +592,8 @@ def contact_volunteers(conference):
                     for i in v.volunteerinterest_set.all().filter(
                         interest__visible=True).order_by(
                         'interest__interest')]),
-                 'Application - %d' % v.profile.pk,
-                 'Application - %d' % v.pk]
+                 'Application',
+                 'Application']
             )
     return header, contact_info
 
@@ -737,6 +737,7 @@ def get_volunteer_info(opp, errorcontext=None):
         }]
 
     return {'eligible_volunteers': volunteer_set}
+
 
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
