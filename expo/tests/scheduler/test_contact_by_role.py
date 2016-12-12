@@ -9,6 +9,7 @@ from tests.factories.gbe_factories import(
     ActFactory,
     ClassFactory,
     ConferenceFactory,
+    GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
     VendorFactory,
@@ -101,6 +102,8 @@ class TestDeleteEvent(TestCase):
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
         self.assertContains(response, 'Registration', count=5)
+        self.assertContains(response, str(opp), count=5)
+        self.assertContains(response, str(context.sched_event), count=5)
 
     def test_contact_volunteers_current_volunteers_no_container(self):
         Conference.objects.all().delete()
@@ -113,7 +116,10 @@ class TestDeleteEvent(TestCase):
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
                                     conference=conference)
-        event = SchedEventFactory()
+        event = SchedEventFactory(
+            eventitem=GenericEventFactory(
+                type='VolunteerOpportunity',
+                conference=conference))
         for worker in workers:
             ResourceAllocationFactory.create(
                 event=event,
@@ -125,6 +131,35 @@ class TestDeleteEvent(TestCase):
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
         self.assertContains(response, 'Registration', count=5)
+        self.assertContains(response, str(event), count=10)
+
+    def test_contact_volunteers_current_volunteers_no_interest(self):
+        Conference.objects.all().delete()
+        context = StaffAreaContext()
+        opp = context.add_volunteer_opp()
+        volunteers = ProfileFactory.create_batch(5)
+        opp = context.add_volunteer_opp(
+            SchedEventFactory(
+            eventitem=GenericEventFactory(
+                type='VolunteerOpportunity',
+                conference=context.conference,
+                volunteer_type=None))
+        )
+
+        for volunteer in volunteers:
+            VolunteerFactory.create(profile=volunteer,
+                                    conference=context.conference)
+            context.book_volunteer(opp, volunteer)
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Volunteers']))
+        self.assertTrue(all([volunteer.display_name in response.content
+                        for volunteer in volunteers]))
+        self.assertContains(response, 'Registration', count=0)
+        self.assertContains(response, str(opp), count=5)
+        self.assertContains(response, str(context.sched_event), count=5)
 
     def test_contact_volunteers_former_volunteers_not_visible(self):
         Conference.objects.all().delete()

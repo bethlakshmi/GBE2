@@ -590,7 +590,8 @@ def contact_volunteers(conference):
                  ','.join([
                     i.interest.interest
                     for i in v.volunteerinterest_set.all().filter(
-                        interest__visible=True).order_by(
+                        interest__visible=True,
+                        rank__gt=3).order_by(
                         'interest__interest')]),
                  'Application',
                  'Application']
