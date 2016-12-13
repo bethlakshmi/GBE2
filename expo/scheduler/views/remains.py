@@ -63,6 +63,7 @@ from gbe.functions import (
     conference_list,
     eligible_volunteers,
 )
+from gbe.views.class_display_functions import get_scheduling_info
 from django.contrib import messages
 
 
@@ -787,6 +788,9 @@ def edit_event_display(request, item, errorcontext=None):
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
                                                         errorcontext))
+    scheduling_info = get_scheduling_info(item)
+    if scheduling_info:
+        context['scheduling_info'] = scheduling_info
 
     context['form'] = EventScheduleForm(
         prefix='event',

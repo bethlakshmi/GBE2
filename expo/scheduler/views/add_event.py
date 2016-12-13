@@ -19,7 +19,7 @@ from scheduler.models import (
 from gbe.functions import validate_perms
 from gbe.duration import Duration
 from django.views.decorators.cache import never_cache
-
+from gbe.views.class_display_functions import get_scheduling_info
 
 @login_required
 @never_cache
@@ -53,15 +53,7 @@ def handle_get(request, template, eventitem_view, event_type, item):
         initial_form_info['teacher'] = item.teacher
         initial_form_info['duration'] = Duration(item.duration.days,
                                                  item.duration.seconds)
-        scheduling_info = {
-            'schedule_constraints': item.schedule_constraints,
-            'avoided_constraints': item.avoided_constraints,
-            'format': item.type,
-            'space_needs': item.space_needs,
-            'reference': reverse('class_view',
-                                 urlconf='gbe.urls',
-                                 args=[item.id]),
-        }
+        scheduling_info = get_scheduling_info(item)
 
     form = EventScheduleForm(prefix='event',
                              initial=initial_form_info)
