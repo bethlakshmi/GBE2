@@ -49,6 +49,15 @@
 	  {% endfor %}
       </div>
       {% endif %}
+      {% if scheduling_info %}
+      <div class="sched_times">
+	  <h3>Scheduling Information</h3>
+	  {% for label, details in scheduling_info.items %}
+	    <label class="sched_detail">{{label}}:</label> {{ details }}<br>
+	  <br>
+	  {% endfor %}
+      </div>
+      {% endif %}
   </div>
 
     {% if event_id %}

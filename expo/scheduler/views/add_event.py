@@ -44,6 +44,7 @@ def add_event(request, eventitem_id, event_type='Class'):
 
 
 def handle_get(request, template, eventitem_view, event_type, item):
+    scheduling_info = {}
     initial_form_info = {'duration': item.duration,
                          'description': item.sched_payload['description'],
                          'title': item.sched_payload['title'],
@@ -52,6 +53,15 @@ def handle_get(request, template, eventitem_view, event_type, item):
         initial_form_info['teacher'] = item.teacher
         initial_form_info['duration'] = Duration(item.duration.days,
                                                  item.duration.seconds)
+        scheduling_info = {
+            'schedule_constraints': item.schedule_constraints,
+            'avoided_constraints': item.avoided_constraints,
+            'format': item.type,
+            'space_needs': item.space_needs,
+            'reference': reverse('class_view',
+                                 urlconf='gbe.urls',
+                                 args=[item.id]),
+        }
 
     form = EventScheduleForm(prefix='event',
                              initial=initial_form_info)
@@ -59,7 +69,8 @@ def handle_get(request, template, eventitem_view, event_type, item):
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
                                       'user_id': request.user.id,
-                                      'event_type': event_type})
+                                      'event_type': event_type,
+                                      'scheduling_info': scheduling_info})
 
 
 def handle_post(request, template, eventitem_view, event_type, item):
