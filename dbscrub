@@ -125,7 +125,7 @@ while len(argv) != 0:
                 argv=argv[2:]
         elif argv[0] == '-e':
             repEMail=True
-            if argv[1][0] == '-':
+            if argv[1][0] == '-' or argv[1] == ' ':
                 localdomain='@burlesque-expo.com'
             else:
                 localdomain=argv[1]
