@@ -67,7 +67,6 @@ class TestTransactions(TestCase):
             reverse('transactions', urlconf='ticketing.urls'),
         )
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = transactions(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -81,7 +80,6 @@ class TestTransactions(TestCase):
             reverse('transactions', urlconf='ticketing.urls'),
         )
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = transactions(request)
         nt.assert_equal(response.status_code, 200)
 
@@ -108,7 +106,6 @@ class TestTransactions(TestCase):
             reverse('transactions', urlconf='ticketing.urls'),
             {'Sync': 'Sync'})
         request.user = self.privileged_user
-        request.session = {'cms_admin_site': 1}
         response = transactions(request)
         nt.assert_equal(response.status_code, 200)
 

@@ -19,7 +19,7 @@ class TestGetEventsAndWindows(TestCase):
     def setUp(self):
         self.window = VolunteerWindowFactory.create()
         self.volunteer_event = GenericEvent()
-        self.volunteer_event.conference = self.window.day.conference
+        self.volunteer_event.e_conference = self.window.day.conference
         self.volunteer_event.save()
         self.s_event = sEvent()
         self.s_event.eventitem = self.volunteer_event

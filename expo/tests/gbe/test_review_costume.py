@@ -8,10 +8,12 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
 )
 from tests.functions.gbe_functions import (
+    bad_id_for,
     grant_privilege,
     is_login_page,
     login_as,
 )
+from gbe.models import Costume
 
 
 class TestReviewCostume(TestCase):
@@ -24,6 +26,18 @@ class TestReviewCostume(TestCase):
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Costume Reviewers')
+        self.coordinator = ProfileFactory()
+        grant_privilege(self.coordinator, 'Costume Reviewers')
+        grant_privilege(self.coordinator, 'Costume Coordinator')
+
+    def get_form(self, bid, evaluator, invalid=False):
+        data = {'vote': 3,
+                'notes': "Foo",
+                'bid': bid.pk,
+                'evaluator': evaluator.pk}
+        if invalid:
+            del(data['vote'])
+        return data
 
     def test_review_costume_all_well(self):
         costume = CostumeFactory()
@@ -47,15 +61,31 @@ class TestReviewCostume(TestCase):
         self.assertTrue('Bid Information' in response.content)
         self.assertFalse('Review Information' in response.content)
 
-    def test_no_login_gives_error(self):
+    def test_no_login_redirects_to_login(self):
         url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
-    def test_bad_user(self):
+    def test_bad_costume_id(self):
         login_as(ProfileFactory(), self)
-        url = reverse(self.view_name, args=[1], urlconf="gbe.urls")
+        bad_id = bad_id_for(Costume)
+        url = reverse(self.view_name, args=[bad_id], urlconf="gbe.urls")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
+
+    def test_review_costume_post_valid(self):
+        bid = CostumeFactory()
+        url = reverse(self.view_name,
+                      args=[bid.pk],
+                      urlconf='gbe.urls')
+        login_as(self.coordinator, self)
+        data = self.get_form(bid, self.coordinator)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        html_tag = '<h2 class="review-title">%s</h2>'
+        title_string = ("Bid Information for %s" %
+                        bid.b_conference.conference_name)
+        html_title = html_tag % title_string
+        assert html_title in response.content

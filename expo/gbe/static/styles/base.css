@@ -530,6 +530,35 @@ td.describe
   margin: 3px;
   display: inline-block;
 }
+div.performer
+{
+}
+.gbe_no_pic
+{
+  width: 50px;
+  height: 20px;
+  display: inline-block;
+  margin: 2px;
+}
+.gbe_thumb_block
+{
+  width: 50px;
+  max-height: 75px;
+  display: inline-block;
+  margin: 2px;
+}
+.gbe_thumbnail
+{
+  width: 100%;
+  height: auto;
+}
+.performer_text
+{
+  display: inline-block;
+  width: 190px;
+  vertical-align: middle;
+  word-wrap:break-word;
+}
 .bio_image_block
 {
   width: 28%;
@@ -590,10 +619,12 @@ tr.blank_row
 }
 
 
-div.alert 
+div.gbe-alert 
 {
     background-color: rgba(241, 221, 91, 01);
 }
+
+
 
 /* landing page layouts
     taken from:  http://matthewjamestaylor.com/blog/perfect-3-column.htm */

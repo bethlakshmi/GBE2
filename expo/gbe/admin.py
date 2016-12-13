@@ -106,9 +106,71 @@ class EventAdmin(admin.ModelAdmin):
         except:
             return "Event"
 
+
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('view',
+                    'code',
+                    'summary',
+                    'description')
+    list_editable = ('summary', 'description')
+    readonly_fields = ('view', 'code')
+
+
+class AvailableInterestAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'interest',
+                    'visible',
+                    'help_text')
+    list_editable = ('interest',
+                     'visible',
+                     'help_text')
+
+
+class VolunteerInterestAdmin(admin.ModelAdmin):
+    list_display = ('interest',
+                    'volunteer',
+                    'rank',
+                    'conference')
+    list_filter = ['interest',
+                   'rank',
+                   'volunteer__b_conference']
+
+    def conference(self, obj):
+        return obj.volunteer.b_conference
+
+
+class VolunteerWindowAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'day_w_year',
+                    'start',
+                    'end',
+                    'conference')
+    list_filter = ['day',
+                   'day__conference']
+    list_editable = ('start',
+                     'end',)
+
+    def conference(self, obj):
+        return obj.day.conference
+
+    def day_w_year(self, obj):
+        return obj.day.day
+
+
+class ConferenceDayAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'day',
+                    'conference')
+    list_filter = ['conference']
+    list_editable = ('day',
+                     'conference',)
+
+
 admin.site.register(Conference)
-admin.site.register(ConferenceDay)
-admin.site.register(VolunteerWindow)
+admin.site.register(ConferenceDay, ConferenceDayAdmin)
+admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
+admin.site.register(VolunteerInterest, VolunteerInterestAdmin)
+admin.site.register(AvailableInterest, AvailableInterestAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Biddable, BidAdmin)
 admin.site.register(Act, ActAdmin)
@@ -134,3 +196,4 @@ admin.site.register(Troupe, TroupeAdmin)
 admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
 admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(UserMessage, MessageAdmin)

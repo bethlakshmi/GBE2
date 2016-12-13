@@ -29,6 +29,5 @@ class TestTicketingIndex(TestCase):
             reverse('index', urlconf='ticketing.urls'),
         )
         request.user = UserFactory()
-        request.session = {'cms_admin_site': 1}
         response = index(request)
         nt.assert_equal(response.status_code, 200)

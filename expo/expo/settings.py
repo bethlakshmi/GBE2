@@ -89,15 +89,14 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
-    'cms',  # django CMS itself
+    'cms',
     'mptt',  # utilities for implementing a tree
     'menus',
-    'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',
     'django.contrib.messages',
     'treebeard',
-    'djangocms_text_ckeditor',  # tutorial ... hmm...
+    'djangocms_text_ckeditor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -109,14 +108,12 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-    #    'aldryn_bootstrap3',
+    'djangocms-placeholder-attr',
     'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
-    'djangocms-placeholder-attr',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-    #    'djangocms_file',
     'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -125,10 +122,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',  # 'djangocms_link',
-    #    'djangocms_picture',
-    #    'djangocms_teaser',
-    #    'djangocms_video',
+    'cmsplugin_filer_video',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
     'ticketing',
@@ -136,9 +130,9 @@ INSTALLED_APPS = (
     'django_nose',
     'hijack',
     'compat',
-
+    'debug_toolbar',
 )
-
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
 
@@ -147,14 +141,15 @@ THUMBNAIL_HIGH_RESOLUTION = True
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
-    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
+    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     # 'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -173,6 +168,7 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.language.LanguageCookieMiddleware',
     # end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 TEXT_SAVE_IMAGE_FUNCTION = \
@@ -194,25 +190,22 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIGRATION_MODULES = {
-    'cms': 'cms.migrations_django',
-    'menus': 'menus.migrations_django',
 
     # Add also the following modules if you're using these plugins:
-    'djangocms_file': 'djangocms_file.migrations_django',
-    'djangocms_flash': 'djangocms_flash.migrations_django',
-    'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
-    'djangocms_inherit': 'djangocms_inherit.migrations_django',
-    'djangocms_link': 'djangocms_link.migrations_django',
-    'djangocms_picture': 'djangocms_picture.migrations_django',
-    'djangocms_snippet': 'djangocms_snippet.migrations_django',
-    'djangocms_teaser': 'djangocms_teaser.migrations_django',
-    'djangocms_video': 'djangocms_video.migrations_django',
-    'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
+    'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
+    'cmsplugin_filer_folder': 'cmsplugin_filer_folder.migrations_django',
+    'cmsplugin_filer_link': 'cmsplugin_filer_link.migrations_django',
+    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
+    'cmsplugin_filer_teaser': 'cmsplugin_filer_teaser.migrations_django',
+    'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
+
 }
 
+'''
 SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
 }
+'''
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",

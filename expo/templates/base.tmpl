@@ -4,7 +4,8 @@
   <head>
     <title>{% block title %}This is my new project home page{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% render_block "css" %}
+   {% render_block "css" %}
+
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">-->
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet"
@@ -40,7 +41,6 @@
   <body style="background-image: url({% static "img/curtains.jpeg" %})">
     <div class="container">
     {% cms_toolbar %}
-
     <div class='banner'>{% static_placeholder 'banner' %}
     </div>
 
@@ -62,14 +62,21 @@
             </div>
       </div>
       <div class="main-content" >
+        {% if messages %}
+	{% for message in messages %}
+	{% if message.tags == "error" %}<div class="alert alert-danger">{% else %}<div class="alert alert-{{message.tags}}">{% endif %}
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <strong>{{message.tags|capfirst}}:</strong> {{message|safe}}
+	</div>
+	{% endfor %}
+        {% endif %}
 
         {% block content %}
         {% endblock content %}
       </div>
       <div class='footer'>{% static_placeholder 'footer'%}</div>
     </div>
-    {% render_block "js" %}
-
+    {% render_block "js" %} 
   </body>
 </html>
 

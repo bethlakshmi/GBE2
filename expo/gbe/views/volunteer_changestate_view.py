@@ -7,9 +7,9 @@ from django.shortcuts import (
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-
 from gbe.functions import validate_perms
 from gbe.models import Volunteer
+
 from gbe.forms import VolunteerBidStateChangeForm
 
 
@@ -30,7 +30,8 @@ def VolunteerChangeStateView(request, bid_id):
                                            request=request,
                                            instance=volunteer)
         if form.is_valid():
-            volunteer = form.save()
+            form.save()
+            volunteer.profile.notify_volunteer_schedule_change()
             return HttpResponseRedirect(reverse('volunteer_review_list',
                                                 urlconf='gbe.urls'))
         else:

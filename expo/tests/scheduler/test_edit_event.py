@@ -193,6 +193,21 @@ class TestEditEvent(TestCase):
                       'type="text" value="03:00:00" />',
                       response.content)
 
+    def test_no_duration(self):
+        context = ClassContext()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", context.sched_event.pk])
+        form_data = get_sched_event_form(context)
+        del form_data['event-duration']
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+        self.assertIn("This field is required.",
+                      response.content)
+
     def test_good_user_change_room(self):
         context = ClassContext()
         login_as(self.privileged_profile, self)
