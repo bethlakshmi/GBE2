@@ -788,7 +788,7 @@ def edit_event_display(request, item, errorcontext=None):
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
                                                         errorcontext))
-    scheduling_info = get_scheduling_info(item)
+    scheduling_info = get_scheduling_info(item.as_subtype)
     if scheduling_info:
         context['scheduling_info'] = scheduling_info
 
