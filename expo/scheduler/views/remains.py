@@ -708,6 +708,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
 
+
 def get_volunteer_info(opp, errorcontext=None):
     volunteer_set = []
     for volunteer in eligible_volunteers(
@@ -734,6 +735,7 @@ def get_volunteer_info(opp, errorcontext=None):
         }]
 
     return {'eligible_volunteers': volunteer_set}
+
 
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer

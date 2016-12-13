@@ -21,6 +21,7 @@ from gbe.duration import Duration
 from django.views.decorators.cache import never_cache
 from gbe.views.class_display_functions import get_scheduling_info
 
+
 @login_required
 @never_cache
 def add_event(request, eventitem_id, event_type='Class'):

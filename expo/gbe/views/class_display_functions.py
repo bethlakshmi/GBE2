@@ -4,6 +4,7 @@ from gbe_forms_text import (
     class_schedule_options,
 )
 
+
 def get_scheduling_info(bid_class):
     if bid_class.__class__.__name__ != 'Class':
         return None
@@ -13,12 +14,12 @@ def get_scheduling_info(bid_class):
         'display_info': [
             (classbid_labels['schedule_constraints'],
              ', '.join(
-                [j for i,j in class_schedule_options
-                 if i in bid_class.schedule_constraints ])),
-            (classbid_labels['avoided_constraints'], 
+                [j for i, j in class_schedule_options
+                 if i in bid_class.schedule_constraints])),
+            (classbid_labels['avoided_constraints'],
              ', '.join(
-                [j for i,j in class_schedule_options
-                 if i in bid_class.avoided_constraints ])),
+                [j for i, j in class_schedule_options
+                 if i in bid_class.avoided_constraints])),
             ('Format', bid_class.type),
             ('Space Needs', bid_class.get_space_needs_display()),
             ],
@@ -26,5 +27,5 @@ def get_scheduling_info(bid_class):
                              urlconf='gbe.urls',
                              args=[bid_class.id]),
         }
-    
+
     return scheduling_info
