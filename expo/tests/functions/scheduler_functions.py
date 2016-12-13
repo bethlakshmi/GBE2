@@ -9,7 +9,10 @@ from datetime import (
     time
 )
 import pytz
-
+from gbe_forms_text import (
+    classbid_labels,
+    class_schedule_options,
+)
 
 def book_worker_item_for_role(workeritem, role, eventitem=None):
         worker = WorkerFactory.create(
@@ -55,6 +58,17 @@ def assert_good_sched_event_form(response, eventitem):
     assert eventitem.description in response.content
     assert '<input id="id_event-duration" name="event-duration" ' + \
         'type="text" value="01:00:00" />' in response.content
+    if eventitem.__class__.__name__ == "Class":
+        for label, detail in [
+            (classbid_labels['schedule_constraints'], ', '.join(
+                [j for i,j in class_schedule_options
+                 if i in eventitem.schedule_constraints])),
+            (classbid_labels['avoided_constraints'], ', '.join(
+                [j for i,j in class_schedule_options
+                 if i in eventitem.avoided_constraints])),
+            ('Format', eventitem.type),
+            ('Space Needs', eventitem.get_space_needs_display())]:
+            assert_label(response, label, detail)
 
 
 def noon(day):

@@ -27,7 +27,6 @@ from tests.contexts import (
 )
 from tests.functions.scheduler_functions import (
     assert_good_sched_event_form,
-    assert_label,
     assert_selected,
     get_sched_event_form
 )
@@ -35,10 +34,6 @@ import pytz
 from datetime import (
     datetime,
     time,
-)
-from gbe_forms_text import (
-    classbid_labels,
-    class_schedule_options,
 )
 
 
@@ -124,17 +119,6 @@ class TestAddEvent(TestCase):
         Conference.objects.all().delete()
         Room.objects.all().delete()
         context = ClassContext()
-        login_as(self.privileged_profile, self)
-        url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=["Class", context.bid.eventitem_id])
-        response = self.client.get(url)
-        assert_good_sched_event_form(response, context.bid)
-
-    def test_good_user_get_schedule_info(self):
-        Conference.objects.all().delete()
-        Room.objects.all().delete()
-        context = ClassContext()
         context.bid.schedule_constraints = "[u'1']"
         context.bid.avoided_constraints = "[u'2']"
         context.bid.space_needs = "2"
@@ -145,14 +129,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
-        for label, detail in [
-            (classbid_labels['schedule_constraints'],
-             class_schedule_options[1][1]),
-            (classbid_labels['avoided_constraints'],
-             class_schedule_options[2][1]),
-            ('Format', context.bid.type),
-            ('Space Needs', context.bid.get_space_needs_display())]:
-            assert_label(response, label, detail)
+        assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_get_empty_schedule_info(self):
         Conference.objects.all().delete()
@@ -168,12 +145,7 @@ class TestAddEvent(TestCase):
                       urlconf="scheduler.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
-        for label, detail in [
-            (classbid_labels['schedule_constraints'], ''),
-            (classbid_labels['avoided_constraints'], ''),
-            ('Format', ''),
-            ('Space Needs', '')]:
-            assert_label(response, label, detail)
+        assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_minimal_post(self):
         Conference.objects.all().delete()
