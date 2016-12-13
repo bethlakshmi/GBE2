@@ -15,7 +15,7 @@ argv=argv[1:]
 dbPrefix='DB_backup_gbelive_'
 dbFile=False
 dbNewFile=False
-dbPath='/vagrant/config'
+dbPath=False
 
 repPasswd= False
 shaIterations=12000
@@ -82,7 +82,7 @@ while len(argv) != 0:
             dbFile=argv[1]
             if dbFile[0] == '/':
                 if dbPath:
-                    print 'Path is ambiguous, set multiple times.'
+                    print 'Path is ambiguous, already set by option -p'
                     exit(10)
                 if path.isfile(dbFile):
                     pathlen = -1*len(path.relpath(dbFile))+1
@@ -95,9 +95,9 @@ while len(argv) != 0:
             argv=argv[2:]
         elif argv[0] == '-p':
             if dbPath:
-                print 'Path is ambiguous, set multiple times.'
+                print 'Path is ambiguous, already set by option -f.'
                 exit(10)
-            dbPath == path.realpath(argv[1])
+            dbPath = path.realpath(argv[1])
             if not path.isdir(dbPath):
                 print 'Path %s does not exist, exiting.' % (dbPath)
                 exit(7)
@@ -150,6 +150,8 @@ while len(argv) != 0:
         print 'Ambiguous arguements, exiting.'
         exit(6)
 
+if dbPath is False:
+    dbPath = '/vagrant/config'
 editLine = repPasswd or repEMail or repRLName
 if repPasswd:
     repPasswd = 'pbkdf2_sha256$'+str(shaIterations)+'$'+str(shaSalt)+'$'+ \
