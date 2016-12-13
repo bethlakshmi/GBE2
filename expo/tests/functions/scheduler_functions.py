@@ -72,3 +72,10 @@ def assert_selected(response, value, display):
 def assert_link(response, link):
     selection = '<a href="%s">' % link
     assert selection in response.content
+
+def assert_label(response, label, details):
+    selection = '<label class="sched_detail">%s:</label></br>%s</br></br>' %(
+        label,
+        details
+    )
+    assert selection in response.content
