@@ -10,7 +10,7 @@ import csv
 @never_cache
 def export_calendar(request):
     '''
-    View to export calendars, wrapped around calendar_export function.  
+    View to export calendars, wrapped around calendar_export function.
     Used to allow importing of the calendar information into other
     applications, such as Guidebook.
     '''
@@ -30,10 +30,10 @@ def export_calendar(request):
     else:
         filetype = 'csv'
 
-    slug=get_current_conference_slug()
+    slug = get_current_conference_slug()
 
-    if day != None:
-        slug=slug+'_'+day
+    if day is not None:
+        slug = slug + '_' + day
 
     calendar = calendar_export(conference, cal_format, event_types, day)
 
