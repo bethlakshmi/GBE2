@@ -39,16 +39,28 @@
   <input type = "submit" name="submit" value="Submit">
   </form>
       </div>
+      <div class='sched_sidebar'>
       {% if eventitem.scheduled_events %}
       <div class="sched_times">
 	  <h3>All Scheduled Times...</h3>
 	  {% for sched_event in eventitem.scheduled_events %}
 	    <label class="sched_detail">Time:</label> {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
-	      <label class="sched_detail">Location:  </label>{{ sched_event.location }}<br>
+	      <label class="sched_detail">Location:</label> {{ sched_event.location }}<br>
 	  <br>
 	  {% endfor %}
       </div>
       {% endif %}
+      {% if scheduling_info %}
+      <div class="sched_times">
+	  <h3>Booking Information</h3>
+	  {% for label, details in scheduling_info.display_info %}
+	    <label class="sched_detail">{{label}}:</label></br>{{ details }}</br></br>
+	  {% endfor %}
+	  <br>
+	  <a href="{{ scheduling_info.reference }}">More information</a>
+      </div>
+      {% endif %}
+      </div>
   </div>
 
     {% if event_id %}

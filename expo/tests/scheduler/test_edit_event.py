@@ -114,6 +114,11 @@ class TestEditEvent(TestCase):
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
+        self.context.bid.schedule_constraints = "[u'1']"
+        self.context.bid.avoided_constraints = "[u'2']"
+        self.context.bid.space_needs = "2"
+        self.context.bid.type = "Panel"
+        self.context.bid.save()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", self.context.sched_event.pk])
