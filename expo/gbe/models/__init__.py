@@ -1,14 +1,14 @@
 from room import Room
+from conference import Conference
+from conference_day import ConferenceDay
+from volunteer_window import VolunteerWindow
+from profile import Profile
+from performer import Performer
+from persona import Persona
+from troupe import Troupe
+from combo import Combo
 from remains import (
-    Conference,
-    ConferenceDay,
-    VolunteerWindow,
     Biddable,
-    Profile,
-    Performer,
-    Persona,
-    Troupe,
-    Combo,
     AudioInfo,
     LightingInfo,
     StageInfo,
