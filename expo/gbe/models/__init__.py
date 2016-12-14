@@ -1,4 +1,5 @@
 from room import Room
+from available_interest import AvailableInterest
 from remains import (
     Conference,
     ConferenceDay,
@@ -6,7 +7,6 @@ from remains import (
 )
 
 from show import Show
-from available_interest import AvailableInterest
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer
 from generic_event import GenericEvent
@@ -33,7 +33,6 @@ from costume import Costume
 from conference_volunteer import ConferenceVolunteer
 from profile_preferences import ProfilePreferences
 from class_proposal import ClassProposal
-from room import Room
 from tech_info import (
     AudioInfo,
     TechInfo,

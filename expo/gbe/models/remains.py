@@ -28,6 +28,19 @@ from gbetext import (
     conference_statuses,
 )
 from gbe_forms_text import *
+from gbe.expomodelfields import DurationField
+from scheduler.functions import (
+    get_roles_from_scheduler
+)
+from model_utils.managers import InheritanceManager
+from gbe.duration import Duration
+import gbe
+import pytz
+from gbe.models import (
+    AvailableInterest,
+    Room
+)
+
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
                      Q(biddable_ptr__conference__status='ongoing'))
