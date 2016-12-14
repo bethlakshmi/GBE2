@@ -224,7 +224,7 @@ def review_act_techinfo(request, show_id=None):
     # using try not get_or_404 to cover the case where the show is there
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
-    
+
     scheduling_link = ''
 
     show = None
