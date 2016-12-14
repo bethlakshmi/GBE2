@@ -1,6 +1,8 @@
 from django.db.models import ManyToManyField
-from persona import Persona
-from performer import Performer
+from gbe.models import (
+    Performer,
+    Persona,
+)
 
 
 class Troupe(Performer):

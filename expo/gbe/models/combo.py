@@ -1,7 +1,9 @@
 from django.db.models import ManyToManyField
-from performer import Performer
-from persona import Persona
-from profile import Profile
+from gbe.models import (
+    Performer,
+    Persona,
+    Profile,
+)
 
 
 class Combo (Performer):

@@ -1,11 +1,13 @@
 from room import Room
 from available_interest import AvailableInterest
-from remains import (
-    Conference,
-    ConferenceDay,
-    VolunteerWindow,
-)
-
+from conference import Conference
+from conference_day import ConferenceDay
+from volunteer_window import VolunteerWindow
+from profile import Profile
+from performer import Performer
+from persona import Persona
+from troupe import Troupe
+from combo import Combo
 from show import Show
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer

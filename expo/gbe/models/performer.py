@@ -8,7 +8,7 @@ from django.db.models import (
     URLField,
     FileField,
 )
-from profile import Profile
+from gbe.models import Profile
 from scheduler.models import WorkerItem
 
 

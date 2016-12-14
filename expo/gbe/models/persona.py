@@ -1,6 +1,8 @@
 from django.db.models import ForeignKey
-from profile import Profile
-from performer import Performer
+from gbe.models import (
+    Performer,
+    Profile,
+)
 
 
 class Persona (Performer):
