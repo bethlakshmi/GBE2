@@ -7,6 +7,7 @@ from performer import Performer
 from persona import Persona
 from troupe import Troupe
 from combo import Combo
+from available_interest import AvailableInterest
 from remains import (
     Biddable,
     AudioInfo,
@@ -22,7 +23,6 @@ from remains import (
     Vendor,
     Volunteer,
 )
-from available_interest import AvailableInterest
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer
 from generic_event import GenericEvent
