@@ -6,12 +6,13 @@ from django.db.models import (
 )
 from gbetext import conference_statuses
 
+
 class Conference(Model):
     conference_name = CharField(max_length=128)
     conference_slug = SlugField()
     status = CharField(choices=conference_statuses,
-                              max_length=50,
-                              default='upcoming')
+                       max_length=50,
+                       default='upcoming')
     accepting_bids = BooleanField(default=False)
 
     def __unicode__(self):

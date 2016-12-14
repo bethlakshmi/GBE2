@@ -8,6 +8,7 @@ from django.utils.formats import date_format
 import pytz
 from gbe.models import ConferenceDay
 
+
 class VolunteerWindow(Model):
     start = TimeField(blank=True)
     end = TimeField(blank=True)

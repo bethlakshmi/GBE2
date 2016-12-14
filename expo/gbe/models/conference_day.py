@@ -6,6 +6,7 @@ from django.db.models import (
 from gbe.models import Conference
 from django.utils.formats import date_format
 
+
 class ConferenceDay(Model):
     day = DateField(blank=True)
     conference = ForeignKey(Conference)

@@ -4,6 +4,7 @@ from gbe.models import (
     Persona,
 )
 
+
 class Troupe(Performer):
     '''
     Two or more performers working together as an established entity. A troupe

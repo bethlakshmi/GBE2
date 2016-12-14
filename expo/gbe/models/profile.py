@@ -201,8 +201,9 @@ class Profile(WorkerItem):
                 title="volunteer bid: %s" % self.get_badge_name()
             )
             volunteer.save()
-            volunteer.available_windows.add(*list(VolunteerWindow.objects.filter(
-                day__conference=conference)))
+            volunteer.available_windows.add(*list(
+                VolunteerWindow.objects.filter(
+                    day__conference=conference)))
             volunteer.save()
             for interest in AvailableInterest.objects.filter(visible=True):
                 vol_interest = VolunteerInterest(

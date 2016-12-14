@@ -5,6 +5,7 @@ from gbe.models import (
     Profile,
 )
 
+
 class Combo (Performer):
     '''
     Two or more performers (Personae), working together, on a temporary
