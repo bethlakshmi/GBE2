@@ -19,6 +19,7 @@ from scheduler.models import (
 from gbe.functions import validate_perms
 from gbe.duration import Duration
 from django.views.decorators.cache import never_cache
+from gbe.views.class_display_functions import get_scheduling_info
 
 
 @login_required
@@ -44,6 +45,7 @@ def add_event(request, eventitem_id, event_type='Class'):
 
 
 def handle_get(request, template, eventitem_view, event_type, item):
+    scheduling_info = {}
     initial_form_info = {'duration': item.duration,
                          'description': item.sched_payload['description'],
                          'title': item.sched_payload['title'],
@@ -52,6 +54,7 @@ def handle_get(request, template, eventitem_view, event_type, item):
         initial_form_info['teacher'] = item.teacher
         initial_form_info['duration'] = Duration(item.duration.days,
                                                  item.duration.seconds)
+        scheduling_info = get_scheduling_info(item)
 
     form = EventScheduleForm(prefix='event',
                              initial=initial_form_info)
@@ -59,7 +62,8 @@ def handle_get(request, template, eventitem_view, event_type, item):
     return render(request, template, {'eventitem': eventitem_view,
                                       'form': form,
                                       'user_id': request.user.id,
-                                      'event_type': event_type})
+                                      'event_type': event_type,
+                                      'scheduling_info': scheduling_info})
 
 
 def handle_post(request, template, eventitem_view, event_type, item):
