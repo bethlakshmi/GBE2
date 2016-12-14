@@ -372,8 +372,10 @@ def allocate_workers(request, opp_id):
 
     else:
         data = form.cleaned_data
-
         if data.get('worker', None):
+            if data['role'] == "Volunteer":
+                data['worker'].workeritem.as_subtype.check_vol_bid(
+                    opp.eventitem.get_conference())
             warnings = opp.allocate_worker(
                 data['worker'].workeritem,
                 data['role'],
@@ -552,10 +554,6 @@ def contact_volunteers(conference):
               'Volunteer Role',
               'Event']
     from gbe.models import Volunteer
-    contacts = filter(lambda worker: worker.allocations.count() > 0,
-                      [vol.profile.workeritem_ptr.worker_set.first() for vol in
-                       Volunteer.objects.filter(conference=conference)
-                       if vol.profile.workeritem_ptr.worker_set.exists()])
 
     volunteers = Volunteer.objects.filter(conference=conference).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
@@ -563,16 +561,18 @@ def contact_volunteers(conference):
     contact_info = []
     for v in volunteers:
         profile = v.profile
-        for worker in profile.workeritem_ptr.worker_set.all():
-            for allocation in worker.allocations.all():
+        for worker in profile.workeritem_ptr.worker_set.all().filter(
+                role="Volunteer"):
+            allocation_events = (
+                a.event for a in worker.allocations.all()
+                if a.event.eventitem.get_conference() == conference)
+            for event in allocation_events:
                 try:
-                    container = allocation.event.container_event
-                    parent_event = container.parent_event
+                    parent_event = event.container_event.parent_event
                 except:
-                    parent_event = allocation.event
+                    parent_event = event
                 try:
-                    interest = \
-                        allocation.event.as_subtype.volunteer_type.interest
+                    interest = event.as_subtype.volunteer_type.interest
                 except:
                     interest = ''
 
@@ -581,15 +581,19 @@ def contact_volunteers(conference):
                      profile.phone,
                      profile.contact_email,
                      interest,
-                     str(allocation.event),
+                     str(event),
                      str(parent_event)])
         else:
             contact_info.append(
                 [profile.display_name,
                  profile.phone,
                  profile.contact_email,
-                 ','.join([i.interest.interest
-                           for i in v.volunteerinterest_set.all()]),
+                 ','.join([
+                    i.interest.interest
+                    for i in v.volunteerinterest_set.all().filter(
+                        interest__visible=True,
+                        rank__gt=3).order_by(
+                        'interest__interest')]),
                  'Application',
                  'Application']
             )
