@@ -311,7 +311,6 @@ class TestReports(TestCase):
             msg="Can't find table header")
         self.assertNotContains(response, 'Schedule Acts for this Show')
 
-
     def test_review_act_techinfo_has_link_for_scheduler(self):
         '''review_act_techinfo view should show schedule acts if user
             has the right privilege
@@ -335,7 +334,6 @@ class TestReports(TestCase):
             urlconf='scheduler.urls',
             args=[curr_show.pk]))
         self.assertContains(response, 'Schedule Acts for this Show')
-
 
     def test_review_act_techinfo_with_conference_slug(self):
         '''review_act_techinfo view show correct events for slug
