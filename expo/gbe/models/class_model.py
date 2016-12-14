@@ -9,14 +9,14 @@ from django.db.models import (
     TextField,
 )
 from gbe.duration import Duration
-from remains import (
+from gbe.models import (
+    Biddable,
     Conference,
+    Event,
+    Persona,
+    Profile,
     visible_bid_query,
 )
-from biddable import Biddable
-from event import Event
-from persona import Persona
-from profile import Profile
 
 from gbetext import (
     acceptance_states,

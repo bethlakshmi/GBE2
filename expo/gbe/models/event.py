@@ -8,8 +8,10 @@ from django.db.models import (
 
 from gbe.expomodelfields import DurationField
 from scheduler.models import EventItem
-from remains import Conference
-from room import Room
+from gbe.models import (
+    Conference,
+    Room
+)
 
 
 class Event(EventItem):

@@ -1,4 +1,3 @@
-
 from django.db.models import (
     BooleanField,
     CharField,
@@ -9,7 +8,7 @@ from django.db.models import (
 )
 
 from gbetext import class_proposal_choices
-from remains import Conference
+from gbe.models import Conference
 
 
 class ClassProposal(Model):

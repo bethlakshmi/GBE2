@@ -6,9 +6,11 @@ from django.db.models import (
     TextField,
     URLField,
 )
-from profile import Profile
-from remains import visible_bid_query
-from biddable import Biddable
+from gbe.models import (
+    Biddable,
+    Profile,
+    visible_bid_query
+)
 from gbetext import (
     acceptance_states,
     boolean_options,

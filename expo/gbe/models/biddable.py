@@ -7,9 +7,12 @@ from django.db.models import (
     Model,
     TextField,
 )
-from remains import Conference
+from gbe.models import Conference
 from gbetext import acceptance_states
+from django.db.models import Q
 
+visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
+                     Q(biddable_ptr__conference__status='ongoing'))
 
 class Biddable(Model):
     '''

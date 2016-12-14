@@ -10,8 +10,9 @@ from django.core.exceptions import (
     NON_FIELD_ERRORS,
     ValidationError,
 )
-from remains import (
+from gbe.models import (
     Conference,
+    Performer,
     visible_bid_query,
 )
 from tech_info import TechInfo
@@ -22,7 +23,6 @@ from gbetext import (
     video_options,
 )
 from scheduler.models import ActItem
-from performer import Performer
 
 
 class Act (Biddable, ActItem):

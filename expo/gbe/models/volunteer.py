@@ -10,12 +10,12 @@ from gbetext import (
     boolean_options,
     volunteer_shift_options,
 )
-from profile import Profile
-from remains import (
+from gbe.models import (
+    Biddable,
+    Profile,
     visible_bid_query,
     VolunteerWindow,
 )
-from biddable import Biddable
 from expo.settings import (
     DATETIME_FORMAT,
     TIME_FORMAT,

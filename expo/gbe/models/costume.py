@@ -12,10 +12,12 @@ from django.core.validators import (
     MaxValueValidator
 )
 
-from remains import visible_bid_query
-from biddable import Biddable
-from profile import Profile
-from persona import Persona
+from gbe.models import (
+    Biddable,
+    Persona,
+    Profile,
+    visible_bid_query
+)
 
 from gbetext import (
     acceptance_states,
