@@ -223,6 +223,12 @@ def review_act_techinfo(request, show_id=None):
     # using try not get_or_404 to cover the case where the show is there
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
+    
+    scheduling_link = ''
+    if validate_perms(request, ('Scheduling Mavens',), require=False):
+        scheduling_link = reverse('schedule_acts',
+                urlconf='scheduler.urls',
+                args=[show_id])
 
     show = None
     acts = []
@@ -248,8 +254,9 @@ def review_act_techinfo(request, show_id=None):
                        conference=conference),
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
+                   'scheduling_link': scheduling_link,
                    'return_link': reverse('act_techinfo_review',
-                                          urlconf='gbe.report_urls')})
+                                          urlconf='gbe.report_urls',)})
 
 
 def download_tracks_for_show(request, show_id):
