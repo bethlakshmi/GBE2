@@ -11,14 +11,9 @@ from combo import Combo
 from biddable import Biddable
 from act import Act
 from event import Event
-from show import Show
 from generic_event import GenericEvent
-from class_model import Class
 from bid_evaluation import BidEvaluation
 from performer_festivals import PerformerFestivals
-from volunteer import Volunteer
-from vendor import Vendor
-from costume import Costume
 from conference_volunteer import ConferenceVolunteer
 from profile_preferences import ProfilePreferences
 from class_proposal import ClassProposal
@@ -29,6 +24,11 @@ from tech_info import (
     LightingInfo,
     StageInfo,
 )
+from show import Show
+from class_model import Class
+from costume import Costume
+from vendor import Vendor
+from volunteer import Volunteer
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer
 from generic_event import GenericEvent
