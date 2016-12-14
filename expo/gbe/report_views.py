@@ -215,6 +215,7 @@ def personal_schedule(request, profile_id='All'):
                    'conference': conference})
 
 
+@never_cache
 def review_act_techinfo(request, show_id=None):
     '''
     Show the list of act tech info for all acts in a given show
@@ -225,10 +226,6 @@ def review_act_techinfo(request, show_id=None):
     # I can still show a list of shows this way.
     
     scheduling_link = ''
-    if validate_perms(request, ('Scheduling Mavens',), require=False):
-        scheduling_link = reverse('schedule_acts',
-                urlconf='scheduler.urls',
-                args=[show_id])
 
     show = None
     acts = []
@@ -238,6 +235,13 @@ def review_act_techinfo(request, show_id=None):
             show = conf.Show.objects.get(eventitem_id=show_id)
             acts = show.scheduler_events.first().get_acts(status=3)
             acts = sorted(acts, key=lambda act: act.order)
+            if validate_perms(
+                    request, ('Scheduling Mavens',), require=False):
+                scheduling_link = reverse(
+                    'schedule_acts',
+                    urlconf='scheduler.urls',
+                    args=[show.pk])
+
         except:
             logger.error("review_act_techinfo: Invalid show id")
             pass
