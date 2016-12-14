@@ -41,8 +41,6 @@ from gbe.models import (
     Profile,
     Room,
     VolunteerWindow,
-    AvailableInterest,
-    Room
 )
 
 

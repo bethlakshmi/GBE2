@@ -14,7 +14,9 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
 from gbe.models import (
+    AvailableInterest,
     Conference,
+    VolunteerWindow,
 )
 from scheduler.models import WorkerItem
 from gbetext import (
