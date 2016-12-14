@@ -1,4 +1,5 @@
 from room import Room
+from available_interest import AvailableInterest
 from conference import Conference
 from conference_day import ConferenceDay
 from volunteer_window import VolunteerWindow
@@ -7,7 +8,6 @@ from performer import Performer
 from persona import Persona
 from troupe import Troupe
 from combo import Combo
-from available_interest import AvailableInterest
 from remains import (
     Biddable,
     AudioInfo,

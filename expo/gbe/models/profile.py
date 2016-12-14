@@ -181,7 +181,10 @@ class Profile(WorkerItem):
         return [vbid for vbid in self.volunteering.all() if vbid.is_current]
 
     def check_vol_bid(self, conference):
-        from gbe.models import VolunteerInterest
+        from gbe.models import (
+            Volunteer,
+            VolunteerInterest,
+        )
         if not self.volunteering.all().filter(conference=conference):
             volunteer = Volunteer(
                 profile=self,
