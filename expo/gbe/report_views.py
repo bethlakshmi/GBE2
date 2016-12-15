@@ -215,6 +215,7 @@ def personal_schedule(request, profile_id='All'):
                    'conference': conference})
 
 
+@never_cache
 def review_act_techinfo(request, show_id=None):
     '''
     Show the list of act tech info for all acts in a given show
@@ -224,6 +225,8 @@ def review_act_techinfo(request, show_id=None):
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
 
+    scheduling_link = ''
+
     show = None
     acts = []
 
@@ -232,6 +235,13 @@ def review_act_techinfo(request, show_id=None):
             show = conf.Show.objects.get(eventitem_id=show_id)
             acts = show.scheduler_events.first().get_acts(status=3)
             acts = sorted(acts, key=lambda act: act.order)
+            if validate_perms(
+                    request, ('Scheduling Mavens',), require=False):
+                scheduling_link = reverse(
+                    'schedule_acts',
+                    urlconf='scheduler.urls',
+                    args=[show.pk])
+
         except:
             logger.error("review_act_techinfo: Invalid show id")
             pass
@@ -248,8 +258,9 @@ def review_act_techinfo(request, show_id=None):
                        conference=conference),
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
+                   'scheduling_link': scheduling_link,
                    'return_link': reverse('act_techinfo_review',
-                                          urlconf='gbe.report_urls')})
+                                          urlconf='gbe.report_urls',)})
 
 
 def download_tracks_for_show(request, show_id):
