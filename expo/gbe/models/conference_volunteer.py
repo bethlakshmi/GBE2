@@ -1,13 +1,16 @@
 from django.db.models import (
     Model,
     ForeignKey,
+    BooleanField,
     CharField,
     TextField,
-    BooleanField,
 )
-from persona import Persona
+from gbe.models import (
+    ClassProposal,
+    Persona,
+    Profile,
+)
 from gbe_forms_text import conference_participation_types
-from class_proposal import ClassProposal
 
 
 class ConferenceVolunteer(Model):

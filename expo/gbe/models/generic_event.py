@@ -1,12 +1,13 @@
-
 from itertools import chain
 from django.db.models import (
     CharField,
     ForeignKey,
 )
-
-from event import Event
-from available_interest import AvailableInterest
+from gbe.models import (
+    AvailableInterest,
+    Event,
+)
+from scheduler.models import EventContainer
 from gbetext import event_options
 
 
@@ -45,9 +46,8 @@ class GenericEvent (Event):
         if self.parent_event:
             payload['details']['parent_event'] = self.parent_event.detail_link
             if self.volunteer_type:
-                payload[
-                    'details'][
-                    'volunteer_category'] = self.volunteer_category_description
+                desc = self.volunteer_category_description
+                payload['details']['volunteer_category'] = desc
         return payload
 
     @property

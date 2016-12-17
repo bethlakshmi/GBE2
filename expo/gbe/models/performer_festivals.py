@@ -1,13 +1,13 @@
 from django.db.models import (
     Model,
-    ForeignKey,
     CharField,
+    ForeignKey,
 )
+from gbe.models import Act
 from gbetext import (
     festival_list,
     festival_experience,
 )
-from act import Act
 
 
 class PerformerFestivals(Model):

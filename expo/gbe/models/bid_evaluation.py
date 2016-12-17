@@ -1,11 +1,14 @@
 from django.db.models import (
+    Model,
     ForeignKey,
     IntegerField,
-    Model,
     TextField,
 )
-from biddable import Biddable
-from profile import Profile
+from gbe.models import (
+    Biddable,
+    Profile,
+)
+
 from gbetext import vote_options
 
 

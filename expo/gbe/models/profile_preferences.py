@@ -1,12 +1,12 @@
 from django.db.models import (
-    BooleanField,
-    CharField,
     Model,
     OneToOneField,
+    CharField,
     TextField,
+    BooleanField,
 )
+from gbe.models import Profile
 from gbetext import yes_no_maybe_options
-from profile import Profile
 
 
 class ProfilePreferences(Model):
