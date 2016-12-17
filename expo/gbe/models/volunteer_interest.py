@@ -1,27 +1,21 @@
-from django.db.models import (
-    Model,
-    OneToOneField,
-    CharField,
-    TextField,
-    BooleanField,
+from django.db import models
+from gbe.models import (
+    AvailableInterest,
+    Volunteer
 )
-from gbe.models import Profile
-from gbetext import yes_no_maybe_options
+from gbe_forms_text import rank_interest_options
 
 
-class ProfilePreferences(Model):
-    '''
-    User-settable preferences controlling interaction with the
-    Expo and with the site.
-    '''
-    profile = OneToOneField(Profile,
-                            related_name='preferences')
-    in_hotel = CharField(max_length=10,
-                         blank=True,
-                         choices=yes_no_maybe_options)
-    inform_about = TextField(blank=True)
-    show_hotel_infobox = BooleanField(default=True)
+class VolunteerInterest(models.Model):
+    interest = models.ForeignKey(AvailableInterest)
+    volunteer = models.ForeignKey(Volunteer)
+    rank = models.IntegerField(choices=rank_interest_options,
+                               blank=True)
+
+    @property
+    def rank_description(self):
+        return dict(rank_interest_options).get(self.rank, None)
 
     class Meta:
-        verbose_name_plural = 'profile preferences'
         app_label = "gbe"
+        unique_together = (('interest', 'volunteer'),)
