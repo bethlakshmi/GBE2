@@ -18,6 +18,10 @@ from gbetext import (
     class_options,
 )
 from scheduler.models import Event as sEvent
+from post_office import mail
+from post_office.models import EmailTemplate
+from django.conf import settings
+import os
 
 
 def validate_profile(request, require=False):
@@ -157,3 +161,34 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
     return Volunteer.objects.filter(
         conference=conference).exclude(
         unavailable_windows__in=windows)
+
+def send_bid_state_change_mail(bid_type, email, badge_name, status):
+    name = '%s_%s' % (bid_type, status)
+    raise Exception(os.path.dirname(__file__))
+    try:
+       template = EmailTemplate.objects.get(name=name)
+    except:
+        with open("default_bid_status_change.tmpl", "r") as textfile:
+            textcontent = textfile.read()
+        with open("default_bid_status_change_html.tmpl", "r") as htmlfile:
+            htmlcontent = htmlfile.read()
+        template = EmailTemplate(
+            name=name,
+            subject='%s has been %s' % (bid_type, status),
+            content=textcontent,
+            html_content=htmlcontent,
+            )
+        template.save()
+    raise Exception(template)
+    '''
+    mail.send(
+        email,
+        settings.DEFAULT_FROM_EMAIL,
+        template=name,
+        context={
+            'name': badge_name,
+            'bid_type': bid_type,
+            'status': status,
+            'website': 'bla'},
+    )
+    '''

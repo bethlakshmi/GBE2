@@ -3,7 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from expo.gbe_logging import log_func
-from gbe.functions import validate_perms
+from gbe.functions import (
+    send_bid_state_change_mail,
+    validate_perms,
+)
 from scheduler.models import (
     ActResource,
     Event as sEvent,
@@ -39,6 +42,13 @@ def ActChangeStateView(request, bid_id):
     reviewer = validate_perms(request, ('Act Coordinator',))
     if request.method == 'POST':
         act = get_object_or_404(Act, id=bid_id)
+
+        if str(act.accepted) != request.POST['accepted']:
+            send_bid_state_change_mail(
+                'act',
+                act.contact_email,
+                act.performer.contact.get_badge_name(),
+                act.get_accepted_display())
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
