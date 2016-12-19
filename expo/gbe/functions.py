@@ -14,6 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from gbetext import (
+    acceptance_states,
     event_options,
     class_options,
 )
@@ -163,24 +164,27 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
         unavailable_windows__in=windows)
 
 def send_bid_state_change_mail(bid_type, email, badge_name, status):
-    name = '%s_%s' % (bid_type, status)
-    raise Exception(os.path.dirname(__file__))
+    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
     try:
        template = EmailTemplate.objects.get(name=name)
     except:
-        with open("default_bid_status_change.tmpl", "r") as textfile:
+        with open(
+            "%s/templates/gbe/default_bid_status_change.tmpl" % os.path.dirname(
+                __file__), "r") as textfile:
             textcontent = textfile.read()
-        with open("default_bid_status_change_html.tmpl", "r") as htmlfile:
+        with open(
+            "%s/templates/gbe/default_bid_status_change_html.tmpl" % os.path.dirname(
+                __file__), "r") as htmlfile:
             htmlcontent = htmlfile.read()
-        template = EmailTemplate(
+        template = EmailTemplate.objects.create(
             name=name,
-            subject='%s has been %s' % (bid_type, status),
+            subject='Your act %s has changed status to %s' % (
+                bid_type,
+                acceptance_states[status][1]),
             content=textcontent,
             html_content=htmlcontent,
             )
         template.save()
-    raise Exception(template)
-    '''
     mail.send(
         email,
         settings.DEFAULT_FROM_EMAIL,
@@ -191,4 +195,3 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
             'status': status,
             'website': 'bla'},
     )
-    '''

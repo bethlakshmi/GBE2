@@ -48,7 +48,7 @@ def ActChangeStateView(request, bid_id):
                 'act',
                 act.contact_email,
                 act.performer.contact.get_badge_name(),
-                act.get_accepted_display())
+                int(request.POST['accepted']))
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
