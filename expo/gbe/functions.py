@@ -192,6 +192,7 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
         context={
             'name': badge_name,
             'bid_type': bid_type,
-            'status': status,
+            'status': acceptance_states[status][1],
             'website': 'bla'},
+        priority='now',
     )
