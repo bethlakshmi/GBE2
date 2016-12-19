@@ -511,12 +511,12 @@ def calendar_export(conference=None,
                  .replace(',', ''))
             csv_line = csv_line + '"%s",' % \
                 (date_format(event['start_time'], 'TIME_FORMAT')
-                 .replace('a.m.', 'AM').replace('p.m.','PM')
-                 .replace('am', 'AM').replace('pm','PM'))
+                 .replace('a.m.', 'AM').replace('p.m.', 'PM')
+                 .replace('am', 'AM').replace('pm', 'PM'))
             csv_line = csv_line + '"%s",' % \
                 (date_format(event['stop_time'], 'TIME_FORMAT')
-                 .replace('a.m.', 'AM').replace('p.m.','PM')
-                 .replace('am', 'AM').replace('pm','PM'))
+                 .replace('a.m.', 'AM').replace('p.m.', 'PM')
+                 .replace('am', 'AM').replace('pm', 'PM'))
             csv_line = csv_line + '"%s",' % (event['location'])
             csv_line = csv_line + '"%s",' % (event['type'].split('.')[0])
             csv_line = csv_line + '"%s",' % \

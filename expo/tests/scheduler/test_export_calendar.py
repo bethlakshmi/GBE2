@@ -52,7 +52,7 @@ class TestExportCalendar(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.show = ShowFactory()
-        self.url = reverse(self.view_name, 
+        self.url = reverse(self.view_name,
                            urlconf="scheduler.urls")
         self.showcontext = ShowContext(conference=conference)
 
@@ -78,10 +78,9 @@ class TestExportCalendar(TestCase):
         room = RoomFactory()
         show = ShowFactory()
         show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-        
         response = self.client.get(self.url)
         self.assertTrue(response.content.count('\n') > 1)
-        self.assertTrue(len( 
-            (response.content.split('\r\n')[1].split('","'))) == 8 )
-        self.assertTrue('Test Show' in \
+        self.assertTrue(len(
+            (response.content.split('\r\n')[1].split('","'))) == 8)
+        self.assertTrue('Test Show' in
                         response.content.split('\r\n')[1].split('","')[0])
