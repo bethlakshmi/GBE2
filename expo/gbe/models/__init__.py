@@ -18,12 +18,12 @@ from tech_info import (
 from remains import (
     Biddable,
     visible_bid_query,
-    Act,
     Event,
     Show,
     Class,
     Volunteer,
 )
+from act import Act
 from costume import Costume
 from vendor import Vendor
 from class_proposal import ClassProposal
