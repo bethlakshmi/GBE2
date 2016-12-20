@@ -31,6 +31,8 @@ class TestActChangestate(TestCase):
         self.sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Act Coordinator')
+        self.data = {'show': self.show.pk,
+                     'accepted': '2'}
 
     def test_act_changestate_authorized_user(self):
 
@@ -39,7 +41,7 @@ class TestActChangestate(TestCase):
                       urlconf='gbe.urls')
 
         login_as(self.privileged_user, self)
-        response = self.client.get(url, args=[self.act.pk])
+        response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 302)
 
     def test_act_changestate_post_accepted_act(self):
@@ -53,11 +55,9 @@ class TestActChangestate(TestCase):
         url = reverse(self.view_name,
                       args=[context.act.pk],
                       urlconf='gbe.urls')
-        data = {'show': self.show.pk,
-                'accepted': '2'}
         login_as(self.privileged_user, self)
         response = self.client.post(url,
-                                    data=data)
+                                    data=self.data)
         nt.assert_equal(1,
                         ResourceAllocation.objects.filter(
                             event=self.sched_event).count() - prev_count2)
@@ -70,11 +70,9 @@ class TestActChangestate(TestCase):
                       args=[context.act.pk],
                       urlconf='gbe.urls')
 
-        data = {'show': self.show.pk,
-                'accepted': '2'}
         login_as(ProfileFactory(), self)
         response = self.client.post(url,
-                                    data=data)
+                                    data=self.data)
 
         nt.assert_equal(403, response.status_code)
 
@@ -90,11 +88,9 @@ class TestActChangestate(TestCase):
         url = reverse(self.view_name,
                       args=[context.act.pk],
                       urlconf='gbe.urls')
-        data = {'show': self.show.pk,
-                'accepted': '2'}
         login_as(self.privileged_user, self)
         response = self.client.post(url,
-                                    data=data,
+                                    data=self.data,
                                     follow=True)
         self.assertContains(
             response,
