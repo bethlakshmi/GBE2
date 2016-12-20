@@ -2,6 +2,7 @@ import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
+from tests.contexts import ClassContext
 from tests.factories.gbe_factories import (
     ClassFactory,
     ProfileFactory
@@ -21,6 +22,7 @@ class TestClassChangestate(TestCase):
         self.klass = ClassFactory()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Class Coordinator')
+        self.data = {'accepted': '3'}
 
     def test_class_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
@@ -28,7 +30,7 @@ class TestClassChangestate(TestCase):
                       args=[self.klass.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 302)
 
     def test_class_changestate_unauthorized_user(self):
@@ -37,5 +39,15 @@ class TestClassChangestate(TestCase):
                       args=[self.klass.pk],
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
-        response = self.client.get(url)
+        response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 403)
+
+    def test_class_changestate_clear_schedule(self):
+        '''The proper coordinator is changing the state, it works'''
+        context = ClassContext()
+        url = reverse(self.view_name,
+                      args=[context.bid.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data={'accepted': '1'})
+        assert not context.bid.scheduler_events.exists()

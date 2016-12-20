@@ -123,8 +123,8 @@ urlpatterns = patterns(
         ReviewClassListView.as_view(), name='class_review'),
     url(r'^class/reviewlist/?$',
         ReviewClassListView.as_view(), name='class_review_list'),
-    url(r'^class/changestate/(\d+)/?$',
-        ClassChangeStateView,
+    url(r'^class/changestate/(?P<object_id>\d+)/?$',
+        ClassChangeStateView.as_view(),
         name='class_changestate'),
 
     #  proposals

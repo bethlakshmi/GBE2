@@ -16,12 +16,6 @@ from gbe.models import Act
 
 
 class ActChangeStateView(BidChangeStateView):
-    '''
-    Fairly specific to act - removes the act from all shows, and resets
-    the act to the selected show (if accepted/waitlisted), and then does
-    the regular state change
-    NOTE: only call on a post request
-    '''
     object_type = Act
     coordinator_permissions = ('Act Coordinator',)
     redirectURL = 'act_review_list'
@@ -29,13 +23,12 @@ class ActChangeStateView(BidChangeStateView):
     def get_bidder(self):
         self.bidder = self.object.performer.contact
 
-    @log_func
     def act_accepted(self, request):
         return (request.POST['show'] and
                 request.POST['accepted'] in ('3', '2'))
 
+    @log_func
     def bid_state_change(self, request):
-
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
         ActResource.objects.filter(_item=self.object).delete()
