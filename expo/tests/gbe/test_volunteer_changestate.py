@@ -38,7 +38,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.post(url, data={'accepted': 3})
         nt.assert_equal(response.status_code, 302)
 
     def test_volunteer_changestate_unauthorized_user(self):
@@ -47,7 +47,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
-        response = self.client.get(url)
+        response = self.client.post(url)
         nt.assert_equal(response.status_code, 403)
 
     def test_volunteer_changestate_authorized_user_post(self):

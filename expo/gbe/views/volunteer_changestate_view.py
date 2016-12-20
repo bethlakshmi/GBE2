@@ -1,38 +1,26 @@
-from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
 from expo.gbe_logging import log_func
 from django.shortcuts import (
     get_object_or_404,
-    render,
 )
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-
-from gbe.functions import validate_perms
 from gbe.models import Volunteer
 from gbe.views import BidChangeStateView
 from scheduler.models import Worker, Event
 from django.contrib import messages
 
 
-@login_required
-@log_func
-@never_cache
-def VolunteerChangeStateView(request, bid_id):
-    '''
-    Fairly specific to volunteer - removes the profile from all volunteer
-    commitments, and resets the volunteer to the selected volunteer
-    positions (if accepted), and then does the regular state change
-    NOTE: only call on a post request
-    '''
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+class VolunteerChangeStateView(BidChangeStateView):
+    object_type = Volunteer
+    coordinator_permissions = ('Volunteer Coordinator',)
+    redirectURL = 'volunteer_review_list'
 
-    if request.method == 'POST':
-        volunteer = get_object_or_404(Volunteer, id=bid_id)
+    def get_bidder(self):
+        self.bidder = self.object.profile
 
+    @log_func
+    def bid_state_change(self, request):
         # Clear all commitments
         Worker.objects.filter(
-            _item=volunteer.profile,
+            _item=self.object.profile,
             role='Volunteer').delete()
 
         # if the volunteer has been accepted, set the events.
@@ -40,10 +28,12 @@ def VolunteerChangeStateView(request, bid_id):
             for assigned_event in request.POST.getlist('events'):
                 event = get_object_or_404(Event, pk=assigned_event)
                 warnings = event.allocate_worker(
-                        volunteer.profile,
+                        self.bidder,
                         'Volunteer')
                 for warning in warnings:
                     messages.warning(request,
                                      warning)
-        volunteer.profile.notify_volunteer_schedule_change()
-    return BidChangeStateView(request, bid_id, 'volunteer_review_list')
+
+        self.bidder.notify_volunteer_schedule_change()
+        return super(VolunteerChangeStateView, self).bid_state_change(
+            request)

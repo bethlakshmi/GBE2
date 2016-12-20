@@ -177,8 +177,8 @@ urlpatterns = patterns(
     url(r'^volunteer/reviewlist/?$',
         ReviewVolunteerListView.as_view(),
         name='volunteer_review_list'),
-    url(r'^volunteer/changestate/(\d+)/?$',
-        VolunteerChangeStateView,
+    url(r'^volunteer/changestate/(?P<object_id>\d+)/?$',
+        VolunteerChangeStateView.as_view(),
         name='volunteer_changestate'),
 
 
@@ -197,8 +197,8 @@ urlpatterns = patterns(
     url(r'^vendor/reviewlist/?$',
         ReviewVendorListView.as_view(),
         name='vendor_review_list'),
-    url(r'^vendor/changestate/(\d+)/?$',
-        VendorChangeStateView,
+    url(r'^vendor/changestate/(?P<object_id>\d+)/?$',
+        VendorChangeStateView.as_view(),
         name='vendor_changestate'),
 
     #  costumes
@@ -214,8 +214,8 @@ urlpatterns = patterns(
         ReviewCostumeListView.as_view(), name='costume_review'),
     url(r'^costume/reviewlist/?$',
         ReviewCostumeListView.as_view(), name='costume_review_list'),
-    url(r'^costume/changestate/(\d+)/?$',
-        CostumeChangeStateView,
+    url(r'^costume/changestate/(?P<object_id>\d+)/?$',
+        CostumeChangeStateView.as_view() ,
         name='costume_changestate'),
 
     url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',
