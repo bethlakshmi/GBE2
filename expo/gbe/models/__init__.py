@@ -8,13 +8,15 @@ from performer import Performer
 from persona import Persona
 from troupe import Troupe
 from combo import Combo
-from remains import (
-    Biddable,
+from tech_info import (
     AudioInfo,
     LightingInfo,
     StageInfo,
     TechInfo,
     CueInfo,
+)
+from remains import (
+    Biddable,
     Act,
     Event,
     Show,
