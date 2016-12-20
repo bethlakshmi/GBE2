@@ -22,9 +22,9 @@ from remains import (
     Event,
     Show,
     Class,
-    Costume,
     Volunteer,
 )
+from costume import Costume
 from vendor import Vendor
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer
