@@ -178,7 +178,7 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
             htmlcontent = htmlfile.read()
         template = EmailTemplate.objects.create(
             name=name,
-            subject='Your act %s has changed status to %s' % (
+            subject='Your %s has changed status to %s' % (
                 bid_type,
                 acceptance_states[status][1]),
             content=textcontent,

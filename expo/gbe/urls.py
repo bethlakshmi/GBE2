@@ -101,8 +101,8 @@ urlpatterns = patterns(
         name='act_review_list'),
     url(r'^act/submit/(\d+)/?$',
         SubmitActView, name='act_submit'),
-    url(r'^act/changestate/(\d+)/?$',
-        ActChangeStateView,
+    url(r'^act/changestate/(?P<object_id>\d+)/?$',
+        ActChangeStateView.as_view(),
         name='act_changestate'),
 
     #  act tech info

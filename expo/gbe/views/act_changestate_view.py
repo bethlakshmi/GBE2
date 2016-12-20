@@ -1,12 +1,6 @@
-from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from expo.gbe_logging import log_func
-from gbe.functions import (
-    send_bid_state_change_mail,
-    validate_perms,
-)
 from scheduler.models import (
     ActResource,
     Event as sEvent,
@@ -21,38 +15,29 @@ from gbe.views import BidChangeStateView
 from gbe.models import Act
 
 
-@login_required
-@log_func
-@never_cache
-def ActChangeStateView(request, bid_id):
+class ActChangeStateView(BidChangeStateView):
     '''
     Fairly specific to act - removes the act from all shows, and resets
     the act to the selected show (if accepted/waitlisted), and then does
     the regular state change
     NOTE: only call on a post request
-    BB - I'd like to refactor this to be the same as volunteer form, but
-    not right now - 2015?
     '''
+    object_type = Act
+    coordinator_permissions = ('Act Coordinator',)
+    redirectURL = 'act_review_list'
+
+    def get_bidder(self):
+        self.bidder = self.object.performer.contact
 
     @log_func
     def act_accepted(request):
         return (request.POST['show'] and
                 request.POST['accepted'] in ('3', '2'))
 
-    reviewer = validate_perms(request, ('Act Coordinator',))
-    if request.method == 'POST':
-        act = get_object_or_404(Act, id=bid_id)
-
-        if str(act.accepted) != request.POST['accepted']:
-            send_bid_state_change_mail(
-                'act',
-                act.contact_email,
-                act.performer.contact.get_badge_name(),
-                int(request.POST['accepted']))
+    def bid_state_change(self, request, act):
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
-
         ActResource.objects.filter(_item=act).delete()
 
         # if the act has been accepted, set the show.
@@ -79,4 +64,5 @@ def ActChangeStateView(request, bid_id):
 
             casting.resource = actresource
             casting.save()
-    return BidChangeStateView(request, bid_id, 'act_review_list')
+        return super(ActChangeStateView, self).bid_state_change(
+            request, bid_id)
