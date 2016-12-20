@@ -10,10 +10,10 @@ from troupe import Troupe
 from combo import Combo
 from tech_info import (
     AudioInfo,
-    TechInfo,
-    CueInfo,
     LightingInfo,
     StageInfo,
+    TechInfo,
+    CueInfo,
 )
 from biddable import Biddable
 from biddable import visible_bid_query
