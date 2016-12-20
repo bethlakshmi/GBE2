@@ -17,14 +17,15 @@ from tech_info import (
 )
 from remains import (
     Biddable,
+    visible_bid_query,
     Act,
     Event,
     Show,
     Class,
     Costume,
-    Vendor,
     Volunteer,
 )
+from vendor import Vendor
 from class_proposal import ClassProposal
 from conference_volunteer import ConferenceVolunteer
 from generic_event import GenericEvent
