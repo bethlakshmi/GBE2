@@ -30,27 +30,27 @@ class ActChangeStateView(BidChangeStateView):
         self.bidder = self.object.performer.contact
 
     @log_func
-    def act_accepted(request):
+    def act_accepted(self, request):
         return (request.POST['show'] and
                 request.POST['accepted'] in ('3', '2'))
 
-    def bid_state_change(self, request, act):
+    def bid_state_change(self, request):
 
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
-        ActResource.objects.filter(_item=act).delete()
+        ActResource.objects.filter(_item=self.object).delete()
 
         # if the act has been accepted, set the show.
-        if act_accepted(request):
+        if self.act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
             show = get_object_or_404(sEvent,
                                      eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
             casting.event = show
-            actresource = ActResource(_item=act)
+            actresource = ActResource(_item=self.object)
             actresource.save()
-            for worker in act.get_performer_profiles():
+            for worker in self.object.get_performer_profiles():
                 conflicts = worker.get_conflicts(show)
                 for problem in conflicts:
                     messages.warning(
@@ -65,4 +65,4 @@ class ActChangeStateView(BidChangeStateView):
             casting.resource = actresource
             casting.save()
         return super(ActChangeStateView, self).bid_state_change(
-            request, bid_id)
+            request)

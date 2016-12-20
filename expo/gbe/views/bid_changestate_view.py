@@ -19,27 +19,18 @@ from gbe.functions import (
 class BidChangeStateView(View):
     
     @log_func
-    def bid_change_state(self, request, bid):
-        '''
-        The generic function to change a bid to a new state (accepted,
-        rejected, etc.). This can work for any Biddable class, but may
-        be an add-on to other work for a given class type.
-        NOTE: only call on a post request, and call from within a specific
-        type of bid changestate function
-        '''
-        # show class info and inputs for review
-        if request.method == 'POST':
-            form = BidStateChangeForm(request.POST, instance=bid)
-            if form.is_valid():
-                bid = form.save()
-                return HttpResponseRedirect(
-                    reverse(self.redirectURL, urlconf='gbe.urls'))
-            else:
-                return render(
-                    request,
-                    'gbe/bid_review.tmpl',
-                    {'actionform': False,
-                     'actionURL': False})
+    def bid_state_change(self, request):
+        form = BidStateChangeForm(request.POST, instance=self.object)
+        if form.is_valid():
+            self.object = form.save()
+            return HttpResponseRedirect(
+                reverse(self.redirectURL, urlconf='gbe.urls'))
+        else:
+            return render(
+                request,
+                'gbe/bid_review.tmpl',
+                {'actionform': False,
+                 'actionURL': False})
         return HttpResponseRedirect(
             reverse(self.redirectURL, urlconf='gbe.urls'))
 
@@ -64,7 +55,7 @@ class BidChangeStateView(View):
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        return self.bid_change_state(request, self.object)
+        return self.bid_state_change(request)
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
