@@ -8,8 +8,6 @@ from performer import Performer
 from persona import Persona
 from troupe import Troupe
 from combo import Combo
-from biddable import Biddable
-from biddable import visible_bid_query
 from tech_info import (
     AudioInfo,
     TechInfo,
@@ -17,6 +15,8 @@ from tech_info import (
     LightingInfo,
     StageInfo,
 )
+from biddable import Biddable
+from biddable import visible_bid_query
 from act import Act
 from event import Event
 from show import Show
