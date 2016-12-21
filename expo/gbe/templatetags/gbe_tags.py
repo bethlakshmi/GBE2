@@ -28,6 +28,7 @@ def display_track_title(title, truncated_length):
     else:
         return title[:truncated_length] + "..."
 
+
 def build_schedule_context(profile):
     events = profile.volunteer_schedule()
     schedule = [
@@ -39,9 +40,11 @@ def build_schedule_context(profile):
         for event in events]
     return {'schedule': schedule}
 
+
 @register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
 def volunteer_schedule(profile):
     return build_schedule_context(profile)
+
 
 @register.inclusion_tag('gbe/tag_templates/schedule_plaintext.tmpl')
 def volunteer_schedule_plaintext(profile):

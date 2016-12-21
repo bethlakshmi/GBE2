@@ -8,6 +8,7 @@ from scheduler.models import Worker, Event
 from django.contrib import messages
 from gbe.functions import send_schedule_update_mail
 
+
 class VolunteerChangeStateView(BidChangeStateView):
     object_type = Volunteer
     coordinator_permissions = ('Volunteer Coordinator',)
@@ -19,7 +20,7 @@ class VolunteerChangeStateView(BidChangeStateView):
     def groundwork(self, request, args, kwargs):
         self.prep_bid(request, args, kwargs)
         if request.POST['accepted'] != '3':
-            self.notify_bidder(request);
+            self.notify_bidder(request)
 
     @log_func
     def bid_state_change(self, request):

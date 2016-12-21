@@ -16,8 +16,9 @@ from gbe.functions import (
     validate_perms,
 )
 
+
 class BidChangeStateView(View):
-    
+
     @log_func
     def bid_state_change(self, request):
         form = BidStateChangeForm(request.POST, instance=self.object)
@@ -40,7 +41,7 @@ class BidChangeStateView(View):
         object_id = kwargs['object_id']
         self.get_object(request, object_id)
         self.get_bidder()
-        self.reviewer = validate_perms(request, self.coordinator_permissions)    
+        self.reviewer = validate_perms(request, self.coordinator_permissions)
 
     def notify_bidder(self, request):
         if str(self.object.accepted) != request.POST['accepted']:
@@ -50,7 +51,6 @@ class BidChangeStateView(View):
                 self.bidder.get_badge_name(),
                 int(request.POST['accepted']))
 
-    
     def groundwork(self, request, args, kwargs):
         self.prep_bid(request, args, kwargs)
         self.notify_bidder(request)
@@ -60,7 +60,7 @@ class BidChangeStateView(View):
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         return self.bid_state_change(request)
-    
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(BidChangeStateView, self).dispatch(*args, **kwargs)

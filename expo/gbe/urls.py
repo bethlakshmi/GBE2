@@ -215,7 +215,7 @@ urlpatterns = patterns(
     url(r'^costume/reviewlist/?$',
         ReviewCostumeListView.as_view(), name='costume_review_list'),
     url(r'^costume/changestate/(?P<object_id>\d+)/?$',
-        CostumeChangeStateView.as_view() ,
+        CostumeChangeStateView.as_view(),
         name='costume_changestate'),
 
     url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',

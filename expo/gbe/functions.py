@@ -163,21 +163,20 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
         conference=conference).exclude(
         unavailable_windows__in=windows)
 
+
 def get_or_create_template(name, base, subject):
     try:
-       template = EmailTemplate.objects.get(name=name)
+        template = EmailTemplate.objects.get(name=name)
     except:
         with open(
             "%s/templates/gbe/%s.tmpl" % (
                 os.path.dirname(__file__),
-                base),
-            "r") as textfile:
+                base), "r") as textfile:
             textcontent = textfile.read()
         with open(
             "%s/templates/gbe/%s_html.tmpl" % (
                 os.path.dirname(__file__),
-                base),
-            "r") as htmlfile:
+                base), "r") as htmlfile:
             htmlcontent = htmlfile.read()
         template = EmailTemplate.objects.create(
             name=name,
@@ -206,6 +205,7 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
             'status': acceptance_states[status][1]},
         priority='now',
     )
+
 
 def send_schedule_update_mail(participant_type, profile):
     name = '%s schedule update' % (participant_type.lower())
