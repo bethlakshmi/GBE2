@@ -23,8 +23,6 @@ class BidChangeStateView(View):
         form = BidStateChangeForm(request.POST, instance=self.object)
         if form.is_valid():
             self.object = form.save()
-            return HttpResponseRedirect(
-                reverse(self.redirectURL, urlconf='gbe.urls'))
         else:
             return render(
                 request,
