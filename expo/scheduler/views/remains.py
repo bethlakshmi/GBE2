@@ -54,14 +54,15 @@ from scheduler.views.functions import (
     set_multi_role,
 )
 from gbe.functions import (
+    conference_list,
+    eligible_volunteers,
     get_current_conference,
     get_conference_by_slug,
     get_conference_day,
+    get_events_list_by_type,
+    send_schedule_update_mail,
     validate_perms,
     validate_profile,
-    get_events_list_by_type,
-    conference_list,
-    eligible_volunteers,
 )
 from gbe.views.class_display_functions import get_scheduling_info
 from django.contrib import messages
@@ -353,7 +354,7 @@ def allocate_workers(request, opp_id):
         res.delete()
         # This delete looks dangerous, considering that Event.allocate_worker
         # seems to allow us to create multiple allocations for the same Worker
-        profile.notify_volunteer_schedule_change()
+        send_schedule_update_mail("Volunteer", profile)
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
@@ -385,7 +386,7 @@ def allocate_workers(request, opp_id):
                 messages.warning(
                     request,
                     warning)
-            data['worker'].notify_volunteer_schedule_change()
+            send_schedule_update_mail("Volunteer", data['worker'])
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
