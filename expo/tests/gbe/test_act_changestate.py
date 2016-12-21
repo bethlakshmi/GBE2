@@ -18,6 +18,8 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from scheduler.models import ResourceAllocation
+from post_office.models import EmailTemplate
+from django.core import mail
 
 
 class TestActChangestate(TestCase):
@@ -96,3 +98,36 @@ class TestActChangestate(TestCase):
             response,
             "is booked for"
         )
+
+    def test_act_reject_sends_notification_makes_template(self):
+        context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=self.data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = \
+            "Your act proposal has changed status to Wait List"
+        assert msg.subject == expected_subject
+        template = EmailTemplate.objects.get(name='act wait list')
+        assert template.subject == expected_subject
+
+    def test_act_reject_sends_notification_has_template(self):
+        expected_subject = "test template"
+        template = EmailTemplate.objects.create(
+            name='act wait list',
+            subject=expected_subject,
+            content='test',
+            html_content='test',
+            )
+        context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=self.data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        assert msg.subject == expected_subject

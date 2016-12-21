@@ -193,7 +193,7 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
     get_or_create_template(
         name,
         "default_bid_status_change",
-        'Your %s has changed status to %s' % (
+        'Your %s proposal has changed status to %s' % (
                 bid_type,
                 acceptance_states[status][1]))
     mail.send(

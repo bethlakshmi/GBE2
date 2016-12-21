@@ -51,3 +51,13 @@ class TestClassChangestate(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(url, data={'accepted': '1'})
         assert not context.bid.scheduler_events.exists()
+
+    def test_class_changestate_bad_data(self):
+        '''The proper coordinator is changing the state, it works'''
+        url = reverse(self.view_name,
+                      args=[self.klass.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data={'accepted': '-1'})
+        assert response.status_code == 200
+        assert 'Bid Information' in response.content

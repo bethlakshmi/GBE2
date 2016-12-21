@@ -17,6 +17,7 @@ from django.core.exceptions import PermissionDenied
 from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
+from post_office.models import EmailTemplate
 
 
 class TestVolunteerChangestate(TestCase):
@@ -61,7 +62,7 @@ class TestVolunteerChangestate(TestCase):
         response = self.client.post(url, data=data)
         nt.assert_equal(response.status_code, 302)
 
-    def test_volunteer_changestate_sends_notification(self):
+    def test_volunteer_accept_sends_notification_makes_template(self):
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
@@ -73,6 +74,43 @@ class TestVolunteerChangestate(TestCase):
         assert 1 == len(mail.outbox)
         msg = mail.outbox[0]
         expected_subject = "A change has been made to your Volunteer Schedule!"
+        assert msg.subject == expected_subject
+        template = EmailTemplate.objects.get(name='volunteer schedule update')
+        assert template.subject == expected_subject
+
+    def test_volunteer_accept_sends_notification_has_template(self):
+        expected_subject = "test template"
+        template = EmailTemplate.objects.create(
+            name='volunteer schedule update',
+            subject=expected_subject,
+            content='test',
+            html_content='test',
+            )
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.conference,
+                'events': [],
+                'accepted': 3}
+        response = self.client.post(url, data=data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        assert msg.subject == expected_subject
+
+    def test_volunteer_withdraw_sends_notification(self):
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.conference,
+                'events': [],
+                'accepted': 4}
+        response = self.client.post(url, data=data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = \
+            "Your volunteer proposal has changed status to Withdrawn"
         assert msg.subject == expected_subject
 
     def test_volunteer_changestate_gives_overbook_warning(self):
