@@ -38,12 +38,14 @@ class BidChangeStateView(View):
         self.object = get_object_or_404(self.object_type,
                                         id=object_id)
 
-    def groundwork(self, request, args, kwargs):
+    def prep_bid(self, request, args, kwargs):
         object_id = kwargs['object_id']
         self.get_object(request, object_id)
         self.get_bidder()
-        self.reviewer = validate_perms(request, self.coordinator_permissions)
+        self.reviewer = validate_perms(request, self.coordinator_permissions)    
 
+    def groundwork(self, request, args, kwargs):
+        self.prep_bid(request, args, kwargs)
         if str(self.object.accepted) != request.POST['accepted']:
             send_bid_state_change_mail(
                 str(self.object_type.__name__).lower(),

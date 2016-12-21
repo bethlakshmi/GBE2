@@ -16,6 +16,9 @@ class VolunteerChangeStateView(BidChangeStateView):
     def get_bidder(self):
         self.bidder = self.object.profile
 
+    def groundwork(self, request, args, kwargs):
+        self.prep_bid(request, args, kwargs)
+
     @log_func
     def bid_state_change(self, request):
         # Clear all commitments
