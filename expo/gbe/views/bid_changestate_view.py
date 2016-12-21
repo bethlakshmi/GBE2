@@ -44,14 +44,18 @@ class BidChangeStateView(View):
         self.get_bidder()
         self.reviewer = validate_perms(request, self.coordinator_permissions)    
 
-    def groundwork(self, request, args, kwargs):
-        self.prep_bid(request, args, kwargs)
+    def notify_bidder(self, request):
         if str(self.object.accepted) != request.POST['accepted']:
             send_bid_state_change_mail(
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
                 int(request.POST['accepted']))
+
+    
+    def groundwork(self, request, args, kwargs):
+        self.prep_bid(request, args, kwargs)
+        self.notify_bidder(request)
 
     @log_func
     @never_cache

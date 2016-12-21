@@ -163,28 +163,39 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
         conference=conference).exclude(
         unavailable_windows__in=windows)
 
-def send_bid_state_change_mail(bid_type, email, badge_name, status):
-    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+def get_or_create_template(name, base, subject):
     try:
        template = EmailTemplate.objects.get(name=name)
     except:
         with open(
-            "%s/templates/gbe/default_bid_status_change.tmpl" % os.path.dirname(
-                __file__), "r") as textfile:
+            "%s/templates/gbe/%s.tmpl" % (
+                os.path.dirname(__file__),
+                base),
+            "r") as textfile:
             textcontent = textfile.read()
         with open(
-            "%s/templates/gbe/default_bid_status_change_html.tmpl" % os.path.dirname(
-                __file__), "r") as htmlfile:
+            "%s/templates/gbe/%s_html.tmpl" % (
+                os.path.dirname(__file__),
+                base),
+            "r") as htmlfile:
             htmlcontent = htmlfile.read()
         template = EmailTemplate.objects.create(
             name=name,
-            subject='Your %s has changed status to %s' % (
-                bid_type,
-                acceptance_states[status][1]),
+            subject=subject,
             content=textcontent,
             html_content=htmlcontent,
             )
         template.save()
+
+
+def send_bid_state_change_mail(bid_type, email, badge_name, status):
+    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+    get_or_create_template(
+        name,
+        "default_bid_status_change",
+        'Your %s has changed status to %s' % (
+                bid_type,
+                acceptance_states[status][1]))
     mail.send(
         email,
         settings.DEFAULT_FROM_EMAIL,
@@ -192,7 +203,22 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
         context={
             'name': badge_name,
             'bid_type': bid_type,
-            'status': acceptance_states[status][1],
-            'website': 'bla'},
+            'status': acceptance_states[status][1]},
+        priority='now',
+    )
+
+def send_schedule_update_mail(participant_type, profile):
+    name = '%s schedule update' % (participant_type.lower())
+    get_or_create_template(
+        name,
+        "volunteer_schedule_update",
+        "A change has been made to your %s Schedule!" % (
+                participant_type))
+    mail.send(
+        profile.contact_email,
+        settings.DEFAULT_FROM_EMAIL,
+        template=name,
+        context={
+            'profile': profile},
         priority='now',
     )

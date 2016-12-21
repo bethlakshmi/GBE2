@@ -1,17 +1,17 @@
 {% load gbe_tags %}
 
-<p>Dear {{ profile.display_name }},</p>
+Dear {{ profile.display_name }},
 
-<p>Thank you for participating in The Great Burlesque Exposition! An update has
+Thank you for participating in The Great Burlesque Exposition! An update has
 been made to your volunteer schedule. Your current volunteer schedule is listed
 below; you can also check your schedule at anytime by logging in to the site and
-looking at your personal page.</p>
+looking at your personal page.
 
-{% volunteer_schedule profile %}
+{% volunteer_schedule_plaintext profile %}
 
-<p>Please try to report for each volunteer shift a few minutes before it begins. If
+Please try to report for each volunteer shift a few minutes before it begins. If
 for any reason you will not be able to make the commitments on your schedule,
 please contact us immediately at info@burlesque-expo.com. In case of emergency
-during the BurlExpo, you may call us at (617) 869-2000.</p>
+during the BurlExpo, you may call us at (617) 869-2000.
 
-<p>Thank you for being part of The Great Burlesque Exposition!</p>
+Thank you for being part of The Great Burlesque Exposition!
