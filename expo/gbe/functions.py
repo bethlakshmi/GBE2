@@ -9,7 +9,6 @@ from gbe.models import (
     Volunteer,
 )
 from django.http import Http404
-from django.core.mail import send_mail
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
@@ -73,18 +72,20 @@ def mail_to_group(subject, message, group_name):
     '''
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
-    if not settings.DEBUG:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
+    mail.send(to_list,
+              settings.DEFAULT_FROM_EMAIL,
+              subject=subject,
+              message=message)
     return None
 
 
 def send_user_contact_email(name, from_address, message):
     subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
-    send_mail(subject,
-              message,
+    mail.send(to_addresses,
               from_address,
-              to_addresses)
+              subject=subject,
+              message=message)
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
     # TO DO: close the spam hole that this opens up.
