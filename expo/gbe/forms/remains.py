@@ -393,6 +393,18 @@ class VolunteerBidForm(forms.ModelForm):
         self.fields['available_windows'].queryset = available_windows
         self.fields['unavailable_windows'].queryset = unavailable_windows
 
+    def clean(self):
+        cleaned_data = super(VolunteerBidForm, self).clean()
+        conflict_windows = set(
+            self.cleaned_data['available_windows']).intersection(
+            self.cleaned_data['unavailable_windows'])
+        if len(conflict_windows) > 0:
+            windows = ", ".join(str(w) for w in conflict_windows)
+            message = "Availability time conflict - the following times " + \
+                 "can't be available and not available: %s" % windows
+            raise ValidationError(message)
+        return cleaned_data
+
     class Meta:
         model = Volunteer
         fields = ['number_shifts',
