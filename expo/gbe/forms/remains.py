@@ -395,9 +395,12 @@ class VolunteerBidForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(VolunteerBidForm, self).clean()
-        conflict_windows = set(
-            self.cleaned_data['available_windows']).intersection(
-            self.cleaned_data['unavailable_windows'])
+        conflict_windows = []
+        if ('available_windows' in self.cleaned_data) and (
+                'unavailable_windows' in self.cleaned_data):
+            conflict_windows = set(
+                self.cleaned_data['available_windows']).intersection(
+                self.cleaned_data['unavailable_windows'])
         if len(conflict_windows) > 0:
             windows = ", ".join(str(w) for w in conflict_windows)
             self._errors['available_windows'] = \
