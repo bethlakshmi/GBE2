@@ -400,9 +400,11 @@ class VolunteerBidForm(forms.ModelForm):
             self.cleaned_data['unavailable_windows'])
         if len(conflict_windows) > 0:
             windows = ", ".join(str(w) for w in conflict_windows)
-            message = "Availability time conflict - the following times " + \
-                 "can't be available and not available: %s" % windows
-            raise ValidationError(message)
+            self._errors['available_windows'] = \
+                'Available times conflict with unavailable times.  ' + \
+                'Conflicts are: %s' % windows
+            self._errors['unavailable_windows'] = \
+                'Unavailable times conflict with Available times.'
         return cleaned_data
 
     class Meta:
