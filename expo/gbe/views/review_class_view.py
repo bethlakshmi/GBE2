@@ -5,15 +5,12 @@ from gbe.forms import (
 )
 from gbe.models import Class
 from gbe.views import ReviewBidView
+from gbe.views.class_display_functions import get_class_forms
 
 
 class ReviewClassView(ReviewBidView):
     reviewer_permissions = ('Class Reviewers',)
     coordinator_permissions = ('Class Coordinator',)
-    bid_prefix = "The Class"
-    bidder_prefix = "The Teacher(s)"
-    bidder_form_type = PersonaForm
-    bid_form_type = ClassBidForm
     object_type = Class
     bid_view_name = 'class_view'
     review_list_view_name = 'class_review_list'
@@ -21,9 +18,7 @@ class ReviewClassView(ReviewBidView):
 
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
-        self.create_object_form()
-        self.teacher = self.bidder_form_type(instance=self.object.teacher,
-                                             prefix=self.bidder_prefix)
+        self.object_form, self.teacher = get_class_forms(self.object)
         initial = {
             'email': self.object.teacher.performer_profile.user_object.email,
             'first_name':
