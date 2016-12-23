@@ -6,6 +6,7 @@ from gbe.forms import (
 from gbe.models import Class
 from gbe.views import ReviewBidView
 from gbe.views.class_display_functions import get_class_forms
+from gbe.views.functions import get_participant_form
 
 
 class ReviewClassView(ReviewBidView):
@@ -19,14 +20,8 @@ class ReviewClassView(ReviewBidView):
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
         self.object_form, self.teacher = get_class_forms(self.object)
-        initial = {
-            'email': self.object.teacher.performer_profile.user_object.email,
-            'first_name':
-            self.object.teacher.performer_profile.user_object.first_name,
-            'last_name':
-            self.object.teacher.performer_profile.user_object.last_name}
-        self.contact = ParticipantForm(
-            instance=self.object.teacher.performer_profile,
-            prefix='Teacher Contact Info', initial=initial)
+        self.contact = get_participant_form(
+            self.object.teacher.performer_profile,
+            prefix='Teacher Contact Info')
         self.readonlyform_pieces = (self.object_form,
                                     self.teacher, self.contact)
