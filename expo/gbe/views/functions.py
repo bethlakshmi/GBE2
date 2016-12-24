@@ -32,6 +32,8 @@ def get_participant_form(profile, prefix='Contact Info'):
     for option in how_heard_options:
         if option[0] in profile.how_heard:
             how_heard_selected += [option]
+    if len(how_heard_selected) == 0:
+        how_heard_selected = [('', ''),]
     participantform.fields['how_heard'] = MultipleChoiceField(
         choices=how_heard_selected,
         required=False,
