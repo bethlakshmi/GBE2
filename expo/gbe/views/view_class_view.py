@@ -4,15 +4,21 @@ from gbe.forms import (
     PersonaForm,
 )
 from gbe.views import ViewBidView
-from gbe.views.class_display_functions import get_class_forms
 
 
 class ViewClassView(ViewBidView):
     bid_type = Class
+    object_form_type = ClassBidForm
     viewer_permissions = ('Class Reviewers',)
+    bid_prefix = 'The Class'
+    owner_prefix = 'The Teacher(s)'
 
     def get_display_forms(self):
-        return get_class_forms(self.bid)
+        bid_form = self.object_form_type(instance=self.bid,
+                                         prefix=self.bid_prefix)
+        persona_form = PersonaForm(instance=self.bid.teacher,
+                                   prefix=self.owner_prefix)
+        return (bid_form, persona_form)
 
     def get_owner_profile(self):
         return self.bid.teacher.contact

@@ -3,10 +3,6 @@ from gbe_forms_text import (
     classbid_labels,
     class_schedule_options,
 )
-from gbe.forms import (
-    ClassBidForm,
-    PersonaForm
-)
 
 
 def get_scheduling_info(bid_class):
@@ -33,11 +29,3 @@ def get_scheduling_info(bid_class):
         }
 
     return scheduling_info
-
-def get_class_forms(bid_class):
-    bid_form = ClassBidForm(instance=bid_class,
-                                     prefix='The Class')
-    persona_form = PersonaForm(instance=bid_class.teacher,
-                               prefix='The Teacher(s)')
-    return (bid_form, persona_form)
-
