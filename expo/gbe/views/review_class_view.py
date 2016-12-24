@@ -1,10 +1,10 @@
 from gbe.forms import (
     PersonaForm,
     ClassBidForm,
-    ParticipantForm,
 )
 from gbe.models import Class
 from gbe.views import ReviewBidView
+from gbe.views.functions import get_participant_form
 
 
 class ReviewClassView(ReviewBidView):
@@ -24,14 +24,8 @@ class ReviewClassView(ReviewBidView):
         self.create_object_form()
         self.teacher = self.bidder_form_type(instance=self.object.teacher,
                                              prefix=self.bidder_prefix)
-        initial = {
-            'email': self.object.teacher.performer_profile.user_object.email,
-            'first_name':
-            self.object.teacher.performer_profile.user_object.first_name,
-            'last_name':
-            self.object.teacher.performer_profile.user_object.last_name}
-        self.contact = ParticipantForm(
-            instance=self.object.teacher.performer_profile,
-            prefix='Teacher Contact Info', initial=initial)
+        self.contact = get_participant_form(
+            self.object.teacher.performer_profile,
+            prefix=self.bidder_prefix)
         self.readonlyform_pieces = (self.object_form,
                                     self.teacher, self.contact)
