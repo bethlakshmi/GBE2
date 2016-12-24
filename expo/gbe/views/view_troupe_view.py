@@ -13,6 +13,7 @@ from gbe.forms import (
 )
 from gbe.functions import validate_profile
 from gbe.models import Troupe
+from gbe.views.functions import get_participant_form
 
 
 @login_required
@@ -31,13 +32,9 @@ def ViewTroupeView(request, troupe_id=None):
 
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
     form = TroupeForm(instance=troupe, prefix='The Troupe')
-    owner = ParticipantForm(
-        instance=profile,
-        prefix='Troupe Contact',
-        initial={'email': profile.user_object.email,
-                 'first_name': profile.user_object.first_name,
-                 'last_name': profile.user_object.last_name})
-
+    owner = get_participant_form(
+            profile,
+            prefix='Troupe Contact')
     return render(request,
                   'gbe/bid_view.tmpl',
                   {'readonlyform': [form, owner]})
