@@ -131,3 +131,15 @@ class TestReviewClass(TestCase):
         response = self.client.get(url)
         assert "Review Bids" in response.content
         assert response.status_code == 200
+
+    def test_review_class_no_state_in_profile(self):
+        klass = ClassFactory()
+        klass.teacher.contact.state = ''
+        klass.teacher.contact.save()
+        url = reverse(self.view_name,
+                      args=[klass.pk],
+                      urlconf='gbe.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        assert 'No State Chosen' in response.content

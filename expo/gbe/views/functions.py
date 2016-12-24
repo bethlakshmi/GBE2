@@ -2,6 +2,7 @@ from gbe.forms import (
     ParticipantForm
 )
 from django.forms import (
+    CharField,
     MultipleChoiceField,
 )
 from gbe_forms_text import (
@@ -20,11 +21,13 @@ def get_participant_form(profile, prefix='Contact Info'):
                  'first_name': profile.user_object.first_name,
                  'last_name': profile.user_object.last_name},
         prefix=prefix)
-
-    participantform.fields['state'] = MultipleChoiceField(
-        choices=[(profile.state,
-                  dict(states_options)[profile.state])],
-    )
+    if profile.state:
+        participantform.fields['state'] = MultipleChoiceField(
+            choices=[(profile.state,
+                      dict(states_options)[profile.state])],)
+    else:
+        participantform.fields['state'] = MultipleChoiceField(
+            choices=[('--------', 'No State Chosen')],)
     how_heard_selected = []
     for option in how_heard_options:
         if option[0] in profile.how_heard:
