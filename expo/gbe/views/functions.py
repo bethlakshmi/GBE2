@@ -1,8 +1,11 @@
 from gbe.forms import (
-    ParticipantForm
+    ParticipantForm,
+    PersonaForm,
+    TroupeForm,
 )
 from django.forms import (
     CharField,
+    ModelChoiceField,
     MultipleChoiceField,
 )
 from gbe_forms_text import (
@@ -12,7 +15,9 @@ from gbe_forms_text import (
 from gbetext import (
     states_options,
 )
-
+from gbe.models import (
+    Troupe,
+)
 
 def get_participant_form(profile, prefix='Contact Info'):
     participantform = ParticipantForm(
@@ -39,3 +44,18 @@ def get_participant_form(profile, prefix='Contact Info'):
         required=False,
         label=participant_labels['how_heard'])
     return participantform
+
+
+def get_performer_form(performer, perf_type='Either'):
+    is_troupe = False
+    if perf_type == 'Troupe' or (perf_type=='Either' and Troupe.objects.filter(
+            pk=performer.pk).exists()):
+        instance = Troupe.objects.get(pk=performer.pk)
+        performer_form = TroupeForm(instance=instance,
+                                    prefix="The Troupe")
+        performer_form.fields['membership'] = ModelChoiceField(
+            queryset=instance.membership.all())
+    else:
+        performer_form = PersonaForm(instance=performer,
+                                     prefix="The Performer")
+    return performer_form

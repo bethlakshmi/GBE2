@@ -13,7 +13,10 @@ from gbe.forms import (
 )
 from gbe.functions import validate_profile
 from gbe.models import Troupe
-from gbe.views.functions import get_participant_form
+from gbe.views.functions import (
+    get_participant_form,
+    get_performer_form,
+)
 
 
 @login_required
@@ -31,7 +34,7 @@ def ViewTroupeView(request, troupe_id=None):
                                             urlconf='gbe.urls'))
 
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
-    form = TroupeForm(instance=troupe, prefix='The Troupe')
+    form = get_performer_form(troupe, perf_type='Troupe')
     owner = get_participant_form(
             profile,
             prefix='Troupe Contact')
