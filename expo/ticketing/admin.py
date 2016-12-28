@@ -44,14 +44,19 @@ class TicketItemAdmin(admin.ModelAdmin):
                     'datestamp',
                     'modified_by',
                     'conference')
-    list_filter = ['active',
-                   'datestamp',
+    list_filter = ['datestamp',
                    'modified_by',
-                   'bpt_event']
+                   'bpt_event',
+                   'live',
+                   'has_coupon']
     search_fields = ['title']
 
     def conference(self, obj):
-            return obj.bpt_event.conference
+        return obj.bpt_event.conference
+    
+    def active(self, obj):
+        return obj.active
+    
 
 
 class BPTEventsAdmin(admin.ModelAdmin):

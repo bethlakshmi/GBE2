@@ -9,7 +9,12 @@ from django.shortcuts import render, get_object_or_404, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import get_current_site
-from ticketing.models import *
+from ticketing.models import (
+    BrownPaperEvents,
+    Purchaser,
+    TicketItem,
+    Transaction,
+)
 from ticketing.forms import *
 from ticketing.brown_paper import *
 from gbe.functions import *
@@ -87,12 +92,17 @@ def import_ticket_items():
     new Ticket Items.  It will not override existing items.
     '''
     import_item_list = get_bpt_price_list()
-    db_item_list = TicketItem.objects.all()
 
     for i_item in import_item_list:
-        if all(db_item.ticket_id != i_item.ticket_id
-               for db_item in db_item_list):
-            i_item.save()
+        ticket_item, created = TicketItem.objects.get_or_create(
+            ticket_id=i_item['ticket_id'],
+            defaults=i_item)
+        if not created:
+            ticket_item.description = i_item['description']
+            ticket_item.modified_by = 'BPT Description Import'
+            ticket_item.live = i_item['live']
+            ticket_item.cost = i_item['cost']
+            ticket_item.save()
 
 
 def ticket_item_edit(request, item_id=None):
