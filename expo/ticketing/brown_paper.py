@@ -8,6 +8,7 @@ from expo.gbe_logging import logger
 import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
+from django.contrib.auth.models import User
 from ticketing.models import (
     BrownPaperEvents,
     BrownPaperSettings,
