@@ -53,10 +53,9 @@ class TicketItemAdmin(admin.ModelAdmin):
 
     def conference(self, obj):
         return obj.bpt_event.conference
-    
+
     def active(self, obj):
         return obj.active
-    
 
 
 class BPTEventsAdmin(admin.ModelAdmin):

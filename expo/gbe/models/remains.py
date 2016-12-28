@@ -410,11 +410,13 @@ class Show (Event):
         from ticketing.models import TicketItem
         most_events = TicketItem.objects.filter(
             bpt_event__include_most=True,
-            active=True,
+            live=True,
+            has_coupon=False,
             bpt_event__conference=self.conference)
         my_events = TicketItem.objects.filter(
             bpt_event__linked_events=self,
-            active=True)
+            live=True,
+            has_coupon=False)
         tickets = list(chain(my_events, most_events))
         return tickets
 
@@ -600,10 +602,12 @@ class Class(Biddable, Event):
         most_events = TicketItem.objects.filter(
             Q(bpt_event__include_most=True) |
             Q(bpt_event__include_conference=True)).filter(
-                active=True,
+                live=True,
+                has_coupon=False,
                 bpt_event__conference=self.conference)
         my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                              active=True)
+                                              live=True,
+                                              has_coupon=False)
         tickets = list(chain(my_events, most_events))
         return tickets
 

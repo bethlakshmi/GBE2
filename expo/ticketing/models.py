@@ -86,7 +86,7 @@ class TicketItem(models.Model):
     @property
     def active(self):
         return self.live and not self.has_coupon
-    
+
 
 class Purchaser(models.Model):
     '''
