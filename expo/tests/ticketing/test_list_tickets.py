@@ -239,3 +239,31 @@ class TestListTickets(TestCase):
             request,
             ticket.bpt_event.conference.conference_slug)
         nt.assert_equal(response.status_code, 200)
+
+    def test_ticket_active_state(self):
+        '''
+           privileged user gets the list for a conference
+        '''
+        active_ticket = TicketItemFactory(live=True)
+        not_live_ticket = TicketItemFactory(
+            live=False,
+            bpt_event=active_ticket.bpt_event)
+        coupon_ticket = TicketItemFactory(
+            has_coupon=True,
+            live=True,
+            bpt_event=active_ticket.bpt_event)
+
+        request = self.factory.get(
+            reverse(
+                'ticket_items',
+                urlconf='ticketing.urls',
+                args=[str(
+                    active_ticket.bpt_event.conference.conference_slug)]))
+        request.user = self.privileged_user
+        request.session = {'cms_admin_site': 1}
+        response = ticket_items(
+            request,
+            active_ticket.bpt_event.conference.conference_slug)
+        nt.assert_equal(response.status_code, 200)
+        assert 'Visible' in response.content
+        assert response.content.count('Hidden') == 2
