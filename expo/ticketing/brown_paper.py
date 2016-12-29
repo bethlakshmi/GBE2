@@ -225,19 +225,21 @@ def process_bpt_order_list():
                                  get_bpt_client_id())
         order_list_xml = perform_bpt_api_call(order_list_call)
 
-        for bpt_order in order_list_xml.findall('.//item'):
-            ticket_number = bpt_order.find('ticket_number').text
+        if order_list_xml:
+            for bpt_order in order_list_xml.findall('.//item'):
+                ticket_number = bpt_order.find('ticket_number').text
 
-            if not (transaction_reference_exists(ticket_number)):
-                bpt_save_order_to_database(event.bpt_event_id, bpt_order)
-                count += 1
+                if not (transaction_reference_exists(ticket_number)):
+                    bpt_save_order_to_database(event.bpt_event_id, bpt_order)
+                    count += 1
 
     # Recheck to see if any emails match to users now.  For example, if
     # a new user created a profile after purchasing a ticket.
 
     bpt_match_existing_purchasers_using_email()
 
-    set_bpt_last_poll_time()
+    if count > 0:
+        set_bpt_last_poll_time()
     return count
 
 
