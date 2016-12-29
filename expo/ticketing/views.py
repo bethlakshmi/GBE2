@@ -103,6 +103,7 @@ def import_ticket_items():
             ticket_item.live = i_item['live']
             ticket_item.cost = i_item['cost']
             ticket_item.save()
+    return len(import_item_list)
 
 
 def ticket_item_edit(request, item_id=None):
