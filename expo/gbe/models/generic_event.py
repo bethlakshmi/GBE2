@@ -76,12 +76,15 @@ class GenericEvent (Event):
         if self.type in ["Special", "Drop-In"]:
             most_events = TicketItem.objects.filter(
                 bpt_event__include_most=True,
-                active=True,
+                live=True,
+                has_coupon=False,
                 bpt_event__conference=self.conference)
         else:
             most_events = []
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                              active=True)
+        my_events = TicketItem.objects.filter(
+            bpt_event__linked_events=self,
+            live=True,
+            has_coupon=False)
         tickets = list(chain(my_events, most_events))
         return tickets
 

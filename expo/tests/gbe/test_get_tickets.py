@@ -36,7 +36,8 @@ class TestGetTickets(TestCase):
         bpt_event.linked_events.add(event)
         bpt_event.save()
         TicketItemFactory(bpt_event=bpt_event,
-                          active=True,
+                          live=True,
+                          has_coupon=False,
                           title="Master Class 2017")
         tickets = event.get_tickets()
 
@@ -52,7 +53,8 @@ class TestGetTickets(TestCase):
             conference=event.conference,
             include_most=True)
         TicketItemFactory(bpt_event=bpt_event,
-                          active=True,
+                          live=True,
+                          has_coupon=False,
                           title="The Whole Shebang 2016")
 
         tickets = event.get_tickets()
@@ -72,11 +74,13 @@ class TestGetTickets(TestCase):
             include_conference=True)
         whole_shebang = TicketItemFactory(
             bpt_event=ws_bpt_event,
-            active=True,
+            live=True,
+            has_coupon=False,
             title="The Whole Shebang 2016")
         scholar = TicketItemFactory(
             bpt_event=sch_bpt_event,
-            active=True,
+            live=True,
+            has_coupon=False,
             title="The Scholar 2016")
         tickets = event.get_tickets()
 
@@ -92,7 +96,8 @@ class TestGetTickets(TestCase):
             conference=event.conference,
             include_most=True)
         TicketItemFactory(bpt_event=bpt_event,
-                          active=True,
+                          live=True,
+                          has_coupon=False,
                           title="The Whole Shebang 2016")
         tickets = event.get_tickets()
 
