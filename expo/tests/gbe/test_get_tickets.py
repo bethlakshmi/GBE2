@@ -25,7 +25,7 @@ class TestGetTickets(TestCase):
         event = GenericEventFactory()
         tickets = event.get_tickets()
 
-        self.assertEqual(tickets, [])
+        self.assertEqual(tickets, {})
 
     def test_get_tickets_for_master_class(self):
         '''get the one ticket that is active for the Master Class
@@ -42,7 +42,9 @@ class TestGetTickets(TestCase):
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
-        self.assertEqual(tickets[0].title, "Master Class 2017")
+        self.assertEqual(
+            tickets[bpt_event.bpt_event_id].title,
+            "Master Class 2017")
 
     def test_get_tickets_for_special_event(self):
         '''get the one ticket that is active for all except master classes
@@ -60,7 +62,9 @@ class TestGetTickets(TestCase):
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
-        self.assertEqual(tickets[0].title, "The Whole Shebang 2016")
+        self.assertEqual(
+            tickets[bpt_event.bpt_event_id].title,
+            "The Whole Shebang 2016")
 
     def test_get_tickets_for_class(self):
         '''get one ticket for everything but master, and one for classes
@@ -85,8 +89,12 @@ class TestGetTickets(TestCase):
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 2)
-        self.assertIn(whole_shebang, tickets)
-        self.assertIn(scholar, tickets)
+        self.assertEqual(
+            tickets[ws_bpt_event.bpt_event_id],
+            whole_shebang)
+        self.assertEqual(
+            tickets[sch_bpt_event.bpt_event_id],
+            scholar)
 
     def test_get_tickets_for_show(self):
         '''just gets 1 ticket for Whole Shebang
@@ -102,4 +110,6 @@ class TestGetTickets(TestCase):
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
-        self.assertEqual(tickets[0].title, "The Whole Shebang 2016")
+        self.assertEqual(
+            tickets[bpt_event.bpt_event_id].title,
+            "The Whole Shebang 2016")
