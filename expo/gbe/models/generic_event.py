@@ -9,7 +9,7 @@ from gbe.models import (
 )
 from scheduler.models import EventContainer
 from gbetext import event_options
-
+from gbe.ticketing_idd_interface import get_tickets
 
 class GenericEvent (Event):
     '''
@@ -72,21 +72,10 @@ class GenericEvent (Event):
     # but for all tickets - iff the ticket is active
     #
     def get_tickets(self):
-        from ticketing.models import TicketItem
         if self.type in ["Special", "Drop-In"]:
-            most_events = TicketItem.objects.filter(
-                bpt_event__include_most=True,
-                live=True,
-                has_coupon=False,
-                bpt_event__conference=self.conference)
+            return get_tickets(self, most=True)
         else:
-            most_events = []
-        my_events = TicketItem.objects.filter(
-            bpt_event__linked_events=self,
-            live=True,
-            has_coupon=False)
-        tickets = list(chain(my_events, most_events))
-        return tickets
+            return get_tickets(self)
 
     class Meta:
         app_label = "gbe"

@@ -43,6 +43,7 @@ from gbe.models import (
     TechInfo,
     VolunteerWindow,
 )
+from gbe.ticketing_idd_interface import get_tickets
 
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
@@ -407,18 +408,7 @@ class Show (Event):
     # but for all tickets - iff the ticket is active
     #
     def get_tickets(self):
-        from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(
-            bpt_event__include_most=True,
-            live=True,
-            has_coupon=False,
-            bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(
-            bpt_event__linked_events=self,
-            live=True,
-            has_coupon=False)
-        tickets = list(chain(my_events, most_events))
-        return tickets
+        return get_tickets(self, most=True)
 
     def get_acts(self):
         return self.scheduler_events.first().get_acts()
@@ -598,18 +588,7 @@ class Class(Biddable, Event):
     # but for all tickets - iff the ticket is active
     #
     def get_tickets(self):
-        from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(
-            Q(bpt_event__include_most=True) |
-            Q(bpt_event__include_conference=True)).filter(
-                live=True,
-                has_coupon=False,
-                bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                              live=True,
-                                              has_coupon=False)
-        tickets = list(chain(my_events, most_events))
-        return tickets
+        return get_tickets(self, most=True, conference=True)
 
     class Meta:
         verbose_name_plural = 'classes'
