@@ -63,4 +63,3 @@ class TestTicketingIndex(TestCase):
         response = index(request)
         assert ticket.title in response.content
         assert not_shown.title not in response.content
-

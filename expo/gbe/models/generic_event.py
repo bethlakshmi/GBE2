@@ -11,6 +11,7 @@ from scheduler.models import EventContainer
 from gbetext import event_options
 from ticketing.functions import get_tickets
 
+
 class GenericEvent (Event):
     '''
     Any event except for a show or a class

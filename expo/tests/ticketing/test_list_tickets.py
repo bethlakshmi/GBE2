@@ -27,6 +27,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 
+
 class TestListTickets(TestCase):
     '''Tests for ticket_items view'''
     view_name = 'ticket_items'
@@ -121,7 +122,7 @@ class TestListTickets(TestCase):
             ticket_id='%s-4513068' % (event.bpt_event_id))
         assert ticket.live
         assert ticket.has_coupon
- 
+
     def test_get_no_inventory(self):
         '''
            privileged user gets the inventory of tickets with no tickets

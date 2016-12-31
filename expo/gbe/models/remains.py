@@ -88,7 +88,6 @@ class Biddable(models.Model):
         return self.conference.status in ("upcoming", "current")
 
 
-
 #######
 # Act #
 #######

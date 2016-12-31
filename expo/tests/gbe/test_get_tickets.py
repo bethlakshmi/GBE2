@@ -152,7 +152,7 @@ class TestGetTickets(TestCase):
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
                           has_coupon=True,
-                          cost = 299.99,
+                          cost=299.99,
                           title="The Whole Shebang 2016 - expensive")
 
         tickets = event.get_tickets()
