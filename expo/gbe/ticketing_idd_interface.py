@@ -4,7 +4,6 @@
 # See documentation in https://github.com/bethlakshmi/GBE2/wiki/Ticketing-To-Do
 # section:  "By Friday - needed for integration"
 # - Betty 8/15
-from itertools import chain
 from expo.gbe_logging import logger
 from ticketing.models import (
     BrownPaperEvents,
@@ -237,32 +236,3 @@ def get_checklist_items(profile, conference):
                                                      tickets)
 
     return checklist_items
-
-def get_tickets(linked_event, most=False, conference=False):
-    general_events = []
-    unique_tickets = {}
-
-    if most:
-        general_events = TicketItem.objects.filter(
-            bpt_event__include_most=True,
-            bpt_event__conference=linked_event.conference)
-    if conference:
-        general_events = list(chain(
-            general_events,
-            TicketItem.objects.filter(
-                bpt_event__include_conference=True,
-                bpt_event__conference=linked_event.conference)))
-
-    general_events = list(chain(
-        general_events,
-        TicketItem.objects.filter(
-            bpt_event__linked_events=linked_event)))
-        
-    for ticket_item in general_events:
-        if ticket_item.active and (
-                ticket_item.bpt_event.bpt_event_id not in unique_tickets or \
-                ticket_item.cost > unique_tickets[
-                    ticket_item.bpt_event.bpt_event_id].cost): 
-            unique_tickets[ticket_item.bpt_event.bpt_event_id] = ticket_item
-
-    return unique_tickets

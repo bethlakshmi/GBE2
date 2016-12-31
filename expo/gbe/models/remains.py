@@ -43,7 +43,7 @@ from gbe.models import (
     TechInfo,
     VolunteerWindow,
 )
-from gbe.ticketing_idd_interface import get_tickets
+from ticketing.functions import get_tickets
 
 
 visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |

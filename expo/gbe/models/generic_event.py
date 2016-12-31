@@ -9,7 +9,7 @@ from gbe.models import (
 )
 from scheduler.models import EventContainer
 from gbetext import event_options
-from gbe.ticketing_idd_interface import get_tickets
+from ticketing.functions import get_tickets
 
 class GenericEvent (Event):
     '''
