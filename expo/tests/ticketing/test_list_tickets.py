@@ -91,6 +91,37 @@ class TestListTickets(TestCase):
             "The Great Burlesque Exposition of 2016 takes place Feb. 5-7",
             ticket.description)
 
+    @patch('urllib2.urlopen', autospec=True)
+    def test_reimport_inventory(self, m_urlopen):
+        '''
+           privileged user gets the inventory of tickets from (fake) BPT
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+        TicketItemFactory(
+            ticket_id='%s-4513068' % (event.bpt_event_id),
+            has_coupon=True,
+            live=False,
+            bpt_event=event)
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
+        price_filename = open("tests/ticketing/pricelist.xml", 'r')
+        a.read.side_effect = [File(event_filename).read(),
+                              File(date_filename).read(),
+                              File(price_filename).read()]
+        m_urlopen.return_value = a
+
+        response = self.import_tickets()
+        nt.assert_equal(response.status_code, 200)
+        ticket = get_object_or_404(
+            TicketItem,
+            ticket_id='%s-4513068' % (event.bpt_event_id))
+        assert ticket.live
+        assert ticket.has_coupon
+ 
     def test_get_no_inventory(self):
         '''
            privileged user gets the inventory of tickets with no tickets
