@@ -23,6 +23,7 @@ from tests.functions.scheduler_functions import assert_selected
 from gbe.models import ActBidEvaluation
 from gbetext import video_options
 
+
 class TestReviewAct(TestCase):
     '''Tests for review_act view'''
 

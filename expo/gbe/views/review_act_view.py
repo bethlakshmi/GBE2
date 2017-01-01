@@ -13,6 +13,7 @@ from gbe.views import ReviewBidView
 from gbe.views.functions import get_performer_form
 from gbe.views.act_display_functions import get_act_form
 
+
 class ReviewActView(ReviewBidView):
     '''
     Show a bid  which needs to be reviewed by the current user.
