@@ -22,6 +22,7 @@ from gbetext import (
     default_volunteer_no_bid_msg,
     default_volunteer_no_interest_msg
 )
+from gbe_forms_text import volunteer_unavailable_time_conflict
 from gbe.models import (
     AvailableInterest,
     Conference,
@@ -223,3 +224,9 @@ class TestCreateVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'danger', 'Error', msg.description)
+
+    def test_volunteer_time_conflict_checked(self):
+        data = self.get_volunteer_form()
+        data['available_windows'] = data['unavailable_windows']
+        response, data = self.post_volunteer_submission(data=data)
+        assert volunteer_unavailable_time_conflict in response.content

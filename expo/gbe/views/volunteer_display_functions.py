@@ -1,22 +1,16 @@
 from gbe.forms import (
     VolunteerBidForm,
     VolunteerInterestForm,
-    ParticipantForm
 )
 from django.forms import (
     CharField,
     ModelMultipleChoiceField,
-    MultipleChoiceField,
 )
 from gbe_forms_text import (
-    how_heard_options,
-    participant_labels,
     volunteer_help_texts,
     volunteer_labels
 )
-from gbetext import (
-    states_options,
-)
+from gbe.views.functions import get_participant_form
 
 
 def get_volunteer_forms(volunteer):
@@ -44,26 +38,7 @@ def get_volunteer_forms(volunteer):
             help_text=interest.interest.help_text,
             label=interest.interest.interest,
             initial=interest.rank_description)
-    participantform = ParticipantForm(
-        instance=volunteer.profile,
-        initial={'email': volunteer.profile.user_object.email,
-                 'first_name': volunteer.profile.user_object.first_name,
-                 'last_name': volunteer.profile.user_object.last_name},
-        prefix='Contact Info')
-
-    participantform.fields['state'] = MultipleChoiceField(
-        choices=[(volunteer.profile.state,
-                  dict(states_options)[volunteer.profile.state])],
-    )
-    how_heard_selected = []
-    for option in how_heard_options:
-        if option[0] in volunteer.profile.how_heard:
-            how_heard_selected += [option]
-    participantform.fields['how_heard'] = MultipleChoiceField(
-        choices=how_heard_selected,
-        required=False,
-        label=participant_labels['how_heard'])
-    return [volunteerform, participantform]
+    return [volunteerform, get_participant_form(volunteer.profile)]
 
 
 def validate_interests(formset):

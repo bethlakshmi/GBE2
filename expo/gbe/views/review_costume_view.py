@@ -1,11 +1,11 @@
 from gbe.forms import (
     CostumeBidSubmitForm,
     CostumeDetailsSubmitForm,
-    ParticipantForm,
     PersonaForm,
 )
 from gbe.models import Costume
 from gbe.views import ReviewBidView
+from gbe.views.functions import get_participant_form
 
 
 class ReviewCostumeView(ReviewBidView):
@@ -27,14 +27,9 @@ class ReviewCostumeView(ReviewBidView):
         self.performer = self.bidder_form_type(instance=self.object.performer,
                                                prefix=self.performer_prefix)
         self.create_object_form()
-
-        self.profile = ParticipantForm(
-            instance=self.object.profile,
-            prefix=self.bidder_prefix,
-            initial={
-                'email': self.object.profile.user_object.email,
-                'first_name': self.object.profile.user_object.first_name,
-                'last_name': self.object.profile.user_object.last_name})
+        self.profile = get_participant_form(
+            self.object.profile,
+            prefix=self.bidder_prefix)
 
         self.readonlyform_pieces = [
             self.object_form,
