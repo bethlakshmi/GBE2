@@ -11,12 +11,12 @@ from django.core.exceptions import (
     ValidationError,
 )
 from gbe.models import (
+    Biddable,
     Conference,
     Performer,
     visible_bid_query,
 )
 from tech_info import TechInfo
-from biddable import Biddable
 from gbetext import (
     acceptance_states,
     act_not_unique,
