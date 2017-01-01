@@ -21,7 +21,7 @@ from tests.functions.gbe_functions import (
 )
 from tests.functions.scheduler_functions import assert_selected
 from gbe.models import ActBidEvaluation
-
+from gbetext import video_options
 
 class TestReviewAct(TestCase):
     '''Tests for review_act view'''
@@ -211,3 +211,13 @@ class TestReviewAct(TestCase):
         self.assertTrue(len(evals), 1)
         self.assertTrue(evals[0].secondary_vote.vote, 1)
         self.assertTrue(evals[0].primary_vote.show, show)
+
+    def test_video_choice_display(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        assert 'Video Notes:' in response.content
+        assert video_options[1][1] not in response.content
