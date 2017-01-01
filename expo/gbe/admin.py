@@ -38,6 +38,8 @@ class TroupeAdmin(admin.ModelAdmin):
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'user_object', 'phone', 'purchase_email')
+    search_fields = ['display_name',
+                     'user_object__email']
 
 
 class AudioInfoAdmin(admin.ModelAdmin):

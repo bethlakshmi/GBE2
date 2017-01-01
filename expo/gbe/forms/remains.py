@@ -383,15 +383,27 @@ class VolunteerBidForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if 'available_windows' in kwargs:
             available_windows = kwargs.pop('available_windows')
-        else:
-            available_windows = None
         if 'unavailable_windows' in kwargs:
             unavailable_windows = kwargs.pop('unavailable_windows')
-        else:
-            unavailable_windows = None
         super(VolunteerBidForm, self).__init__(*args, **kwargs)
         self.fields['available_windows'].queryset = available_windows
         self.fields['unavailable_windows'].queryset = unavailable_windows
+
+    def clean(self):
+        cleaned_data = super(VolunteerBidForm, self).clean()
+        conflict_windows = []
+        if ('available_windows' in self.cleaned_data) and (
+                'unavailable_windows' in self.cleaned_data):
+            conflict_windows = set(
+                self.cleaned_data['available_windows']).intersection(
+                self.cleaned_data['unavailable_windows'])
+        if len(conflict_windows) > 0:
+            windows = ", ".join(str(w) for w in conflict_windows)
+            self._errors['available_windows'] = \
+                volunteer_available_time_conflict % windows
+            self._errors['unavailable_windows'] = \
+                volunteer_unavailable_time_conflict
+        return cleaned_data
 
     class Meta:
         model = Volunteer
