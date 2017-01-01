@@ -149,6 +149,12 @@ volunteer_help_texts = {
     in the box below.')
 }
 
+volunteer_available_time_conflict = \
+    'Available times conflict with unavailable times.  Conflicts are: %s'
+
+volunteer_unavailable_time_conflict = \
+    'Unavailable times conflict with Available times.'
+
 phone_error1 = ['Phone number needed here']
 phone_error2 = ['... or here ']
 phone_error3 = ['...or choose a contact method that does not require a phone.']
