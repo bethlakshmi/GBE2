@@ -1,14 +1,11 @@
 from gbe.forms import (
     ActEditForm,
-    PersonaForm,
-    TroupeForm,
 )
 from gbe.models import (
     Act,
-    Troupe,
 )
 from gbe.views import ViewBidView
-
+from gbe.views.functions import get_performer_form
 
 class ViewActView(ViewBidView):
 
@@ -16,8 +13,6 @@ class ViewActView(ViewBidView):
     viewer_permissions = ('Act Reviewers',)
     object_form_type = ActEditForm
     bid_prefix = "The Act"
-    performer_prefix = "The Performer(s)"
-    troupe_prefix = "The Troupe"
 
     def get_owner_profile(self):
         return self.bid.performer.contact
@@ -34,11 +29,5 @@ class ViewActView(ViewBidView):
                      'act_duration': stage_info.act_duration}
         )
 
-        if Troupe.objects.filter(pk=self.bid.performer.pk).exists():
-            instance = Troupe.objects.get(pk=self.bid.performer.pk)
-            performer_form = TroupeForm(instance=instance,
-                                        prefix=self.troupe_prefix)
-        else:
-            performer_form = PersonaForm(instance=self.bid.performer,
-                                         prefix=self.performer_prefix)
+        performer_form = get_performer_form(self.bid.performer)
         return (actform, performer_form)
