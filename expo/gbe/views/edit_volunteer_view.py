@@ -29,6 +29,29 @@ from gbe.views.volunteer_display_functions import (
 )
 
 
+def get_reduced_availability(the_bid, form):
+    '''  Get cases where the volunteer has reduced their availability.
+    Either by offering fewer available windows, or by adding to the unavailable
+    windows.  Either one is a case for needing to check schedule conflict.
+    '''
+    reduced = []
+    for window in the_bid.available_windows.all():
+        if window not in form.cleaned_data['available_windows']:
+            reduced += [window]
+    
+    for window in form.cleaned_data['unavailable_windows']:
+        if window not in the_bid.unavailable_windows.all():
+            reduced += [window]
+    return reduced
+
+
+def manage_schedule_problems(changed_windows):
+    message = ""
+    for window in changed_windows:
+        message += str(window)+", "
+    return message
+
+
 @login_required
 @log_func
 @never_cache
@@ -61,6 +84,8 @@ def EditVolunteerView(request, volunteer_id):
         valid_interests, like_one_thing = validate_interests(formset)
 
         if form.is_valid() and valid_interests and like_one_thing:
+            changed_windows = get_reduced_availability(the_bid, form)
+            messages.success(request, manage_schedule_problems(changed_windows))
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()
