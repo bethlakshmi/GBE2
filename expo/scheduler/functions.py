@@ -24,38 +24,8 @@ from django.utils.formats import date_format
 from django.core.urlresolvers import reverse
 import pytz
 
-conference_days = (
-    (date_format(datetime(2015, 02, 19), "DAY_FORMAT"), 'Thursday'),
-    (date_format(datetime(2015, 02, 20), "DAY_FORMAT"), 'Friday'),
-    (date_format(datetime(2015, 02, 21), "DAY_FORMAT"), 'Saturday'),
-    (date_format(datetime(2015, 02, 22), "DAY_FORMAT"), 'Sunday'),
-)
 
 utc = pytz.timezone('UTC')
-
-conference_datetimes = (
-    datetime(2015, 02, 19, tzinfo=utc),
-    datetime(2015, 02, 20, tzinfo=utc),
-    datetime(2015, 02, 21, tzinfo=utc),
-    datetime(2015, 02, 22, tzinfo=utc),
-)
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins / 60, mins % 60),
-                     date_format(time(mins / 60, mins % 60),
-                                 "TIME_FORMAT"))
-                    for mins in range(time_start, time_stop, 30)]
-
-conference_dates = {"Thursday": "2015-02-19",
-                    "Friday": "2015-02-20",
-                    "Saturday": "2015-02-21",
-                    "Sunday": "2015-02-22"}
-
-hour = Duration(seconds=3600)
-
-monday = datetime(2015, 2, 23)
 
 
 def init_time_blocks(events,

@@ -42,7 +42,6 @@ from gbe.duration import (
 )
 from scheduler.functions import (
     cal_times_for_conf,
-    conference_dates,
     event_info,
     overlap_clear,
     table_prep,
@@ -888,7 +887,7 @@ def calendar_view(request=None,
                                    duration,
                                    cal_start=cal_times[0],
                                    cal_stop=cal_times[1])
-        table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+        table['name'] = 'Event Calendar for the Great Burlesque Expo'
         table['link'] = 'http://burlesque-expo.com'
         table['x_name'] = {}
         table['x_name']['html'] = 'Rooms'
