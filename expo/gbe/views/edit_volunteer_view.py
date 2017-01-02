@@ -12,7 +12,10 @@ from gbe.forms import (
     VolunteerBidForm,
     VolunteerInterestForm,
 )
-from gbe.functions import validate_perms
+from gbe.functions import (
+    validate_perms,
+    validate_profile,
+)
 from gbe.models import (
     UserMessage,
     Volunteer,
@@ -32,8 +35,13 @@ from gbe.views.volunteer_display_functions import (
 def EditVolunteerView(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+ 
+    profile = validate_profile(request, require=True)
+
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
+    if the_bid.profile != profile:
+        profile = validate_perms(request, ('Volunteer Coordinator',))
+
     formset = []
 
     if request.method == 'POST':
@@ -70,9 +78,13 @@ def EditVolunteerView(request, volunteer_id):
                     'summary': "Volunteer Edit Success",
                     'description': default_volunteer_edit_msg})
             messages.success(request, user_message[0].description)
-            return HttpResponseRedirect("%s?conf_slug=%s" % (
-                reverse('volunteer_review', urlconf='gbe.urls'),
-                the_bid.conference.conference_slug))
+            if the_bid.profile == profile:
+                return HttpResponseRedirect(
+                    reverse('home', urlconf='gbe.urls'))
+            else:
+                return HttpResponseRedirect("%s?conf_slug=%s" % (
+                    reverse('volunteer_review', urlconf='gbe.urls'),
+                    the_bid.conference.conference_slug))
 
         else:
             formset += [form]
