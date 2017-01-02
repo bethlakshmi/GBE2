@@ -29,6 +29,7 @@ from gbetext import (
     default_volunteer_submit_msg,
     default_volunteer_no_interest_msg,
     default_volunteer_no_bid_msg,
+    existing_volunteer_msg,
 )
 from gbe.views.volunteer_display_functions import (
     validate_interests,
@@ -59,6 +60,7 @@ def CreateVolunteerView(request):
                                     '?next=' +
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
+
     try:
         conference = Conference.objects.filter(accepting_bids=True).first()
         windows = conference.windows()
@@ -66,6 +68,22 @@ def CreateVolunteerView(request):
             visible=True).order_by('interest')
     except:
         return no_vol_bidding(request)
+
+    existing_bid = profile.volunteering.get(conference=conference)
+    if existing_bid:
+        user_message = UserMessage.objects.get_or_create(
+            view='CreateVolunteerView',
+            code="FOUND_EXISTING_BID",
+            defaults={
+                'summary': "Existing Volunteer Offer Found",
+                'description': existing_volunteer_msg})
+        messages.success(request, user_message[0].description)
+        return HttpResponseRedirect(
+            reverse(
+                'volunteer_edit',
+                urlconf='gbe.urls',
+                args=[existing_bid.id]))
+
     if len(windows) == 0 or len(available_interests) == 0:
         return no_vol_bidding(request)
 
