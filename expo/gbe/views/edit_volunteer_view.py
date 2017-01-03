@@ -47,21 +47,23 @@ def get_reduced_availability(the_bid, form):
 
 
 def manage_schedule_problems(changed_windows, profile):
-    warnings = ""
+    warnings = []
     conflicts = []
     for window in changed_windows:
         for conflict in profile.get_conflicts(window):
             if ((conflict not in conflicts) and
                 conflict.eventitem.payload['type'] == 'Volunteer'):
                 conflicts += [conflict]
-                warnings += "<br>%s working for %s - as %s" % (
-                    conflict.starttime.strftime(DATETIME_FORMAT),
-                    str(conflict),
-                    conflict.eventitem.child().volunteer_category_description)
+                warning =  {
+                    'time': conflict.starttime.strftime(DATETIME_FORMAT),
+                    'event': str(conflict),
+                    'interest': conflict.eventitem.child().volunteer_category_description,
+                }
                 leads = conflict.eventitem.roles(roles=['Staff Lead',])
                 for lead in leads:
-                    warnings += ", Staff Lead is %s" % (
-                        str(lead.item.badge_name))
+                    warning['lead'] = str(lead.item.badge_name)
+                    warning['email'] = lead.item.contact_email
+                warnings += [warning]
     return warnings
 
 
@@ -101,13 +103,27 @@ def EditVolunteerView(request, volunteer_id):
             warnings = manage_schedule_problems(
                 changed_windows, the_bid.profile)
             if warnings:
+                warn_msg = "<br><ul>"
                 user_message = UserMessage.objects.get_or_create(
                 view='EditVolunteerView',
                 code="AVAILABILITY_CONFLICT",
                 defaults={
                     'summary': "Volunteer Edit Caused Conflict",
                     'description': default_window_schedule_conflict,})
-                messages.warning(request, user_message[0].description+warnings)
+                for warn in warnings:
+                    warn_msg += "<li>%s working for %s - as %s" % (
+                        warn['time'],
+                        warn['event'],
+                        warn['interest']
+                    )
+                    if warn['lead']:
+                        warn_msg += ", Staff Lead is <a href='email: %s'>%s</a>" % (
+                            warn['email'],
+                            warn['lead']
+                        )
+                    warn_msg += "</li>"
+                warn_msg += "</ul>"
+                messages.warning(request, user_message[0].description+warn_msg)
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()
