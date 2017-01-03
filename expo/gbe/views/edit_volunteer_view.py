@@ -28,7 +28,7 @@ from gbetext import (
 from gbe.views.volunteer_display_functions import (
     validate_interests,
 )
-
+from expo.settings import DATETIME_FORMAT
 
 def get_reduced_availability(the_bid, form):
     '''  Get cases where the volunteer has reduced their availability.
@@ -50,13 +50,18 @@ def manage_schedule_problems(changed_windows, profile):
     warnings = ""
     conflicts = []
     for window in changed_windows:
-        #for conflict in profile.get_conflicts(window):
-        #    if (conflict not in conflicts) and 
-        
-        conflicts += profile.get_conflicts(window)
-    for conflict in conflicts:
-        warnings += "<br>%s, " % str(conflict)
-    
+        for conflict in profile.get_conflicts(window):
+            if ((conflict not in conflicts) and
+                conflict.eventitem.payload['type'] == 'Volunteer'):
+                conflicts += [conflict]
+                warnings += "<br>%s working for %s - as %s" % (
+                    conflict.starttime.strftime(DATETIME_FORMAT),
+                    str(conflict),
+                    conflict.eventitem.child().volunteer_category_description)
+                leads = conflict.eventitem.roles(roles=['Staff Lead',])
+                for lead in leads:
+                    warnings += ", Staff Lead is %s" % (
+                        str(lead.item.badge_name))
     return warnings
 
 
@@ -102,7 +107,7 @@ def EditVolunteerView(request, volunteer_id):
                 defaults={
                     'summary': "Volunteer Edit Caused Conflict",
                     'description': default_window_schedule_conflict,})
-                messages.warning(request, warnings)
+                messages.warning(request, user_message[0].description+warnings)
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()

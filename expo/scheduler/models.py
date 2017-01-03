@@ -395,6 +395,12 @@ class WorkerItem(ResourceItem):
         ).contact_email
 
     @property
+    def badge_name(self):
+        return WorkerItem.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id
+        ).describe
+
+    @property
     def contact_phone(self):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -527,16 +533,16 @@ class EventItem (models.Model):
                            'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
-                child_event__eventitem=self.eventitem_id).first()
+                child_event__eventitem=self).first()
             people = Worker.objects.filter(
-                (Q(allocations__event__eventitem=self.eventitem_id) &
+                (Q(allocations__event__eventitem=self) &
                  Q(role__in=roles)) |
                 (Q(allocations__event=container.parent_event) &
                  Q(role__in=roles))).distinct().order_by(
                 'role', '_item')
         except:
             people = Worker.objects.filter(
-                allocations__event__eventitem=self.eventitem_id,
+                allocations__event__eventitem=self,
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
@@ -553,7 +559,7 @@ class EventItem (models.Model):
 
     @property
     def payload(self):
-        return self.sched_payload
+        return self.child().sched_payload
 
     @property
     def duration(self):
