@@ -1,16 +1,14 @@
 from django.db.models import (
-    Model,
+    BooleanField,
     CharField,
     EmailField,
-    TextField,
-    BooleanField,
     ForeignKey,
-)
-from gbe.models import (
-    Conference,
+    Model,
+    TextField,
 )
 
 from gbetext import class_proposal_choices
+from gbe.models import Conference
 
 
 class ClassProposal(Model):
