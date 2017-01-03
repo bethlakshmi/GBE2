@@ -4,9 +4,11 @@ from django.db.models import (
     CharField,
 )
 from django.conf import settings
-from event import Event
-from persona import Persona
-from act import Act
+from gbe.models import (
+    Act,
+    Event,
+    Persona,
+)
 from gbetext import cue_options
 
 
