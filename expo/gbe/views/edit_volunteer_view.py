@@ -23,6 +23,7 @@ from gbe.models import (
 from gbetext import (
     default_volunteer_edit_msg,
     default_volunteer_no_interest_msg,
+    default_window_schedule_conflict,
 )
 from gbe.views.volunteer_display_functions import (
     validate_interests,
@@ -45,11 +46,18 @@ def get_reduced_availability(the_bid, form):
     return reduced
 
 
-def manage_schedule_problems(changed_windows):
-    message = ""
+def manage_schedule_problems(changed_windows, profile):
+    warnings = ""
+    conflicts = []
     for window in changed_windows:
-        message += str(window)+", "
-    return message
+        #for conflict in profile.get_conflicts(window):
+        #    if (conflict not in conflicts) and 
+        
+        conflicts += profile.get_conflicts(window)
+    for conflict in conflicts:
+        warnings += "<br>%s, " % str(conflict)
+    
+    return warnings
 
 
 @login_required
@@ -59,11 +67,11 @@ def EditVolunteerView(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
  
-    profile = validate_profile(request, require=True)
+    user = validate_profile(request, require=True)
 
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
-    if the_bid.profile != profile:
-        profile = validate_perms(request, ('Volunteer Coordinator',))
+    if the_bid.profile != user:
+        user = validate_perms(request, ('Volunteer Coordinator',))
 
     formset = []
 
@@ -85,7 +93,16 @@ def EditVolunteerView(request, volunteer_id):
 
         if form.is_valid() and valid_interests and like_one_thing:
             changed_windows = get_reduced_availability(the_bid, form)
-            messages.success(request, manage_schedule_problems(changed_windows))
+            warnings = manage_schedule_problems(
+                changed_windows, the_bid.profile)
+            if warnings:
+                user_message = UserMessage.objects.get_or_create(
+                view='EditVolunteerView',
+                code="AVAILABILITY_CONFLICT",
+                defaults={
+                    'summary': "Volunteer Edit Caused Conflict",
+                    'description': default_window_schedule_conflict,})
+                messages.warning(request, warnings)
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()
@@ -103,7 +120,7 @@ def EditVolunteerView(request, volunteer_id):
                     'summary': "Volunteer Edit Success",
                     'description': default_volunteer_edit_msg})
             messages.success(request, user_message[0].description)
-            if the_bid.profile == profile:
+            if the_bid.profile == user:
                 return HttpResponseRedirect(
                     reverse('home', urlconf='gbe.urls'))
             else:

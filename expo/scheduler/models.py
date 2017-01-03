@@ -972,7 +972,7 @@ class Event(Schedulable):
         overlapping end_time - it's a conflict
         '''
         is_conflict = False
-        if self.start_time == other_event.starttime:
+        if self.start_time == other_event.start_time:
             is_conflict = True
         elif (self.start_time > other_event.start_time and
               self.start_time < other_event.end_time):
