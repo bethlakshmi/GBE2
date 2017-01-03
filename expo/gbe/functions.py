@@ -75,7 +75,9 @@ def mail_to_group(subject, message, group_name):
     mail.send(to_list,
               settings.DEFAULT_FROM_EMAIL,
               subject=subject,
-              message=message)
+              message=message,
+              priority='now',
+              )
     return None
 
 
@@ -85,7 +87,9 @@ def send_user_contact_email(name, from_address, message):
     mail.send(to_addresses,
               from_address,
               subject=subject,
-              message=message)
+              message=message,
+              priority='now',
+              )
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
     # TO DO: close the spam hole that this opens up.
