@@ -5,12 +5,7 @@ from django.http import (
     Http404,
 )
 from django.core.urlresolvers import reverse
-from django.template import (
-    loader,
-    Context,
-)
 from django.shortcuts import render
-
 from expo.gbe_logging import log_func
 from gbe.forms import (
     VolunteerBidForm,
@@ -22,7 +17,7 @@ from gbe.models import (
     UserMessage,
 )
 from gbe.functions import (
-    mail_to_group,
+    notify_reviewers_on_bid_change,
     validate_profile,
 )
 from gbetext import (
@@ -115,13 +110,15 @@ def CreateVolunteerView(request):
                     vol_interest = interest_form.save(commit=False)
                     vol_interest.volunteer = volunteer
                     vol_interest.save()
-                message = loader.get_template('gbe/email/bid_submitted.tmpl')
-                c = Context({'bidder': profile.display_name,
-                             'bid_type': 'volunteer',
-                             'review_url': reverse('volunteer_review',
-                                                   urlconf='gbe.urls')})
 
-                notify_volunteer_reviewers(profile)
+                notify_reviewers_on_bid_change(
+                    profile,
+                    "Volunteer",
+                    "Submission",
+                    conference,
+                    'Volunteer Reviewers',
+                    reverse(
+                        'volunteer_review', urlconf='gbe.urls'))
                 user_message = UserMessage.objects.get_or_create(
                     view='CreateVolunteerView',
                     code="SUBMIT_SUCCESS",
@@ -166,13 +163,3 @@ def CreateVolunteerView(request):
                        'page_title': page_title,
                        'view_title': view_title,
                        'nodraft': 'Submit'})
-
-
-def notify_volunteer_reviewers(user_profile):
-    message = loader.get_template('gbe/email/bid_submitted.tmpl')
-    c = Context({'bidder': user_profile.display_name,
-                 'bid_type': 'volunteer',
-                 'review_url': reverse('volunteer_review',
-                                       urlconf='gbe.urls')})
-    mail_to_group("Volunteer Offer Submitted", message.render(c),
-                  'Volunteer Reviewers')

@@ -13,6 +13,9 @@ from gbe.forms import (
     VolunteerInterestForm,
 )
 from gbe.functions import (
+    notify_reviewers_on_bid_change,
+    send_schedule_update_mail,
+    send_warnings_to_staff,
     validate_perms,
     validate_profile,
 )
@@ -29,6 +32,7 @@ from gbe.views.volunteer_display_functions import (
     validate_interests,
 )
 from expo.settings import DATETIME_FORMAT
+
 
 def get_reduced_availability(the_bid, form):
     '''  Get cases where the volunteer has reduced their availability.
@@ -124,6 +128,8 @@ def EditVolunteerView(request, volunteer_id):
                     warn_msg += "</li>"
                 warn_msg += "</ul>"
                 messages.warning(request, user_message[0].description+warn_msg)
+                send_schedule_update_mail('Volunteer', the_bid.profile)
+                send_warnings_to_staff(the_bid.profile, 'Volunteer', warnings)
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()
@@ -142,6 +148,14 @@ def EditVolunteerView(request, volunteer_id):
                     'description': default_volunteer_edit_msg})
             messages.success(request, user_message[0].description)
             if the_bid.profile == user:
+                notify_reviewers_on_bid_change(
+                    the_bid.profile,
+                    "Volunteer",
+                    "Update",
+                    the_bid.conference,
+                    'Volunteer Reviewers',
+                    reverse(
+                        'volunteer_review', urlconf='gbe.urls'))
                 return HttpResponseRedirect(
                     reverse('home', urlconf='gbe.urls'))
             else:
