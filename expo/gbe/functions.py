@@ -174,12 +174,12 @@ def get_or_create_template(name, base, subject):
         template = EmailTemplate.objects.get(name=name)
     except:
         with open(
-            "%s/templates/gbe/%s.tmpl" % (
+            "%s/templates/gbe/email/%s.tmpl" % (
                 os.path.dirname(__file__),
                 base), "r") as textfile:
             textcontent = textfile.read()
         with open(
-            "%s/templates/gbe/%s_html.tmpl" % (
+            "%s/templates/gbe/email/%s_html.tmpl" % (
                 os.path.dirname(__file__),
                 base), "r") as htmlfile:
             htmlcontent = htmlfile.read()
