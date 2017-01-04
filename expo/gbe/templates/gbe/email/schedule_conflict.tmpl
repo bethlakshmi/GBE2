@@ -6,10 +6,7 @@ Hello {{bid_type}} Coordinators and Event Staff,
 conflict which affects your area or an event you are running.  The conflicts created
 were:
 
-{% for warning in warnings%}
-- {{ warning.time }} working for {{ warning.event }} - as {{ warning.interest}},
-managed by {{ warning.lead }}
-{% endfor %}
+{% list_warnings_plaintext warnings %}
 
 These conflicts have been fixed by removing {{ bidder }} from the given events.
 Please review these events to see if they remain correctly staffed.

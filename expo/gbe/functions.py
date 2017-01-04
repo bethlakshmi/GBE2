@@ -223,7 +223,7 @@ def notify_reviewers_on_bid_change(bidder,
                                    conference,
                                    group_name,
                                    review_url):
-    name = '%s %s notification' % (bid_type, action)
+    name = '%s %s notification' % (bid_type.lower(), action.lower())
     get_or_create_template(
         name,
         "bid_submitted",
@@ -247,7 +247,7 @@ def notify_reviewers_on_bid_change(bidder,
 def send_warnings_to_staff(bidder,
                            bid_type,
                            warnings):
-    name = '%s schedule warning' % (bid_type)
+    name = '%s schedule warning' % (bid_type.lower())
     get_or_create_template(
         name,
         "schedule_conflict",

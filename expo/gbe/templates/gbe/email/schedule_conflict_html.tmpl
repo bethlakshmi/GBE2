@@ -6,12 +6,8 @@
 conflict which affects your area or an event you are running.  The conflicts created
 were:
 </p>
-<ul>
-{% for warning in warnings%}
-<li>{{ warning.time }} working for {{ warning.event }} - as {{ warning.interest}},
-managed by {{ warning.lead }}</li>
-{% endfor %}
-</ul>
+
+{% list_warnings warnings %}
 
 <p>
 These conflicts have been fixed by removing {{ bidder }} from the given events.
