@@ -10,7 +10,6 @@ from django.db.models import (
     TextField,
 )
 from django.core.validators import RegexValidator
-from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
 from gbe.models import (
@@ -26,11 +25,6 @@ from gbetext import (
     states_options,
 )
 from scheduler.functions import get_roles_from_scheduler
-
-
-def mail_to_user(subject, message, user):
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
-
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -381,13 +375,6 @@ class Profile(WorkerItem):
                         if perf.pk == person._item.pk:
                             doing_it = True
         return doing_it
-
-    def notify_volunteer_schedule_change(self):
-        subject = "A change has been made to your Volunteer Schedule!"
-        message = loader.get_template('gbe/volunteer_schedule_update.tmpl')
-        c = Context({'profile': self})
-        if not settings.DEBUG:
-            mail_to_user(subject, message.render(c), self.user_object)
 
     def __str__(self):
         return self.display_name
