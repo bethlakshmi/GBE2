@@ -251,7 +251,7 @@ def send_warnings_to_staff(bidder,
     get_or_create_template(
         name,
         "schedule_conflict",
-        "%s Schedule Conflict Occurred" % (bid_type))
+        "URGENT: %s Schedule Conflict Occurred" % (bid_type))
     to_list = [user.email for user in
                User.objects.filter(groups__name='%s Coordinator' % bid_type)]
     for warning in warnings:
