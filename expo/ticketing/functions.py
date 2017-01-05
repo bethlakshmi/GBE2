@@ -1,4 +1,3 @@
-from ticketing.models import TicketItem
 from itertools import chain
 
 
@@ -15,6 +14,8 @@ def get_unique_tickets(general_events):
 
 
 def get_tickets(linked_event, most=False, conference=False):
+    from ticketing.models import TicketItem
+
     general_events = []
 
     if most:
@@ -37,6 +38,8 @@ def get_tickets(linked_event, most=False, conference=False):
 
 
 def get_all_tickets():
+    from ticketing.models import TicketItem
+
     general_events = TicketItem.objects.exclude(
         bpt_event__conference__status='completed')
 

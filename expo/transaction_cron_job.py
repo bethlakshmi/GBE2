@@ -19,13 +19,13 @@
 
 import sys
 import os
+sys.path.append('./expo')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
 from expo.gbe_logging import logger
 from django.conf import settings
 from ticketing.brown_paper import process_bpt_order_list
 from ticketing.views import import_ticket_items
-
-sys.path.append('./expo')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 logger.info('Executing Cron Job Script....')
 tickets = import_ticket_items()
