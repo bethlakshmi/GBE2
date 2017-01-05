@@ -29,8 +29,7 @@ def display_track_title(title, truncated_length):
         return title[:truncated_length] + "..."
 
 
-@register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
-def volunteer_schedule(profile):
+def build_schedule_context(profile):
     events = profile.volunteer_schedule()
     schedule = [
         {'event': str(event),
@@ -40,3 +39,13 @@ def volunteer_schedule(profile):
          'location': str(event.location)}
         for event in events]
     return {'schedule': schedule}
+
+
+@register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
+def volunteer_schedule(profile):
+    return build_schedule_context(profile)
+
+
+@register.inclusion_tag('gbe/tag_templates/schedule_plaintext.tmpl')
+def volunteer_schedule_plaintext(profile):
+    return build_schedule_context(profile)

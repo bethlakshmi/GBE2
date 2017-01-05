@@ -101,8 +101,8 @@ urlpatterns = patterns(
         name='act_review_list'),
     url(r'^act/submit/(\d+)/?$',
         SubmitActView, name='act_submit'),
-    url(r'^act/changestate/(\d+)/?$',
-        ActChangeStateView,
+    url(r'^act/changestate/(?P<object_id>\d+)/?$',
+        ActChangeStateView.as_view(),
         name='act_changestate'),
 
     #  act tech info
@@ -123,8 +123,8 @@ urlpatterns = patterns(
         ReviewClassListView.as_view(), name='class_review'),
     url(r'^class/reviewlist/?$',
         ReviewClassListView.as_view(), name='class_review_list'),
-    url(r'^class/changestate/(\d+)/?$',
-        ClassChangeStateView,
+    url(r'^class/changestate/(?P<object_id>\d+)/?$',
+        ClassChangeStateView.as_view(),
         name='class_changestate'),
 
     #  proposals
@@ -177,8 +177,8 @@ urlpatterns = patterns(
     url(r'^volunteer/reviewlist/?$',
         ReviewVolunteerListView.as_view(),
         name='volunteer_review_list'),
-    url(r'^volunteer/changestate/(\d+)/?$',
-        VolunteerChangeStateView,
+    url(r'^volunteer/changestate/(?P<object_id>\d+)/?$',
+        VolunteerChangeStateView.as_view(),
         name='volunteer_changestate'),
 
 
@@ -197,8 +197,8 @@ urlpatterns = patterns(
     url(r'^vendor/reviewlist/?$',
         ReviewVendorListView.as_view(),
         name='vendor_review_list'),
-    url(r'^vendor/changestate/(\d+)/?$',
-        VendorChangeStateView,
+    url(r'^vendor/changestate/(?P<object_id>\d+)/?$',
+        VendorChangeStateView.as_view(),
         name='vendor_changestate'),
 
     #  costumes
@@ -214,8 +214,8 @@ urlpatterns = patterns(
         ReviewCostumeListView.as_view(), name='costume_review'),
     url(r'^costume/reviewlist/?$',
         ReviewCostumeListView.as_view(), name='costume_review_list'),
-    url(r'^costume/changestate/(\d+)/?$',
-        CostumeChangeStateView,
+    url(r'^costume/changestate/(?P<object_id>\d+)/?$',
+        CostumeChangeStateView.as_view(),
         name='costume_changestate'),
 
     url(r'^clone/(?P<bid_type>\w+)/(?P<bid_id>\d+)/?$',

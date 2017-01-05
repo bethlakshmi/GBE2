@@ -24,6 +24,7 @@ class TestVendorChangestate(TestCase):
         self.vendor = VendorFactory()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Vendor Coordinator')
+        self.data = {'accepted': '3'}
 
     def test_vendor_changestate_authorized_user(self):
         '''The proper coordinator is changing the state, it works'''
@@ -31,7 +32,7 @@ class TestVendorChangestate(TestCase):
                       args=[self.vendor.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 302)
 
     def test_vendor_changestate_unauthorized_user(self):
@@ -40,5 +41,5 @@ class TestVendorChangestate(TestCase):
                       args=[self.vendor.pk],
                       urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
-        response = self.client.get(url)
+        response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 403)
