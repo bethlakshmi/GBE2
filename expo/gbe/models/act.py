@@ -14,9 +14,9 @@ from gbe.models import (
     Biddable,
     Conference,
     Performer,
+    TechInfo,
     visible_bid_query,
 )
-from tech_info import TechInfo
 from gbetext import (
     acceptance_states,
     act_not_unique,
