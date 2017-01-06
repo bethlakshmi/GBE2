@@ -61,6 +61,7 @@ class TestCalendarView(TestCase):
         url = reverse('calendar_view', urlconf="scheduler.urls")
         data = {'conf': self.other_conference.conference_slug}
         response = self.client.get(url, data=data)
+        print (response.content)
         self.assertFalse(self.showcontext.show.title in response.content)
         self.assertTrue(self.other_show.show.title in response.content)
 
