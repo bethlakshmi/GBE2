@@ -10,6 +10,7 @@ from gbe.models import (
     Persona,
 )
 from gbetext import cue_options
+from ticketing.functions import get_tickets
 
 
 class Show (Event):
@@ -46,16 +47,7 @@ class Show (Event):
     # but for all tickets - iff the ticket is active
     #
     def get_tickets(self):
-        from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(
-            bpt_event__include_most=True,
-            active=True,
-            bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(
-            bpt_event__linked_events=self,
-            active=True)
-        tickets = list(chain(my_events, most_events))
-        return tickets
+        return get_tickets(self, most=True)
 
     def get_acts(self):
         return self.scheduler_events.first().get_acts()

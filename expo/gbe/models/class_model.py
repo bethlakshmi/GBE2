@@ -26,6 +26,7 @@ from gbetext import (
     yesno_options,
 )
 from gbe_forms_text import calendar_types
+from ticketing.functions import get_tickets
 
 
 class Class(Biddable, Event):
@@ -186,16 +187,7 @@ class Class(Biddable, Event):
     # but for all tickets - iff the ticket is active
     #
     def get_tickets(self):
-        from ticketing.models import TicketItem
-        most_events = TicketItem.objects.filter(
-            Q(bpt_event__include_most=True) |
-            Q(bpt_event__include_conference=True)).filter(
-                active=True,
-                bpt_event__conference=self.conference)
-        my_events = TicketItem.objects.filter(bpt_event__linked_events=self,
-                                              active=True)
-        tickets = list(chain(my_events, most_events))
-        return tickets
+        return get_tickets(self, most=True, conference=True)
 
     class Meta:
         verbose_name_plural = 'classes'

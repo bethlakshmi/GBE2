@@ -44,13 +44,18 @@ from gbe.expoformfields import (
     DurationFormField,
     FriendlyURLInput,
 )
-from scheduler.functions import (
-    conference_days,
-    conference_times,
-)
 from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.utils.formats import date_format
+
+time_start = 8 * 60
+time_stop = 24 * 60
+
+conference_times = [(time(mins / 60, mins % 60),
+                     date_format(time(mins / 60, mins % 60),
+                                 "TIME_FORMAT"))
+                    for mins in range(time_start, time_stop, 30)]
 
 
 class ParticipantForm(forms.ModelForm):

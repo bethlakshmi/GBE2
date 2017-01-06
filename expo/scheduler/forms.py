@@ -12,13 +12,6 @@ import gbe.models as conf
 from gbe.functions import get_current_conference
 import pytz
 
-conference_days = (
-    (date_format(datetime(2016, 02, 4), "DAY_FORMAT"), 'Thursday'),
-    (date_format(datetime(2016, 02, 5), "DAY_FORMAT"), 'Friday'),
-    (date_format(datetime(2016, 02, 6), "DAY_FORMAT"), 'Saturday'),
-    (date_format(datetime(2016, 02, 7), "DAY_FORMAT"), 'Sunday'),
-)
-
 
 time_start = 8 * 60
 time_stop = 24 * 60
