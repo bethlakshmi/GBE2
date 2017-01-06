@@ -270,31 +270,19 @@ def event_info(confitem_type='Show',
                                    tzinfo=pytz.timezone('UTC'))),
                conference=None):
     '''
-    Queries the database for scheduled events of type confitem_type,
-    during time cal_times,
-    and returns their important information in a dictionary format.
+    Using the scheduleable items for the current conference, get a list
+    of dicts for the dates selected
     '''
-    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
-        filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event',
-                           'Volunteer Opportunity',
-                           'Master Class',
-                           'Drop-In Class']:
-        filter_type, confitem_type = confitem_type, 'GenericEvent'
-
-    import gbe.models as conf
     from scheduler.models import Location
-    if not conference:
-        conference = conf.Conference.current_conf()
-    confitem_class = eval('conf.%s' % confitem_type)
-    confitems_list = confitem_class.objects.filter(conference=conference)
+    from gbe.functions import get_gbe_schedulable_items
+
+    confitems_list = get_gbe_schedulable_items(
+        confitem_type,
+        filter_type,
+        conference)
+
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
-
-    if filter_type is not None:
-        confitems_list = [
-            confitem for confitem in confitems_list if
-            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():
