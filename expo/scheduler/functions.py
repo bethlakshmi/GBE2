@@ -278,7 +278,8 @@ def event_info(confitem_type='Show',
 
     confitems_list = get_gbe_schedulable_items(
         confitem_type,
-        filter_type)
+        filter_type,
+        conference)
 
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
