@@ -17,24 +17,18 @@
 # sys.path.append('/home/gbeadmin/webapps/gbetest/expo')
 # os.environ['DJANGO_SETTINGS_MODULE'] = 'expo.settings'
 
-import sys, os
+import sys
+import os
 sys.path.append('./expo')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
 from expo.gbe_logging import logger
 from django.conf import settings
-from ticketing.models import *
-from ticketing.brown_paper import *
-
+from ticketing.brown_paper import process_bpt_order_list
+from ticketing.views import import_ticket_items
 
 logger.info('Executing Cron Job Script....')
+tickets = import_ticket_items()
+logger.info('%s tickets added to the system.' % tickets)
 count = process_bpt_order_list()
 logger.info('%s transactions added to the system.' % count)
-
-
-
-
-
-
-
-
-

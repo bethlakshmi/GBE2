@@ -71,16 +71,21 @@ class TicketItem(models.Model):
     ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
     description = models.TextField()
-    active = models.BooleanField(default=False)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
     bpt_event = models.ForeignKey(BrownPaperEvents,
                                   related_name="ticketitems",
                                   blank=True)
+    live = models.BooleanField(default=False)
+    has_coupon = models.BooleanField(default=False)
 
     def __unicode__(self):
         return '%s %s' % (self.ticket_id, self.title)
+
+    @property
+    def active(self):
+        return self.live and not self.has_coupon
 
 
 class Purchaser(models.Model):

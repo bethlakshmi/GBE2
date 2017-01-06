@@ -28,9 +28,10 @@ class TicketItemForm(forms.ModelForm):
         fields = ['ticket_id',
                   'title',
                   'description',
-                  'active',
                   'cost',
-                  'bpt_event'
+                  'bpt_event',
+                  'has_coupon',
+                  'live',
                   ]
         labels = ticket_item_labels
 
