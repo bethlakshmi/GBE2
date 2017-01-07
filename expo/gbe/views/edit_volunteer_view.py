@@ -43,7 +43,7 @@ def get_reduced_availability(the_bid, form):
     for window in the_bid.available_windows.all():
         if window not in form.cleaned_data['available_windows']:
             reduced += [window]
-    
+
     for window in form.cleaned_data['unavailable_windows']:
         if window not in the_bid.unavailable_windows.all():
             reduced += [window]
@@ -56,14 +56,15 @@ def manage_schedule_problems(changed_windows, profile):
     for window in changed_windows:
         for conflict in profile.get_conflicts(window):
             if ((conflict not in conflicts) and
-                conflict.eventitem.payload['type'] == 'Volunteer'):
+                    conflict.eventitem.payload['type'] == 'Volunteer'):
                 conflicts += [conflict]
-                warning =  {
+                warning = {
                     'time': conflict.starttime.strftime(DATETIME_FORMAT),
                     'event': str(conflict),
-                    'interest': conflict.eventitem.child().volunteer_category_description,
+                    'interest': conflict.eventitem.child(
+                        ).volunteer_category_description,
                 }
-                leads = conflict.eventitem.roles(roles=['Staff Lead',])
+                leads = conflict.eventitem.roles(roles=['Staff Lead', ])
                 for lead in leads:
                     warning['lead'] = str(lead.item.badge_name)
                     warning['email'] = lead.item.contact_email
@@ -78,7 +79,7 @@ def manage_schedule_problems(changed_windows, profile):
 def EditVolunteerView(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
- 
+
     user = validate_profile(request, require=True)
 
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
@@ -110,22 +111,23 @@ def EditVolunteerView(request, volunteer_id):
             if warnings:
                 warn_msg = "<br><ul>"
                 user_message = UserMessage.objects.get_or_create(
-                view='EditVolunteerView',
-                code="AVAILABILITY_CONFLICT",
-                defaults={
-                    'summary': "Volunteer Edit Caused Conflict",
-                    'description': default_window_schedule_conflict,})
+                    view='EditVolunteerView',
+                    code="AVAILABILITY_CONFLICT",
+                    defaults={
+                        'summary': "Volunteer Edit Caused Conflict",
+                        'description': default_window_schedule_conflict, })
                 for warn in warnings:
                     warn_msg += "<li>%s working for %s - as %s" % (
                         warn['time'],
                         warn['event'],
                         warn['interest']
                     )
-                    if warn['lead']:
-                        warn_msg += ", Staff Lead is <a href='email: %s'>%s</a>" % (
-                            warn['email'],
-                            warn['lead']
-                        )
+                    if 'lead' in warn:
+                        warn_msg += ", Staff Lead is " + \
+                            "<a href='email: %s'>%s</a>" % (
+                                warn['email'],
+                                warn['lead']
+                            )
                     warn_msg += "</li>"
                 warn_msg += "</ul>"
                 messages.warning(request, user_message[0].description+warn_msg)

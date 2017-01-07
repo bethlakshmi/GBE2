@@ -177,7 +177,7 @@ class TestIndex(TestCase):
             reverse('volunteer_edit',
                     urlconf='gbe.urls',
                     args=[self.current_volunteer.id]) in content)
-        assert does_not_show_previous 
+        assert does_not_show_previous
         assert shows_all_current
         nt.assert_true(self.is_event_present(self.current_sched, content))
         nt.assert_false(self.is_event_present(self.previous_sched, content))

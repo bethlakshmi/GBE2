@@ -233,7 +233,7 @@ def notify_reviewers_on_bid_change(bidder,
     mail.send(to_list,
               settings.DEFAULT_FROM_EMAIL,
               template=name,
-              context = {
+              context={
                 'bidder': bidder,
                 'bid_type': bid_type,
                 'action': action,
@@ -255,13 +255,13 @@ def send_warnings_to_staff(bidder,
     to_list = [user.email for user in
                User.objects.filter(groups__name='%s Coordinator' % bid_type)]
     for warning in warnings:
-        if warning['email']:
+        if 'email' in warning:
             to_list += [warning['email']]
-    
+
     mail.send(to_list,
               settings.DEFAULT_FROM_EMAIL,
               template=name,
-              context = {
+              context={
                 'bidder': bidder,
                 'bid_type': bid_type,
                 'warnings': warnings},
@@ -269,7 +269,9 @@ def send_warnings_to_staff(bidder,
               )
 
 
-def get_gbe_schedulable_items(confitem_type, filter_type=None, conference=None):
+def get_gbe_schedulable_items(confitem_type,
+                              filter_type=None,
+                              conference=None):
     '''
     Queries the database for the conferece items relevant for each type
     and returns a queryset.

@@ -10,7 +10,10 @@ from tests.factories.gbe_factories import (
     VolunteerFactory,
     VolunteerInterestFactory
 )
-from tests.contexts import VolunteerContext
+from tests.contexts import (
+    StaffAreaContext,
+    VolunteerContext,
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     assert_hidden_value,
@@ -24,6 +27,7 @@ from gbetext import (
     default_volunteer_no_interest_msg
 )
 from gbe.models import UserMessage
+from expo.settings import DATETIME_FORMAT
 
 
 class TestEditVolunteer(TestCase):
@@ -42,7 +46,7 @@ class TestEditVolunteer(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
-    def get_form(self, context, submit=False, invalid=False, rank=5):
+    def get_form(self, context, invalid=False, rank=5):
         interest_pk = context.bid.volunteerinterest_set.first().pk
         avail_pk = context.bid.volunteerinterest_set.first().interest.pk
         form = {'profile': 1,
@@ -53,8 +57,6 @@ class TestEditVolunteer(TestCase):
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
                 }
-        if submit:
-            form['submit'] = True
         if invalid:
             del(form['number_shifts'])
         return form
@@ -196,10 +198,30 @@ class TestEditVolunteer(TestCase):
 
     def test_interest_bad_data(self):
         response, context = self.edit_volunteer(rank='bad_data')
-        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             '<font color="red"><ul class="errorlist">' +
             '<li>Select a valid choice. bad_data is not one of ' +
             'the available choices.</li></ul></font>')
+
+    def test_remove_available_window_conflict(self):
+        context = VolunteerContext()
+        change_window = context.add_window()
+        context.bid.available_windows.add(context.window)
+        form = self.get_form(context)
+        form['available_windows'] = [change_window.pk]
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content

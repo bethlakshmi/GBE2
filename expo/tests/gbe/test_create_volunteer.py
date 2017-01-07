@@ -236,8 +236,9 @@ class TestCreateVolunteer(TestCase):
     def test_create_second_volunteer_gets_redirect(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
-        volunteer = VolunteerFactory(profile=self.profile,
-                         conference=self.conference)
+        volunteer = VolunteerFactory(
+            profile=self.profile,
+            conference=self.conference)
         login_as(self.profile, self)
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data, follow=True)
