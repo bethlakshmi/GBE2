@@ -24,8 +24,19 @@ class ResourceAllocationAdmin(admin.ModelAdmin):
 
 
 class EventItemAdmin(admin.ModelAdmin):
-    list_display = (str, 'visible')
-    list_filter = ['visible']
+    list_display = (
+        str, 'visible', 'event_type', 'conference')
+    list_filter = ['visible', 'event__conference']
+    search_fields = ['event__title']
+
+    def event_type(self, obj):
+        if str(obj.child().__class__.__name__) == 'GenericEvent':
+            return obj.child().sched_payload['type']
+        else:
+            return str(obj.child().__class__.__name__)
+
+    def conference(self, obj):
+        return obj.child().conference
 
 
 class EventAdmin(admin.ModelAdmin):
