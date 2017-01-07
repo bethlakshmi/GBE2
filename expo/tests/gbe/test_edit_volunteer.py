@@ -77,6 +77,25 @@ class TestEditVolunteer(TestCase):
             follow=True)
         return response, context
 
+    def post_conflict(self, staff=True):
+        context = VolunteerContext()
+        change_window = context.add_window()
+        if staff:
+            context.sched_event.allocate_worker(
+                context.profile, 'Staff Lead')
+        context.bid.available_windows.add(context.window)
+        form = self.get_form(context)
+        form['available_windows'] = [change_window.pk]
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        return response, context
+
     def test_edit_volunteer_no_volunteer(self):
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
@@ -206,11 +225,20 @@ class TestEditVolunteer(TestCase):
             'the available choices.</li></ul></font>')
 
     def test_remove_available_window_conflict(self):
+        response, context = self.post_conflict(staff=False)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content
+
+    def test_set_uavailable_window_conflict(self):
         context = VolunteerContext()
         change_window = context.add_window()
-        context.bid.available_windows.add(context.window)
+        context.bid.available_windows.add(change_window.pk)
         form = self.get_form(context)
-        form['available_windows'] = [change_window.pk]
+        form['unavailable_windows'] = [context.window.pk]
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[context.bid.pk])
@@ -219,6 +247,15 @@ class TestEditVolunteer(TestCase):
             url,
             form,
             follow=True)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content
+
+    def test_conflict_w_staff_lead(self):
+        response, context = self.post_conflict(staff=True)
         assert 'Warning', "<li>%s working for %s - as %s" % (
             context.window.start_time.strftime(DATETIME_FORMAT),
             str(context.opportunity),
