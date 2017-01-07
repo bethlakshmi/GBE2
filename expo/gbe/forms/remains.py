@@ -44,13 +44,18 @@ from gbe.expoformfields import (
     DurationFormField,
     FriendlyURLInput,
 )
-from scheduler.functions import (
-    conference_days,
-    conference_times,
-)
 from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.utils.formats import date_format
+
+time_start = 8 * 60
+time_stop = 24 * 60
+
+conference_times = [(time(mins / 60, mins % 60),
+                     date_format(time(mins / 60, mins % 60),
+                                 "TIME_FORMAT"))
+                    for mins in range(time_start, time_stop, 30)]
 
 
 class ParticipantForm(forms.ModelForm):
@@ -383,15 +388,27 @@ class VolunteerBidForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if 'available_windows' in kwargs:
             available_windows = kwargs.pop('available_windows')
-        else:
-            available_windows = None
         if 'unavailable_windows' in kwargs:
             unavailable_windows = kwargs.pop('unavailable_windows')
-        else:
-            unavailable_windows = None
         super(VolunteerBidForm, self).__init__(*args, **kwargs)
         self.fields['available_windows'].queryset = available_windows
         self.fields['unavailable_windows'].queryset = unavailable_windows
+
+    def clean(self):
+        cleaned_data = super(VolunteerBidForm, self).clean()
+        conflict_windows = []
+        if ('available_windows' in self.cleaned_data) and (
+                'unavailable_windows' in self.cleaned_data):
+            conflict_windows = set(
+                self.cleaned_data['available_windows']).intersection(
+                self.cleaned_data['unavailable_windows'])
+        if len(conflict_windows) > 0:
+            windows = ", ".join(str(w) for w in conflict_windows)
+            self._errors['available_windows'] = \
+                volunteer_available_time_conflict % windows
+            self._errors['unavailable_windows'] = \
+                volunteer_unavailable_time_conflict
+        return cleaned_data
 
     class Meta:
         model = Volunteer

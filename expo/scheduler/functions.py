@@ -24,38 +24,8 @@ from django.utils.formats import date_format
 from django.core.urlresolvers import reverse
 import pytz
 
-conference_days = (
-    (date_format(datetime(2015, 02, 19), "DAY_FORMAT"), 'Thursday'),
-    (date_format(datetime(2015, 02, 20), "DAY_FORMAT"), 'Friday'),
-    (date_format(datetime(2015, 02, 21), "DAY_FORMAT"), 'Saturday'),
-    (date_format(datetime(2015, 02, 22), "DAY_FORMAT"), 'Sunday'),
-)
 
 utc = pytz.timezone('UTC')
-
-conference_datetimes = (
-    datetime(2015, 02, 19, tzinfo=utc),
-    datetime(2015, 02, 20, tzinfo=utc),
-    datetime(2015, 02, 21, tzinfo=utc),
-    datetime(2015, 02, 22, tzinfo=utc),
-)
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins / 60, mins % 60),
-                     date_format(time(mins / 60, mins % 60),
-                                 "TIME_FORMAT"))
-                    for mins in range(time_start, time_stop, 30)]
-
-conference_dates = {"Thursday": "2015-02-19",
-                    "Friday": "2015-02-20",
-                    "Saturday": "2015-02-21",
-                    "Sunday": "2015-02-22"}
-
-hour = Duration(seconds=3600)
-
-monday = datetime(2015, 2, 23)
 
 
 def init_time_blocks(events,
@@ -300,31 +270,19 @@ def event_info(confitem_type='Show',
                                    tzinfo=pytz.timezone('UTC'))),
                conference=None):
     '''
-    Queries the database for scheduled events of type confitem_type,
-    during time cal_times,
-    and returns their important information in a dictionary format.
+    Using the scheduleable items for the current conference, get a list
+    of dicts for the dates selected
     '''
-    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
-        filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event',
-                           'Volunteer Opportunity',
-                           'Master Class',
-                           'Drop-In Class']:
-        filter_type, confitem_type = confitem_type, 'GenericEvent'
-
-    import gbe.models as conf
     from scheduler.models import Location
-    if not conference:
-        conference = conf.Conference.current_conf()
-    confitem_class = eval('conf.%s' % confitem_type)
-    confitems_list = confitem_class.objects.filter(conference=conference)
+    from gbe.functions import get_gbe_schedulable_items
+
+    confitems_list = get_gbe_schedulable_items(
+        confitem_type,
+        filter_type,
+        conference)
+
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
-
-    if filter_type is not None:
-        confitems_list = [
-            confitem for confitem in confitems_list if
-            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():

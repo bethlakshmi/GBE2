@@ -9,15 +9,19 @@ from gbe.models import (
     Volunteer,
 )
 from django.http import Http404
-from django.core.mail import send_mail
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from gbetext import (
+    acceptance_states,
     event_options,
     class_options,
 )
 from scheduler.models import Event as sEvent
+from post_office import mail
+from post_office.models import EmailTemplate
+from django.conf import settings
+import os
 
 
 def validate_profile(request, require=False):
@@ -68,18 +72,24 @@ def mail_to_group(subject, message, group_name):
     '''
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
-    if not settings.DEBUG:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, to_list)
+    mail.send(to_list,
+              settings.DEFAULT_FROM_EMAIL,
+              subject=subject,
+              message=message,
+              priority='now',
+              )
     return None
 
 
 def send_user_contact_email(name, from_address, message):
     subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
-    send_mail(subject,
-              message,
+    mail.send(to_addresses,
               from_address,
-              to_addresses)
+              subject=subject,
+              message=message,
+              priority='now',
+              )
     # TO DO: handle (log) possible exceptions
     # TO DO: log usage of this function
     # TO DO: close the spam hole that this opens up.
@@ -157,3 +167,88 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
     return Volunteer.objects.filter(
         conference=conference).exclude(
         unavailable_windows__in=windows)
+
+
+def get_or_create_template(name, base, subject):
+    try:
+        template = EmailTemplate.objects.get(name=name)
+    except:
+        with open(
+            "%s/templates/gbe/email/%s.tmpl" % (
+                os.path.dirname(__file__),
+                base), "r") as textfile:
+            textcontent = textfile.read()
+        with open(
+            "%s/templates/gbe/email/%s_html.tmpl" % (
+                os.path.dirname(__file__),
+                base), "r") as htmlfile:
+            htmlcontent = htmlfile.read()
+        template = EmailTemplate.objects.create(
+            name=name,
+            subject=subject,
+            content=textcontent,
+            html_content=htmlcontent,
+            )
+        template.save()
+
+
+def send_bid_state_change_mail(bid_type, email, badge_name, status):
+    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+    get_or_create_template(
+        name,
+        "default_bid_status_change",
+        'Your %s proposal has changed status to %s' % (
+                bid_type,
+                acceptance_states[status][1]))
+    mail.send(
+        email,
+        settings.DEFAULT_FROM_EMAIL,
+        template=name,
+        context={
+            'name': badge_name,
+            'bid_type': bid_type,
+            'status': acceptance_states[status][1]},
+        priority='now',
+    )
+
+
+def send_schedule_update_mail(participant_type, profile):
+    name = '%s schedule update' % (participant_type.lower())
+    get_or_create_template(
+        name,
+        "volunteer_schedule_update",
+        "A change has been made to your %s Schedule!" % (
+                participant_type))
+    mail.send(
+        profile.contact_email,
+        settings.DEFAULT_FROM_EMAIL,
+        template=name,
+        context={
+            'profile': profile},
+        priority='now',
+    )
+
+def get_gbe_schedulable_items(confitem_type, filter_type=None, conference=None):
+    '''
+    Queries the database for the conferece items relevant for each type
+    and returns a queryset.
+    '''
+    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
+        filter_type, confitem_type = confitem_type, 'Class'
+    elif confitem_type in ['Special Event',
+                           'Volunteer Opportunity',
+                           'Master Class',
+                           'Drop-In Class']:
+        filter_type, confitem_type = confitem_type, 'GenericEvent'
+
+    if not conference:
+        conference = Conference.current_conf()
+    confitem_class = eval(confitem_type)
+    confitems_list = confitem_class.objects.filter(conference=conference)
+
+    if filter_type is not None:
+        confitems_list = [
+            confitem for confitem in confitems_list if
+            confitem.sched_payload['details']['type'] == filter_type]
+
+    return confitems_list

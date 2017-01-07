@@ -8,7 +8,14 @@ from expo.gbe_logging import logger
 import urllib2
 from django.utils import timezone
 import xml.etree.ElementTree as et
-from ticketing.models import *
+from django.contrib.auth.models import User
+from ticketing.models import (
+    BrownPaperEvents,
+    BrownPaperSettings,
+    Purchaser,
+    TicketItem,
+    Transaction,
+)
 import HTMLParser
 from django.utils import timezone
 from gbe.models import Profile
@@ -172,22 +179,26 @@ def get_bpt_price_list():
 def bpt_price_to_ticketitem(event, bpt_price, event_text):
     '''
     Function takes an XML price object from the BPT pricelist call and returns
-    an equivalent TicketItem object.
+    an equivalent dictionary that is appropriate to the TicketItem object.
 
     event_id - the Event ID associated with this price
     bpt_price - the price object from the BPT call
     event_text - Text that describes the event from BPT
-    Returns:  the TicketItem
+    Returns:  the TicketItem dictionary
     '''
-    t_item = TicketItem()
-    t_item.ticket_id = '%s-%s' % (event.bpt_event_id,
-                                  bpt_price.find('price_id').text)
-    t_item.title = bpt_price.find('name').text
-    t_item.active = False
-    t_item.cost = bpt_price.find('value').text
-    t_item.description = event_text
-    t_item.modified_by = 'BPT Auto Import'
-    t_item.bpt_event = event
+    live = False
+    if bpt_price.find('live').text == 'y':
+        live = True
+    t_item = {
+        'ticket_id': '%s-%s' % (event.bpt_event_id,
+                                bpt_price.find('price_id').text),
+        'title': bpt_price.find('name').text,
+        'cost': bpt_price.find('value').text,
+        'description': event_text,
+        'modified_by': 'BPT Auto Import',
+        'bpt_event': event,
+        'live': live,
+    }
 
     return t_item
 
@@ -214,19 +225,21 @@ def process_bpt_order_list():
                                  get_bpt_client_id())
         order_list_xml = perform_bpt_api_call(order_list_call)
 
-        for bpt_order in order_list_xml.findall('.//item'):
-            ticket_number = bpt_order.find('ticket_number').text
+        if order_list_xml is not None:
+            for bpt_order in order_list_xml.findall('.//item'):
+                ticket_number = bpt_order.find('ticket_number').text
 
-            if not (transaction_reference_exists(ticket_number)):
-                bpt_save_order_to_database(event.bpt_event_id, bpt_order)
-                count += 1
+                if not (transaction_reference_exists(ticket_number)):
+                    bpt_save_order_to_database(event.bpt_event_id, bpt_order)
+                    count += 1
 
     # Recheck to see if any emails match to users now.  For example, if
     # a new user created a profile after purchasing a ticket.
 
     bpt_match_existing_purchasers_using_email()
 
-    set_bpt_last_poll_time()
+    if count > 0:
+        set_bpt_last_poll_time()
     return count
 
 
