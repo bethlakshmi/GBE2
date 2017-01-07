@@ -1,6 +1,7 @@
 from django.contrib import admin
 from gbe.models import *
 from model_utils.managers import InheritanceManager
+from import_export.admin import ImportExportActionModelAdmin
 
 
 class BidAdmin(admin.ModelAdmin):
@@ -92,9 +93,9 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ['conference']
 
 
-class GenericAdmin(admin.ModelAdmin):
+class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('title', 'type')
-    list_filter = ['conference']
+    list_filter = ['conference', 'type']
 
 
 class EventAdmin(admin.ModelAdmin):
