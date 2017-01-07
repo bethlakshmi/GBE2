@@ -81,7 +81,7 @@ class TestEditVolunteer(TestCase):
                       args=[0])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(404, response.status_code)
 
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = ProfileFactory().user_object
@@ -92,6 +92,16 @@ class TestEditVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         self.assertEqual(403, response.status_code)
+
+    def test_edit_volunteer_profile_is_owner(self):
+        volunteer = VolunteerFactory()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(volunteer.profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
