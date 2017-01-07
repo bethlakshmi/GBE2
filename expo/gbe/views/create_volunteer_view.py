@@ -64,8 +64,8 @@ def CreateVolunteerView(request):
     except:
         return no_vol_bidding(request)
 
-    existing_bid = profile.volunteering.get(conference=conference)
-    if existing_bid:
+    try:
+        existing_bid = profile.volunteering.get(conference=conference)
         user_message = UserMessage.objects.get_or_create(
             view='CreateVolunteerView',
             code="FOUND_EXISTING_BID",
@@ -78,6 +78,8 @@ def CreateVolunteerView(request):
                 'volunteer_edit',
                 urlconf='gbe.urls',
                 args=[existing_bid.id]))
+    except:
+        pass
 
     if len(windows) == 0 or len(available_interests) == 0:
         return no_vol_bidding(request)
