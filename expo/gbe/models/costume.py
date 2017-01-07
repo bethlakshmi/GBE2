@@ -78,7 +78,7 @@ class Costume(Biddable):
 
     @property
     def bid_draft_fields(self):
-        return (['title'])
+        return (['title', 'creator'])
 
     @property
     def bid_review_header(self):
