@@ -67,6 +67,7 @@ def manage_schedule_problems(changed_windows, profile):
                 for lead in leads:
                     warning['lead'] = str(lead.item.badge_name)
                     warning['email'] = lead.item.contact_email
+                conflict.unallocate_worker(profile, 'Volunteer')
                 warnings += [warning]
     return warnings
 
