@@ -99,7 +99,7 @@ class GenericAdmin(ImportExportActionModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subclass')
+    list_display = ('eventitem_id', 'title', 'subclass')
     list_filter = ['conference']
 
     def subclass(self, obj):
