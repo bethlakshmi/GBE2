@@ -25,6 +25,16 @@ class VolunteerWindow(Model):
     def end_timestamp(self):
         return pytz.utc.localize(datetime.combine(self.day.day, self.end))
 
+    @property
+    def start_time(self):
+        ''' same footprint as scheduler events'''
+        return self.start_timestamp()
+
+    @property
+    def end_time(self, ):
+        ''' same footprint as scheduler events'''
+        self.end_timestamp()
+
     def check_conflict(self, start, end):
         starttime = self.start_timestamp()
         endtime = self.end_timestamp()

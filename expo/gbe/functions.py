@@ -22,6 +22,7 @@ from post_office import mail
 from post_office.models import EmailTemplate
 from django.conf import settings
 import os
+from django.contrib.sites.models import Site
 
 
 def validate_profile(request, require=False):
@@ -62,23 +63,6 @@ def validate_perms(request, perms, require=True):
     if require:                # error out if permission is required
         raise PermissionDenied
     return False               # or just return false if we're just checking
-
-
-def mail_to_group(subject, message, group_name):
-    '''
-    Sends mail to a privilege group, designed for use by bid functions
-    Will always send using default_from_email
-
-    '''
-    to_list = [user.email for user in
-               User.objects.filter(groups__name=group_name)]
-    mail.send(to_list,
-              settings.DEFAULT_FROM_EMAIL,
-              subject=subject,
-              message=message,
-              priority='now',
-              )
-    return None
 
 
 def send_user_contact_email(name, from_address, message):
@@ -200,6 +184,7 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
         'Your %s proposal has changed status to %s' % (
                 bid_type,
                 acceptance_states[status][1]))
+    site = Site.objects.get_current()
     mail.send(
         email,
         settings.DEFAULT_FROM_EMAIL,
@@ -207,7 +192,9 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status):
         context={
             'name': badge_name,
             'bid_type': bid_type,
-            'status': acceptance_states[status][1]},
+            'status': acceptance_states[status][1],
+            'site': site.domain,
+            'site_name': site.name},
         priority='now',
     )
 
@@ -224,11 +211,67 @@ def send_schedule_update_mail(participant_type, profile):
         settings.DEFAULT_FROM_EMAIL,
         template=name,
         context={
+            'site': Site.objects.get_current().domain,
             'profile': profile},
         priority='now',
     )
 
-def get_gbe_schedulable_items(confitem_type, filter_type=None, conference=None):
+
+def notify_reviewers_on_bid_change(bidder,
+                                   bid_type,
+                                   action,
+                                   conference,
+                                   group_name,
+                                   review_url):
+    name = '%s %s notification' % (bid_type.lower(), action.lower())
+    get_or_create_template(
+        name,
+        "bid_submitted",
+        "%s %s Occurred" % (bid_type, action))
+    to_list = [user.email for user in
+               User.objects.filter(groups__name=group_name)]
+    mail.send(to_list,
+              settings.DEFAULT_FROM_EMAIL,
+              template=name,
+              context={
+                'bidder': bidder,
+                'bid_type': bid_type,
+                'action': action,
+                'conference': conference,
+                'group_name': group_name,
+                'review_url': Site.objects.get_current().domain+review_url},
+              priority='now',
+              )
+
+
+def send_warnings_to_staff(bidder,
+                           bid_type,
+                           warnings):
+    name = '%s schedule warning' % (bid_type.lower())
+    get_or_create_template(
+        name,
+        "schedule_conflict",
+        "URGENT: %s Schedule Conflict Occurred" % (bid_type))
+    to_list = [user.email for user in
+               User.objects.filter(groups__name='%s Coordinator' % bid_type)]
+    for warning in warnings:
+        if 'email' in warning:
+            to_list += [warning['email']]
+
+    mail.send(to_list,
+              settings.DEFAULT_FROM_EMAIL,
+              template=name,
+              context={
+                'bidder': bidder,
+                'bid_type': bid_type,
+                'warnings': warnings},
+              priority='now',
+              )
+
+
+def get_gbe_schedulable_items(confitem_type,
+                              filter_type=None,
+                              conference=None):
     '''
     Queries the database for the conferece items relevant for each type
     and returns a queryset.

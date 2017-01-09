@@ -6,6 +6,8 @@ from gbe.models import (
 )
 from gbe.views import ViewBidView
 from gbe.views.functions import get_performer_form
+from gbe.views.act_display_functions import get_act_form
+
 
 class ViewActView(ViewBidView):
 
@@ -18,16 +20,7 @@ class ViewActView(ViewBidView):
         return self.bid.performer.contact
 
     def get_display_forms(self):
-        audio_info = self.bid.tech.audio
-        stage_info = self.bid.tech.stage
-        actform = self.object_form_type(
-            instance=self.bid,
-            prefix=self.bid_prefix,
-            initial={'track_title': audio_info.track_title,
-                     'track_artist': audio_info.track_artist,
-                     'track_duration': audio_info.track_duration,
-                     'act_duration': stage_info.act_duration}
-        )
+        actform = get_act_form(self.bid)
 
         performer_form = get_performer_form(self.bid.performer)
         return (actform, performer_form)

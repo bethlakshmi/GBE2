@@ -395,6 +395,12 @@ class WorkerItem(ResourceItem):
         ).contact_email
 
     @property
+    def badge_name(self):
+        return WorkerItem.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id
+        ).describe
+
+    @property
     def contact_phone(self):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -527,16 +533,16 @@ class EventItem (models.Model):
                            'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
-                child_event__eventitem=self.eventitem_id).first()
+                child_event__eventitem=self).first()
             people = Worker.objects.filter(
-                (Q(allocations__event__eventitem=self.eventitem_id) &
+                (Q(allocations__event__eventitem=self) &
                  Q(role__in=roles)) |
                 (Q(allocations__event=container.parent_event) &
                  Q(role__in=roles))).distinct().order_by(
                 'role', '_item')
         except:
             people = Worker.objects.filter(
-                allocations__event__eventitem=self.eventitem_id,
+                allocations__event__eventitem=self,
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
@@ -553,7 +559,7 @@ class EventItem (models.Model):
 
     @property
     def payload(self):
-        return self.sched_payload
+        return self.child().sched_payload
 
     @property
     def duration(self):
@@ -698,6 +704,12 @@ class Event(Schedulable):
         if label:
             allocation.set_label(label)
         return warnings
+
+    def unallocate_worker(self, worker, role):
+        ResourceAllocation.objects.get(
+            event=self,
+            resource__worker___item=worker,
+            resource__worker__role=role).delete()
 
     def unallocate_role(self, role):
         '''
@@ -972,7 +984,7 @@ class Event(Schedulable):
         overlapping end_time - it's a conflict
         '''
         is_conflict = False
-        if self.start_time == other_event.starttime:
+        if self.start_time == other_event.start_time:
             is_conflict = True
         elif (self.start_time > other_event.start_time and
               self.start_time < other_event.end_time):

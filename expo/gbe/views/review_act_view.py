@@ -7,11 +7,11 @@ from gbe.models import (
 )
 from gbe.forms import (
     ActBidEvaluationForm,
-    ActEditForm,
     BidStateChangeForm,
 )
 from gbe.views import ReviewBidView
 from gbe.views.functions import get_performer_form
+from gbe.views.act_display_functions import get_act_form
 
 
 class ReviewActView(ReviewBidView):
@@ -22,9 +22,6 @@ class ReviewActView(ReviewBidView):
     '''
     reviewer_permissions = ('Act Reviewers', )
     coordinator_permissions = ('Act Coordinator',)
-    bid_prefix = "The Act"
-    bidder_prefix = "The Performer(s)"
-    bid_form_type = ActEditForm
     object_type = Act
     review_list_view_name = 'act_review_list'
     bid_view_name = 'act_view'
@@ -35,16 +32,7 @@ class ReviewActView(ReviewBidView):
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
         self.bidder = get_performer_form(self.object.performer)
-
-        audio_info = self.object.tech.audio
-        stage_info = self.object.tech.stage
-        initial = {
-            'track_title': audio_info.track_title,
-            'track_artist': audio_info.track_artist,
-            'track_duration': audio_info.track_duration,
-            'act_duration': stage_info.act_duration
-        }
-        self.create_object_form(initial=initial)
+        self.object_form = get_act_form(self.object)
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
     def create_action_form(self, act):
