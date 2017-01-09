@@ -5,8 +5,8 @@ from cms.menu_bases import CMSAttachMenu
 from menus.base import Menu, NavigationNode
 from menus.menu_pool import menu_pool
 
-from gbe.functions import *
-from gbe.models import *
+from gbe.functions import validate_perms
+from gbe.special_privileges import special_menu_tree
 
 '''
   This is the best simulation of our old login menu I could come up with
@@ -62,17 +62,17 @@ class SpecialMenu(Menu):
         Users must have special privileges to use this
         """
         nodes = []
-        user = request.user
+
         if validate_perms(request, 'any', require=False):
+            privileges = set(request.user.profile.privilege_groups)
             nodes.append(NavigationNode(_("Special"), "", 1))
-            nodes.append(NavigationNode(_("Reporting"),
-                                        reverse('reporting:report_list'),
-                                        2, 1))
-            for n,priv in enumerate(user.profile.special_privs,len(nodes)+1):
-                if priv["url"]:
-                    nodes.append(NavigationNode(priv["title"],
-                                                priv["url"],
-                                                n, 1))
+            for node in special_menu_tree:
+                if not privileges.isdisjoint(node['groups']):
+                    nodes.append(NavigationNode(
+                        title=node['title'],
+                        url=node['url'],
+                        id=node['id'],
+                        parent_id=node['parent_id']))
         return nodes
 
 

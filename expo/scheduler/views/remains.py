@@ -13,7 +13,6 @@ from django.db.models import (
     Count,
 )
 from django.contrib.auth.forms import UserCreationForm
-from django.core.mail import send_mail
 from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
@@ -42,7 +41,6 @@ from gbe.duration import (
 )
 from scheduler.functions import (
     cal_times_for_conf,
-    conference_dates,
     event_info,
     overlap_clear,
     table_prep,
@@ -54,15 +52,17 @@ from scheduler.views.functions import (
     set_multi_role,
 )
 from gbe.functions import (
+    conference_list,
+    eligible_volunteers,
     get_current_conference,
     get_conference_by_slug,
     get_conference_day,
+    get_events_list_by_type,
+    send_schedule_update_mail,
     validate_perms,
     validate_profile,
-    get_events_list_by_type,
-    conference_list,
-    eligible_volunteers,
 )
+from gbe.views.class_display_functions import get_scheduling_info
 from django.contrib import messages
 
 
@@ -352,7 +352,7 @@ def allocate_workers(request, opp_id):
         res.delete()
         # This delete looks dangerous, considering that Event.allocate_worker
         # seems to allow us to create multiple allocations for the same Worker
-        profile.notify_volunteer_schedule_change()
+        send_schedule_update_mail("Volunteer", profile)
 
     elif not form.is_valid():
         if request.POST['alloc_id'] == '-1':
@@ -371,8 +371,10 @@ def allocate_workers(request, opp_id):
 
     else:
         data = form.cleaned_data
-
         if data.get('worker', None):
+            if data['role'] == "Volunteer":
+                data['worker'].workeritem.as_subtype.check_vol_bid(
+                    opp.eventitem.get_conference())
             warnings = opp.allocate_worker(
                 data['worker'].workeritem,
                 data['role'],
@@ -382,7 +384,7 @@ def allocate_workers(request, opp_id):
                 messages.warning(
                     request,
                     warning)
-            data['worker'].notify_volunteer_schedule_change()
+            send_schedule_update_mail("Volunteer", data['worker'])
     return HttpResponseRedirect(reverse('edit_event',
                                         urlconf='scheduler.urls',
                                         args=[opp.event_type_name, opp_id]))
@@ -551,10 +553,6 @@ def contact_volunteers(conference):
               'Volunteer Role',
               'Event']
     from gbe.models import Volunteer
-    contacts = filter(lambda worker: worker.allocations.count() > 0,
-                      [vol.profile.workeritem_ptr.worker_set.first() for vol in
-                       Volunteer.objects.filter(conference=conference)
-                       if vol.profile.workeritem_ptr.worker_set.exists()])
 
     volunteers = Volunteer.objects.filter(conference=conference).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
@@ -562,16 +560,18 @@ def contact_volunteers(conference):
     contact_info = []
     for v in volunteers:
         profile = v.profile
-        for worker in profile.workeritem_ptr.worker_set.all():
-            for allocation in worker.allocations.all():
+        for worker in profile.workeritem_ptr.worker_set.all().filter(
+                role="Volunteer"):
+            allocation_events = (
+                a.event for a in worker.allocations.all()
+                if a.event.eventitem.get_conference() == conference)
+            for event in allocation_events:
                 try:
-                    container = allocation.event.container_event
-                    parent_event = container.parent_event
+                    parent_event = event.container_event.parent_event
                 except:
-                    parent_event = allocation.event
+                    parent_event = event
                 try:
-                    interest = \
-                        allocation.event.as_subtype.volunteer_type.interest
+                    interest = event.as_subtype.volunteer_type.interest
                 except:
                     interest = ''
 
@@ -580,15 +580,19 @@ def contact_volunteers(conference):
                      profile.phone,
                      profile.contact_email,
                      interest,
-                     str(allocation.event),
+                     str(event),
                      str(parent_event)])
         else:
             contact_info.append(
                 [profile.display_name,
                  profile.phone,
                  profile.contact_email,
-                 ','.join([i.interest.interest
-                           for i in v.volunteerinterest_set.all()]),
+                 ','.join([
+                    i.interest.interest
+                    for i in v.volunteerinterest_set.all().filter(
+                        interest__visible=True,
+                        rank__gt=3).order_by(
+                        'interest__interest')]),
                  'Application',
                  'Application']
             )
@@ -707,6 +711,7 @@ def edit_event(request, scheduler_event_id, event_type='class'):
     else:
         return edit_event_display(request, item)
 
+
 def get_volunteer_info(opp, errorcontext=None):
     volunteer_set = []
     for volunteer in eligible_volunteers(
@@ -733,6 +738,7 @@ def get_volunteer_info(opp, errorcontext=None):
         }]
 
     return {'eligible_volunteers': volunteer_set}
+
 
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
@@ -787,6 +793,9 @@ def edit_event_display(request, item, errorcontext=None):
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
                                                         errorcontext))
+    scheduling_info = get_scheduling_info(item.as_subtype)
+    if scheduling_info:
+        context['scheduling_info'] = scheduling_info
 
     context['form'] = EventScheduleForm(
         prefix='event',
@@ -878,7 +887,7 @@ def calendar_view(request=None,
                                    duration,
                                    cal_start=cal_times[0],
                                    cal_stop=cal_times[1])
-        table['name'] = 'Event Calendar for the Great Burlesque Expo of 2015'
+        table['name'] = 'Event Calendar for the Great Burlesque Expo'
         table['link'] = 'http://burlesque-expo.com'
         table['x_name'] = {}
         table['x_name']['html'] = 'Rooms'

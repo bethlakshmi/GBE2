@@ -4,10 +4,17 @@
 # See documentation in https://github.com/bethlakshmi/GBE2/wiki/Ticketing-To-Do
 # section:  "By Friday - needed for integration"
 # - Betty 8/15
-
 from expo.gbe_logging import logger
-from ticketing.models import *
-from gbe.models import *
+from ticketing.models import (
+    BrownPaperEvents,
+    RoleEligibilityCondition,
+    TicketingEligibilityCondition,
+    TicketItem,
+    Transaction,
+)
+from gbe.models import (
+    Conference,
+)
 from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
@@ -61,6 +68,7 @@ def verify_performer_app_paid(user_name):
     returns - true if the system recognizes the application submittal fee is
       paid
     '''
+    from gbe.models import Act
     act_fees_purchased = 0
     acts_submitted = 0
 
@@ -98,6 +106,7 @@ def verify_vendor_app_paid(user_name):
     user_name - This is the user name of the user in question.
     returns - true if the system recognizes the vendor submittal fee is paid
     '''
+    from gbe.models import Vendor
     vendor_fees_purchased = 0
     vendor_apps_submitted = 0
 

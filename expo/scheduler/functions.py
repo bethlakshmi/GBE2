@@ -25,38 +25,8 @@ from django.utils.formats import date_format
 from django.core.urlresolvers import reverse
 import pytz
 
-conference_days = (
-    (date_format(datetime(2015, 02, 19), "DAY_FORMAT"), 'Thursday'),
-    (date_format(datetime(2015, 02, 20), "DAY_FORMAT"), 'Friday'),
-    (date_format(datetime(2015, 02, 21), "DAY_FORMAT"), 'Saturday'),
-    (date_format(datetime(2015, 02, 22), "DAY_FORMAT"), 'Sunday'),
-)
 
 utc = pytz.timezone('UTC')
-
-conference_datetimes = (
-    datetime(2015, 02, 19, tzinfo=utc),
-    datetime(2015, 02, 20, tzinfo=utc),
-    datetime(2015, 02, 21, tzinfo=utc),
-    datetime(2015, 02, 22, tzinfo=utc),
-)
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins / 60, mins % 60),
-                     date_format(time(mins / 60, mins % 60),
-                                 "TIME_FORMAT"))
-                    for mins in range(time_start, time_stop, 30)]
-
-conference_dates = {"Thursday": "2015-02-19",
-                    "Friday": "2015-02-20",
-                    "Saturday": "2015-02-21",
-                    "Sunday": "2015-02-22"}
-
-hour = Duration(seconds=3600)
-
-monday = datetime(2015, 2, 23)
 
 
 def init_time_blocks(events,
@@ -109,8 +79,8 @@ def init_time_blocks(events,
     events = sorted(events, key=lambda event: event['stop_time'])
     if strip_empty_blocks in ('both', 'stop'):
         cal_stop = min(cal_stop, events[-1]['stop_time'])
-    schedule_duration = timedelta_to_duration(cal_stop-cal_start)
-    blocks_count = int(math.ceil(schedule_duration/block_size))
+    schedule_duration = timedelta_to_duration(cal_stop - cal_start)
+    blocks_count = int(math.ceil(schedule_duration / block_size))
     block_labels = [date_format((cal_start + block_size * b),
                                 time_format)
                     for b in range(blocks_count)]
@@ -144,7 +114,7 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
     event['rowspan'] = int(
-        math.ceil(working_stop_time / block_size))-event['startblock']
+        math.ceil(working_stop_time / block_size)) - event['startblock']
 
 
 def overlap_check(events):
@@ -192,7 +162,8 @@ def overlap_clear(events):
         for event in location_events[1:]:
             if event['start_time'] < prev_stop:
                 if event['location'] == prev_event['location']:
-                    event['location'] = event['location']+overlap_location_text
+                    event['location'] = (event['location'] +
+                                         overlap_location_text)
             prev_stop = event['stop_time']
             prev_event = event
     return events
@@ -219,7 +190,7 @@ def add_to_table(event, table, block_labels):
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'],
-              block_labels[event['startblock']+i]
+              block_labels[event['startblock'] + i]
               ] = '&nbsp;'
 
 
@@ -233,7 +204,7 @@ def html_prep(event):
     html = '<li><a href=\'%s\'>%s</a></li>' % (event['link'], event['title'])
     if 'short_desc' in event.keys():
         #  short_desc is a short description, which is optional
-        html = html+event['short_desc']
+        html = html + event['short_desc']
     event['html'] = html
 
 
@@ -300,31 +271,19 @@ def event_info(confitem_type='Show',
                                    tzinfo=pytz.timezone('UTC'))),
                conference=None):
     '''
-    Queries the database for scheduled events of type confitem_type,
-    during time cal_times,
-    and returns their important information in a dictionary format.
+    Using the scheduleable items for the current conference, get a list
+    of dicts for the dates selected
     '''
-    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
-        filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event',
-                           'Volunteer Opportunity',
-                           'Master Class',
-                           'Drop-In Class']:
-        filter_type, confitem_type = confitem_type, 'GenericEvent'
-
-    import gbe.models as conf
     from scheduler.models import Location
-    if not conference:
-        conference = conf.Conference.current_conf()
-    confitem_class = eval('conf.'+confitem_type)
-    confitems_list = confitem_class.objects.filter(conference=conference)
+    from gbe.functions import get_gbe_schedulable_items
+
+    confitems_list = get_gbe_schedulable_items(
+        confitem_type,
+        filter_type,
+        conference)
+
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
-
-    if filter_type is not None:
-        confitems_list = [
-            confitem for confitem in confitems_list if
-            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():
@@ -405,9 +364,9 @@ def get_events_and_windows(conference):
     events = Event.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__conference=conference
-        ).exclude(
-            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
-                'starttime')
+    ).exclude(
+        eventitem__event__genericevent__type='Rehearsal Slot').order_by(
+            'starttime')
     conf_windows = conference.windows()
     volunteer_event_windows = []
 

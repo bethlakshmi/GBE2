@@ -9,25 +9,28 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     UserFactory,
     UserMessageFactory,
+    VolunteerFactory,
     VolunteerWindowFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     assert_hidden_value,
     assert_rank_choice_exists,
-    login_as
+    login_as,
 )
 from gbetext import (
     default_volunteer_submit_msg,
     default_volunteer_no_bid_msg,
-    default_volunteer_no_interest_msg
+    default_volunteer_no_interest_msg,
+    existing_volunteer_msg,
 )
+from gbe_forms_text import volunteer_unavailable_time_conflict
 from gbe.models import (
     AvailableInterest,
     Conference,
     Volunteer,
     VolunteerInterest,
-    UserMessage
+    UserMessage,
 )
 
 
@@ -223,3 +226,37 @@ class TestCreateVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'danger', 'Error', msg.description)
+
+    def test_volunteer_time_conflict_checked(self):
+        data = self.get_volunteer_form()
+        data['available_windows'] = data['unavailable_windows']
+        response, data = self.post_volunteer_submission(data=data)
+        assert volunteer_unavailable_time_conflict in response.content
+
+    def test_create_second_volunteer_gets_redirect(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        volunteer = VolunteerFactory(
+            profile=self.profile,
+            conference=self.conference)
+        login_as(self.profile, self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data, follow=True)
+        self.assertRedirects(
+            response,
+            reverse(
+                'volunteer_edit',
+                urlconf='gbe.urls',
+                args=[volunteer.id]))
+        assert_alert_exists(
+            response, 'success', 'Success', existing_volunteer_msg)
+
+    def test_create_second_volunteer_old_conf_all_good(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        VolunteerFactory(profile=self.profile,
+                         conference=ConferenceFactory(status='past'))
+        login_as(self.profile, self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)

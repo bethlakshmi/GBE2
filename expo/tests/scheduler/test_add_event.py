@@ -119,6 +119,27 @@ class TestAddEvent(TestCase):
         Conference.objects.all().delete()
         Room.objects.all().delete()
         context = ClassContext()
+        context.bid.schedule_constraints = "[u'1']"
+        context.bid.avoided_constraints = "[u'2']"
+        context.bid.space_needs = "2"
+        context.bid.type = "Panel"
+        context.bid.save()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["Class", context.bid.eventitem_id])
+        response = self.client.get(url)
+        assert_good_sched_event_form(response, context.bid)
+
+    def test_good_user_get_empty_schedule_info(self):
+        Conference.objects.all().delete()
+        Room.objects.all().delete()
+        context = ClassContext()
+        context.bid.schedule_constraints = ""
+        context.bid.avoided_constraints = ""
+        context.bid.space_needs = ""
+        context.bid.type = ""
+        context.bid.save()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",

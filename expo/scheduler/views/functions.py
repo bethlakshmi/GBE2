@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.http import Http404
+from django.utils.formats import date_format
 
 from scheduler.models import EventItem
 from gbetext import event_labels
@@ -78,8 +79,8 @@ def get_events_display_info(event_type='Class'):
                                         args=[event_type,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
-            eventinfo['datetime'] = entry['schedule_event'].starttime.strftime(
-                "DATETIME_FORMAT")
+            eventinfo['datetime'] = date_format(
+                entry['schedule_event'].starttime, "DATETIME_FORMAT")
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry[
                 'schedule_event'].volunteer_count

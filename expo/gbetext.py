@@ -306,6 +306,11 @@ default_volunteer_no_interest_msg = \
     "You must have at least one interest to volunteer."
 default_volunteer_no_bid_msg = \
     "We are not accepting volunteer bids at this time."
+existing_volunteer_msg = \
+    "You've already offered to volunteer, " + \
+    "would you like to update your proposal?"
+default_window_schedule_conflict = "Your change caused a conflict.  " + \
+    "You were scheduled for:"
 default_clone_msg = "You have successfully made a new copy."
 default_update_profile_msg = "Your profile has been updated."
 default_create_persona_msg = "Your persona has been created."

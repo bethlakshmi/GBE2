@@ -465,15 +465,19 @@ td.describe
   display: inline-block;
   vertical-align: top;
 }
-.sched_times
+.sched_sidebar
 {
   width:27%;
   align: right;
   display: inline-block;
+}
+.sched_times
+{
   border-style: double;
   background: #C3BDBF;
   border-radius: 8px;
   padding: 8px;
+  margin-bottom: 8px;
 }
 .bio_block
 {

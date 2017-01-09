@@ -174,11 +174,11 @@ class TestIndex(TestCase):
             self.current_class.title in content and
             self.current_vendor.title in content and
             self.current_costume.title in content and
-            reverse('volunteer_view',
+            reverse('volunteer_edit',
                     urlconf='gbe.urls',
                     args=[self.current_volunteer.id]) in content)
-        nt.assert_true(does_not_show_previous and
-                       shows_all_current)
+        assert does_not_show_previous
+        assert shows_all_current
         nt.assert_true(self.is_event_present(self.current_sched, content))
         nt.assert_false(self.is_event_present(self.previous_sched, content))
         nt.assert_true(self.is_event_present(

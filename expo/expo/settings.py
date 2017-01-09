@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'compat',
     'debug_toolbar',
     'ad_rotator',
+    'post_office',
 )
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
@@ -220,6 +221,7 @@ MIGRATION_MODULES = {
 
 SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
+    "post_office": "post_office.south_migrations",
 }
 
 FILE_UPLOAD_HANDLERS = (
@@ -309,10 +311,7 @@ except:
 # Email settings for password reset
 
 try:
-    EMAIL_HOST
-    EMAIL_HOST_USER
-    EMAIL_HOST_PASSWORD
-    EMAIL_USE_TLS
+    EMAIL_BACKEND
     DEFAULT_FROM_EMAIL
 except:
     EMAIL_HOST = 'localhost'
@@ -321,6 +320,7 @@ except:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
+    EMAIL_BACKEND = 'post_office.EmailBackend'
 
 # new for django-cms.  Don't know why yet.
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
