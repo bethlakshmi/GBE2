@@ -1,22 +1,22 @@
-from django.test import TestCase, ignore_warnings, override_settings
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.contrib.admin.views.main import ALL_VAR, SEARCH_VAR, ChangeList
 from gbe.admin import (
     EventAdmin,
     VolunteerInterestAdmin,
     VolunteerWindowAdmin,
-    site as custom_site,
 )
 from gbe.models import (
     Event,
     VolunteerInterest,
     VolunteerWindow,
 )
-from factories.gbe_factories import (
+from tests.factories.gbe_factories import(
     GenericEventFactory,
     VolunteerInterestFactory,
     VolunteerWindowFactory,
 )
+from django.contrib.admin.sites import AdminSite
 
 
 class GBEChangeListTests(TestCase):
@@ -25,7 +25,7 @@ class GBEChangeListTests(TestCase):
 
     def test_select_volunteer_interest_conference(self):
         obj = VolunteerInterestFactory()
-        m = VolunteerInterestAdmin(VolunteerInterest, custom_site)
+        m = VolunteerInterestAdmin(VolunteerInterest, AdminSite)
         request = self.factory.get('/volunteerinterest/')
         cl = ChangeList(
             request, VolunteerInterest,
