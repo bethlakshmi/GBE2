@@ -84,7 +84,9 @@ class TestCreateVolunteer(TestCase):
         response = self.client.get(url, follow=True)
         self.assertRedirects(
             response,
-            reverse('register',urlconf='gbe.urls'))
+            "%s?next=%s" % (
+                reverse('register',urlconf='gbe.urls'),
+                url))
 
     def test_create_volunteer_post_no_profile(self):
         url = reverse(self.view_name,
