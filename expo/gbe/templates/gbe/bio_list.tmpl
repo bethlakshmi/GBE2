@@ -1,5 +1,6 @@
 {% extends "base.tmpl" %}
 {% load ticketing_filters %}
+{% load staticfiles cms_tags %}
 {% block title %}
   Great Burlesque Exposition: {{title}}
 {% endblock %}
@@ -33,11 +34,14 @@
         {{teacher.bio.bio |linebreaksbr}}
         <br><br>
       </div>
-        {% if teacher.bio.promo_mini %}
         <div class="bio_image_block">
+        {% if teacher.bio.promo_mini %}
         <img src="{{MEDIA_URL}}{{teacher.bio.promo_mini}}" class="sched_bio_image">
-        </div>
+        {% else %}
+        {% static_placeholder "default_performer" %}
+
         {% endif %}
+        </div>
     {% endfor %}
 
 {% endblock %}
