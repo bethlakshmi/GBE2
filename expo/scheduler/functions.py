@@ -394,6 +394,7 @@ def get_roles_from_scheduler(workeritems, conference):
 
     return list(set(roles))
 
+
 def get_scheduled_events_by_role(conference, roles):
     '''
     gets all the workeritems scheduled with a given set of roles for the
