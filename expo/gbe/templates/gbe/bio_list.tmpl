@@ -22,8 +22,12 @@
         <h2>About {{teacher.bio.name}}</h2>
 	{% for class in teacher.classes %}
 	  <b>{{ class.role }}</b> -
-	  <a href='{% url 'scheduler:detail_view' class.event.eventitem.eventitem_id  %}'>
+	  {% if class.detail_id %}
+	  <a href='{% url 'scheduler:detail_view' class.detail_id  %}'>
 	  {{ class.event }}</a></br>
+	{% else %}
+	  {{ class.event }}</br>
+	{% endif %}
 	{% endfor %}
 	</br>
         {{teacher.bio.bio |linebreaksbr}}

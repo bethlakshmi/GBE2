@@ -5,7 +5,10 @@ from expo.gbe_logging import log_func
 from scheduler.functions import (
     get_scheduled_events_by_role,
 )
-from gbe.models import Performer
+from gbe.models import (
+    Class,
+    Performer,
+)
 from gbe.functions import (
     get_current_conference,
     get_conference_by_slug,
@@ -26,6 +29,9 @@ def BiosTeachersView(request):
         conference = get_conference_by_slug(conf_slug)
     conferences = conference_list()
     performers = Performer.objects.all()
+    bid_classes = Class.objects.filter(
+        conference=conference,
+        accepted=3)
     bios = []
     workers, commits = get_scheduled_events_by_role(
         conference,
@@ -35,7 +41,16 @@ def BiosTeachersView(request):
         classes = []
         for worker in workers.filter(_item=performer):
             for commit in commits.filter(resource=worker):
-                classes += [{'role': worker.role, 'event': commit.event}]
+                classes += [{
+                    'role': worker.role,
+                    'event': commit.event,
+                    'detail_id': commit.event.eventitem.eventitem_id}]
+        for a_class in bid_classes.filter(teacher=performer):
+            if len(commits.filter(event__eventitem__event__class=a_class)) == 0:
+                classes += [{
+                    'role': "Teacher",
+                    'event': a_class}]
+
         if len(classes) > 0:
             bios += [{'bio': performer, 'classes': classes}]
 
