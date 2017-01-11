@@ -83,14 +83,17 @@ best_time_to_call_options = [('Any', 'Any'),
                              ('Afternoons', 'Afternoons'),
                              ('Evenings', 'Evenings')]
 
-volunteer_shift_options = [(1, 1),
-                           (2, 2),
+volunteer_shift_options = [(2, 2),
                            (3, 3),
                            (4, 4),
                            (5, 5),
                            (6, 6),
                            (7, 7),
-                           (8, 8)]
+                           (8, 8),
+                           (9, 9),
+                           (10, 10),
+                           (11, 11),
+                           (12, 12)]
 
 states_options = [('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'),
                   ('AR', 'Arkansas'), ('CA', 'California'), ('CO', 'Colorado'),
