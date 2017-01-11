@@ -28,8 +28,7 @@ class Volunteer(Biddable):
     Represents a conference attendee's participation as a volunteer.
     '''
     profile = ForeignKey(Profile, related_name="volunteering")
-    number_shifts = IntegerField(choices=volunteer_shift_options,
-                                 default=1)
+    number_shifts = IntegerField(choices=volunteer_shift_options)
     availability = TextField(blank=True)
     unavailability = TextField(blank=True)
     opt_outs = TextField(blank=True)
