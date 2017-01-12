@@ -294,13 +294,6 @@ try:
 except:
     DAY_FORMAT = "%A"
 
-# SITE_URL is the absolute domain URL of the Django application, mainly used
-# for exporting data containing links to outside applications
-try:
-    SITE_URL
-except:
-    SITE_URL = 'http://localhost'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 try:

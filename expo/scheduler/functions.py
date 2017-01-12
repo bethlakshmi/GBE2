@@ -419,17 +419,21 @@ def calendar_export(conference=None,
     #  TODO: Add ability to filter on a users schedule for things like
     #  volunteer shifts.
 
-    from gbe.functions import get_conference_by_slug
-    import gbe.models as conf
+    from django.contrib.sites.models import Site
+    url = 'http://'  # Want to find this through Site or similar
+    site = Site.objects.get_current().domain
+    from gbe.functions import (
+        get_conference_by_slug,
+        get_current_conference_slug,
+    )
     from expo.settings import (
         DATETIME_FORMAT,
         TIME_FORMAT,
-        SITE_URL,
         )
     import csv
 
     if conference is None:
-        conference = conf.Conference.current_conf()
+        conference = get_current_conference_slug()
     else:
         conference = get_conference_by_slug(conference)
 
@@ -437,7 +441,6 @@ def calendar_export(conference=None,
         day = None
     cal_times = cal_times_for_conf(conference, day)
 
-    local_domain = SITE_URL.split('://')[1].replace('www.', '')
     if event_types == 'All':
         event_types = ['Show',
                        'Class',
@@ -459,9 +462,23 @@ def calendar_export(conference=None,
                                      cal_times=cal_times,
                                      conference=conference)
     if cal_format == 'gbook':
-        return_file = '"Session Title","Date","Time Start","Time End",' + \
-                      '"Room/Location","Schedule Track (Optional)",' + \
-                      '"Description (Optional)",""\r\n'
+        line_misc = ''
+        line_end = '\r\n'
+
+        # Guidebook's allowed fields are:
+        # Session Title, Date, Time Start, Time End, Room/Location,
+        # Schedule Track (Optional), Description (Optional),
+        # Allow Checkin (Optional), Checkin Begin (Optional),
+        # Limit Spaces? (Optional), Allow Waitlist (Optional)
+        return_file = '"Session Title",' + \
+                      '"Date",' + \
+                      '"Time Start",' + \
+                      '"Time End",' + \
+                      '"Room/Location",' + \
+                      '"Schedule Track (Optional)",' + \
+                      '"Description (Optional)",' + \
+                      '"Link To URL ID (Optional)",' + \
+                      '"Link To URL Name (Optional)"' + line_end
 
         for event in events:
             csv_line = '"%s",' % (event['title'])
@@ -479,11 +496,15 @@ def calendar_export(conference=None,
             csv_line = csv_line + '"%s",' % (event['location'])
             csv_line = csv_line + '"%s",' % (event['type'].split('.')[0])
             csv_line = csv_line + '"%s",' % \
-                (event['description'].replace('\n', '').replace('\r', ''))
-            csv_line = csv_line + '"%s%s"\r\n' % (SITE_URL, event['link'])
+                (event['description'].replace('\n', '')
+                 .replace('\r', ''))
+            csv_line = csv_line + '"%s%s",' % (url+site, event['link'])
+            csv_line = csv_line + '"%s",' % (event['title'])
+            csv_line = csv_line + line_misc + line_end
+
             return_file = return_file + csv_line
 
-    if cal_format == 'ical':
+    elif cal_format == 'ical':
         return_file = '''
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -495,7 +516,7 @@ PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
                 % (conference.conference_slug,
                    event['title'].replace(' ', ''),
                    event['start_time'].strftime('%F-%R'),
-                   local_domain,
+                   site.replace('www.', '')
                    )
             return_file = return_file + 'DTSTAMP:%s\n' % \
                 (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
@@ -508,7 +529,7 @@ PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
             return_file = return_file + 'SUMMARY:%s\n' % \
                 (event['title'])
             return_file = return_file + 'URL:%s%s\n' % \
-                (SITE_URL, event['link'])
+                (url+site, event['link'])
             return_file = return_file + 'END:VEVENT\n'
         return_file = return_file + 'END:VCALENDAR\n'
 

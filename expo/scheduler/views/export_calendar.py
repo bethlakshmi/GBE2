@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from scheduler.functions import calendar_export
 from gbe.functions import get_current_conference_slug
-import csv
 
 
 @login_required
@@ -30,10 +29,15 @@ def export_calendar(request):
     else:
         filetype = 'csv'
 
-    slug = get_current_conference_slug()
+    if conference is None:
+        conference = get_current_conference_slug()
+    # conference is assumed to be a slug, add test vs conference_slugs()
+    # and redirect to error page if not here
 
     if day is not None:
-        slug = slug + '_' + day
+        slug = conference + '_' + day
+    else:
+        slug = conference
 
     calendar = calendar_export(conference, cal_format, event_types, day)
 

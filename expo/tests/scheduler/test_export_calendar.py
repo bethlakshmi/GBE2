@@ -81,6 +81,6 @@ class TestExportCalendar(TestCase):
         response = self.client.get(self.url)
         self.assertTrue(response.content.count('\n') > 1)
         self.assertTrue(len(
-            (response.content.split('\r\n')[1].split('","'))) == 8)
+            (response.content.split('\r\n')[1].split('","'))) >= 8)
         self.assertTrue('Test Show' in
                         response.content.split('\r\n')[1].split('","')[0])
