@@ -430,7 +430,7 @@ def calendar_export(conference=None,
         DATETIME_FORMAT,
         TIME_FORMAT,
         )
-    import csv
+    import string
 
     if conference is None:
         conference = get_current_conference_slug()
@@ -481,25 +481,35 @@ def calendar_export(conference=None,
                       '"Link To URL Name (Optional)"' + line_end
 
         for event in events:
-            csv_line = '"%s",' % (event['title'])
+            title = event['title'].replace('\n', '') \
+                 .replace('\r', '') \
+                 .replace('"' , '') \
+                 .replace("'", '`')
+            title = filter(lambda x: x in string.printable, title)
+            csv_line = '"%s",' % (title)
             csv_line = csv_line + '"%s",' % \
                 (date_format(event['start_time'], 'DATE_FORMAT')
                  .replace(',', ''))
             csv_line = csv_line + '"%s",' % \
                 (date_format(event['start_time'], 'TIME_FORMAT')
                  .replace('a.m.', 'AM').replace('p.m.', 'PM')
-                 .replace('am', 'AM').replace('pm', 'PM'))
+                 .replace('am', 'AM').replace('pm', 'PM')
+                 .replace('noon', '12 PM').replace('midnight', '12 AM'))
             csv_line = csv_line + '"%s",' % \
                 (date_format(event['stop_time'], 'TIME_FORMAT')
                  .replace('a.m.', 'AM').replace('p.m.', 'PM')
-                 .replace('am', 'AM').replace('pm', 'PM'))
+                 .replace('am', 'AM').replace('pm', 'PM')
+                 .replace('noon', '12 PM').replace('midnight', '12 AM'))
             csv_line = csv_line + '"%s",' % (event['location'])
             csv_line = csv_line + '"%s",' % (event['type'].split('.')[0])
-            csv_line = csv_line + '"%s",' % \
-                (event['description'].replace('\n', '')
-                 .replace('\r', ''))
+            description = event['description'].replace('\n', '') \
+                 .replace('\r', '') \
+                 .replace('"' , '') \
+                 .replace("'", '`')
+            description = filter(lambda x: x in string.printable, description)
+            csv_line = csv_line + '"%s",' % description
             csv_line = csv_line + '"%s%s",' % (url+site, event['link'])
-            csv_line = csv_line + '"%s",' % (event['title'])
+            csv_line = csv_line + '"%s",' % (title)
             csv_line = csv_line + line_misc + line_end
 
             return_file = return_file + csv_line
