@@ -483,7 +483,7 @@ def calendar_export(conference=None,
         for event in events:
             title = event['title'].replace('\n', '') \
                  .replace('\r', '') \
-                 .replace('"' , '') \
+                 .replace('"', '') \
                  .replace("'", '`')
             title = filter(lambda x: x in string.printable, title)
             csv_line = '"%s",' % (title)
@@ -503,9 +503,9 @@ def calendar_export(conference=None,
             csv_line = csv_line + '"%s",' % (event['location'])
             csv_line = csv_line + '"%s",' % (event['type'].split('.')[0])
             description = event['description'].replace('\n', '') \
-                 .replace('\r', '') \
-                 .replace('"' , '') \
-                 .replace("'", '`')
+                                              .replace('\r', '') \
+                                              .replace('"', '') \
+                                              .replace("'", '`')
             description = filter(lambda x: x in string.printable, description)
             csv_line = csv_line + '"%s",' % description
             csv_line = csv_line + '"%s%s",' % (url+site, event['link'])
