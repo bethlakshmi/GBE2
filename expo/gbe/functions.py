@@ -89,12 +89,20 @@ def get_current_conference():
     return Conference.current_conf()
 
 
+def get_current_conference_slug():
+    return Conference.current_conf().conference_slug
+
+
 def get_conference_by_slug(slug):
     return Conference.by_slug(slug)
 
 
 def get_conference_days(conference):
     return conference.conferenceday_set.all()
+
+
+def get_conference_days_slug(slug):
+    return Conference.by_slug(slug).conferenceday_set.all()
 
 
 def get_conference_day(conference, date):
