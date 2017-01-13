@@ -42,15 +42,15 @@ def no_vol_bidding(request):
     return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
 
-@login_required
 @log_func
 def CreateVolunteerView(request):
     page_title = 'Volunteer'
     view_title = "Volunteer at the Expo"
+
     profile = validate_profile(request, require=False)
     formset = []
     if not profile:
-        return HttpResponseRedirect(reverse('profile',
+        return HttpResponseRedirect(reverse('register',
                                             urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('volunteer_create',

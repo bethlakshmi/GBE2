@@ -81,8 +81,12 @@ class TestCreateVolunteer(TestCase):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(UserFactory(), self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('register', urlconf='gbe.urls'),
+                url))
 
     def test_create_volunteer_post_no_profile(self):
         url = reverse(self.view_name,
