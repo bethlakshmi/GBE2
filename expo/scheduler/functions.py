@@ -440,20 +440,20 @@ def calendar_export(conference=None,
         day = None
     cal_times = cal_times_for_conf(conference, day)
 
-    if event_types == 'All':
+    if event_types == 'All' or event_types == u'All':
         event_types = ['Show',
                        'Class',
                        'Special Event',
                        'Master Class',
-                       'Drop-In Class']
-    elif event_types == 'Show':
+                       'Drop-In Class',
+                       ]
+    if event_types == 'Show' or event_types == u'Show':
         event_types == ['Show',
                         'Special Event',
                         'Master Class',
                         'Drop-In Class',
                         ]
-    elif not type(event_types).isinstance([]) or \
-            type(event_types).isinstance(()):
+    if type(event_types) in (type(''), type(u'')):
         event_types = [event_types]
     events = []
     for event_type in event_types:
