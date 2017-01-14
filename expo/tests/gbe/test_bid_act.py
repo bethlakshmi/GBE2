@@ -167,7 +167,8 @@ class TestBidAct(TestCase):
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
             submitted=True,
-            performer=self.performer)
+            performer=self.performer,
+            conference=self.current_conference)
         make_act_app_purchase(self.current_conference,
                               self.performer.performer_profile.user_object)
         response, data = self.post_paid_act_submission()

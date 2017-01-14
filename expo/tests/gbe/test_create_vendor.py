@@ -148,7 +148,8 @@ class TestCreateVendor(TestCase):
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
             submitted=True,
-            profile=self.profile
+            profile=self.profile,
+            conference=self.conference
         )
         make_vendor_app_purchase(self.conference, self.profile.user_object)
         response, data = self.post_paid_vendor_submission()
