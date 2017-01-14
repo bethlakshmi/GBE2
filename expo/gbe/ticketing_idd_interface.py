@@ -84,15 +84,9 @@ def verify_performer_app_paid(user_name, conference):
                 act_fees_purchased += 1
 
     # Then figure out how many acts have already been submitted.
-    for act in Act.objects.filter(submitted=True, conference=conference):
-        act_user_name = None
-        try:
-            # user may not exist, so just skip for an exception
-            act_user_name = act.performer.contact.user_object.username
-        except:
-            pass
-        if act_user_name == unicode(user_name):
-            acts_submitted += 1
+    acts_submitted = Act.objects.filter(
+        submitted=True,
+        conference=conference).count()
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (act_fees_purchased, acts_submitted))
     return act_fees_purchased > acts_submitted
@@ -124,15 +118,9 @@ def verify_vendor_app_paid(user_name, conference):
                 vendor_fees_purchased += 1
 
     # Then figure out how many vendor applications have already been submitted.
-    for vendor in Vendor.objects.filter(submitted=True, conference=conference):
-        vendor_user_name = None
-        try:
-            # user may not exist, so just skip for an exception
-            vendor_user_name = vendor.profile.user_object.username
-        except:
-            pass
-        if vendor_user_name == unicode(user_name):
-            vendor_apps_submitted += 1
+    vendor_apps_submitted = Vendor.objects.filter(
+        submitted=True,
+        conference=conference).count()
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (vendor_fees_purchased, vendor_apps_submitted))
     return vendor_fees_purchased > vendor_apps_submitted
