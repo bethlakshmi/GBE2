@@ -7,6 +7,7 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
     ProfileFactory,
+    ProfilePreferencesFactory,
     UserFactory,
     UserMessageFactory,
     VolunteerFactory,
@@ -23,6 +24,7 @@ from gbetext import (
     default_volunteer_no_bid_msg,
     default_volunteer_no_interest_msg,
     existing_volunteer_msg,
+    no_profile_msg,
 )
 from gbe_forms_text import volunteer_unavailable_time_conflict
 from gbe.models import (
@@ -77,6 +79,16 @@ class TestCreateVolunteer(TestCase):
         response = self.client.post(url, data=data, follow=True)
         return response, num_volunteers_before
 
+    def test_create_volunteer_no_login(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('register', urlconf='gbe.urls'),
+                url))
+
     def test_create_volunteer_no_profile(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
@@ -85,8 +97,23 @@ class TestCreateVolunteer(TestCase):
         self.assertRedirects(
             response,
             "%s?next=%s" % (
-                reverse('register', urlconf='gbe.urls'),
+                reverse('profile_update', urlconf='gbe.urls'),
                 url))
+
+    def test_create_volunteer_bad_profile(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        cptn_tinypants = ProfileFactory(display_name="", phone="")
+        ProfilePreferencesFactory(profile=cptn_tinypants)
+        login_as(cptn_tinypants.user_object, self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('profile_update', urlconf='gbe.urls'),
+                url))
+        assert_alert_exists(
+            response, 'warning', 'Warning', no_profile_msg)
 
     def test_create_volunteer_post_no_profile(self):
         url = reverse(self.view_name,

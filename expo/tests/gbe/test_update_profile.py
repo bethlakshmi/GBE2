@@ -1,12 +1,16 @@
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
+from tests.contexts import VolunteerContext
 from tests.factories.gbe_factories import (
     ProfilePreferencesFactory,
     UserFactory,
     UserMessageFactory
 )
-from gbe.models import UserMessage
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as
@@ -47,11 +51,13 @@ class TestUpdateProfile(TestCase):
             del(data['first_name'])
         return data
 
-    def post_profile(self):
+    def post_profile(self, redirect=None):
         profile = ProfilePreferencesFactory().profile
 
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
+        if redirect:
+            url = url + "?next=" + redirect
         login_as(profile, self)
         data = self.get_form()
         response = self.client.post(url, data=data, follow=True)
@@ -68,8 +74,15 @@ class TestUpdateProfile(TestCase):
     def test_update_profile_post_valid_form(self):
         response = self.post_profile()
         self.assertTrue("Your Account" in response.content)
-        self.assertTrue(('http://testserver/gbe', 302)
-                        in response.redirect_chain)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+
+    def test_update_profile_post_valid_redirect(self):
+        context = VolunteerContext()
+        context.conference.accepting_bids = True
+        context.conference.save()
+        redirect = reverse('volunteer_create', urlconf='gbe.urls')
+        response = self.post_profile(redirect=redirect)
+        self.assertRedirects(response, redirect)
 
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile
