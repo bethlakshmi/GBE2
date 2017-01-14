@@ -22,11 +22,41 @@ class TestRegister(TestCase):
         self.performer = PersonaFactory()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Registrar')
+        self.counter = 0
 
-    def test_register_not_post(self):
+    def get_post_data(self):
+        self.counter += 1
+        email = "new%d@last.com" % self.counter
+        data = {'username': 'test%d' % self.counter,
+                'first_name': 'new first',
+                'last_name': 'new last',
+                'email': email,
+                'password1': 'test',
+                'password2': 'test'}
+        return data
+
+    def test_register_get(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
 
-        response = self.client.get(url)
-        nt.assert_equal(response.status_code, 200)
-        # TO DO: test details here
+        response = self.client.get(url, follow=True)
+        assert("Create an Account" in response.content)
+
+    def test_register_post(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+
+        response = self.client.post(url, self.get_post_data(), follow=True)
+        self.assertRedirects(
+            response,
+            reverse('profile_update', urlconf='gbe.urls'))
+
+    def test_register_redirect(self):
+        url = "%s?next=%s" % (
+            reverse(self.view_name, urlconf='gbe.urls'),
+            reverse('volunteer_create', urlconf='gbe.urls'))
+
+        response = self.client.post(url, self.get_post_data(), follow=True)
+        self.assertRedirects(response, "%s?next=%s" % (
+            reverse('profile_update', urlconf='gbe.urls'),
+            reverse('volunteer_create', urlconf='gbe.urls')))
