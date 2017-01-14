@@ -58,7 +58,7 @@ def vendor_submittal_link(user_id):
     return None
 
 
-def verify_performer_app_paid(user_name):
+def verify_performer_app_paid(user_name, conference):
     '''
     Verifies if a user has paid his or her application fee.
     NOTE:  This function assumes that there is a record of the application,
@@ -74,7 +74,8 @@ def verify_performer_app_paid(user_name):
 
     # First figure out how many acts this user has purchased
     for act_event in BrownPaperEvents.objects.filter(
-            act_submission_event=True):
+            act_submission_event=True,
+            conference=conference):
         for trans in Transaction.objects.all():
             trans_event = trans.ticket_item.ticket_id.split('-')[0]
             trans_user_name = trans.purchaser.matched_to_user.username
@@ -83,7 +84,7 @@ def verify_performer_app_paid(user_name):
                 act_fees_purchased += 1
 
     # Then figure out how many acts have already been submitted.
-    for act in Act.objects.filter(submitted=True):
+    for act in Act.objects.filter(submitted=True, conference=conference):
         act_user_name = None
         try:
             # user may not exist, so just skip for an exception
@@ -97,7 +98,7 @@ def verify_performer_app_paid(user_name):
     return act_fees_purchased > acts_submitted
 
 
-def verify_vendor_app_paid(user_name):
+def verify_vendor_app_paid(user_name, conference):
     '''
     Verifies user has paid a vendor submittal fee.
     NOTE:  This function assumes that there is a record of the application,
@@ -112,7 +113,8 @@ def verify_vendor_app_paid(user_name):
 
     # First figure out how many vendor spots this user has purchased
     for vendor_event in BrownPaperEvents.objects.filter(
-            vendor_submission_event=True):
+            vendor_submission_event=True,
+            conference=conference):
         for trans in Transaction.objects.all():
             trans_event = trans.ticket_item.ticket_id.split('-')[0]
             trans_user_name = trans.purchaser.matched_to_user.username
@@ -122,7 +124,7 @@ def verify_vendor_app_paid(user_name):
                 vendor_fees_purchased += 1
 
     # Then figure out how many vendor applications have already been submitted.
-    for vendor in Vendor.objects.filter(submitted=True):
+    for vendor in Vendor.objects.filter(submitted=True, conference=conference):
         vendor_user_name = None
         try:
             # user may not exist, so just skip for an exception

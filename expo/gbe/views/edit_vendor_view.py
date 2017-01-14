@@ -71,7 +71,8 @@ def EditVendorView(request, vendor_id):
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
             '''
-            if verify_vendor_app_paid(request.user.username):
+            if verify_vendor_app_paid(request.user.username,
+                                      vendor.conference):
                 vendor.submitted = True
                 vendor.save()
                 user_message = UserMessage.objects.get_or_create(
