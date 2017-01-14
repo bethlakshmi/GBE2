@@ -25,6 +25,7 @@ from gbetext import (
     default_volunteer_no_interest_msg,
     default_volunteer_no_bid_msg,
     existing_volunteer_msg,
+    no_profile_msg,
 )
 from gbe.views.volunteer_display_functions import (
     validate_interests,
@@ -55,7 +56,19 @@ def CreateVolunteerView(request):
                                     '?next=' +
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
-
+    if not profile.complete:
+        user_message = UserMessage.objects.get_or_create(
+            view='CreateVolunteerView',
+            code="PROFILE_INCOMPLETE",
+            defaults={
+                'summary': "Volunteer Profile Incomplete",
+                'description': no_profile_msg})
+        messages.warning(request, user_message[0].description)
+        return HttpResponseRedirect(reverse('profile_update',
+                                            urlconf='gbe.urls') +
+                                    '?next=' +
+                                    reverse('volunteer_create',
+                                            urlconf='gbe.urls'))
     try:
         conference = Conference.objects.filter(accepting_bids=True).first()
         windows = conference.windows()

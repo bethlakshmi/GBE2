@@ -66,6 +66,10 @@ class Profile(WorkerItem):
     how_heard = TextField(blank=True)
 
     @property
+    def complete(self):
+        return self.display_name and self.phone
+
+    @property
     def review_header(self):
         return (['Name',
                  'Username',
