@@ -47,16 +47,16 @@ def no_vol_bidding(request):
 def CreateVolunteerView(request):
     page_title = 'Volunteer'
     view_title = "Volunteer at the Expo"
-
-    profile = validate_profile(request, require=False)
-    formset = []
-    if not profile:
+    if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('register',
                                             urlconf='gbe.urls') +
                                     '?next=' +
                                     reverse('volunteer_create',
                                             urlconf='gbe.urls'))
-    if not profile.complete:
+
+    profile = validate_profile(request, require=False)
+    formset = []
+    if not profile or not profile.complete:
         user_message = UserMessage.objects.get_or_create(
             view='CreateVolunteerView',
             code="PROFILE_INCOMPLETE",

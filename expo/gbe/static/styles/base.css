@@ -85,9 +85,8 @@ div#middle {
 }
 
 div.left_col {
-    width:46%;
+    width:52%;
     float:left;
-    margin: 10px;
     padding: 10px;
     bottom: 10%;
 }
