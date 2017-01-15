@@ -144,7 +144,7 @@ class Act (Biddable, ActItem):
         show_name = ""
         for show in self.get_scheduled_shows():
             if len(show_name) > 0:
-                show_name += "%s, " % str(show.eventitem)
+                show_name += ", %s" % str(show.eventitem)
             else:
                 show_name = str(show.eventitem)
 
