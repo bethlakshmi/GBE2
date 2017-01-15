@@ -51,7 +51,7 @@ class TestUpdateProfile(TestCase):
             del(data['first_name'])
         return data
 
-    def post_profile(self, redirect=None):
+    def post_profile(self, redirect=None, form=None):
         profile = ProfilePreferencesFactory().profile
 
         url = reverse(self.view_name,
@@ -59,7 +59,10 @@ class TestUpdateProfile(TestCase):
         if redirect:
             url = url + "?next=" + redirect
         login_as(profile, self)
-        data = self.get_form()
+        if not form:
+            data = self.get_form()
+        else:
+            data = form
         response = self.client.post(url, data=data, follow=True)
         return response
 
@@ -70,6 +73,35 @@ class TestUpdateProfile(TestCase):
         login_as(user, self)
         response = self.client.get(url)
         self.assertTrue(user.profile is not None)
+
+    def test_update_profile_no_display_name(self):
+        pref = ProfilePreferencesFactory(profile__display_name="")
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(pref.profile.user_object, self)
+        response = self.client.get(url)
+        self.assertTrue(
+            "%s %s" % (
+                pref.profile.user_object.first_name,
+                pref.profile.user_object.last_name) in response.content)
+
+    def test_update_profile_how_heard(self):
+        pref = ProfilePreferencesFactory(profile__how_heard="[u'Word of mouth']")
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(pref.profile.user_object, self)
+        response = self.client.get(url)
+        self.assertTrue(
+            '<input checked="checked" id="id_how_heard_6" name="how_heard" ' +
+            'type="checkbox" value="Word of mouth" />' in response.content)
+
+    def test_update_profile_post_empty_display_name(self):
+        data = self.get_form()
+        data['display_name'] = ""
+        response = self.post_profile(form=data)
+        self.assertTrue(
+            "%s %s" % (data['first_name'],
+                       data['last_name']) in response.content)
 
     def test_update_profile_post_valid_form(self):
         response = self.post_profile()

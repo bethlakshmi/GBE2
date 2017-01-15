@@ -27,9 +27,9 @@ def RegisterView(request):
             login(request, user)
             if request.GET.get('next', None):
                 return HttpResponseRedirect(
-                    reverse('profile_update',
-                            urlconf='gbe.urls')
-                    + '?next=' + request.GET['next'])
+                    reverse(
+                        'profile_update',
+                        urlconf='gbe.urls') + '?next=' + request.GET['next'])
 
             return HttpResponseRedirect(reverse('profile_update',
                                                 urlconf='gbe.urls'))
