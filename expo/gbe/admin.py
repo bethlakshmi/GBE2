@@ -103,11 +103,8 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ['conference']
 
     def subclass(self, obj):
-        try:
-            event = Event.objects.get_subclass(event_id=obj.event_id)
-            return str(event.__class__.__name__)
-        except:
-            return "Event"
+        event = Event.objects.get_subclass(event_id=obj.event_id)
+        return str(event.__class__.__name__)
 
 
 class MessageAdmin(admin.ModelAdmin):
