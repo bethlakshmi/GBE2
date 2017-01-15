@@ -21,18 +21,12 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
                    'resource__location']
 
     def resource_email(self, obj):
-        try:
-            resource = Resource.objects.filter(allocations=obj)[0]
-            return resource.item.contact_email
-        except:
-            return "no email"
+        resource = Resource.objects.filter(allocations=obj)[0]
+        return resource.item.contact_email
 
     def resource_type(self, obj):
-        try:
-            resource = Resource.objects.filter(allocations=obj)[0]
-            return resource.type
-        except:
-            return "no email"
+        resource = Resource.objects.filter(allocations=obj)[0]
+        return resource.type
 
     def event_type(self, obj):
         if str(obj.event.eventitem.child().__class__.__name__) == 'GenericEvent':
