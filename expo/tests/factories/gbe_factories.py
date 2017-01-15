@@ -208,7 +208,8 @@ class EventFactory(DjangoModelFactory):
     title = Sequence(lambda x: "Test Event #%d" % x)
     description = LazyAttribute(
         lambda a: "Description for %s" % a.title)
-    blurb = LazyAttribute("Blurb for %s" % title)
+    blurb = LazyAttribute(
+        lambda a: "Blurb for %s" % a.title)
     duration = Duration(hours=2)
     conference = SubFactory(ConferenceFactory)
 

@@ -2,49 +2,56 @@ from django.test import (
     Client,
     TestCase
 )
-from django.test.client import RequestFactory
-from django.contrib.admin.views.main import ALL_VAR, SEARCH_VAR, ChangeList
-from gbe.admin import (
-    EventAdmin,
-    VolunteerInterestAdmin,
-    VolunteerWindowAdmin,
-)
+from django.contrib.auth.models import User
 from gbe.models import (
     Event,
     VolunteerInterest,
     VolunteerWindow,
 )
+from gbe.admin import (
+    EventAdmin,
+    VolunteerInterestAdmin,
+    VolunteerWindowAdmin,
+)
 from tests.factories.gbe_factories import(
+    EventFactory,
     GenericEventFactory,
-    ProfileFactory,
-    UserFactory,
     VolunteerInterestFactory,
     VolunteerWindowFactory,
 )
 from django.contrib.admin.sites import AdminSite
-from tests.functions.gbe_functions import login_as
 
 
 class GBEChangeListTests(TestCase):
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
-        self.privileged_user = ProfileFactory()
-        self.privileged_user.user_object.is_superuser = True
-        self.privileged_user.user_object.save()
+        password = 'mypassword'
+        self.privileged_user = User.objects.create_superuser(
+            'myuser', 'myemail@test.com', password)
+        self.client.login(
+            username=self.privileged_user.username,
+            password=password)
 
     def test_get_volunteer_interest_conference(self):
         obj = VolunteerInterestFactory()
         m = VolunteerInterestAdmin(VolunteerInterest, AdminSite)
-        login_as(self.privileged_user, self)
         response = self.client.get('/admin/gbe/volunteerinterest/')
-        print response.content
         assert str(obj.volunteer.conference) in response.content
 
     def test_get_volunteer_window_conference(self):
         obj = VolunteerWindowFactory()
         m = VolunteerWindowAdmin(VolunteerWindow, AdminSite)
-        login_as(self.privileged_user, self)
         response = self.client.get('/admin/gbe/volunteerwindow/')
-        print response.content
         assert str(obj.day.conference) in response.content
+
+    def test_get_event_subclass(self):
+        obj = GenericEventFactory()
+        m = EventAdmin(Event, AdminSite)
+        response = self.client.get('/admin/gbe/event/')
+        assert "GenericEvent" in response.content
+
+    def test_get_event_no_subclass(self):
+        obj = EventFactory()
+        m = EventAdmin(Event, AdminSite)
+        response = self.client.get('/admin/gbe/event/')
+        assert "Event" in response.content
