@@ -1,5 +1,6 @@
 {% extends "base.tmpl" %}
 {% load ticketing_filters %}
+{% load staticfiles cms_tags %}
 {% block title %}
   Great Burlesque Exposition: {{title}}
 {% endblock %}
@@ -22,18 +23,25 @@
         <h2>About {{teacher.bio.name}}</h2>
 	{% for class in teacher.classes %}
 	  <b>{{ class.role }}</b> -
-	  <a href='{% url 'scheduler:detail_view' class.event.eventitem.eventitem_id  %}'>
+	  {% if class.detail_id %}
+	  <a href='{% url 'scheduler:detail_view' class.detail_id  %}'>
 	  {{ class.event }}</a></br>
+	{% else %}
+	  {{ class.event }}</br>
+	{% endif %}
 	{% endfor %}
 	</br>
         {{teacher.bio.bio |linebreaksbr}}
         <br><br>
       </div>
-        {% if teacher.bio.promo_mini %}
         <div class="bio_image_block">
+        {% if teacher.bio.promo_mini %}
         <img src="{{MEDIA_URL}}{{teacher.bio.promo_mini}}" class="sched_bio_image">
-        </div>
+        {% else %}
+        {% static_placeholder "default_performer" %}
+
         {% endif %}
+        </div>
     {% endfor %}
 
 {% endblock %}

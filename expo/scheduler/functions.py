@@ -20,7 +20,6 @@ from expo.settings import (
     DAY_FORMAT,
 )
 from django.utils.formats import date_format
-
 from django.core.urlresolvers import reverse
 import pytz
 
@@ -394,3 +393,18 @@ def get_roles_from_scheduler(workeritems, conference):
             roles += [allocation.resource.as_subtype.role]
 
     return list(set(roles))
+
+
+def get_scheduled_events_by_role(conference, roles):
+    '''
+    gets all the workeritems scheduled with a given set of roles for the
+    given conference
+    '''
+    from scheduler.models import (
+        ResourceAllocation,
+        Worker,
+    )
+    commits = ResourceAllocation.objects.filter(
+        event__eventitem__event__conference=conference)
+    workers = Worker.objects.filter(role__in=roles)
+    return workers, commits
