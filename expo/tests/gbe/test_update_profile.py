@@ -98,6 +98,7 @@ class TestUpdateProfile(TestCase):
     def test_update_profile_post_empty_display_name(self):
         data = self.get_form()
         data['display_name'] = ""
+        data['purchase_email'] = ""
         response = self.post_profile(form=data)
         self.assertTrue(
             "%s %s" % (data['first_name'],

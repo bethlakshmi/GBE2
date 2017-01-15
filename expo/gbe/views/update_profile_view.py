@@ -41,7 +41,7 @@ def UpdateProfileView(request):
                                             prefix='prefs')
         if form.is_valid():
             form.save(commit=True)
-            if profile.display_name.strip() == '':
+            if form.cleaned_data['display_name'].strip() == '':
                 profile.display_name = "%s %s" % (
                     request.user.first_name.strip(),
                     request.user.last_name.strip())
