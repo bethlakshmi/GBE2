@@ -10,7 +10,9 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-    )
+
+)
+from tests.contexts import ShowContext
 from tests.functions.gbe_functions import (
     current_conference,
     grant_privilege,
@@ -66,3 +68,13 @@ class TestReviewActList(TestCase):
         self.assertContains(response, str(eval.primary_vote.show))
         self.assertContains(response, str(eval.secondary_vote.show))
         self.assertContains(response, str(eval.bid.title))
+
+    def test_review_act_assigned_show(self):
+        context = ShowContext()
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': context.conference.conference_slug})
+        print response.content
+        assert context.acts[0].title in response.content
+        assert context.show.title in response.content
