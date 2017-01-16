@@ -4,7 +4,7 @@ from model_utils.managers import InheritanceManager
 from import_export.admin import ImportExportActionModelAdmin
 
 
-class BidAdmin(admin.ModelAdmin):
+class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'conference']
 
