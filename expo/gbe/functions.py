@@ -222,24 +222,37 @@ def notify_reviewers_on_bid_change(bidder,
                                    action,
                                    conference,
                                    group_name,
-                                   review_url):
-    name = '%s %s notification' % (bid_type.lower(), action.lower())
+                                   review_url,
+                                   show=None):
+    context = {'bidder': bidder,
+               'bid_type': bid_type,
+               'action': action,
+               'conference': conference,
+               'group_name': group_name,
+               'review_url': Site.objects.get_current().domain+review_url}
+
+    if not show:
+        name = '%s %s notification' % (bid_type.lower(), action.lower())
+        action = "%s %s Occurred" % (bid_type, action)
+    else:
+        name = '%s %s for %s' % (
+            bid_type.lower(), action.lower(), str(show).lower())
+        action = "%s %s for %s" % (bid_type, action, str(show))
+        context['show'] = show
+        context['show_link'] = None
+        context['act_tech_link'] = None
+
     get_or_create_template(
         name,
         "bid_submitted",
-        "%s %s Occurred" % (bid_type, action))
+        action
+        )
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     mail.send(to_list,
               settings.DEFAULT_FROM_EMAIL,
               template=name,
-              context={
-                'bidder': bidder,
-                'bid_type': bid_type,
-                'action': action,
-                'conference': conference,
-                'group_name': group_name,
-                'review_url': Site.objects.get_current().domain+review_url},
+              context=context,
               priority='now',
               )
 
