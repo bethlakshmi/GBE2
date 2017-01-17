@@ -13,6 +13,7 @@ from expo.settings import (
 from django.utils.formats import date_format
 from gbe.views import BidChangeStateView
 from gbe.models import Act
+from gbe.functions import send_bid_state_change_mail
 
 
 class ActChangeStateView(BidChangeStateView):
@@ -34,7 +35,8 @@ class ActChangeStateView(BidChangeStateView):
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
         old = ActResource.objects.filter(_item=self.object)
-        self.old_show = old[0].show
+        if len(old) > 0:
+            self.old_show = old[0].show
         old.delete()
 
         # if the act has been accepted, set the show.

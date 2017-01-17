@@ -176,25 +176,38 @@ def get_or_create_template(name, base, subject):
         template.save()
 
 
-def send_bid_state_change_mail(bid_type, email, badge_name, status):
-    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+def send_bid_state_change_mail(bid_type, email, badge_name, status, show=None):
+    site = Site.objects.get_current()
+    context={
+        'name': badge_name,
+        'bid_type': bid_type,
+        'status': acceptance_states[status][1],
+        'site': site.domain,
+        'site_name': site.name}
+    if not show:
+        name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+        action = 'Your %s proposal has changed status to %s' % (
+            bid_type,
+            acceptance_states[status][1])
+    else:
+        name = '%s %s %s' % (
+            bid_type.lower(), action.lower(), str(show).lower())
+        action = 'Your %s has been cast in %s' % (
+            bid_type,
+            str(show))
+        context['show'] = show
+        context['show_link'] = None
+        context['act_tech_link'] = None
+
     get_or_create_template(
         name,
         "default_bid_status_change",
-        'Your %s proposal has changed status to %s' % (
-                bid_type,
-                acceptance_states[status][1]))
-    site = Site.objects.get_current()
+        action)
     mail.send(
         email,
         settings.DEFAULT_FROM_EMAIL,
         template=name,
-        context={
-            'name': badge_name,
-            'bid_type': bid_type,
-            'status': acceptance_states[status][1],
-            'site': site.domain,
-            'site_name': site.name},
+        context=context,
         priority='now',
     )
 
@@ -224,35 +237,23 @@ def notify_reviewers_on_bid_change(bidder,
                                    group_name,
                                    review_url,
                                    show=None):
-    context = {'bidder': bidder,
-               'bid_type': bid_type,
-               'action': action,
-               'conference': conference,
-               'group_name': group_name,
-               'review_url': Site.objects.get_current().domain+review_url}
-
-    if not show:
-        name = '%s %s notification' % (bid_type.lower(), action.lower())
-        action = "%s %s Occurred" % (bid_type, action)
-    else:
-        name = '%s %s for %s' % (
-            bid_type.lower(), action.lower(), str(show).lower())
-        action = "%s %s for %s" % (bid_type, action, str(show))
-        context['show'] = show
-        context['show_link'] = None
-        context['act_tech_link'] = None
-
+    name = '%s %s notification' % (bid_type.lower(), action.lower())
     get_or_create_template(
         name,
         "bid_submitted",
-        action
-        )
+        "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     mail.send(to_list,
               settings.DEFAULT_FROM_EMAIL,
               template=name,
-              context=context,
+              context={
+                'bidder': bidder,
+                'bid_type': bid_type,
+                'action': action,
+                'conference': conference,
+                'group_name': group_name,
+                'review_url': Site.objects.get_current().domain+review_url},
               priority='now',
               )
 
