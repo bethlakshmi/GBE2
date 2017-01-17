@@ -21,7 +21,6 @@ class ActChangeStateView(BidChangeStateView):
     coordinator_permissions = ('Act Coordinator',)
     redirectURL = 'act_review_list'
     new_show = None
-    old_show = None
 
     def get_bidder(self):
         self.bidder = self.object.performer.contact
@@ -34,17 +33,12 @@ class ActChangeStateView(BidChangeStateView):
     def bid_state_change(self, request):
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
-        old = ActResource.objects.filter(_item=self.object)
-        if len(old) > 0:
-            self.old_show = old[0].show
-        old.delete()
+        ActResource.objects.filter(_item=self.object).delete()
 
         # if the act has been accepted, set the show.
         if self.act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
-            self.new_show = get_object_or_404(sEvent,
-                                     eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
             casting.event = self.new_show
             actresource = ActResource(_item=self.object)
@@ -67,19 +61,18 @@ class ActChangeStateView(BidChangeStateView):
             request)
 
     def notify_bidder(self, request):
-        show = None
         if (str(self.object.accepted) != request.POST['accepted']) or (
-                self.new_show and (not self.old_show or (
-                    self.new_show != self.old_show))):
-            # if there was a meaningful change...
-            if request.POST['accepted'] == 3 and (
-                    not self.old_show or (self.new_show != self.old_show)):
-                # the change involved a change in show acceptance
-                show = self.new_show
-
+                request.POST['accepted'] == '3'):
             send_bid_state_change_mail(
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
                 int(request.POST['accepted']),
-                show=show)
+                show=self.new_show)
+
+    def prep_bid(self, request, args, kwargs):
+        super(ActChangeStateView, self).prep_bid(request, args, kwargs)
+        if request.POST['accepted'] == '3':
+            self.new_show = get_object_or_404(
+                sEvent,
+                eventitem__event=request.POST['show'])

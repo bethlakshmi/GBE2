@@ -184,20 +184,22 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status, show=None):
         'status': acceptance_states[status][1],
         'site': site.domain,
         'site_name': site.name}
-    if not show:
-        name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
-        action = 'Your %s proposal has changed status to %s' % (
-            bid_type,
-            acceptance_states[status][1])
-    else:
-        name = '%s %s %s' % (
-            bid_type.lower(), action.lower(), str(show).lower())
+    if show:
+        name = '%s %s - %s' % (
+            bid_type.lower(),
+            acceptance_states[status][1].lower(),
+            str(show).lower())
         action = 'Your %s has been cast in %s' % (
             bid_type,
             str(show))
         context['show'] = show
         context['show_link'] = None
         context['act_tech_link'] = None
+    else:
+        name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+        action = 'Your %s proposal has changed status to %s' % (
+            bid_type,
+            acceptance_states[status][1])
 
     get_or_create_template(
         name,
