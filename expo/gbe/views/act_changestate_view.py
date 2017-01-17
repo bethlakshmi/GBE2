@@ -67,6 +67,7 @@ class ActChangeStateView(BidChangeStateView):
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
+                self.object,
                 int(request.POST['accepted']),
                 show=self.new_show)
 

@@ -23,6 +23,7 @@ from post_office.models import EmailTemplate
 from django.conf import settings
 import os
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 
 
 def validate_profile(request, require=False):
@@ -176,11 +177,18 @@ def get_or_create_template(name, base, subject):
         template.save()
 
 
-def send_bid_state_change_mail(bid_type, email, badge_name, status, show=None):
+def send_bid_state_change_mail(
+        bid_type,
+        email,
+        badge_name,
+        bid,
+        status,
+        show=None):
     site = Site.objects.get_current()
     context={
         'name': badge_name,
         'bid_type': bid_type,
+        'bid': bid,
         'status': acceptance_states[status][1],
         'site': site.domain,
         'site_name': site.name}
@@ -193,8 +201,14 @@ def send_bid_state_change_mail(bid_type, email, badge_name, status, show=None):
             bid_type,
             str(show))
         context['show'] = show
-        context['show_link'] = None
-        context['act_tech_link'] = None
+        context['show_link'] = reverse(
+            'detail_view',
+            args=[show.pk],
+            urlconf='scheduler.urls')
+        context['act_tech_link'] = reverse(
+            'act_techinfo_edit',
+            args=[show.pk],
+            urlconf='gbe.urls')
     else:
         name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
         action = 'Your %s proposal has changed status to %s' % (
