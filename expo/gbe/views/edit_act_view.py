@@ -133,7 +133,8 @@ def EditActView(request, act_id):
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
             '''
-            if verify_performer_app_paid(request.user.username):
+            if verify_performer_app_paid(request.user.username,
+                                         act.conference):
                 act.submitted = True
                 act.save()
             else:
