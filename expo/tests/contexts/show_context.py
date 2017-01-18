@@ -31,7 +31,8 @@ class ShowContext:
         self.days = self.conference.conferenceday_set.all()
         act = act or ActFactory(conference=self.conference,
                                 performer=self.performer,
-                                accepted=3)
+                                accepted=3,
+                                submitted=True)
         self.acts = [act]
         self.show = ShowFactory(conference=self.conference)
         self.room = room or RoomFactory()
@@ -63,7 +64,8 @@ class ShowContext:
 
     def book_act(self, act=None):
         act = act or ActFactory(conference=self.conference,
-                                accepted=3)
+                                accepted=3,
+                                submitted=True)
         booking = ResourceAllocationFactory(
             event=self.sched_event,
             resource=ActResourceFactory(_item=act))

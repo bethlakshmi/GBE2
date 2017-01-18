@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'ad_rotator',
     'post_office',
+    'import_export',
 )
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False

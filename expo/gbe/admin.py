@@ -1,9 +1,10 @@
 from django.contrib import admin
 from gbe.models import *
 from model_utils.managers import InheritanceManager
+from import_export.admin import ImportExportActionModelAdmin
 
 
-class BidAdmin(admin.ModelAdmin):
+class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'conference']
 
@@ -92,21 +93,18 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ['conference']
 
 
-class GenericAdmin(admin.ModelAdmin):
+class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('title', 'type')
-    list_filter = ['conference']
+    list_filter = ['conference', 'type']
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subclass')
+    list_display = ('eventitem_id', 'title', 'subclass')
     list_filter = ['conference']
 
     def subclass(self, obj):
-        try:
-            event = Event.objects.get_subclass(event_id=obj.event_id)
-            return str(event.__class__.__name__)
-        except:
-            return "Event"
+        event = Event.objects.get_subclass(event_id=obj.event_id)
+        return str(event.__class__.__name__)
 
 
 class MessageAdmin(admin.ModelAdmin):

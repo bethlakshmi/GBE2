@@ -142,12 +142,12 @@ class Act (Biddable, ActItem):
 
     @property
     def bid_review_summary(self):
-        try:
-            casting = ResourceAllocation.objects.filter(
-                resource__actresource___item=self.resourceitem_id)[0]
-            show_name = casting.event
-        except:
-            show_name = ''
+        show_name = ""
+        for show in self.get_scheduled_shows():
+            if len(show_name) > 0:
+                show_name += ", %s" % str(show.eventitem)
+            else:
+                show_name = str(show.eventitem)
 
         return (self.performer.name,
                 self.title,
