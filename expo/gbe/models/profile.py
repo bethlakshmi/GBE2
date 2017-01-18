@@ -65,25 +65,6 @@ class Profile(WorkerItem):
                           blank=True)
     how_heard = TextField(blank=True)
 
-    @property
-    def review_header(self):
-        return (['Name',
-                 'Username',
-                 'Last Login',
-                 'Email',
-                 'Purchase Email',
-                 'Phone',
-                 'Action'])
-
-    @property
-    def review_summary(self):
-        return (self.display_name,
-                self.user_object.username,
-                self.user_object.last_login,
-                self.user_object.email,
-                self.purchase_email,
-                self.phone)
-
     def bids_to_review(self):
         reviews = []
         missing_reviews = []
