@@ -201,11 +201,11 @@ def send_bid_state_change_mail(
             bid_type,
             str(show))
         context['show'] = show
-        context['show_link'] = reverse(
+        context['show_link'] = site.domain + reverse(
             'detail_view',
             args=[show.pk],
             urlconf='scheduler.urls')
-        context['act_tech_link'] = reverse(
+        context['act_tech_link'] = site.domain + reverse(
             'act_techinfo_edit',
             args=[show.pk],
             urlconf='gbe.urls')
