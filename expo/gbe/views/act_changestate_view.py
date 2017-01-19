@@ -61,19 +61,23 @@ class ActChangeStateView(BidChangeStateView):
             request)
 
     def notify_bidder(self, request):
+        email_show = None
         if (str(self.object.accepted) != request.POST['accepted']) or (
                 request.POST['accepted'] == '3'):
+            # only send the show when act is accepted
+            if request.POST['accepted'] == '3':
+                email_show = self.new_show
             send_bid_state_change_mail(
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
                 self.object,
                 int(request.POST['accepted']),
-                show=self.new_show)
+                show=email_show)
 
     def prep_bid(self, request, args, kwargs):
         super(ActChangeStateView, self).prep_bid(request, args, kwargs)
-        if request.POST['accepted'] == '3':
+        if self.act_accepted(request):
             self.new_show = get_object_or_404(
                 sEvent,
                 eventitem__event=request.POST['show'])
