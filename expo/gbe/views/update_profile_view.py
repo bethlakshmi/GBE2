@@ -41,7 +41,7 @@ def UpdateProfileView(request):
                                             prefix='prefs')
         if form.is_valid():
             form.save(commit=True)
-            if profile.display_name.strip() == '':
+            if form.cleaned_data['display_name'].strip() == '':
                 profile.display_name = "%s %s" % (
                     request.user.first_name.strip(),
                     request.user.last_name.strip())
@@ -60,7 +60,11 @@ def UpdateProfileView(request):
                     'summary': "Update Profile Success",
                     'description': default_update_profile_msg})
             messages.success(request, user_message[0].description)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+            if request.GET.get('next', None):
+                redirect_to = request.GET['next']
+            else:
+                redirect_to = reverse('home', urlconf='gbe.urls')
+            return HttpResponseRedirect(redirect_to)
         else:
             return render(request, 'gbe/update_profile.tmpl',
                           {'left_forms': [form], 'right_forms': [prefs_form]})

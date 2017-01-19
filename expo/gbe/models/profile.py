@@ -65,6 +65,10 @@ class Profile(WorkerItem):
                           blank=True)
     how_heard = TextField(blank=True)
 
+    @property
+    def complete(self):
+        return self.display_name and self.phone
+
     def bids_to_review(self):
         reviews = []
         missing_reviews = []
