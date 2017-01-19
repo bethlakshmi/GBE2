@@ -1,12 +1,16 @@
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
+from tests.contexts import VolunteerContext
 from tests.factories.gbe_factories import (
     ProfilePreferencesFactory,
     UserFactory,
     UserMessageFactory
 )
-from gbe.models import UserMessage
+from gbe.models import (
+    Conference,
+    UserMessage
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as
@@ -47,13 +51,18 @@ class TestUpdateProfile(TestCase):
             del(data['first_name'])
         return data
 
-    def post_profile(self):
+    def post_profile(self, redirect=None, form=None):
         profile = ProfilePreferencesFactory().profile
 
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
+        if redirect:
+            url = url + "?next=" + redirect
         login_as(profile, self)
-        data = self.get_form()
+        if not form:
+            data = self.get_form()
+        else:
+            data = form
         response = self.client.post(url, data=data, follow=True)
         return response
 
@@ -65,11 +74,48 @@ class TestUpdateProfile(TestCase):
         response = self.client.get(url)
         self.assertTrue(user.profile is not None)
 
+    def test_update_profile_no_display_name(self):
+        pref = ProfilePreferencesFactory(profile__display_name="")
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(pref.profile.user_object, self)
+        response = self.client.get(url)
+        self.assertTrue(
+            "%s %s" % (
+                pref.profile.user_object.first_name,
+                pref.profile.user_object.last_name) in response.content)
+
+    def test_update_profile_how_heard(self):
+        pref = ProfilePreferencesFactory(profile__how_heard="[u'Word of mouth']")
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(pref.profile.user_object, self)
+        response = self.client.get(url)
+        self.assertTrue(
+            '<input checked="checked" id="id_how_heard_6" name="how_heard" ' +
+            'type="checkbox" value="Word of mouth" />' in response.content)
+
+    def test_update_profile_post_empty_display_name(self):
+        data = self.get_form()
+        data['display_name'] = ""
+        data['purchase_email'] = ""
+        response = self.post_profile(form=data)
+        self.assertTrue(
+            "%s %s" % (data['first_name'],
+                       data['last_name']) in response.content)
+
     def test_update_profile_post_valid_form(self):
         response = self.post_profile()
         self.assertTrue("Your Account" in response.content)
-        self.assertTrue(('http://testserver/gbe', 302)
-                        in response.redirect_chain)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+
+    def test_update_profile_post_valid_redirect(self):
+        context = VolunteerContext()
+        context.conference.accepting_bids = True
+        context.conference.save()
+        redirect = reverse('volunteer_create', urlconf='gbe.urls')
+        response = self.post_profile(redirect=redirect)
+        self.assertRedirects(response, redirect)
 
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile
