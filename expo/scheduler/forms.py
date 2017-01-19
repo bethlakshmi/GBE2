@@ -33,6 +33,15 @@ class ActScheduleForm(forms.Form):
     show = forms.ModelChoiceField(queryset=Event.objects.all())
     order = forms.IntegerField()
 
+    def __init__(self, *args, **kwargs):
+        super(ActScheduleForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs:
+            initial = kwargs.pop('initial')
+            conf_shows = conf.Show.objects.filter(
+                conference=initial['show'].eventitem.get_conference())
+            self.fields['show'].queryset = Event.objects.filter(
+                eventitem__in=conf_shows)
+
 
 class WorkerAllocationForm (forms.Form):
     '''
