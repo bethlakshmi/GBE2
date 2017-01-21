@@ -7,9 +7,8 @@ from django.test import (
 from tests.factories.gbe_factories import (
     ProfileFactory,
     ConferenceFactory,
+    ConferenceDayFactory,
     ShowFactory,
-    RoomFactory,
-    ClassFactory,
 )
 from tests.factories.scheduler_factories import (
     SchedEventFactory,
@@ -28,8 +27,8 @@ from tests.contexts import (
 )
 import pytz
 from datetime import (
-    datetime,
-    time,
+    date,
+    timedelta,
 )
 
 
@@ -39,15 +38,32 @@ class TestExportCalendar(TestCase):
     def setUp(self):
         self.client = Client()
         Conference.objects.all().delete()
-        conference = ConferenceFactory()
+        self.conference = ConferenceFactory()
         self.user = ProfileFactory.create().user_object
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls")
-        self.showcontext = ShowContext(conference=conference)
-        self.classcontext = ClassContext(conference=conference)
+        self.showcontext = ShowContext(conference=self.conference)
+        self.classcontext = ClassContext(conference=self.conference)
+
+    def make_three_day_spread(self):
+        conference_events = [self.showcontext.sched_event,
+                             self.classcontext.sched_event]
+        two_day = timedelta(2)
+
+        ConferenceDayFactory(conference=self.conference,
+                             day=date(2016, 2, 6))
+        ConferenceDayFactory(conference=self.conference,
+                             day=date(2016, 2, 7))
+        conference_events += [self.showcontext.schedule_instance()]
+        conference_events += [self.showcontext.schedule_instance(
+            starttime=self.showcontext.sched_event.starttime+two_day)]
+        conference_events += [self.classcontext.schedule_instance()]
+        conference_events += [self.classcontext.schedule_instance(
+            starttime=self.classcontext.sched_event.starttime+two_day)]
+        return conference_events
 
     def test_no_login(self):
         response = self.client.get(self.url, follow=True)
@@ -100,16 +116,13 @@ class TestExportCalendar(TestCase):
     def test_type_show(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url + '?event_types=Show')
-        print response.content
         self.assertIn(self.showcontext.show.title, response.content)
         self.assertNotIn(self.classcontext.bid.title, response.content)
 
     def test_day_all(self):
         login_as(ProfileFactory(), self)
-        print 'Show: ' + self.showcontext.show.title
-        print 'Class: ' + self.classcontext.bid.title
-        response = self.client.get(self.url)
-        print response
+        event_set = self.make_three_day_spread()
+        response = self.client.get(self.url + '?day=All')
         fri_count, sat_count, sun_count = 0, 0, 0
         for line in response.content.split('\r\n'):
             if 'Feb. 5' in line:
@@ -118,30 +131,11 @@ class TestExportCalendar(TestCase):
                 sat_count = sat_count + 1
             elif 'Feb. 7' in line:
                 sun_count = sun_count + 1
-        print fri_count, sat_count, sun_count
         self.assertTrue(fri_count == 2 and sat_count == 2 and sun_count == 2)
 
-    '''
     def test_day_sat(self):
-        Conference.objects.all().delete()
-        ConferenceFactory.create()
-        conf = Conference.current_conf()
-        show = ShowFactory(conference=conf)
-        classes = ClassFactory(conference=conf)
-        for event in common_events:
-            if event[0] == 'show':
-                sched_event = SchedEventFactory(eventitem=show.eventitem_ptr,
-                                         starttime= timezone.make_aware(
-                                             event[1],
-                                             timezone.get_current_timezone()))
-            elif event[0] == 'class':
-                sched_event = SchedEventFactory(
-                    eventitem=classes.eventitem_ptr,
-                    starttime=timezone.make_aware(event[1], timezone \
-                                                  .get_current_timezone()))
-            sched_event.save()
         login_as(ProfileFactory(), self)
-
+        event_set = self.make_three_day_spread()
         response = self.client.get(self.url + '?day=Saturday')
         fri_count, sat_count, sun_count = 0, 0, 0
         for line in response.content.split('\r\n'):
@@ -151,5 +145,5 @@ class TestExportCalendar(TestCase):
                 sat_count = sat_count + 1
             elif 'Feb. 8' in line:
                 sun_count = sun_count + 1
+        print response.content
         self.assertTrue(fri_count == 0 and sat_count == 2 and sun_count == 0)
-    '''
