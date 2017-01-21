@@ -54,7 +54,7 @@ def CreateVendorView(request):
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
             '''
-            if verify_vendor_app_paid(request.user.username):
+            if verify_vendor_app_paid(request.user.username, conference):
                 vendor.submitted = True
                 conference = Conference.objects.filter(
                     accepting_bids=True).first()

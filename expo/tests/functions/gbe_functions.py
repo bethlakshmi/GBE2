@@ -133,10 +133,11 @@ def assert_interest_view(response, interest):
         assert_has_help_text(response, interest.interest.help_text)
 
 
-def make_act_app_purchase(user_object):
+def make_act_app_purchase(conference, user_object):
     purchaser = PurchaserFactory(
         matched_to_user=user_object)
     transaction = TransactionFactory(purchaser=purchaser)
+    transaction.ticket_item.bpt_event.conference = conference
     transaction.ticket_item.bpt_event.act_submission_event = True
     transaction.ticket_item.bpt_event.bpt_event_id = "111111"
     transaction.ticket_item.bpt_event.save()
