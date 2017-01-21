@@ -1,4 +1,3 @@
-
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.test import (
@@ -13,15 +12,10 @@ from tests.factories.gbe_factories import (
     ClassFactory,
 )
 from tests.factories.scheduler_factories import (
-    LocationFactory,
-    WorkerFactory,
     SchedEventFactory,
-    EventContainerFactory,
-    ResourceAllocationFactory,
 )
 from gbe.models import (
     Conference,
-    Room,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
@@ -31,12 +25,6 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ShowContext,
     ClassContext,
-)
-
-from tests.functions.scheduler_functions import (
-    assert_good_sched_event_form,
-    assert_selected,
-    get_sched_event_form,
 )
 import pytz
 from datetime import (
@@ -50,13 +38,12 @@ class TestExportCalendar(TestCase):
 
     def setUp(self):
         self.client = Client()
+        Conference.objects.all().delete()
         conference = ConferenceFactory()
         self.user = ProfileFactory.create().user_object
         self.privileged_profile = ProfileFactory()
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        self.show = ShowFactory()
-        self.classes = ClassFactory()
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls")
         self.showcontext = ShowContext(conference=conference)
@@ -81,40 +68,20 @@ class TestExportCalendar(TestCase):
 
     def test_schedule(self):
         login_as(ProfileFactory(), self)
-        room = RoomFactory()
-        show = ShowFactory()
-        show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
         response = self.client.get(self.url)
         self.assertTrue(response.content.count('\n') > 1)
         self.assertTrue(len(
             (response.content.split('\r\n')[1].split('","'))) >= 8)
-        self.assertTrue('Test Show' in
-                        response.content.split('\r\n')[1].split('","')[0])
+        self.assertIn(self.showcontext.show.title, response.content)
 
     def test_guidebook(self):
         login_as(ProfileFactory(), self)
-        room = RoomFactory()
-        show = ShowFactory()
-        classes = ClassFactory()
-        show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-        class_sevent = SchedEventFactory(eventitem=classes.eventitem_ptr)
         response = self.client.get(self.url)
-        self.assertTrue('Test Show' in
-                        response.content.split('\r\n')[1].split('","')[0]
-                        or 'Test Show' in
-                        response.content.split('\r\n')[2].split('","')[0])
-        self.assertTrue('Class Title' in
-                        response.content.split('\r\n')[1].split('","')[0]
-                        or 'Class Title' in
-                        response.content.split('\r\n')[2].split('","')[0])
+        self.assertIn(self.showcontext.show.title, response.content)
+        self.assertIn(self.classcontext.bid.title, response.content)
 
     def test_ical(self):
         login_as(ProfileFactory(), self)
-        room = RoomFactory()
-        show = ShowFactory()
-        classes = ClassFactory()
-        show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-        class_sevent = SchedEventFactory(eventitem=classes.eventitem_ptr)
         response = self.client.get(self.url + '?cal_format=ical')
         self.assertTrue('BEGIN:VCALENDAR' in
                         response.content.split('\r\n')[0])
@@ -126,55 +93,21 @@ class TestExportCalendar(TestCase):
 
     def test_type_class(self):
         login_as(ProfileFactory(), self)
-        room = RoomFactory()
-        show = ShowFactory()
-        classes = ClassFactory()
-        show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-        class_sevent = SchedEventFactory(eventitem=classes.eventitem_ptr)
         response = self.client.get(self.url + '?event_types=Class')
-        self.assertFalse('Test Show' in
-                         response.content.split('\r\n')[1].split('","')[0]
-                         or 'Test Show' in
-                         response.content.split('\r\n')[2].split('","')[0])
-        self.assertTrue('Class Title' in
-                       response.content.split('\r\n')[1].split('","')[0]
-                       or 'Class Title' in
-                       response.content.split('\r\n')[2].split('","')[0])
+        self.assertNotIn(self.showcontext.show.title, response.content)
+        self.assertIn(self.classcontext.bid.title, response.content)
 
     def test_type_show(self):
         login_as(ProfileFactory(), self)
-        room = RoomFactory()
-        show = ShowFactory()
-        classes = ClassFactory()
-        show_sevent = SchedEventFactory(eventitem=show.eventitem_ptr)
-        class_sevent = SchedEventFactory(eventitem=classes.eventitem_ptr)
         response = self.client.get(self.url + '?event_types=Show')
-        self.assertTrue('Test Show' in
-                        response.content.split('\r\n')[1].split('","')[0])
-        self.assertFalse('Class Title' in
-                         response.content.split('\r\n')[1].split('","')[0])
+        print response.content
+        self.assertIn(self.showcontext.show.title, response.content)
+        self.assertNotIn(self.classcontext.bid.title, response.content)
 
-    '''
     def test_day_all(self):
-        Conference.objects.all().delete()
-        ConferenceFactory.create()
-        conf = Conference.current_conf()
-        show = ShowFactory(conference=conf)
-        classes = ClassFactory(conference=conf)
-        for event in common_events:
-            if event[0] == 'show':
-                sched_event = SchedEventFactory(eventitem=show.eventitem_ptr,
-                                         starttime= timezone.make_aware(
-                                             event[1],
-                                             timezone.get_current_timezone()))
-            elif event[0] == 'class':
-                sched_event = SchedEventFactory(
-                    eventitem=classes.eventitem_ptr,
-                    starttime=timezone.make_aware(event[1], timezone \
-                                                  .get_current_timezone()))
-            sched_event.save()
         login_as(ProfileFactory(), self)
-
+        print 'Show: ' + self.showcontext.show.title
+        print 'Class: ' + self.classcontext.bid.title
         response = self.client.get(self.url)
         print response
         fri_count, sat_count, sun_count = 0, 0, 0
@@ -188,6 +121,7 @@ class TestExportCalendar(TestCase):
         print fri_count, sat_count, sun_count
         self.assertTrue(fri_count == 2 and sat_count == 2 and sun_count == 2)
 
+    '''
     def test_day_sat(self):
         Conference.objects.all().delete()
         ConferenceFactory.create()
