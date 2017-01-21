@@ -570,14 +570,7 @@ class EventItem (models.Model):
     def describe(self):
         try:
             child = self.child()
-            '''
-            ids = "event - " + str(child.event_id)
-            try:
-                ids += ', bid - ' + str(child.id)
-            except:
-                ids += ""
-            '''
-            return str(child.sched_payload.get('title'))
+            return str(child)
         except:
             return "no child"
 
