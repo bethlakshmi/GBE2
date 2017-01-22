@@ -139,11 +139,10 @@ class TestExportCalendar(TestCase):
         response = self.client.get(self.url + '?day=Saturday')
         fri_count, sat_count, sun_count = 0, 0, 0
         for line in response.content.split('\r\n'):
-            if 'Feb. 6' in line:
+            if 'Feb. 5' in line:
                 fri_count = fri_count + 1
-            elif 'Feb. 7' in line:
+            elif 'Feb. 6' in line:
                 sat_count = sat_count + 1
-            elif 'Feb. 8' in line:
+            elif 'Feb. 7' in line:
                 sun_count = sun_count + 1
-        print response.content
         self.assertTrue(fri_count == 0 and sat_count == 2 and sun_count == 0)

@@ -288,13 +288,12 @@ def event_info(confitem_type='Show',
     for l in Location.objects.all():
         loc_allocs += l.allocations.all()
 
-    scheduled_events = [alloc.event for alloc in loc_allocs]
-
-    for event in scheduled_events:
-        start_t = event.start_time
-        stop_t = event.start_time + event.duration
-        if start_t > cal_times[1] or stop_t < cal_times[0]:
-            scheduled_events.remove(event)
+    scheduled_events = []
+    for alloc in loc_allocs:
+        start_t = alloc.event.start_time
+        stop_t = alloc.event.start_time + alloc.event.duration
+        if start_t < cal_times[1] and stop_t >= cal_times[0]:
+            scheduled_events += [alloc.event]
 
     scheduled_event_ids = [
         alloc.event.eventitem_id for alloc in scheduled_events]
