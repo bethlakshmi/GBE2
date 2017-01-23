@@ -23,6 +23,7 @@ from post_office.models import EmailTemplate
 from django.conf import settings
 import os
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 
 
 def validate_profile(request, require=False):
@@ -180,25 +181,53 @@ def get_or_create_template(name, base, subject):
         template.save()
 
 
-def send_bid_state_change_mail(bid_type, email, badge_name, status):
-    name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+def send_bid_state_change_mail(
+        bid_type,
+        email,
+        badge_name,
+        bid,
+        status,
+        show=None):
+    site = Site.objects.get_current()
+    context = {
+        'name': badge_name,
+        'bid_type': bid_type,
+        'bid': bid,
+        'status': acceptance_states[status][1],
+        'site': site.domain,
+        'site_name': site.name}
+    if show:
+        name = '%s %s - %s' % (
+            bid_type.lower(),
+            acceptance_states[status][1].lower(),
+            str(show).lower())
+        action = 'Your %s has been cast in %s' % (
+            bid_type,
+            str(show))
+        context['show'] = show
+        context['show_link'] = site.domain + reverse(
+            'detail_view',
+            args=[show.pk],
+            urlconf='scheduler.urls')
+        context['act_tech_link'] = site.domain + reverse(
+            'act_techinfo_edit',
+            args=[show.pk],
+            urlconf='gbe.urls')
+    else:
+        name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+        action = 'Your %s proposal has changed status to %s' % (
+            bid_type,
+            acceptance_states[status][1])
+
     get_or_create_template(
         name,
         "default_bid_status_change",
-        'Your %s proposal has changed status to %s' % (
-                bid_type,
-                acceptance_states[status][1]))
-    site = Site.objects.get_current()
+        action)
     mail.send(
         email,
         settings.DEFAULT_FROM_EMAIL,
         template=name,
-        context={
-            'name': badge_name,
-            'bid_type': bid_type,
-            'status': acceptance_states[status][1],
-            'site': site.domain,
-            'site_name': site.name},
+        context=context,
         priority='now',
     )
 
@@ -226,7 +255,8 @@ def notify_reviewers_on_bid_change(bidder,
                                    action,
                                    conference,
                                    group_name,
-                                   review_url):
+                                   review_url,
+                                   show=None):
     name = '%s %s notification' % (bid_type.lower(), action.lower())
     get_or_create_template(
         name,
