@@ -55,3 +55,4 @@ wand
 django-ad-rotator
 django-post_office==2.0.8
 django-import-export==0.5.1
+sqlparse==0.1.19

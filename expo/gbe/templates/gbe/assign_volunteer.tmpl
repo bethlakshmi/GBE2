@@ -141,7 +141,7 @@
               {% if event_window.window in volunteer.unavailable_windows.all%}
                 Not Free<br>
               {% endif %}
-{% if event_window.event.eventitem.child.sched_payload.details.volunteer_category in volunteer.interest_list %}
+{% if event_window.event.eventitem.child.sched_payload.details.volunteer_category in interests %}
                 Interested<br>
               {% endif %}
             </td>

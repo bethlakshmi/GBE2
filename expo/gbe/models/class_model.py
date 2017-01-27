@@ -178,7 +178,7 @@ class Class(Biddable, Event):
                 acceptance_states[self.accepted][1])
 
     def __str__(self):
-        return self.title
+        return self.event_ptr.title
 
     # tickets that apply to class are:
     #   - any ticket that applies to "most"

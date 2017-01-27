@@ -15,6 +15,12 @@ if APP_DJANGOBB is True:
     LOCAL_APPS_URLS = LOCAL_APPS_URLS + (url(r'^forum/',
                                          include('djangobb_forum.urls',
                                                  namespace='djangobb')),)
+if settings.DEBUG:
+    import debug_toolbar
+    LOCAL_APPS_URLS += (
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    )
+
 
 urlpatterns = ('',
                url(r'^', include('gbe.urls', namespace='gbe')),

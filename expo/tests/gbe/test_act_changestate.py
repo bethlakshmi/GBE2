@@ -99,7 +99,7 @@ class TestActChangestate(TestCase):
             "is booked for"
         )
 
-    def test_act_reject_sends_notification_makes_template(self):
+    def test_act_waitlist_sends_notification_makes_template(self):
         context = ActTechInfoContext()
         url = reverse(self.view_name,
                       args=[context.act.pk],
@@ -114,7 +114,7 @@ class TestActChangestate(TestCase):
         template = EmailTemplate.objects.get(name='act wait list')
         assert template.subject == expected_subject
 
-    def test_act_reject_sends_notification_has_template(self):
+    def test_act_waitlist_sends_notification_has_template(self):
         expected_subject = "test template"
         template = EmailTemplate.objects.create(
             name='act wait list',
@@ -127,6 +127,42 @@ class TestActChangestate(TestCase):
                       args=[context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
+        response = self.client.post(url, data=self.data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        assert msg.subject == expected_subject
+
+    def test_act_accept_makes_template_per_show(self):
+        context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        self.data['accepted'] = '3'
+        response = self.client.post(url, data=self.data)
+        assert 1 == len(mail.outbox)
+        msg = mail.outbox[0]
+        expected_subject = \
+            "Your act has been cast in %s" % self.show.title
+        assert msg.subject == expected_subject
+        template = EmailTemplate.objects.get(
+            name='act accepted - %s' % self.show.title.lower())
+        assert template.subject == expected_subject
+
+    def test_act_accept_make_template_per_show(self):
+        expected_subject = "test template"
+        template = EmailTemplate.objects.create(
+            name='act accepted - %s' % self.show.title.lower(),
+            subject=expected_subject,
+            content='test',
+            html_content='test',
+            )
+        context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
         assert 1 == len(mail.outbox)
         msg = mail.outbox[0]
