@@ -4,9 +4,9 @@
 {% endblock %}
 
 {% block content %}
-
+<h1 align='center'>{{ day }}</h1>
 {% if rows %}
-<table border=4, style="list-style: none;">
+<table border=4, style="list-style: none;" class="calendar_table">
 <CAPTION ALIGN="top">
 <li><a href="{{ x_name.link }}">{{ x_name.title }}</a></li></CAPTION>
 
@@ -30,7 +30,11 @@
 {% endcomment %}
 
   {% for row in rows %}
-     <tr>
+   {% if forloop.first %}
+     <tr class="cal_header">
+   {% else %}
+     <tr class="cal_body">
+   {% endif %}
     {% for cell in row %}
       {{cell |safe}}
     {% endfor %}

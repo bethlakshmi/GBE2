@@ -17,8 +17,7 @@ import math
 from expo.settings import (
     DATETIME_FORMAT,
     TIME_FORMAT,
-    DAY_FORMAT,
-    TIME_ZONE,
+    DATE_FORMAT,
 )
 from django.utils.formats import date_format
 from django.core.urlresolvers import reverse
@@ -228,7 +227,7 @@ def html_headers(table, headerStart='<TH>', headerEnd='</TH>'):
 
 def table_prep(events,
                block_size,
-               time_format="DATETIME_FORMAT",
+               time_format="TIME_FORMAT",
                cal_start=None,
                cal_stop=None,
                col_heads=None):
