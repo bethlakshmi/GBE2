@@ -113,7 +113,7 @@ special_menu_tree = [
      'groups': ['Act Reviewers',
                 'Act Coordinator']},
     {'title': 'Act Tech Info',
-     'url': reverse('act_techinfo_review', urlconf='gbe.report_urls'),
+     'url': reverse('act_techinfo_review', urlconf='gbe.reporting.urls'),
      'parent_id': 30,
      'id': 32,
      'groups': ['Tech Crew']},

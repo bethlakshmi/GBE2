@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
-from gbe import report_views as reporting
+from gbe import reporting
 from django.contrib import admin
 admin.autodiscover()
 
@@ -49,5 +49,8 @@ urlpatterns = patterns(
         reporting.export_badge_report, name='badge_report'),
     url(r'^reports/badges/print_run/?$',
         reporting.export_badge_report, name='badge_report'),
+
+    url(r'^reports/view_techinfo/?$',
+        reporting.view_techinfo, name='view_techinfo'),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
