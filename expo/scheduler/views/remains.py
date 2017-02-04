@@ -64,6 +64,8 @@ from gbe.functions import (
 )
 from gbe.views.class_display_functions import get_scheduling_info
 from django.contrib import messages
+from expo.settings import DATE_FORMAT
+from django.utils.formats import date_format
 
 
 @login_required
@@ -838,7 +840,7 @@ def view_list(request, event_type='All'):
 def calendar_view(request=None,
                   event_type='Show',
                   day=None,
-                  duration=Duration(minutes=60)):
+                  duration=Duration(minutes=30)):
     conf_slug = request.GET.get('conf', None)
     if conf_slug:
         conf = get_conference_by_slug(conf_slug)
@@ -887,6 +889,14 @@ def calendar_view(request=None,
                                    duration,
                                    cal_start=cal_times[0],
                                    cal_stop=cal_times[1])
+        if day:
+            table['day'] = "%s - %s" % (
+                day,
+                date_format(cal_times[0], "DATE_FORMAT"))
+        else:
+            table['day'] = "%s - %s" % (
+                date_format(cal_times[0], "DATE_FORMAT"),
+                date_format(cal_times[1], "DATE_FORMAT"))
         table['name'] = 'Event Calendar for the Great Burlesque Expo'
         table['link'] = 'http://burlesque-expo.com'
         table['x_name'] = {}
