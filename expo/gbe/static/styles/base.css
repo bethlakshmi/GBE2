@@ -842,3 +842,8 @@ span.opps-errors > ul
 {
   padding: 0px;
 }
+
+.calendar_table .cal_body TH
+{
+  width: 80px;
+}

@@ -570,14 +570,7 @@ class EventItem (models.Model):
     def describe(self):
         try:
             child = self.child()
-            '''
-            ids = "event - " + str(child.event_id)
-            try:
-                ids += ', bid - ' + str(child.id)
-            except:
-                ids += ""
-            '''
-            return str(child.sched_payload.get('title'))
+            return str(child)
         except:
             return "no child"
 
@@ -757,15 +750,15 @@ class Event(Schedulable):
 
     @property
     def volunteer_count(self):
-        acts = len(self.get_acts())
-        volunteers = Worker.objects.filter(allocations__event=self,
-                                           role='Volunteer').count()
-        if acts:
-            return "%d acts" % acts
-        elif volunteers:
+        allocations = ResourceAllocation.objects.filter(event=self)
+        volunteers = allocations.filter(resource__worker__role='Volunteer').count()
+        if volunteers > 0:
             return "%d volunteers" % volunteers
         else:
-            return 0
+            acts = ActResource.objects.filter(allocations__in=allocations).count()
+            if acts > 0:
+                return "%d acts" % acts
+        return 0
 
     def get_workers(self, worker_type=None):
         '''

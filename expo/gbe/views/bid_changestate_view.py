@@ -49,6 +49,7 @@ class BidChangeStateView(View):
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
+                self.object,
                 int(request.POST['accepted']))
 
     def groundwork(self, request, args, kwargs):

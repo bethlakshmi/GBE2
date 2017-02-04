@@ -28,7 +28,9 @@ expo/gbe/static/djangocms_text_ckeditor/*
 expo/gbe/static/djangocms_admin_style
 expo/gbe/static/djangocms_admin_style/*
 expo/gbe/static/treebeard/*
-
+expo/gbe/static/debug_toolbar/*
+expo/gbe/static/hijack/*
+expo/gbe/static/import_export/*
 expo/media*
 
 expo/expo/settings.pyc

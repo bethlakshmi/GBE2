@@ -25,3 +25,4 @@ from remains import (
 )
 
 from scheduler.views.add_event import add_event
+from scheduler.views.export_calendar import export_calendar

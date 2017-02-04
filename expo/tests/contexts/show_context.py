@@ -15,7 +15,9 @@ from tests.factories.scheduler_factories import (
 )
 import pytz
 from tests.functions.scheduler_functions import noon
-
+from datetime import (
+    timedelta,
+)
 
 class ShowContext:
     def __init__(self,
