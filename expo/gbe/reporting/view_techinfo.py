@@ -39,11 +39,15 @@ def view_techinfo(request):
     show, acts, conference, scheduling_link = prep_act_tech_info(
         request, show_id)
 
-
-    logger.info(area+', '+show_id)
-    header, techinfo = build_techinfo(show_id, area=area)
-    logger.info(techinfo)
-    logger.info(techinfo[0])
+    if show_id:
+        logger.info(area+', '+show_id)
+        header, techinfo = build_techinfo(show_id, area=area)
+        logger.info(techinfo)
+        logger.info(header)
+    else:
+        logger.info(area)
+        header = None
+        techinfo = None
 
     return render(request,
                   'gbe/report/view_techinfo.tmpl',
