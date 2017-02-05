@@ -14,7 +14,7 @@ from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.http import Http404
 
-from gbe.report_views import (
+from gbe.reporting import (
     list_reports,
     review_staff_area,
     staff_area,

@@ -45,7 +45,7 @@ def list_reports(request):
                       'conference_slugs': conference_slugs(),
                       'conference': conference,
                       'return_link': reverse('report_list',
-                                             urlconf='gbe.report_urls')})
+                                             urlconf='gbe.reporting.urls')})
 
 
 def review_staff_area(request):
@@ -241,7 +241,7 @@ def review_act_techinfo(request, show_id=None):
                    'conference': conference,
                    'scheduling_link': scheduling_link,
                    'return_link': reverse('act_techinfo_review',
-                                          urlconf='gbe.report_urls',)})
+                                          urlconf='gbe.reporting.urls',)})
 
 
 def download_tracks_for_show(request, show_id):
