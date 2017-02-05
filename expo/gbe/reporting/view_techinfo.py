@@ -70,28 +70,25 @@ def view_techinfo(request):
         conference = get_conference_by_slug(conf_slug)
 
     logger.info(area+', '+show_id)
-    techinfo = export_techinfo(show_id, area=area)
+    header, techinfo = build_techinfo(show_id, area=area)
     logger.info(techinfo)
     logger.info(techinfo[0])
-    header = techinfo[0]
 
     return render(request,
                   'gbe/report/view_techinfo.tmpl',
                   {'this_show': show,
-                   'acts': acts,
                    'area': area,
                    'all_shows': conf.Show.objects.filter(
                        conference=conference),
                    'techinfo': techinfo,
-                   'colheaders': header,
-                   'numheaders': len(header)
+                   'header': header,
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
                    'scheduling_link': scheduling_link,
                    'return_link': reverse('view_techinfo',
                                           urlconf='gbe.reporting.urls',)})
 
-def export_techinfo(show_id, area='all'):
+def build_techinfo(show_id, area='all'):
     '''
     Export a list of act tech info details
     - includes only accepted acts
@@ -110,117 +107,117 @@ def export_techinfo(show_id, area='all'):
     acts = show_booking.get_acts(3)
 
     # build header, segmented in same structure as subclasses
-    header = ['Sort Order',
-              'Order',
+    header = ['Order',
               'Act',
               'Performer',
-              'Contact Email',
-              'Complete?',
-              'Rehearsal Time',
-              'Act Length',
-              ]
-    header += ['Intro Text',
-               'No Props',
-               'Preset Props',
-               'Cued Props',
-               'Clear Props',
-               'Stage Notes',
-               'Need Mic',
-               'Use Own Mic',
-               ]
-    header += ['Track Title',
-               'Track Artist',
-               'Track',
-               'Track Length',
-               'No Music',
-               'Need Mic',
-               'Use Own Mic',
-               'Audio Notes',
-               ]
-    header += ['Cue #', 'Cue off of']
-    header += ['Act Description',
-               'Costume Description']
-    if location.describe == 'Theater':
-        header += ['Follow spot',
-                   'Center Spot',
-                   'Backlight',
-                   'Cyc Light',
-                   'Wash',
-                   'Sound']
-    else:
-        header += ['Follow spot', 'Wash', 'Sound']
+              'Act Length',]
+
+    if area in ('all', 'stage_mgmt'):
+        header += [
+            'Intro Text',
+            'Rehearsal Time',
+            'Preset Props',
+            'Cued Props',
+            'Clear Props',
+            'Stage Notes',
+            'Need Mic',
+            'Use Own Mic',]
+    
+    if area in ('all', 'audio'):
+        header += [
+            'Track Title',
+            'Track Artist',
+            'Track',
+            'Track Length',
+            'No Music',
+            'Audio Notes',]
+    if area in ('audio',):
+        header += [
+            'Need Mic',
+            'Use Own Mic',]
+
+    if area in ('all', 'lighting'):
+        header += [
+            'Act Description',
+            'Costume Description',
+            'Cue #',
+            'Cue off of',
+            'Follow spot',]
+        if location.describe == 'Theater':
+            header += [
+                'Center Spot',
+                'Backlight',
+                'Cyc Light',]
+        header += [
+            'Wash',
+            'Sound',]
 
     # now build content
     cues = conf.CueInfo.objects.filter(techinfo__act__in=acts)
     techinfo = []
     for act in acts:
+        tech_row = [
+            act.order,
+            act.title,
+            ("Performer", act.performer, act.performer.contact.user_object.email),
+        ]
+        
         rehearsals = ""
         for rehearsal in act.get_scheduled_rehearsals():
             rehearsals += str(rehearsal.start_time)+", "
 
-        start = [act.order,
-                 act.title,
-                 act.performer,
-                 act.performer.contact.user_object.email,
-                 act.tech.is_complete,
-                 rehearsals]
-        start += act.tech.stage.dump_data
-        start += act.tech.audio.dump_data
-        start += act.tech.lighting.dump_data
+        stage_info = act.tech.stage.dump_data
+        tech_row += [
+            stage_info[0],
+            stage_info[1],
+            rehearsals,
+            stage_info[3],
+            stage_info[4],
+            stage_info[5],
+            stage_info[6],
+        ]
+
+        audio_info= act.tech.audio.dump_data
+        tech_row += [
+            audio_info[4],
+            audio_info[5],
+            audio_info[0],
+            audio_info[1],
+            audio_info[2],
+            audio_info[3],
+            audio_info[6],
+            audio_info[7],
+        ]
+        tech_row += act.tech.lighting.dump_data
+
+        cue_sequence = []
+        cue_off_of = []
+        follow_spot = []
+        wash = []
+        sound_note = []
+        if location.describe == 'Theater':
+            center_spot = []
+            backlight = []
+            cyc_color = []
 
         # one row per cue... for sortability
-        start.insert(0, '')
         for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
-
+            cue_sequence += [cue.cue_sequence]
+            cue_off_of += [cue.cue_off_of]
+            follow_spot += [cue.follow_spot]
             if location.describe == 'Theater':
-                cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
-                             cue.follow_spot,
-                             cue.center_spot,
-                             cue.backlight,
-                             cue.cyc_color,
-                             cue.wash,
-                             cue.sound_note,
-                             ]
-            else:
-                cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
-                             cue.follow_spot,
-                             cue.wash,
-                             cue.sound_note,
-                             ]
-            start[0] = float("%d.%d" % (act.order, cue.cue_sequence))
-            techinfo.append(start+cue_items)
+                center_spot += [cue.center_spot]
+                backlight += [cue.backlight]
+                cyc_color += [cue.cyc_color]
 
-        # in case performers haven't done paperwork
-        if len(cues.filter(techinfo__act=act)) == 0:
-            start[0] = act.order
-            techinfo.append(start)
+            wash += [cue.wash]
+            sound_note += [cue.sound_note]
+        tech_row += [cue_sequence, cue_off_of, follow_spot]
+        if location.describe == 'Theater':
+            tech_row += [center_spot, backlight, cyc_color]
+        tech_row += [wash, sound_note]
+        techinfo.append(tech_row)
 
-    # end for loop through acts
-    cuesequenceindex = len(header) + 1
-
-    # Winnow extraneous info by tech area
-    if area is 'stage_mgmt':
-        header = header
-        newtechinfo = []
-        for line in techinfo:
-            line = line
-            newtechinfo.append(line)
-        techinfo = newtechinfo
-    elif area is 'audio':
-        header = header
-        newtechinfo = []
-        for line in techinfo:
-            line = line
-            newtechinfo.append(line)
-        techinfo = newtechinfo
-    elif area is 'lighting':
-        header = header
-        newtechinfo = []
-        for line in techinfo:
-            line = line
-            newtechinfo.append(line)
-        techinfo = newtechinfo
-
-    return [header] + sorted(techinfo, key=lambda row: row[0])
+    return (
+        header,
+        sorted(techinfo, key=lambda row: row[0]))

@@ -17,7 +17,7 @@ from gbe.ticketing_idd_interface import (
 import os
 import csv
 from reportlab.pdfgen import canvas
-from gbe.reporting.view_techinfo import *
+# from gbe.reporting.view_techinfo import *
 
 from gbe.functions import (
     conference_slugs,
