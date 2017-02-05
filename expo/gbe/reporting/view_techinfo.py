@@ -67,6 +67,7 @@ def view_techinfo(request):
                   'gbe/report/view_techinfo.tmpl',
                   {'this_show': show,
                    'area': area,
+                   'area_options': ['all', 'audio', 'stage_mgmt', 'lighting'],
                    'all_shows': Show.objects.filter(
                        conference=conference),
                    'techinfo': techinfo,

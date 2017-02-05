@@ -18,13 +18,29 @@
 
   Also view:
   {% for show in all_shows %}
-    <a href="{% url 'reporting:act_techinfo_review' show.eventitem_id%}">{{show}}</a>
+    {% if show.title != "Wait List" and show.title != "----------" %}
+    {% if show.eventitem_id == this_show.eventitem_id %}
+      <b>{{show}} (Current)</b>
+    {% else %}
+    <a href="{% url 'reporting:view_techinfo'%}?show_id={{show.eventitem_id}}&area={{area}}">
+      {{show}}</a>
+    {% endif %}
     {% if not forloop.last %} | {% endif %}
+    {% endif %}
   {% endfor %}
   
   {% if scheduling_link and scheduling_link|length > 0 %}
     </br></br>
-    <a href="{{scheduling_link}}">Schedule Acts for this Show</a>
+    <a href="{{scheduling_link}}">Schedule Acts for this Show</a> |
+    {% for option in area_options %}
+      {% if area == option%}
+	<b>Show {{option|title}} Info (Current)</b>
+      {% else %}
+      <a href="{% url 'reporting:view_techinfo'%}?show_id={{this_show.eventitem_id}}&area={{option}}">
+        Show {{option|title}} Info</a>
+      {% endif %}
+    {% if not forloop.last %} | {% endif %}
+    {% endfor %}
   {% endif %}
 <br><br>
 
