@@ -29,8 +29,9 @@ class TestReports(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-        self.url = reverse(self.view_name,
-                      urlconf='gbe.reporting.urls')
+        self.url = reverse(
+            self.view_name,
+            urlconf='gbe.reporting.urls')
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Tech Crew')
 
@@ -148,4 +149,3 @@ class TestReports(TestCase):
         response = self.client.get(self.url, args)
         self.assertEqual(response.status_code, 200)
         nt.assert_true(context.show.title in response.content)
-
