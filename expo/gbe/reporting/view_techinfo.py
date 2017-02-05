@@ -1,26 +1,15 @@
 # View functions for reporting
-from django.shortcuts import render, get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.core.management import call_command
 from django.views.decorators.cache import never_cache
 
-import gbe.models as conf
-import scheduler.models as sched
-import ticketing.models as tix
-from gbe.ticketing_idd_interface import (
-    get_checklist_items,
-    get_checklist_items_for_tickets
-    )
-
-import os
-import csv
-from reportlab.pdfgen import canvas
+from gbe.models import (
+    Show,
+    CueInfo,
+)
 
 from gbe.functions import (
     conference_slugs,
-    get_current_conference,
     get_conference_by_slug,
     validate_perms,
 )
@@ -53,7 +42,7 @@ def view_techinfo(request):
         logger.error('view_techinfo: Invalid show_id: %s' % (show_id))
         pass
 
-    show = conf.Show.objects.get(eventitem_id=show_id)
+    show = Show.objects.get(eventitem_id=show_id)
     acts = show.scheduler_events.first().get_acts(status=3)
     acts = sorted(acts, key=lambda act: act.order)
     if validate_perms(
@@ -78,7 +67,7 @@ def view_techinfo(request):
                   'gbe/report/view_techinfo.tmpl',
                   {'this_show': show,
                    'area': area,
-                   'all_shows': conf.Show.objects.filter(
+                   'all_shows': Show.objects.filter(
                        conference=conference),
                    'techinfo': techinfo,
                    'header': header,
@@ -101,7 +90,7 @@ def build_techinfo(show_id, area='all'):
     '''
     # Move this into a function file?  It is not a view.
 
-    show = get_object_or_404(conf.Show, eventitem_id=show_id)
+    show = get_object_or_404(Show, eventitem_id=show_id)
     show_booking = show.scheduler_events.first()
     location = show_booking.location
     acts = show_booking.get_acts(3)
@@ -136,6 +125,7 @@ def build_techinfo(show_id, area='all'):
             'Use Own Mic',]
 
     if area in ('all', 'lighting'):
+        cues = CueInfo.objects.filter(techinfo__act__in=acts)
         header += [
             'Act Description',
             'Costume Description',
@@ -152,7 +142,6 @@ def build_techinfo(show_id, area='all'):
             'Sound',]
 
     # now build content
-    cues = conf.CueInfo.objects.filter(techinfo__act__in=acts)
     techinfo = []
     for act in acts:
         tech_row = [
