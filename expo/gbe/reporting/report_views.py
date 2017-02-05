@@ -28,7 +28,7 @@ from gbe.functions import (
 from expo.gbe_logging import logger
 from expo.settings import DATETIME_FORMAT
 from django.utils.formats import date_format
-
+from gbe.reporting.functions import prep_act_tech_info
 
 def list_reports(request):
     '''
@@ -228,31 +228,8 @@ def review_act_techinfo(request, show_id=None):
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
 
-    scheduling_link = ''
-
-    show = None
-    acts = []
-
-    if show_id:
-        try:
-            show = conf.Show.objects.get(eventitem_id=show_id)
-            acts = show.scheduler_events.first().get_acts(status=3)
-            acts = sorted(acts, key=lambda act: act.order)
-            if validate_perms(
-                    request, ('Scheduling Mavens',), require=False):
-                scheduling_link = reverse(
-                    'schedule_acts',
-                    urlconf='scheduler.urls',
-                    args=[show.pk])
-
-        except:
-            logger.error("review_act_techinfo: Invalid show id")
-            pass
-    if show:
-        conference = show.conference
-    else:
-        conf_slug = request.GET.get('conf_slug', None)
-        conference = get_conference_by_slug(conf_slug)
+    show, acts, conference, scheduling_link = prep_act_tech_info(
+        request, show_id)
     return render(request,
                   'gbe/report/act_tech_review.tmpl',
                   {'this_show': show,

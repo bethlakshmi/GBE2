@@ -10,12 +10,12 @@ from gbe.models import (
 
 from gbe.functions import (
     conference_slugs,
-    get_conference_by_slug,
     validate_perms,
 )
 from expo.gbe_logging import logger
 from expo.settings import DATETIME_FORMAT
 from django.utils.formats import date_format
+from gbe.reporting.functions import prep_act_tech_info
 
 
 @never_cache
@@ -32,33 +32,13 @@ def view_techinfo(request):
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
 
-    scheduling_link = ''
 
     area = request.GET.get('area', 'all')
-    show = None
-    acts = []
     show_id = request.GET.get('show_id', None)
     area = request.GET.get('area', 'all')
+    show, acts, conference, scheduling_link = prep_act_tech_info(
+        request, show_id)
 
-    if show_id == None:
-        logger.error('view_techinfo: Invalid show_id: %s' % (show_id))
-        pass
-
-    show = Show.objects.get(eventitem_id=show_id)
-    acts = show.scheduler_events.first().get_acts(status=3)
-    acts = sorted(acts, key=lambda act: act.order)
-    if validate_perms(
-            request, ('Scheduling Mavens',), require=False):
-        scheduling_link = reverse(
-            'schedule_acts',
-            urlconf='scheduler.urls',
-            args=[show.pk])
-
-    if show:
-        conference = show.conference
-    else:
-        conf_slug = request.GET.get('conf_slug', None)
-        conference = get_conference_by_slug(conf_slug)
 
     logger.info(area+', '+show_id)
     header, techinfo = build_techinfo(show_id, area=area)
