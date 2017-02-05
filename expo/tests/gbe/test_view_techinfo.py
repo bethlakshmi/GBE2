@@ -18,6 +18,8 @@ from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
+from expo.settings import DATETIME_FORMAT
+from django.utils.formats import date_format
 
 
 class TestReports(TestCase):
@@ -60,6 +62,7 @@ class TestReports(TestCase):
                 'show_id': context.show.eventitem_id}
 
         response = self.client.get(self.url, args)
+
         nt.assert_true(
             "var table = $('#bid_review').DataTable({" in response.content,
             msg="Can't find script for table")
@@ -68,6 +71,57 @@ class TestReports(TestCase):
             in response.content,
             msg="Can't find table header")
         self.assertNotContains(response, 'Schedule Acts for this Show')
+
+    def test_view_techinfo_has_rehearsal(self):
+        '''review_act_techinfo view should show data when show is
+            selected
+        '''
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        login_as(self.privileged_user, self)
+        args = {'conf_slug': context.conference.conference_slug,
+                'show_id': context.show.eventitem_id,
+                'area': 'stage_mgmt'}
+
+        response = self.client.get(self.url, args)
+        assert (len(context.act.get_scheduled_rehearsals()) > 0)
+        for rehearsal in context.act.get_scheduled_rehearsals():
+            self.assertContains(
+                response,
+                date_format(
+                    rehearsal.start_time, "DATETIME_FORMAT"))
+
+    def test_view_techinfo_audio(self):
+        '''review_act_techinfo view should show data when show is
+            selected
+        '''
+        context = ActTechInfoContext()
+        login_as(self.privileged_user, self)
+        args = {'conf_slug': context.conference.conference_slug,
+                'show_id': context.show.eventitem_id,
+                'area': 'audio'}
+
+        response = self.client.get(self.url, args)
+        nt.assert_true(
+            "var table = $('#bid_review').DataTable({" in response.content,
+            msg="Can't find script for table")
+        nt.assert_true(
+            '<table id="bid_review" class="order-column"'
+            in response.content,
+            msg="Can't find table header")
+        self.assertNotContains(response, 'Schedule Acts for this Show')
+
+    def test_view_techinfo_w_theater(self):
+        '''review_act_techinfo view should show data when show is
+            selected
+        '''
+        context = ActTechInfoContext(room_name="Theater")
+        login_as(self.privileged_user, self)
+        args = {'conf_slug': context.conference.conference_slug,
+                'show_id': context.show.eventitem_id,
+                'area': 'lighting'}
+
+        response = self.client.get(self.url, args)
+        self.assertContains(response, 'Center Spot')
 
     def test_view_techinfo_has_link_for_scheduler(self):
         '''review_act_techinfo view should show schedule acts if user
