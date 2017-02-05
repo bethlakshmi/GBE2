@@ -26,6 +26,8 @@ from gbe.functions import (
     validate_perms,
 )
 from expo.gbe_logging import logger
+from expo.settings import DATETIME_FORMAT
+from django.utils.formats import date_format
 
 
 def list_reports(request):
@@ -339,7 +341,8 @@ def export_act_techinfo(request, show_id):
     for act in acts:
         rehearsals = ""
         for rehearsal in act.get_scheduled_rehearsals():
-            rehearsals += str(rehearsal.start_time)+", "
+            rehearsals += date_format(
+                rehearsal.start_time, "DATETIME_FORMAT") + ", "
 
         start = [act.order,
                  act.title,

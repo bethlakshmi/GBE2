@@ -14,6 +14,8 @@ from gbe.functions import (
     validate_perms,
 )
 from expo.gbe_logging import logger
+from expo.settings import DATETIME_FORMAT
+from django.utils.formats import date_format
 
 
 @never_cache
@@ -159,7 +161,8 @@ def build_techinfo(show_id, area='all'):
         if area in ('all', 'stage_mgmt'):
             rehearsals = ""
             for rehearsal in act.get_scheduled_rehearsals():
-                rehearsals += str(rehearsal.start_time)+", "
+                rehearsals += date_format(
+                    rehearsal.start_time, "DATETIME_FORMAT") + ", "
             tech_row += [
                 stage_info[1],
                 rehearsals,

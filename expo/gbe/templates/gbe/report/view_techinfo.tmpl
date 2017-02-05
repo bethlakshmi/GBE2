@@ -32,6 +32,8 @@
   {% if scheduling_link and scheduling_link|length > 0 %}
     </br></br>
     <a href="{{scheduling_link}}">Schedule Acts for this Show</a> |
+    <a href="{% url 'reporting:act_techinfo_review' this_show.eventitem_id%}">
+      Show Summary Info</a> |
     {% for option in area_options %}
       {% if area == option%}
 	<b>Show {{option|title}} Info (Current)</b>
