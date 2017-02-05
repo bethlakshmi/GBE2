@@ -410,7 +410,7 @@ class WorkerItem(ResourceItem):
     def describe(self):
         child = WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id)
-        return child.__class__.__name__ + ":  " + child.describe
+        return child.__class__.__name__ + ":  " + child.describe.encode('utf-8').strip()
 
     def __str__(self):
         return str(self.describe)
