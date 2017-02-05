@@ -30,6 +30,7 @@ from expo.settings import DATETIME_FORMAT
 from django.utils.formats import date_format
 from gbe.reporting.functions import prep_act_tech_info
 
+
 def list_reports(request):
     '''
       Shows listing of all reports in this area
@@ -492,7 +493,9 @@ def export_badge_report(request, conference_choice=None):
     if conference_choice:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True,
-            ticket_item__bpt_event__conference__conference_slug=conference_choice).order_by(
+            ticket_item__bpt_event__conference__conference_slug=(
+                conference_choice)
+            ).order_by(
                 'ticket_item')
 
     else:

@@ -6,6 +6,7 @@ from gbe.functions import (
 from expo.gbe_logging import logger
 from django.core.urlresolvers import reverse
 
+
 def prep_act_tech_info(request, show_id=None):
     show = None
     acts = []
@@ -31,6 +32,5 @@ def prep_act_tech_info(request, show_id=None):
     else:
         conf_slug = request.GET.get('conf_slug', None)
         conference = get_conference_by_slug(conf_slug)
-
 
     return show, acts, conference, scheduling_link

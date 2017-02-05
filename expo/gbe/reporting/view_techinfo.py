@@ -28,11 +28,6 @@ def view_techinfo(request):
     '''
 
     validate_perms(request, ('Tech Crew',))
-    # using try not get_or_404 to cover the case where the show is there
-    # but does not have any scheduled events.
-    # I can still show a list of shows this way.
-
-
     area = request.GET.get('area', 'all')
     show_id = request.GET.get('show_id', None)
     area = request.GET.get('area', 'all')
@@ -64,6 +59,7 @@ def view_techinfo(request):
                    'return_link': reverse('view_techinfo',
                                           urlconf='gbe.reporting.urls',)})
 
+
 def build_techinfo(show_id, area='all'):
     '''
     Export a list of act tech info details
@@ -86,7 +82,7 @@ def build_techinfo(show_id, area='all'):
     header = ['Order',
               'Act',
               'Performer',
-              'Act Length',]
+              'Act Length', ]
 
     if area in ('all', 'stage_mgmt'):
         header += [
@@ -97,19 +93,19 @@ def build_techinfo(show_id, area='all'):
             'Clear Props',
             'Stage Notes',
             'Need Mic',
-            'Use Own Mic',]
-    
+            'Use Own Mic', ]
+
     if area in ('all', 'audio'):
         header += [
             'Track',
             'Track Artist',
             'Track Length',
             'No Music',
-            'Audio Notes',]
+            'Audio Notes', ]
     if area in ('audio',):
         header += [
             'Need Mic',
-            'Use Own Mic',]
+            'Use Own Mic', ]
 
     if area in ('all', 'lighting'):
         cues = CueInfo.objects.filter(techinfo__act__in=acts)
@@ -118,15 +114,15 @@ def build_techinfo(show_id, area='all'):
             'Costume Description',
             'Cue #',
             'Cue off of',
-            'Follow spot',]
+            'Follow spot', ]
         if location.describe == 'Theater':
             header += [
                 'Center Spot',
                 'Backlight',
-                'Cyc Light',]
+                'Cyc Light', ]
         header += [
             'Wash',
-            'Sound',]
+            'Sound', ]
 
     # now build content
     techinfo = []
@@ -139,8 +135,8 @@ def build_techinfo(show_id, area='all'):
              act.performer),
         ]
         stage_info = act.tech.stage.dump_data
-        audio_info= act.tech.audio.dump_data
-        tech_row += [stage_info[0],]
+        audio_info = act.tech.audio.dump_data
+        tech_row += [stage_info[0], ]
 
         if area in ('all', 'stage_mgmt'):
             rehearsals = ""
@@ -174,15 +170,15 @@ def build_techinfo(show_id, area='all'):
 
         if area in ('all', 'lighting'):
             tech_row += act.tech.lighting.dump_data
-            cue_sequence = ['List',]
-            cue_off_of = ['List',]
-            follow_spot = ['List',]
-            wash = ['List',]
-            sound_note = ['List',]
+            cue_sequence = ['List', ]
+            cue_off_of = ['List', ]
+            follow_spot = ['List', ]
+            wash = ['List', ]
+            sound_note = ['List', ]
             if location.describe == 'Theater':
-                center_spot = ['List',]
-                backlight = ['List',]
-                cyc_color = ['List',]
+                center_spot = ['List', ]
+                backlight = ['List', ]
+                cyc_color = ['List', ]
 
             for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
                 cue_sequence += [cue.cue_sequence]
