@@ -125,9 +125,8 @@ def build_techinfo(show_id, area='all'):
     
     if area in ('all', 'audio'):
         header += [
-            'Track Title',
-            'Track Artist',
             'Track',
+            'Track Artist',
             'Track Length',
             'No Music',
             'Audio Notes',]
@@ -159,63 +158,69 @@ def build_techinfo(show_id, area='all'):
         tech_row = [
             act.order,
             act.title,
-            ("Performer", act.performer, act.performer.contact.user_object.email),
+            ("Person", act.performer, act.performer.contact.user_object.email),
         ]
-        
-        rehearsals = ""
-        for rehearsal in act.get_scheduled_rehearsals():
-            rehearsals += str(rehearsal.start_time)+", "
-
         stage_info = act.tech.stage.dump_data
-        tech_row += [
-            stage_info[0],
-            stage_info[1],
-            rehearsals,
-            stage_info[3],
-            stage_info[4],
-            stage_info[5],
-            stage_info[6],
-        ]
-
         audio_info= act.tech.audio.dump_data
-        tech_row += [
-            audio_info[4],
-            audio_info[5],
-            audio_info[0],
-            audio_info[1],
-            audio_info[2],
-            audio_info[3],
-            audio_info[6],
-            audio_info[7],
-        ]
-        tech_row += act.tech.lighting.dump_data
+        tech_row += [stage_info[0],]
 
-        cue_sequence = []
-        cue_off_of = []
-        follow_spot = []
-        wash = []
-        sound_note = []
-        if location.describe == 'Theater':
-            center_spot = []
-            backlight = []
-            cyc_color = []
+        if area in ('all', 'stage_mgmt'):
+            rehearsals = ""
+            for rehearsal in act.get_scheduled_rehearsals():
+                rehearsals += str(rehearsal.start_time)+", "
+            tech_row += [
+                stage_info[1],
+                rehearsals,
+                stage_info[3],
+                stage_info[4],
+                stage_info[5],
+                stage_info[6],
+                audio_info[4],
+                audio_info[5],
+             ]
 
-        # one row per cue... for sortability
-        for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
-            cue_sequence += [cue.cue_sequence]
-            cue_off_of += [cue.cue_off_of]
-            follow_spot += [cue.follow_spot]
+        if area in ('all', 'audio'):
+            tech_row += [
+                ("File", audio_info[0], audio_info[2]),
+                audio_info[1],
+                audio_info[3],
+                audio_info[6],
+                audio_info[7],
+            ]
+        if area in ('audio'):
+            tech_row += [
+                audio_info[4],
+                audio_info[5],
+             ]
+
+        if area in ('all', 'lighting'):
+            tech_row += act.tech.lighting.dump_data
+            cue_sequence = []
+            cue_off_of = []
+            follow_spot = []
+            wash = []
+            sound_note = []
             if location.describe == 'Theater':
-                center_spot += [cue.center_spot]
-                backlight += [cue.backlight]
-                cyc_color += [cue.cyc_color]
+                center_spot = []
+                backlight = []
+                cyc_color = []
 
-            wash += [cue.wash]
-            sound_note += [cue.sound_note]
-        tech_row += [cue_sequence, cue_off_of, follow_spot]
-        if location.describe == 'Theater':
-            tech_row += [center_spot, backlight, cyc_color]
-        tech_row += [wash, sound_note]
+            for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
+                cue_sequence += [cue.cue_sequence]
+                cue_off_of += [cue.cue_off_of]
+                follow_spot += [cue.follow_spot]
+                if location.describe == 'Theater':
+                    center_spot += [cue.center_spot]
+                    backlight += [cue.backlight]
+                    cyc_color += [cue.cyc_color]
+                wash += [cue.wash]
+                sound_note += [cue.sound_note]
+
+            tech_row += [cue_sequence, cue_off_of, follow_spot]
+            if location.describe == 'Theater':
+                tech_row += [center_spot, backlight, cyc_color]
+            tech_row += [wash, sound_note]
+
         techinfo.append(tech_row)
 
     return (
