@@ -65,7 +65,28 @@
     {% for info in techinfo %}
       <tr class="bid-table" >
       {% for item in info %}
-          <td class="bid-table">{{ item }}</td>
+	<td class="bid-table">
+	{% if item.0 == "File"%}
+	  {% if item.1 %}
+	    <a href="{{ item.1.url }}">{{ item.2 }}</a>
+	  {% else %}
+	    {{ item.2 }}
+	  {% endif %}
+        {% elif item.0 == "Person" %}
+	    <a href='mailto:{{item.1}}'>
+            {{item.2}}</a>
+        {% elif item.0 == "List" %}
+	  {% for list_item in item %}
+	    {% if not forloop.first and list_item|length > 0%}
+              {{list_item}}, <br/>
+	    {% elif not forloop.first%}
+              <i>None</i>, <br/>
+	    {% endif %}
+	  {% endfor %}
+        {% else %}
+          {{ item }}
+	{% endif %}
+        </td>
       {% endfor %}
       </tr>
     {% endfor %}

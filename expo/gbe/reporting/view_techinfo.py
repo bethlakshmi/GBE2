@@ -158,7 +158,9 @@ def build_techinfo(show_id, area='all'):
         tech_row = [
             act.order,
             act.title,
-            ("Person", act.performer, act.performer.contact.user_object.email),
+            ("Person",
+             act.performer.contact.user_object.email,
+             act.performer),
         ]
         stage_info = act.tech.stage.dump_data
         audio_info= act.tech.audio.dump_data
@@ -181,7 +183,7 @@ def build_techinfo(show_id, area='all'):
 
         if area in ('all', 'audio'):
             tech_row += [
-                ("File", audio_info[0], audio_info[2]),
+                ("File", audio_info[2], audio_info[0]),
                 audio_info[1],
                 audio_info[3],
                 audio_info[6],
@@ -195,15 +197,15 @@ def build_techinfo(show_id, area='all'):
 
         if area in ('all', 'lighting'):
             tech_row += act.tech.lighting.dump_data
-            cue_sequence = []
-            cue_off_of = []
-            follow_spot = []
-            wash = []
-            sound_note = []
+            cue_sequence = ['List',]
+            cue_off_of = ['List',]
+            follow_spot = ['List',]
+            wash = ['List',]
+            sound_note = ['List',]
             if location.describe == 'Theater':
-                center_spot = []
-                backlight = []
-                cyc_color = []
+                center_spot = ['List',]
+                backlight = ['List',]
+                cyc_color = ['List',]
 
             for cue in cues.filter(techinfo__act=act).order_by('cue_sequence'):
                 cue_sequence += [cue.cue_sequence]
