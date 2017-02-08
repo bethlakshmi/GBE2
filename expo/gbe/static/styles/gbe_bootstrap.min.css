@@ -43,6 +43,12 @@ a:active,a:hover{
 	outline:0
 }
 
+@media (min-width: 767px) {
+    .navbar-nav .dropdown-menu .caret {
+	transform: rotate(-90deg);
+    }
+}
+
 h1{
 	margin:.67em 0;
 	font-size:2em
@@ -3775,9 +3781,9 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 	background-color:transparent
 }
 
-.nav .open>a,.nav .open>a:hover,.nav .open>a:focus{
-	background-color:#eee;
-	border-color:#428bca
+.nav .open>a:hover,.nav .open>a:focus{
+	background-color:#000;
+	border-color:#428bca;
 }
 
 .nav .nav-divider{
@@ -4086,13 +4092,11 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 
 .container>.navbar-header,.container>.navbar-collapse{
 	margin-right:-15px;
-	margin-left:-15px
 }
 
 @media(min-width:768px){
 	.container>.navbar-header,.container>.navbar-collapse{
 		margin-right:0;
-		margin-left:0
 	}
 
 }
