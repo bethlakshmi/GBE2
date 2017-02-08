@@ -45,21 +45,22 @@
     </div>
 
       <div class="navbar navbar-default" role="navigation">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse"
- data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="#">Menu:</a>
-            </div>
-            <div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
-                {% show_menu 0 100 100 100 "menu.tmpl" %}
-              </ul>
-            </div>
+                  <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">NavBar</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+	      {% show_menu 0 100 100 100 "menu.tmpl" %}
+            </ul>
+          </div>
+        </div><!-- /.container -->
       </div>
       <div class="main-content" >
         {% if messages %}
@@ -80,28 +81,20 @@
 
   </body>
 </html>
-
 <script>
-$(document).ready(function(){
-	$(".dropdown-menu > li > a.trigger").on("click",function(e){
-		var current=$(this).next();
-		var grandparent=$(this).parent().parent();
-		if($(this).hasClass('left-caret')||$(this).hasClass('right-caret'))
-			$(this).toggleClass('right-caret left-caret');
-		grandparent.find('.left-caret').not(this).toggleClass('right-caret left-caret');
-		grandparent.find(".sub-menu:visible").not(current).hide();
-		current.toggle();
-		e.stopPropagation();
-	});
-	$(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
-		var root=$(this).closest('.dropdown');
-		root.find('.left-caret').toggleClass('right-caret left-caret');
-		root.find('.sub-menu:visible').hide();
-	});
-});
+$(document).ready(function() {
+    $('.navbar a.dropdown-toggle').on('click', function(e) {
+        var $el = $(this);
+        var $parent = $(this).offsetParent(".dropdown-menu");
+        $(this).parent("li").toggleClass('open');
 
-$.extend( true, $.fn.dataTable.defaults, {
-    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    "pageLength": -1
-  } );
+        if(!$parent.parent().hasClass('nav')) {
+            $el.next().css({"top": $el[0].offsetTop, "left": $parent.outerWidth() - 4});
+        }
+
+        $('.nav li.open').not($(this).parents("li")).removeClass("open");
+
+        return false;
+    });
+});
 </script>
