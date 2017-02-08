@@ -413,7 +413,7 @@ class WorkerItem(ResourceItem):
         return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
-        return str(self.describe)
+        return str(self.describe.encode('utf-8').strip())
 
     def __unicode__(self):
         return unicode(self.describe)

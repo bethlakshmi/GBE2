@@ -341,8 +341,8 @@ def export_act_techinfo(request, show_id):
             rehearsals += str(rehearsal.start_time)+", "
 
         start = [act.order,
-                 act.title,
-                 act.performer,
+                 act.title.encode('utf-8').strip(),
+                 str(act.performer).encode('utf-8').strip(),
                  act.performer.contact.user_object.email,
                  act.tech.is_complete,
                  rehearsals]
@@ -356,19 +356,19 @@ def export_act_techinfo(request, show_id):
 
             if location.describe == 'Theater':
                 cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
+                             cue.cue_off_of.encode('utf-8').strip(),
                              cue.follow_spot,
                              cue.center_spot,
                              cue.backlight,
                              cue.cyc_color,
                              cue.wash,
-                             cue.sound_note]
+                             cue.sound_note.encode('utf-8').strip()]
             else:
                 cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
+                             cue.cue_off_of.encode('utf-8').strip(),
                              cue.follow_spot,
                              cue.wash,
-                             cue.sound_note]
+                             cue.sound_note.encode('utf-8').strip()]
             start[0] = float("%d.%d" % (act.order, cue.cue_sequence))
             techinfo.append(start+cue_items)
 
