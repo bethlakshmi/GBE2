@@ -45,13 +45,13 @@ class AudioInfo(Model):
 
     @property
     def dump_data(self):
-        return [self.track_title,
-                self.track_artist,
+        return [self.track_title.encode('utf-8').strip(),
+                self.track_artist.encode('utf-8').strip(),
                 self.track,
                 self.track_duration,
                 self.need_mic,
                 self.own_mic,
-                self.notes,
+                self.notes.encode('utf-8').strip(),
                 self.confirm_no_music
                 ]
 
@@ -110,7 +110,8 @@ class LightingInfo (Model):
 
     @property
     def dump_data(self):
-        return [self.notes, self.costume]
+        return [self.notes.encode('utf-8').strip(),
+                self.costume.encode('utf-8').strip()]
 
     @property
     def is_complete(self):
