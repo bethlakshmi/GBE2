@@ -619,6 +619,7 @@ table.event_opps  tr.event_opp_row:nth-child(odd)
 tr.changed
 {
   background-color: #BA8E70;
+  vertical-align: top;
 }
 
 tr.blank_row
