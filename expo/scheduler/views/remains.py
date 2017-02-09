@@ -484,10 +484,15 @@ def manage_volunteer_opportunities(request, event_id):
                                             urlconf='scheduler.urls',
                                     args=['GenericEvent',
                                             request.POST['opp_sched_id']]))
-    return HttpResponseRedirect("%s?changed_id=%d" % (
-        reverse('edit_event', urlconf='scheduler.urls', args=[
-            event.event_type_name, event_id]),
-        changed_event.pk))
+    if changed_event:
+        return HttpResponseRedirect("%s?changed_id=%d" % (
+            reverse('edit_event', urlconf='scheduler.urls', args=[
+                event.event_type_name, event_id]),
+            changed_event.pk))
+    else:
+        return HttpResponseRedirect(reverse(
+            'edit_event', urlconf='scheduler.urls', args=[
+                event.event_type_name, event_id]))
 
 
 @login_required
