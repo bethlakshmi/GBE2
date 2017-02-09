@@ -160,7 +160,7 @@ class TestEventList(TestCase):
                 reverse('edit_event',
                         urlconf='scheduler.urls',
                         args=['GenericEvent',
-                        context.sched_event.pk]),
+                              context.sched_event.pk]),
                 opp.child_event.pk))
 
         nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
@@ -215,7 +215,7 @@ class TestEventList(TestCase):
                     reverse('edit_event',
                             urlconf='scheduler.urls',
                             args=['GenericEvent',
-                            context.sched_event.pk]),
+                                  context.sched_event.pk]),
                     opp.child_event.pk))
 
     def test_edit_opportunity(self):
@@ -235,7 +235,7 @@ class TestEventList(TestCase):
             reverse('edit_event',
                     urlconf='scheduler.urls',
                     args=['GenericEvent',
-                    context.sched_event.pk]),
+                          context.sched_event.pk]),
             vol_opp.pk))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
