@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
-from gbe.report_views import personal_schedule
+from gbe.reporting import personal_schedule
 from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,

@@ -14,7 +14,7 @@ from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.http import Http404
 
-from gbe.report_views import (
+from gbe.reporting import (
     list_reports,
     review_staff_area,
     staff_area,
@@ -39,9 +39,6 @@ from tests.factories.scheduler_factories import (
     ActResourceFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
-)
-from tests.factories.ticketing_factories import (
-    TransactionFactory,
 )
 from tests.contexts import (
     ActTechInfoContext,
@@ -265,7 +262,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         response = review_act_techinfo(request)
 
@@ -277,7 +274,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         grant_privilege(profile, 'Tech Crew')
@@ -295,7 +292,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls',
+                    urlconf='gbe.reporting.urls',
                     args=[curr_show.eventitem_id]))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
@@ -321,7 +318,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls',
+                    urlconf='gbe.reporting.urls',
                     args=[curr_show.eventitem_id]))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
@@ -347,7 +344,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         request.GET = {'conf_slug': curr_conf.conference_slug}
@@ -527,7 +524,7 @@ class TestReports(TestCase):
         login_as(reviewer, self)
         request = self.factory.get(reverse(
             'act_techinfo_download',
-            urlconf='gbe.report_urls',
+            urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
         request.user = reviewer.user_object
         response = export_act_techinfo(request, context.show.eventitem_id)
@@ -542,7 +539,7 @@ class TestReports(TestCase):
         login_as(reviewer, self)
         request = self.factory.get(reverse(
             'act_techinfo_download',
-            urlconf='gbe.report_urls',
+            urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
         request.user = reviewer.user_object
         response = export_act_techinfo(request, context.show.eventitem_id)
