@@ -721,7 +721,8 @@ class Event(Schedulable):
         Returns a list of dicts,
         {'sched':scheduler.Event, 'conf':conference_event}
         '''
-        opps = EventContainer.objects.filter(parent_event=self)
+        opps = EventContainer.objects.filter(parent_event=self).order_by(
+            'child_event__starttime')
         opps = [
             {'sched': opp.child_event,
              'conf': EventItem.objects.get_subclass(
