@@ -606,15 +606,20 @@ tr.event_opp_row
   vertical-align: top;
 } 
 
-table.event_opps  tr:nth-child(even)
+table.event_opps  tr.event_opp_row:nth-child(even)
 {
   background-color: #CCC;
 } 
 
-table.event_opps  tr:nth-child(odd)
+table.event_opps  tr.event_opp_row:nth-child(odd)
 {
   background-color: #EEE;
 } 
+
+tr.changed
+{
+  background-color: #BA8E70;
+}
 
 tr.blank_row
 {

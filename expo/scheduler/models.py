@@ -752,11 +752,13 @@ class Event(Schedulable):
     @property
     def volunteer_count(self):
         allocations = ResourceAllocation.objects.filter(event=self)
-        volunteers = allocations.filter(resource__worker__role='Volunteer').count()
+        volunteers = allocations.filter(
+            resource__worker__role='Volunteer').count()
         if volunteers > 0:
             return "%d volunteers" % volunteers
         else:
-            acts = ActResource.objects.filter(allocations__in=allocations).count()
+            acts = ActResource.objects.filter(
+                allocations__in=allocations).count()
             if acts > 0:
                 return "%d acts" % acts
         return 0
