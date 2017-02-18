@@ -73,7 +73,10 @@ class TestEditAct(TestCase):
                       args=[original.pk],
                       urlconf="gbe.urls")
         make_act_app_purchase(
-            original.conference,
+            original.b_conference,
+            original.performer.performer_profile.user_object)
+        return post_act_conflict(
+            original.b_conference,
             original.performer.performer_profile.user_object)
         return post_act_conflict(
             original.b_conference,

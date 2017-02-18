@@ -93,10 +93,6 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ['e_conference']
 
 
-class EventAdmin(admin.ModelAdmin):
-    list_display = ('e_title', 'subclass')
-    list_filter = ['e_conference']
-
 class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('e_title', 'type')
     list_filter = ['e_conference', 'type']

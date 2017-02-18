@@ -14,7 +14,7 @@ class ReviewCostumeListView(ReviewBidListView):
             submitted=True,
             conference=self.conference).order_by(
                 'accepted',
-                'title')
+                'b_title')
 
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,

@@ -129,4 +129,3 @@ class TestCreateEvent(TestCase):
         assert "Events Information" in response.content
         nt.assert_true(Class.objects.filter(
             title=data['title']).count() > 0)
->>>>>>> master

@@ -20,6 +20,7 @@ def get_volunteer_forms(volunteer):
         prefix='Volunteer Info',
         available_windows=volunteer.b_conference.windows(),
         unavailable_windows=volunteer.b_conference.windows())
+
     volunteerform.fields['available_windows'] = ModelMultipleChoiceField(
         queryset=volunteer.available_windows.all(),
         label=volunteer_labels['availability'],

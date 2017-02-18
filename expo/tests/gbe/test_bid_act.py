@@ -166,6 +166,16 @@ class TestBidAct(TestCase):
         self.assertContains(response, "View</a> act")
         self.assertContains(response, data['theact-title'])
 
+    def test_act_submit_paid_act_w_old_comp_act(self):
+        prev_act = ActFactory(
+            submitted=True,
+            performer=self.performer,
+            conference=ConferenceFactory(status='completed'))
+        response, data = self.post_paid_act_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View</a> act")
+        self.assertContains(response, data['theact-title'])
+
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
             submitted=True,
