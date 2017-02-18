@@ -1,6 +1,9 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.forms import (
+    ChoiceField,
+)
 from gbe.models import (
     Act,
     UserMessage,
@@ -9,6 +12,8 @@ from gbetext import (
     default_act_title_conflict,
     act_not_unique,
 )
+from gbe_forms_text import act_bid_labels
+from gbe.forms import ActEditForm
 
 
 def display_invalid_act(request, data, form, conference, profile, view):
@@ -44,3 +49,25 @@ def display_invalid_act(request, data, form, conference, profile, view):
         'gbe/bid.tmpl',
         data
     )
+
+
+def get_act_form(act):
+    audio_info = act.tech.audio
+    stage_info = act.tech.stage
+    initial = {
+        'track_title': audio_info.track_title,
+        'track_artist': audio_info.track_artist,
+        'track_duration': audio_info.track_duration,
+        'act_duration': stage_info.act_duration
+    }
+
+    act_form = ActEditForm(
+        instance=act,
+        prefix="The Act",
+        initial=initial)
+    act_form.fields['video_choice'] = ChoiceField(
+            choices=[(act.video_choice,
+                      act.get_video_choice_display())],
+            label=act_bid_labels['video_choice'])
+
+    return act_form

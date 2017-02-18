@@ -1,43 +1,45 @@
-from django.contrib.auth.decorators import login_required
 from expo.gbe_logging import log_func
 from django.shortcuts import (
     get_object_or_404,
-    render,
 )
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-
-from gbe.functions import validate_perms
 from gbe.models import Volunteer
+from gbe.views import BidChangeStateView
+from scheduler.models import Worker, Event
+from django.contrib import messages
+from gbe.functions import send_schedule_update_mail
 
-from gbe.forms import VolunteerBidStateChangeForm
 
+class VolunteerChangeStateView(BidChangeStateView):
+    object_type = Volunteer
+    coordinator_permissions = ('Volunteer Coordinator',)
+    redirectURL = 'volunteer_review_list'
 
-@login_required
-@log_func
-def VolunteerChangeStateView(request, bid_id):
-    '''
-    Fairly specific to volunteer - removes the profile from all volunteer
-    commitments, and resets the volunteer to the selected volunteer
-    positions (if accepted), and then does the regular state change
-    NOTE: only call on a post request
-    '''
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+    def get_bidder(self):
+        self.bidder = self.object.profile
 
-    if request.method == 'POST':
-        volunteer = get_object_or_404(Volunteer, id=bid_id)
-        form = VolunteerBidStateChangeForm(request.POST,
-                                           request=request,
-                                           instance=volunteer)
-        if form.is_valid():
-            form.save()
-            volunteer.profile.notify_volunteer_schedule_change()
-            return HttpResponseRedirect(reverse('volunteer_review_list',
-                                                urlconf='gbe.urls'))
-        else:
-            return render(request,
-                          'gbe/bid_review.tmpl',
-                          {'actionform': False,
-                           'actionURL': False})
-    return HttpResponseRedirect(reverse('volunteer_review_list',
-                                        urlconf='gbe.urls'))
+    def groundwork(self, request, args, kwargs):
+        self.prep_bid(request, args, kwargs)
+        if request.POST['accepted'] != '3':
+            self.notify_bidder(request)
+
+    @log_func
+    def bid_state_change(self, request):
+        # Clear all commitments
+        Worker.objects.filter(
+            _item=self.object.profile,
+            role='Volunteer').delete()
+
+        # if the volunteer has been accepted, set the events.
+        if request.POST['accepted'] == '3':
+            for assigned_event in request.POST.getlist('events'):
+                event = get_object_or_404(Event, pk=assigned_event)
+                warnings = event.allocate_worker(
+                        self.bidder,
+                        'Volunteer')
+                for warning in warnings:
+                    messages.warning(request,
+                                     warning)
+
+            send_schedule_update_mail('Volunteer', self.bidder)
+        return super(VolunteerChangeStateView, self).bid_state_change(
+            request)

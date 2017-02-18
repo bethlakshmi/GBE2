@@ -23,7 +23,7 @@ from gbe.models import (
     Conference,
     UserMessage
 )
-from unittest import skip
+
 
 class TestEditCostume(TestCase):
     '''Tests for edit_costume view'''
@@ -91,7 +91,6 @@ class TestEditCostume(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Displaying a Costume' in response.content)
 
-    @skip
     def test_costume_bid_post_with_submit(self):
         '''costume_bid, submitting and no other problems,
         should redirect to home'''
@@ -103,7 +102,6 @@ class TestEditCostume(TestCase):
         self.assertContains(response, "(Click to view)")
         self.assertContains(response, data['b_title'])
 
-    @skip
     def test_costume_bid_post_draft(self):
         '''costume_bid, submit draft and no other problems,
         should redirect to home'''

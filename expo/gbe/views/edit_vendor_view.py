@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import (
@@ -28,6 +29,7 @@ from gbetext import (
 
 @login_required
 @log_func
+@never_cache
 def EditVendorView(request, vendor_id):
     page_title = 'Edit Vendor Application'
     view_title = 'Edit Your Vendor Application'
@@ -69,7 +71,8 @@ def EditVendorView(request, vendor_id):
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
             '''
-            if verify_vendor_app_paid(request.user.username):
+            if verify_vendor_app_paid(request.user.username,
+                                      vendor.conference):
                 vendor.submitted = True
                 vendor.save()
                 user_message = UserMessage.objects.get_or_create(

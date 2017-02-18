@@ -13,6 +13,7 @@ from tests.factories.gbe_factories import(
     GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
+    TroupeFactory,
     UserFactory,
     VendorFactory,
     VolunteerFactory,
@@ -27,7 +28,8 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from django.core.files.uploadedfile import SimpleUploadedFile
-from unittest import skip
+from expo.settings import TIME_FORMAT
+from django.utils.formats import date_format
 
 
 class TestIndex(TestCase):
@@ -122,7 +124,7 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
@@ -131,25 +133,22 @@ class TestIndex(TestCase):
             volunteer_assignment = ResourceAllocationFactory(
                 event=schedule_item,
                 resource=worker
-                )
+            )
 
     def is_event_present(self, event, content):
         ''' test all parts of the event being on the landing page schedule'''
         return (unicode(event) in content and
-                event.start_time.strftime(
-                    "%b. %-d, %Y, %-I:%M") in content and
+                date_format(event.start_time, "DATETIME_FORMAT") in content and
                 reverse('detail_view',
                         urlconf="scheduler.urls",
                         args=[event.eventitem.eventitem_id]) in content)
 
-    @skip
     def test_no_profile(self):
         url = reverse('home', urlconf="gbe.urls")
         login_as(UserFactory(), self)
         response = self.client.get(url)
         nt.assert_true("Your Expo" in response.content)
 
-    @skip
     def test_landing_page_path(self):
         '''Basic test of landing_page view
         '''
@@ -171,7 +170,7 @@ class TestIndex(TestCase):
             self.current_class.b_title in content and
             self.current_vendor.b_title in content and
             self.current_costume.b_title in content and
-            reverse('volunteer_view',
+            reverse('volunteer_edit',
                     urlconf='gbe.urls',
                     args=[self.current_volunteer.id]) in content)
         assert does_not_show_previous
@@ -183,7 +182,6 @@ class TestIndex(TestCase):
         nt.assert_false(self.is_event_present(
             self.previous_class_sched, content))
 
-    @skip
     def test_historical_view(self):
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
@@ -288,3 +286,12 @@ class TestIndex(TestCase):
         response = self.client.get(url)
         self.assertContains(response, self.performer.name)
         self.assertContains(response, self.performer.promo_thumb)
+
+    def test_cannot_edit_troupe_if_not_contact(self):
+        troupe = TroupeFactory()
+        member = PersonaFactory()
+        troupe.membership.add(member)
+        url = reverse("home", urlconf="gbe.urls")
+        login_as(member.performer_profile, self)
+        response = self.client.get(url)
+        assert response.content.count("(Click to edit)") == 1

@@ -1,2 +1,2 @@
 [run]
-omit = tests/*, */migrations/*, expo/wsgi.py, */__init__.py
+omit = tests/*, */migrations/*, expo/wsgi.py, */__init__.py, djangobb_forum/*

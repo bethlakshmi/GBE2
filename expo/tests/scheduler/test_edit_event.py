@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.core.urlresolvers import reverse
 from django.test import (
     Client,
@@ -117,6 +115,11 @@ class TestEditEvent(TestCase):
     def test_good_user_get_success(self):
         context = ClassContext()
         login_as(self.privileged_profile, self)
+        self.context.bid.schedule_constraints = "[u'1']"
+        self.context.bid.avoided_constraints = "[u'2']"
+        self.context.bid.space_needs = "2"
+        self.context.bid.type = "Panel"
+        self.context.bid.save()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.sched_event.pk])
@@ -139,7 +142,6 @@ class TestEditEvent(TestCase):
                               context.days[0],
                               context.room)
 
-    @skip
     def test_good_user_invalid_submit(self):
         context = ClassContext()
         login_as(self.privileged_profile, self)
@@ -161,8 +163,7 @@ class TestEditEvent(TestCase):
         self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
-        self.assertIn('<option value="12:00:00" selected="selected">' +
-                      '12:00 PM</option>',
+        self.assertIn('<option value="12:00:00" selected="selected">',
                       response.content)
         self.assertIn('<option value="'+str(context.days[0].pk) +
                       '" selected="selected">'+str(context.days[0]) +

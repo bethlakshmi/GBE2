@@ -1,9 +1,10 @@
 from django.contrib import admin
 from gbe.models import *
 from model_utils.managers import InheritanceManager
+from import_export.admin import ImportExportActionModelAdmin
 
 
-class BidAdmin(admin.ModelAdmin):
+class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
 
@@ -38,6 +39,8 @@ class TroupeAdmin(admin.ModelAdmin):
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'user_object', 'phone', 'purchase_email')
+    search_fields = ['display_name',
+                     'user_object__email']
 
 
 class AudioInfoAdmin(admin.ModelAdmin):
@@ -90,21 +93,22 @@ class ShowAdmin(admin.ModelAdmin):
     list_filter = ['e_conference']
 
 
-class GenericAdmin(admin.ModelAdmin):
-    list_display = ('e_title', 'type')
-    list_filter = ['e_conference']
-
-
 class EventAdmin(admin.ModelAdmin):
     list_display = ('e_title', 'subclass')
     list_filter = ['e_conference']
 
+class GenericAdmin(ImportExportActionModelAdmin):
+    list_display = ('e_title', 'type')
+    list_filter = ['e_conference', 'type']
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('eventitem_id', 'e_title', 'subclass')
+    list_filter = ['e_conference']
+
     def subclass(self, obj):
-        try:
-            event = Event.objects.get_subclass(event_id=obj.event_id)
-            return str(event.__class__.__name__)
-        except:
-            return "Event"
+        event = Event.objects.get_subclass(event_id=obj.event_id)
+        return str(event.__class__.__name__)
 
 
 class MessageAdmin(admin.ModelAdmin):
@@ -197,3 +201,5 @@ admin.site.register(ConferenceVolunteer, ConferenceVolunteerAdmin)
 admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(UserMessage, MessageAdmin)
+admin.site.register(ShowVote)
+admin.site.register(ActBidEvaluation)

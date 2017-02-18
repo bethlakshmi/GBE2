@@ -128,7 +128,7 @@ def BidActView(request):
             If this is a formal submit request, did they pay?
             They can't submit w/out paying
             '''
-            if verify_performer_app_paid(request.user.username):
+            if verify_performer_app_paid(request.user.username, conference):
                 act.submitted = True
                 act.save()
             else:

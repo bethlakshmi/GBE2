@@ -60,13 +60,13 @@ class TestBidAct(TestCase):
         return form_dict
 
     def post_paid_act_submission(self, act_form=None):
-        current_conference()
         if not act_form:
             act_form = self.get_act_form()
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
         act_form.update({'submit': ''})
-        make_act_app_purchase(self.performer.performer_profile.user_object)
+        make_act_app_purchase(self.current_conference,
+                              self.performer.performer_profile.user_object)
         response = self.client.post(url, data=act_form, follow=True)
         return response, act_form
 
@@ -138,7 +138,9 @@ class TestBidAct(TestCase):
         current_conference()
         response, data = self.post_paid_act_draft()
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "(Click to edit)")
+        act_name = data['theact-b_title']
+        expected_string = "%s - Not submitted" % act_name
+        assert expected_string in response.content
         self.assertContains(response, data['theact-b_title'])
 
     def test_act_bid_not_post(self):
@@ -154,11 +156,23 @@ class TestBidAct(TestCase):
         self.assertContains(response, "View</a> act")
         self.assertContains(response, data['theact-b_title'])
 
+    def test_act_submit_paid_act_w_old_comp_act(self):
+        prev_act = ActFactory(
+            submitted=True,
+            performer=self.performer,
+            conference=ConferenceFactory(status='completed'))
+        response, data = self.post_paid_act_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View</a> act")
+        self.assertContains(response, data['theact-title'])
+
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
             submitted=True,
-            performer=self.performer)
-        make_act_app_purchase(self.performer.performer_profile.user_object)
+            performer=self.performer,
+            conference=self.current_conference)
+        make_act_app_purchase(self.current_conference,
+                              self.performer.performer_profile.user_object)
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")

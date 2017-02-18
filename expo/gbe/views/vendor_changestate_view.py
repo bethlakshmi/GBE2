@@ -1,18 +1,11 @@
-from django.contrib.auth.decorators import login_required
-from expo.gbe_logging import log_func
-
-from gbe.functions import validate_perms
 from gbe.views import BidChangeStateView
+from gbe.models import Vendor
 
 
-@login_required
-@log_func
-def VendorChangeStateView(request, bid_id):
-    '''
-    The generic function to change a bid to a new state (accepted,
-    rejected, etc.).  This can work for any Biddable class, but may
-    be an add-on to other work for a given class type.
-    NOTE: only call on a post request
-    '''
-    reviewer = validate_perms(request, ('Vendor Coordinator',))
-    return BidChangeStateView(request, bid_id, 'vendor_review_list')
+class VendorChangeStateView(BidChangeStateView):
+    object_type = Vendor
+    coordinator_permissions = ('Vendor Coordinator', )
+    redirectURL = 'vendor_review_list'
+
+    def get_bidder(self):
+        self.bidder = self.object.profile

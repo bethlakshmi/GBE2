@@ -1,5 +1,10 @@
 from django import template
 from django.conf import settings
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+)
+from django.utils.formats import date_format
 
 register = template.Library()
 
@@ -24,14 +29,33 @@ def display_track_title(title, truncated_length):
         return title[:truncated_length] + "..."
 
 
-@register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
-def volunteer_schedule(profile):
+def build_schedule_context(profile):
     events = profile.volunteer_schedule()
     schedule = [
         {'event': str(event),
-         'time': "%s - %s" % (event.starttime.strftime("%a, %I:%M %p"),
-                              (event.starttime + event.duration).strftime(
-                                  "%a, %I:%M %p")),
+         'time': "%s - %s" % (date_format(event.starttime, "DATETIME_FORMAT"),
+                              date_format(event.starttime + event.duration,
+                                          "TIME_FORMAT")),
          'location': str(event.location)}
         for event in events]
     return {'schedule': schedule}
+
+
+@register.inclusion_tag('gbe/tag_templates/schedule.tmpl')
+def volunteer_schedule(profile):
+    return build_schedule_context(profile)
+
+
+@register.inclusion_tag('gbe/tag_templates/schedule_plaintext.tmpl')
+def volunteer_schedule_plaintext(profile):
+    return build_schedule_context(profile)
+
+
+@register.inclusion_tag('gbe/tag_templates/warning_html.tmpl')
+def list_warnings(warnings):
+    return {'warnings': warnings}
+
+
+@register.inclusion_tag('gbe/tag_templates/warning_plaintext.tmpl')
+def list_warnings_plaintext(warnings):
+    return {'warnings': warnings}

@@ -22,6 +22,8 @@ from scheduler.models import (
 )
 from gbe.models import UserMessage
 from gbetext import default_update_act_tech
+from expo.settings import TIME_FORMAT
+from django.utils.formats import date_format
 
 
 class TestEditActTechInfo(TestCase):
@@ -54,6 +56,7 @@ class TestEditActTechInfo(TestCase):
             'stage_info-set_props': 'checked'}
         if rehearsal:
             data['rehearsal'] = str(rehearsal.pk)
+            data['show_private'] = str(show.eventitem_id)
         return data
 
     def get_cues(self, techinfo, num_cues, full_set=True):
@@ -196,8 +199,8 @@ class TestEditActTechInfo(TestCase):
             '<option value="' + str(context.rehearsal.id) +
             '" selected="selected">' +
             "%s: %s" % (context.rehearsal.as_subtype.e_title,
-                        context.rehearsal.starttime.strftime("%I:%M:%p")) +
-            '</option>')
+                        date_format(context.rehearsal.starttime,
+                                    "TIME_FORMAT")) + '</option>')
 
     # def test_edit_act_techinfo_good_readonly_on_get(self):
     #     context = ActTechInfoContext(schedule_rehearsal=True)
@@ -290,6 +293,32 @@ class TestEditActTechInfo(TestCase):
         context.rehearsal.save()
 
         another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3, False))
+        response = self.client.post(
+            url,
+            data=data)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+        self.assertEqual(len(context.act.get_scheduled_rehearsals()), 1)
+        self.assertEqual(context.act.get_scheduled_rehearsals()[0],
+                         another_rehearsal)
+
+    def test_edit_act_techinfo_post_two_shows_same_title(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "Alternate"
+        context.show.save()
+        context.rehearsal.max_volunteer = 1
+        context.rehearsal.save()
+
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        ShowFactory(title=context.show.title)
+
         url = reverse('act_techinfo_edit',
                       urlconf='gbe.urls',
                       args=[context.act.pk])

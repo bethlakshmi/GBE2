@@ -12,19 +12,12 @@ import gbe.models as conf
 from gbe.functions import get_current_conference
 import pytz
 
-conference_days = (
-    (datetime(2016, 02, 4).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime(2016, 02, 5).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime(2016, 02, 6).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime(2016, 02, 7).strftime('%Y-%m-%d'), 'Sunday'),
-)
-
 
 time_start = 8 * 60
 time_stop = 24 * 60
 
 conference_times = [(time(mins/60, mins % 60),
-                     time(mins/60, mins % 60).strftime("%I:%M %p"))
+                     date_format(time(mins/60, mins % 60), "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
 
 
@@ -39,6 +32,15 @@ class ActScheduleForm(forms.Form):
 
     show = forms.ModelChoiceField(queryset=Event.objects.all())
     order = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        super(ActScheduleForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs:
+            initial = kwargs.pop('initial')
+            conf_shows = conf.Show.objects.filter(
+                conference=initial['show'].eventitem.get_conference())
+            self.fields['show'].queryset = Event.objects.filter(
+                eventitem__in=conf_shows)
 
 
 class WorkerAllocationForm (forms.Form):

@@ -1,9 +1,16 @@
 from gbe.forms import (
     VolunteerBidForm,
     VolunteerInterestForm,
-    ParticipantForm
 )
-from django.forms import CharField
+from django.forms import (
+    CharField,
+    ModelMultipleChoiceField,
+)
+from gbe_forms_text import (
+    volunteer_help_texts,
+    volunteer_labels
+)
+from gbe.views.functions import get_participant_form
 
 
 def get_volunteer_forms(volunteer):
@@ -13,6 +20,16 @@ def get_volunteer_forms(volunteer):
         prefix='Volunteer Info',
         available_windows=volunteer.b_conference.windows(),
         unavailable_windows=volunteer.b_conference.windows())
+    volunteerform.fields['available_windows'] = ModelMultipleChoiceField(
+        queryset=volunteer.available_windows.all(),
+        label=volunteer_labels['availability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=True)
+    volunteerform.fields['unavailable_windows'] = ModelMultipleChoiceField(
+        queryset=volunteer.unavailable_windows.all(),
+        label=volunteer_labels['unavailability'],
+        help_text=volunteer_help_texts['volunteer_availability_options'],
+        required=True)
     for interest in volunteer.volunteerinterest_set.filter(
         rank__gt=0).order_by(
             'interest__interest'):
@@ -21,14 +38,7 @@ def get_volunteer_forms(volunteer):
             help_text=interest.interest.help_text,
             label=interest.interest.interest,
             initial=interest.rank_description)
-    formset += [volunteerform]
-    formset += [ParticipantForm(
-        instance=volunteer.profile,
-        initial={'email': volunteer.profile.user_object.email,
-                 'first_name': volunteer.profile.user_object.first_name,
-                 'last_name': volunteer.profile.user_object.last_name},
-        prefix='Contact Info')]
-    return formset
+    return [volunteerform, get_participant_form(volunteer.profile)]
 
 
 def validate_interests(formset):

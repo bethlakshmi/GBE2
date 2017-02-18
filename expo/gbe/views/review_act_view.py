@@ -2,14 +2,16 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from gbe.models import (
     Act,
+    ActBidEvaluation,
     Show,
 )
 from gbe.forms import (
-    ActEditForm,
+    ActBidEvaluationForm,
     BidStateChangeForm,
-    PersonaForm,
 )
 from gbe.views import ReviewBidView
+from gbe.views.functions import get_performer_form
+from gbe.views.act_display_functions import get_act_form
 
 
 class ReviewActView(ReviewBidView):
@@ -20,29 +22,17 @@ class ReviewActView(ReviewBidView):
     '''
     reviewer_permissions = ('Act Reviewers', )
     coordinator_permissions = ('Act Coordinator',)
-    bid_prefix = "The Act"
-    bidder_prefix = "The Performer(s)"
-    bidder_form_type = PersonaForm
-    bid_form_type = ActEditForm
     object_type = Act
     review_list_view_name = 'act_review_list'
     bid_view_name = 'act_view'
     changestate_view_name = 'act_changestate'
+    bid_evaluation_type = ActBidEvaluation
+    bid_evaluation_form_type = ActBidEvaluationForm
 
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
-        self.bidder = self.bidder_form_type(instance=self.object.performer,
-                                            prefix=self.bidder_prefix)
-
-        audio_info = self.object.tech.audio
-        stage_info = self.object.tech.stage
-        initial = {
-            'track_title': audio_info.track_title,
-            'track_artist': audio_info.track_artist,
-            'track_duration': audio_info.track_duration,
-            'act_duration': stage_info.act_duration
-        }
-        self.create_object_form(initial=initial)
+        self.bidder = get_performer_form(self.object.performer)
+        self.object_form = get_act_form(self.object)
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
 
@@ -62,6 +52,6 @@ class ReviewActView(ReviewBidView):
             empty_label=None,
             label='Pick a Show',
             initial=start)
-        self.actionURL = reverse('act_changestate',
+        self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
                                  args=[act.id])

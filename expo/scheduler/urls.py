@@ -54,7 +54,7 @@ urlpatterns = patterns(
         views.view_list, name='event_list'),
     url(r'^scheduler/acts/?$',
         views.schedule_acts, name='schedule_acts'),
-    url(r'^scheduler/acts/([-\w\' ]+)/?$',
+    url(r'^scheduler/acts/(?P<show_id>\d+)/?$',
         views.schedule_acts, name='schedule_acts'),
     url(r'^scheduler/manage-opps/(\d+)/?$',
         views.manage_volunteer_opportunities, name='manage_opps'),
@@ -66,4 +66,6 @@ urlpatterns = patterns(
         views.contact_info, name='contact_info'),
     url(r'^scheduler/contact_by_role/([-\w]+)/?$',
         views.contact_by_role, name='contact_by_role'),
+    url(r'^scheduler/export_calendar/?$',
+        views.export_calendar, name='export_calendar'),
 )

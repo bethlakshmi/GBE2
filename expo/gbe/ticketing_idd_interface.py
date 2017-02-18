@@ -4,10 +4,17 @@
 # See documentation in https://github.com/bethlakshmi/GBE2/wiki/Ticketing-To-Do
 # section:  "By Friday - needed for integration"
 # - Betty 8/15
-
 from expo.gbe_logging import logger
-from ticketing.models import *
-from gbe.models import *
+from ticketing.models import (
+    BrownPaperEvents,
+    RoleEligibilityCondition,
+    TicketingEligibilityCondition,
+    TicketItem,
+    Transaction,
+)
+from gbe.models import (
+    Conference,
+)
 from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
@@ -51,7 +58,7 @@ def vendor_submittal_link(user_id):
     return None
 
 
-def verify_performer_app_paid(user_name):
+def verify_performer_app_paid(user_name, conference):
     '''
     Verifies if a user has paid his or her application fee.
     NOTE:  This function assumes that there is a record of the application,
@@ -61,12 +68,14 @@ def verify_performer_app_paid(user_name):
     returns - true if the system recognizes the application submittal fee is
       paid
     '''
+    from gbe.models import Act
     act_fees_purchased = 0
     acts_submitted = 0
 
     # First figure out how many acts this user has purchased
     for act_event in BrownPaperEvents.objects.filter(
-            act_submission_event=True):
+            act_submission_event=True,
+            conference=conference):
         for trans in Transaction.objects.all():
             trans_event = trans.ticket_item.ticket_id.split('-')[0]
             trans_user_name = trans.purchaser.matched_to_user.username
@@ -75,21 +84,15 @@ def verify_performer_app_paid(user_name):
                 act_fees_purchased += 1
 
     # Then figure out how many acts have already been submitted.
-    for act in Act.objects.filter(submitted=True):
-        act_user_name = None
-        try:
-            # user may not exist, so just skip for an exception
-            act_user_name = act.performer.contact.user_object.username
-        except:
-            pass
-        if act_user_name == unicode(user_name):
-            acts_submitted += 1
+    acts_submitted = Act.objects.filter(
+        submitted=True,
+        conference=conference).count()
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (act_fees_purchased, acts_submitted))
     return act_fees_purchased > acts_submitted
 
 
-def verify_vendor_app_paid(user_name):
+def verify_vendor_app_paid(user_name, conference):
     '''
     Verifies user has paid a vendor submittal fee.
     NOTE:  This function assumes that there is a record of the application,
@@ -98,12 +101,14 @@ def verify_vendor_app_paid(user_name):
     user_name - This is the user name of the user in question.
     returns - true if the system recognizes the vendor submittal fee is paid
     '''
+    from gbe.models import Vendor
     vendor_fees_purchased = 0
     vendor_apps_submitted = 0
 
     # First figure out how many vendor spots this user has purchased
     for vendor_event in BrownPaperEvents.objects.filter(
-            vendor_submission_event=True):
+            vendor_submission_event=True,
+            conference=conference):
         for trans in Transaction.objects.all():
             trans_event = trans.ticket_item.ticket_id.split('-')[0]
             trans_user_name = trans.purchaser.matched_to_user.username
@@ -113,15 +118,9 @@ def verify_vendor_app_paid(user_name):
                 vendor_fees_purchased += 1
 
     # Then figure out how many vendor applications have already been submitted.
-    for vendor in Vendor.objects.filter(submitted=True):
-        vendor_user_name = None
-        try:
-            # user may not exist, so just skip for an exception
-            vendor_user_name = vendor.profile.user_object.username
-        except:
-            pass
-        if vendor_user_name == unicode(user_name):
-            vendor_apps_submitted += 1
+    vendor_apps_submitted = Vendor.objects.filter(
+        submitted=True,
+        conference=conference).count()
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (vendor_fees_purchased, vendor_apps_submitted))
     return vendor_fees_purchased > vendor_apps_submitted

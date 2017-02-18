@@ -4,13 +4,19 @@ from django.test import (
     Client
 )
 from django.core.urlresolvers import reverse
-from tests.factories.gbe_factories import ProfileFactory
+from tests.factories.gbe_factories import (
+    ProfileFactory,
+    VolunteerFactory,
+    VolunteerInterestFactory,
+)
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     is_login_page,
     login_as,
 )
+from django.shortcuts import get_object_or_404
+from gbe.models import Volunteer
 
 
 class TestAllocateWorkers(TestCase):
@@ -23,9 +29,9 @@ class TestAllocateWorkers(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        context = StaffAreaContext()
-        self.volunteer_opp = context.add_volunteer_opp()
-        self.volunteer, self.alloc = context.book_volunteer(
+        self.context = StaffAreaContext()
+        self.volunteer_opp = self.context.add_volunteer_opp()
+        self.volunteer, self.alloc = self.context.book_volunteer(
             self.volunteer_opp)
         self.url = reverse(
             self.view_name,
@@ -54,7 +60,8 @@ class TestAllocateWorkers(TestCase):
                              volunteer,
                              alloc,
                              notes,
-                             role="Volunteer"):
+                             role="Volunteer",
+                             allocations=2):
         if volunteer == -1:
             self.assertContains(
                 response,
@@ -80,7 +87,7 @@ class TestAllocateWorkers(TestCase):
         self.assertContains(
             response,
             '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=2)
+            str(volunteer_opp.pk) + '"', count=allocations)
 
     def assert_good_post(self,
                          response,
@@ -88,7 +95,8 @@ class TestAllocateWorkers(TestCase):
                          volunteer,
                          alloc,
                          notes,
-                         role="Volunteer"):
+                         role="Volunteer",
+                         allocations=2):
         self.assertRedirects(response,
                              reverse('edit_event',
                                      urlconf='scheduler.urls',
@@ -98,7 +106,8 @@ class TestAllocateWorkers(TestCase):
                                   volunteer,
                                   alloc,
                                   notes,
-                                  role)
+                                  role,
+                                  allocations,)
         self.assertNotContains(response, '<ul class="errorlist">')
 
     def test_no_login_gives_error(self):
@@ -140,7 +149,45 @@ class TestAllocateWorkers(TestCase):
             volunteer_opp,
             volunteer,
             alloc,
-            'Do these notes work?')
+            'Do these notes work?',
+            allocations=3)
+        assert len(volunteer.volunteering.all().filter(
+            conference=volunteer_opp.eventitem.get_conference())) == 1
+
+    def test_post_form_valid_make_new_allocation_volunteer_exists(self):
+        context = StaffAreaContext()
+        volunteer_opp = context.add_volunteer_opp()
+        allocations = volunteer_opp.resources_allocated.all()
+        volunteer = VolunteerFactory(
+            submitted=False,
+            accepted=2,
+            conference=context.conference)
+        VolunteerInterestFactory(
+            volunteer=volunteer,
+            interest=volunteer_opp.as_subtype.volunteer_type)
+        url = reverse(self.view_name,
+                      args=[volunteer_opp.pk],
+                      urlconf="scheduler.urls")
+        data = self.get_create_data()
+        data['worker'] = volunteer.profile.pk,
+
+        login_as(self.privileged_profile, self)
+        response = self.client.post(url, data=data, follow=True)
+        alloc = volunteer_opp.resources_allocated.all().first()
+
+        self.assertIsNotNone(alloc)
+        self.assert_good_post(
+            response,
+            volunteer_opp,
+            volunteer.profile,
+            alloc,
+            'Do these notes work?',
+            allocations=3)
+        assert len(volunteer.profile.volunteering.all().filter(
+            conference=volunteer_opp.eventitem.get_conference())) == 1
+        updated = get_object_or_404(Volunteer, pk=volunteer.pk)
+        assert updated.submitted
+        assert updated.accepted == 3
 
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
@@ -262,8 +309,6 @@ class TestAllocateWorkers(TestCase):
         expected_subject = "A change has been made to your Volunteer Schedule!"
         assert msg.subject == expected_subject
 
-
-
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()
         data['role'] = ''
@@ -300,3 +345,25 @@ class TestAllocateWorkers(TestCase):
         msg = mail.outbox[0]
         expected_subject = "A change has been made to your Volunteer Schedule!"
         assert msg.subject == expected_subject
+
+    def test_post_form_valid_make_new_allocation_w_confict(self):
+        data = self.get_create_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Found event conflict")
+
+    def test_post_form_valid_make_new_allocation_w_overfull(self):
+        data = self.get_create_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Over by 1 volunteer.")
+
+    def test_post_form_edit_w_conflict(self):
+        overbook_opp = self.context.add_volunteer_opp()
+        self.context.book_volunteer(
+            volunteer_sched_event=overbook_opp,
+            volunteer=self.volunteer)
+        data = self.get_edit_data()
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "Found event conflict")

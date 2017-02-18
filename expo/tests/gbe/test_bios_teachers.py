@@ -33,6 +33,7 @@ class TestBiosTeachers(TestCase):
     view_name = 'bios_teacher'
 
     def setUp(self):
+        Conference.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
 
@@ -58,7 +59,7 @@ class TestBiosTeachers(TestCase):
         # inheritance and factory boy, but that is not clear
         # to me.
         # Leaving them commented out to encourage us to
-        # fix
+        # fix (still broken - 1/12/17)
         # assert other_context.teacher.name not in response.content
         # assert other_context.bid.title not in response.content
 
@@ -82,3 +83,16 @@ class TestBiosTeachers(TestCase):
         # fix
         # assert other_context.bid.teacher.name not in response.content
         # assert other_context.bid.title not in response.content
+
+    def test_bios_teachers_unbooked_accepted(self):
+        accepted_class = ClassFactory(conference=current_conference(),
+                                      accepted=3)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            url,
+            data={'conference': accepted_class.conference.conference_slug})
+
+        assert response.status_code == 200
+        assert accepted_class.teacher.name in response.content
+        assert accepted_class.title in response.content

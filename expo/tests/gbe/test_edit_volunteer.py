@@ -10,7 +10,10 @@ from tests.factories.gbe_factories import (
     VolunteerFactory,
     VolunteerInterestFactory
 )
-from tests.contexts import VolunteerContext
+from tests.contexts import (
+    StaffAreaContext,
+    VolunteerContext,
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     assert_hidden_value,
@@ -24,6 +27,8 @@ from gbetext import (
     default_volunteer_no_interest_msg
 )
 from gbe.models import UserMessage
+from expo.settings import DATETIME_FORMAT
+from django.core import mail
 
 
 class TestEditVolunteer(TestCase):
@@ -42,7 +47,7 @@ class TestEditVolunteer(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
-    def get_form(self, context, submit=False, invalid=False, rank=5):
+    def get_form(self, context, invalid=False, rank=5):
         interest_pk = context.bid.volunteerinterest_set.first().pk
         avail_pk = context.bid.volunteerinterest_set.first().interest.pk
         form = {'profile': 1,
@@ -53,8 +58,6 @@ class TestEditVolunteer(TestCase):
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
                 }
-        if submit:
-            form['submit'] = True
         if invalid:
             del(form['number_shifts'])
         return form
@@ -75,13 +78,32 @@ class TestEditVolunteer(TestCase):
             follow=True)
         return response, context
 
+    def post_conflict(self, staff=True):
+        context = VolunteerContext()
+        change_window = context.add_window()
+        if staff:
+            context.sched_event.allocate_worker(
+                context.profile, 'Staff Lead')
+        context.bid.available_windows.add(context.window)
+        form = self.get_form(context)
+        form['available_windows'] = [change_window.pk]
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        return response, context
+
     def test_edit_volunteer_no_volunteer(self):
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
                       args=[0])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(404, response.status_code)
 
     def test_edit_volunteer_profile_is_not_coordinator(self):
         user = ProfileFactory().user_object
@@ -92,6 +114,16 @@ class TestEditVolunteer(TestCase):
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         self.assertEqual(403, response.status_code)
+
+    def test_edit_volunteer_profile_is_owner(self):
+        volunteer = VolunteerFactory()
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(volunteer.profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -186,10 +218,85 @@ class TestEditVolunteer(TestCase):
 
     def test_interest_bad_data(self):
         response, context = self.edit_volunteer(rank='bad_data')
-        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
             '<font color="red"><ul class="errorlist">' +
             '<li>Select a valid choice. bad_data is not one of ' +
             'the available choices.</li></ul></font>')
+
+    def test_remove_available_window_conflict(self):
+        response, context = self.post_conflict(staff=False)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content
+
+    def test_set_uavailable_window_conflict(self):
+        context = VolunteerContext()
+        change_window = context.add_window()
+        context.bid.available_windows.add(change_window.pk)
+        form = self.get_form(context)
+        form['unavailable_windows'] = [context.window.pk]
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content
+
+    def test_conflict_w_staff_lead(self):
+        response, context = self.post_conflict(staff=True)
+        assert 'Warning', "<li>%s working for %s - as %s" % (
+            context.window.start_time.strftime(DATETIME_FORMAT),
+            str(context.opportunity),
+            context.opportunity.child(
+                ).volunteer_category_description
+            ) in response.content
+
+    def test_volunteer_conflict_sends_update_to_user(self):
+        response, context = self.post_conflict(staff=True)
+        assert 3 == len(mail.outbox)
+        msg = mail.outbox[0]
+        assert msg.subject == \
+            "A change has been made to your Volunteer Schedule!"
+        assert msg.to == [context.profile.contact_email]
+
+    def test_volunteer_conflict_sends_warning_to_staff(self):
+        response, context = self.post_conflict(staff=True)
+        assert 3 == len(mail.outbox)
+        msg = mail.outbox[1]
+        assert msg.subject == "URGENT: Volunteer Schedule Conflict Occurred"
+        assert msg.to == [self.privileged_profile.contact_email,
+                          context.profile.contact_email]
+
+    def test_volunteer_conflict_sends_warning_no_staff(self):
+        response, context = self.post_conflict(staff=False)
+        assert 3 == len(mail.outbox)
+        msg = mail.outbox[1]
+        assert msg.subject == "URGENT: Volunteer Schedule Conflict Occurred"
+        assert msg.to == [self.privileged_profile.contact_email]
+
+    def test_volunteer_conflict_sends_notification_to_reviewers(self):
+        response, context = self.post_conflict(staff=True)
+        assert 3 == len(mail.outbox)
+        msg = mail.outbox[2]
+        assert msg.subject == "Volunteer Update Occurred"
+        assert msg.to == [self.privileged_profile.contact_email]
+
+    def test_volunteer_conflict_removes_volunteer_commitment(self):
+        response, context = self.post_conflict(staff=True)
+        assert context.opp_event.volunteer_count == 0
+        assert context.opportunity.roles(
+            roles=['Staff Lead', ]
+            )[0]._item.contact_email == context.profile.contact_email

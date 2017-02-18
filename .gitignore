@@ -28,7 +28,9 @@ expo/gbe/static/djangocms_text_ckeditor/*
 expo/gbe/static/djangocms_admin_style
 expo/gbe/static/djangocms_admin_style/*
 expo/gbe/static/treebeard/*
-
+expo/gbe/static/debug_toolbar/*
+expo/gbe/static/hijack/*
+expo/gbe/static/import_export/*
 expo/media*
 
 expo/expo/settings.pyc
@@ -78,7 +80,12 @@ expo/src/image-gallery/
 
 *.good
 
-
+config/local_settings.py
+config/stable.tar.gz
+expo/djangobb_forum/*
+expo/expo/static/*
+static/*
+tmp/*
 
 expo/media/cms_page_media/1/GBE_PageBanner.png
 
@@ -108,3 +115,7 @@ htmlcov
 expo/.coverage
 
 .cache/v/cache/lastfailed
+
+expo/src/cmsplugin-image-gallery-master/
+
+.DS_Store

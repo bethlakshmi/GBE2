@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ConferenceFactory,
     ProfileFactory,
     UserFactory,
     UserMessageFactory,
@@ -131,10 +132,23 @@ class TestCreateVendor(TestCase):
         self.assertContains(response, "(Click to view)")
         self.assertContains(response, data['b_title'])
 
+    def test_create_vendor_post_with_vendor_old_comp(self):
+        comped_vendor = VendorFactory(
+            submitted=True,
+            profile=self.profile,
+            conference=ConferenceFactory(status='completed')
+        )
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['title'])
+
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
             submitted=True,
-            profile=self.profile
+            profile=self.profile,
+            conference=self.conference
         )
         make_vendor_app_purchase(self.conference, self.profile.user_object)
         response, data = self.post_paid_vendor_submission()

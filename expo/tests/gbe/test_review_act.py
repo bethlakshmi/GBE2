@@ -5,10 +5,12 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
+    ActBidEvaluationFactory,
     ActFactory,
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
+    ShowFactory,
 )
 from tests.functions.gbe_functions import (
     clear_conferences,
@@ -17,6 +19,9 @@ from tests.functions.gbe_functions import (
     login_as,
     reload,
 )
+from tests.functions.scheduler_functions import assert_selected
+from gbe.models import ActBidEvaluation
+from gbetext import video_options
 
 
 class TestReviewAct(TestCase):
@@ -30,6 +35,24 @@ class TestReviewAct(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Act Reviewers')
         grant_privilege(self.privileged_user, 'Act Coordinator')
+
+    def get_post_data(self,
+                      bid,
+                      show=None,
+                      reviewer=None,
+                      invalid=False):
+        reviewer = reviewer or self.privileged_profile
+        show = show or ShowFactory()
+        data = {'primary_vote_0': show.pk,
+                'primary_vote_1': 3,
+                'secondary_vote_0': show.pk,
+                'secondary_vote_1': 1,
+                'notes': "blah blah",
+                'evaluator': reviewer.pk,
+                'bid': bid.pk}
+        if invalid:
+            del(data['bid'])
+        return data
 
     def test_review_act_all_well(self):
         act = ActFactory()
@@ -107,11 +130,9 @@ class TestReviewAct(TestCase):
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
+        data = self.get_post_data(act)
         response = self.client.post(url,
-                                    {'vote': 3,
-                                     'notes': "blah blah",
-                                     'evaluator': profile.pk,
-                                     'bid': act.pk},
+                                    data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         expected_string = ("Bid Information for %s" %
@@ -134,11 +155,70 @@ class TestReviewAct(TestCase):
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
+        data = self.get_post_data(act, invalid=True)
         response = self.client.post(url,
-                                    {'notes': "blah blah",
-                                     'bid': act.pk,
-                                     'evaluator': user.id},
+                                    data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         expected_string = "There is an error on the form."
         self.assertTrue(expected_string in response.content)
+
+    def test_review_act_load_existing_review(self):
+        eval = ActBidEvaluationFactory(
+            evaluator=self.privileged_profile
+        )
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[eval.bid.pk])
+        login_as(self.privileged_user, self)
+
+        response = self.client.get(url)
+
+        assert_selected(
+            response,
+            eval.primary_vote.vote,
+            "Weak Yes")
+        assert_selected(
+            response,
+            eval.primary_vote.show.pk,
+            str(eval.primary_vote.show))
+        assert_selected(
+            response,
+            eval.secondary_vote.show.pk,
+            str(eval.secondary_vote.show))
+
+    def test_review_act_update_review(self):
+        eval = ActBidEvaluationFactory(
+            evaluator=self.privileged_profile
+        )
+        show = ShowFactory()
+        login_as(self.privileged_user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[eval.bid.pk])
+        data = self.get_post_data(
+            eval.bid,
+            reviewer=self.privileged_user,
+            show=show
+            )
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        evals = ActBidEvaluation.objects.filter(
+            evaluator=self.privileged_profile,
+            bid=eval.bid
+        )
+        self.assertTrue(len(evals), 1)
+        self.assertTrue(evals[0].secondary_vote.vote, 1)
+        self.assertTrue(evals[0].primary_vote.show, show)
+
+    def test_video_choice_display(self):
+        act = ActFactory()
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        assert 'Video Notes:' in response.content
+        assert video_options[1][1] not in response.content

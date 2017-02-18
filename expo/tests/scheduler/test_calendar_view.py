@@ -18,7 +18,7 @@ from tests.contexts import (
     ClassContext,
     ShowContext
 )
-from unittest import skip
+
 
 class TestCalendarView(TestCase):
     view_name = 'contact_by_role'
@@ -101,7 +101,6 @@ class TestCalendarView(TestCase):
             response,
             '<p>This calendar is not currently available.</p>')
 
-    @skip
     def test_no_sched_events(self):
         '''
         There is a day, but that's not the day we're asking for.

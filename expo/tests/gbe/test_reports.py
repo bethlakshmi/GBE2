@@ -14,7 +14,7 @@ from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.http import Http404
 
-from gbe.report_views import (
+from gbe.reporting import (
     list_reports,
     review_staff_area,
     staff_area,
@@ -40,16 +40,14 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     SchedEventFactory,
 )
-from tests.factories.ticketing_factories import (
-    TransactionFactory,
-)
 from tests.contexts import (
     ActTechInfoContext,
     ClassContext,
     VolunteerContext,
+    PurchasedTicketContext,
 )
 import ticketing.models as tix
-
+from tests.functions.scheduler_functions import assert_link
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -80,17 +78,6 @@ class TestReports(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.client = Client()
-
-    def create_transaction(self):
-        transaction = TransactionFactory()
-        transaction.ticket_item.bpt_event.badgeable = True
-        transaction.save()
-        transaction.ticket_item.bpt_event.save()
-        profile_buyer = ProfileFactory()
-        profile_buyer.user_object = transaction.purchaser.matched_to_user
-        profile_buyer.save()
-
-        return transaction
 
     def test_list_reports_by_conference(self):
         Conference.objects.all().delete()
@@ -213,8 +200,9 @@ class TestReports(TestCase):
     def test_env_stuff_succeed(self):
         '''env_stuff view should load with no conf choice
         '''
-        profile = ProfileFactory()
-        transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        profile = ticket_context.profile
+        transaction = ticket_context.transaction
         request = self.factory.get('reports/stuffing')
         login_as(profile, self)
         request.user = profile.user_object
@@ -238,8 +226,9 @@ class TestReports(TestCase):
     def test_env_stuff_succeed_w_conf(self):
         '''env_stuff view should load for a selected conference slug
         '''
-        profile = ProfileFactory()
-        transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        profile = ticket_context.profile
+        transaction = ticket_context.transaction
         request = self.factory.get(
             'reports/stuffing/%s/'
             % transaction.ticket_item.bpt_event.conference.conference_slug)
@@ -273,7 +262,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         response = review_act_techinfo(request)
 
@@ -285,16 +274,17 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Schedule Acts for this Show')
 
     def test_review_act_techinfo_has_datatable(self):
-        '''review_act_techinfo view should load for Tech Crew
-           and fail for others
+        '''review_act_techinfo view should show data when show is
+            selected
         '''
         curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
@@ -302,7 +292,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls',
+                    urlconf='gbe.reporting.urls',
                     args=[curr_show.eventitem_id]))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
@@ -316,6 +306,31 @@ class TestReports(TestCase):
             '<table id="bid_review" class="order-column"'
             in response.content,
             msg="Can't find table header")
+        self.assertNotContains(response, 'Schedule Acts for this Show')
+
+    def test_review_act_techinfo_has_link_for_scheduler(self):
+        '''review_act_techinfo view should show schedule acts if user
+            has the right privilege
+        '''
+        curr_conf = ConferenceFactory()
+        curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
+        profile = ProfileFactory()
+        login_as(profile, self)
+        request = self.factory.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.reporting.urls',
+                    args=[curr_show.eventitem_id]))
+        request.user = profile.user_object
+        request.session = {'cms_admin_site': 1}
+        request.GET = {'conf_slug': curr_conf.conference_slug}
+        grant_privilege(profile, 'Tech Crew')
+        grant_privilege(profile, 'Scheduling Mavens')
+        response = review_act_techinfo(request, curr_show.eventitem_id)
+        assert_link(response, reverse(
+            'schedule_acts',
+            urlconf='scheduler.urls',
+            args=[curr_show.pk]))
+        self.assertContains(response, 'Schedule Acts for this Show')
 
     def test_review_act_techinfo_with_conference_slug(self):
         '''review_act_techinfo view show correct events for slug
@@ -329,7 +344,7 @@ class TestReports(TestCase):
         login_as(profile, self)
         request = self.factory.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.report_urls'))
+                    urlconf='gbe.reporting.urls'))
         request.user = profile.user_object
         request.session = {'cms_admin_site': 1}
         request.GET = {'conf_slug': curr_conf.conference_slug}
@@ -448,8 +463,9 @@ class TestReports(TestCase):
     def test_export_badge_report_succeed_w_conf(self):
         '''get badges w a specific conference
         '''
-        profile = ProfileFactory()
-        transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        profile = ticket_context.profile
+        transaction = ticket_context.transaction
         grant_privilege(profile, 'Registrar')
         request = self.factory.get(
             'reports/badges/print_run/%s'
@@ -474,8 +490,9 @@ class TestReports(TestCase):
     def test_export_badge_report_succeed(self):
         '''loads with the default conference selection.
         '''
-        profile = ProfileFactory()
-        transaction = self.create_transaction()
+        ticket_context = PurchasedTicketContext()
+        profile = ticket_context.profile
+        transaction = ticket_context.transaction
 
         request = self.factory.get('reports/badges/print_run')
         login_as(profile, self)
@@ -507,7 +524,7 @@ class TestReports(TestCase):
         login_as(reviewer, self)
         request = self.factory.get(reverse(
             'act_techinfo_download',
-            urlconf='gbe.report_urls',
+            urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
         request.user = reviewer.user_object
         response = export_act_techinfo(request, context.show.eventitem_id)
@@ -522,7 +539,7 @@ class TestReports(TestCase):
         login_as(reviewer, self)
         request = self.factory.get(reverse(
             'act_techinfo_download',
-            urlconf='gbe.report_urls',
+            urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
         request.user = reviewer.user_object
         response = export_act_techinfo(request, context.show.eventitem_id)

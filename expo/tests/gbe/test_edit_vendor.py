@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
+    ConferenceFactory,
     ProfileFactory,
     UserFactory,
     VendorFactory,
@@ -13,7 +14,7 @@ from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as,
     location,
-    make_vendor_app_purchase
+    make_vendor_app_purchase,
 )
 from gbetext import (
     default_vendor_submit_msg,
@@ -115,16 +116,30 @@ class TestEditVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Vendor Payment" in response.content)
 
-    # def test_edit_bid_get(self):
-    #     '''edit_bid, not post, should take us to edit process'''
-    #     vendor = VendorFactory()
-    #     login_as(vendor.profile, self)
-    #     url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertTrue(
-    #         '<h2 class="subtitle">Edit Your Vendor Application</h2>'
-    #         in response.content)
+    def test_vendor_edit_post_form_valid_submit_paid_wrong_conf(self):
+        vendor = VendorFactory()
+        make_vendor_app_purchase(
+            ConferenceFactory(
+                status="completed"),
+            vendor.profile.user_object)
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        data = self.get_vendor_form(submit=True)
+        data['thebiz-profile'] = vendor.profile.pk
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("Vendor Payment" in response.content)
+
+    def test_edit_bid_get(self):
+        '''edit_bid, not post, should take us to edit process'''
+        vendor = VendorFactory()
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            '<h2 class="subtitle">Edit Your Vendor Application</h2>'
+            in response.content)
 
     def test_edit_bid_get_no_help(self):
         '''edit_bid, not post, should take us to edit process'''

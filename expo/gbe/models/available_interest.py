@@ -1,12 +1,17 @@
-from django.db import models
+from django.db.models import (
+    BooleanField,
+    CharField,
+    Model,
+    TextField,
+)
 
 
-class AvailableInterest(models.Model):
-    interest = models.CharField(
+class AvailableInterest(Model):
+    interest = CharField(
         max_length=128,
         unique=True)
-    visible = models.BooleanField(default=True)
-    help_text = models.TextField(blank=True)
+    visible = BooleanField(default=True)
+    help_text = TextField(blank=True)
 
     def __str__(self):
         return self.interest

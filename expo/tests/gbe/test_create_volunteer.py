@@ -7,27 +7,32 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
     ProfileFactory,
+    ProfilePreferencesFactory,
     UserFactory,
     UserMessageFactory,
+    VolunteerFactory,
     VolunteerWindowFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     assert_hidden_value,
     assert_rank_choice_exists,
-    login_as
+    login_as,
 )
 from gbetext import (
     default_volunteer_submit_msg,
     default_volunteer_no_bid_msg,
-    default_volunteer_no_interest_msg
+    default_volunteer_no_interest_msg,
+    existing_volunteer_msg,
+    no_profile_msg,
 )
+from gbe_forms_text import volunteer_unavailable_time_conflict
 from gbe.models import (
     AvailableInterest,
     Conference,
     Volunteer,
     VolunteerInterest,
-    UserMessage
+    UserMessage,
 )
 
 
@@ -74,12 +79,41 @@ class TestCreateVolunteer(TestCase):
         response = self.client.post(url, data=data, follow=True)
         return response, num_volunteers_before
 
+    def test_create_volunteer_no_login(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('register', urlconf='gbe.urls'),
+                url))
+
     def test_create_volunteer_no_profile(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(UserFactory(), self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('profile_update', urlconf='gbe.urls'),
+                url))
+
+    def test_create_volunteer_bad_profile(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        cptn_tinypants = ProfileFactory(display_name="", phone="")
+        ProfilePreferencesFactory(profile=cptn_tinypants)
+        login_as(cptn_tinypants.user_object, self)
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?next=%s" % (
+                reverse('profile_update', urlconf='gbe.urls'),
+                url))
+        assert_alert_exists(
+            response, 'warning', 'Warning', no_profile_msg)
 
     def test_create_volunteer_post_no_profile(self):
         url = reverse(self.view_name,
@@ -223,3 +257,37 @@ class TestCreateVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'danger', 'Error', msg.description)
+
+    def test_volunteer_time_conflict_checked(self):
+        data = self.get_volunteer_form()
+        data['available_windows'] = data['unavailable_windows']
+        response, data = self.post_volunteer_submission(data=data)
+        assert volunteer_unavailable_time_conflict in response.content
+
+    def test_create_second_volunteer_gets_redirect(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        volunteer = VolunteerFactory(
+            profile=self.profile,
+            conference=self.conference)
+        login_as(self.profile, self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data, follow=True)
+        self.assertRedirects(
+            response,
+            reverse(
+                'volunteer_edit',
+                urlconf='gbe.urls',
+                args=[volunteer.id]))
+        assert_alert_exists(
+            response, 'success', 'Success', existing_volunteer_msg)
+
+    def test_create_second_volunteer_old_conf_all_good(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        VolunteerFactory(profile=self.profile,
+                         conference=ConferenceFactory(status='past'))
+        login_as(self.profile, self)
+        data = self.get_volunteer_form()
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)

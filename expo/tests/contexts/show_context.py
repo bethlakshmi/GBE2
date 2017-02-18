@@ -15,7 +15,9 @@ from tests.factories.scheduler_factories import (
 )
 import pytz
 from tests.functions.scheduler_functions import noon
-
+from datetime import (
+    timedelta,
+)
 
 class ShowContext:
     def __init__(self,
@@ -31,7 +33,8 @@ class ShowContext:
         self.days = self.conference.conferenceday_set.all()
         act = act or ActFactory(b_conference=self.conference,
                                 performer=self.performer,
-                                accepted=3)
+                                accepted=3,
+                                submitted=True)
         self.acts = [act]
         self.show = ShowFactory(e_conference=self.conference)
         self.room = room or RoomFactory()
@@ -63,7 +66,8 @@ class ShowContext:
 
     def book_act(self, act=None):
         act = act or ActFactory(b_conference=self.conference,
-                                accepted=3)
+                                accepted=3,
+                                submitted=True)
         booking = ResourceAllocationFactory(
             event=self.sched_event,
             resource=ActResourceFactory(_item=act))

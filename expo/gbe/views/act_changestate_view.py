@@ -1,68 +1,83 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from expo.gbe_logging import log_func
-from gbe.functions import validate_perms
 from scheduler.models import (
     ActResource,
     Event as sEvent,
     ResourceAllocation,
 )
-from scheduler.functions import (
-    set_time_format,
-)
+from expo.settings import (
+    DATETIME_FORMAT,
+    DAY_FORMAT,
+    )
+from django.utils.formats import date_format
 from gbe.views import BidChangeStateView
 from gbe.models import Act
+from gbe.functions import send_bid_state_change_mail
 
 
-@login_required
-@log_func
-def ActChangeStateView(request, bid_id):
-    '''
-    Fairly specific to act - removes the act from all shows, and resets
-    the act to the selected show (if accepted/waitlisted), and then does
-    the regular state change
-    NOTE: only call on a post request
-    BB - I'd like to refactor this to be the same as volunteer form, but
-    not right now - 2015?
-    '''
+class ActChangeStateView(BidChangeStateView):
+    object_type = Act
+    coordinator_permissions = ('Act Coordinator',)
+    redirectURL = 'act_review_list'
+    new_show = None
 
-    @log_func
-    def act_accepted(request):
+    def get_bidder(self):
+        self.bidder = self.object.performer.contact
+
+    def act_accepted(self, request):
         return (request.POST['show'] and
                 request.POST['accepted'] in ('3', '2'))
 
-    reviewer = validate_perms(request, ('Act Coordinator',))
-    if request.method == 'POST':
-        act = get_object_or_404(Act, id=bid_id)
-
+    @log_func
+    def bid_state_change(self, request):
         # Clear out previous castings, deletes ActResource and
         # ResourceAllocation
-
-        ActResource.objects.filter(_item=act).delete()
+        ActResource.objects.filter(_item=self.object).delete()
 
         # if the act has been accepted, set the show.
-        if act_accepted(request):
+        if self.act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
-            allocation_format = set_time_format(days=2)
-            show = get_object_or_404(sEvent,
-                                     eventitem__event=request.POST['show'])
             casting = ResourceAllocation()
-            casting.event = show
-            actresource = ActResource(_item=act)
+            casting.event = self.new_show
+            actresource = ActResource(_item=self.object)
             actresource.save()
-            for worker in act.get_performer_profiles():
-                conflicts = worker.get_conflicts(show)
+            for worker in self.object.get_performer_profiles():
+                conflicts = worker.get_conflicts(self.new_show)
                 for problem in conflicts:
                     messages.warning(
                         request,
                         "%s is booked for - %s - %s" % (
                             str(worker),
                             str(problem),
-                            problem.starttime.strftime(allocation_format)
+                            date_format(problem.starttime, "DATETIME_FORMAT")
                         )
                     )
 
             casting.resource = actresource
             casting.save()
-    return BidChangeStateView(request, bid_id, 'act_review_list')
+        return super(ActChangeStateView, self).bid_state_change(
+            request)
+
+    def notify_bidder(self, request):
+        email_show = None
+        if (str(self.object.accepted) != request.POST['accepted']) or (
+                request.POST['accepted'] == '3'):
+            # only send the show when act is accepted
+            if request.POST['accepted'] == '3':
+                email_show = self.new_show
+            send_bid_state_change_mail(
+                str(self.object_type.__name__).lower(),
+                self.bidder.contact_email,
+                self.bidder.get_badge_name(),
+                self.object,
+                int(request.POST['accepted']),
+                show=email_show)
+
+    def prep_bid(self, request, args, kwargs):
+        super(ActChangeStateView, self).prep_bid(request, args, kwargs)
+        if self.act_accepted(request):
+            self.new_show = get_object_or_404(
+                sEvent,
+                eventitem__event=request.POST['show'])

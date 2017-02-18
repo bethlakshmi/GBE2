@@ -20,8 +20,7 @@ please read the descriptions carefully.
 
 <table>
 
-{% for item in ticket_items %}
-{% if item.active %}
+{% for key, item in ticket_items.items %}
 <tr><td>
 
 </td>
@@ -45,7 +44,6 @@ please read the descriptions carefully.
     </td>
 </tr>
 
-{% endif %}
 {% endfor %}
 
 <tr><td>

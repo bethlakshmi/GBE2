@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import (
@@ -11,7 +12,13 @@ from gbe.forms import (
     VolunteerBidForm,
     VolunteerInterestForm,
 )
-from gbe.functions import validate_perms
+from gbe.functions import (
+    notify_reviewers_on_bid_change,
+    send_schedule_update_mail,
+    send_warnings_to_staff,
+    validate_perms,
+    validate_profile,
+)
 from gbe.models import (
     UserMessage,
     Volunteer,
@@ -19,19 +26,67 @@ from gbe.models import (
 from gbetext import (
     default_volunteer_edit_msg,
     default_volunteer_no_interest_msg,
+    default_window_schedule_conflict,
 )
 from gbe.views.volunteer_display_functions import (
     validate_interests,
 )
+from expo.settings import DATETIME_FORMAT
+
+
+def get_reduced_availability(the_bid, form):
+    '''  Get cases where the volunteer has reduced their availability.
+    Either by offering fewer available windows, or by adding to the unavailable
+    windows.  Either one is a case for needing to check schedule conflict.
+    '''
+    reduced = []
+    for window in the_bid.available_windows.all():
+        if window not in form.cleaned_data['available_windows']:
+            reduced += [window]
+
+    for window in form.cleaned_data['unavailable_windows']:
+        if window not in the_bid.unavailable_windows.all():
+            reduced += [window]
+    return reduced
+
+
+def manage_schedule_problems(changed_windows, profile):
+    warnings = []
+    conflicts = []
+    for window in changed_windows:
+        for conflict in profile.get_conflicts(window):
+            if ((conflict not in conflicts) and
+                    'type' in conflict.eventitem.payload and 
+                    conflict.eventitem.payload['type'] == 'Volunteer'):
+                conflicts += [conflict]
+                warning = {
+                    'time': conflict.starttime.strftime(DATETIME_FORMAT),
+                    'event': str(conflict),
+                    'interest': conflict.eventitem.child(
+                        ).volunteer_category_description,
+                }
+                leads = conflict.eventitem.roles(roles=['Staff Lead', ])
+                for lead in leads:
+                    warning['lead'] = str(lead.item.badge_name)
+                    warning['email'] = lead.item.contact_email
+                conflict.unallocate_worker(profile, 'Volunteer')
+                warnings += [warning]
+    return warnings
 
 
 @login_required
 @log_func
+@never_cache
 def EditVolunteerView(request, volunteer_id):
     page_title = "Edit Volunteer Bid"
     view_title = "Edit Submitted Volunteer Bid"
-    reviewer = validate_perms(request, ('Volunteer Coordinator',))
+
+    user = validate_profile(request, require=True)
+
     the_bid = get_object_or_404(Volunteer, id=volunteer_id)
+    if the_bid.profile != user:
+        user = validate_perms(request, ('Volunteer Coordinator',))
+
     formset = []
 
     if request.method == 'POST':
@@ -51,6 +106,34 @@ def EditVolunteerView(request, volunteer_id):
         valid_interests, like_one_thing = validate_interests(formset)
 
         if form.is_valid() and valid_interests and like_one_thing:
+            changed_windows = get_reduced_availability(the_bid, form)
+            warnings = manage_schedule_problems(
+                changed_windows, the_bid.profile)
+            if warnings:
+                warn_msg = "<br><ul>"
+                user_message = UserMessage.objects.get_or_create(
+                    view='EditVolunteerView',
+                    code="AVAILABILITY_CONFLICT",
+                    defaults={
+                        'summary': "Volunteer Edit Caused Conflict",
+                        'description': default_window_schedule_conflict, })
+                for warn in warnings:
+                    warn_msg += "<li>%s working for %s - as %s" % (
+                        warn['time'],
+                        warn['event'],
+                        warn['interest']
+                    )
+                    if 'lead' in warn:
+                        warn_msg += ", Staff Lead is " + \
+                            "<a href='email: %s'>%s</a>" % (
+                                warn['email'],
+                                warn['lead']
+                            )
+                    warn_msg += "</li>"
+                warn_msg += "</ul>"
+                messages.warning(request, user_message[0].description+warn_msg)
+                send_schedule_update_mail('Volunteer', the_bid.profile)
+                send_warnings_to_staff(the_bid.profile, 'Volunteer', warnings)
             the_bid = form.save(commit=True)
             the_bid.available_windows.clear()
             the_bid.unavailable_windows.clear()
@@ -68,9 +151,21 @@ def EditVolunteerView(request, volunteer_id):
                     'summary': "Volunteer Edit Success",
                     'description': default_volunteer_edit_msg})
             messages.success(request, user_message[0].description)
-            return HttpResponseRedirect("%s?conf_slug=%s" % (
-                reverse('volunteer_review', urlconf='gbe.urls'),
-                the_bid.b_conference.conference_slug))
+            if the_bid.profile == user:
+                notify_reviewers_on_bid_change(
+                    the_bid.profile,
+                    "Volunteer",
+                    "Update",
+                    the_bid.conference,
+                    'Volunteer Reviewers',
+                    reverse(
+                        'volunteer_review', urlconf='gbe.urls'))
+                return HttpResponseRedirect(
+                    reverse('home', urlconf='gbe.urls'))
+            else:
+                return HttpResponseRedirect("%s?conf_slug=%s" % (
+                    reverse('volunteer_review', urlconf='gbe.urls'),
+                    the_bid.conference.conference_slug))
 
         else:
             formset += [form]

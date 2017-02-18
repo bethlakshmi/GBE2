@@ -4,7 +4,8 @@ from factory import (
     DjangoModelFactory,
     SubFactory,
     RelatedFactory,
-    LazyAttribute
+    LazyAttribute,
+    SelfAttribute
 )
 import gbe.models as conf
 from django.contrib.auth.models import User
@@ -65,7 +66,7 @@ class UserFactory(DjangoModelFactory):
     first_name = Sequence(lambda n: 'John_%d' % n)
     last_name = 'Smith'
     username = LazyAttribute(lambda a: "%s" % (a.first_name))
-    email = '%s@smith.com' % username
+    email = LazyAttribute(lambda a: '%s@smith.com' % (a.username))
 
 
 class ProfileFactory(DjangoModelFactory):
@@ -205,9 +206,10 @@ class EventFactory(DjangoModelFactory):
         model = conf.Event
 
     e_title = Sequence(lambda x: "Test Event #%d" % x)
-    e_description = LazyAttribute(
+    description = LazyAttribute(
         lambda a: "Description for %s" % a.e_title)
-    blurb = LazyAttribute("Blurb for %s" % e_title)
+    blurb = LazyAttribute(
+        lambda a: "Blurb for %s" % a.e_title)
     duration = Duration(hours=2)
     e_conference = SubFactory(ConferenceFactory)
 
@@ -395,3 +397,26 @@ class UserMessageFactory(DjangoModelFactory):
     code = Sequence(lambda x: "CODE_%d" % x)
     summary = Sequence(lambda x: "Message Summary #%d" % x)
     description = Sequence(lambda x: "Description #%d" % x)
+
+
+class ShowVoteFactory(DjangoModelFactory):
+    show = SubFactory(ShowFactory)
+    vote = 3
+
+    class Meta:
+        model = conf.ShowVote
+
+
+class ActBidEvaluationFactory(DjangoModelFactory):
+    evaluator = SubFactory(ProfileFactory)
+    bid = SubFactory(ActFactory)
+    primary_vote = SubFactory(
+        ShowVoteFactory,
+        show__conference=SelfAttribute('...bid.conference'))
+    secondary_vote = SubFactory(
+        ShowVoteFactory,
+        show__conference=SelfAttribute('...bid.conference'))
+    notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
+
+    class Meta:
+        model = conf.ActBidEvaluation

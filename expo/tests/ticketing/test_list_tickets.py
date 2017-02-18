@@ -1,6 +1,5 @@
 from django.http import Http404
 from django.core.files import File
-from django.core.exceptions import PermissionDenied
 from ticketing.models import (
     BrownPaperEvents,
     BrownPaperSettings,
@@ -12,9 +11,7 @@ from tests.factories.ticketing_factories import (
     TicketItemFactory
 )
 import nose.tools as nt
-from django.contrib.auth.models import Group
 from django.test import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from ticketing.views import ticket_items
 from tests.factories.gbe_factories import (
@@ -25,40 +22,45 @@ import urllib2
 from django.shortcuts import get_object_or_404
 from decimal import Decimal
 from django.core.urlresolvers import reverse
+from tests.functions.gbe_functions import (
+    grant_privilege,
+    login_as,
+)
 
 
 class TestListTickets(TestCase):
     '''Tests for ticket_items view'''
+    view_name = 'ticket_items'
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
-        group, created = Group.objects.get_or_create(name='Ticketing - Admin')
         self.privileged_user = ProfileFactory.create().\
             user_object
-        self.privileged_user.groups.add(group)
+        grant_privilege(self.privileged_user, 'Ticketing - Admin')
+        self.url = reverse(self.view_name, urlconf='ticketing.urls')
 
-    @nt.raises(PermissionDenied)
+    def import_tickets(self):
+        data = {'Import': 'Import'}
+        login_as(self.privileged_user, self)
+        response = self.client.post(self.url, data)
+        return response
+
     def test_list_ticket_user_is_not_ticketing(self):
         '''
-            The user does not have the right privileges.  Send PermissionDenied
+            The user does not have the right privileges.
         '''
         user = ProfileFactory.create().user_object
-        request = self.factory.get(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-        )
-        request.user = user
-        response = ticket_items(request)
+        login_as(user, self)
+        response = self.client.get(self.url)
+        self.assertEqual(403, response.status_code)
 
     def test_list_tickets_all_good(self):
         '''
            privileged user gets the list
         '''
-        request = self.factory.get(
-            reverse('ticket_items', urlconf='ticketing.urls'),)
-        request.user = self.privileged_user
-        response = ticket_items(request)
-        nt.assert_equal(response.status_code, 200)
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
 
     @patch('urllib2.urlopen', autospec=True)
     def test_get_inventory(self, m_urlopen):
@@ -79,11 +81,7 @@ class TestListTickets(TestCase):
                               File(price_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
         ticket = get_object_or_404(
             TicketItem,
@@ -94,17 +92,43 @@ class TestListTickets(TestCase):
             "The Great Burlesque Exposition of 2016 takes place Feb. 5-7",
             ticket.description)
 
+    @patch('urllib2.urlopen', autospec=True)
+    def test_reimport_inventory(self, m_urlopen):
+        '''
+           privileged user gets the inventory of tickets from (fake) BPT
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+        TicketItemFactory(
+            ticket_id='%s-4513068' % (event.bpt_event_id),
+            has_coupon=True,
+            live=False,
+            bpt_event=event)
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
+        price_filename = open("tests/ticketing/pricelist.xml", 'r')
+        a.read.side_effect = [File(event_filename).read(),
+                              File(date_filename).read(),
+                              File(price_filename).read()]
+        m_urlopen.return_value = a
+
+        response = self.import_tickets()
+        nt.assert_equal(response.status_code, 200)
+        ticket = get_object_or_404(
+            TicketItem,
+            ticket_id='%s-4513068' % (event.bpt_event_id))
+        assert ticket.live
+        assert ticket.has_coupon
+
     def test_get_no_inventory(self):
         '''
            privileged user gets the inventory of tickets with no tickets
         '''
         BrownPaperEvents.objects.all().delete()
-
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -121,11 +145,7 @@ class TestListTickets(TestCase):
         a.read.side_effect = []
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -143,11 +163,7 @@ class TestListTickets(TestCase):
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -167,11 +183,7 @@ class TestListTickets(TestCase):
                               File(date_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -188,11 +200,7 @@ class TestListTickets(TestCase):
         a.read.side_effect = urllib2.URLError("test url error")
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -209,11 +217,7 @@ class TestListTickets(TestCase):
         a.read.side_effect = [File(event_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('ticket_items', urlconf='ticketing.urls'),
-            {'Import': 'Import'})
-        request.user = self.privileged_user
-        response = ticket_items(request)
+        response = self.import_tickets()
         nt.assert_equal(response.status_code, 200)
 
     def test_list_tickets_for_conf(self):
@@ -221,12 +225,36 @@ class TestListTickets(TestCase):
            privileged user gets the list for a conference
         '''
         ticket = TicketItemFactory()
-        request = self.factory.get(
-            reverse('ticket_items',
-                    urlconf='ticketing.urls',
-                    args=[str(ticket.bpt_event.conference.conference_slug)]))
-        request.user = self.privileged_user
-        response = ticket_items(
-            request,
-            ticket.bpt_event.conference.conference_slug)
+        url = reverse(
+            self.view_name,
+            urlconf='ticketing.urls',
+            args=[str(
+                ticket.bpt_event.conference.conference_slug)])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
         nt.assert_equal(response.status_code, 200)
+
+    def test_ticket_active_state(self):
+        '''
+           privileged user gets the list for a conference
+        '''
+        active_ticket = TicketItemFactory(live=True)
+        not_live_ticket = TicketItemFactory(
+            live=False,
+            bpt_event=active_ticket.bpt_event)
+        coupon_ticket = TicketItemFactory(
+            has_coupon=True,
+            live=True,
+            bpt_event=active_ticket.bpt_event)
+
+        url = reverse(
+            self.view_name,
+            urlconf='ticketing.urls',
+            args=[str(
+                active_ticket.bpt_event.conference.conference_slug)])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+
+        nt.assert_equal(response.status_code, 200)
+        assert 'Visible' in response.content
+        assert response.content.count('Hidden') == 2

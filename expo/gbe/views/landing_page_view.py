@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.template import (
@@ -27,6 +28,7 @@ from expo.gbe_logging import log_func
 
 @login_required
 @log_func
+@never_cache
 def LandingPageView(request, profile_id=None, historical=False):
     historical = "historical" in request.GET.keys()
     standard_context = {}

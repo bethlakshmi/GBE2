@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import (
@@ -43,6 +44,7 @@ def AssignVolunteerView(request, volunteer_id):
                   'gbe/assign_volunteer.tmpl',
                   {'volunteer': volunteer,
                    'bookings': volunteer.profile.get_bookings('Volunteer'),
+                   'interests': volunteer.interest_list,
                    'volunteer_event_windows': get_events_and_windows(
                        conference),
                    'actionURL': actionURL,

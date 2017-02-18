@@ -1,4 +1,5 @@
 from django.views.generic import View
+from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
@@ -8,17 +9,12 @@ from django.shortcuts import (
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
+from gbe.models import (
+    BidEvaluation,
+)
 from gbe.forms import (
     BidEvaluationForm,
     BidStateChangeForm,
-    PersonaForm,
-    ClassBidForm,
-    ParticipantForm,
-
-)
-from gbe.models import (
-    Class,
-    BidEvaluation,
 )
 from gbe.functions import (
     validate_perms,
@@ -28,6 +24,8 @@ from gbe.functions import (
 
 class ReviewBidView(View):
     bid_state_change_form = BidStateChangeForm
+    bid_evaluation_type = BidEvaluation
+    bid_evaluation_form_type = BidEvaluationForm
 
     def create_action_form(self, bid):
         self.actionform = self.bid_state_change_form(instance=bid)
@@ -87,24 +85,26 @@ class ReviewBidView(View):
             self.actionform = False
             self.actionURL = False
         self.conference, self.old_bid = get_conf(self.object)
-        self.bid_eval = BidEvaluation.objects.filter(
+
+        self.bid_eval = self.bid_evaluation_type.objects.filter(
             bid_id=self.object.pk,
             evaluator_id=self.reviewer.resourceitem_id).first()
         if self.bid_eval is None:
-            self.bid_eval = BidEvaluation(
+            self.bid_eval = self.bid_evaluation_type(
                 evaluator=self.reviewer, bid=self.object)
 
+    @never_cache
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(instance=self.bid_eval)
+        self.form = self.bid_evaluation_form_type(instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.bid_review_response(request))
 
+    @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        self.form = BidEvaluationForm(request.POST,
-                                      instance=self.bid_eval)
-
+        self.form = self.bid_evaluation_form_type(request.POST,
+                                                  instance=self.bid_eval)
         return (self.object_not_current_redirect() or
                 self.post_response_for_form(request))
 

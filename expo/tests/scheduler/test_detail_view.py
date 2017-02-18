@@ -6,7 +6,6 @@ import nose.tools as nt
 from django.test.client import RequestFactory
 from django.test import Client
 from scheduler.views import detail_view
-from scheduler.forms import conference_days
 from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,

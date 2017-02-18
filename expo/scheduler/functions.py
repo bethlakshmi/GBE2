@@ -9,95 +9,27 @@ from calendar import timegm
 from gbe.duration import (
     Duration,
     DateTimeRange,
-    timedelta_to_duration
+    timedelta_to_duration,
 )
 from random import choice
 
 import math
-try:
-    from expo.settings import DATETIME_FORMAT
-except:
-    DATETIME_FORMAT = None
-
+from expo.settings import (
+    DATETIME_FORMAT,
+    TIME_FORMAT,
+    DATE_FORMAT,
+)
+from django.utils.formats import date_format
 from django.core.urlresolvers import reverse
 import pytz
 
-conference_days = (
-    (datetime(2015, 02, 19).strftime('%Y-%m-%d'), 'Thursday'),
-    (datetime(2015, 02, 20).strftime('%Y-%m-%d'), 'Friday'),
-    (datetime(2015, 02, 21).strftime('%Y-%m-%d'), 'Saturday'),
-    (datetime(2015, 02, 22).strftime('%Y-%m-%d'), 'Sunday'),
-)
 
 utc = pytz.timezone('UTC')
-
-conference_datetimes = (
-    datetime(2015, 02, 19, tzinfo=utc),
-    datetime(2015, 02, 20, tzinfo=utc),
-    datetime(2015, 02, 21, tzinfo=utc),
-    datetime(2015, 02, 22, tzinfo=utc),
-)
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins / 60, mins % 60),
-                     time(mins / 60, mins % 60).strftime("%I:%M %p"))
-                    for mins in range(time_start, time_stop, 30)]
-
-conference_dates = {"Thursday": "2015-02-19",
-                    "Friday": "2015-02-20",
-                    "Saturday": "2015-02-21",
-                    "Sunday": "2015-02-22"}
-
-hour = Duration(seconds=3600)
-
-monday = datetime(2015, 2, 23)
-
-
-def set_time_format(events=None, days=0):
-    '''
-    Returns a default time format which prepends a day if day, date,
-    etc is not included AND a test for included days is greater then
-    one.  Uses the default set in settings.py, and if that is absent,
-    set it to 12 hour and min with AM and PM (%I:%M %p).  Can accept a
-    dictionary of events with the datetime info in it, or a number of
-    days covered by the format.  Numbers greater then 2 cause the name
-    of the day to be prepended to the format.  Will add similar for
-    months later.
-    '''
-    try:
-        from expo.settings import DATETIME_FORMAT
-    except:
-        DATETIME_FORMAT = None
-
-    if type(events) == type({}) and days == 0:
-        for event in events:
-            day = event['start_time'].day
-            if day not in days:
-                days.append(day)
-        days = len(days)
-
-    if days <= 1:
-        if DATETIME_FORMAT is None:
-            DATETIME_FORMAT = "%I:%M %p"
-    else:
-        if DATETIME_FORMAT is None:
-            DATETIME_FORMAT = "%a, %I:%M %p"
-        else:
-            testValue = False
-            for dayValue in ('%a', '%A', '%w', '%d', '%j'):
-                # Test for formats that print the day
-                if dayValue in DATETIME_FORMAT:
-                    testValue = True
-            if not testValue:
-                DATETIME_FORMAT = '%a, ' + DATETIME_FORMAT
-    return DATETIME_FORMAT
 
 
 def init_time_blocks(events,
                      block_size,
-                     time_format,
+                     time_format="DATETIME_FORMAT",
                      cal_start=None,
                      cal_stop=None,
                      trim_to_block_size=True,
@@ -145,9 +77,10 @@ def init_time_blocks(events,
     events = sorted(events, key=lambda event: event['stop_time'])
     if strip_empty_blocks in ('both', 'stop'):
         cal_stop = min(cal_stop, events[-1]['stop_time'])
-    schedule_duration = timedelta_to_duration(cal_stop-cal_start)
-    blocks_count = int(math.ceil(schedule_duration/block_size))
-    block_labels = [(cal_start + block_size * b).strftime(time_format)
+    schedule_duration = timedelta_to_duration(cal_stop - cal_start)
+    blocks_count = int(math.ceil(schedule_duration / block_size))
+    block_labels = [date_format((cal_start + block_size * b),
+                                time_format)
                     for b in range(blocks_count)]
     return block_labels, cal_start, cal_stop
 
@@ -179,7 +112,7 @@ def normalize(event, schedule_start, schedule_stop, block_labels, block_size):
     event['startblock'] = timedelta_to_duration(relative_start) // block_size
     event['startlabel'] = block_labels[event['startblock']]
     event['rowspan'] = int(
-        math.ceil(working_stop_time / block_size))-event['startblock']
+        math.ceil(working_stop_time / block_size)) - event['startblock']
 
 
 def overlap_check(events):
@@ -227,7 +160,8 @@ def overlap_clear(events):
         for event in location_events[1:]:
             if event['start_time'] < prev_stop:
                 if event['location'] == prev_event['location']:
-                    event['location'] = event['location']+overlap_location_text
+                    event['location'] = (event['location'] +
+                                         overlap_location_text)
             prev_stop = event['stop_time']
             prev_event = event
     return events
@@ -254,7 +188,7 @@ def add_to_table(event, table, block_labels):
         event.get('html', 'FOO'))
     for i in range(1, event['rowspan']):
         table[event['location'],
-              block_labels[event['startblock']+i]
+              block_labels[event['startblock'] + i]
               ] = '&nbsp;'
 
 
@@ -268,7 +202,7 @@ def html_prep(event):
     html = '<li><a href=\'%s\'>%s</a></li>' % (event['link'], event['title'])
     if 'short_desc' in event.keys():
         #  short_desc is a short description, which is optional
-        html = html+event['short_desc']
+        html = html + event['short_desc']
     event['html'] = html
 
 
@@ -293,15 +227,13 @@ def html_headers(table, headerStart='<TH>', headerEnd='</TH>'):
 
 def table_prep(events,
                block_size,
-               time_format=None,
+               time_format="TIME_FORMAT",
                cal_start=None,
                cal_stop=None,
                col_heads=None):
     '''
     Generate a calendar table based on submitted events
     '''
-    if time_format is None:
-        time_format = set_time_format(events)
     block_labels, cal_start, cal_stop = init_time_blocks(events,
                                                          block_size,
                                                          time_format,
@@ -337,43 +269,30 @@ def event_info(confitem_type='Show',
                                    tzinfo=pytz.timezone('UTC'))),
                conference=None):
     '''
-    Queries the database for scheduled events of type confitem_type,
-    during time cal_times,
-    and returns their important information in a dictionary format.
+    Using the scheduleable items for the current conference, get a list
+    of dicts for the dates selected
     '''
-    if confitem_type in ['Panel', 'Movement', 'Lecture', 'Workshop']:
-        filter_type, confitem_type = confitem_type, 'Class'
-    elif confitem_type in ['Special Event',
-                           'Volunteer Opportunity',
-                           'Master Class',
-                           'Drop-In Class']:
-        filter_type, confitem_type = confitem_type, 'GenericEvent'
-
-    import gbe.models as conf
     from scheduler.models import Location
-    if not conference:
-        conference = conf.Conference.current_conf()
-    confitem_class = eval('conf.'+confitem_type)
-    confitems_list = confitem_class.objects.filter(e_conference=conference)
+    from gbe.functions import get_gbe_schedulable_items
+
+    confitems_list = get_gbe_schedulable_items(
+        confitem_type,
+        filter_type,
+        conference)
+
     confitems_list = [confitem for confitem in confitems_list if
                       confitem.schedule_ready and confitem.visible]
-
-    if filter_type is not None:
-        confitems_list = [
-            confitem for confitem in confitems_list if
-            confitem.sched_payload['details']['type'] == filter_type]
 
     loc_allocs = []
     for l in Location.objects.all():
         loc_allocs += l.allocations.all()
 
-    scheduled_events = [alloc.event for alloc in loc_allocs]
-
-    for event in scheduled_events:
-        start_t = event.start_time
-        stop_t = event.start_time + event.duration
-        if start_t > cal_times[1] or stop_t < cal_times[0]:
-            scheduled_events.remove(event)
+    scheduled_events = []
+    for alloc in loc_allocs:
+        start_t = alloc.event.start_time
+        stop_t = alloc.event.start_time + alloc.event.duration
+        if start_t < cal_times[1] and stop_t >= cal_times[0]:
+            scheduled_events += [alloc.event]
 
     scheduled_event_ids = [
         alloc.event.eventitem_id for alloc in scheduled_events]
@@ -416,7 +335,7 @@ def get_default_range():
     return (today + Duration(hours=8), today + Duration(hours=28))
 
 
-def cal_times_for_conf(conference, day_name):
+def cal_times_for_conf(conference, day_name=None):
     from gbe.functions import get_conference_days  # late import, circularity
     days = get_conference_days(conference)
 
@@ -441,9 +360,9 @@ def get_events_and_windows(conference):
     events = Event.objects.filter(
         max_volunteer__gt=0,
         eventitem__event__e_conference=conference
-        ).exclude(
-            eventitem__event__genericevent__type='Rehearsal Slot').order_by(
-                'starttime')
+    ).exclude(
+        eventitem__event__genericevent__type='Rehearsal Slot').order_by(
+            'starttime')
     conf_windows = conference.windows()
     volunteer_event_windows = []
 
@@ -472,3 +391,167 @@ def get_roles_from_scheduler(workeritems, conference):
             roles += [allocation.resource.as_subtype.role]
 
     return list(set(roles))
+
+
+def calendar_export(conference=None,
+                    cal_format='gbook',
+                    event_types='All',
+                    day=None,
+                    ):
+    '''
+    View to export calendars, formatted in either iCalendar format, or as
+    a csv file.  Used to allow importing of the calendar information into
+    other applications, such as Guidebook, or Calendar applications.
+
+    conference  - Slug for the conference we want to export data for
+    cal_format  - Which format to use for the exported data, can be 'gbook'
+                  for Guidebook csv, 'ical' for iCal calendar programs (ics)
+    event_types - Which event types to include, usually will be 'All' to
+                  generate a complete calendar, but could also be 'Class',
+                  'Show', etc, or a list or tuple of event_types
+    day         - Which day of the conference to get calendar info for,
+                  None or 'All' gets info for entire conference
+    '''
+    #  TODO: Add ability to filter on a users schedule for things like
+    #  volunteer shifts.
+
+    from django.contrib.sites.models import Site
+    url = 'http://'  # Want to find this through Site or similar
+    site = Site.objects.get_current().domain
+    from gbe.functions import (
+        get_conference_by_slug,
+        get_current_conference_slug,
+    )
+    from expo.settings import (
+        DATETIME_FORMAT,
+        TIME_FORMAT,
+        )
+    import string
+
+    if conference is None:
+        conference = get_current_conference_slug()
+    else:
+        conference = get_conference_by_slug(conference)
+
+    if day == 'All':
+        day = None
+    cal_times = cal_times_for_conf(conference, day)
+
+    if event_types == 'All' or event_types == u'All':
+        event_types = ['Show',
+                       'Class',
+                       'Special Event',
+                       'Master Class',
+                       'Drop-In Class',
+                       ]
+    if event_types == 'Show' or event_types == u'Show':
+        event_types == ['Show',
+                        'Special Event',
+                        'Master Class',
+                        'Drop-In Class',
+                        ]
+    if type(event_types) in (type(''), type(u'')):
+        event_types = [event_types]
+    events = []
+    for event_type in event_types:
+        events = events + event_info(confitem_type=event_type,
+                                     cal_times=cal_times,
+                                     conference=conference)
+    if cal_format == 'gbook':
+        line_misc = ''
+        line_end = '\r\n'
+
+        # Guidebook's allowed fields are:
+        # Session Title, Date, Time Start, Time End, Room/Location,
+        # Schedule Track (Optional), Description (Optional),
+        # Allow Checkin (Optional), Checkin Begin (Optional),
+        # Limit Spaces? (Optional), Allow Waitlist (Optional)
+        return_file = '"Session Title",' + \
+                      '"Date",' + \
+                      '"Time Start",' + \
+                      '"Time End",' + \
+                      '"Room/Location",' + \
+                      '"Schedule Track (Optional)",' + \
+                      '"Description (Optional)",' + \
+                      '"Link To URL ID (Optional)",' + \
+                      '"Link To URL Name (Optional)"' + line_end
+
+        for event in events:
+            title = event['title'].replace('\n', '') \
+                 .replace('\r', '') \
+                 .replace('"', '') \
+                 .replace("'", '`')
+            title = filter(lambda x: x in string.printable, title)
+            csv_line = '"%s",' % (title)
+            csv_line = csv_line + '"%s",' % \
+                (date_format(event['start_time'], 'DATE_FORMAT')
+                 .replace(',', ''))
+            csv_line = csv_line + '"%s",' % \
+                (date_format(event['start_time'], 'TIME_FORMAT')
+                 .replace('a.m.', 'AM').replace('p.m.', 'PM')
+                 .replace('am', 'AM').replace('pm', 'PM')
+                 .replace('noon', '12 PM').replace('midnight', '12 AM'))
+            csv_line = csv_line + '"%s",' % \
+                (date_format(event['stop_time'], 'TIME_FORMAT')
+                 .replace('a.m.', 'AM').replace('p.m.', 'PM')
+                 .replace('am', 'AM').replace('pm', 'PM')
+                 .replace('noon', '12 PM').replace('midnight', '12 AM'))
+            csv_line = csv_line + '"%s",' % (event['location'])
+            csv_line = csv_line + '"%s",' % (event['type'].split('.')[0])
+            description = event['description'].replace('\n', '') \
+                                              .replace('\r', '') \
+                                              .replace('"', '') \
+                                              .replace("'", '`')
+            description = filter(lambda x: x in string.printable, description)
+            csv_line = csv_line + '"%s",' % description
+            csv_line = csv_line + '"%s%s",' % (url+site, event['link'])
+            csv_line = csv_line + '"%s",' % (title)
+            csv_line = csv_line + line_misc + line_end
+
+            return_file = return_file + csv_line
+
+    elif cal_format == 'ical':
+        return_file = '''
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Great Burlesque Exposition//GBE2 Scheduler//EN
+'''
+        for event in events:
+            return_file = return_file + 'BEGIN:VEVENT\n'
+            return_file = return_file + 'UID:%s-%s-%s@%s\n' \
+                % (conference.conference_slug,
+                   event['title'].replace(' ', ''),
+                   event['start_time'].strftime('%F-%R'),
+                   site.replace('www.', '')
+                   )
+            return_file = return_file + 'DTSTAMP:%s\n' % \
+                (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
+            return_file = return_file + 'TZID:%s\n' % \
+                (event['start_time'].strftime('%Z'))
+            return_file = return_file + 'DTSTART:%s\n' % \
+                (event['start_time'].strftime('%Y%m%dT%H%M%SZ'))
+            return_file = return_file + 'DTEND:%s\n' % \
+                (event['stop_time'].strftime('%Y%m%dT%H%M%SZ'))
+            return_file = return_file + 'SUMMARY:%s\n' % \
+                (event['title'])
+            return_file = return_file + 'URL:%s%s\n' % \
+                (url+site, event['link'])
+            return_file = return_file + 'END:VEVENT\n'
+        return_file = return_file + 'END:VCALENDAR\n'
+
+    return return_file
+
+
+def get_scheduled_events_by_role(conference, roles):
+    '''
+    gets all the workeritems scheduled with a given set of roles for the
+    given conference
+    '''
+    from scheduler.models import (
+        ResourceAllocation,
+        Worker,
+    )
+    commits = ResourceAllocation.objects.filter(
+        event__eventitem__event__conference=conference)
+    workers = Worker.objects.filter(role__in=roles)
+    return workers, commits

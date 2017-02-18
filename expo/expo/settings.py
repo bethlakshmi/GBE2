@@ -43,6 +43,7 @@ CMS_TEMPLATES = (
 
 LANGUAGES = [
     ('en-us', gettext('en-us')),
+    ('en', gettext('en')),
 
 ]
 
@@ -127,15 +128,20 @@ INSTALLED_APPS = (
     'scheduler',
     'ticketing',
     'gbe',
+    'pagination',
     'django_nose',
     'hijack',
+    'hijack_admin',
     'compat',
     'debug_toolbar',
+    'ad_rotator',
+    'post_office',
+    'import_export',
 )
+
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 FIXTURE_DIRS = ('expo/tests/fixtures',)
-
 
 THUMBNAIL_HIGH_RESOLUTION = True
 
@@ -143,7 +149,6 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'easy_thumbnails.processors.autocrop',
     'cmsplugin_nivoslider.thumbnail_processors.pad_image',
-    # 'easy_thumbnails.processors.scale_and_crop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
@@ -157,7 +162,7 @@ MIDDLEWARE_CLASSES = (
     'hijack.middleware.HijackRemoteUserMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # added for django-cms
+    #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -166,8 +171,10 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
-    # end of add for django-cms
+    #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'pagination.middleware.PaginationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
@@ -204,6 +211,7 @@ MIGRATION_MODULES = {
 '''
 SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
+    "post_office": "post_office.south_migrations",
 }
 '''
 
@@ -226,10 +234,10 @@ try:
     DATABASES
 except:
     DATABASES = {
-       'default': {
-          'ENGINE': 'django.db.backends.sqlite3',
-          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-       }
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
 
 # Internationalization
@@ -244,6 +252,38 @@ USE_L10N = True
 
 USE_TZ = True
 
+# TIME_FORMAT is often used for ending times of events, or when you
+# do not need to give the date, such as in calendar grids
+try:
+    TIME_FORMAT
+except:
+    TIME_FORMAT = "%-I:%M %p"
+
+try:
+    DATE_FORMAT
+except:
+    DATE_FORMAT = "%a, %b %-d"
+try:
+    DATETIME_FORMAT
+except:
+    # Default DATETIME_FORMAT - see 'man date' for format options
+    # DATETIME_FORMAT = "%I:%M %p"
+    DATETIME_FORMAT = DATE_FORMAT+" "+TIME_FORMAT
+
+try:
+    SHORT_DATETIME_FORMAT
+except:
+    SHORT_DATETIME_FORMAT = "%a, "+TIME_FORMAT
+
+try:
+    DURATION_FORMAT
+except:
+    DURATION_FORMAT = "%-I:%M"
+
+try:
+    DAY_FORMAT
+except:
+    DAY_FORMAT = "%A"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -255,10 +295,7 @@ except:
 # Email settings for password reset
 
 try:
-    EMAIL_HOST
-    EMAIL_HOST_USER
-    EMAIL_HOST_PASSWORD
-    EMAIL_USE_TLS
+    EMAIL_BACKEND
     DEFAULT_FROM_EMAIL
 except:
     EMAIL_HOST = 'localhost'
@@ -267,8 +304,7 @@ except:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'gbetest@burlesque-expo.com'
-
-DATETIME_FORMAT = "%I:%M %p"
+    EMAIL_BACKEND = 'post_office.EmailBackend'
 
 # new for django-cms.  Don't know why yet.
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -307,6 +343,13 @@ CMS_LANGUAGES = {
             'name': gettext('en-us'),
             'redirect_on_fallback': True,
         },
+        {
+            'public': True,
+            'code': 'en',
+            'hide_untranslated': False,
+            'name': gettext('en'),
+            'redirect_on_fallback': True,
+        },
     ],
 }
 
@@ -338,4 +381,59 @@ except:
     LOG_FORMAT = '%(asctime)s::%(levelname)s::%(funcName)s - %(message)s'
 
 
+#  This block is for using local_settings.py to control which external
+#  apps are setup and configured to execute within this installation
+#  of GBE2.  Only alter this if you read through local_settings.py
+#  and urls.py to see how this works.
+
+try:
+    APP_DJANGOBB
+except:
+    APP_DJANGOBB = False
+
+if APP_DJANGOBB is True:
+    INSTALLED_APPS = INSTALLED_APPS + ('djangobb_forum',)
+    TEMPLATE_CONTEXT_PROCESSORS = TEMPLATE_CONTEXT_PROCESSORS + \
+        ('djangobb_forum.context_processors.forum_settings',)
+
+    # HAYSTACK settings, for DjangoBB_Forum
+    HAYSTACK_DEFAULT_OPERATOR = 'OR'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh/whoosh_index',
+            'TIMEOUT': 60 * 5,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        'autocomplete': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/vagrant/expo/whoosh_index',
+            'STORAGE': 'file',
+            'POST_LIMIT': 128 * 1024 * 1024,
+            'INCLUDE_SPELLING': True,
+            'BATCH_SIZE': 100,
+            'EXCLUDED_INDEXES': [
+                    'thirdpartyapp.search_indexes.BarIndex'],
+        },
+        # 'slave': {
+        #     'ENGINE': 'xapian_backend.XapianEngine',
+        #     'PATH': '/home/search/xapian_index',
+        #     'INCLUDE_SPELLING': True,
+        #     'BATCH_SIZE': 100,
+        #     'EXCLUDED_INDEXES': [ \
+        #         'thirdpartyapp.search_indexes.BarIndex'],
+        #     },
+        'db': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+            'EXCLUDED_INDEXES': ['thirdpartyapp.search_indexes.BarIndex'],
+        }
+    }
+
 # DJANGO-HIJACK
+
+HIJACK_LOGIN_REDIRECT_URL = '/profile/'
+HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user/'
+HIJACK_ALLOW_GET_REQUESTS = True

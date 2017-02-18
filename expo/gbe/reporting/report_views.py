@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.management import call_command
+from django.views.decorators.cache import never_cache
 
 import gbe.models as conf
 import scheduler.models as sched
@@ -16,6 +17,7 @@ from gbe.ticketing_idd_interface import (
 import os
 import csv
 from reportlab.pdfgen import canvas
+# from gbe.reporting.view_techinfo import *
 
 from gbe.functions import (
     conference_slugs,
@@ -24,6 +26,9 @@ from gbe.functions import (
     validate_perms,
 )
 from expo.gbe_logging import logger
+from expo.settings import DATETIME_FORMAT
+from django.utils.formats import date_format
+from gbe.reporting.functions import prep_act_tech_info
 
 
 def list_reports(request):
@@ -40,7 +45,7 @@ def list_reports(request):
                       'conference_slugs': conference_slugs(),
                       'conference': conference,
                       'return_link': reverse('report_list',
-                                             urlconf='gbe.report_urls')})
+                                             urlconf='gbe.reporting.urls')})
 
 
 def review_staff_area(request):
@@ -89,6 +94,7 @@ def staff_area(request, area_id):
                    'area': area})
 
 
+@never_cache
 def env_stuff(request, conference_choice=None):
     '''
     Generates an envelope-stuffing report.
@@ -178,6 +184,7 @@ def env_stuff(request, conference_choice=None):
     return response
 
 
+@never_cache
 def personal_schedule(request, profile_id='All'):
     viewer_profile = validate_perms(request, 'any', require=True)
 
@@ -212,6 +219,7 @@ def personal_schedule(request, profile_id='All'):
                    'conference': conference})
 
 
+@never_cache
 def review_act_techinfo(request, show_id=None):
     '''
     Show the list of act tech info for all acts in a given show
@@ -221,22 +229,8 @@ def review_act_techinfo(request, show_id=None):
     # but does not have any scheduled events.
     # I can still show a list of shows this way.
 
-    show = None
-    acts = []
-
-    if show_id:
-        try:
-            show = conf.Show.objects.get(eventitem_id=show_id)
-            acts = show.scheduler_events.first().get_acts(status=3)
-            acts = sorted(acts, key=lambda act: act.order)
-        except:
-            logger.error("review_act_techinfo: Invalid show id")
-            pass
-    if show:
-        conference = show.e_conference
-    else:
-        conf_slug = request.GET.get('conf_slug', None)
-        conference = get_conference_by_slug(conf_slug)
+    show, acts, conference, scheduling_link = prep_act_tech_info(
+        request, show_id)
     return render(request,
                   'gbe/report/act_tech_review.tmpl',
                   {'this_show': show,
@@ -245,8 +239,9 @@ def review_act_techinfo(request, show_id=None):
                        e_conference=conference),
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
+                   'scheduling_link': scheduling_link,
                    'return_link': reverse('act_techinfo_review',
-                                          urlconf='gbe.report_urls')})
+                                          urlconf='gbe.reporting.urls',)})
 
 
 def download_tracks_for_show(request, show_id):
@@ -324,11 +319,12 @@ def export_act_techinfo(request, show_id):
     for act in acts:
         rehearsals = ""
         for rehearsal in act.get_scheduled_rehearsals():
-            rehearsals += str(rehearsal.start_time)+", "
+            rehearsals += date_format(
+                rehearsal.start_time, "DATETIME_FORMAT") + ", "
 
         start = [act.order,
-                 act.b_title,
-                 act.performer,
+                 act.b_title.encode('utf-8').strip(),
+                 str(act.performer).encode('utf-8').strip(),
                  act.performer.contact.user_object.email,
                  act.tech.is_complete,
                  rehearsals]
@@ -342,19 +338,19 @@ def export_act_techinfo(request, show_id):
 
             if location.describe == 'Theater':
                 cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
+                             cue.cue_off_of.encode('utf-8').strip(),
                              cue.follow_spot,
                              cue.center_spot,
                              cue.backlight,
                              cue.cyc_color,
                              cue.wash,
-                             cue.sound_note]
+                             cue.sound_note.encode('utf-8').strip()]
             else:
                 cue_items = [cue.cue_sequence,
-                             cue.cue_off_of,
+                             cue.cue_off_of.encode('utf-8').strip(),
                              cue.follow_spot,
                              cue.wash,
-                             cue.sound_note]
+                             cue.sound_note.encode('utf-8').strip()]
             start[0] = float("%d.%d" % (act.order, cue.cue_sequence))
             techinfo.append(start+cue_items)
 
@@ -377,6 +373,7 @@ def export_act_techinfo(request, show_id):
     return response
 
 
+@never_cache
 def room_schedule(request, room_id=None):
     viewer_profile = validate_perms(request,
                                     'any',
@@ -430,6 +427,7 @@ def room_schedule(request, room_id=None):
                    'conference': conference})
 
 
+@never_cache
 def room_setup(request):
 
     conference_slugs = conf.Conference.all_slugs()
@@ -483,6 +481,7 @@ def room_setup(request):
                    'conference': conference})
 
 
+@never_cache
 def export_badge_report(request, conference_choice=None):
     '''
     Export a csv of all badge printing details.
@@ -494,7 +493,9 @@ def export_badge_report(request, conference_choice=None):
     if conference_choice:
         badges = tix.Transaction.objects.filter(
             ticket_item__bpt_event__badgeable=True,
-            ticket_item__bpt_event__conference__conference_slug=conference_choice).order_by(
+            ticket_item__bpt_event__conference__conference_slug=(
+                conference_choice)
+            ).order_by(
                 'ticket_item')
 
     else:

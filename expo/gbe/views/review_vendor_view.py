@@ -6,7 +6,7 @@ from gbe.views import ReviewBidView
 
 class ReviewVendorView(ReviewBidView):
     reviewer_permissions = ('Vendor Reviewers',)
-    coordinator_permissions = ('Vendor Coordinator')
+    coordinator_permissions = ('Vendor Coordinator',)
     bid_prefix = 'The Vendor'
     bid_form_type = VendorBidForm
     object_type = Vendor

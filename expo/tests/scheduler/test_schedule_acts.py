@@ -29,7 +29,7 @@ class TestScheduleActs(TestCase):
         self.context = ShowContext()
         self.url = reverse(self.view_name,
                            urlconf="scheduler.urls",
-                           args=[self.context.show.e_title])
+                           args=[self.context.show.pk])
 
     def get_basic_post(self):
         allocation = self.context.sched_event.resources_allocated.filter(
@@ -81,7 +81,7 @@ class TestScheduleActs(TestCase):
         bad_url = reverse(
             self.view_name,
             urlconf="scheduler.urls",
-            args=["Bad bad event name"])
+            args=[self.context.show.pk+1])
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 404)
 
@@ -92,15 +92,22 @@ class TestScheduleActs(TestCase):
             urlconf="scheduler.urls")
         response = self.client.get(bad_url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Select event type to schedule")
+        self.assertContains(response,
+                            "Select a current or upcoming show to schedule")
         self.assertContains(
             response,
             '<option value="%s">%s</option>' % (
-                self.context.show.e_title,
+                self.context.show.pk,
                 self.context.show.e_title)
             )
 
     def test_good_user_get_success(self):
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assert_good_form_display(response)
+
+    def test_good_user_get_two_shows_same_title(self):
+        ShowFactory(title=self.context.show.title)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
@@ -125,7 +132,7 @@ class TestScheduleActs(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.post(
             self.url,
-            data={'event_type': self.context.show.e_title})
+            data={'show_id': self.context.show.pk})
         self.assert_good_form_display(response)
 
     def test_good_user_post_success(self):
@@ -202,3 +209,9 @@ class TestScheduleActs(TestCase):
             reverse('home', urlconf='gbe.urls'))
         self.assertEqual(new_show.sched_event.volunteer_count, "2 acts")
         self.assertEqual(self.context.sched_event.volunteer_count, 0)
+
+    def test_good_user_get_only_conf_shows(self):
+        not_this_conf_show = ShowFactory()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        assert not_this_conf_show.title not in response.content

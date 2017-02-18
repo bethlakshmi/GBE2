@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -9,6 +10,7 @@ from gbe.functions import validate_perms
 
 @login_required
 @log_func
+@never_cache
 def ReviewProfilesView(request):
     admin_profile = validate_perms(request, ('Registrar',
                                              'Volunteer Coordinator',
@@ -16,12 +18,24 @@ def ReviewProfilesView(request):
                                              'Conference Coordinator',
                                              'Vendor Coordinator',
                                              'Ticketing - Admin'))
-    header = Profile().review_header
+    header = ['Name',
+              'Username',
+              'Last Login',
+              'Contact Info',
+              'Action']
     profiles = Profile.objects.all()
     rows = []
     for aprofile in profiles:
         bid_row = {}
-        bid_row['profile'] = aprofile.review_summary
+        bid_row['profile'] = (
+            aprofile.display_name,
+            aprofile.user_object.username,
+            aprofile.user_object.last_login)
+        bid_row['contact_info'] = {
+            'contact_email': aprofile.user_object.email,
+            'purchase_email': aprofile.purchase_email,
+            'phone': aprofile.phone
+        }
         bid_row['id'] = aprofile.resourceitem_id
         bid_row['actions'] = []
         if 'Registrar' in request.user.profile.privilege_groups:

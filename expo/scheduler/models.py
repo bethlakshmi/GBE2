@@ -6,7 +6,10 @@ from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
 from gbe.expomodelfields import DurationField
-from scheduler.functions import set_time_format
+from expo.settings import (
+    DATETIME_FORMAT,
+    DAY_FORMAT,)
+from django.utils.formats import date_format
 from django.core.exceptions import MultipleObjectsReturned
 import pytz
 
@@ -392,6 +395,12 @@ class WorkerItem(ResourceItem):
         ).contact_email
 
     @property
+    def badge_name(self):
+        return WorkerItem.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id
+        ).describe
+
+    @property
     def contact_phone(self):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -404,7 +413,7 @@ class WorkerItem(ResourceItem):
         return child.__class__.__name__ + ":  " + child.describe
 
     def __str__(self):
-        return str(self.describe)
+        return str(self.describe.encode('utf-8').strip())
 
     def __unicode__(self):
         return unicode(self.describe)
@@ -525,16 +534,16 @@ class EventItem (models.Model):
                            'Staff Lead']):
         try:
             container = EventContainer.objects.filter(
-                child_event__eventitem=self.eventitem_id).first()
+                child_event__eventitem=self).first()
             people = Worker.objects.filter(
-                (Q(allocations__event__eventitem=self.eventitem_id) &
+                (Q(allocations__event__eventitem=self) &
                  Q(role__in=roles)) |
                 (Q(allocations__event=container.parent_event) &
                  Q(role__in=roles))).distinct().order_by(
                 'role', '_item')
         except:
             people = Worker.objects.filter(
-                allocations__event__eventitem=self.eventitem_id,
+                allocations__event__eventitem=self,
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
@@ -551,7 +560,7 @@ class EventItem (models.Model):
 
     @property
     def payload(self):
-        return self.sched_payload
+        return self.child().sched_payload
 
     @property
     def duration(self):
@@ -562,14 +571,7 @@ class EventItem (models.Model):
     def describe(self):
         try:
             child = self.child()
-            '''
-            ids = "event - " + str(child.event_id)
-            try:
-                ids += ', bid - ' + str(child.id)
-            except:
-                ids += ""
-            '''
-            return str(child.sched_payload.get('title'))
+            return str(child)
         except:
             return "no child"
 
@@ -659,12 +661,27 @@ class Event(Schedulable):
         multiple times in the same role, this will not attempt to reject
         duplicate allocations, it will always just create the requested
         allocation
+
+        It returns any warnings.  Warnings include:
+           - conflicts found with the worker item's existing schedule
+           - any case where the event is already booked with the maximum
+             number of volunteers
         '''
+        warnings = []
+        time_format = DATETIME_FORMAT
         if isinstance(worker, WorkerItem):
             worker = Worker(_item=worker, role=role)
         else:
             worker.role = role
         worker.save()
+        for conflict in worker.workeritem.get_conflicts(self):
+            warnings += [
+                ("Found event conflict, new booking %s - " +
+                 "%s conflicts with %s - %s") % (
+                    str(self),
+                    self.starttime.strftime(time_format),
+                    str(conflict),
+                    conflict.starttime.strftime(time_format))]
         if alloc_id < 0:
             allocation = ResourceAllocation(event=self,
                                             resource=worker)
@@ -673,8 +690,20 @@ class Event(Schedulable):
                 id=alloc_id)
             allocation.resource = worker
         allocation.save()
+        if self.extra_volunteers() > 0:
+            warnings += ["%s - %s is overfull. Over by %d volunteer." % (
+                str(self),
+                self.starttime.strftime(time_format),
+                self.extra_volunteers())]
         if label:
             allocation.set_label(label)
+        return warnings
+
+    def unallocate_worker(self, worker, role):
+        ResourceAllocation.objects.get(
+            event=self,
+            resource__worker___item=worker,
+            resource__worker__role=role).delete()
 
     def unallocate_role(self, role):
         '''
@@ -722,15 +751,15 @@ class Event(Schedulable):
 
     @property
     def volunteer_count(self):
-        acts = len(self.get_acts())
-        volunteers = Worker.objects.filter(allocations__event=self,
-                                           role='Volunteer').count()
-        if acts:
-            return "%d acts" % acts
-        elif volunteers:
+        allocations = ResourceAllocation.objects.filter(event=self)
+        volunteers = allocations.filter(resource__worker__role='Volunteer').count()
+        if volunteers > 0:
             return "%d volunteers" % volunteers
         else:
-            return 0
+            acts = ActResource.objects.filter(allocations__in=allocations).count()
+            if acts > 0:
+                return "%d acts" % acts
+        return 0
 
     def get_workers(self, worker_type=None):
         '''
@@ -949,7 +978,7 @@ class Event(Schedulable):
         overlapping end_time - it's a conflict
         '''
         is_conflict = False
-        if self.start_time == other_event.starttime:
+        if self.start_time == other_event.start_time:
             is_conflict = True
         elif (self.start_time > other_event.start_time and
               self.start_time < other_event.end_time):

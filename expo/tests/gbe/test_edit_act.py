@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     ActFactory,
+    ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
     UserFactory,
@@ -57,7 +58,9 @@ class TestEditAct(TestCase):
                       args=[act.pk],
                       urlconf="gbe.urls")
         login_as(act.performer.performer_profile, self)
-        make_act_app_purchase(act.performer.performer_profile.user_object)
+        make_act_app_purchase(
+            act.conference,
+            act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
             data=act_form,
@@ -69,7 +72,9 @@ class TestEditAct(TestCase):
         url = reverse(self.view_name,
                       args=[original.pk],
                       urlconf="gbe.urls")
-        make_act_app_purchase(original.performer.performer_profile.user_object)
+        make_act_app_purchase(
+            original.conference,
+            original.performer.performer_profile.user_object)
         return post_act_conflict(
             original.b_conference,
             original.performer,
@@ -135,6 +140,22 @@ class TestEditAct(TestCase):
 
     def test_act_edit_post_form_submit_unpaid(self):
         act = ActFactory()
+        url = reverse(self.view_name,
+                      args=[act.pk],
+                      urlconf="gbe.urls")
+        login_as(act.performer.performer_profile, self)
+        response = self.client.post(
+            url,
+            data=self.get_act_form(act, submit=True))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Act Payment' in response.content)
+
+    def test_act_edit_post_form_submit_paid_other_year(self):
+        act = ActFactory()
+        make_act_app_purchase(
+            ConferenceFactory(
+                status="completed"),
+            act.performer.performer_profile.user_object)
         url = reverse(self.view_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
