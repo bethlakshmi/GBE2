@@ -582,6 +582,7 @@ class AudioInfoForm(forms.ModelForm):
 
     class Meta:
         model = AudioInfo
+        fields = '__all__'
 
 
 class AudioInfoSubmitForm(forms.ModelForm):
@@ -596,6 +597,7 @@ class AudioInfoSubmitForm(forms.ModelForm):
 
     class Meta:
         model = AudioInfo
+        fields = '__all__'
 
     def clean(self):
         # run the parent validation first
@@ -623,6 +625,7 @@ class LightingInfoForm(forms.ModelForm):
         model = LightingInfo
         labels = lighting_labels
         help_texts = lighting_help_texts
+        fields = '__all__'
 
 
 class CueInfoForm(forms.ModelForm):
@@ -644,6 +647,7 @@ class CueInfoForm(forms.ModelForm):
         cue_off_of_msg = ('Add text if you wish to save information '
                           'for this cue.')
         error_messages = {'cue_off_of': {'required': cue_off_of_msg}}
+        fields = '__all__'
 
 
 class VendorCueInfoForm(forms.ModelForm):
@@ -684,6 +688,7 @@ class StageInfoForm(forms.ModelForm):
         model = StageInfo
         labels = prop_labels
         help_texts = act_help_texts
+        fields = '__all__'
 
 
 class StageInfoSubmitForm(forms.ModelForm):
@@ -697,6 +702,7 @@ class StageInfoSubmitForm(forms.ModelForm):
         model = StageInfo
         labels = prop_labels
         help_texts = act_help_texts
+        fields = '__all__'
 
     def clean(self):
         # run the parent validation first
