@@ -55,12 +55,12 @@ class EventAdmin(ImportExportModelAdmin):
     list_display = ('id', 'eventitem', 'starttime', 'max_volunteer')
     list_filter = ['starttime',
                    'max_volunteer',
-                   'eventitem__event__conference', ]
+                   'eventitem__event__e_conference', ]
 
 
 class EventContainerAdmin(ImportExportModelAdmin):
     list_display = ('parent_event', 'child_event', 'child_conf')
-    list_filter = ['parent_event__eventitem__event__conference']
+    list_filter = ['parent_event__eventitem__event__e_conference']
 
     def child_conf(self, obj):
         return obj.child_event.eventitem.get_conference()
