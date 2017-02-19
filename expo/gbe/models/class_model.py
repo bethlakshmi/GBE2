@@ -105,7 +105,7 @@ class Class(Biddable, Event):
 
         payload['details'] = details
         payload['title'] = self.event_ptr.e_title
-        payload['description'] = self.event_ptr.description
+        payload['description'] = self.event_ptr.e_description
         if not self.duration:
             self.duration = Duration(hours=1)
             self.save(update_fields=('duration',))

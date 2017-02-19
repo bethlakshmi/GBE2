@@ -38,7 +38,7 @@ class ActScheduleForm(forms.Form):
         if 'initial' in kwargs:
             initial = kwargs.pop('initial')
             conf_shows = conf.Show.objects.filter(
-                conference=initial['show'].eventitem.get_conference())
+                e_conference=initial['show'].eventitem.get_conference())
             self.fields['show'].queryset = Event.objects.filter(
                 eventitem__in=conf_shows)
 

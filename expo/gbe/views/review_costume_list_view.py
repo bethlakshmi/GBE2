@@ -12,7 +12,7 @@ class ReviewCostumeListView(ReviewBidListView):
     def get_bids(self):
         return self.object_type.objects.filter(
             submitted=True,
-            conference=self.conference).order_by(
+            b_conference=self.conference).order_by(
                 'accepted',
                 'b_title')
 

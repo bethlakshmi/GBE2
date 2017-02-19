@@ -40,7 +40,7 @@ def get_events_display_info(event_type='Class'):
     event_class = eval('gbe.' + event_type)
     conference = gbe.Conference.current_conf()
     confitems = event_class.objects.filter(visible=True,
-                                           conference=conference)
+                                           e_conference=conference)
     if event_type == 'Event':
         confitems = confitems.select_subclasses()
     else:

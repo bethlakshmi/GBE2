@@ -154,7 +154,7 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
             windows.append(window)
 
     return Volunteer.objects.filter(
-        conference=conference).exclude(
+        b_conference=conference).exclude(
         unavailable_windows__in=windows)
 
 

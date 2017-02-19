@@ -41,7 +41,7 @@ class ReviewBidView(View):
                        'form': self.form,
                        'actionform': self.actionform,
                        'actionURL': self.actionURL,
-                       'conference': self.conference,
+                       'conference': self.b_conference,
                        'old_bid': self.old_bid,
                        })
 
@@ -84,7 +84,7 @@ class ReviewBidView(View):
         else:
             self.actionform = False
             self.actionURL = False
-        self.conference, self.old_bid = get_conf(self.object)
+        self.b_conference, self.old_bid = get_conf(self.object)
 
         self.bid_eval = self.bid_evaluation_type.objects.filter(
             bid_id=self.object.pk,
