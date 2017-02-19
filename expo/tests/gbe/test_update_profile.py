@@ -117,7 +117,6 @@ class TestUpdateProfile(TestCase):
         response = self.post_profile(redirect=redirect)
         self.assertRedirects(response, redirect)
 
->>>>>>> master
     def test_update_profile_post_invalid_form(self):
         profile = ProfilePreferencesFactory().profile
 
