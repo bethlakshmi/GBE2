@@ -16,7 +16,7 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
                     'resource',
                     'resource_email',
                     'resource_type')
-    list_filter = ['event__eventitem__event__conference',
+    list_filter = ['event__eventitem__event__e_conference',
                    'resource__worker__role',
                    'resource__location']
 
@@ -38,7 +38,7 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
 class EventItemAdmin(admin.ModelAdmin):
     list_display = (
         'eventitem_id', str, 'visible', 'event_type', 'conference')
-    list_filter = ['visible', 'event__conference']
+    list_filter = ['visible', 'event__e_conference']
     search_fields = ['event__title']
 
     def event_type(self, obj):
