@@ -54,23 +54,23 @@ class Costume(Biddable):
     @property
     def bid_fields(self):
         return (
-            ['title',
+            ['b_title',
              'performer',
              'creator',
              'act_title',
              'debut_date',
              'active_use',
              'pieces',
-             'description',
+             'b_description',
              'pasties',
              'dress_size',
              'more_info',
              'picture'],
-            ['title',
+            ['b_title',
              'creator',
              'active_use',
              'pieces',
-             'description',
+             'b_description',
              'pasties',
              'dress_size',
              'picture']
@@ -78,7 +78,7 @@ class Costume(Biddable):
 
     @property
     def bid_draft_fields(self):
-        return (['title', 'creator'])
+        return (['b_title', 'creator'])
 
     @property
     def bid_review_header(self):
@@ -98,7 +98,7 @@ class Costume(Biddable):
 
         name += "(" + self.creator + ")"
         return (name,
-                self.title,
+                self.b_title,
                 self.act_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])

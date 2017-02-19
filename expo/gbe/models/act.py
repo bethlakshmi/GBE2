@@ -47,8 +47,8 @@ class Act (Biddable, ActItem):
     is_not_blank = ('len(%s) > 0', '%s cannot be blank')
 
     validation_list = [
-        (('title', 'Title'), is_not_blank),
-        (('description', 'Description'), is_not_blank),
+        (('b_title', 'Title'), is_not_blank),
+        (('b_description', 'Description'), is_not_blank),
     ]
 
     def clone(self):
@@ -59,11 +59,11 @@ class Act (Biddable, ActItem):
             video_choice=self.video_link,
             other_performance=self.other_performance,
             why_you=self.why_you,
-            title=self.title,
-            description=self.description,
+            b_title=self.b_title,
+            b_description=self.b_description,
             submitted=False,
             accepted=False,
-            conference=Conference.objects.filter(
+            b_conference=Conference.objects.filter(
                 status="upcoming").first()
         )
         act.save()
@@ -86,7 +86,7 @@ class Act (Biddable, ActItem):
 
     @property
     def contact_info(self):
-        return (self.title,
+        return (self.b_title,
                 self.contact_email,
                 self.accepted,
                 self.performer.contact.phone,
@@ -150,7 +150,7 @@ class Act (Biddable, ActItem):
                 show_name = str(show.eventitem)
 
         return (self.performer.name,
-                self.title,
+                self.b_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1],
                 show_name)
@@ -158,8 +158,8 @@ class Act (Biddable, ActItem):
     @property
     def complete(self):
         return (self.performer.complete and
-                len(self.title) > 0 and
-                len(self.description) > 0 and
+                len(self.b_title) > 0 and
+                len(self.b_description) > 0 and
                 len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
 
@@ -168,10 +168,10 @@ class Act (Biddable, ActItem):
         # the act is saved.
         super(Act, self).validate_unique(*args, **kwargs)
         if Act.objects.filter(
-                conference=self.conference,
-                title=self.title,
+                b_conference=self.b_conference,
+                b_title=self.b_title,
                 performer__contact=self.performer.contact
-        ).exclude(pk=self.pk).exists():
+                ).exclude(pk=self.pk).exists():
             raise ValidationError({
                 NON_FIELD_ERRORS: [act_not_unique, ]
             })
@@ -204,27 +204,27 @@ class Act (Biddable, ActItem):
             ['performer',
              'shows_preferences',
              'other_performance',
-             'title',
+             'b_title',
              'track_title',
              'track_artist',
              'track_duration',
              'act_duration',
              'video_link',
              'video_choice',
-             'description',
+             'b_description',
              'why_you'],
-            ['title', 'description', 'shows_preferences', 'performer', ],
+            ['b_title', 'b_description', 'shows_preferences', 'performer', ],
         )
 
     @property
     def bid_draft_fields(self):
-        return (['title', 'performer'])
+        return (['b_title', 'performer'])
 
     @property
     def sched_payload(self):
         return {'duration': self.tech.stage.act_duration,
-                'title': self.title,
-                'description': self.description,
+                'title': self.b_title,
+                'description': self.b_description,
                 'details': {'type': 'act'}}
 
     @property

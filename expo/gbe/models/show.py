@@ -27,12 +27,12 @@ class Show (Event):
     type = "Show"
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @property
     def sched_payload(self):
-        return {'title': self.title,
-                'description': self.description,
+        return {'title': self.e_title,
+                'description': self.e_description,
                 'duration': self.duration,
                 'details': {'type': 'Show'}
                 }
@@ -59,7 +59,7 @@ class Show (Event):
                             "downloads",
                             ("%s_%s.tar.gz" %
                              (self.conference.conference_slug,
-                              self.title.replace(" ", "_").replace("/", "_"))))
+                              self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 
     class Meta:

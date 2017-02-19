@@ -28,7 +28,7 @@ class ConferenceVolunteer(Model):
     volunteering = BooleanField(default=True, blank='True')
 
     def __unicode__(self):
-        return "%s: %s" % (self.bid.title, self.presenter.name)
+        return "%s: %s" % (self.bid.b_title, self.presenter.name)
 
     @property
     def bid_fields(self):
