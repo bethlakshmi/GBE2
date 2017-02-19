@@ -112,6 +112,10 @@ event_help_texts = {
     'type': '''Special Events, Master Classes, and Drop In classes are shown in \
     event lists, Staff Areas do not..'''}
 
+event_labels = {
+    'e_title': 'Title',
+    'e_description': 'Description'}
+
 volunteer_availability_options = [('SH0', 'Thursday evening (6PM-11PM)'),
                                   ('SH8', 'Saturday late night (10PM-1AM)'),
                                   ('SH1', 'Friday morning (9AM-12PM)'),
@@ -344,6 +348,8 @@ classbid_labels = {
     'avoided_constraints': 'I Would Prefer to Avoid',
     'multiple_run': 'Are you willing to run the class more than once?',
     'length_minutes': ('Length in Minutes'),
+    'e_title': 'Title',
+    'e_description': 'Description',
 }
 
 classdisplay_labels = {

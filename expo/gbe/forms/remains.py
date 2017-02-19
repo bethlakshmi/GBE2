@@ -793,6 +793,7 @@ class GenericEventScheduleForm(forms.ModelForm):
             'type',
             'default_location', ]
         help_texts = event_help_texts
+        labels = event_labels
 
 
 class ShowScheduleForm(forms.ModelForm):
@@ -803,6 +804,7 @@ class ShowScheduleForm(forms.ModelForm):
         model = Show
         fields = ['e_title', 'e_description', 'duration', ]
         help_texts = event_help_texts
+        labels = event_labels
 
 
 class ClassScheduleForm(forms.ModelForm):

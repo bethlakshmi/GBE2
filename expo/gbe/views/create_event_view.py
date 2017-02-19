@@ -23,7 +23,7 @@ def CreateEventView(request, event_type):
         form = eval(event_type+"ScheduleForm")(request.POST)
         if form.is_valid():
             event = form.save(commit=False)
-            event.conference = Conference.objects.filter(
+            event.e_conference = Conference.objects.filter(
                 status='upcoming').first()
             event.save()
             return HttpResponseRedirect(reverse('event_schedule',
