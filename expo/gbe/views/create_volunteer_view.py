@@ -78,7 +78,7 @@ def CreateVolunteerView(request):
         return no_vol_bidding(request)
 
     try:
-        existing_bid = profile.volunteering.get(conference=conference)
+        existing_bid = profile.volunteering.get(b_conference=conference)
         user_message = UserMessage.objects.get_or_create(
             view='CreateVolunteerView',
             code="FOUND_EXISTING_BID",

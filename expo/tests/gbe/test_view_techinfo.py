@@ -148,4 +148,4 @@ class TestReports(TestCase):
         args = {'conf_slug': context.conference.conference_slug}
         response = self.client.get(self.url, args)
         self.assertEqual(response.status_code, 200)
-        nt.assert_true(context.show.title in response.content)
+        nt.assert_true(context.show.e_title in response.content)

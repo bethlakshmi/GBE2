@@ -85,14 +85,15 @@ class TestBiosTeachers(TestCase):
         # assert other_context.bid.title not in response.content
 
     def test_bios_teachers_unbooked_accepted(self):
-        accepted_class = ClassFactory(conference=current_conference(),
+        accepted_class = ClassFactory(b_conference=current_conference(),
+                                      e_conference=current_conference(),
                                       accepted=3)
         url = reverse(self.view_name, urlconf="gbe.urls")
         login_as(ProfileFactory(), self)
         response = self.client.get(
             url,
-            data={'conference': accepted_class.conference.conference_slug})
+            data={'conference': accepted_class.b_conference.conference_slug})
 
         assert response.status_code == 200
         assert accepted_class.teacher.name in response.content
-        assert accepted_class.title in response.content
+        assert accepted_class.b_title in response.content

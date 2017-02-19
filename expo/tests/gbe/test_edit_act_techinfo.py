@@ -317,7 +317,7 @@ class TestEditActTechInfo(TestCase):
         context.rehearsal.save()
 
         another_rehearsal = context._schedule_rehearsal(context.sched_event)
-        ShowFactory(title=context.show.title)
+        ShowFactory(e_title=context.show.e_title)
 
         url = reverse('act_techinfo_edit',
                       urlconf='gbe.urls',

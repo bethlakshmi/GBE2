@@ -206,7 +206,7 @@ class EventFactory(DjangoModelFactory):
         model = conf.Event
 
     e_title = Sequence(lambda x: "Test Event #%d" % x)
-    description = LazyAttribute(
+    e_description = LazyAttribute(
         lambda a: "Description for %s" % a.e_title)
     blurb = LazyAttribute(
         lambda a: "Blurb for %s" % a.e_title)
@@ -412,10 +412,10 @@ class ActBidEvaluationFactory(DjangoModelFactory):
     bid = SubFactory(ActFactory)
     primary_vote = SubFactory(
         ShowVoteFactory,
-        show__conference=SelfAttribute('...bid.conference'))
+        show__e_conference=SelfAttribute('...bid.b_conference'))
     secondary_vote = SubFactory(
         ShowVoteFactory,
-        show__conference=SelfAttribute('...bid.conference'))
+        show__e_conference=SelfAttribute('...bid.b_conference'))
     notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
 
     class Meta:

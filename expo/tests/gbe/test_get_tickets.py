@@ -166,7 +166,7 @@ class TestGetTickets(TestCase):
         '''
         event = ClassFactory()
         bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_conference=True)
         TicketItemFactory(bpt_event=bpt_event,
                           live=False,

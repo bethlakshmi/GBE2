@@ -156,7 +156,7 @@ def EditVolunteerView(request, volunteer_id):
                     the_bid.profile,
                     "Volunteer",
                     "Update",
-                    the_bid.conference,
+                    the_bid.b_conference,
                     'Volunteer Reviewers',
                     reverse(
                         'volunteer_review', urlconf='gbe.urls'))
@@ -165,7 +165,7 @@ def EditVolunteerView(request, volunteer_id):
             else:
                 return HttpResponseRedirect("%s?conf_slug=%s" % (
                     reverse('volunteer_review', urlconf='gbe.urls'),
-                    the_bid.conference.conference_slug))
+                    the_bid.b_conference.conference_slug))
 
         else:
             formset += [form]

@@ -134,7 +134,7 @@ def EditActView(request, act_id):
             They can't submit w/out paying
             '''
             if verify_performer_app_paid(request.user.username,
-                                         act.conference):
+                                         act.b_conference):
                 act.submitted = True
                 act.save()
             else:

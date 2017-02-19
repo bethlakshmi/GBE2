@@ -67,7 +67,7 @@ class TestReviewActList(TestCase):
             data={'conf_slug': self.conference.conference_slug})
         self.assertContains(response, str(eval.primary_vote.show))
         self.assertContains(response, str(eval.secondary_vote.show))
-        self.assertContains(response, str(eval.bid.title))
+        self.assertContains(response, str(eval.bid.b_title))
 
     def test_review_act_assigned_show(self):
         context = ShowContext()
@@ -75,8 +75,8 @@ class TestReviewActList(TestCase):
         response = self.client.get(
             self.url,
             data={'conf_slug': context.conference.conference_slug})
-        assert context.acts[0].title in response.content
-        assert context.show.title in response.content
+        assert context.acts[0].b_title in response.content
+        assert context.show.e_title in response.content
 
     def test_review_act_assigned_two_shows(self):
         context = ShowContext()
@@ -87,6 +87,6 @@ class TestReviewActList(TestCase):
         response = self.client.get(
             self.url,
             data={'conf_slug': context.conference.conference_slug})
-        assert context.acts[0].title in response.content
-        assert "%s, %s" % (context.show.title,
-                           context2.show.title) in response.content
+        assert context.acts[0].b_title in response.content
+        assert "%s, %s" % (context.show.e_title,
+                           context2.show.e_title) in response.content

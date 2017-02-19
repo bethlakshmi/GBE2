@@ -38,9 +38,9 @@ class TestCloneBid(TestCase):
             accepting_bids=True)
 
     def clone_act(self):
-        bid = ActFactory(conference=self.old_conference)
+        bid = ActFactory(b_conference=self.old_conference)
         Act.objects.filter(b_title=bid.b_title,
-                           conference=self.current_conference).delete()
+                           b_conference=self.current_conference).delete()
 
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
@@ -52,12 +52,13 @@ class TestCloneBid(TestCase):
         return response, bid
 
     def clone_class(self):
-        bid = ClassFactory(conference=self.old_conference)
+        bid = ClassFactory(b_conference=self.old_conference,
+                           e_conference=self.old_conference)
         bid.b_title = "Factory is broken"
         bid.save()
         count = Class.objects.filter(
             b_title=bid.b_title,
-            conference=self.current_conference).count()
+            b_conference=self.current_conference).count()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Class',
@@ -71,7 +72,7 @@ class TestCloneBid(TestCase):
         response, bid = self.clone_act()
         self.assertTrue(Act.objects.filter(
             b_title=bid.b_title,
-            conference=self.current_conference).exists())
+            b_conference=self.current_conference).exists())
 
     # following test fails, not sure why.
     # ClassFactory creates an instance of gbe.Class w/o data,
@@ -82,13 +83,13 @@ class TestCloneBid(TestCase):
         self.assertEqual(
             1 + count,
             Class.objects.filter(b_title=bid.b_title,
-                                 conference=self.current_conference).count())
+                                 b_conference=self.current_conference).count())
 
     def test_clone_bid_bad_bid_type(self):
         Conference.objects.all().delete()
-        bid = ActFactory(conference=self.old_conference)
+        bid = ActFactory(b_conference=self.old_conference)
         Act.objects.filter(b_title=bid.b_title,
-                           conference=self.current_conference).delete()
+                           b_conference=self.current_conference).delete()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Steakknife',
@@ -99,9 +100,9 @@ class TestCloneBid(TestCase):
 
     def test_clone_bid_wrong_user(self):
         Conference.objects.all().delete()
-        bid = ActFactory(conference=self.old_conference)
+        bid = ActFactory(b_conference=self.old_conference)
         Act.objects.filter(b_title=bid.b_title,
-                           conference=self.current_conference).delete()
+                           b_conference=self.current_conference).delete()
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       kwargs={'bid_type': 'Act',

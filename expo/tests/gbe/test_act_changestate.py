@@ -145,16 +145,16 @@ class TestActChangestate(TestCase):
         assert 1 == len(mail.outbox)
         msg = mail.outbox[0]
         expected_subject = \
-            "Your act has been cast in %s" % self.show.title
+            "Your act has been cast in %s" % self.show.e_title
         assert msg.subject == expected_subject
         template = EmailTemplate.objects.get(
-            name='act accepted - %s' % self.show.title.lower())
+            name='act accepted - %s' % self.show.e_title.lower())
         assert template.subject == expected_subject
 
     def test_act_accept_make_template_per_show(self):
         expected_subject = "test template"
         template = EmailTemplate.objects.create(
-            name='act accepted - %s' % self.show.title.lower(),
+            name='act accepted - %s' % self.show.e_title.lower(),
             subject=expected_subject,
             content='test',
             html_content='test',

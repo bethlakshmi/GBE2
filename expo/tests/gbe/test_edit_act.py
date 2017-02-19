@@ -59,7 +59,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(act.performer.performer_profile, self)
         make_act_app_purchase(
-            act.conference,
+            act.b_conference,
             act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
@@ -73,9 +73,6 @@ class TestEditAct(TestCase):
                       args=[original.pk],
                       urlconf="gbe.urls")
         make_act_app_purchase(
-            original.b_conference,
-            original.performer.performer_profile.user_object)
-        return post_act_conflict(
             original.b_conference,
             original.performer.performer_profile.user_object)
         return post_act_conflict(

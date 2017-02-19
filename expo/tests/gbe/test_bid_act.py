@@ -160,27 +160,27 @@ class TestBidAct(TestCase):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer,
-            conference=ConferenceFactory(status='completed'))
+            b_conference=ConferenceFactory(status='completed'))
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_paid_act_w_old_comp_act(self):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer,
-            conference=ConferenceFactory(status='completed'))
+            b_conference=ConferenceFactory(status='completed'))
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer,
-            conference=self.current_conference)
+            b_conference=self.current_conference)
         make_act_app_purchase(self.current_conference,
                               self.performer.performer_profile.user_object)
         response, data = self.post_paid_act_submission()

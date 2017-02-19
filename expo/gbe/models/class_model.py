@@ -80,7 +80,7 @@ class Class(Biddable, Event):
             status="upcoming").first()
         new_class.b_title = self.b_title
         new_class.b_description = self.b_description
-        new_class.b_onference = Conference.objects.filter(
+        new_class.b_conference = Conference.objects.filter(
             status="upcoming").first()
 
         new_class.save()
