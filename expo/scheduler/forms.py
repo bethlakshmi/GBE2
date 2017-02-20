@@ -124,3 +124,4 @@ class EventItemScheduleForm(forms.ModelForm):
 
     class Meta:
         model = EventItem
+        fields = '__all__'
