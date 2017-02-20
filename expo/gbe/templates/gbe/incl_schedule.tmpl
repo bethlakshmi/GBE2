@@ -8,10 +8,10 @@
        Schedule
   </h3>	
     {% for booking in bookings %}
-      {% with cs=booking.eventitem.child.conference.status %}
+      {% with cs=booking.eventitem.child.e_conference.status %}
         {% if cs != "completed" and not historical or cs == "completed" and historical %}
-          {% ifchanged booking.eventitem.child.conference %}
-	    <h4>{{booking.eventitem.child.conference}}</h4>
+          {% ifchanged booking.eventitem.child.e_conference %}
+	    <h4>{{booking.eventitem.child.e_conference}}</h4>
           {% endifchanged%}
           <div class='event'>
             {{booking.starttime}}, 
