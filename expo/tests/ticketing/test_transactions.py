@@ -26,6 +26,7 @@ from mock import patch, Mock
 import urllib2
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
+from tests.functions.gbe_functions import login_as
 
 
 class TestTransactions(TestCase):
@@ -39,6 +40,7 @@ class TestTransactions(TestCase):
         self.privileged_user = ProfileFactory.create().\
             user_object
         self.privileged_user.groups.add(group)
+        self.url = reverse('transactions', urlconf='ticketing.urls')
 
     @nt.raises(PermissionDenied)
     def test_user_is_not_ticketing(self):
@@ -63,11 +65,8 @@ class TestTransactions(TestCase):
             bpt_event=event,
             ticket_id='%s-%s' % (event.bpt_event_id, '3255985'))
         BrownPaperSettingsFactory()
-        request = self.factory.get(
-            reverse('transactions', urlconf='ticketing.urls'),
-        )
-        request.user = self.privileged_user
-        response = transactions(request)
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
         nt.assert_equal(response.status_code, 200)
 
     def test_transactions_empty(self):
@@ -76,11 +75,8 @@ class TestTransactions(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        request = self.factory.get(
-            reverse('transactions', urlconf='ticketing.urls'),
-        )
-        request.user = self.privileged_user
-        response = transactions(request)
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
         nt.assert_equal(response.status_code, 200)
 
     @patch('urllib2.urlopen', autospec=True)
@@ -102,11 +98,8 @@ class TestTransactions(TestCase):
         a.read.side_effect = [File(order_filename).read()]
         m_urlopen.return_value = a
 
-        request = self.factory.post(
-            reverse('transactions', urlconf='ticketing.urls'),
-            {'Sync': 'Sync'})
-        request.user = self.privileged_user
-        response = transactions(request)
+        login_as(self.privileged_user, self)
+        response = self.client.post(self.url, data={'Sync': 'Sync'})
         nt.assert_equal(response.status_code, 200)
 
         transaction = get_object_or_404(
