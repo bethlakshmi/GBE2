@@ -316,8 +316,7 @@ class VendorFactory(DjangoModelFactory):
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = LazyAttribute(
-        lambda a: "Help times for test Volunteer")
+    help_times = "[u'VSH0', u'VSH2']"
 
     b_conference = SubFactory(ConferenceFactory)
 
