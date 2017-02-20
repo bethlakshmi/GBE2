@@ -74,12 +74,13 @@ def BidClassView(request):
             conference = Conference.objects.filter(accepting_bids=True).first()
             new_class = form.save(commit=False)
             new_class.duration = Duration(minutes=new_class.length_minutes)
+            new_class.b_conference = conference
+            new_class.e_conference = conference
             new_class = form.save(commit=True)
+
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
-                    new_class.b_conference = conference
-                    new_class.e_conference = conference
                     new_class.save()
                 else:
                     error_string = 'Cannot submit, class is not complete'

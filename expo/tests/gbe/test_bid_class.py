@@ -30,7 +30,6 @@ class TestBidClass(TestCase):
         Conference.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
-        self.teacher = PersonaFactory()
         self.conference = ConferenceFactory(accepting_bids=True)
         UserMessage.objects.all().delete()
 
@@ -38,14 +37,13 @@ class TestBidClass(TestCase):
                        submit=False,
                        invalid=False,
                        incomplete=False):
-        data = {'teacher': self.teacher.pk,
+        data = {'teacher': self.performer.pk,
                 'b_title': 'A class',
                 'b_description': 'a description',
                 'length_minutes': 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
                 'schedule_constraints': ['0'],
-                'conference': self.conference
                 }
         if submit:
             data['submit'] = 1
@@ -54,6 +52,14 @@ class TestBidClass(TestCase):
         if incomplete:
             data['b_title'] = ''
         return data
+
+    def post_bid(self, submit=True):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        data = self.get_class_form(submit=submit)
+        response = self.client.post(url, data=data, follow=True)
+        return response, data
 
     def test_bid_class_no_personae(self):
         '''class_bid, when profile has no personae,
@@ -72,24 +78,6 @@ class TestBidClass(TestCase):
         expected_string = "Tell Us About Your Stage Persona"
         nt.assert_true(expected_string in response.content)
         nt.assert_equal(response.status_code, 200)
-
-    def test_class_bid_post_with_submit(self):
-        '''class_bid, not submitting and no other problems,
-        should redirect to home'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=True)
-        response = self.client.post(url, data=data, follow=True)
-        return response, data
-
-    def post_bid(self, submit=True):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        data = self.get_class_form(submit=submit)
-        response = self.client.post(url, data=data, follow=True)
-        return response, data
 
     def test_bid_class_no_personae(self):
         '''class_bid, when profile has no personae,
@@ -113,6 +101,7 @@ class TestBidClass(TestCase):
         should redirect to home'''
         response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
+        assert data['b_title'] in response.content
         # stricter test required here
 
     def test_class_bid_post_with_submit_incomplete(self):
@@ -135,7 +124,8 @@ class TestBidClass(TestCase):
         should redirect to home'''
         response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
-        self.assertTrue('Profile View' in response.content)
+        assert 'Profile View' in response.content
+        assert data['b_title'] in response.content
 
     def test_class_bid_post_invalid_form_no_submit(self):
         url = reverse(self.view_name,
@@ -144,6 +134,7 @@ class TestBidClass(TestCase):
         other_profile = other_performer.performer_profile
         login_as(self.performer.performer_profile, self)
         data = self.get_class_form(submit=False, invalid=True)
+        data['teacher'] = other_performer.pk
         response = self.client.post(url, data=data, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertTrue('Submit a Class' in response.content)
@@ -155,7 +146,6 @@ class TestBidClass(TestCase):
         self.assertTrue(selection_string in response.content)
 
     def test_class_bid_not_post(self):
-        '''act_bid, not post, should take us to bid process'''
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(self.performer.performer_profile, self)
