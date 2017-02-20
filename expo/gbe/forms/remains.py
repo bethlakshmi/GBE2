@@ -332,10 +332,24 @@ class ClassBidForm(forms.ModelForm):
         choices=class_schedule_options,
         label=classbid_labels['avoided_constraints'],
         required=False)
+    b_description = forms.CharField(
+        required=True,
+        widget=forms.Textarea,
+        label=classbid_labels['b_description'])
 
     class Meta:
         model = Class
-        fields, required = Class().get_bid_fields
+        fields = ['b_title',
+                 'teacher',
+                 'b_description',
+                 'maximum_enrollment',
+                 'type',
+                 'fee',
+                 'length_minutes',
+                 'history',
+                 'schedule_constraints',
+                 'avoided_constraints',
+                 'space_needs']
         help_texts = classbid_help_texts
         labels = classbid_labels
 
@@ -354,10 +368,6 @@ class ClassBidDraftForm(forms.ModelForm):
         choices=class_schedule_options,
         label=classbid_labels['avoided_constraints'],
         required=False)
-    ''' Needed this to override forced required value in Biddable.
-    Not sure why - it's allowed to be blank '''
-    description = forms.CharField(required=False,
-                                    widget=forms.Textarea)
 
     class Meta:
         model = Class
