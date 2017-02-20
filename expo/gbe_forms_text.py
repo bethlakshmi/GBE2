@@ -239,7 +239,7 @@ act_help_texts = {
 
 act_bid_labels = {
     'performer': 'Performer',
-    'title': 'Name of Act',
+    'b_title': 'Name of Act',
     'shows_preferences': 'I am interested in:',
     'other_performance': 'Other performance opportunities',
     'song_title': ' Name of Song',
@@ -307,7 +307,7 @@ acceptance_help_texts = {
 
 
 actbid_error_messages = {
-    'title': {
+    'b_title': {
         'required': ("The Title is required."),
         'max_length': ("The title of the act is too long."),
     }}
@@ -348,6 +348,8 @@ classbid_labels = {
     'avoided_constraints': 'I Would Prefer to Avoid',
     'multiple_run': 'Are you willing to run the class more than once?',
     'length_minutes': ('Length in Minutes'),
+    'b_title': 'Title',
+    'b_description': 'Description',
     'e_title': 'Title',
     'e_description': 'Description',
 }
@@ -441,7 +443,7 @@ vendor_description_help_text = ('Please describe your good or services in 250 '
 
 vendor_labels = {
     'description': 'Description of Goods or Services',
-    'title': 'Company or business name',
+    'b_title': 'Company or business name',
     'vend_time': ("I'd like to vend..."),
     'want_help': ('Help Wanted'),
     'help_times': ("I'd like someone to help me... (Check All That Apply)"),
@@ -504,7 +506,7 @@ class_proposal_form_text = {
 class_proposal_help_texts = {
     'name': ("If you'd like to get updates about classes and panels at the "
              "Expo, fill in your email address."),
-    'title': 'Your suggested title for this class or panel',
+    'b_title': 'Your suggested title for this class or panel',
     'proposal': ('What does this class look like in your mind? Consider '
                  'telling us about material to cover, target audience, etc.'),
     'type': ('Is this a class (a lecture or workshop with a single teacher) '
@@ -513,7 +515,7 @@ class_proposal_help_texts = {
 }
 
 class_proposal_labels = {
-    'title': 'Name of Class',
+    'b_title': 'Name of Class',
     'name': 'Your Contact Info',
     'proposal': 'Class Description',
     'type': 'Type of Class'
@@ -714,7 +716,7 @@ costume_proposal_form_text = '''<p>Thanks for your interest in our costume \
     Volunteer Opportunities. '''
 
 costume_proposal_help_texts = {
-    'title': '''A unique way to identify the costume so we all know which \
+    'b_title': '''A unique way to identify the costume so we all know which \
         costume we're talking about.  You could use the name of the act it's \
         from, the material and color, or really anything so you know which \
         costume we're talking about.  We'll contact you about what you want \
@@ -734,7 +736,7 @@ costume_proposal_help_texts = {
 }
 
 costume_proposal_labels = {
-    'title': 'Name of Costume',
+    'b_title': 'Name of Costume',
     'performer': 'Stage Name',
     'creator': 'Costume Creator',
     'act_title': 'Name of Act',
