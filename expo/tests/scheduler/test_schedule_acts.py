@@ -107,7 +107,7 @@ class TestScheduleActs(TestCase):
         self.assert_good_form_display(response)
 
     def test_good_user_get_two_shows_same_title(self):
-        ShowFactory(title=self.context.show.title)
+        ShowFactory(e_title=self.context.show.e_title)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
@@ -214,4 +214,4 @@ class TestScheduleActs(TestCase):
         not_this_conf_show = ShowFactory()
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
-        assert not_this_conf_show.title not in response.content
+        assert not_this_conf_show.e_title not in response.content

@@ -48,7 +48,7 @@ class EventItemAdmin(admin.ModelAdmin):
             return str(obj.child().__class__.__name__)
 
     def conference(self, obj):
-        return obj.child().conference
+        return obj.child().e_conference
 
 
 class EventAdmin(ImportExportModelAdmin):

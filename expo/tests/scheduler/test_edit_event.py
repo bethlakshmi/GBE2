@@ -115,11 +115,11 @@ class TestEditEvent(TestCase):
     def test_good_user_get_success(self):
         context = ClassContext()
         login_as(self.privileged_profile, self)
-        self.context.bid.schedule_constraints = "[u'1']"
-        self.context.bid.avoided_constraints = "[u'2']"
-        self.context.bid.space_needs = "2"
-        self.context.bid.type = "Panel"
-        self.context.bid.save()
+        context.bid.schedule_constraints = "[u'1']"
+        context.bid.avoided_constraints = "[u'2']"
+        context.bid.space_needs = "2"
+        context.bid.type = "Panel"
+        context.bid.save()
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=["Class", context.sched_event.pk])
@@ -155,7 +155,7 @@ class TestEditEvent(TestCase):
             data=form_data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('<input id="id_event-e_title" name="event-e_title" ' +
+        self.assertIn('<input id="id_event-title" name="event-title" ' +
                       'type="text" value="New Title" />',
                       response.content)
         self.assertIn("New Description",

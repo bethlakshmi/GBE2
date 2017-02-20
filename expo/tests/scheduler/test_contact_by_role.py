@@ -121,7 +121,7 @@ class TestDeleteEvent(TestCase):
         event = SchedEventFactory(
             eventitem=GenericEventFactory(
                 type='VolunteerOpportunity',
-                conference=conference))
+                e_conference=conference))
         for worker in workers:
             ResourceAllocationFactory.create(
                 event=event,
@@ -144,13 +144,13 @@ class TestDeleteEvent(TestCase):
             SchedEventFactory(
                 eventitem=GenericEventFactory(
                     type='VolunteerOpportunity',
-                    conference=context.conference,
+                    e_conference=context.conference,
                     volunteer_type=None))
         )
 
         for volunteer in volunteers:
             VolunteerFactory.create(profile=volunteer,
-                                    conference=context.conference)
+                                    b_conference=context.conference)
             context.book_volunteer(opp, volunteer)
 
         login_as(self.privileged_profile, self)
@@ -170,7 +170,7 @@ class TestDeleteEvent(TestCase):
         for volunteer in volunteers:
             bid = VolunteerFactory.create(
                 profile=volunteer,
-                conference=conference)
+                b_conference=conference)
             VolunteerInterestFactory(volunteer=bid)
 
         login_as(self.privileged_profile, self)
@@ -195,7 +195,7 @@ class TestDeleteEvent(TestCase):
         event = SchedEventFactory(
             eventitem=GenericEventFactory(
                 type='VolunteerOpportunity',
-                conference=previous_conf))
+                e_conference=previous_conf))
         for worker in workers:
             ResourceAllocationFactory.create(
                 event=event,
@@ -220,7 +220,7 @@ class TestDeleteEvent(TestCase):
         event = SchedEventFactory(
             eventitem=GenericEventFactory(
                 type='VolunteerOpportunity',
-                conference=previous_conf))
+                e_conference=previous_conf))
         for worker in workers:
             ResourceAllocationFactory.create(
                 event=event,

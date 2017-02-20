@@ -88,13 +88,13 @@ class TestExportCalendar(TestCase):
         self.assertTrue(response.content.count('\n') > 1)
         self.assertTrue(len(
             (response.content.split('\r\n')[1].split('","'))) >= 8)
-        self.assertIn(self.showcontext.show.title, response.content)
+        self.assertIn(self.showcontext.show.e_title, response.content)
 
     def test_guidebook(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url)
-        self.assertIn(self.showcontext.show.title, response.content)
-        self.assertIn(self.classcontext.bid.title, response.content)
+        self.assertIn(self.showcontext.show.e_title, response.content)
+        self.assertIn(self.classcontext.bid.b_title, response.content)
 
     def test_ical(self):
         login_as(ProfileFactory(), self)
@@ -110,14 +110,14 @@ class TestExportCalendar(TestCase):
     def test_type_class(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url + '?event_types=Class')
-        self.assertNotIn(self.showcontext.show.title, response.content)
-        self.assertIn(self.classcontext.bid.title, response.content)
+        self.assertNotIn(self.showcontext.show.e_title, response.content)
+        self.assertIn(self.classcontext.bid.b_title, response.content)
 
     def test_type_show(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url + '?event_types=Show')
-        self.assertIn(self.showcontext.show.title, response.content)
-        self.assertNotIn(self.classcontext.bid.title, response.content)
+        self.assertIn(self.showcontext.show.e_title, response.content)
+        self.assertNotIn(self.classcontext.bid.b_title, response.content)
 
     def test_day_all(self):
         login_as(ProfileFactory(), self)
