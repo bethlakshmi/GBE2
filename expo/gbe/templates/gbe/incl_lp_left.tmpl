@@ -1,3 +1,4 @@
+{% load cms_tags %}
 <p>
 {% if admin_message %}
     <font color=red>{{admin_message}}</font></br></br>
@@ -6,3 +7,4 @@
 {% else %}
 {% static_placeholder 'user_welcome_unauth' %}
 {% endif %}
+</p>
