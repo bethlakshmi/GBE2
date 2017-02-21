@@ -110,9 +110,15 @@ def assert_rank_choice_exists(response, interest, selection=None):
                 value, text) in response.content
 
 
-def assert_hidden_value(response, field_id, name, value):
-    assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
-        field_id, name, value) in response.content
+def assert_hidden_value(response, field_id, name, value, max_length=None):
+    if max_length:
+        x = '<input id="%s" maxlength="%d" name="%s" type="hidden" ' + \
+            'value="%s" />'
+        assert x % (
+            field_id, max_length, name, value) in response.content
+    else:
+        assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
+            field_id, name, value) in response.content
 
 
 def assert_has_help_text(response, help_text):

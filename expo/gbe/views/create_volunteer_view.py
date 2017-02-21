@@ -167,7 +167,7 @@ def CreateVolunteerView(request):
                 prefix=str(interest.pk))]
         formset += [VolunteerBidForm(
             initial={'profile': profile,
-                     'title': title,
+                     'b_title': title,
                      'description': 'volunteer bid',
                      'submitted': True},
             available_windows=windows,

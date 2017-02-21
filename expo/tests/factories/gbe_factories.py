@@ -227,7 +227,6 @@ class GenericEventFactory(DjangoModelFactory):
     e_conference = SubFactory(ConferenceFactory)
 
 
-
 class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class

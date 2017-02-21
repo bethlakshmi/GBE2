@@ -54,7 +54,7 @@ class TestEditVolunteer(TestCase):
                 'number_shifts': 2,
                 'availability': ('SH0',),
                 'available_windows': [context.conference.windows().first().pk],
-                'title': 'title',
+                'b_title': 'title',
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
                 }
@@ -150,19 +150,24 @@ class TestEditVolunteer(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(expected_string in response.content)
 
-    # def test_volunteer_edit_get(self):
-    #     volunteer = VolunteerFactory(
-    #         availability='',
-    #         unavailability='',
-    #         b_title="title")
-    #     url = reverse('volunteer_edit',
-    #                   urlconf='gbe.urls',
-    #                   args=[volunteer.pk])
-    #     login_as(self.privileged_user, self)
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertTrue('Edit Volunteer Bid' in response.content)
-    #     assert_hidden_value(response, "id_b_title", "b_title", volunteer.b_title)
+    def test_volunteer_edit_get(self):
+        volunteer = VolunteerFactory(
+            availability='',
+            unavailability='',
+            b_title="title")
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[volunteer.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Edit Volunteer Bid' in response.content)
+        assert_hidden_value(
+            response,
+            "id_b_title",
+            "b_title",
+            volunteer.b_title,
+            128)
 
     def test_volunteer_edit_get_rank(self):
         volunteer = VolunteerFactory(

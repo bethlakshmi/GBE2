@@ -274,7 +274,6 @@ class TestIndex(TestCase):
 
         assert costume.b_title in response.content
 
-
     def test_profile_image(self):
         self.performer.promo_image = SimpleUploadedFile(
             "file.jpg",

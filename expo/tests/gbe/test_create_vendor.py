@@ -25,6 +25,7 @@ from gbe.models import (
     UserMessage
 )
 
+
 class TestCreateVendor(TestCase):
     '''Tests for create_vendor view'''
     view_name = 'vendor_create'

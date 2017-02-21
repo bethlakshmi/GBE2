@@ -380,7 +380,7 @@ class ClassBidDraftForm(forms.ModelForm):
 class VolunteerBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    title = forms.HiddenInput()
+    b_title = forms.HiddenInput()
     description = forms.HiddenInput()
     available_windows = forms.ModelMultipleChoiceField(
         queryset=VolunteerWindow.objects.none(),
@@ -428,6 +428,7 @@ class VolunteerBidForm(forms.ModelForm):
                   'opt_outs',
                   'pre_event',
                   'background',
+                  'b_title',
                   ]
 
         widgets = {'accepted': forms.HiddenInput(),

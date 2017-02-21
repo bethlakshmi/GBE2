@@ -19,6 +19,7 @@ from datetime import (
     timedelta,
 )
 
+
 class ShowContext:
     def __init__(self,
                  act=None,
