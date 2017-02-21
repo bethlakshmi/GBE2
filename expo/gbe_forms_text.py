@@ -247,6 +247,7 @@ act_bid_labels = {
     'track_duration': 'Duration of Song',
     'act_duration': 'Duration of Act',
     'description': 'Description of Act',
+    'b_description': 'Description of Act',
     'video_choice': 'Video Notes',
     'why_you': ('Why Would You Like to Perform at The Great Burlesque '
                 'Exposition?'),

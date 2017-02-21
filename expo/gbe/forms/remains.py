@@ -584,6 +584,7 @@ class ActTechInfoForm(forms.ModelForm):
                   'video_link',
                   'video_choice']
         widgets = {'video_link': FriendlyURLInput}
+        labels = act_bid_labels
 
 
 class AudioInfoForm(forms.ModelForm):

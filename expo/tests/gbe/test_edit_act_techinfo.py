@@ -76,11 +76,11 @@ class TestEditActTechInfo(TestCase):
 
     def check_good_info(self, response, context, random_performer):
         labels = [
-            ('Title', 'title'),
-            ('Description', 'description'),
+            ('Name of Act', 'b_title'),
+            ('Description of Act', 'b_description'),
             ('Performer', 'performer'),
-            ('Video link', 'video_link'),
-            ('Video choice', 'video_choice')
+            ('URL of Video', 'video_link'),
+            ('Video Notes', 'video_choice')
             ]
         html_label_format = '<td class="readonlyform form_label">' + \
             '<label for="id_act_tech_info-%s">%s:</label>'
@@ -105,11 +105,11 @@ class TestEditActTechInfo(TestCase):
                 )
         self.assertContains(
             response,
-            read_only_data % context.act.title
+            read_only_data % context.act.b_title
         )
         self.assertContains(
             response,
-            read_only_data % context.act.description
+            read_only_data % context.act.b_description
         )
         self.assertContains(
             response,
@@ -202,20 +202,20 @@ class TestEditActTechInfo(TestCase):
                         date_format(context.rehearsal.starttime,
                                     "TIME_FORMAT")) + '</option>')
 
-    # def test_edit_act_techinfo_good_readonly_on_get(self):
-    #     context = ActTechInfoContext(schedule_rehearsal=True)
-    #     context.act.description = "Describe the act here"
-    #     context.act.video_link = "http://video/link/video.mov"
-    #     context.act.video_choice = '2'
-    #     context.act.save()
-    #     random_performer = PersonaFactory()
-    #     url = reverse('act_techinfo_edit',
-    #                   urlconf='gbe.urls',
-    #                   args=[context.act.pk])
-    #     login_as(context.performer.contact, self)
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.check_good_info(response, context, random_performer)
+    def test_edit_act_techinfo_good_readonly_on_get(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.act.b_description = "Describe the act here"
+        context.act.video_link = "http://video/link/video.mov"
+        context.act.video_choice = '2'
+        context.act.save()
+        random_performer = PersonaFactory()
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.check_good_info(response, context, random_performer)
 
     def test_edit_act_techinfo_authorized_user_alt_theater(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
@@ -248,20 +248,20 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Cue Sheet Instructions" in response.content)
 
-    # def test_edit_act_w_bad_post_makes_good_readonly(self):
-    #     context = ActTechInfoContext(schedule_rehearsal=True)
-    #     context.act.description = "Describe the act here"
-    #     context.act.video_link = "http://video/link/video.mov"
-    #     context.act.video_choice = '2'
-    #     context.act.save()
-    #     random_performer = PersonaFactory()
-    #     url = reverse('act_techinfo_edit',
-    #                   urlconf='gbe.urls',
-    #                   args=[context.act.pk])
-    #     login_as(context.performer.contact, self)
-    #     response = self.client.post(url, {})
-    #     self.assertEqual(response.status_code, 200)
-    #     self.check_good_info(response, context, random_performer)
+    def test_edit_act_w_bad_post_makes_good_readonly(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.act.b_description = "Describe the act here"
+        context.act.video_link = "http://video/link/video.mov"
+        context.act.video_choice = '2'
+        context.act.save()
+        random_performer = PersonaFactory()
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        response = self.client.post(url, {})
+        self.assertEqual(response.status_code, 200)
+        self.check_good_info(response, context, random_performer)
 
     def test_edit_act_techinfo_authorized_user_post_complete_form(self):
         response, context, another = self.post_act_tech_info_success()
