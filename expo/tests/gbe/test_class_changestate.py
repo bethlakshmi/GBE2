@@ -33,6 +33,23 @@ class TestClassChangestate(TestCase):
         response = self.client.post(url, data=self.data)
         nt.assert_equal(response.status_code, 302)
 
+    def test_class_accepted_displays_on_scheduler(self):
+        '''check that bid acceptance sets e_title & e_description'''
+        self.klass.e_title = ''
+        self.klass.e_description = ''
+        self.klass.save()
+        url = reverse(self.view_name,
+                      args=[self.klass.pk],
+                      urlconf='gbe.urls')
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=self.data)
+        sched_url = reverse('event_schedule',
+                            urlconf="scheduler.urls")
+        response = self.client.post(sched_url,
+                                    data={'event_type': 'Class'})
+        assert self.klass.b_title in response.content
+
     def test_class_changestate_unauthorized_user(self):
         '''A regular user is changing the state, it fails'''
         url = reverse(self.view_name,
