@@ -69,31 +69,3 @@ class DurationField(six.with_metaclass(models.SubfieldBase, Field)):
         defaults = {"help_text": "Enter duration in the format: HH:MM:SS"}
         defaults.update(kwargs)
         return form_class(**defaults)
-
-    # def to_python(self, value):
-    #     try:
-    #         return self.parse_to_duration(value)
-    #     except ValueError:
-    #         raise FormValidationError('Please enter your duration as mm:ss')
-
-    # def parse_to_duration(self, value):
-    #     '''
-    #     Attempt to make a value out of this string
-    #     For now the rules are: '' => zero-duration timedelta
-    #     'mm:ss' || 'hh:mm:ss' => timedelta of this value
-    #     else: ValueError
-    #     '''
-    #     if value is None:
-    #         return Duration(0)
-    #     if isinstance(value, Duration):
-    #         return value
-
-    #     if len(value) == 0:
-    #         return Duration(0)
-    #     vs = [int(v) for v in value.split(':')]
-    #     if len(vs) < 2 or len(vs) > 4:
-    #         raise ValueError('Format error with value: %s' % value)
-    #     time = vs[-1] + 60 * vs[-2]
-    #     if len(vs) == 3:
-    #         time += 60 * 60 * vs[0]
-    #     return Duration(seconds=time)
