@@ -695,8 +695,8 @@ def edit_event(request, scheduler_event_id, event_type='class'):
             set_multi_role(s_event, data)
             if data['description'] or data['title']:
                 c_event = s_event.as_subtype
-                c_event.description = data['description']
-                c_event.title = data['title']
+                c_event.e_description = data['description']
+                c_event.e_title = data['title']
                 c_event.save()
             return HttpResponseRedirect(reverse('edit_event',
                                                 urlconf='scheduler.urls',

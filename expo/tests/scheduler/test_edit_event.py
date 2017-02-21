@@ -49,19 +49,20 @@ class TestEditEvent(TestCase):
 
     def assert_good_post(self,
                          response,
-                         context,
+                         form_data,
+                         pk,
                          day,
                          room,
                          event_type="Class"):
         self.assertRedirects(response, reverse(
             self.view_name,
             urlconf="scheduler.urls",
-            args=[event_type, context.sched_event.pk]))
+            args=[event_type, pk]))
 
         self.assertNotIn('<ul class="errorlist">', response.content)
         # check title
         self.assertIn(('<H1 class="sched_detail_title">%s</H1>' %
-                       context.bid.e_title),
+                       form_data['event-title']),
                       response.content)
         # check day
         self.assertIn('<option value="' +
@@ -82,7 +83,7 @@ class TestEditEvent(TestCase):
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
         # check description
-        self.assertIn(context.bid.e_description, response.content)
+        self.assertIn(form_data['event-description'], response.content)
 
     def test_no_login_gives_error(self):
         context = ClassContext()
@@ -138,7 +139,8 @@ class TestEditEvent(TestCase):
             data=form_data,
             follow=True)
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
 
@@ -187,7 +189,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
         self.assertIn('<input id="id_event-duration" name="event-duration" ' +
@@ -224,7 +227,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               new_room)
 
@@ -243,7 +247,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
         teachers = context.sched_event.get_direct_workers('Teacher')
@@ -268,7 +273,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
         teachers = context.sched_event.get_direct_workers('Teacher')
@@ -296,7 +302,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
         moderators = context.sched_event.get_direct_workers('Moderator')
@@ -327,7 +334,8 @@ class TestEditEvent(TestCase):
             data=form_data,
             follow=True)
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               room,
                               "GenericEvent")
@@ -361,7 +369,8 @@ class TestEditEvent(TestCase):
             follow=True)
 
         self.assert_good_post(response,
-                              context,
+                              form_data,
+                              context.sched_event.pk,
                               context.days[0],
                               context.room)
         leads = context.sched_event.get_direct_workers('Panelist')
