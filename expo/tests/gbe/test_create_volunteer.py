@@ -157,19 +157,20 @@ class TestCreateVolunteer(TestCase):
         vol_interest = VolunteerInterest.objects.get(interest=self.interest)
         self.assertEqual(vol_interest.volunteer.profile, self.profile)
 
-    # def test_create_volunteer_with_get_request(self):
-    #     url = reverse(self.view_name,
-    #                   urlconf='gbe.urls')
-    #     login_as(self.profile, self)
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIn('Volunteer', response.content)
-    #     assert_rank_choice_exists(response, self.interest)
-    #     assert_hidden_value(
-    #         response,
-    #         "id_b_title",
-    #         "b_title",
-    #         'volunteer bid: %s' % self.profile.display_name)
+    def test_create_volunteer_with_get_request(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Volunteer', response.content)
+        assert_rank_choice_exists(response, self.interest)
+        assert_hidden_value(
+            response,
+            "id_b_title",
+            "b_title",
+            'volunteer bid: %s' % self.profile.display_name,
+            128)
 
     def test_volunteer_submit_make_message(self):
         response, data = self.post_volunteer_submission()
