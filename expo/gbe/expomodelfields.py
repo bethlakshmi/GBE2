@@ -8,7 +8,6 @@ from django.utils import six
 from django .db.models.fields import Field
 
 
-#class DurationField(IntegerField):
 class DurationField(six.with_metaclass(models.SubfieldBase, Field)):
     __metaclass__ = models.SubfieldBase
 
@@ -76,8 +75,6 @@ class DurationField(six.with_metaclass(models.SubfieldBase, Field)):
     #         return self.parse_to_duration(value)
     #     except ValueError:
     #         raise FormValidationError('Please enter your duration as mm:ss')
-
-
 
     # def parse_to_duration(self, value):
     #     '''
