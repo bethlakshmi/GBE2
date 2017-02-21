@@ -56,7 +56,7 @@ class TestEventList(TestCase):
 
     def get_basic_action_data(self, context, vol_opp, action):
         data = self.get_basic_data(context)
-        data['title'] = 'Modify Volunteer Opportunity'
+        data['e_title'] = 'Modify Volunteer Opportunity'
         data['opp_event_id'] = vol_opp.eventitem.pk
         data['opp_sched_id'] = vol_opp.pk
         data[action] = action
@@ -212,50 +212,51 @@ class TestEventList(TestCase):
                     opp.child_event.eventitem.child().e_title),
                 response.content)
 
-    # def test_edit_opportunity(self):
-    #     context = StaffAreaContext()
-    #     vol_opp = context.add_volunteer_opp(room=self.room)
-    #     grant_privilege(self.privileged_user, 'Scheduling Mavens')
-    #     login_as(self.privileged_profile, self)
-    #     url = reverse(self.view_name,
-    #                   urlconf="scheduler.urls",
-    #                   args=[context.sched_event.pk])
-    #     response = self.client.post(
-    #         url,
-    #         data=self.get_basic_action_data(context, vol_opp, 'edit'),
-    #         follow=True)
-    #     assert_redirects(response, reverse('edit_event',
-    #                                        urlconf='scheduler.urls',
-    #                                        args=['GenericEvent',
-    #                                              context.sched_event.pk]))
-    #     opps = EventContainer.objects.filter(parent_event=context.sched_event)
-    #     nt.assert_true(len(opps), 1)
-    #     nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
-    #                  'type="text" value="Modify Volunteer Opportunity" />',
-    #                  response.content)
+    def test_edit_opportunity(self):
+        context = StaffAreaContext()
+        vol_opp = context.add_volunteer_opp(room=self.room)
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
 
-    # def test_edit_opportunity_error(self):
-    #     context = StaffAreaContext()
-    #     vol_opp = context.add_volunteer_opp(room=self.room)
-    #     grant_privilege(self.privileged_user, 'Scheduling Mavens')
-    #     login_as(self.privileged_profile, self)
-    #     url = reverse(self.view_name,
-    #                   urlconf="scheduler.urls",
-    #                   args=[context.sched_event.pk])
-    #     data = self.get_basic_action_data(context, vol_opp, 'edit')
-    #     data['num_volunteers'] = ''
+        response = self.client.post(
+            url,
+            data=self.get_basic_action_data(context, vol_opp, 'edit'),
+            follow=True)
+        assert_redirects(response, reverse('edit_event',
+                                           urlconf='scheduler.urls',
+                                           args=['GenericEvent',
+                                                 context.sched_event.pk]))
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(len(opps), 1)
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
+                     'type="text" value="Modify Volunteer Opportunity" />',
+                     response.content)
 
-    #     # number of volunteers is missing, it's required
-    #     response = self.client.post(
-    #         url,
-    #         data=data,
-    #         follow=True)
-    #     nt.assert_equal(response.status_code, 200)
-    #     nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
-    #                  'type="text" value="Modify Volunteer Opportunity" />',
-    #                  response.content)
-    #     nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
-    #                  response.content)
+    def test_edit_opportunity_error(self):
+        context = StaffAreaContext()
+        vol_opp = context.add_volunteer_opp(room=self.room)
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+        data = self.get_basic_action_data(context, vol_opp, 'edit')
+        data['num_volunteers'] = ''
+
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            url,
+            data=data,
+            follow=True)
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
+                     'type="text" value="Modify Volunteer Opportunity" />',
+                     response.content)
+        nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
+                     response.content)
 
     def test_delete_opportunity(self):
         context = StaffAreaContext()
