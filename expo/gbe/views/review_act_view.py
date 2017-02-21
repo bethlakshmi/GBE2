@@ -35,7 +35,6 @@ class ReviewActView(ReviewBidView):
         self.object_form = get_act_form(self.object)
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
-
     def create_action_form(self, act):
 
         self.actionform = BidStateChangeForm(instance=act)

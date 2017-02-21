@@ -84,15 +84,15 @@ def BidClassView(request):
                     new_class.save()
                 else:
                     error_string = 'Cannot submit, class is not complete'
-                    return render(request,
-                                  'gbe/bid.tmpl',
-                                  {'forms': [form],
-                                   'page_title': page_title,
-                                   'view_title': view_title,
-                                   'draft_fields': draft_fields,
-                                   'errors': [error_string],
-                                   'popup_text':
-                                        avoided_constraints_popup_text})
+                    return render(
+                        request,
+                        'gbe/bid.tmpl',
+                        {'forms': [form],
+                         'page_title': page_title,
+                         'view_title': view_title,
+                         'draft_fields': draft_fields,
+                         'errors': [error_string],
+                         'popup_text': avoided_constraints_popup_text})
 
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))

@@ -144,7 +144,7 @@ def BidActView(request):
     else:
         form = ActEditForm(initial={'owner': profile,
                                     'performer': personae[0],
-                                    'b_conference': conference,},
+                                    'b_conference': conference, },
                            prefix='theact')
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = ModelChoiceField(queryset=q)

@@ -132,7 +132,8 @@ def EditActTechInfoView(request, act_id):
                                           id=request.POST['rehearsal'])
             show = get_object_or_404(
                 Show,
-                eventitem_id=request.POST['show_private']).scheduler_events.first()
+                eventitem_id=request.POST['show_private']
+                ).scheduler_events.first()
             act.set_rehearsal(show, rehearsal)
         audioform = AudioInfoSubmitForm(request.POST,
                                         request.FILES,

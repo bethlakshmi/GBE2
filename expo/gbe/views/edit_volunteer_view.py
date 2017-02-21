@@ -56,7 +56,7 @@ def manage_schedule_problems(changed_windows, profile):
     for window in changed_windows:
         for conflict in profile.get_conflicts(window):
             if ((conflict not in conflicts) and
-                    'type' in conflict.eventitem.payload and 
+                    'type' in conflict.eventitem.payload and
                     conflict.eventitem.payload['type'] == 'Volunteer'):
                 conflicts += [conflict]
                 warning = {

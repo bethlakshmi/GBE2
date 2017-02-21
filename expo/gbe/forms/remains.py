@@ -251,10 +251,11 @@ class ActEditForm(forms.ModelForm):
         help_text=act_help_texts['other_performance'],
         required=False,
     )
-    b_description = forms.CharField(required=True,
-                                  label=act_bid_labels['description'],
-                                  help_text=act_help_texts['description'],
-                                  widget=forms.Textarea)
+    b_description = forms.CharField(
+        required=True,
+        label=act_bid_labels['description'],
+        help_text=act_help_texts['description'],
+        widget=forms.Textarea)
 
     class Meta:
         model = Act
@@ -265,7 +266,7 @@ class ActEditForm(forms.ModelForm):
                    'track_title']
         labels = act_bid_labels
         help_texts = act_help_texts
-        widgets = {'b_conference': forms.HiddenInput(),}
+        widgets = {'b_conference': forms.HiddenInput(), }
 
 
 class ActEditDraftForm(forms.ModelForm):
@@ -308,7 +309,7 @@ class ActEditDraftForm(forms.ModelForm):
         required = Act().bid_draft_fields
         labels = act_bid_labels
         help_texts = act_help_texts
-        widgets = {'b_conference': forms.HiddenInput(),}
+        widgets = {'b_conference': forms.HiddenInput(), }
 
 
 class BidStateChangeForm(forms.ModelForm):
@@ -343,16 +344,16 @@ class ClassBidForm(forms.ModelForm):
     class Meta:
         model = Class
         fields = ['b_title',
-                 'teacher',
-                 'b_description',
-                 'maximum_enrollment',
-                 'type',
-                 'fee',
-                 'length_minutes',
-                 'history',
-                 'schedule_constraints',
-                 'avoided_constraints',
-                 'space_needs']
+                  'teacher',
+                  'b_description',
+                  'maximum_enrollment',
+                  'type',
+                  'fee',
+                  'length_minutes',
+                  'history',
+                  'schedule_constraints',
+                  'avoided_constraints',
+                  'space_needs']
         help_texts = classbid_help_texts
         labels = classbid_labels
 
@@ -538,10 +539,11 @@ class RehearsalSelectionForm(forms.Form):
 class VendorBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    b_description = forms.CharField(required=True,
-                                  widget=forms.Textarea,
-                                  help_text=vendor_help_texts['description'],
-                                  label=vendor_labels['description'])
+    b_description = forms.CharField(
+        required=True,
+        widget=forms.Textarea,
+        help_text=vendor_help_texts['description'],
+        label=vendor_labels['description'])
     help_times = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
                                            choices=vendor_schedule_options,
                                            required=False,
@@ -967,9 +969,10 @@ class CostumeDetailsSubmitForm(forms.ModelForm):
         choices=[(x, x) for x in range(1, 21)],
         label=costume_proposal_labels['dress_size'],
         help_text=costume_proposal_help_texts['dress_size'])
-    b_description = forms.CharField(max_length=500,
-                                  widget=forms.Textarea,
-                                  label=costume_proposal_labels['description'])
+    b_description = forms.CharField(
+        max_length=500,
+        widget=forms.Textarea,
+        label=costume_proposal_labels['description'])
     more_info = forms.CharField(max_length=500,
                                 widget=forms.Textarea,
                                 label=costume_proposal_labels['more_info'],

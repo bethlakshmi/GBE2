@@ -53,13 +53,14 @@ class Show (Event):
         return self.scheduler_events.first().get_acts()
 
     def download_path(self):
-        path = os.path.join(settings.MEDIA_ROOT,
-                            "uploads",
-                            "audio",
-                            "downloads",
-                            ("%s_%s.tar.gz" %
-                             (self.conference.conference_slug,
-                              self.e_title.replace(" ", "_").replace("/", "_"))))
+        path = os.path.join(
+            settings.MEDIA_ROOT,
+            "uploads",
+            "audio",
+            "downloads",
+            ("%s_%s.tar.gz" %
+             (self.conference.conference_slug,
+              self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 
     class Meta:
