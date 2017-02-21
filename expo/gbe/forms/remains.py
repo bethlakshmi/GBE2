@@ -265,6 +265,7 @@ class ActEditForm(forms.ModelForm):
                    'track_title']
         labels = act_bid_labels
         help_texts = act_help_texts
+        widgets = {'b_conference': forms.HiddenInput(),}
 
 
 class ActEditDraftForm(forms.ModelForm):
@@ -295,6 +296,7 @@ class ActEditDraftForm(forms.ModelForm):
         help_text=act_help_texts['other_performance'],
         required=False
     )
+    b_conference = forms.HiddenInput()
 
     class Meta:
         model = Act
@@ -306,6 +308,7 @@ class ActEditDraftForm(forms.ModelForm):
         required = Act().bid_draft_fields
         labels = act_bid_labels
         help_texts = act_help_texts
+        widgets = {'b_conference': forms.HiddenInput(),}
 
 
 class BidStateChangeForm(forms.ModelForm):

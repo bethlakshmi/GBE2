@@ -156,6 +156,7 @@ def post_act_conflict(conference, performer, data, url, testcase):
         performer=performer)
     login_as(performer.performer_profile, testcase)
     data['theact-b_title'] = original.b_title
+    data['theact-b_conference'] = conference.pk
     response = testcase.client.post(
         url,
         data=data,

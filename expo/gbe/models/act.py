@@ -212,7 +212,8 @@ class Act (Biddable, ActItem):
              'video_link',
              'video_choice',
              'b_description',
-             'why_you'],
+             'why_you',
+             'b_conference'],
             ['b_title', 'b_description', 'shows_preferences', 'performer', ],
         )
 

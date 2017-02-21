@@ -29,7 +29,8 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
         return resource.type
 
     def event_type(self, obj):
-        if str(obj.event.eventitem.child().__class__.__name__) == 'GenericEvent':
+        if str(obj.event.eventitem.child().__class__.__name__
+               ) == 'GenericEvent':
             return obj.event.eventitem.child().sched_payload['type']
         else:
             return str(obj.event.eventitem.child().__class__.__name__)
