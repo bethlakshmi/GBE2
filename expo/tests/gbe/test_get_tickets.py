@@ -137,29 +137,6 @@ class TestGetTickets(TestCase):
             tickets[bpt_event.bpt_event_id].title,
             "The Whole Shebang 2016")
 
-    def test_get_tickets_for_class_three_ways(self):
-        '''the ticket is linked to the class event three ways - 'most',
-        'conference', and a direct link.  It only should appear once.
-        '''
-        event = ClassFactory()
-        bpt_event = BrownPaperEventsFactory(
-            conference=event.e_conference,
-            include_most=True,
-            include_conference=True)
-        bpt_event.linked_events.add(event)
-        bpt_event.save()
-        TicketItemFactory(bpt_event=bpt_event,
-                          live=True,
-                          has_coupon=False,
-                          title="The Whole Shebang 2016")
-
-        tickets = event.get_tickets()
-
-        self.assertEqual(len(tickets), 1)
-        self.assertEqual(
-            tickets[bpt_event.bpt_event_id].title,
-            "The Whole Shebang 2016")
-
     def test_get_tickets_nothing_active(self):
         '''the ticket is linked to the class and there are two active prices
         only the most expensive is shown

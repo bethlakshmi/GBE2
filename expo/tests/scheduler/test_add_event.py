@@ -11,7 +11,6 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from gbe.models import (
-    Conference,
     Room,
 )
 from scheduler.models import Worker
@@ -133,7 +132,7 @@ class TestAddEvent(TestCase):
         assert_good_sched_event_form(response, context.bid)
 
     def test_good_user_get_empty_schedule_info(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         context.bid.schedule_constraints = ""
@@ -220,7 +219,7 @@ class TestAddEvent(TestCase):
                       response.content)
 
     def test_no_duration(self):
-        Conference.objects.all().delete()
+        clear_conferences()
         Room.objects.all().delete()
         context = ClassContext()
         login_as(self.privileged_profile, self)
