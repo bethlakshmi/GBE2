@@ -94,6 +94,21 @@ class TestEditTicketItem(TestCase):
         nt.assert_equal(response.status_code, 302)
         assert '/ticketing/ticket_items/%s' % conf_slug in location(response)
 
+    def test_ticket_add_post_form_all_good(self):
+        '''
+            Good form, good user, return the main edit page
+        '''
+        new_ticket = self.get_ticketitem_form()
+        request = self.factory.post('/ticketing/ticket_item_edit/',
+                                    new_ticket)
+        request.user = self.privileged_user
+        response = ticket_item_edit(request)
+        conf_slug = self.ticketitem.bpt_event.conference.conference_slug
+
+        nt.assert_equal(response.status_code, 302)
+        nt.assert_equal(location(response),
+                        '/ticketing/ticket_items/%s' % conf_slug)
+
     def test_ticket_edit_post_form_bad_bptevent(self):
         '''
             Invalid form data submitted, fail with error and return form
