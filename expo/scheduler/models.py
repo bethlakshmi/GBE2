@@ -721,7 +721,8 @@ class Event(Schedulable):
         Returns a list of dicts,
         {'sched':scheduler.Event, 'conf':conference_event}
         '''
-        opps = EventContainer.objects.filter(parent_event=self)
+        opps = EventContainer.objects.filter(parent_event=self).order_by(
+            'child_event__starttime')
         opps = [
             {'sched': opp.child_event,
              'conf': EventItem.objects.get_subclass(
@@ -751,11 +752,13 @@ class Event(Schedulable):
     @property
     def volunteer_count(self):
         allocations = ResourceAllocation.objects.filter(event=self)
-        volunteers = allocations.filter(resource__worker__role='Volunteer').count()
+        volunteers = allocations.filter(
+            resource__worker__role='Volunteer').count()
         if volunteers > 0:
             return "%d volunteers" % volunteers
         else:
-            acts = ActResource.objects.filter(allocations__in=allocations).count()
+            acts = ActResource.objects.filter(
+                allocations__in=allocations).count()
             if acts > 0:
                 return "%d acts" % acts
         return 0
