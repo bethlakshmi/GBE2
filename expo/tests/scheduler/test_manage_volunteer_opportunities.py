@@ -148,10 +148,6 @@ class TestEventList(TestCase):
             url,
             data=self.get_new_opp_data(context),
             follow=True)
-        assert_redirects(response, reverse('edit_event',
-                                           urlconf='scheduler.urls',
-                                           args=['GenericEvent',
-                                                 context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         for opp in opps:
@@ -160,6 +156,13 @@ class TestEventList(TestCase):
             self.assert_volunteer_type_selector(
                 response,
                 opp.child_event.eventitem.child().volunteer_type)
+            assert_redirects(response, "%s?changed_id=%d" % (
+                reverse('edit_event',
+                        urlconf='scheduler.urls',
+                        args=['GenericEvent',
+                              context.sched_event.pk]),
+                opp.child_event.pk))
+
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
@@ -187,7 +190,7 @@ class TestEventList(TestCase):
 
     def test_copy_opportunity(self):
         context = StaffAreaContext()
-        context.add_volunteer_opp(room=self.room)
+        old = context.add_volunteer_opp(room=self.room)
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
@@ -199,10 +202,6 @@ class TestEventList(TestCase):
             url,
             data=data,
             follow=True)
-        assert_redirects(response, reverse('edit_event',
-                                           urlconf='scheduler.urls',
-                                           args=['GenericEvent',
-                                                 context.sched_event.pk]))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
@@ -211,6 +210,13 @@ class TestEventList(TestCase):
                 'name="e_title" type="text" value="%s" />' % (
                     opp.child_event.eventitem.child().e_title),
                 response.content)
+            if opp.child_event != old:
+                assert_redirects(response, "%s?changed_id=%d" % (
+                    reverse('edit_event',
+                            urlconf='scheduler.urls',
+                            args=['GenericEvent',
+                                  context.sched_event.pk]),
+                    opp.child_event.pk))
 
     def test_edit_opportunity(self):
         context = StaffAreaContext()
@@ -225,10 +231,12 @@ class TestEventList(TestCase):
             url,
             data=self.get_basic_action_data(context, vol_opp, 'edit'),
             follow=True)
-        assert_redirects(response, reverse('edit_event',
-                                           urlconf='scheduler.urls',
-                                           args=['GenericEvent',
-                                                 context.sched_event.pk]))
+        assert_redirects(response, "%s?changed_id=%d" % (
+            reverse('edit_event',
+                    urlconf='scheduler.urls',
+                    args=['GenericEvent',
+                          context.sched_event.pk]),
+            vol_opp.pk))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +

@@ -408,7 +408,7 @@ def manage_volunteer_opportunities(request, event_id):
     template = 'scheduler/event_schedule.tmpl'
 
     event = get_object_or_404(Event, id=event_id)
-
+    changed_event = None
     if request.method != 'POST':
         # TO DO: review this
         return HttpResponseRedirect(reverse('edit_event',
@@ -446,6 +446,7 @@ def manage_volunteer_opportunities(request, event_id):
             container = EventContainer(parent_event=event,
                                        child_event=opp_event)
             container.save()
+            changed_event = opp_event
         else:
             errors = form.errors
             return edit_event_display(request, event, {'createform': form})
@@ -476,15 +477,22 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event.save()
         opp_event.set_location(data.get('location').locationitem)
         opp_event.save()
+        changed_event = opp_event
+
     elif 'allocate' in request.POST.keys():
         return HttpResponseRedirect(reverse('edit_event',
                                             urlconf='scheduler.urls',
                                     args=['GenericEvent',
                                             request.POST['opp_sched_id']]))
-    return HttpResponseRedirect(reverse('edit_event',
-                                        urlconf='scheduler.urls',
-                                        args=[event.event_type_name,
-                                                event_id]))
+    if changed_event:
+        return HttpResponseRedirect("%s?changed_id=%d" % (
+            reverse('edit_event', urlconf='scheduler.urls', args=[
+                event.event_type_name, event_id]),
+            changed_event.pk))
+    else:
+        return HttpResponseRedirect(reverse(
+            'edit_event', urlconf='scheduler.urls', args=[
+                event.event_type_name, event_id]))
 
 
 @login_required
@@ -795,6 +803,11 @@ def edit_event_display(request, item, errorcontext=None):
             context.update(get_manage_opportunity_forms(item,
                                                         initial,
                                                         errorcontext))
+            if len(context['actionform']) > 0 and request.GET.get(
+                    'changed_id', None):
+                context['changed_id'] = int(
+                    request.GET.get('changed_id', None))
+
     scheduling_info = get_scheduling_info(item.as_subtype)
     if scheduling_info:
         context['scheduling_info'] = scheduling_info
