@@ -545,3 +545,20 @@ class TestReports(TestCase):
         response = export_act_techinfo(request, context.show.eventitem_id)
         nt.assert_true(context.audio.notes in response.content)
         nt.assert_true('Center Spot' in response.content)
+
+    def test_download_tracks_for_show(self):
+        context = ActTechInfoContext(room_name="Theater")
+        context.show.scheduler_events.first()
+        reviewer = ProfileFactory()
+        grant_privilege(reviewer, "Tech Crew")
+        login_as(reviewer, self)
+        url = reverse(
+            'download_tracks_for_show',
+            urlconf='gbe.reporting.urls',
+            args=[context.show.eventitem_id])
+        response = self.client.get(url)
+        self.assertEquals(
+            response.get('Content-Disposition'),
+            str('attachment; filename="%s_%s.tar.gz"' % (
+                context.conference.conference_slug,
+                context.show.title.replace(' ', '_'))))
