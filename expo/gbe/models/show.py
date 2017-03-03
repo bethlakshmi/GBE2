@@ -11,6 +11,7 @@ from gbe.models import (
 )
 from gbetext import cue_options
 from ticketing.functions import get_tickets
+import os as os
 
 
 class Show (Event):

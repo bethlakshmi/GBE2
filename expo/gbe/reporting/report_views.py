@@ -14,7 +14,7 @@ from gbe.ticketing_idd_interface import (
     get_checklist_items_for_tickets
     )
 
-import os
+import os as os
 import csv
 from reportlab.pdfgen import canvas
 # from gbe.reporting.view_techinfo import *
