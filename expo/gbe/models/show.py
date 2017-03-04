@@ -60,7 +60,7 @@ class Show (Event):
             "audio",
             "downloads",
             ("%s_%s.tar.gz" %
-             (self.conference.conference_slug,
+             (self.e_conference.conference_slug,
               self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 

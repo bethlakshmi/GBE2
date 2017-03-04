@@ -561,4 +561,4 @@ class TestReports(TestCase):
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (
                 context.conference.conference_slug,
-                context.show.title.replace(' ', '_'))))
+                context.show.e_title.replace(' ', '_'))))
