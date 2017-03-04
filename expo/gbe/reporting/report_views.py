@@ -250,7 +250,7 @@ def download_tracks_for_show(request, show_id):
     '''
     show = conf.Show.objects.get(pk=show_id)
     call_command('sync_audio_downloads',
-                 show_name=show.title,
+                 show_name=show.e_title,
                  conf_slug=show.e_conference.conference_slug)
     path = show.download_path()
     f = open(path)
