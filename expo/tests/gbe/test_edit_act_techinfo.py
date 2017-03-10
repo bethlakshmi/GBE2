@@ -82,20 +82,19 @@ class TestEditActTechInfo(TestCase):
             ('URL of Video', 'video_link'),
             ('Video Notes', 'video_choice')
             ]
-        html_label_format = '<td class="readonlyform form_label">' + \
-            '<label for="id_act_tech_info-%s">%s:</label>'
+        html_label_format = 'for="id_act_tech_info-%s">' + \
+            '%s:</label>'
         read_only_data = '         <td class="readonlyform \n' + \
             '	            form_field \n' + \
-            '		    \n' + \
-            '		      long_choice\n' + \
-            '  		    ">\n' + \
+            '		    ">\n' + \
             '          \n' + \
             '            \n' + \
             '              %s\n' + \
             '            \n' + \
             '           \n' + \
             '	 \n' + \
-            '         </td>'
+            '         </td>\n'
+
         choice_html = '<li>%s</li>'
         performer_choice = '</ul>%s<ul>'
         for label, field_name in labels:
