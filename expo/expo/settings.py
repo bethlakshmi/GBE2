@@ -46,15 +46,16 @@ TEMPLATES = [
                 )],
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.debug',  # used in tutorial
+                'django.template.context_processors.request',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.csrf',   # tutorial
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',     # tutorial
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.i18n',
-                'django.core.context_processors.debug',  # used in tutorial
-                'django.core.context_processors.request',
-                'django.core.context_processors.media',
-                'django.core.context_processors.csrf',   # tutorial
-                'django.core.context_processors.tz',     # tutorial
                 'sekizai.context_processors.sekizai',
-                'django.core.context_processors.static',
                 'cms.context_processors.cms_settings',
                 ],
         },
@@ -191,9 +192,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
