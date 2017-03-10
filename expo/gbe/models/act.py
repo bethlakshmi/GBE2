@@ -160,7 +160,6 @@ class Act (Biddable, ActItem):
         return (self.performer.complete and
                 len(self.b_title) > 0 and
                 len(self.b_description) > 0 and
-                len(self.intro_text) > 0 and
                 len(self.video_choice) > 0)
 
     def validate_unique(self, *args, **kwargs):
