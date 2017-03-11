@@ -155,7 +155,6 @@ INSTALLED_APPS = (
     'scheduler',
     'ticketing',
     'gbe',
-    'pagination',
     'django_nose',
     'hijack',
     'hijack_admin',
