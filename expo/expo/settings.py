@@ -139,10 +139,10 @@ INSTALLED_APPS = (
     'djangocms-placeholder-attr',
     'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
+    'djangocms_flexslider',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-    'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
     'cmsplugin_filer_file',

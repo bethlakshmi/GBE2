@@ -7,7 +7,6 @@ cmsplugin-filer==1.1.3
 cmsplugin-nivoslider==0.5.9
 djangocms-flexslider
 cmsplugin-bootstrap-carousel
-djangocms-slider-easy
 django-model-utils==2.6.1
 django-mptt==0.8.7
 django-nose==1.4.4
@@ -20,7 +19,6 @@ django-tinymce==2.4.0
 django-treebeard==4.1.0
 djangocms-admin-style==1.2.6
 djangocms-column==1.7.0
-djangocms-flash==0.3.0
 djangocms-googlemap==0.4.0
 djangocms-inherit==0.2.2
 djangocms-placeholder-attr==1.0.3
