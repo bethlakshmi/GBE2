@@ -6,7 +6,6 @@ cmsplugin-filer==1.1.3
 -e git://github.com/bethlakshmi/cmsplugin-image-gallery.git@53f60e1624e0785ad0fe09396dd49c555038c138#egg=cmsplugin_image_gallery-master
 cmsplugin-nivoslider==0.5.9
 djangocms-flexslider
-cmsplugin-bootstrap-carousel
 django-model-utils==2.6.1
 django-mptt==0.8.7
 django-nose==1.4.4
