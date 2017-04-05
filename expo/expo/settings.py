@@ -2,10 +2,10 @@
 Django settings for expo project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
+https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'djangocms_snippet',
     'djangocms_googlemap',
     'djangocms_inherit',
+    'djangocms_video',
     'cmsplugin_filer_file',
     'cmsplugin_filer_folder',
     'cmsplugin_filer_link',
