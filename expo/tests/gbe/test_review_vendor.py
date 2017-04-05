@@ -44,7 +44,7 @@ class TestReviewVendor(TestCase):
 
     def test_review_vendor_past_conference(self):
         conference = ConferenceFactory(status='completed')
-        vendor = VendorFactory(conference=conference)
+        vendor = VendorFactory(b_conference=conference)
         url = reverse(self.view_name,
                       args=[vendor.pk],
                       urlconf="gbe.urls")

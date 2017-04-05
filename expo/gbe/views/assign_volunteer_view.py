@@ -46,7 +46,7 @@ def AssignVolunteerView(request, volunteer_id):
                    'bookings': volunteer.profile.get_bookings('Volunteer'),
                    'interests': volunteer.interest_list,
                    'volunteer_event_windows': get_events_and_windows(
-                    conference),
+                       conference),
                    'actionURL': actionURL,
                    'conference': conference,
                    'old_bid': old_bid})

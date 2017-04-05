@@ -27,7 +27,8 @@ class ClassProposal(Model):
     display = BooleanField(default=False)
     conference = ForeignKey(
         Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        blank=True,
+        null=True)
 
     def __unicode__(self):
         return self.title

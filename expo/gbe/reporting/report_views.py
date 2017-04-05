@@ -63,8 +63,8 @@ def review_staff_area(request):
     header = ['Area', 'Leaders', 'Check Staffing']
     areas = conf.GenericEvent.objects.filter(type='Staff Area',
                                              visible=True).filter(
-                                                 conference=conference)
-    shows = conf.Show.objects.filter(conference=conference)
+                                                 e_conference=conference)
+    shows = conf.Show.objects.filter(e_conference=conference)
 
     return render(request, 'gbe/report/staff_areas.tmpl',
                   {'header': header,
@@ -107,13 +107,13 @@ def env_stuff(request, conference_choice=None):
         conference = get_current_conference()
 
     people = conf.Profile.objects.all()
-    acts = conf.Act.objects.filter(accepted=3, conference=conference)
+    acts = conf.Act.objects.filter(accepted=3, b_conference=conference)
     tickets = tix.Transaction.objects.filter(
         ticket_item__bpt_event__conference=conference)
     roles = sched.Worker.objects.filter(
-        Q(allocations__event__eventitem__event__conference=conference))
+        Q(allocations__event__eventitem__event__e_conference=conference))
     commits = sched.ResourceAllocation.objects.filter(
-        Q(event__eventitem__event__conference=conference))
+        Q(event__eventitem__event__e_conference=conference))
 
     header = ['Badge Name',
               'First',
@@ -236,7 +236,7 @@ def review_act_techinfo(request, show_id=None):
                   {'this_show': show,
                    'acts': acts,
                    'all_shows': conf.Show.objects.filter(
-                       conference=conference),
+                       e_conference=conference),
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
                    'scheduling_link': scheduling_link,
@@ -250,8 +250,8 @@ def download_tracks_for_show(request, show_id):
     '''
     show = conf.Show.objects.get(pk=show_id)
     call_command('sync_audio_downloads',
-                 show_name=show.title,
-                 conf_slug=show.conference.conference_slug)
+                 show_name=show.e_title,
+                 conf_slug=show.e_conference.conference_slug)
     path = show.download_path()
     f = open(path)
     fname = os.path.basename(path)
@@ -323,7 +323,7 @@ def export_act_techinfo(request, show_id):
                 rehearsal.start_time, "DATETIME_FORMAT") + ", "
 
         start = [act.order,
-                 act.title.encode('utf-8').strip(),
+                 act.b_title.encode('utf-8').strip(),
                  str(act.performer).encode('utf-8').strip(),
                  act.performer.contact.user_object.email,
                  act.tech.is_complete,
@@ -365,7 +365,7 @@ def export_act_techinfo(request, show_id):
     techinfo = sorted(techinfo, key=lambda row: row[0])
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s_acttech.csv' \
-        % show.title.replace(' ', '_')
+        % show.e_title.replace(' ', '_')
     writer = csv.writer(response)
     writer.writerow(header)
     for row in techinfo:

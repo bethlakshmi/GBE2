@@ -27,8 +27,8 @@ def add_acts_for_show(show_name, conf_slug, tar):
     for acts in show, add track for act to tar
     '''
     conference = get_conference_by_slug(conf_slug)
-    acts = Show.objects.get(conference__conference_slug=conf_slug,
-                            title=show_name).get_acts()
+    acts = Show.objects.get(e_conference__conference_slug=conf_slug,
+                            e_title=show_name).get_acts()
     workdir = make_safe_filename("%s_%s" % (conf_slug, show_name))
     os.mkdir(workdir)
 

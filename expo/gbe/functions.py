@@ -81,7 +81,7 @@ def send_user_contact_email(name, from_address, message):
 
 
 def get_conf(biddable):
-    conference = biddable.biddable_ptr.conference
+    conference = biddable.biddable_ptr.b_conference
     old_bid = conference.status == 'completed'
     return conference, old_bid
 
@@ -126,22 +126,22 @@ def get_events_list_by_type(event_type, conference):
         items = GenericEvent.objects.filter(
             type__iexact=event_type,
             visible=True,
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type in map(lambda x: x.lower, class_types.keys()):
         items = Class.objects.filter(
             accepted='3',
             visible=True,
             type__iexact=event_type,
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type == 'show':
         items = Show.objects.filter(
-            conference=conference).order_by('title')
+            e_conference=conference).order_by('e_title')
     elif event_type == 'class':
         items = Class.objects.filter(
             accepted='3',
             visible=True,
-            conference=conference).exclude(
-                type='Panel').order_by('title')
+            e_conference=conference).exclude(
+                type='Panel').order_by('e_title')
     else:
         items = []
     return items
@@ -154,7 +154,7 @@ def eligible_volunteers(event_start_time, event_end_time, conference):
             windows.append(window)
 
     return Volunteer.objects.filter(
-        conference=conference).exclude(
+        b_conference=conference).exclude(
         unavailable_windows__in=windows)
 
 
@@ -321,7 +321,7 @@ def get_gbe_schedulable_items(confitem_type,
     if not conference:
         conference = Conference.current_conf()
     confitem_class = eval(confitem_type)
-    confitems_list = confitem_class.objects.filter(conference=conference)
+    confitems_list = confitem_class.objects.filter(e_conference=conference)
 
     if filter_type is not None:
         confitems_list = [

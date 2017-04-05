@@ -34,7 +34,7 @@ class TestEventList(TestCase):
     def get_new_opp_data(self, context):
         data = {
             'create': 'create',
-            'new_opp-title': 'New Volunteer Opportunity',
+            'new_opp-e_title': 'New Volunteer Opportunity',
             'new_opp-volunteer_type': self.avail_interest.pk,
             'new_opp-num_volunteers': '1',
             'new_opp-duration': '1:00:00',
@@ -45,7 +45,7 @@ class TestEventList(TestCase):
 
     def get_basic_data(self, context):
         data = {
-            'title': 'Copied Volunteer Opportunity',
+            'e_title': 'Copied Volunteer Opportunity',
             'volunteer_type': self.avail_interest.pk,
             'num_volunteers': '1',
             'duration': '1:00:00',
@@ -56,7 +56,7 @@ class TestEventList(TestCase):
 
     def get_basic_action_data(self, context, vol_opp, action):
         data = self.get_basic_data(context)
-        data['title'] = 'Modify Volunteer Opportunity'
+        data['e_title'] = 'Modify Volunteer Opportunity'
         data['opp_event_id'] = vol_opp.eventitem.pk
         data['opp_sched_id'] = vol_opp.pk
         data[action] = action
@@ -151,7 +151,7 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(opps.exists())
         for opp in opps:
-            nt.assert_equal(opp.child_event.eventitem.child().title,
+            nt.assert_equal(opp.child_event.eventitem.child().e_title,
                             'New Volunteer Opportunity')
             self.assert_volunteer_type_selector(
                 response,
@@ -163,7 +163,7 @@ class TestEventList(TestCase):
                               context.sched_event.pk]),
                 opp.child_event.pk))
 
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
@@ -205,11 +205,11 @@ class TestEventList(TestCase):
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 2)
         for opp in opps:
-            nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
-                         'type="text" value="' +
-                         opp.child_event.eventitem.child().title +
-                         '" />',
-                         response.content)
+            nt.assert_in(
+                '<input id="id_e_title" maxlength="128" '
+                'name="e_title" type="text" value="%s" />' % (
+                    opp.child_event.eventitem.child().e_title),
+                response.content)
             if opp.child_event != old:
                 assert_redirects(response, "%s?changed_id=%d" % (
                     reverse('edit_event',
@@ -239,7 +239,7 @@ class TestEventList(TestCase):
             vol_opp.pk))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
                      response.content)
 
@@ -260,7 +260,7 @@ class TestEventList(TestCase):
             data=data,
             follow=True)
         nt.assert_equal(response.status_code, 200)
-        nt.assert_in('<input id="id_title" maxlength="128" name="title" ' +
+        nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
                      response.content)
         nt.assert_in('<ul class="errorlist"><li>required</li></ul>',

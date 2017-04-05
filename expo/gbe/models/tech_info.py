@@ -84,7 +84,7 @@ class AudioInfo(Model):
 
     def __unicode__(self):
         try:
-            return "AudioInfo: " + self.techinfo.act.title
+            return "AudioInfo: " + self.techinfo.act.b_title
         except:
             return "AudioInfo: (deleted act)"
 
@@ -126,7 +126,7 @@ class LightingInfo (Model):
 
     def __unicode__(self):
         try:
-            return "LightingInfo: " + self.techinfo.act.title
+            return "LightingInfo: " + self.techinfo.act.b_title
         except:
             return "LightingInfo: (deleted act)"
 
@@ -186,7 +186,7 @@ class StageInfo(Model):
 
     def __unicode__(self):
         try:
-            return "StageInfo: " + self.techinfo.act.title
+            return "StageInfo: " + self.techinfo.act.b_title
         except:
             return "StageInfo: (deleted act)"
 
@@ -236,7 +236,7 @@ class TechInfo(Model):
 
     def __unicode__(self):
         try:
-            return "Techinfo: " + self.act.title
+            return "Techinfo: " + self.act.b_title
         except:
             return "Techinfo: (deleted act)"
 

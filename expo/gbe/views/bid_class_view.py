@@ -74,23 +74,25 @@ def BidClassView(request):
             conference = Conference.objects.filter(accepting_bids=True).first()
             new_class = form.save(commit=False)
             new_class.duration = Duration(minutes=new_class.length_minutes)
+            new_class.b_conference = conference
+            new_class.e_conference = conference
             new_class = form.save(commit=True)
+
             if 'submit' in request.POST.keys():
                 if new_class.complete:
                     new_class.submitted = True
-                    new_class.conference = conference
                     new_class.save()
                 else:
                     error_string = 'Cannot submit, class is not complete'
-                    return render(request,
-                                  'gbe/bid.tmpl',
-                                  {'forms': [form],
-                                   'page_title': page_title,
-                                   'view_title': view_title,
-                                   'draft_fields': draft_fields,
-                                   'errors': [error_string],
-                                   'popup_text':
-                                        avoided_constraints_popup_text})
+                    return render(
+                        request,
+                        'gbe/bid.tmpl',
+                        {'forms': [form],
+                         'page_title': page_title,
+                         'view_title': view_title,
+                         'draft_fields': draft_fields,
+                         'errors': [error_string],
+                         'popup_text': avoided_constraints_popup_text})
 
             messages.success(request, user_message[0].description)
             return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))

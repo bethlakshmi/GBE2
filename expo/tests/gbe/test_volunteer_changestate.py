@@ -56,7 +56,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'e_conference': self.volunteer.b_conference,
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)
@@ -67,7 +67,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'e_conference': self.volunteer.b_conference,
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)
@@ -90,7 +90,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'conference': self.volunteer.b_conference,
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)
@@ -103,7 +103,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'conference': self.volunteer.b_conference,
                 'events': [],
                 'accepted': 4}
         response = self.client.post(url, data=data)
@@ -117,13 +117,13 @@ class TestVolunteerChangestate(TestCase):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
         context = StaffAreaContext(
             staff_lead=self.volunteer.profile,
-            conference=self.volunteer.conference)
+            conference=self.volunteer.b_conference)
         opp = context.add_volunteer_opp()
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'conference': self.volunteer.b_conference,
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
@@ -132,7 +132,7 @@ class TestVolunteerChangestate(TestCase):
     def test_volunteer_changestate_gives_event_over_full_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
         context = StaffAreaContext(
-            conference=self.volunteer.conference)
+            conference=self.volunteer.b_conference)
         opp = context.add_volunteer_opp()
         context.book_volunteer(
             volunteer_sched_event=opp,
@@ -141,7 +141,7 @@ class TestVolunteerChangestate(TestCase):
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.conference,
+        data = {'conference': self.volunteer.b_conference,
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)

@@ -232,7 +232,7 @@ class ActItem(ResourceItem):
     def describe(self):
         return ActItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
-        ).title
+        ).b_title
 
     def __str__(self):
         return str(self.describe)
@@ -435,7 +435,8 @@ class WorkerItem(ResourceItem):
                 resources_allocated__resource__worker__role=role)
         if conference:
 
-            events = events.filter(eventitem__event__conference=conference)
+            events = events.filter(
+                eventitem__event__e_conference=conference)
         return events
 
     def get_schedule(self):
@@ -507,7 +508,7 @@ class EventItem (models.Model):
         return EventItem.objects.get_subclass(eventitem_id=self.eventitem_id)
 
     def get_conference(self):
-        return self.child().conference
+        return self.child().e_conference
 
     def day_options(self):
         return self.get_conference().conferenceday_set.all()

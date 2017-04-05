@@ -28,7 +28,7 @@ def prep_act_tech_info(request, show_id=None):
             logger.error("review_act_techinfo: Invalid show id")
             pass
     if show:
-        conference = show.conference
+        conference = show.e_conference
     else:
         conf_slug = request.GET.get('conf_slug', None)
         conference = get_conference_by_slug(conf_slug)

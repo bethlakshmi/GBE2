@@ -18,7 +18,7 @@ from gbe.models import (
 class ReviewBidListView(View):
     bid_evaluation_type = BidEvaluation
     template = 'gbe/bid_review_list.tmpl'
-    bid_order_fields = ('accepted', 'title')
+    bid_order_fields = ('accepted', 'b_title')
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class ReviewBidListView(View):
     def get_bids(self):
         return self.object_type.objects.filter(
             submitted=True,
-            conference=self.conference).order_by(*self.bid_order_fields)
+            b_conference=self.conference).order_by(*self.bid_order_fields)
 
     def review_query(self, bids):
         return self.bid_evaluation_type.objects.filter(

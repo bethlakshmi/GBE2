@@ -30,7 +30,7 @@ class GBEChangeListTests(TestCase):
     def test_get_volunteer_interest_conference(self):
         obj = VolunteerInterestFactory()
         response = self.client.get('/admin/gbe/volunteerinterest/')
-        assert str(obj.volunteer.conference) in response.content
+        assert str(obj.volunteer.b_conference) in response.content
 
     def test_get_volunteer_window_conference(self):
         obj = VolunteerWindowFactory()

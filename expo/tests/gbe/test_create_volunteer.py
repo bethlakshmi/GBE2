@@ -61,7 +61,7 @@ class TestCreateVolunteer(TestCase):
                     'pk', flat=True)[2],
                 '%d-rank' % self.interest.pk: 4,
                 '%d-interest' % self.interest.pk: self.interest.pk,
-                'title': 'title'
+                'b_title': 'title'
                 }
         if submit:
             form['submit'] = True
@@ -167,9 +167,10 @@ class TestCreateVolunteer(TestCase):
         assert_rank_choice_exists(response, self.interest)
         assert_hidden_value(
             response,
-            "id_title",
-            "title",
-            'volunteer bid: %s' % self.profile.display_name)
+            "id_b_title",
+            "b_title",
+            'volunteer bid: %s' % self.profile.display_name,
+            128)
 
     def test_volunteer_submit_make_message(self):
         response, data = self.post_volunteer_submission()
@@ -269,7 +270,7 @@ class TestCreateVolunteer(TestCase):
                       urlconf='gbe.urls')
         volunteer = VolunteerFactory(
             profile=self.profile,
-            conference=self.conference)
+            b_conference=self.conference)
         login_as(self.profile, self)
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data, follow=True)
@@ -286,7 +287,7 @@ class TestCreateVolunteer(TestCase):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         VolunteerFactory(profile=self.profile,
-                         conference=ConferenceFactory(status='past'))
+                         b_conference=ConferenceFactory(status='past'))
         login_as(self.profile, self)
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data)

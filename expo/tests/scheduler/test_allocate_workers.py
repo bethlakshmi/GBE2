@@ -152,7 +152,7 @@ class TestAllocateWorkers(TestCase):
             'Do these notes work?',
             allocations=3)
         assert len(volunteer.volunteering.all().filter(
-            conference=volunteer_opp.eventitem.get_conference())) == 1
+            b_conference=volunteer_opp.eventitem.get_conference())) == 1
 
     def test_post_form_valid_make_new_allocation_volunteer_exists(self):
         context = StaffAreaContext()
@@ -161,7 +161,7 @@ class TestAllocateWorkers(TestCase):
         volunteer = VolunteerFactory(
             submitted=False,
             accepted=2,
-            conference=context.conference)
+            b_conference=context.conference)
         VolunteerInterestFactory(
             volunteer=volunteer,
             interest=volunteer_opp.as_subtype.volunteer_type)
@@ -184,7 +184,7 @@ class TestAllocateWorkers(TestCase):
             'Do these notes work?',
             allocations=3)
         assert len(volunteer.profile.volunteering.all().filter(
-            conference=volunteer_opp.eventitem.get_conference())) == 1
+            b_conference=volunteer_opp.eventitem.get_conference())) == 1
         updated = get_object_or_404(Volunteer, pk=volunteer.pk)
         assert updated.submitted
         assert updated.accepted == 3

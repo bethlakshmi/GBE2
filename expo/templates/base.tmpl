@@ -4,7 +4,8 @@
   <head>
     <title>{% block title %}This is my new project home page{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% render_block "css" %}
+   {% render_block "css" %}
+
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">-->
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet"
@@ -40,7 +41,6 @@
   <body style="background-image: url({% static "img/curtains.jpeg" %})">
     <div class="container">
     {% cms_toolbar %}
-
     <div class='banner'>{% static_placeholder 'banner' %}
     </div>
 
@@ -77,8 +77,7 @@
       </div>
       <div class='footer'>{% static_placeholder 'footer'%}</div>
     </div>
-    {% render_block "js" %}
-
+    {% render_block "js" %} 
   </body>
 </html>
 <script>
@@ -87,11 +86,9 @@ $(document).ready(function() {
         var $el = $(this);
         var $parent = $(this).offsetParent(".dropdown-menu");
         $(this).parent("li").toggleClass('open');
-
         if(!$parent.parent().hasClass('nav')) {
             $el.next().css({"top": $el[0].offsetTop, "left": $parent.outerWidth() - 4});
         }
-
         $('.nav li.open').not($(this).parents("li")).removeClass("open");
 
         return false;

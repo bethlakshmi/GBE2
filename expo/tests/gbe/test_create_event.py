@@ -4,17 +4,18 @@ from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
     RoomFactory,
 )
 from tests.functions.gbe_functions import (
-    current_conference,
     grant_privilege,
     login_as,
 )
 from gbe.models import (
     Class,
+    Conference,
     GenericEvent,
     Show,
 )
@@ -35,15 +36,13 @@ class TestCreateEvent(TestCase):
         self.performer = PersonaFactory()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        current_conference()
-        Show.objects.all().delete()
-        GenericEvent.objects.all().delete()
-        Class.objects.all().delete()
+        Conference.objects.all().delete()
+        self.current_conference = ConferenceFactory(accepting_bids=True)
 
     def post_data(self, event_type='Show'):
         data = {
-            'title': 'The Big %s' % event_type,
-            'description': 'This is a description',
+            'e_title': 'The Big %s' % event_type,
+            'e_description': 'This is a description',
             'duration': '2:00:00'
         }
         return data
@@ -64,7 +63,8 @@ class TestCreateEvent(TestCase):
         response = self.client.post(
             self.url,
             data=data)
-        nt.assert_true(Show.objects.filter(title=data['title']).count() > 0)
+        nt.assert_true(Show.objects.filter(
+            e_title=data['e_title']).count() > 0)
 
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
@@ -73,7 +73,8 @@ class TestCreateEvent(TestCase):
         response = self.client.post(
             self.url,
             data=data)
-        nt.assert_false(Show.objects.filter(title=data['title']).exists())
+        nt.assert_false(Show.objects.filter(
+            e_title=data['e_title']).exists())
 
     def test_event_w_location(self):
         url = reverse(
@@ -89,10 +90,11 @@ class TestCreateEvent(TestCase):
             url,
             data=data,
             follow=True)
+        print response.content
         assert "Events Information" in response.content
         assert str(room) in response.content
         nt.assert_true(GenericEvent.objects.filter(
-            title=data['title'],
+            e_title=data['e_title'],
             default_location=room).count() > 0)
 
     def test_event_w_no_location(self):
@@ -110,7 +112,7 @@ class TestCreateEvent(TestCase):
             follow=True)
         assert "Events Information" in response.content
         nt.assert_true(GenericEvent.objects.filter(
-            title=data['title'],
+            e_title=data['e_title'],
             default_location__isnull=True).count() > 0)
 
     def test_create_class(self):
@@ -128,4 +130,4 @@ class TestCreateEvent(TestCase):
             follow=True)
         assert "Events Information" in response.content
         nt.assert_true(Class.objects.filter(
-            title=data['title']).count() > 0)
+            e_title=data['e_title']).count() > 0)

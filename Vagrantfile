@@ -65,6 +65,7 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install libpng3 
   sudo apt-fast -y install libfreetype6-dev
   sudo apt-fast -y install gettext
+  sudo pip install -U pip setuptools
   sudo pip install --requirement /vagrant/config/requirements.txt
   sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
   ifmkdir /vagrant/tmp; cd /vagrant/tmp; rm -rf /vagrant/tmp/*

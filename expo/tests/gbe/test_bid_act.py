@@ -43,18 +43,21 @@ class TestBidAct(TestCase):
         self.current_conference = ConferenceFactory(accepting_bids=True)
         UserMessage.objects.all().delete()
 
-    def get_act_form(self, submit=False):
+    def get_act_form(self, submit=False, valid=True):
 
         form_dict = {'theact-shows_preferences': [1],
-                     'theact-title': 'An act',
+                     'theact-b_title': 'An act',
                      'theact-track_title': 'a track',
                      'theact-track_artist': 'an artist',
-                     'theact-description': 'a description',
+                     'theact-b_description': 'a description',
                      'theact-performer': self.performer.resourceitem_id,
-                     'theact-act_duration': '1:00'
+                     'theact-act_duration': '1:00',
+                     'theact-b_conference': self.current_conference.pk
                      }
         if submit:
             form_dict['submit'] = 1
+        if not valid:
+            del(form_dict['theact-b_description'])
         return form_dict
 
     def post_paid_act_submission(self, act_form=None):
@@ -110,10 +113,10 @@ class TestBidAct(TestCase):
 
     def test_act_bid_post_form_not_valid(self):
         login_as(self.performer.performer_profile, self)
-        POST = self.get_act_form(submit=True)
-        del(POST['theact-description'])
-        response = self.client.post(self.url,
-                                    data=POST)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        data = self.get_act_form(submit=True, valid=False)
+        response = self.client.post(url,
+                                    data=data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Propose an Act' in response.content)
 
@@ -136,10 +139,10 @@ class TestBidAct(TestCase):
         current_conference()
         response, data = self.post_paid_act_draft()
         self.assertEqual(response.status_code, 200)
-        act_name = data['theact-title']
+        act_name = data['theact-b_title']
         expected_string = "%s - Not submitted" % act_name
         assert expected_string in response.content
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_bid_not_post(self):
         '''act_bid, not post, should take us to bid process'''
@@ -152,29 +155,39 @@ class TestBidAct(TestCase):
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_paid_act_w_old_comp_act(self):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer,
-            conference=ConferenceFactory(status='completed'))
+            b_conference=ConferenceFactory(status='completed'))
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
+
+    def test_act_submit_paid_act_w_old_comp_act(self):
+        prev_act = ActFactory(
+            submitted=True,
+            performer=self.performer,
+            b_conference=ConferenceFactory(status='completed'))
+        response, data = self.post_paid_act_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View</a> act")
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_second_paid_act(self):
         prev_act = ActFactory(
             submitted=True,
             performer=self.performer,
-            conference=self.current_conference)
+            b_conference=self.current_conference)
         make_act_app_purchase(self.current_conference,
                               self.performer.performer_profile.user_object)
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "View</a> act")
-        self.assertContains(response, data['theact-title'])
+        self.assertContains(response, data['theact-b_title'])
 
     def test_act_submit_make_message(self):
         response, data = self.post_paid_act_submission()
@@ -219,7 +232,7 @@ class TestBidAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 
@@ -241,7 +254,7 @@ class TestBidAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 

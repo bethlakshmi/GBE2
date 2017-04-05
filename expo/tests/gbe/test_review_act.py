@@ -96,7 +96,7 @@ class TestReviewAct(TestCase):
     def test_review_act_old_act(self):
         conference = ConferenceFactory(status="completed",
                                        accepting_bids=False)
-        act = ActFactory(conference=conference)
+        act = ActFactory(b_conference=conference)
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
@@ -122,7 +122,7 @@ class TestReviewAct(TestCase):
                                        status='upcoming')
         # conference = current_conference()
         act = ActFactory(accepted=1,
-                         conference=conference)
+                         b_conference=conference)
         profile = ProfileFactory()
         user = profile.user_object
         grant_privilege(user, 'Act Reviewers')
@@ -147,7 +147,7 @@ class TestReviewAct(TestCase):
                                        status='upcoming')
         # conference = current_conference()
         act = ActFactory(accepted=1,
-                         conference=conference)
+                         b_conference=conference)
         profile = ProfileFactory()
         user = profile.user_object
         grant_privilege(user, 'Act Reviewers')

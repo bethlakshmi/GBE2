@@ -21,13 +21,13 @@ def get_tickets(linked_event, most=False, conference=False):
     if most:
         general_events = TicketItem.objects.filter(
             bpt_event__include_most=True,
-            bpt_event__conference=linked_event.conference)
+            bpt_event__conference=linked_event.e_conference)
     if conference:
         general_events = list(chain(
             general_events,
             TicketItem.objects.filter(
                 bpt_event__include_conference=True,
-                bpt_event__conference=linked_event.conference)))
+                bpt_event__conference=linked_event.e_conference)))
 
     general_events = list(chain(
         general_events,

@@ -2,9 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
 from cms.sitemaps import CMSSitemap
-
 from expo.settings import APP_DJANGOBB
-
 from django.contrib import admin
 admin.autodiscover()
 

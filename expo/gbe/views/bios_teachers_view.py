@@ -30,7 +30,7 @@ def BiosTeachersView(request):
     conferences = conference_list()
     performers = Performer.objects.all()
     bid_classes = Class.objects.filter(
-        conference=conference,
+        e_conference=conference,
         accepted=3)
     bios = []
     workers, commits = get_scheduled_events_by_role(

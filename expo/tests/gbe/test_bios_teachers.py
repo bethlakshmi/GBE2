@@ -1,5 +1,4 @@
 import nose.tools as nt
-from unittest import skip
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
@@ -53,7 +52,7 @@ class TestBiosTeachers(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         assert current_context.teacher.name in response.content
-        assert current_context.bid.title in response.content
+        assert current_context.bid.b_title in response.content
 
         # the following assertions should work, but currently
         # do not. This is possibly an issue with multiple
@@ -74,7 +73,7 @@ class TestBiosTeachers(TestCase):
             data={'conference': first_context.conference.conference_slug})
         assert response.status_code == 200
         assert first_context.bid.teacher.name in response.content
-        assert first_context.bid.title in response.content
+        assert first_context.bid.b_title in response.content
 
         # the following assertions should work, but currently
         # do not. This is possibly an issue with multiple
@@ -86,14 +85,15 @@ class TestBiosTeachers(TestCase):
         # assert other_context.bid.title not in response.content
 
     def test_bios_teachers_unbooked_accepted(self):
-        accepted_class = ClassFactory(conference=current_conference(),
+        accepted_class = ClassFactory(b_conference=current_conference(),
+                                      e_conference=current_conference(),
                                       accepted=3)
         url = reverse(self.view_name, urlconf="gbe.urls")
         login_as(ProfileFactory(), self)
         response = self.client.get(
             url,
-            data={'conference': accepted_class.conference.conference_slug})
+            data={'conference': accepted_class.b_conference.conference_slug})
 
         assert response.status_code == 200
         assert accepted_class.teacher.name in response.content
-        assert accepted_class.title in response.content
+        assert accepted_class.b_title in response.content

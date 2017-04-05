@@ -32,7 +32,7 @@ class TestGetTickets(TestCase):
         '''
         event = GenericEventFactory(
             type='Master')
-        bpt_event = BrownPaperEventsFactory(conference=event.conference)
+        bpt_event = BrownPaperEventsFactory(conference=event.e_conference)
         bpt_event.linked_events.add(event)
         bpt_event.save()
         TicketItemFactory(bpt_event=bpt_event,
@@ -52,7 +52,7 @@ class TestGetTickets(TestCase):
         event = GenericEventFactory(
             type='Special')
         bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_most=True)
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
@@ -71,10 +71,10 @@ class TestGetTickets(TestCase):
         '''
         event = ClassFactory()
         ws_bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_most=True)
         sch_bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_conference=True)
         whole_shebang = TicketItemFactory(
             bpt_event=ws_bpt_event,
@@ -101,7 +101,7 @@ class TestGetTickets(TestCase):
         '''
         event = ShowFactory()
         bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_most=True)
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
@@ -120,7 +120,7 @@ class TestGetTickets(TestCase):
         '''
         event = ClassFactory()
         bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_most=True,
             include_conference=True)
         bpt_event.linked_events.add(event)
@@ -143,7 +143,7 @@ class TestGetTickets(TestCase):
         '''
         event = ClassFactory()
         bpt_event = BrownPaperEventsFactory(
-            conference=event.conference,
+            conference=event.e_conference,
             include_conference=True)
         TicketItemFactory(bpt_event=bpt_event,
                           live=False,

@@ -50,7 +50,7 @@ def view_techinfo(request):
                    'area': area,
                    'area_options': ['all', 'audio', 'stage_mgmt', 'lighting'],
                    'all_shows': Show.objects.filter(
-                       conference=conference),
+                       e_conference=conference),
                    'techinfo': techinfo,
                    'header': header,
                    'conference_slugs': conference_slugs(),
@@ -129,7 +129,7 @@ def build_techinfo(show_id, area='all'):
     for act in acts:
         tech_row = [
             act.order,
-            act.title,
+            act.b_title,
             ("Person",
              act.performer.contact.user_object.email,
              act.performer),

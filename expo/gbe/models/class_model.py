@@ -74,10 +74,15 @@ class Class(Biddable, Event):
         new_class.space_needs = self.space_needs
         new_class.physical_restrictions = self.physical_restrictions
         new_class.multiple_run = self.multiple_run
-        new_class.title = self.title
-        new_class.description = self.description
-        new_class.conference = Conference.objects.filter(
+        new_class.e_title = self.e_title
+        new_class.e_description = self.e_description
+        new_class.e_conference = Conference.objects.filter(
             status="upcoming").first()
+        new_class.b_title = self.b_title
+        new_class.b_description = self.b_description
+        new_class.b_conference = Conference.objects.filter(
+            status="upcoming").first()
+
         new_class.save()
         return new_class
 
@@ -99,8 +104,8 @@ class Class(Biddable, Event):
             details['fee'] = self.fee
 
         payload['details'] = details
-        payload['title'] = self.event_ptr.title
-        payload['description'] = self.event_ptr.description
+        payload['title'] = self.event_ptr.e_title
+        payload['description'] = self.event_ptr.e_description
         if not self.duration:
             self.duration = Duration(hours=1)
             self.save(update_fields=('duration',))
@@ -127,9 +132,9 @@ class Class(Biddable, Event):
         '''
         Returns fields, required_fields as tuple of lists
         '''
-        return (['title',
+        return (['b_title',
                  'teacher',
-                 'description',
+                 'b_description',
                  'maximum_enrollment',
                  'type',
                  'fee',
@@ -138,14 +143,14 @@ class Class(Biddable, Event):
                  'schedule_constraints',
                  'avoided_constraints',
                  'space_needs'],
-                ['title',
+                ['b_title',
                  'teacher',
-                 'description',
+                 'b_description',
                  'schedule_constraints'])
 
     @property
     def get_draft_fields(self):
-        return (['title', 'teacher'])
+        return (['b_title', 'teacher'])
 
     @property
     def schedule_ready(self):
@@ -153,9 +158,9 @@ class Class(Biddable, Event):
 
     @property
     def complete(self):
-        return (self.title is not '' and
+        return (self.b_title is not '' and
                 self.teacher is not None and
-                self.description is not '' and
+                self.b_description is not '' and
                 self.blurb is not ''
                 )
 
@@ -171,14 +176,14 @@ class Class(Biddable, Event):
 
     @property
     def bid_review_summary(self):
-        return (self.title,
+        return (self.b_title,
                 self.teacher,
                 self.type,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 
     def __str__(self):
-        return self.event_ptr.title
+        return self.b_title
 
     # tickets that apply to class are:
     #   - any ticket that applies to "most"

@@ -28,12 +28,12 @@ class Show (Event):
     type = "Show"
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @property
     def sched_payload(self):
-        return {'title': self.title,
-                'description': self.description,
+        return {'title': self.e_title,
+                'description': self.e_description,
                 'duration': self.duration,
                 'details': {'type': 'Show'}
                 }
@@ -54,13 +54,14 @@ class Show (Event):
         return self.scheduler_events.first().get_acts()
 
     def download_path(self):
-        path = os.path.join(settings.MEDIA_ROOT,
-                            "uploads",
-                            "audio",
-                            "downloads",
-                            ("%s_%s.tar.gz" %
-                             (self.conference.conference_slug,
-                              self.title.replace(" ", "_").replace("/", "_"))))
+        path = os.path.join(
+            settings.MEDIA_ROOT,
+            "uploads",
+            "audio",
+            "downloads",
+            ("%s_%s.tar.gz" %
+             (self.e_conference.conference_slug,
+              self.e_title.replace(" ", "_").replace("/", "_"))))
         return path
 
     class Meta:

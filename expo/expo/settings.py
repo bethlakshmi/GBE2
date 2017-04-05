@@ -2,10 +2,10 @@
 Django settings for expo project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
+https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
+https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -32,8 +32,35 @@ try:
     STATIC_ROOT
 except:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SITE_ID = 1
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, "templates"),],
+        'OPTIONS': {
+            'loaders': (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader'
+                ),
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.debug',  # used in tutorial
+                'django.template.context_processors.request',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.csrf',   # tutorial
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',     # tutorial
+                'django.contrib.messages.context_processors.messages',
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
+                ],
+        },
+    },
+]
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
@@ -90,15 +117,14 @@ except:
 # Application definition
 
 INSTALLED_APPS = (
-    'cms',  # django CMS itself
+    'cms',
     'mptt',  # utilities for implementing a tree
+    'treebeard',
     'menus',
-    'south',  # Only needed for Django < 1.7
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',
     'django.contrib.messages',
-    'treebeard',
-    'djangocms_text_ckeditor',  # tutorial ... hmm...
+    'djangocms_text_ckeditor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -110,32 +136,26 @@ INSTALLED_APPS = (
     'tinymce',
     'filer',
     'easy_thumbnails',
-    #    'aldryn_bootstrap3',
+    'djangocms-placeholder-attr',
     'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
-    'djangocms-placeholder-attr',
+    'djangocms_flexslider',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-    #    'djangocms_file',
-    'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
+    'djangocms_video',
     'cmsplugin_filer_file',
     'cmsplugin_filer_folder',
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
     'cmsplugin_filer_video',
-    #    'djangocms_link',
-    #    'djangocms_picture',
-    #    'djangocms_teaser',
-    #    'djangocms_video',
     'reversion',  # for versioning in cms -- use easy install
-    'gbe',
-    'ticketing',
     'scheduler',
-    'pagination',
+    'ticketing',
+    'gbe',
     'django_nose',
     'hijack',
     'hijack_admin',
@@ -154,14 +174,14 @@ THUMBNAIL_HIGH_RESOLUTION = True
 
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
-    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'easy_thumbnails.processors.autocrop',
-    #    'easy_thumbnails.processors.scale_and_crop',
+    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
 
 MIDDLEWARE_CLASSES = (
+    'cms.middleware.utils.ApphookReloadMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -172,16 +192,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
     #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'pagination.middleware.PaginationMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
@@ -189,42 +206,13 @@ MIDDLEWARE_CLASSES = (
 TEXT_SAVE_IMAGE_FUNCTION = \
     'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
-# all django-cms
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.debug',  # used in tutorial
-    'django.core.context_processors.request',
-    'django.core.context_processors.media',
-    'django.core.context_processors.csrf',   # tutorial
-    'django.core.context_processors.tz',     # tutorial
-    'sekizai.context_processors.sekizai',
-    'django.core.context_processors.static',
-    'cms.context_processors.cms_settings',
-)
 
-MIGRATION_MODULES = {
-    'cms': 'cms.migrations_django',
-    'menus': 'menus.migrations_django',
-
-    # Add also the following modules if you're using these plugins:
-    'djangocms_file': 'djangocms_file.migrations_django',
-    'djangocms_flash': 'djangocms_flash.migrations_django',
-    'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
-    'djangocms_inherit': 'djangocms_inherit.migrations_django',
-    'djangocms_link': 'djangocms_link.migrations_django',
-    'djangocms_picture': 'djangocms_picture.migrations_django',
-    'djangocms_snippet': 'djangocms_snippet.migrations_django',
-    'djangocms_teaser': 'djangocms_teaser.migrations_django',
-    'djangocms_video': 'djangocms_video.migrations_django',
-    'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
-}
-
+'''
 SOUTH_MIGRATION_MODULES = {
     'image_gallery': 'image_gallery.south_migrations',
     "post_office": "post_office.south_migrations",
 }
+'''
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -322,13 +310,8 @@ DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'expo', 'static'),
 )
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader'
-)
 
-CMS_STYLE_NAMES = (
+DJANGOCMS_STYLE_CHOICES = (
     ('info', ("info")),
     ('new', ("new")),
     ('hint', ("hint")),

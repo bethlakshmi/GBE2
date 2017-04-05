@@ -38,14 +38,14 @@ class TestEditVendor(TestCase):
 
     def get_vendor_form(self, submit=False, invalid=False):
         form = {'thebiz-profile': 1,
-                'thebiz-title': 'title here',
-                'thebiz-description': 'description here',
+                'thebiz-b_title': 'title here',
+                'thebiz-b_description': 'description here',
                 'thebiz-physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['thebiz-description'])
+            del(form['thebiz-b_description'])
         return form
 
     def post_edit_paid_vendor_submission(self):
@@ -54,7 +54,8 @@ class TestEditVendor(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         data = self.get_vendor_form(submit=True)
         data['thebiz-profile'] = vendor.profile.pk
-        make_vendor_app_purchase(vendor.conference, vendor.profile.user_object)
+        make_vendor_app_purchase(vendor.b_conference,
+                                 vendor.profile.user_object)
         response = self.client.post(url, data, follow=True)
         return response
 

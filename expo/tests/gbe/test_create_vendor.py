@@ -39,14 +39,14 @@ class TestCreateVendor(TestCase):
 
     def get_form(self, submit=False, invalid=False):
         form = {'profile': 1,
-                'title': 'title here',
-                'description': 'description here',
+                'b_title': 'title here',
+                'b_description': 'description here',
                 'physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['description'])
+            del(form['b_description'])
         return form
 
     def post_paid_vendor_submission(self):
@@ -89,7 +89,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Profile View' in response.content)
         self.assertContains(response, "(Click to edit)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
@@ -131,32 +131,32 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_create_vendor_post_with_vendor_old_comp(self):
         comped_vendor = VendorFactory(
             submitted=True,
             profile=self.profile,
-            conference=ConferenceFactory(status='completed')
+            b_conference=ConferenceFactory(status='completed')
         )
         response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
             submitted=True,
             profile=self.profile,
-            conference=self.conference
+            b_conference=self.conference
         )
         make_vendor_app_purchase(self.conference, self.profile.user_object)
         response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['title'])
+        self.assertContains(response, data['b_title'])
 
     def test_vendor_submit_make_message(self):
         response, data = self.post_paid_vendor_submission()

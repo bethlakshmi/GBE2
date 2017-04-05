@@ -36,7 +36,7 @@ class TestScheduleActs(TestCase):
                 resource__actresource___item=self.context.acts[0]).first()
         data = {
             'allocation_%d-event_type' %
-            allocation.pk: self.context.show.title,
+            allocation.pk: self.context.show.e_title,
             'allocation_%d-performer' %
             allocation.pk: 'changed performer',
             'allocation_%d-title' %
@@ -51,16 +51,16 @@ class TestScheduleActs(TestCase):
         self.assertNotIn('<ul class="errorlist">', response.content)
         for act in self.context.acts:
             if act.accepted == 3:
-                self.assertContains(response, act.title)
+                self.assertContains(response, act.b_title)
                 self.assertContains(response, str(act.performer))
             else:
-                self.assertNotContains(response, act.title)
+                self.assertNotContains(response, act.b_title)
                 self.assertNotContains(response, str(act.performer))
         self.assertContains(
             response,
             '<option value="%d" selected="selected">%s</option>' % (
                 self.context.sched_event.pk,
-                self.context.show.title)
+                self.context.show.e_title)
             )
 
     def test_no_login_gives_error(self):
@@ -98,7 +98,7 @@ class TestScheduleActs(TestCase):
             response,
             '<option value="%s">%s</option>' % (
                 self.context.show.pk,
-                self.context.show.title)
+                self.context.show.e_title)
             )
 
     def test_good_user_get_success(self):
@@ -107,7 +107,7 @@ class TestScheduleActs(TestCase):
         self.assert_good_form_display(response)
 
     def test_good_user_get_two_shows_same_title(self):
-        ShowFactory(title=self.context.show.title)
+        ShowFactory(e_title=self.context.show.e_title)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
@@ -122,7 +122,7 @@ class TestScheduleActs(TestCase):
 
     def test_good_user_get_w_waitlist(self):
         wait_act = ActFactory(accepted=2,
-                              conference=self.context.conference)
+                              b_conference=self.context.conference)
         self.context.book_act(wait_act)
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
@@ -143,7 +143,7 @@ class TestScheduleActs(TestCase):
         self.assertRedirects(
             response,
             reverse('home', urlconf='gbe.urls'))
-        self.assertNotEqual(self.context.acts[0].title,
+        self.assertNotEqual(self.context.acts[0].b_title,
                             'changed title')
         self.assertNotEqual(str(self.context.acts[0].performer),
                             'changed performer')
@@ -214,4 +214,4 @@ class TestScheduleActs(TestCase):
         not_this_conf_show = ShowFactory()
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
-        assert not_this_conf_show.title not in response.content
+        assert not_this_conf_show.e_title not in response.content

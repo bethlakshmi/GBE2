@@ -23,26 +23,28 @@ class Event(EventItem):
     from participant bids.
     '''
     objects = InheritanceManager()
-    title = CharField(max_length=128)
-    description = TextField()            # public-facing description
+    e_title = CharField(max_length=128)
+    e_description = TextField()            # public-facing description
     blurb = TextField(blank=True)        # short description
     duration = DurationField()
     notes = TextField(blank=True)  # internal notes about this event
     event_id = AutoField(primary_key=True)
-    conference = ForeignKey(
+    e_conference = ForeignKey(
         Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        related_name="e_conference_set",
+        blank=True,
+        null=True)
     default_location = ForeignKey(Room,
                                   blank=True,
                                   null=True)
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @classmethod
     def get_all_events(cls, conference):
         events = cls.objects.filter(
-            conference=conference,
+            e_conference=conference,
             visible=True).select_subclasses()
         return [event for event in events if
                 getattr(event, 'accepted', 3) == 3 and
@@ -52,8 +54,8 @@ class Event(EventItem):
 
     @property
     def sched_payload(self):
-        return {'title': self.title,
-                'description': self.description,
+        return {'title': self.e_title,
+                'description': self.e_description,
                 'duration': self.duration,
                 'details': {'type': ''}
                 }
@@ -76,8 +78,8 @@ class Event(EventItem):
 
     @property
     def is_current(self):
-        return self.conference.status == "upcoming"
+        return self.e_conference.status == "upcoming"
 
     class Meta:
-        ordering = ['title']
+        ordering = ['e_title']
         app_label = "gbe"

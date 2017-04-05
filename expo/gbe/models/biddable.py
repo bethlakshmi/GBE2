@@ -12,8 +12,8 @@ from gbetext import acceptance_states
 from django.db.models import Q
 
 
-visible_bid_query = (Q(biddable_ptr__conference__status='upcoming') |
-                     Q(biddable_ptr__conference__status='ongoing'))
+visible_bid_query = (Q(biddable_ptr__b_conference__status='upcoming') |
+                     Q(biddable_ptr__b_conference__status='ongoing'))
 
 
 class Biddable(Model):
@@ -21,17 +21,19 @@ class Biddable(Model):
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
-    title = CharField(max_length=128)
-    description = TextField(blank=True)
+    b_title = CharField(max_length=128)
+    b_description = TextField(blank=True)
     submitted = BooleanField(default=False)
     accepted = IntegerField(choices=acceptance_states,
                             default=0,
                             blank=False)
     created_at = DateTimeField(auto_now_add=True)
     updated_at = DateTimeField(auto_now=True)
-    conference = ForeignKey(
+    b_conference = ForeignKey(
         Conference,
-        default=lambda: Conference.objects.filter(status="upcoming").first())
+        related_name="b_conference_set",
+        blank=True,
+        null=True)
 
     class Meta:
         verbose_name = "biddable item"
@@ -39,7 +41,7 @@ class Biddable(Model):
         app_label = "gbe"
 
     def __unicode__(self):
-        return self.title
+        return self.b_title
 
     def typeof(self):
         return self.__class__
@@ -51,4 +53,4 @@ class Biddable(Model):
 
     @property
     def is_current(self):
-        return self.conference.status in ("upcoming", "current")
+        return self.b_conference.status in ("upcoming", "current")

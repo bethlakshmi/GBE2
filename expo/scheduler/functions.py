@@ -302,10 +302,10 @@ def event_info(confitem_type='Show',
             if scheduled_event_ids[index] == confitem.eventitem_id:
                 events_dict[scheduled_events[index]] = confitem
 
-    events = [{'title': confitem.title,
+    events = [{'title': confitem.e_title,
                'link': reverse('detail_view', urlconf='scheduler.urls',
                                args=[str(confitem.eventitem_id)]),
-               'description': confitem.description,
+               'description': confitem.e_description,
                'start_time': event.start_time,
                'stop_time': event.start_time + confitem.duration,
                'location': event.location.room.name,
@@ -357,10 +357,9 @@ def cal_times_for_conf(conference, day_name=None):
 
 def get_events_and_windows(conference):
     from scheduler.models import Event
-
     events = Event.objects.filter(
         max_volunteer__gt=0,
-        eventitem__event__conference=conference
+        eventitem__event__e_conference=conference
     ).exclude(
         eventitem__event__genericevent__type='Rehearsal Slot').order_by(
             'starttime')
@@ -553,6 +552,6 @@ def get_scheduled_events_by_role(conference, roles):
         Worker,
     )
     commits = ResourceAllocation.objects.filter(
-        event__eventitem__event__conference=conference)
+        event__eventitem__event__e_conference=conference)
     workers = Worker.objects.filter(role__in=roles)
     return workers, commits

@@ -78,7 +78,7 @@ def CreateVolunteerView(request):
         return no_vol_bidding(request)
 
     try:
-        existing_bid = profile.volunteering.get(conference=conference)
+        existing_bid = profile.volunteering.get(b_conference=conference)
         user_message = UserMessage.objects.get_or_create(
             view='CreateVolunteerView',
             code="FOUND_EXISTING_BID",
@@ -112,7 +112,7 @@ def CreateVolunteerView(request):
 
         if form.is_valid() and valid_interests and like_one_thing:
             volunteer = form.save(commit=False)
-            volunteer.conference = conference
+            volunteer.b_conference = conference
             volunteer.profile = profile
             if 'submit' in request.POST.keys():
                 volunteer.submitted = True
@@ -167,7 +167,7 @@ def CreateVolunteerView(request):
                 prefix=str(interest.pk))]
         formset += [VolunteerBidForm(
             initial={'profile': profile,
-                     'title': title,
+                     'b_title': title,
                      'description': 'volunteer bid',
                      'submitted': True},
             available_windows=windows,

@@ -16,7 +16,7 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
                     'resource',
                     'resource_email',
                     'resource_type')
-    list_filter = ['event__eventitem__event__conference',
+    list_filter = ['event__eventitem__event__e_conference',
                    'resource__worker__role',
                    'resource__location']
 
@@ -29,7 +29,8 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
         return resource.type
 
     def event_type(self, obj):
-        if str(obj.event.eventitem.child().__class__.__name__) == 'GenericEvent':
+        if str(obj.event.eventitem.child().__class__.__name__
+               ) == 'GenericEvent':
             return obj.event.eventitem.child().sched_payload['type']
         else:
             return str(obj.event.eventitem.child().__class__.__name__)
@@ -38,7 +39,7 @@ class ResourceAllocationAdmin(ImportExportActionModelAdmin):
 class EventItemAdmin(admin.ModelAdmin):
     list_display = (
         'eventitem_id', str, 'visible', 'event_type', 'conference')
-    list_filter = ['visible', 'event__conference']
+    list_filter = ['visible', 'event__e_conference']
     search_fields = ['event__title']
 
     def event_type(self, obj):
@@ -48,19 +49,19 @@ class EventItemAdmin(admin.ModelAdmin):
             return str(obj.child().__class__.__name__)
 
     def conference(self, obj):
-        return obj.child().conference
+        return obj.child().e_conference
 
 
 class EventAdmin(ImportExportModelAdmin):
     list_display = ('id', 'eventitem', 'starttime', 'max_volunteer')
     list_filter = ['starttime',
                    'max_volunteer',
-                   'eventitem__event__conference', ]
+                   'eventitem__event__e_conference', ]
 
 
 class EventContainerAdmin(ImportExportModelAdmin):
     list_display = ('parent_event', 'child_event', 'child_conf')
-    list_filter = ['parent_event__eventitem__event__conference']
+    list_filter = ['parent_event__eventitem__event__e_conference']
 
     def child_conf(self, obj):
         return obj.child_event.eventitem.get_conference()

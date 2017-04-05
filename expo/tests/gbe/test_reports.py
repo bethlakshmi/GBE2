@@ -60,7 +60,7 @@ def _create_scheduled_show_with_acts(conference=None, qty=6):
     conf_day = ConferenceDayFactory(
         conference=conference)
 
-    show = ShowFactory(conference=conference)
+    show = ShowFactory(e_conference=conference)
     sEvent = SchedEventFactory(
         eventitem=show.eventitem_ptr,
         starttime=utc.localize(datetime.combine(conf_day.day, time(20, 0))))
@@ -351,7 +351,7 @@ class TestReports(TestCase):
         grant_privilege(profile, 'Tech Crew')
         response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
-        nt.assert_true(curr_show.title in response.content)
+        nt.assert_true(curr_show.e_title in response.content)
 
     @nt.raises(PermissionDenied)
     def test_room_schedule_fail(self):
@@ -561,4 +561,4 @@ class TestReports(TestCase):
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (
                 context.conference.conference_slug,
-                context.show.title.replace(' ', '_'))))
+                context.show.e_title.replace(' ', '_'))))

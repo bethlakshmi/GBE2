@@ -98,7 +98,7 @@ def BidCostumeView(request):
         if form.is_valid() and details.is_valid():
             conference = Conference.objects.filter(accepting_bids=True).first()
             new_costume.profile = owner
-            new_costume.conference = conference
+            new_costume.b_conference = conference
             if 'submit' in request.POST.keys():
                 new_costume.submitted = True
             new_costume = form.save()

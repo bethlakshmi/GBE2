@@ -49,7 +49,7 @@ class TestReviewCostume(TestCase):
 
     def test_review_costume_past_conference(self):
         conference = ConferenceFactory(status='completed')
-        costume = CostumeFactory(conference=conference)
+        costume = CostumeFactory(b_conference=conference)
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)
@@ -86,6 +86,6 @@ class TestReviewCostume(TestCase):
         self.assertEqual(response.status_code, 200)
         html_tag = '<h2 class="review-title">%s</h2>'
         title_string = ("Bid Information for %s" %
-                        bid.conference.conference_name)
+                        bid.b_conference.conference_name)
         html_title = html_tag % title_string
         assert html_title in response.content

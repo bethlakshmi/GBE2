@@ -25,7 +25,7 @@ class GenericEvent (Event):
                                 null=True)
 
     def __str__(self):
-        return self.title
+        return self.e_title
 
     @property
     def volunteer_category_description(self):
@@ -39,8 +39,8 @@ class GenericEvent (Event):
         types = dict(event_options)
         payload = {
             'type': self.type,
-            'title': self.title,
-            'description': self.description,
+            'title': self.e_title,
+            'description': self.e_description,
             'duration': self.duration,
             'details': {'type': types[self.type]},
         }

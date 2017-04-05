@@ -5,7 +5,8 @@ from tests.factories.gbe_factories import (
     ClassFactory,
     PersonaFactory,
     ProfileFactory,
-    UserMessageFactory
+    ProfileFactory,
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
@@ -35,8 +36,8 @@ class TestEditClass(TestCase):
 
     def get_form(self, submit=True, invalid=False):
         data = {"teacher": self.teacher.pk,
-                "title": 'A class',
-                "description": 'a description',
+                "b_title": 'A class',
+                "b_description": 'a description',
                 "length_minutes": 60,
                 'maximum_enrollment': 20,
                 'fee': 0,
@@ -45,7 +46,7 @@ class TestEditClass(TestCase):
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         return data
 
     def post_class_edit_submit(self):

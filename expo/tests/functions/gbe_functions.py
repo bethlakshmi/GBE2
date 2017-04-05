@@ -110,9 +110,15 @@ def assert_rank_choice_exists(response, interest, selection=None):
                 value, text) in response.content
 
 
-def assert_hidden_value(response, field_id, name, value):
-    assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
-        field_id, name, value) in response.content
+def assert_hidden_value(response, field_id, name, value, max_length=None):
+    if max_length:
+        x = '<input id="%s" maxlength="%d" name="%s" type="hidden" ' + \
+            'value="%s" />'
+        assert x % (
+            field_id, max_length, name, value) in response.content
+    else:
+        assert '<input id="%s" name="%s" type="hidden" value="%s" />' % (
+            field_id, name, value) in response.content
 
 
 def assert_has_help_text(response, help_text):
@@ -125,7 +131,8 @@ def assert_has_help_text(response, help_text):
 
 
 def assert_interest_view(response, interest):
-    assert ('<label for="id_Volunteer Info-interest_id-%d">%s:</label>' %
+    assert ('<label class="required" ' +
+            'for="id_Volunteer Info-interest_id-%d">%s:</label>' %
             (interest.pk, interest.interest.interest)
             in response.content)
     assert interest.rank_description in response.content
@@ -146,10 +153,11 @@ def make_act_app_purchase(conference, user_object):
 
 def post_act_conflict(conference, performer, data, url, testcase):
     original = ActFactory(
-        conference=conference,
+        b_conference=conference,
         performer=performer)
     login_as(performer.performer_profile, testcase)
-    data['theact-title'] = original.title
+    data['theact-b_title'] = original.b_title
+    data['theact-b_conference'] = conference.pk
     response = testcase.client.post(
         url,
         data=data,

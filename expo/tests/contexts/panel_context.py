@@ -22,7 +22,8 @@ class PanelContext:
                  starttime=None):
         self.moderator = moderator or PersonaFactory()
         self.conference = conference or ConferenceFactory()
-        self.bid = bid or ClassFactory(conference=self.conference,
+        self.bid = bid or ClassFactory(b_conference=self.conference,
+                                       e_conference=self.conference,
                                        accepted=3)
         self.room = room or RoomFactory()
         self.sched_event = None

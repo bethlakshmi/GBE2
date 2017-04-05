@@ -35,7 +35,7 @@ class TestReviewVendorList(TestCase):
         self.conference = current_conference()
         self.vendors = VendorFactory.create_batch(
             4,
-            conference=self.conference,
+            b_conference=self.conference,
             submitted=True)
 
     def test_review_vendor_all_well(self):
@@ -70,5 +70,5 @@ class TestReviewVendorList(TestCase):
             data={'conf_slug': self.conference.conference_slug})
 
         nt.assert_equal(200, response.status_code)
-        assert all([vendor.title in response.content
+        assert all([vendor.b_title in response.content
                     for vendor in self.vendors])

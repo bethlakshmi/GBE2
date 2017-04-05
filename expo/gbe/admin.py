@@ -6,7 +6,7 @@ from import_export.admin import ImportExportActionModelAdmin
 
 class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class ClassAdmin(BidAdmin):
@@ -16,7 +16,7 @@ class ClassAdmin(BidAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -25,7 +25,7 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'conference']
+    list_filter = ['submitted', 'accepted', 'b_conference']
 
 
 class PerformerAdmin(admin.ModelAdmin):
@@ -90,17 +90,17 @@ class RoomAdmin(admin.ModelAdmin):
 
 
 class ShowAdmin(admin.ModelAdmin):
-    list_filter = ['conference']
+    list_filter = ['e_conference']
 
 
 class GenericAdmin(ImportExportActionModelAdmin):
-    list_display = ('title', 'type')
-    list_filter = ['conference', 'type']
+    list_display = ('e_title', 'type')
+    list_filter = ['e_conference', 'type']
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('eventitem_id', 'title', 'subclass')
-    list_filter = ['conference']
+    list_display = ('eventitem_id', 'e_title', 'subclass')
+    list_filter = ['e_conference']
 
     def subclass(self, obj):
         event = Event.objects.get_subclass(event_id=obj.event_id)
@@ -133,10 +133,10 @@ class VolunteerInterestAdmin(admin.ModelAdmin):
                     'conference')
     list_filter = ['interest',
                    'rank',
-                   'volunteer__conference']
+                   'volunteer__b_conference']
 
     def conference(self, obj):
-        return obj.volunteer.conference
+        return obj.volunteer.b_conference
 
 
 class VolunteerWindowAdmin(admin.ModelAdmin):

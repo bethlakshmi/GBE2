@@ -88,10 +88,10 @@ class ProfileFactory(DjangoModelFactory):
 class ShowFactory(DjangoModelFactory):
     class Meta:
         model = conf.Show
-    title = Sequence(lambda n: 'Test Show%d' % n)
-    description = 'Test Description'
+    e_title = Sequence(lambda n: 'Test Show%d' % n)
+    e_description = 'Test Description'
     duration = Duration(hours=1)
-    conference = SubFactory(ConferenceFactory)
+    e_conference = SubFactory(ConferenceFactory)
 
 
 class PersonaFactory(DjangoModelFactory):
@@ -182,14 +182,14 @@ class ActFactory(DjangoModelFactory):
         model = conf.Act
 
     submitted = False
-    title = Sequence(lambda x: "Act #%d" % x)
+    b_title = Sequence(lambda x: "Act #%d" % x)
     performer = SubFactory(PersonaFactory)
     tech = SubFactory(TechInfoFactory)
     video_link = ""
     video_choice = ""
     shows_preferences = ""
     why_you = "why_you field for test Act"
-    conference = SubFactory(ConferenceFactory)
+    b_conference = SubFactory(ConferenceFactory)
 
 
 class RoomFactory(DjangoModelFactory):
@@ -205,30 +205,38 @@ class EventFactory(DjangoModelFactory):
     class Meta:
         model = conf.Event
 
-    title = Sequence(lambda x: "Test Event #%d" % x)
-    description = LazyAttribute(
-        lambda a: "Description for %s" % a.title)
+    e_title = Sequence(lambda x: "Test Event #%d" % x)
+    e_description = LazyAttribute(
+        lambda a: "Description for %s" % a.e_title)
     blurb = LazyAttribute(
-        lambda a: "Blurb for %s" % a.title)
+        lambda a: "Blurb for %s" % a.e_title)
     duration = Duration(hours=2)
-    conference = SubFactory(ConferenceFactory)
+    e_conference = SubFactory(ConferenceFactory)
 
 
 class GenericEventFactory(DjangoModelFactory):
     class Meta:
         model = conf.GenericEvent
 
-    title = Sequence(lambda n: 'Test Generic Event %d' % n)
+    e_title = Sequence(lambda n: 'Test Generic Event %d' % n)
+    e_description = LazyAttribute(
+        lambda a: "Description for %s" % a.e_title)
     duration = Duration(hours=1)
     type = 'Special'
     volunteer_type = SubFactory(AvailableInterestFactory)
-    conference = SubFactory(ConferenceFactory)
+    e_conference = SubFactory(ConferenceFactory)
 
 
 class ClassFactory(DjangoModelFactory):
     class Meta:
         model = conf.Class
-    title = Sequence(lambda x: "Test Class #%d" % x)
+    e_title = Sequence(lambda x: "Test Class #%d" % x)
+    e_description = LazyAttribute(
+        lambda a: "Description for %s" % a.e_title)
+    b_title = Sequence(lambda x: "Test Class #%d" % x)
+    b_description = LazyAttribute(
+        lambda a: "Description for %s" % a.e_title)
+
     duration = Duration(hours=1)
     teacher = SubFactory(PersonaFactory)
     minimum_enrollment = 1
@@ -238,17 +246,18 @@ class ClassFactory(DjangoModelFactory):
     fee = 0
     length_minutes = 60
     history = LazyAttribute(
-        lambda a: "History for test Class %s" % a.title)
+        lambda a: "History for test Class %s" % a.e_title)
     run_before = LazyAttribute(
         lambda a:
-        "run_before for test Class %s" % a.title)
+        "run_before for test Class %s" % a.e_title)
     schedule_constraints = LazyAttribute(
-        lambda a: "schedule constraints for test Class %s" % a.title)
+        lambda a: "schedule constraints for test Class %s" % a.e_title)
     space_needs = ''
     physical_restrictions = LazyAttribute(
-        lambda a: "physical restrictions for test Class %s" % a.title)
+        lambda a: "physical restrictions for test Class %s" % a.e_title)
     multiple_run = 'No'
-    conference = SubFactory(ConferenceFactory)
+    b_conference = SubFactory(ConferenceFactory)
+    e_conference = SubFactory(ConferenceFactory)
 
 
 class BidEvaluationFactory(DjangoModelFactory):
@@ -280,7 +289,7 @@ class VolunteerFactory(DjangoModelFactory):
     background = LazyAttribute(
         lambda a: ("Background for test Volunteer #%s" %
                    a.profile.display_name))
-    conference = SubFactory(ConferenceFactory)
+    b_conference = SubFactory(ConferenceFactory)
 
 
 class VolunteerInterestFactory(DjangoModelFactory):
@@ -296,18 +305,19 @@ class VendorFactory(DjangoModelFactory):
     class Meta:
         model = conf.Vendor
 
-    title = Sequence(lambda x: "Vendor # %d" % x)
+    b_title = Sequence(lambda x: "Vendor # %d" % x)
     profile = SubFactory(ProfileFactory)
     website = "http://www.foo.com"
     physical_address = "123 Main Street"
     publish_physical_address = False
-#    logo = models.FileField(upload_to="uploads/images", blank=True)
+    #    logo = models.FileField(upload_to="uploads/images", blank=True)
     want_help = False
     help_description = LazyAttribute(
         lambda a: "Help description for Test Volunteer #%s" %
         a.profile.display_name)
-    help_times = "['VSH0']"
-    conference = SubFactory(ConferenceFactory)
+    help_times = "[u'VSH0', u'VSH2']"
+
+    b_conference = SubFactory(ConferenceFactory)
 
 
 class ClassProposalFactory(DjangoModelFactory):
@@ -348,10 +358,12 @@ class ProfilePreferencesFactory(DjangoModelFactory):
 class CostumeFactory(DjangoModelFactory):
     class Meta:
         model = conf.Costume
-    title = Sequence(lambda x: "Test Costume #%d" % x)
+    b_title = Sequence(lambda x: "Test Costume #%d" % x)
+    b_description = LazyAttribute(
+        lambda a: "Description for %s" % a.b_title)
+
     profile = SubFactory(ProfileFactory)
-    conference = SubFactory(ConferenceFactory)
-    description = 'Test Description'
+    b_conference = SubFactory(ConferenceFactory)
     active_use = True
     pieces = 10
     pasties = False
@@ -398,10 +410,10 @@ class ActBidEvaluationFactory(DjangoModelFactory):
     bid = SubFactory(ActFactory)
     primary_vote = SubFactory(
         ShowVoteFactory,
-        show__conference=SelfAttribute('...bid.conference'))
+        show__e_conference=SelfAttribute('...bid.b_conference'))
     secondary_vote = SubFactory(
         ShowVoteFactory,
-        show__conference=SelfAttribute('...bid.conference'))
+        show__e_conference=SelfAttribute('...bid.b_conference'))
     notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
 
     class Meta:

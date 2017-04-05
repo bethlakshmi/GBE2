@@ -36,14 +36,14 @@ class ReviewActView(ReviewBidView):
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
     def create_action_form(self, act):
-        self.actionform = BidStateChangeForm(instance=act)
 
+        self.actionform = BidStateChangeForm(instance=act)
         start = Show.objects.filter(
             scheduler_events__resources_allocated__resource__actresource___item=act).first()
-        if start is None:
+        if not start:
             start = ""
         q = Show.objects.filter(
-            conference=act.conference,
+            e_conference=act.b_conference,
             scheduler_events__isnull=False).order_by(
                 'scheduler_events__starttime')
         self.actionform.fields['show'] = ModelChoiceField(

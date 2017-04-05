@@ -56,7 +56,7 @@ def manage_schedule_problems(changed_windows, profile):
     for window in changed_windows:
         for conflict in profile.get_conflicts(window):
             if ((conflict not in conflicts) and
-                    'type' in conflict.eventitem.payload and 
+                    'type' in conflict.eventitem.payload and
                     conflict.eventitem.payload['type'] == 'Volunteer'):
                 conflicts += [conflict]
                 warning = {
@@ -93,8 +93,8 @@ def EditVolunteerView(request, volunteer_id):
         form = VolunteerBidForm(
             request.POST,
             instance=the_bid,
-            available_windows=the_bid.conference.windows(),
-            unavailable_windows=the_bid.conference.windows())
+            available_windows=the_bid.b_conference.windows(),
+            unavailable_windows=the_bid.b_conference.windows())
 
         formset = [
             VolunteerInterestForm(
@@ -156,7 +156,7 @@ def EditVolunteerView(request, volunteer_id):
                     the_bid.profile,
                     "Volunteer",
                     "Update",
-                    the_bid.conference,
+                    the_bid.b_conference,
                     'Volunteer Reviewers',
                     reverse(
                         'volunteer_review', urlconf='gbe.urls'))
@@ -165,7 +165,7 @@ def EditVolunteerView(request, volunteer_id):
             else:
                 return HttpResponseRedirect("%s?conf_slug=%s" % (
                     reverse('volunteer_review', urlconf='gbe.urls'),
-                    the_bid.conference.conference_slug))
+                    the_bid.b_conference.conference_slug))
 
         else:
             formset += [form]
@@ -193,8 +193,8 @@ def EditVolunteerView(request, volunteer_id):
 
         formset += [VolunteerBidForm(
             instance=the_bid,
-            available_windows=the_bid.conference.windows(),
-            unavailable_windows=the_bid.conference.windows())]
+            available_windows=the_bid.b_conference.windows(),
+            unavailable_windows=the_bid.b_conference.windows())]
 
         return render(request,
                       'gbe/bid.tmpl',

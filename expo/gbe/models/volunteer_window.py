@@ -31,9 +31,9 @@ class VolunteerWindow(Model):
         return self.start_timestamp()
 
     @property
-    def end_time(self, ):
+    def end_time(self):
         ''' same footprint as scheduler events'''
-        self.end_timestamp()
+        return self.end_timestamp()
 
     def check_conflict(self, start, end):
         starttime = self.start_timestamp()

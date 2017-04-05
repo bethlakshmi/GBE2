@@ -47,12 +47,10 @@ class TestGetRolesFromScheduler(TestCase):
         '''
            does not have a performer role, because this is an act
         '''
-        act = ActFactory.create(conference=self.conference,
+        act = ActFactory.create(b_conference=self.conference,
                                 accepted=3)
-        show = ShowFactory.create(conference=self.conference)
-        booking = book_act_item_for_show(
-            act,
-            show)
+        show = ShowFactory.create(e_conference=self.conference)
+        booking = book_act_item_for_show(act, show)
         profile = act.performer.performer_profile
         result = get_roles_from_scheduler(
             [act.performer, profile],
@@ -69,7 +67,7 @@ class TestGetRolesFromScheduler(TestCase):
             "Teacher")
         result = get_roles_from_scheduler(
             [persona, persona.performer_profile],
-            booking.event.eventitem.conference)
+            booking.event.eventitem.e_conference)
         nt.assert_equal(result, ["Teacher"])
 
     def test_overcommitment_addict(self):
@@ -78,21 +76,21 @@ class TestGetRolesFromScheduler(TestCase):
         '''
         persona = PersonaFactory.create()
         this_class = GenericEventFactory.create(
-            conference=self.conference)
+            e_conference=self.conference)
         book_worker_item_for_role(
             persona,
             "Teacher",
             this_class)
         event = GenericEventFactory.create(
-            conference=self.conference)
+            e_conference=self.conference)
         book_worker_item_for_role(
             persona.performer_profile,
             "Staff Lead",
             event)
-        act = ActFactory.create(conference=self.conference,
+        act = ActFactory.create(b_conference=self.conference,
                                 accepted=3,
                                 performer=persona)
-        show = ShowFactory.create(conference=self.conference)
+        show = ShowFactory.create(e_conference=self.conference)
         booking = book_act_item_for_show(act, show)
 
         result = get_roles_from_scheduler(

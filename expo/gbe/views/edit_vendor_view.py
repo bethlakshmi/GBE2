@@ -72,7 +72,7 @@ def EditVendorView(request, vendor_id):
             They can't submit w/out paying
             '''
             if verify_vendor_app_paid(request.user.username,
-                                      vendor.conference):
+                                      vendor.b_conference):
                 vendor.submitted = True
                 vendor.save()
                 user_message = UserMessage.objects.get_or_create(

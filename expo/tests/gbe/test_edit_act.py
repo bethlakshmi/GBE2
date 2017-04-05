@@ -37,16 +37,17 @@ class TestEditAct(TestCase):
 
     def get_act_form(self, act, submit=False, invalid=False):
         form_dict = {'theact-performer': act.performer.pk,
-                     'theact-title': 'An act',
-                     'theact-description': 'a description',
+                     'theact-b_title': 'An act',
+                     'theact-b_description': 'a description',
                      'theact-length_minutes': 60,
                      'theact-shows_preferences': [0],
-                     'theact-act_duration': '1:00'
+                     'theact-act_duration': '1:00',
+                     'theact-b_conference': act.b_conference.pk,
                      }
         if submit:
             form_dict['submit'] = 1
         if invalid:
-            del(form_dict['theact-title'])
+            del(form_dict['theact-b_title'])
         return form_dict
 
     def post_edit_paid_act_submission(self, act_form=None):
@@ -59,7 +60,7 @@ class TestEditAct(TestCase):
                       urlconf="gbe.urls")
         login_as(act.performer.performer_profile, self)
         make_act_app_purchase(
-            act.conference,
+            act.b_conference,
             act.performer.performer_profile.user_object)
         response = self.client.post(
             url,
@@ -73,10 +74,10 @@ class TestEditAct(TestCase):
                       args=[original.pk],
                       urlconf="gbe.urls")
         make_act_app_purchase(
-            original.conference,
+            original.b_conference,
             original.performer.performer_profile.user_object)
         return post_act_conflict(
-            original.conference,
+            original.b_conference,
             original.performer,
             self.get_act_form(original, submit=True),
             url,
@@ -222,7 +223,7 @@ class TestEditAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 
@@ -239,7 +240,7 @@ class TestEditAct(TestCase):
                 'act_edit',
                 urlconf='gbe.urls',
                 args=[original.pk]),
-            original.title)
+            original.b_title)
         assert_alert_exists(
             response, 'danger', 'Error', error_msg)
 

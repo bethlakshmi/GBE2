@@ -36,16 +36,16 @@ class VolunteerContext():
             self.profile = self.bid.profile
         else:
             self.bid = VolunteerFactory(
-                conference=self.conference)
+                b_conference=self.conference)
             self.profile = self.bid.profile
         self.interest = VolunteerInterestFactory(
             volunteer=self.bid)
         self.opportunity = opportunity or GenericEventFactory(
-            conference=self.conference,
+            e_conference=self.conference,
             type='Volunteer',
             volunteer_type=self.interest.interest)
         self.event = event or ShowFactory(
-            conference=self.conference)
+            e_conference=self.conference)
         self.role = role or "Volunteer"
         self.sched_event = SchedEventFactory(
             eventitem=self.event.eventitem_ptr,

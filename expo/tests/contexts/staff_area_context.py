@@ -29,7 +29,7 @@ class StaffAreaContext:
         self.staff_lead = staff_lead or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         self.area = area or GenericEventFactory(type='Staff Area',
-                                                conference=self.conference)
+                                                e_conference=self.conference)
         self.sched_event = None
         self.sched_event = self.schedule_instance(starttime=starttime)
         self.conf_day = ConferenceDayFactory(
@@ -62,7 +62,7 @@ class StaffAreaContext:
                           volunteer_sched_event=None,
                           room=None):
         if not volunteer_sched_event:
-            vol_event = GenericEventFactory(conference=self.conference,
+            vol_event = GenericEventFactory(e_conference=self.conference,
                                             type="Volunteer"
                                             )
             volunteer_sched_event = SchedEventFactory(

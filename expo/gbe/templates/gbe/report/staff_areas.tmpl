@@ -21,7 +21,7 @@
     </tr>
     {% for area in areas %}
       <tr class="bid-table">
-        <td class="bid-table">{{area.title}}</td>
+        <td class="bid-table">{{area.e_title}}</td>
         <td>
  	  {% for worker in area.roles %}
             {{worker.role}} - {{worker.workeritem}}
@@ -44,7 +44,7 @@
     </tr>
     {% for show in shows %}
       <tr class="bid-table">
-        <td class="bid-table">{{show.title}}</td>
+        <td class="bid-table">{{show.e_title}}</td>
         <td>
  	  {% for worker in show.roles %}
             {{worker.role}} - {{worker.workeritem}}

@@ -37,9 +37,9 @@ class TestEditCostume(TestCase):
         picture = SimpleUploadedFile("file.jpg",
                                      "file_content",
                                      content_type="image/jpg")
-        data = {'title': 'A costume',
+        data = {'b_title': 'A costume',
                 'creator': 'A creator',
-                'description': 'pieces are listed',
+                'b_description': 'pieces are listed',
                 'active_use': True,
                 'pieces': 10,
                 'pasties': False,
@@ -47,7 +47,7 @@ class TestEditCostume(TestCase):
                 'picture': picture,
                 }
         if invalid:
-            del(data['title'])
+            del(data['b_title'])
         if submit:
             data['submit'] = 1
 

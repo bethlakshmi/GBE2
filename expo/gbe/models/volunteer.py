@@ -80,7 +80,7 @@ class Volunteer(Biddable):
 
         commitments = ''
 
-        for event in self.profile.get_schedule(self.conference):
+        for event in self.profile.get_schedule(self.b_conference):
             start_time = date_format(event.start_time, "DATETIME_FORMAT")
             end_time = date_format(event.end_time, "TIME_FORMAT")
 

@@ -3,17 +3,17 @@
 {% load staticfiles cms_tags %}
 
 {% block title %}
-  Great Burlesque Exposition 
+  Great Burlesque Exposition
 {% endblock %}
 
 {% block content %}
 
 <H2 class="subtitle">Ticket Purchase Options for {{ site_name }}</H2>
 
-Welcome! 
-<br> 
+Welcome!
+<br>
 Thanks for your interest in the Great Burlesque Expo.
-Below are the ticket options available for purchase.  
+Below are the ticket options available for purchase.
 There are many ways you can be a part of the convention, so
 please read the descriptions carefully.
 <br>
@@ -22,7 +22,7 @@ please read the descriptions carefully.
 
 {% for key, item in ticket_items.items %}
 <tr><td>
-{% static_placeholder "separator" %}
+
 </td>
 </tr>
 
@@ -42,7 +42,7 @@ please read the descriptions carefully.
     Purchase {{ item.title }} from Brown Paper Tickets
     </a>
     </td>
-</tr>    
+</tr>
 
 {% endfor %}
 

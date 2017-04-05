@@ -56,6 +56,7 @@ def BidActView(request):
         return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
     personae = profile.personae.all()
     draft_fields = Act().bid_draft_fields
+    conference = Conference.objects.filter(accepting_bids=True).first()
 
     if len(personae) == 0:
         return HttpResponseRedirect(reverse('persona_create',
@@ -69,7 +70,6 @@ def BidActView(request):
         If this is a draft, only a few fields are needed, use a form
         with fewer required fields (same model)
         '''
-        conference = Conference.objects.filter(accepting_bids=True).first()
         if 'submit' in request.POST.keys():
             form = ActEditForm(request.POST,
                                prefix='theact')
@@ -92,7 +92,6 @@ def BidActView(request):
         if form.is_valid():
             # hack
             act = form.save(commit=False)
-            act.conference = conference
             techinfo = TechInfo()
             audioinfoform = AudioInfoForm(request.POST, prefix='theact')
             techinfo.audio = audioinfoform.save()
@@ -144,7 +143,8 @@ def BidActView(request):
 
     else:
         form = ActEditForm(initial={'owner': profile,
-                                    'performer': personae[0]},
+                                    'performer': personae[0],
+                                    'b_conference': conference, },
                            prefix='theact')
         q = Performer.objects.filter(contact=profile)
         form.fields['performer'] = ModelChoiceField(queryset=q)

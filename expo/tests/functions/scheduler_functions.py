@@ -55,8 +55,8 @@ def get_sched_event_form(context, room=None):
 
 def assert_good_sched_event_form(response, eventitem):
     assert response.status_code is 200
-    assert eventitem.title in response.content
-    assert eventitem.description in response.content
+    assert eventitem.e_title in response.content
+    assert eventitem.e_description in response.content
     assert '<input id="id_event-duration" name="event-duration" ' + \
         'type="text" value="01:00:00" />' in response.content
     if eventitem.__class__.__name__ == "Class":

@@ -35,7 +35,7 @@ class Vendor(Biddable):
     help_times = TextField(blank=True)
 
     def __unicode__(self):
-        return self.title  # "title" here is company name
+        return self.b_title  # "title" here is company name
 
     def clone(self):
         vendor = Vendor(profile=self.profile,
@@ -46,9 +46,9 @@ class Vendor(Biddable):
                         want_help=self.want_help,
                         help_description=self.help_description,
                         help_times=self.help_times,
-                        title=self.title,
-                        description=self.description,
-                        conference=Conference.objects.filter(
+                        b_title=self.b_title,
+                        b_description=self.b_description,
+                        b_conference=Conference.objects.filter(
                             status="upcoming").first())
 
         vendor.save()
@@ -66,7 +66,7 @@ class Vendor(Biddable):
 
     @property
     def bid_review_summary(self):
-        return (self.profile.display_name, self.title, self.website,
+        return (self.profile.display_name, self.b_title, self.website,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 

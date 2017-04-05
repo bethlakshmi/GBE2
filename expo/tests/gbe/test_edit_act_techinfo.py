@@ -35,7 +35,7 @@ class TestEditActTechInfo(TestCase):
 
     def get_full_post(self, rehearsal, show):
         data = {
-            'show': show.title,
+            'show': show.e_title,
             'lighting_info-notes': 'lighting notes',
             'lighting_info-costume': 'costume description',
             'lighting_info-specific_needs': 'lighting specific needs',
@@ -76,26 +76,25 @@ class TestEditActTechInfo(TestCase):
 
     def check_good_info(self, response, context, random_performer):
         labels = [
-            ('Title', 'title'),
-            ('Description', 'description'),
+            ('Name of Act', 'b_title'),
+            ('Description of Act', 'b_description'),
             ('Performer', 'performer'),
-            ('Video link', 'video_link'),
-            ('Video choice', 'video_choice')
+            ('URL of Video', 'video_link'),
+            ('Video Notes', 'video_choice')
             ]
-        html_label_format = '<td class="readonlyform form_label">' + \
-            '<label for="id_act_tech_info-%s">%s:</label>'
+        html_label_format = 'for="id_act_tech_info-%s">' + \
+            '%s:</label>'
         read_only_data = '         <td class="readonlyform \n' + \
             '	            form_field \n' + \
-            '		    \n' + \
-            '		      long_choice\n' + \
-            '  		    ">\n' + \
+            '		    ">\n' + \
             '          \n' + \
             '            \n' + \
             '              %s\n' + \
             '            \n' + \
             '           \n' + \
             '	 \n' + \
-            '         </td>'
+            '         </td>\n'
+
         choice_html = '<li>%s</li>'
         performer_choice = '</ul>%s<ul>'
         for label, field_name in labels:
@@ -105,11 +104,11 @@ class TestEditActTechInfo(TestCase):
                 )
         self.assertContains(
             response,
-            read_only_data % context.act.title
+            read_only_data % context.act.b_title
         )
         self.assertContains(
             response,
-            read_only_data % context.act.description
+            read_only_data % context.act.b_description
         )
         self.assertContains(
             response,
@@ -198,13 +197,13 @@ class TestEditActTechInfo(TestCase):
             response,
             '<option value="' + str(context.rehearsal.id) +
             '" selected="selected">' +
-            "%s: %s" % (context.rehearsal.as_subtype.title,
+            "%s: %s" % (context.rehearsal.as_subtype.e_title,
                         date_format(context.rehearsal.starttime,
                                     "TIME_FORMAT")) + '</option>')
 
     def test_edit_act_techinfo_good_readonly_on_get(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
-        context.act.description = "Describe the act here"
+        context.act.b_description = "Describe the act here"
         context.act.video_link = "http://video/link/video.mov"
         context.act.video_choice = '2'
         context.act.save()
@@ -250,7 +249,7 @@ class TestEditActTechInfo(TestCase):
 
     def test_edit_act_w_bad_post_makes_good_readonly(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
-        context.act.description = "Describe the act here"
+        context.act.b_description = "Describe the act here"
         context.act.video_link = "http://video/link/video.mov"
         context.act.video_choice = '2'
         context.act.save()
@@ -317,7 +316,7 @@ class TestEditActTechInfo(TestCase):
         context.rehearsal.save()
 
         another_rehearsal = context._schedule_rehearsal(context.sched_event)
-        ShowFactory(title=context.show.title)
+        ShowFactory(e_title=context.show.e_title)
 
         url = reverse('act_techinfo_edit',
                       urlconf='gbe.urls',
