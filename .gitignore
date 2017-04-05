@@ -119,3 +119,11 @@ expo/.coverage
 expo/src/cmsplugin-image-gallery-master/
 
 .DS_Store
+
+expo/gbe/static/mptt/draggable-admin.css
+
+expo/gbe/static/mptt/draggable-admin.js
+
+expo/gbe/static/preview_images/admin-style.psd
+
+expo/gbe/static/sortedm2m/selector-search.gif

@@ -131,7 +131,8 @@ def assert_has_help_text(response, help_text):
 
 
 def assert_interest_view(response, interest):
-    assert ('<label for="id_Volunteer Info-interest_id-%d">%s:</label>' %
+    assert ('<label class="required" ' +
+            'for="id_Volunteer Info-interest_id-%d">%s:</label>' %
             (interest.pk, interest.interest.interest)
             in response.content)
     assert interest.rank_description in response.content

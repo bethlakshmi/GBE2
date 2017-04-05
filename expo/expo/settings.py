@@ -2,10 +2,10 @@
 Django settings for expo project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
+https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -32,8 +32,35 @@ try:
     STATIC_ROOT
 except:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SITE_ID = 1
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, "templates"),],
+        'OPTIONS': {
+            'loaders': (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader'
+                ),
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.debug',  # used in tutorial
+                'django.template.context_processors.request',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.csrf',   # tutorial
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',     # tutorial
+                'django.contrib.messages.context_processors.messages',
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
+                ],
+        },
+    },
+]
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
@@ -92,11 +119,11 @@ except:
 INSTALLED_APPS = (
     'cms',
     'mptt',  # utilities for implementing a tree
+    'treebeard',
     'menus',
     'sekizai',  # for javascript and css management
     'djangocms_admin_style',
     'django.contrib.messages',
-    'treebeard',
     'djangocms_text_ckeditor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,12 +139,13 @@ INSTALLED_APPS = (
     'djangocms-placeholder-attr',
     'image_gallery',  # I forked this and extended a little.
     'cmsplugin_nivoslider',
+    'djangocms_flexslider',
     'djangocms_style',
     'djangocms_column',
     'djangocms_snippet',
-    'djangocms_flash',
     'djangocms_googlemap',
     'djangocms_inherit',
+    'djangocms_video',
     'cmsplugin_filer_file',
     'cmsplugin_filer_folder',
     'cmsplugin_filer_link',
@@ -128,7 +156,6 @@ INSTALLED_APPS = (
     'scheduler',
     'ticketing',
     'gbe',
-    'pagination',
     'django_nose',
     'hijack',
     'hijack_admin',
@@ -154,6 +181,7 @@ THUMBNAIL_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'cms.middleware.utils.ApphookReloadMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -164,16 +192,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     #    added for django-cms
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
     #    end of add for django-cms
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'pagination.middleware.PaginationMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
@@ -181,32 +206,6 @@ MIDDLEWARE_CLASSES = (
 TEXT_SAVE_IMAGE_FUNCTION = \
     'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
-# all django-cms
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.debug',  # used in tutorial
-    'django.core.context_processors.request',
-    'django.core.context_processors.media',
-    'django.core.context_processors.csrf',   # tutorial
-    'django.core.context_processors.tz',     # tutorial
-    'sekizai.context_processors.sekizai',
-    'django.core.context_processors.static',
-    'cms.context_processors.cms_settings',
-)
-
-MIGRATION_MODULES = {
-
-    # Add also the following modules if you're using these plugins:
-    'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
-    'cmsplugin_filer_folder': 'cmsplugin_filer_folder.migrations_django',
-    'cmsplugin_filer_link': 'cmsplugin_filer_link.migrations_django',
-    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
-    'cmsplugin_filer_teaser': 'cmsplugin_filer_teaser.migrations_django',
-    'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
-
-}
 
 '''
 SOUTH_MIGRATION_MODULES = {
@@ -311,13 +310,8 @@ DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'expo', 'static'),
 )
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader'
-)
 
-CMS_STYLE_NAMES = (
+DJANGOCMS_STYLE_CHOICES = (
     ('info', ("info")),
     ('new', ("new")),
     ('hint', ("hint")),

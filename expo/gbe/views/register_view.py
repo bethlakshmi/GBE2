@@ -19,7 +19,7 @@ def RegisterView(request):
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
         if form.is_valid():
-            username = form.clean_username()
+            username = form.cleaned_data['username']
             password = form.clean_password2()
             form.save()
             user = authenticate(username=username,
