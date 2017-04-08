@@ -138,7 +138,6 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'djangocms-placeholder-attr',
     'image_gallery',  # I forked this and extended a little.
-    'cmsplugin_nivoslider',
     'djangocms_flexslider',
     'djangocms_style',
     'djangocms_column',
@@ -151,7 +150,6 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
     'ticketing',
