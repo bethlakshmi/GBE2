@@ -173,7 +173,6 @@ THUMBNAIL_HIGH_RESOLUTION = True
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'easy_thumbnails.processors.autocrop',
-    'cmsplugin_nivoslider.thumbnail_processors.pad_image',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )

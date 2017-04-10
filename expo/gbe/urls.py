@@ -21,6 +21,7 @@ from gbe.views import (
     CreateEventView,
     CreateVendorView,
     CreateVolunteerView,
+    DeleteProfileView,
     EditActView,
     EditActTechInfoView,
     EditClassView,
@@ -270,6 +271,9 @@ urlpatterns = patterns(
     url(r'^profile/admin/(\d+)/?$',
         AdminProfileView,
         name='admin_profile'),
+    url(r'^profile/delete/(\d+)/?$',
+        DeleteProfileView,
+        name='delete_profile'),
     url(r'^profile/landing_page/(\d+)/?$',
         LandingPageView,
         name='admin_landing_page')
