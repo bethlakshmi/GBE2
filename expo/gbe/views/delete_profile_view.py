@@ -17,6 +17,7 @@ from gbetext import (
 )
 from django.shortcuts import get_object_or_404
 
+
 @login_required
 @log_func
 @never_cache
