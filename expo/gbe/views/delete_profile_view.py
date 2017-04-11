@@ -60,6 +60,6 @@ def DeleteProfileView(request, profile_id):
             defaults={
                 'summary': "Update Profile Success",
                 'description': default_delete_profile_admin_msg})
-    deletion_summary = "Deleted %s <br><br>" % user_profile.user_object.username
+    deletion_summary = "Deleted %s<br><br>" % user_profile.user_object.username
     messages.success(request, user_message[0].description)
     return return_page

@@ -24,7 +24,7 @@ class TestReviewProfiles(TestCase):
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Registrar')
         self.url = reverse('manage_users',
-                      urlconf='gbe.urls')
+                           urlconf='gbe.urls')
 
     def test_non_privileged_user(self):
         login_as(ProfileFactory(), self)
