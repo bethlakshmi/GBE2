@@ -49,3 +49,17 @@ class TestReviewProfiles(TestCase):
         assert self.profile.purchase_email in response.content
         assert self.profile.user_object.email in response.content
         assert self.profile.phone in response.content
+
+    def test_special_registrar(self):
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertIn("/profile/admin/", response.content)
+        self.assertIn("/profile/delete/", response.content)
+
+    def test_special_not_registrar(self):
+        coordinator = ProfileFactory().user_object
+        grant_privilege(coordinator, 'Volunteer Coordinator')
+        login_as(coordinator, self)
+        response = self.client.get(self.url)
+        self.assertNotIn("/profile/admin/", response.content)
+        self.assertNotIn("/profile/delete/", response.content)

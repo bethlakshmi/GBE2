@@ -2,8 +2,13 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ActBidEvaluationFactory,
+    BidEvaluationFactory,
+    CostumeFactory,
     PersonaFactory,
     ProfileFactory,
+    VendorFactory,
+    VolunteerFactory,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
@@ -11,6 +16,8 @@ from tests.functions.gbe_functions import (
 )
 from gbe.models import Profile
 from tests.contexts.class_context import ClassContext
+from tests.factories.ticketing_factories import PurchaserFactory
+
 
 class TestAdminProfile(TestCase):
     '''Tests for admin_profile  view'''
@@ -76,3 +83,58 @@ class TestAdminProfile(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)
         self.assert_deactivated(response, persona_bearer.performer_profile)
+
+    def test_deactivate_if_volunteer(self):
+        volunteer = VolunteerFactory()
+        url = reverse(self.view_name,
+                      args=[volunteer.profile.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, volunteer.profile)
+
+    def test_deactivate_if_costume(self):
+        costumer = CostumeFactory()
+        url = reverse(self.view_name,
+                      args=[costumer.profile.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, costumer.profile)
+
+    def test_deactivate_if_vendor(self):
+        vendor = VendorFactory()
+        url = reverse(self.view_name,
+                      args=[vendor.profile.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, vendor.profile)
+
+    def test_deactivate_if_bideval(self):
+        bid_eval = BidEvaluationFactory()
+        url = reverse(self.view_name,
+                      args=[bid_eval.evaluator.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, bid_eval.evaluator)
+
+    def test_deactivate_if_actbideval(self):
+        bid_eval = BidEvaluationFactory()
+        url = reverse(self.view_name,
+                      args=[bid_eval.evaluator.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, bid_eval.evaluator)
+
+    def test_deactivate_if_purchaser(self):
+        purchaser = PurchaserFactory(
+            matched_to_user=self.deleted_profile.user_object)
+        url = reverse(self.view_name,
+                      args=[self.deleted_profile.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        response = self.client.get(url, follow=True)
+        self.assert_deactivated(response, self.deleted_profile)
