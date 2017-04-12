@@ -60,3 +60,10 @@ class TestRegister(TestCase):
         self.assertRedirects(response, "%s?next=%s" % (
             reverse('profile_update', urlconf='gbe.urls'),
             reverse('volunteer_create', urlconf='gbe.urls')))
+
+    def test_register_post_nothing(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+
+        response = self.client.post(url, {'data': 'bad'}, follow=True)
+        self.assertIn("This field is required.", response.content)
