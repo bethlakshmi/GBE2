@@ -164,7 +164,7 @@ class UserCreateForm(UserCreationForm):
 
     def is_valid(self):
         valid = super(UserCreateForm, self).is_valid()
-        
+
         if valid:
             email = self.cleaned_data['email']
             if User.objects.filter(email=email).count():
