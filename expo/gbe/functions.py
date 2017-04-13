@@ -2,6 +2,7 @@ from gbe.models import (
     Class,
     Conference,
     ConferenceDay,
+    EmailTemplateSender,
     Event,
     GenericEvent,
     Profile,
@@ -179,6 +180,12 @@ def get_or_create_template(name, base, subject):
             html_content=htmlcontent,
             )
         template.save()
+        sender = EmailTemplateSender(
+            template=template,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        sender.save()
+    return template
 
 
 def send_bid_state_change_mail(
@@ -219,13 +226,13 @@ def send_bid_state_change_mail(
             bid_type,
             acceptance_states[status][1])
 
-    get_or_create_template(
+    template = get_or_create_template(
         name,
         "default_bid_status_change",
         action)
     mail.send(
         email,
-        settings.DEFAULT_FROM_EMAIL,
+        template.sender.from_email,
         template=name,
         context=context,
         priority='now',
