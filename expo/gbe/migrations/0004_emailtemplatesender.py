@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from django.conf import settings
 
 
 def add_default_sender(apps, schema_editor):
@@ -9,7 +10,7 @@ def add_default_sender(apps, schema_editor):
     EmailTemplate = apps.get_model("post_office", "EmailTemplate")
     for template in EmailTemplate.objects.all():
         sender = EmailTemplateSender(template=template,
-                                     from_email="webdev@burlesque-expo.com")
+                                     from_email=settings.DEFAULT_FROM_EMAIL)
         sender.save()
 
 def reverse(apps, schema_editor):
