@@ -50,8 +50,11 @@ class WorkerAllocationForm (forms.Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    worker = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
-                                    required=False)
+    worker = forms.ModelChoiceField(
+        queryset=conf.Profile.objects.filter(
+            user_object__is_active=True).exclude(
+            display_name=''),
+        required=False)
     role = forms.ChoiceField(choices=role_options, initial='Volunteer')
     label = forms.CharField(max_length=100, required=False)
     alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
