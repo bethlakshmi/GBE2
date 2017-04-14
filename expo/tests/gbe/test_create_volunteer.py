@@ -61,7 +61,8 @@ class TestCreateVolunteer(TestCase):
                     'pk', flat=True)[2],
                 '%d-rank' % self.interest.pk: 4,
                 '%d-interest' % self.interest.pk: self.interest.pk,
-                'b_title': 'title'
+                'b_title': 'title',
+                'background': 'background',
                 }
         if submit:
             form['submit'] = True
@@ -292,3 +293,10 @@ class TestCreateVolunteer(TestCase):
         data = self.get_volunteer_form()
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
+
+    def test_background_required(self):
+        data = self.get_volunteer_form(submit=True)
+        del data['background']
+        response, data = self.post_volunteer_submission(data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("This field is required.", response.content)
