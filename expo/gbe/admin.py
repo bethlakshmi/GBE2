@@ -165,11 +165,13 @@ class ConferenceDayAdmin(admin.ModelAdmin):
     list_editable = ('day',
                      'conference',)
 
+
 class EmailTemplateSenderAdmin(admin.ModelAdmin):
     list_display = ('template',
                     'from_email')
     list_editable = ('from_email', )
     list_display_links = None
+
 
 admin.site.register(Conference)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)

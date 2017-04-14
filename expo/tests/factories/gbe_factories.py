@@ -420,6 +420,7 @@ class ActBidEvaluationFactory(DjangoModelFactory):
     class Meta:
         model = conf.ActBidEvaluation
 
+
 class EmailTemplateFactory(DjangoModelFactory):
     class Meta:
         model = User
@@ -430,6 +431,7 @@ class EmailTemplateFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailTemplate
+
 
 class EmailTemplateSenderFactory(DjangoModelFactory):
     from_email = "default@sender.com"

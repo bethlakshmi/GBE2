@@ -112,8 +112,7 @@ class TestActChangestate(TestCase):
         assert_email_template_create(
             'act wait list',
             "Your act proposal has changed status to Wait List"
-        ) 
-
+        )
 
     def test_act_waitlist_sends_notification_has_template(self):
         EmailTemplateSenderFactory(
@@ -129,7 +128,6 @@ class TestActChangestate(TestCase):
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
             "test template", "actemail@notify.com")
-
 
     def test_act_accept_makes_template_per_show(self):
         context = ActTechInfoContext()
