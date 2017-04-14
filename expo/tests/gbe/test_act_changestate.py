@@ -6,6 +6,7 @@ from django.test import (
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActFactory,
+    EmailTemplateSenderFactory,
     ProfileFactory,
     ShowFactory,
 )
@@ -16,12 +17,12 @@ from tests.factories.scheduler_factories import (
 )
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
+    assert_email_template_create,
+    assert_email_template_used,
     grant_privilege,
     login_as,
 )
 from scheduler.models import ResourceAllocation
-from post_office.models import EmailTemplate
-from django.core import mail
 
 
 class TestActChangestate(TestCase):
@@ -108,31 +109,28 @@ class TestActChangestate(TestCase):
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = \
+        assert_email_template_create(
+            response,
+            'act wait list',
             "Your act proposal has changed status to Wait List"
-        assert msg.subject == expected_subject
-        template = EmailTemplate.objects.get(name='act wait list')
-        assert template.subject == expected_subject
+        ) 
+
 
     def test_act_waitlist_sends_notification_has_template(self):
-        expected_subject = "test template"
-        template = EmailTemplate.objects.create(
-            name='act wait list',
-            subject=expected_subject,
-            content='test',
-            html_content='test',
-            )
+        EmailTemplateSenderFactory(
+            from_email="actemail@notify.com",
+            template__name='act wait list',
+            template__subject="test template"
+        )
         context = ActTechInfoContext()
         url = reverse(self.view_name,
                       args=[context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            response, "test template", "actemail@notify.com")
+
 
     def test_act_accept_makes_template_per_show(self):
         context = ActTechInfoContext()
@@ -142,23 +140,18 @@ class TestActChangestate(TestCase):
         login_as(self.privileged_user, self)
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = \
+        assert_email_template_create(
+            response,
+            'act accepted - %s' % self.show.e_title.lower(),
             "Your act has been cast in %s" % self.show.e_title
-        assert msg.subject == expected_subject
-        template = EmailTemplate.objects.get(
-            name='act accepted - %s' % self.show.e_title.lower())
-        assert template.subject == expected_subject
+        )
 
-    def test_act_accept_make_template_per_show(self):
-        expected_subject = "test template"
-        template = EmailTemplate.objects.create(
-            name='act accepted - %s' % self.show.e_title.lower(),
-            subject=expected_subject,
-            content='test',
-            html_content='test',
-            )
+    def test_act_accept_has_template_per_show(self):
+        EmailTemplateSenderFactory(
+            from_email="actemail@notify.com",
+            template__name='act accepted - %s' % self.show.e_title.lower(),
+            template__subject="test template"
+        )
         context = ActTechInfoContext()
         url = reverse(self.view_name,
                       args=[context.act.pk],
@@ -166,6 +159,5 @@ class TestActChangestate(TestCase):
         login_as(self.privileged_user, self)
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            response, "test template", "actemail@notify.com")
