@@ -144,11 +144,9 @@ def assert_interest_view(response, interest):
 
 
 def assert_email_template_create(
-        response,
         template_name,
-        expected_subject,
-        num_mail=1):
-    assert num_mail == len(mail.outbox)
+        expected_subject):
+    assert 1 == len(mail.outbox)
     msg = mail.outbox[0]
     assert msg.subject == expected_subject
     template = EmailTemplate.objects.get(name=template_name)
@@ -157,13 +155,25 @@ def assert_email_template_create(
 
 
 def assert_email_template_used(
-        response,
         expected_subject,
         email=settings.DEFAULT_FROM_EMAIL):
     assert 1 == len(mail.outbox)
     msg = mail.outbox[0]
     assert msg.subject == expected_subject
     assert msg.from_email == email
+
+
+def assert_right_mail_right_addresses(
+        queue_order,
+        num_email,
+        expected_subject,
+        to_email_array,
+        from_email=settings.DEFAULT_FROM_EMAIL):
+    assert num_email == len(mail.outbox)
+    msg = mail.outbox[queue_order]
+    assert msg.subject == expected_subject
+    assert msg.to == to_email_array
+    assert msg.from_email == from_email
 
 
 def make_act_app_purchase(conference, user_object):

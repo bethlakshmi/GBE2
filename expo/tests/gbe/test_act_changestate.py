@@ -110,7 +110,6 @@ class TestActChangestate(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
         assert_email_template_create(
-            response,
             'act wait list',
             "Your act proposal has changed status to Wait List"
         ) 
@@ -129,7 +128,7 @@ class TestActChangestate(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
-            response, "test template", "actemail@notify.com")
+            "test template", "actemail@notify.com")
 
 
     def test_act_accept_makes_template_per_show(self):
@@ -141,7 +140,6 @@ class TestActChangestate(TestCase):
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
         assert_email_template_create(
-            response,
             'act accepted - %s' % self.show.e_title.lower(),
             "Your act has been cast in %s" % self.show.e_title
         )
@@ -160,4 +158,4 @@ class TestActChangestate(TestCase):
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
-            response, "test template", "actemail@notify.com")
+            "test template", "actemail@notify.com")

@@ -73,7 +73,6 @@ class TestVolunteerChangestate(TestCase):
                 'accepted': 3}
         response = self.client.post(url, data=data)
         assert_email_template_create(
-            response,
             'volunteer schedule update',
             "A change has been made to your Volunteer Schedule!"
         )
@@ -93,7 +92,7 @@ class TestVolunteerChangestate(TestCase):
                 'accepted': 3}
         response = self.client.post(url, data=data)
         assert_email_template_used(
-            response, "test template", "volunteeremail@notify.com")
+            "test template", "volunteeremail@notify.com")
 
     def test_volunteer_withdraw_sends_notification(self):
         url = reverse(self.view_name,
@@ -105,7 +104,6 @@ class TestVolunteerChangestate(TestCase):
                 'accepted': 4}
         response = self.client.post(url, data=data)
         assert_email_template_used(
-            response,
             "Your volunteer proposal has changed status to Withdrawn")
 
     def test_volunteer_changestate_gives_overbook_warning(self):
