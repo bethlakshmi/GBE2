@@ -8,10 +8,7 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
 )
-from django.db.models import (
-    Q,
-    Count,
-)
+from django.db.models import Count
 from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
