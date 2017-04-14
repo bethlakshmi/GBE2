@@ -10,7 +10,6 @@ from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 from gbe.functions import get_current_conference
 from gbe.forms.common_queries import (
-    visible_performers,
     visible_personas,
     visible_profiles,
 )
@@ -72,7 +71,7 @@ class EventScheduleForm(forms.ModelForm):
             queryset=LocationItem.objects.all().order_by('room__name'))
     duration = DurationFormField(
                    help_text=scheduling_help_texts['duration'])
-    teacher = forms.ModelChoiceField(queryset=visible_performers,
+    teacher = forms.ModelChoiceField(queryset=visible_personas,
                                      required=False)
     moderator = forms.ModelChoiceField(queryset=visible_personas,
                                        required=False)
