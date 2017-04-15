@@ -23,7 +23,7 @@ def ReviewProfilesView(request):
               'Last Login',
               'Contact Info',
               'Action']
-    profiles = Profile.objects.all()
+    profiles = Profile.objects.filter(user_object__is_active=True)
     rows = []
     for aprofile in profiles:
         bid_row = {}
@@ -44,6 +44,11 @@ def ReviewProfilesView(request):
                                 urlconf='gbe.urls',
                                 args=[aprofile.resourceitem_id]),
                  'text': "Update"}]
+            bid_row['actions'] += [
+                {'url': reverse('delete_profile',
+                                urlconf='gbe.urls',
+                                args=[aprofile.resourceitem_id]),
+                 'text': "Delete"}]
         bid_row['actions'] += [
             {'url': reverse(
                 'admin_landing_page',

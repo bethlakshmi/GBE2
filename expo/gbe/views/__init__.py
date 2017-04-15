@@ -43,6 +43,7 @@ from edit_costume_view import EditCostumeView
 from review_class_list_view import ReviewClassListView
 from review_costume_list_view import ReviewCostumeListView
 from admin_profile_view import AdminProfileView
+from delete_profile_view import DeleteProfileView
 from update_profile_view import UpdateProfileView
 from logout_view import LogoutView
 from propose_class_view import ProposeClassView
