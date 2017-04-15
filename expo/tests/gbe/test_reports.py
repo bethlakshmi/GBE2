@@ -1,31 +1,12 @@
 from pytz import utc
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
 from datetime import (
     datetime,
     time,
     date,
     timedelta,
 )
-
-import gbe.models as conf
-import nose.tools as nt
 from django.test import TestCase, Client
-from django.test.client import RequestFactory
-from django.http import Http404
-
-from gbe.reporting import (
-    list_reports,
-    review_staff_area,
-    staff_area,
-    env_stuff,
-    personal_schedule,
-    review_act_techinfo,
-    export_act_techinfo,
-    room_schedule,
-    room_setup,
-    export_badge_report,
-)
 from gbe.models import Conference
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -76,71 +57,58 @@ def _create_scheduled_show_with_acts(conference=None, qty=6):
 class TestReports(TestCase):
     '''Tests for index view'''
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
+        self.profile = ProfileFactory()
 
     def test_list_reports_by_conference(self):
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = ProfileFactory()
-        request = self.factory.get(
-            'reports/',
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('report_list',
+                    urlconf="gbe.reporting.urls"),
             data={"conf_slug": conf.conference_slug})
-        login_as(profile, self)
-        request.user = profile.user_object
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = list_reports(request)
         self.assertEqual(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_list_reports_fail(self):
         '''list_reports view should fail because user
            is not in one of the privileged groups
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/')
-        login_as(profile, self)
-        request.user = profile.user_object
-        response = list_reports(request)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('report_list',
+                    urlconf="gbe.reporting.urls"))
+        self.assertEqual(response.status_code, 403)
 
     def test_list_reports_succeed(self):
         '''list_reports view should load, user has proper
            privileges
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/')
-        login_as(profile, self)
-        request.user = profile.user_object
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        response = list_reports(request)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('report_list',
+                    urlconf="gbe.reporting.urls"))
         self.assertEqual(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_review_staff_area_not_visible_without_permission(self):
-        profile = ProfileFactory()
-        request = self.factory.get('reports/review_staff_area')
-        login_as(profile, self)
-        request.user = profile.user_object
+        login_as(self.profile, self)
         current_conference = ConferenceFactory()
-        response = review_staff_area(request)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls"))
+        self.assertEqual(response.status_code, 403)
 
     def test_review_staff_area_path(self):
         '''review_staff_area view should load
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/review_staff_area')
-        login_as(profile, self)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Act Reviewers')
         current_conference = ConferenceFactory()
-        response = review_staff_area(request)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls"))
         self.assertEqual(response.status_code, 200)
 
     def test_review_staff_area_by_conference(self):
@@ -148,54 +116,47 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = ProfileFactory()
-        request = self.factory.get(
-            'reports/review_staff_area',
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls"),
             data={'conf_slug': conf.conference_slug})
-        login_as(profile, self)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Act Reviewers')
-        current_conference = ConferenceFactory()
-        response = review_staff_area(request)
         self.assertEqual(response.status_code, 200)
 
     def test_staff_area_path(self):
         '''staff_area view should load
         '''
-        profile = ProfileFactory()
         show = ShowFactory()
         context = VolunteerContext(event=show)
-        request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
-        login_as(profile, self)
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Act Reviewers')
-        response = staff_area(request, show.eventitem_id)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls",
+                    args=[show.eventitem_id]))
         self.assertEqual(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_staff_area_path_fail(self):
         '''staff_area view should fail for non-authenticated users
         '''
-        profile = ProfileFactory()
         show = ShowFactory()
-        request = self.factory.get('reports/staff_area/%d' % show.eventitem_id)
-        login_as(profile, self)
-        request.user = profile.user_object
-        current_conference = ConferenceFactory()
-        response = staff_area(request, show.eventitem_id)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls",
+                    args=[show.eventitem_id]))
+        self.assertEqual(response.status_code, 403)
 
-    @nt.raises(PermissionDenied)
     def test_env_stuff_fail(self):
         '''env_stuff view should load for privileged users
            and fail for others
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/stuffing')
-        login_as(profile, self)
-        request.user = profile.user_object
-        response = env_stuff(request)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('env_stuff',
+                    urlconf="gbe.reporting.urls"))
+        self.assertEqual(response.status_code, 403)
 
     def test_env_stuff_succeed(self):
         '''env_stuff view should load with no conf choice
@@ -203,11 +164,11 @@ class TestReports(TestCase):
         ticket_context = PurchasedTicketContext()
         profile = ticket_context.profile
         transaction = ticket_context.transaction
-        request = self.factory.get('reports/stuffing')
-        login_as(profile, self)
-        request.user = profile.user_object
         grant_privilege(profile, 'Registrar')
-        response = env_stuff(request)
+        login_as(profile, self)
+        response = self.client.get(
+            reverse('env_stuff',
+                    urlconf="gbe.reporting.urls"))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
@@ -228,17 +189,14 @@ class TestReports(TestCase):
         '''
         ticket_context = PurchasedTicketContext()
         profile = ticket_context.profile
-        transaction = ticket_context.transaction
-        request = self.factory.get(
-            'reports/stuffing/%s/'
-            % transaction.ticket_item.bpt_event.conference.conference_slug)
-
-        login_as(profile, self)
-        request.user = profile.user_object
         grant_privilege(profile, 'Registrar')
-        response = env_stuff(
-            request,
-            transaction.ticket_item.bpt_event.conference.conference_slug)
+        transaction = ticket_context.transaction
+        login_as(profile, self)
+        response = self.client.get(reverse(
+            'env_stuff',
+            urlconf="gbe.reporting.urls",
+            args=[
+                transaction.ticket_item.bpt_event.conference.conference_slug]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
                          "attachment; filename=env_stuff.csv")
@@ -253,32 +211,25 @@ class TestReports(TestCase):
             transaction.ticket_item.title,
             response.content)
 
-    @nt.raises(PermissionDenied)
     def test_review_act_techinfo_fail(self):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
-        profile = ProfileFactory()
-        login_as(profile, self)
-        request = self.factory.get(
+        login_as(self.profile, self)
+        response = self.client.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.reporting.urls'))
-        request.user = profile.user_object
-        response = review_act_techinfo(request)
+        self.assertEqual(response.status_code, 403)
 
     def test_review_act_techinfo_succeed(self):
         '''review_act_techinfo view should load for Tech Crew
            and fail for others
         '''
-        profile = ProfileFactory()
-        login_as(profile, self)
-        request = self.factory.get(
+        grant_privilege(self.profile, 'Tech Crew')
+        login_as(self.profile, self)
+        response = self.client.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.reporting.urls'))
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Tech Crew')
-        response = review_act_techinfo(request)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Schedule Acts for this Show')
 
@@ -288,21 +239,16 @@ class TestReports(TestCase):
         '''
         curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
-        profile = ProfileFactory()
-        login_as(profile, self)
-        request = self.factory.get(
+        grant_privilege(self.profile, 'Tech Crew')
+        login_as(self.profile, self)
+        response = self.client.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.reporting.urls',
                     args=[curr_show.eventitem_id]))
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        request.GET = {'conf_slug': curr_conf.conference_slug}
-        grant_privilege(profile, 'Tech Crew')
-        response = review_act_techinfo(request, curr_show.eventitem_id)
-        nt.assert_true(
+        self.assertTrue(
             "var table = $('#bid_review').DataTable({" in response.content,
             msg="Can't find script for table")
-        nt.assert_true(
+        self.assertTrue(
             '<table id="bid_review" class="order-column"'
             in response.content,
             msg="Can't find table header")
@@ -314,18 +260,14 @@ class TestReports(TestCase):
         '''
         curr_conf = ConferenceFactory()
         curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
-        profile = ProfileFactory()
-        login_as(profile, self)
-        request = self.factory.get(
+        grant_privilege(self.profile, 'Tech Crew')
+        grant_privilege(self.profile, 'Scheduling Mavens')
+        login_as(self.profile, self)
+        response = self.client.get(
             reverse('act_techinfo_review',
                     urlconf='gbe.reporting.urls',
-                    args=[curr_show.eventitem_id]))
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        request.GET = {'conf_slug': curr_conf.conference_slug}
-        grant_privilege(profile, 'Tech Crew')
-        grant_privilege(profile, 'Scheduling Mavens')
-        response = review_act_techinfo(request, curr_show.eventitem_id)
+                    args=[curr_show.eventitem_id]),
+            data={'conf_slug': curr_conf.conference_slug})
         assert_link(response, reverse(
             'schedule_acts',
             urlconf='scheduler.urls',
@@ -340,36 +282,31 @@ class TestReports(TestCase):
         old_conf = ConferenceFactory(status='completed')
         old_show, _, old_acts = _create_scheduled_show_with_acts(old_conf)
 
-        profile = ProfileFactory()
-        login_as(profile, self)
-        request = self.factory.get(
+        grant_privilege(self.profile, 'Tech Crew')
+        login_as(self.profile, self)
+        response = self.client.get(
             reverse('act_techinfo_review',
-                    urlconf='gbe.reporting.urls'))
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        request.GET = {'conf_slug': curr_conf.conference_slug}
-        grant_privilege(profile, 'Tech Crew')
-        response = review_act_techinfo(request)
+                    urlconf='gbe.reporting.urls'),
+            data={'conf_slug': curr_conf.conference_slug})
         self.assertEqual(response.status_code, 200)
-        nt.assert_true(curr_show.e_title in response.content)
+        self.assertTrue(curr_show.e_title in response.content)
 
-    @nt.raises(PermissionDenied)
     def test_room_schedule_fail(self):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/room_schedule')
-        request.user = profile.user_object
         current_conference = ConferenceFactory()
-        response = room_schedule(request)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_schedule',
+                    urlconf='gbe.reporting.urls'))
+        self.assertEqual(response.status_code, 403)
 
     def test_room_schedule_succeed(self):
         '''room_schedule view should load for privileged users,
            and fail for others
         '''
         Conference.objects.all().delete()
-        profile = ProfileFactory()
         context = ClassContext()
         one_day = timedelta(1)
         ConferenceDayFactory(conference=context.conference,
@@ -379,13 +316,13 @@ class TestReports(TestCase):
             day=context.sched_event.starttime.date()+one_day)
         context.schedule_instance(
             starttime=context.sched_event.starttime + one_day)
-        request = self.factory.get('reports/room_schedule',
-                                   args=[context.room.pk])
-        request.user = profile.user_object
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
         current_conference = context.conference
-        response = room_schedule(request, context.room.pk)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_schedule',
+                    urlconf='gbe.reporting.urls',
+                    args=[context.room.pk]))
         self.assertEqual(response.status_code, 200)
 
     def test_room_schedule_by_conference(self):
@@ -394,39 +331,35 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         conf = ConferenceFactory()
-        profile = ProfileFactory()
-        request = self.factory.get(
-            'reports/room_schedule',
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_schedule',
+                    urlconf='gbe.reporting.urls'),
             data={'conf_slug': conf.conference_slug})
-        request.user = profile.user_object
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
-        response = room_schedule(request)
         self.assertEqual(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_room_setup_not_visible_without_permission(self):
         '''room_setup view should load for privileged users,
            and fail for others
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/room_setup')
-        request.user = profile.user_object
         current_conference = ConferenceFactory()
-        response = room_setup(request)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_setup',
+                    urlconf='gbe.reporting.urls'))
+        self.assertEqual(response.status_code, 403)
 
     def test_room_setup_visible_with_permission(self):
         '''room_setup view should load for privileged users,
            and fail for others
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/room_setup')
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
         current_conference = ConferenceFactory()
-        response = room_setup(request)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_setup',
+                    urlconf='gbe.reporting.urls'))
         self.assertEqual(response.status_code, 200)
 
     def test_room_setup_by_conference_with_permission(self):
@@ -437,28 +370,24 @@ class TestReports(TestCase):
         context = ClassContext()
         ConferenceDayFactory(conference=context.conference,
                              day=context.sched_event.starttime.date())
-        profile = ProfileFactory()
-        request = self.factory.get(
-            'reports/room_setup',
-            data={'conf_slug': context.conference.conference_slug})
-        request.user = profile.user_object
-        request.session = {'cms_admin_site': 1}
-        grant_privilege(profile, 'Act Reviewers')
-        login_as(profile, self)
         current_conference = ConferenceFactory()
-        response = room_setup(request)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('room_setup',
+                    urlconf='gbe.reporting.urls'),
+            data={'conf_slug': context.conference.conference_slug})
         self.assertEqual(response.status_code, 200)
 
-    @nt.raises(PermissionDenied)
     def test_export_badge_report_fail(self):
         '''export_badge_report view should fail for users w/out
         Registrar role
         '''
-        profile = ProfileFactory()
-        request = self.factory.get('reports/badges/print_run')
-        login_as(profile, self)
-        request.user = profile.user_object
-        response = export_badge_report(request)
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('badge_report',
+                    urlconf='gbe.reporting.urls'))
+        self.assertEqual(response.status_code, 403)
 
     def test_export_badge_report_succeed_w_conf(self):
         '''get badges w a specific conference
@@ -467,12 +396,11 @@ class TestReports(TestCase):
         profile = ticket_context.profile
         transaction = ticket_context.transaction
         grant_privilege(profile, 'Registrar')
-        request = self.factory.get(
-            'reports/badges/print_run/%s'
-            % transaction.ticket_item.bpt_event.conference.conference_slug)
         login_as(profile, self)
-        request.user = profile.user_object
-        response = export_badge_report(request)
+        response = self.client.get(reverse('badge_report',
+            urlconf='gbe.reporting.urls',
+            args=[
+                transaction.ticket_item.bpt_event.conference.conference_slug]))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
@@ -494,16 +422,10 @@ class TestReports(TestCase):
         profile = ticket_context.profile
         transaction = ticket_context.transaction
 
-        request = self.factory.get('reports/badges/print_run')
-        login_as(profile, self)
-        request.user = profile.user_object
-
         grant_privilege(profile, 'Registrar')
-        request = self.factory.get('reports/badges/print_run')
-        request.user = profile.user_object
-        response = export_badge_report(
-            request,
-            transaction.ticket_item.bpt_event.conference.conference_slug)
+        login_as(profile, self)
+        response = self.client.get(reverse('badge_report',
+            urlconf='gbe.reporting.urls'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
                          "attachment; filename=print_badges.csv")
@@ -519,44 +441,33 @@ class TestReports(TestCase):
 
     def test_export_act_techinfo(self):
         context = ActTechInfoContext()
-        reviewer = ProfileFactory()
-        grant_privilege(reviewer, "Tech Crew")
-        login_as(reviewer, self)
-        request = self.factory.get(reverse(
-            'act_techinfo_download',
+        grant_privilege(self.profile, "Tech Crew")
+        login_as(self.profile, self)
+        response = self.client.get(reverse('act_techinfo_download',
             urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
-        request.user = reviewer.user_object
-        response = export_act_techinfo(request, context.show.eventitem_id)
-        nt.assert_true(context.audio.notes in response.content)
-        nt.assert_false('Center Spot' in response.content)
+        self.assertTrue(context.audio.notes in response.content)
+        self.assertFalse('Center Spot' in response.content)
 
     def test_export_act_techinfo_theater(self):
         context = ActTechInfoContext(room_name="Theater")
         context.show.scheduler_events.first()
-        reviewer = ProfileFactory()
-        grant_privilege(reviewer, "Tech Crew")
-        login_as(reviewer, self)
-        request = self.factory.get(reverse(
-            'act_techinfo_download',
+        grant_privilege(self.profile, "Tech Crew")
+        login_as(self.profile, self)
+        response = self.client.get(reverse('act_techinfo_download',
             urlconf='gbe.reporting.urls',
             args=[context.show.eventitem_id]))
-        request.user = reviewer.user_object
-        response = export_act_techinfo(request, context.show.eventitem_id)
-        nt.assert_true(context.audio.notes in response.content)
-        nt.assert_true('Center Spot' in response.content)
+        self.assertTrue(context.audio.notes in response.content)
+        self.assertTrue('Center Spot' in response.content)
 
     def test_download_tracks_for_show(self):
         context = ActTechInfoContext(room_name="Theater")
         context.show.scheduler_events.first()
-        reviewer = ProfileFactory()
-        grant_privilege(reviewer, "Tech Crew")
-        login_as(reviewer, self)
-        url = reverse(
-            'download_tracks_for_show',
+        grant_privilege(self.profile, "Tech Crew")
+        login_as(self.profile, self)
+        response = self.client.get(reverse('download_tracks_for_show',
             urlconf='gbe.reporting.urls',
-            args=[context.show.eventitem_id])
-        response = self.client.get(url)
+            args=[context.show.eventitem_id]))
         self.assertEquals(
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (

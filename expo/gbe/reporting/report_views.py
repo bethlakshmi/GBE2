@@ -106,8 +106,10 @@ def env_stuff(request, conference_choice=None):
     else:
         conference = get_current_conference()
 
-    people = conf.Profile.objects.all()
-    acts = conf.Act.objects.filter(accepted=3, b_conference=conference)
+    people = conf.Profile.objects.filter()
+    acts = conf.Act.objects.filter(
+        accepted=3,
+        b_conference=conference)
     tickets = tix.Transaction.objects.filter(
         ticket_item__bpt_event__conference=conference)
     roles = sched.Worker.objects.filter(
@@ -195,7 +197,8 @@ def personal_schedule(request, profile_id='All'):
         conference = conf.Conference.current_conf()
 
     if profile_id == 'All':
-        people = conf.Profile.objects.all().select_related()
+        people = conf.Profile.objects.filter(
+            user_object__is_active=True).select_related()
     else:
         people = []  # Set it to be self, in list format
 
@@ -488,7 +491,7 @@ def export_badge_report(request, conference_choice=None):
     '''
     reviewer = validate_perms(request, ('Registrar',))
 
-    people = conf.Profile.objects.all()
+    people = conf.Profile.objects.filter(user_object__is_active=True)
 
     if conference_choice:
         badges = tix.Transaction.objects.filter(
