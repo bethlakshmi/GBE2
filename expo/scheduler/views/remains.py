@@ -618,22 +618,22 @@ def contact_teachers(conference):
               'Phone']
     from gbe.models import Class
     classes = Class.objects.filter(
-        b_conference=conference,
-        teacher__contact__user_object__is_active=True)
+        b_conference=conference)
     contact_info = []
 
     for c in classes:
         for se in c.scheduler_events.all():
             contact_info += se.class_contacts2()
 
-        contact_info.append(
-            [c.teacher.contact_email,
-             c.b_title.encode('utf-8').strip(),
-             'Bidder',
-             c.teacher.name.encode('utf-8').strip(),
-             c.teacher.contact.display_name.encode('utf-8').strip(),
-             c.teacher.contact.phone]
-        )
+        if c.teacher.contact.user_object.is_active:
+            contact_info.append(
+                [c.teacher.contact_email,
+                 c.b_title.encode('utf-8').strip(),
+                 'Bidder',
+                 c.teacher.name.encode('utf-8').strip(),
+                 c.teacher.contact.display_name.encode('utf-8').strip(),
+                 c.teacher.contact.phone]
+            )
     return header, contact_info
 
 

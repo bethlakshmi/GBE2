@@ -351,5 +351,51 @@ class TestDeleteEvent(TestCase):
         response = self.client.get(reverse(self.view_name,
                                            urlconf="scheduler.urls",
                                            args=['Teachers']))
-        print response.content
         self.assertFalse(inactive.contact_email in response.content)
+
+
+    def test_contact_teachers_only_show_alternate(self):
+        Conference.objects.all().delete()
+        Class.objects.all().delete()
+        inactive = PersonaFactory(contact__user_object__is_active=False)
+        active = PersonaFactory()
+        current_conf = ConferenceFactory(status="upcoming")
+        current_class = ClassFactory(b_conference=current_conf,
+                                     e_conference=current_conf,
+                                     teacher=inactive)
+
+        current_sEvent = SchedEventFactory(
+            eventitem=current_class.eventitem_ptr)
+        current_worker = WorkerFactory(
+            _item=active)
+        current_sEvent.allocate_worker(current_worker, 'Teacher')
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Teachers']))
+        self.assertFalse(inactive.contact_email in response.content)
+        self.assertTrue(active.contact_email in response.content)
+
+    def test_contact_bidder_not_booked_teacher(self):
+        Conference.objects.all().delete()
+        Class.objects.all().delete()
+        inactive = PersonaFactory(contact__user_object__is_active=False)
+        active = PersonaFactory()
+        current_conf = ConferenceFactory(status="upcoming")
+        current_class = ClassFactory(b_conference=current_conf,
+                                     e_conference=current_conf,
+                                     teacher=active)
+
+        current_sEvent = SchedEventFactory(
+            eventitem=current_class.eventitem_ptr)
+        current_worker = WorkerFactory(
+            _item=inactive)
+        current_sEvent.allocate_worker(current_worker, 'Teacher')
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Teachers']))
+        self.assertFalse(inactive.contact_email in response.content)
+        self.assertTrue(active.contact_email in response.content)

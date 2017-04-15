@@ -848,26 +848,25 @@ class Event(Schedulable):
             try:
                 persona = WorkerItem.objects.get_subclass(
                     resourceitem_id=allocation.resource.item.resourceitem_id)
-                info.append(
-                    (persona.contact_email,
-                     str(self),
-                     allocation.resource.worker.role,
-                     persona.name,
-                     persona.contact.display_name,
-                     persona.contact_phone)
-                )
+                if persona.contact.user_object.is_active:
+                    info.append(
+                        (persona.contact_email,
+                         str(self),
+                         allocation.resource.worker.role,
+                         persona.name,
+                         persona.contact.display_name,
+                         persona.contact_phone))
             except:
                 profile = WorkerItem.objects.get_subclass(
                     resourceitem_id=allocation.resource.item.resourceitem_id)
-
-                info.append(
-                    (profile.user_object.email,
-                     str(self),
-                     allocation.resource.worker.role,
-                     "No Performer Name",
-                     profile.display_name,
-                     profile.phone)
-                )
+                if profile.user_object.is_active:
+                    info.append(
+                        (profile.user_object.email,
+                         str(self),
+                         allocation.resource.worker.role,
+                         "No Performer Name",
+                         profile.display_name,
+                         profile.phone))
         return info
 
     def act_contact_info(self, status=None):
