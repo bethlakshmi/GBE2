@@ -385,3 +385,15 @@ class TestEditEvent(TestCase):
                       '" selected="selected">' + str(overcommitter2) +
                       '</option>',
                       response.content)
+
+    def test_inactive_user_not_listed(self):
+        staff_context = StaffAreaContext()
+        volunteer_sched_event = staff_context.add_volunteer_opp()
+        inactive_persona = PersonaFactory(contact__user_object__is_active=False)
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=["GenericEvent", volunteer_sched_event.pk])
+        response = self.client.get(url)
+        self.assertNotIn(str(inactive_persona), response.content)
+        self.assertNotIn(str(inactive_persona.contact), response.content)
