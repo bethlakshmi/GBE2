@@ -210,6 +210,7 @@ class TroupeForm (forms.ModelForm):
     error_css_class = 'error'
     membership = forms.ModelMultipleChoiceField(
         queryset=visible_personas)
+
     class Meta:
         model = Troupe
         fields = '__all__'

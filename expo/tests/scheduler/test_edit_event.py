@@ -389,7 +389,8 @@ class TestEditEvent(TestCase):
     def test_inactive_user_not_listed(self):
         staff_context = StaffAreaContext()
         volunteer_sched_event = staff_context.add_volunteer_opp()
-        inactive_persona = PersonaFactory(contact__user_object__is_active=False)
+        inactive_persona = PersonaFactory(
+            contact__user_object__is_active=False)
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
