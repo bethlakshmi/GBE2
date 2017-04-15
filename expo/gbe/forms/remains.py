@@ -48,6 +48,7 @@ from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.utils.formats import date_format
+from gbe.forms.common_queries import visible_personas
 
 time_start = 8 * 60
 time_stop = 24 * 60
@@ -207,7 +208,8 @@ class PersonaForm (forms.ModelForm):
 class TroupeForm (forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-
+    membership = forms.ModelMultipleChoiceField(
+        queryset=visible_personas)
     class Meta:
         model = Troupe
         fields = '__all__'
