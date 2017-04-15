@@ -526,7 +526,8 @@ def contact_performers(conference):
         conference = get_current_conference()
     from gbe.models import Act
     contacts = [act.actitem_ptr for act in Act.objects.filter(
-        b_conference=conference)]
+        b_conference=conference,
+        performer__contact__user_object__is_active=True)]
     header = ['Act',
               'Performer',
               'Profile',
@@ -561,7 +562,9 @@ def contact_volunteers(conference):
               'Event']
     from gbe.models import Volunteer
 
-    volunteers = Volunteer.objects.filter(b_conference=conference).annotate(
+    volunteers = Volunteer.objects.filter(
+        b_conference=conference,
+        profile__user_object__is_active=True).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
             '-profile__workeritem_ptr__worker__count')
     contact_info = []
@@ -614,7 +617,9 @@ def contact_teachers(conference):
               'Display Name',
               'Phone']
     from gbe.models import Class
-    classes = Class.objects.filter(b_conference=conference)
+    classes = Class.objects.filter(
+        b_conference=conference,
+        teacher__contact__user_object__is_active=True)
     contact_info = []
 
     for c in classes:
@@ -635,7 +640,9 @@ def contact_teachers(conference):
 def contact_vendors(conference):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
-    contacts = Vendor.objects.filter(b_conference=conference)
+    contacts = Vendor.objects.filter(
+        b_conference=conference,
+        profile__user_object__is_active=True)
     header = ['Business Name', 'Personal Name', 'Email', 'Status']
     contact_info = [[v.b_title,
                      v.profile.display_name,

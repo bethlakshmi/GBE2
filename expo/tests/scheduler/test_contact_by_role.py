@@ -84,6 +84,18 @@ class TestDeleteEvent(TestCase):
         self.assertFalse(any([str(act.performer) in response.content
                          for act in acts]))
 
+    def test_contact_performers_inactive_performers_not_visible(self):
+        Conference.objects.all().delete()
+        conference = ConferenceFactory.create(status="upcoming")
+        acts = ActFactory.create_batch(5, b_conference=conference)
+        inactive = ActFactory(b_conference=conference,
+                              performer__contact__user_object__is_active=False)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Performers']))
+        self.assertFalse(str(inactive.performer) in response.content)
+
     def test_contact_volunteers_current_volunteers_visible(self):
         Conference.objects.all().delete()
         context = StaffAreaContext()
@@ -106,6 +118,30 @@ class TestDeleteEvent(TestCase):
         self.assertContains(response, 'Registration', count=5)
         self.assertContains(response, str(opp), count=5)
         self.assertContains(response, str(context.sched_event), count=5)
+
+    def test_contact_volunteers_inactive_volunteers_not_visible(self):
+        Conference.objects.all().delete()
+        context = StaffAreaContext()
+        opp = context.add_volunteer_opp()
+        volunteer = ProfileFactory()
+        inactive = ProfileFactory(user_object__is_active=False)
+        opp = context.add_volunteer_opp()
+
+        VolunteerFactory(profile=volunteer,
+                         b_conference=context.conference)
+        context.book_volunteer(opp, volunteer)
+
+        VolunteerFactory(
+            profile=inactive,
+            b_conference=context.conference)
+        context.book_volunteer(opp, inactive)
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Volunteers']))
+        self.assertTrue(volunteer.display_name in response.content)
+        self.assertFalse(inactive.display_name in response.content)
 
     def test_contact_volunteers_current_volunteers_no_container(self):
         Conference.objects.all().delete()
@@ -248,6 +284,21 @@ class TestDeleteEvent(TestCase):
         self.assertFalse(
             previous_vendor.profile.display_name in response.content)
 
+    def test_contact_vendors_no_inactive(self):
+        Conference.objects.all().delete()
+        current_conf = ConferenceFactory(status="upcoming")
+        inactive = VendorFactory(b_conference=current_conf,
+                                 profile__user_object__is_active=False)
+        current_vendor = VendorFactory(b_conference=current_conf)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Vendors']))
+        self.assertTrue(
+            current_vendor.profile.display_name in response.content)
+        self.assertFalse(
+            inactive.profile.display_name in response.content)
+
     def test_contact_teachers(self):
         Conference.objects.all().delete()
         Class.objects.all().delete()
@@ -256,7 +307,7 @@ class TestDeleteEvent(TestCase):
         previous_class = ClassFactory(b_conference=previous_conf,
                                       e_conference=previous_conf)
         current_class = ClassFactory(b_conference=current_conf,
-                                     e_conference=previous_conf)
+                                     e_conference=current_conf)
 
         previous_teacher = ProfileFactory()
         PersonaFactory(performer_profile=previous_teacher)
@@ -280,3 +331,25 @@ class TestDeleteEvent(TestCase):
 
         self.assertTrue(current_teacher.display_name in response.content)
         self.assertFalse(previous_teacher.display_name in response.content)
+
+    def test_contact_teachers_inactive_not_shown(self):
+        Conference.objects.all().delete()
+        Class.objects.all().delete()
+        inactive = PersonaFactory(contact__user_object__is_active=False)
+        current_conf = ConferenceFactory(status="upcoming")
+        current_class = ClassFactory(b_conference=current_conf,
+                                     e_conference=current_conf,
+                                     teacher=inactive)
+
+        current_sEvent = SchedEventFactory(
+            eventitem=current_class.eventitem_ptr)
+        current_worker = WorkerFactory(
+            _item=inactive)
+        current_sEvent.allocate_worker(current_worker, 'Teacher')
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(reverse(self.view_name,
+                                           urlconf="scheduler.urls",
+                                           args=['Teachers']))
+        print response.content
+        self.assertFalse(inactive.contact_email in response.content)
