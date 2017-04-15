@@ -515,7 +515,7 @@ def contact_info(request,
     cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
     response['Content-Disposition'] = cd
     writer = csv.writer(response)
-    writer.writerow(['Name', 'email'])
+    writer.writerow(['Name', 'Email', 'Phone', 'Role/Accepted', 'Title'])
     for row in data:
         writer.writerow(row)
     return response

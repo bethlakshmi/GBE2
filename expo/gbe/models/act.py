@@ -86,11 +86,11 @@ class Act (Biddable, ActItem):
 
     @property
     def contact_info(self):
-        return (self.b_title,
+        return (self.performer.contact.display_name,
                 self.contact_email,
-                self.accepted,
                 self.performer.contact.phone,
-                self.performer.contact.display_name,
+                self.accepted,
+                self.b_title,
                 )
 
     @property

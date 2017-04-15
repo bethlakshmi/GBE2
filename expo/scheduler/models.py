@@ -829,12 +829,14 @@ class Event(Schedulable):
         info = []
         for worker in self.get_direct_workers():
             profile = worker.contact
-            info.append(
-                (worker.contact_email,
-                 str(self),
-                 worker.name,
-                 profile.display_name)
-            )
+            if profile.user_object.is_active:
+                info.append(
+                    (profile.display_name,
+                     worker.contact_email,
+                     profile.phone,
+                     '',
+                     str(self))
+                )
         return info
 
     def class_contacts2(self):
@@ -872,7 +874,8 @@ class Event(Schedulable):
     def act_contact_info(self, status=None):
         info = []
         for act in self.get_acts(status):
-            info.append(act.contact_info)
+            if act.performer.contact.user_object.is_active:
+                info.append(act.contact_info)
         return info
 
     def worker_contact_info(self, worker_type=None):
@@ -883,13 +886,13 @@ class Event(Schedulable):
         info = []
         for (category, worker) in self.get_workers(worker_type):
             profile = worker.item.profile
-            info.append(
-                (profile.display_name,
-                 profile.contact_email,
-                 profile.phone,
-                 worker.role,
-                 category)
-            )
+            if profile.user_object.is_active:
+                info.append(
+                    (profile.display_name,
+                     profile.contact_email,
+                     profile.phone,
+                     worker.role,
+                     category))
         return info
 
     def set_duration(self, duration):
