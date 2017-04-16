@@ -108,7 +108,7 @@ class TestScheduleActs(TestCase):
 
     def test_good_user_get_inactive_user(self):
         inactive = ProfileFactory(
-            display_name = "Inactive Profile",
+            display_name="Inactive Profile",
             user_object__is_active=False
         )
         inactive_act = ActFactory(performer__contact=inactive,

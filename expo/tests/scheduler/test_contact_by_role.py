@@ -353,7 +353,6 @@ class TestDeleteEvent(TestCase):
                                            args=['Teachers']))
         self.assertFalse(inactive.contact_email in response.content)
 
-
     def test_contact_teachers_only_show_alternate(self):
         Conference.objects.all().delete()
         Class.objects.all().delete()

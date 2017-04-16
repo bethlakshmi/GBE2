@@ -142,7 +142,7 @@ class TestReports(TestCase):
         '''
         show = ShowFactory()
         inactive = ProfileFactory(
-            display_name = "DON'T SEE THIS",
+            display_name="DON'T SEE THIS",
             user_object__is_active=False
         )
         context = VolunteerContext(event=show, profile=inactive)
@@ -208,7 +208,7 @@ class TestReports(TestCase):
         '''
         Conference.objects.all().delete()
         inactive = ProfileFactory(
-            display_name = "DON'T SEE THIS",
+            display_name="DON'T SEE THIS",
             user_object__is_active=False
         )
         ticket_context = PurchasedTicketContext(profile=inactive)
@@ -462,7 +462,8 @@ class TestReports(TestCase):
         transaction = ticket_context.transaction
         grant_privilege(profile, 'Registrar')
         login_as(profile, self)
-        response = self.client.get(reverse('badge_report',
+        response = self.client.get(reverse(
+            'badge_report',
             urlconf='gbe.reporting.urls',
             args=[
                 transaction.ticket_item.bpt_event.conference.conference_slug]))
@@ -490,7 +491,7 @@ class TestReports(TestCase):
         grant_privilege(profile, 'Registrar')
         login_as(profile, self)
         response = self.client.get(reverse('badge_report',
-            urlconf='gbe.reporting.urls'))
+                                           urlconf='gbe.reporting.urls'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get('Content-Disposition'),
                          "attachment; filename=print_badges.csv")
@@ -508,7 +509,7 @@ class TestReports(TestCase):
         '''loads with the default conference selection.
         '''
         inactive = ProfileFactory(
-            display_name = "DON'T SEE THIS",
+            display_name="DON'T SEE THIS",
             user_object__is_active=False
         )
         ticket_context = PurchasedTicketContext(profile=inactive)
@@ -517,7 +518,7 @@ class TestReports(TestCase):
         grant_privilege(self.profile, 'Registrar')
         login_as(self.profile, self)
         response = self.client.get(reverse('badge_report',
-            urlconf='gbe.reporting.urls'))
+                                           urlconf='gbe.reporting.urls'))
         self.assertEqual(response.status_code, 200)
         self.assertIn(
             transaction.purchaser.first_name,
@@ -531,8 +532,8 @@ class TestReports(TestCase):
         grant_privilege(self.profile, "Tech Crew")
         login_as(self.profile, self)
         response = self.client.get(reverse('act_techinfo_download',
-            urlconf='gbe.reporting.urls',
-            args=[context.show.eventitem_id]))
+                                           urlconf='gbe.reporting.urls',
+                                           args=[context.show.eventitem_id]))
         self.assertTrue(context.audio.notes in response.content)
         self.assertFalse('Center Spot' in response.content)
 
@@ -542,8 +543,8 @@ class TestReports(TestCase):
         grant_privilege(self.profile, "Tech Crew")
         login_as(self.profile, self)
         response = self.client.get(reverse('act_techinfo_download',
-            urlconf='gbe.reporting.urls',
-            args=[context.show.eventitem_id]))
+                                           urlconf='gbe.reporting.urls',
+                                           args=[context.show.eventitem_id]))
         self.assertTrue(context.audio.notes in response.content)
         self.assertTrue('Center Spot' in response.content)
 
@@ -553,8 +554,8 @@ class TestReports(TestCase):
         grant_privilege(self.profile, "Tech Crew")
         login_as(self.profile, self)
         response = self.client.get(reverse('download_tracks_for_show',
-            urlconf='gbe.reporting.urls',
-            args=[context.show.eventitem_id]))
+                                           urlconf='gbe.reporting.urls',
+                                           args=[context.show.eventitem_id]))
         self.assertEquals(
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (
