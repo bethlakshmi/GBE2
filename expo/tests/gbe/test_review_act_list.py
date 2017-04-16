@@ -49,6 +49,17 @@ class TestReviewActList(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
 
+    def test_review_act_list_inactive_user(self):
+        inactive = ActFactory(
+            submitted=True,
+            b_conference=self.conference,
+            performer__contact__user_object__is_active=False)
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': self.conference.conference_slug})
+        self.assertIn('bid-table error_row', response.content)
+
     def test_review_act_bad_user(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url)
