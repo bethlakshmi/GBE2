@@ -232,7 +232,7 @@ class Act (Biddable, ActItem):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
     def __str__(self):
-        return "%s: %s" % (str(self.performer), self.title)
+        return "%s: %s" % (str(self.performer), self.b_title)
 
     class Meta:
         app_label = "gbe"

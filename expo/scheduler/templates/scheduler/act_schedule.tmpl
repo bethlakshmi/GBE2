@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-
+<p><font color="red">RED</font> highlighting means that the owner of this act has deactivated their account.</p>
    <table>
    <tr>
 	<th>Performer</th>
@@ -15,8 +15,8 @@
    </tr>   
     <form method="POST" action="" enctype="multipart/form-data">
     {% csrf_token %}
-	{% for form in forms %}
-	   <tr>
+	{% for form, state in forms %}
+	   <tr {% if not state %}bgcolor="red"{% endif %}>
 	      {% for field in form %}
 	         <td>{{ field }} </td> 
 		

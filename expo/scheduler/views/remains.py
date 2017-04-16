@@ -197,14 +197,17 @@ def schedule_acts(request, show_id=None):
 
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])
-    forms = [ActScheduleForm(initial=details,
-                             prefix='allocation_%d' % alloc.id)
-             for (details, alloc) in forms]
+    new_forms = []
+    for details, alloc in forms:
+        new_forms.append((
+            ActScheduleForm(initial=details,
+                            prefix='allocation_%d' % alloc.id),
+            details['performer'].contact.user_object.is_active))
 
     template = 'scheduler/act_schedule.tmpl'
     return render(request,
                   template,
-                  {'forms': forms})
+                  {'forms': new_forms})
 
 
 @login_required

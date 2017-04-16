@@ -106,6 +106,19 @@ class TestScheduleActs(TestCase):
         response = self.client.get(self.url)
         self.assert_good_form_display(response)
 
+    def test_good_user_get_inactive_user(self):
+        inactive = ProfileFactory(
+            display_name = "DON'T SEE THIS",
+            user_object__is_active=False
+        )
+        inactive_act = ActFactory(performer__contact=inactive,
+                                  accepted=3,
+                                  submitted=True)
+        self.context.book_act(act=inactive_act)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assertIn('bgcolor="red"', response.content)
+
     def test_good_user_get_two_shows_same_title(self):
         ShowFactory(e_title=self.context.show.e_title)
         login_as(self.privileged_profile, self)
