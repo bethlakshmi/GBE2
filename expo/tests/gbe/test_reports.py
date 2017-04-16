@@ -184,6 +184,33 @@ class TestReports(TestCase):
             transaction.ticket_item.title,
             response.content)
 
+    def test_env_stuff_w_inactive_purchaser(self):
+        '''env_stuff view should load with no conf choice
+        '''
+        Conference.objects.all().delete()
+        inactive = ProfileFactory(
+            display_name = "DON'T SEE THIS",
+            user_object__is_active=False
+        )
+        ticket_context = PurchasedTicketContext(profile=inactive)
+        transaction = ticket_context.transaction
+        grant_privilege(self.profile, 'Registrar')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('env_stuff',
+                    urlconf="gbe.reporting.urls"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Disposition'),
+                         "attachment; filename=env_stuff.csv")
+        self.assertIn(
+            "Badge Name,First,Last,Tickets,Ticket format,Personae," +
+            "Staff Lead,Volunteering,Presenter,Show",
+            response.content)
+        self.assertNotIn(
+            inactive.display_name,
+            response.content)
+
     def test_env_stuff_succeed_w_conf(self):
         '''env_stuff view should load for a selected conference slug
         '''
@@ -437,6 +464,28 @@ class TestReports(TestCase):
             response.content)
         self.assertIn(
             transaction.ticket_item.title,
+            response.content)
+
+    def test_export_badge_report_inactive_user(self):
+        '''loads with the default conference selection.
+        '''
+        inactive = ProfileFactory(
+            display_name = "DON'T SEE THIS",
+            user_object__is_active=False
+        )
+        ticket_context = PurchasedTicketContext(profile=inactive)
+        transaction = ticket_context.transaction
+
+        grant_privilege(self.profile, 'Registrar')
+        login_as(self.profile, self)
+        response = self.client.get(reverse('badge_report',
+            urlconf='gbe.reporting.urls'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            transaction.purchaser.first_name,
+            response.content)
+        self.assertNotIn(
+            inactive.display_name,
             response.content)
 
     def test_export_act_techinfo(self):

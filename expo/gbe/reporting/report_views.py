@@ -106,7 +106,7 @@ def env_stuff(request, conference_choice=None):
     else:
         conference = get_current_conference()
 
-    people = conf.Profile.objects.filter()
+    people = conf.Profile.objects.filter(user_object__is_active=True)
     acts = conf.Act.objects.filter(
         accepted=3,
         b_conference=conference)
@@ -187,7 +187,7 @@ def env_stuff(request, conference_choice=None):
 
 
 @never_cache
-def personal_schedule(request, profile_id='All'):
+def personal_schedule(request):
     viewer_profile = validate_perms(request, 'any', require=True)
 
     conference_slugs = conf.Conference.all_slugs()
@@ -196,12 +196,8 @@ def personal_schedule(request, profile_id='All'):
     else:
         conference = conf.Conference.current_conf()
 
-    if profile_id == 'All':
-        people = conf.Profile.objects.filter(
-            user_object__is_active=True).select_related()
-    else:
-        people = []  # Set it to be self, in list format
-
+    people = conf.Profile.objects.filter(
+        user_object__is_active=True).select_related()
     schedules = []
 
     for person in people:
