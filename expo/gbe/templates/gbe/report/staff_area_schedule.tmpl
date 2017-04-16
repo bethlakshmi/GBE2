@@ -9,7 +9,9 @@
 
 
   <h2 class="review-title">Staff Schedules for {{area}}</h2>
-
+<p>
+<font color="red">Red text</font> shows a user that has deactivated their account.
+</p>
 <ul>
   {% for worker in area.roles %}
     <li>{{worker.role}} - {{worker.workeritem}}</li>
@@ -28,7 +30,7 @@
       <th class="bid-table">Number</th>
     </tr>
     {% for contact in opp.contacts%}
-    <tr class="bid-table">
+    <tr class="bid-table" {% if not contact.workeritem.is_active %}style="color:red;"{% endif %}>
       <td class="bid-table">{{contact.workeritem}}</td>
       <td class="bid-table">{{contact.workeritem.contact_email}}</td>
       <td class="bid-table">{{contact.workeritem.contact_phone}}</td>

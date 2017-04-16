@@ -389,6 +389,12 @@ class WorkerItem(ResourceItem):
         return p
 
     @property
+    def is_active(self):
+        return WorkerItem.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id
+        ).is_active
+
+    @property
     def contact_email(self):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id

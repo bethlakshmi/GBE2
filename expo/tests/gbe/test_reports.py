@@ -137,6 +137,25 @@ class TestReports(TestCase):
                     args=[show.eventitem_id]))
         self.assertEqual(response.status_code, 200)
 
+    def test_staff_area_with_inactive(self):
+        '''staff_area view should load
+        '''
+        show = ShowFactory()
+        inactive = ProfileFactory(
+            display_name = "DON'T SEE THIS",
+            user_object__is_active=False
+        )
+        context = VolunteerContext(event=show, profile=inactive)
+        grant_privilege(self.profile, 'Act Reviewers')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('staff_area',
+                    urlconf="gbe.reporting.urls",
+                    args=[show.eventitem_id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            '<tr class="bid-table" style="color:red;">' in response.content)
+
     def test_staff_area_path_fail(self):
         '''staff_area view should fail for non-authenticated users
         '''
