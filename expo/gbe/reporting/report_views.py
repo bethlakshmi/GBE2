@@ -518,38 +518,26 @@ def export_badge_report(request, conference_choice=None):
     # we need ALL transactions, if they are limbo, then the purchaser
     # should have a BPT first/last name
     for badge in badges:
-        try:
-            for person in people.filter(
-                    user_object=badge.purchaser.matched_to_user):
-                badge_info.append(
-                    [badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.purchaser.last_name.encode('utf-8').strip(),
-                     person.user_object.username,
-                     person.get_badge_name().encode('utf-8').strip(),
-                     badge.ticket_item.title,
-                     badge.import_date,
-                     'In GBE'])
-            if len(people.filter(
-                    user_object=badge.purchaser.matched_to_user)) == 0:
-                badge_info.append(
-                    [badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.purchaser.last_name.encode('utf-8').strip(),
-                     badge.purchaser.matched_to_user,
-                     badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.ticket_item.title,
-                     badge.import_date,
-                     'No Profile'])
-        except:
-
-            # if no profile, use purchase info from BPT
+        for person in people.filter(
+                user_object=badge.purchaser.matched_to_user):
             badge_info.append(
                 [badge.purchaser.first_name.encode('utf-8').strip(),
                  badge.purchaser.last_name.encode('utf-8').strip(),
-                 badge.purchaser.email,
+                 person.user_object.username,
+                 person.get_badge_name().encode('utf-8').strip(),
+                 badge.ticket_item.title,
+                 badge.import_date,
+                 'In GBE'])
+        if len(people.filter(
+                user_object=badge.purchaser.matched_to_user)) == 0:
+            badge_info.append(
+                [badge.purchaser.first_name.encode('utf-8').strip(),
+                 badge.purchaser.last_name.encode('utf-8').strip(),
+                 badge.purchaser.matched_to_user,
                  badge.purchaser.first_name.encode('utf-8').strip(),
                  badge.ticket_item.title,
                  badge.import_date,
-                 'No User'])
+                 'No Profile'])
 
     # end for loop through acts
     response = HttpResponse(content_type='text/csv')
