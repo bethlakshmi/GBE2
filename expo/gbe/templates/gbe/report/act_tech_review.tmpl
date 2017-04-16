@@ -28,6 +28,8 @@
   {% endif %}
 <br><br>
 <span class="error_row">Highlighted text</span> reflects incomplete acts.<br>
+<span class="error_row"><b>Bold and red names</b></span> reflects acts with
+deactivated users.<br>
 
   {% if messages %}
       <script>
@@ -85,7 +87,14 @@
       <tr  {% if not act.tech.is_complete  %}class="error_row"{%else%} class="bid-table"{% endif %} >
           <td class="bid-table">{{ act.order }}
 	  <td class="bid-table">{{ act.title }}</td>
-	  <td class="bid-table">{{ act.performer }}</td>
+	  <td class="bid-table">
+	    {% if not act.performer.contact.user_object.is_active  %}
+	      <span class="error_row" class="bid-table"><b>
+	    {% endif %}
+	      {{ act.performer }}
+	    {% if not act.performer.contact.user_object.is_active  %}
+	      - INACTIVE</b></span>
+	    {% endif %}</td>
 	  <td class="bid-table"><a href='mailto:{{act.performer.contact.user_object.email}}'>
             {{act.performer.contact.user_object.email}}</a></td>
 	  <td class="bid-table">{% for rehearsal in act.get_scheduled_rehearsals %}

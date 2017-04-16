@@ -300,6 +300,25 @@ class TestReports(TestCase):
             msg="Can't find table header")
         self.assertNotContains(response, 'Schedule Acts for this Show')
 
+    def test_review_act_techinfo_show_inactive(self):
+        '''review_act_techinfo view should show data when show is
+            selected
+        '''
+        curr_conf = ConferenceFactory()
+        curr_show, _, curr_acts = _create_scheduled_show_with_acts(curr_conf)
+        curr_acts[0].performer.contact.user_object.is_active = False
+        curr_acts[0].performer.contact.user_object.save()
+
+        grant_privilege(self.profile, 'Tech Crew')
+        login_as(self.profile, self)
+        response = self.client.get(
+            reverse('act_techinfo_review',
+                    urlconf='gbe.reporting.urls',
+                    args=[curr_show.eventitem_id]))
+        self.assertTrue(
+            "- INACTIVE" in response.content,
+            msg="Can't find inactive user")
+
     def test_review_act_techinfo_has_link_for_scheduler(self):
         '''review_act_techinfo view should show schedule acts if user
             has the right privilege
