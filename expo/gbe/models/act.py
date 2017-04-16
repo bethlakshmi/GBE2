@@ -231,6 +231,10 @@ class Act (Biddable, ActItem):
     def cast_shows(self):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
+    @property
+    def bidder_is_active(self):
+        return self.performer.contact.user_object.is_active
+
     def __str__(self):
         return "%s: %s" % (str(self.performer), self.b_title)
 

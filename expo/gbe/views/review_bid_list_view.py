@@ -42,6 +42,7 @@ class ReviewBidListView(View):
         rows = []
         for bid in bids:
             bid_row = {}
+            bid_row['bidder_active'] = bid.bidder_is_active
             bid_row['bid'] = bid.bid_review_summary
             bid_row['reviews'] = review_query.filter(
                 bid=bid.id).select_related(

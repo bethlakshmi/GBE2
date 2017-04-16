@@ -55,6 +55,10 @@ class Vendor(Biddable):
         return vendor
 
     @property
+    def bidder_is_active(self):
+        return self.profile.user_object.is_active
+
+    @property
     def bid_review_header(self):
         return (['Bidder',
                  'Business Name',

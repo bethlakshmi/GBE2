@@ -47,6 +47,10 @@ class Volunteer(Biddable):
         return self.profile.display_name
 
     @property
+    def bidder_is_active(self):
+        return self.profile.user_object.is_active
+
+    @property
     def interest_list(self):
         return [
             interest.interest.interest
