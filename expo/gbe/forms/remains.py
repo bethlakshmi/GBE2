@@ -159,7 +159,7 @@ class ProfileAdminForm(ParticipantForm):
 class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    captcha = ReCaptchaField(widget=ReCaptchaWidget())
+    verification = ReCaptchaField(widget=ReCaptchaWidget())
     email = forms.EmailField(required=True)
     username = forms.CharField(label=username_label, help_text=username_help)
     first_name = forms.CharField(required=True)
