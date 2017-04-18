@@ -3,9 +3,7 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
-    PersonaFactory,
     ProfileFactory,
-    UserFactory,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
@@ -19,9 +17,6 @@ class TestRegister(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.performer = PersonaFactory()
-        self.privileged_user = ProfileFactory().user_object
-        grant_privilege(self.privileged_user, 'Registrar')
         self.counter = 0
 
     def get_post_data(self):
@@ -60,3 +55,18 @@ class TestRegister(TestCase):
         self.assertRedirects(response, "%s?next=%s" % (
             reverse('profile_update', urlconf='gbe.urls'),
             reverse('volunteer_create', urlconf='gbe.urls')))
+
+    def test_register_post_nothing(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+
+        response = self.client.post(url, {'data': 'bad'}, follow=True)
+        self.assertIn("This field is required.", response.content)
+
+    def test_register_unique_email(self):
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        post_data = self.get_post_data()
+        profile = ProfileFactory(user_object__email=post_data['email'])
+        response = self.client.post(url, post_data, follow=True)
+        self.assertIn("That email address is already in use", response.content)
