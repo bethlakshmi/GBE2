@@ -52,3 +52,4 @@ sqlparse==0.1.19
 jsonfield
 tablib
 diff-match-patch
+django-recaptcha2==1.0.0

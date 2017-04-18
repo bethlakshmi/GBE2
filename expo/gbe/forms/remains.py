@@ -48,6 +48,8 @@ from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.utils.formats import date_format
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 time_start = 8 * 60
 time_stop = 24 * 60
@@ -157,6 +159,7 @@ class ProfileAdminForm(ParticipantForm):
 class UserCreateForm(UserCreationForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    captcha = ReCaptchaField(widget=ReCaptchaWidget())
     email = forms.EmailField(required=True)
     username = forms.CharField(label=username_label, help_text=username_help)
     first_name = forms.CharField(required=True)
