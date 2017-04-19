@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gbe', '0003_auto_20170312_2031'),
+        ('gbe', '0004_emailtemplatesender'),
     ]
 
     operations = [
