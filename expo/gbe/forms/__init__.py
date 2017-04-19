@@ -15,7 +15,6 @@ from remains import (
     BidStateChangeForm,
     ClassBidDraftForm,
     ClassBidForm,
-    ClassProposalForm,
     ComboForm,
     ConferenceVolunteerForm,
     ContactForm,
@@ -29,7 +28,6 @@ from remains import (
     PersonaForm,
     ProfileAdminForm,
     ProfilePreferencesForm,
-    ProposalPublishForm,
     RehearsalSelectionForm,
     StageInfoForm,
     StageInfoSubmitForm,
@@ -42,8 +40,13 @@ from remains import (
     VolunteerOpportunityForm,
 )
 
+from class_proposal_form import ClassProposalForm
+from conference_volunteer_form import ConferenceVolunteer
+from proposal_publish_form import ProposalPublishForm
+
 from class_schedule_form import ClassScheduleForm
 from generic_event_schedule_form import GenericEventScheduleForm
 from show_schedule_form import ShowScheduleForm
+
 from bid_evaluation_form import BidEvaluationForm
 from act_bid_evaluation_form import ActBidEvaluationForm

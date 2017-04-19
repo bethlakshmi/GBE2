@@ -5,8 +5,6 @@ from gbe.models import (
     Biddable,
     BidEvaluation,
     Class,
-    ClassProposal,
-    ConferenceVolunteer,
     Combo,
     Costume,
     CueInfo,
@@ -739,47 +737,6 @@ class StageInfoSubmitForm(forms.ModelForm):
                 code='invalid')
 
         return cleaned_data
-
-
-class ClassProposalForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    proposal = forms.CharField(max_length=500,
-                               widget=forms.Textarea,
-                               help_text=class_proposal_help_texts['proposal'],
-                               label=class_proposal_labels['proposal'])
-
-    class Meta:
-        model = ClassProposal
-        fields = ['name', 'title', 'type', 'proposal']
-        required = ['title']
-        help_texts = class_proposal_help_texts
-        labels = class_proposal_labels
-
-
-class ProposalPublishForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    proposal = forms.CharField(max_length=500,
-                               widget=forms.Textarea,
-                               help_text=class_proposal_help_texts['proposal'],
-                               label=class_proposal_labels['proposal'])
-
-    class Meta:
-        model = ClassProposal
-        fields = ['title', 'type', 'proposal', 'name', 'display']
-        help_texts = proposal_edit_help_texts
-        labels = proposal_edit_labels
-
-
-class ConferenceVolunteerForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = ConferenceVolunteer
-        fields, required = ConferenceVolunteer().bid_fields
-        widgets = {'bid': forms.HiddenInput()}
 
 
 class ProfilePreferencesForm(forms.ModelForm):
