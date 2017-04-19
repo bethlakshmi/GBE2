@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from post_office.models import EmailTemplate
 from factory import (
     Sequence,
     DjangoModelFactory,
@@ -418,3 +419,23 @@ class ActBidEvaluationFactory(DjangoModelFactory):
 
     class Meta:
         model = conf.ActBidEvaluation
+
+
+class EmailTemplateFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+    name = Sequence(lambda n: 'Template - %d' % n)
+    subject = 'Test Template Subject'
+    content = "text content"
+    html_content = "html text content"
+
+    class Meta:
+        model = EmailTemplate
+
+
+class EmailTemplateSenderFactory(DjangoModelFactory):
+    from_email = "default@sender.com"
+    template = SubFactory(EmailTemplateFactory)
+
+    class Meta:
+        model = conf.EmailTemplateSender

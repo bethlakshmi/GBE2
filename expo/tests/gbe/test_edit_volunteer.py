@@ -16,6 +16,7 @@ from tests.contexts import (
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
+    assert_right_mail_right_addresses,
     assert_hidden_value,
     assert_rank_choice_exists,
     clear_conferences,
@@ -28,7 +29,6 @@ from gbetext import (
 )
 from gbe.models import UserMessage
 from expo.settings import DATETIME_FORMAT
-from django.core import mail
 
 
 class TestEditVolunteer(TestCase):
@@ -271,33 +271,36 @@ class TestEditVolunteer(TestCase):
 
     def test_volunteer_conflict_sends_update_to_user(self):
         response, context = self.post_conflict(staff=True)
-        assert 3 == len(mail.outbox)
-        msg = mail.outbox[0]
-        assert msg.subject == \
-            "A change has been made to your Volunteer Schedule!"
-        assert msg.to == [context.profile.contact_email]
+        assert_right_mail_right_addresses(
+            0,
+            3,
+            "A change has been made to your Volunteer Schedule!",
+            [context.profile.contact_email])
 
     def test_volunteer_conflict_sends_warning_to_staff(self):
         response, context = self.post_conflict(staff=True)
-        assert 3 == len(mail.outbox)
-        msg = mail.outbox[1]
-        assert msg.subject == "URGENT: Volunteer Schedule Conflict Occurred"
-        assert msg.to == [self.privileged_profile.contact_email,
-                          context.profile.contact_email]
+        assert_right_mail_right_addresses(
+            1,
+            3,
+            "URGENT: Volunteer Schedule Conflict Occurred",
+            [self.privileged_profile.contact_email,
+             context.profile.contact_email])
 
     def test_volunteer_conflict_sends_warning_no_staff(self):
         response, context = self.post_conflict(staff=False)
-        assert 3 == len(mail.outbox)
-        msg = mail.outbox[1]
-        assert msg.subject == "URGENT: Volunteer Schedule Conflict Occurred"
-        assert msg.to == [self.privileged_profile.contact_email]
+        assert_right_mail_right_addresses(
+            1,
+            3,
+            "URGENT: Volunteer Schedule Conflict Occurred",
+            [self.privileged_profile.contact_email])
 
     def test_volunteer_conflict_sends_notification_to_reviewers(self):
         response, context = self.post_conflict(staff=True)
-        assert 3 == len(mail.outbox)
-        msg = mail.outbox[2]
-        assert msg.subject == "Volunteer Update Occurred"
-        assert msg.to == [self.privileged_profile.contact_email]
+        assert_right_mail_right_addresses(
+            2,
+            3,
+            "Volunteer Update Occurred",
+            [self.privileged_profile.contact_email])
 
     def test_volunteer_conflict_removes_volunteer_commitment(self):
         response, context = self.post_conflict(staff=True)

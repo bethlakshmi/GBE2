@@ -2,6 +2,7 @@ from gbe.models import (
     Class,
     Conference,
     ConferenceDay,
+    EmailTemplateSender,
     Event,
     GenericEvent,
     Profile,
@@ -180,6 +181,17 @@ def get_or_create_template(name, base, subject):
             )
         template.save()
 
+    try:
+        sender = EmailTemplateSender.objects.get(template=template)
+    except:
+        sender = EmailTemplateSender.objects.create(
+            template=template,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        sender.save()
+
+    return template
+
 
 def send_bid_state_change_mail(
         bid_type,
@@ -219,13 +231,13 @@ def send_bid_state_change_mail(
             bid_type,
             acceptance_states[status][1])
 
-    get_or_create_template(
+    template = get_or_create_template(
         name,
         "default_bid_status_change",
         action)
     mail.send(
         email,
-        settings.DEFAULT_FROM_EMAIL,
+        template.sender.from_email,
         template=name,
         context=context,
         priority='now',
@@ -234,14 +246,14 @@ def send_bid_state_change_mail(
 
 def send_schedule_update_mail(participant_type, profile):
     name = '%s schedule update' % (participant_type.lower())
-    get_or_create_template(
+    template = get_or_create_template(
         name,
         "volunteer_schedule_update",
         "A change has been made to your %s Schedule!" % (
                 participant_type))
     mail.send(
         profile.contact_email,
-        settings.DEFAULT_FROM_EMAIL,
+        template.sender.from_email,
         template=name,
         context={
             'site': Site.objects.get_current().domain,
@@ -258,14 +270,14 @@ def notify_reviewers_on_bid_change(bidder,
                                    review_url,
                                    show=None):
     name = '%s %s notification' % (bid_type.lower(), action.lower())
-    get_or_create_template(
+    template = get_or_create_template(
         name,
         "bid_submitted",
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
     mail.send(to_list,
-              settings.DEFAULT_FROM_EMAIL,
+              template.sender.from_email,
               template=name,
               context={
                 'bidder': bidder,
@@ -282,7 +294,7 @@ def send_warnings_to_staff(bidder,
                            bid_type,
                            warnings):
     name = '%s schedule warning' % (bid_type.lower())
-    get_or_create_template(
+    template = get_or_create_template(
         name,
         "schedule_conflict",
         "URGENT: %s Schedule Conflict Occurred" % (bid_type))
@@ -293,7 +305,7 @@ def send_warnings_to_staff(bidder,
             to_list += [warning['email']]
 
     mail.send(to_list,
-              settings.DEFAULT_FROM_EMAIL,
+              template.sender.from_email,
               template=name,
               context={
                 'bidder': bidder,
