@@ -311,18 +311,6 @@ class ActEditDraftForm(forms.ModelForm):
         widgets = {'b_conference': forms.HiddenInput(), }
 
 
-class BidStateChangeForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Biddable
-        fields = ['accepted']
-        required = ['accepted']
-        labels = acceptance_labels
-        help_texts = acceptance_help_texts
-
-
 class ClassBidForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -737,30 +725,6 @@ class StageInfoSubmitForm(forms.ModelForm):
                 code='invalid')
 
         return cleaned_data
-
-
-class ProfilePreferencesForm(forms.ModelForm):
-    inform_about = forms.MultipleChoiceField(
-        choices=inform_about_options,
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-        label=profile_preferences_labels['inform_about'])
-
-    class Meta:
-        model = ProfilePreferences
-        fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
-        help_texts = profile_preferences_help_texts
-        labels = profile_preferences_labels
-
-
-class ContactForm(forms.Form):
-    '''Form for managing user contacts. Notice that there
-    are no models associated with this form.
-    '''
-    name = forms.CharField(required=True)
-    email = forms.EmailField(required=True)
-    subject = forms.CharField(required=True)
-    message = forms.CharField(widget=forms.Textarea)
 
 
 class CostumeBidDraftForm(forms.ModelForm):

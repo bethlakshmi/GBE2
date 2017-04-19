@@ -5,7 +5,8 @@ from django.forms import (
 )
 from gbe.models import ClassProposal
 from gbe_forms_text import (
-    acceptance_note,
+    class_proposal_help_texts,
+    class_proposal_labels,
     proposal_edit_help_texts,
     proposal_edit_labels,
 )
