@@ -164,10 +164,12 @@ class UserCreateForm(UserCreationForm):
 
     def is_valid(self):
         valid = super(UserCreateForm, self).is_valid()
-        email = self.cleaned_data['email']
-        if User.objects.filter(email=email).count():
-            self._errors['email'] = 'That email address is already in use'
-            valid = False
+
+        if valid:
+            email = self.cleaned_data['email']
+            if User.objects.filter(email=email).count():
+                self._errors['email'] = 'That email address is already in use'
+                valid = False
         return valid
 
     class Meta:
