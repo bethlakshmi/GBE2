@@ -1,15 +1,17 @@
-from django.core import mail
 import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    EmailTemplateSenderFactory,
     VolunteerFactory,
     ProfilePreferencesFactory,
     ProfileFactory,
 )
 from tests.functions.gbe_functions import (
+    assert_email_template_create,
+    assert_email_template_used,
     grant_privilege,
     login_as,
 )
@@ -17,7 +19,6 @@ from django.core.exceptions import PermissionDenied
 from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
-from post_office.models import EmailTemplate
 
 
 class TestVolunteerChangestate(TestCase):
@@ -71,21 +72,17 @@ class TestVolunteerChangestate(TestCase):
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = "A change has been made to your Volunteer Schedule!"
-        assert msg.subject == expected_subject
-        template = EmailTemplate.objects.get(name='volunteer schedule update')
-        assert template.subject == expected_subject
+        assert_email_template_create(
+            'volunteer schedule update',
+            "A change has been made to your Volunteer Schedule!"
+        )
 
     def test_volunteer_accept_sends_notification_has_template(self):
-        expected_subject = "test template"
-        template = EmailTemplate.objects.create(
-            name='volunteer schedule update',
-            subject=expected_subject,
-            content='test',
-            html_content='test',
-            )
+        EmailTemplateSenderFactory(
+            from_email="volunteeremail@notify.com",
+            template__name='volunteer schedule update',
+            template__subject="test template"
+        )
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
@@ -94,9 +91,8 @@ class TestVolunteerChangestate(TestCase):
                 'events': [],
                 'accepted': 3}
         response = self.client.post(url, data=data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            "test template", "volunteeremail@notify.com")
 
     def test_volunteer_withdraw_sends_notification(self):
         url = reverse(self.view_name,
@@ -107,11 +103,8 @@ class TestVolunteerChangestate(TestCase):
                 'events': [],
                 'accepted': 4}
         response = self.client.post(url, data=data)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = \
-            "Your volunteer proposal has changed status to Withdrawn"
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            "Your volunteer proposal has changed status to Withdrawn")
 
     def test_volunteer_changestate_gives_overbook_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
