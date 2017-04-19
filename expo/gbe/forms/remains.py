@@ -16,7 +16,6 @@ from gbe.models import (
     Profile,
     ProfilePreferences,
     Room,
-    Show,
     StageInfo,
     Troupe,
     Vendor,
@@ -795,58 +794,6 @@ class ProfilePreferencesForm(forms.ModelForm):
         fields = ['inform_about', 'in_hotel', 'show_hotel_infobox']
         help_texts = profile_preferences_help_texts
         labels = profile_preferences_labels
-
-
-class GenericEventScheduleForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    type = forms.ChoiceField(choices=new_event_options,
-                             help_text=event_help_texts['type'])
-
-    class Meta:
-        model = GenericEvent
-        fields = [
-            'e_title',
-            'e_description',
-            'duration',
-            'type',
-            'default_location', ]
-        help_texts = event_help_texts
-        labels = event_labels
-
-
-class ShowScheduleForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Show
-        fields = ['e_title', 'e_description', 'duration', ]
-        help_texts = event_help_texts
-        labels = event_labels
-
-
-class ClassScheduleForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    accepted = forms.ChoiceField(choices=acceptance_states,
-                                 initial=3,
-                                 help_text=acceptance_note)
-
-    class Meta:
-        model = Class
-        fields = ['e_title',
-                  'e_description',
-                  'maximum_enrollment',
-                  'type',
-                  'fee',
-                  'duration',
-                  'space_needs',
-                  'teacher',
-                  'accepted',
-                  ]
-        help_texts = classbid_help_texts
-        labels = classbid_labels
 
 
 class ContactForm(forms.Form):

@@ -1,7 +1,6 @@
 # widgets
 from show_vote_widget import ShowVoteWidget
 
-
 # fields
 from show_vote_field import ShowVoteField
 
@@ -17,7 +16,6 @@ from remains import (
     ClassBidDraftForm,
     ClassBidForm,
     ClassProposalForm,
-    ClassScheduleForm,
     ComboForm,
     ConferenceVolunteerForm,
     ContactForm,
@@ -26,7 +24,6 @@ from remains import (
     CostumeDetailsDraftForm,
     CostumeDetailsSubmitForm,
     CueInfoForm,
-    GenericEventScheduleForm,
     LightingInfoForm,
     ParticipantForm,
     PersonaForm,
@@ -34,7 +31,6 @@ from remains import (
     ProfilePreferencesForm,
     ProposalPublishForm,
     RehearsalSelectionForm,
-    ShowScheduleForm,
     StageInfoForm,
     StageInfoSubmitForm,
     TroupeForm,
@@ -46,5 +42,8 @@ from remains import (
     VolunteerOpportunityForm,
 )
 
+from class_schedule_form import ClassScheduleForm
+from generic_event_schedule_form import GenericEventScheduleForm
+from show_schedule_form import ShowScheduleForm
 from bid_evaluation_form import BidEvaluationForm
 from act_bid_evaluation_form import ActBidEvaluationForm
