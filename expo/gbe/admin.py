@@ -166,6 +166,13 @@ class ConferenceDayAdmin(admin.ModelAdmin):
                      'conference',)
 
 
+class EmailTemplateSenderAdmin(admin.ModelAdmin):
+    list_display = ('template',
+                    'from_email')
+    list_editable = ('from_email', )
+    list_display_links = None
+
+
 admin.site.register(Conference)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
@@ -199,3 +206,4 @@ admin.site.register(Event, EventAdmin)
 admin.site.register(UserMessage, MessageAdmin)
 admin.site.register(ShowVote)
 admin.site.register(ActBidEvaluation)
+admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)

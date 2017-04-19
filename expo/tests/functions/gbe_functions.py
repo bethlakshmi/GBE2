@@ -18,6 +18,9 @@ from tests.factories.ticketing_factories import (
     PurchaserFactory,
 )
 from gbe_forms_text import rank_interest_options
+from post_office.models import EmailTemplate
+from django.core import mail
+from django.conf import settings
 
 
 def _user_for(user_or_profile):
@@ -138,6 +141,39 @@ def assert_interest_view(response, interest):
     assert interest.rank_description in response.content
     if interest.interest.help_text:
         assert_has_help_text(response, interest.interest.help_text)
+
+
+def assert_email_template_create(
+        template_name,
+        expected_subject):
+    assert 1 == len(mail.outbox)
+    msg = mail.outbox[0]
+    assert msg.subject == expected_subject
+    template = EmailTemplate.objects.get(name=template_name)
+    assert template.subject == expected_subject
+    assert template.sender.from_email == settings.DEFAULT_FROM_EMAIL
+
+
+def assert_email_template_used(
+        expected_subject,
+        email=settings.DEFAULT_FROM_EMAIL):
+    assert 1 == len(mail.outbox)
+    msg = mail.outbox[0]
+    assert msg.subject == expected_subject
+    assert msg.from_email == email
+
+
+def assert_right_mail_right_addresses(
+        queue_order,
+        num_email,
+        expected_subject,
+        to_email_array,
+        from_email=settings.DEFAULT_FROM_EMAIL):
+    assert num_email == len(mail.outbox)
+    msg = mail.outbox[queue_order]
+    assert msg.subject == expected_subject
+    assert msg.to == to_email_array
+    assert msg.from_email == from_email
 
 
 def make_act_app_purchase(conference, user_object):
