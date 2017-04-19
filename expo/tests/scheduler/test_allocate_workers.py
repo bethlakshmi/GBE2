@@ -1,4 +1,3 @@
-from django.core import mail
 from django.test import (
     TestCase,
     Client
@@ -11,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
+    assert_email_template_used,
     grant_privilege,
     is_login_page,
     login_as,
@@ -304,10 +304,8 @@ class TestAllocateWorkers(TestCase):
                 'edit_event',
                 urlconf='scheduler.urls',
                 args=["GenericEvent", self.volunteer_opp.pk]))
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = "A change has been made to your Volunteer Schedule!"
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            "A change has been made to your Volunteer Schedule!")
 
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()
@@ -341,10 +339,8 @@ class TestAllocateWorkers(TestCase):
         data['role'] = 'Producer',
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        assert 1 == len(mail.outbox)
-        msg = mail.outbox[0]
-        expected_subject = "A change has been made to your Volunteer Schedule!"
-        assert msg.subject == expected_subject
+        assert_email_template_used(
+            "A change has been made to your Volunteer Schedule!")
 
     def test_post_form_valid_make_new_allocation_w_confict(self):
         data = self.get_create_data()
