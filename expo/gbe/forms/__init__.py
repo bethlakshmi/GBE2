@@ -13,20 +13,15 @@ from remains import (
     AudioInfoSubmitForm,
     ClassBidDraftForm,
     ClassBidForm,
-    ComboForm,
     CostumeBidDraftForm,
     CostumeBidSubmitForm,
     CostumeDetailsDraftForm,
     CostumeDetailsSubmitForm,
     CueInfoForm,
     LightingInfoForm,
-    ParticipantForm,
-    PersonaForm,
-    ProfileAdminForm,
     RehearsalSelectionForm,
     StageInfoForm,
     StageInfoSubmitForm,
-    TroupeForm,
     UserCreateForm,
     VendorBidForm,
     VendorCueInfoForm,
@@ -35,7 +30,13 @@ from remains import (
     VolunteerOpportunityForm,
 )
 from contact_form import ContactForm
+from participant_form import ParticipantForm
+from profile_admin_form import ProfileAdminForm
 from profile_preferences_form import ProfilePreferencesForm
+
+from persona_form import PersonaForm
+from combo_form import ComboForm
+from troupe_form import TroupeForm
 
 from class_proposal_form import ClassProposalForm
 from conference_volunteer_form import ConferenceVolunteerForm

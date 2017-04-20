@@ -2,20 +2,14 @@ from gbe.models import (
     Act,
     AudioInfo,
     AvailableInterest,
-    Biddable,
-    BidEvaluation,
     Class,
-    Combo,
     Costume,
     CueInfo,
     GenericEvent,
     LightingInfo,
     Persona,
-    Profile,
-    ProfilePreferences,
     Room,
     StageInfo,
-    Troupe,
     Vendor,
     Volunteer,
     VolunteerInterest,
@@ -25,17 +19,14 @@ from django import forms
 from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, logout
 from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbetext import (
-    acceptance_states,
     act_other_perf_options,
     act_shows_options,
     boolean_options,
-    new_event_options,
 )
 from gbe.expoformfields import (
     DurationFormField,
@@ -53,102 +44,6 @@ conference_times = [(time(mins / 60, mins % 60),
                      date_format(time(mins / 60, mins % 60),
                                  "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
-
-
-class ParticipantForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(
-        required=True,
-        label=participant_labels['legal_first_name'],
-        help_text=participant_form_help_texts['legal_name'])
-    last_name = forms.CharField(
-        required=True,
-        label=participant_labels['legal_last_name'],
-        help_text=participant_form_help_texts['legal_name'])
-    phone = forms.CharField(required=True)
-
-    how_heard = forms.MultipleChoiceField(
-        choices=how_heard_options,
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-        label=participant_labels['how_heard'])
-
-    def clean(self):
-        changed = self.changed_data
-        if self.has_changed() and 'email' in self.changed_data:
-            if User.objects.filter(
-                    email=self.cleaned_data.get('email')).exists():
-                raise ValidationError('That email address is already in use')
-        return self.cleaned_data
-
-    def save(self, commit=True):
-        partform = super(ParticipantForm, self).save(commit=False)
-        user = partform.user_object
-        if not self.is_valid():
-            return
-        partform.user_object.email = self.cleaned_data.get('email')
-        if len(self.cleaned_data['first_name'].strip()) > 0:
-            user.first_name = self.cleaned_data['first_name'].strip()
-        if len(self.cleaned_data['last_name'].strip()) > 0:
-            user.last_name = self.cleaned_data['last_name'].strip()
-        if self.cleaned_data['display_name']:
-            pass   # if they enter a display name, respect it
-        else:
-            partform.display_name = " ".join([self.cleaned_data['first_name'],
-                                              self.cleaned_data['last_name']])
-        if commit and self.is_valid():
-            partform.save()
-            partform.user_object.save()
-
-    class Meta:
-        model = Profile
-        # purchase_email should be display only
-        fields = ['first_name',
-                  'last_name',
-                  'display_name',
-                  'email',
-                  'address1',
-                  'address2',
-                  'city',
-                  'state',
-                  'zip_code',
-                  'country',
-                  'phone',
-                  'best_time',
-                  'how_heard',
-                  ]
-        labels = participant_labels
-        help_texts = participant_form_help_texts
-
-
-class ProfileAdminForm(ParticipantForm):
-    '''
-    Form for administratively modifying a Profile
-    '''
-    purchase_email = forms.CharField(
-        required=True,
-        label=participant_labels['purchase_email'])
-
-    class Meta:
-        model = Profile
-        # purchase_email should be display only
-        fields = ('first_name',
-                  'last_name',
-                  'display_name',
-                  'email',
-                  'purchase_email',
-                  'address1',
-                  'address2',
-                  'city',
-                  'state',
-                  'zip_code',
-                  'country',
-                  'phone',
-                  'best_time',
-                  'how_heard',
-                  )
 
 
 class UserCreateForm(UserCreationForm):
@@ -178,49 +73,6 @@ class UserCreateForm(UserCreationForm):
                   'password1',
                   'password2',
                   ]
-
-
-class PersonaForm (forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Persona
-        fields = ['name',
-                  'homepage',
-                  'bio',
-                  'experience',
-                  'awards',
-                  'promo_image',
-                  'performer_profile',
-                  'contact',
-                  ]
-        help_texts = persona_help_texts
-        labels = persona_labels
-        widgets = {'performer_profile': forms.HiddenInput(),
-                   'contact': forms.HiddenInput(),
-                   'homepage': FriendlyURLInput,
-                   }
-
-
-class TroupeForm (forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Troupe
-        fields = '__all__'
-        help_texts = persona_help_texts
-        labels = persona_labels
-
-
-class ComboForm (forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Combo
-        fields = ['contact', 'name', 'membership']
 
 
 class ActEditForm(forms.ModelForm):
