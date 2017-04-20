@@ -53,7 +53,7 @@ class Biddable(Model):
 
     @property
     def is_current(self):
-        return self.b_conference.status in ("upcoming", "current")
+        return self.b_conference.status in ("upcoming", "ongoing")
 
     @property
     def bidder_is_active(self):
