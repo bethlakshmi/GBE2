@@ -33,7 +33,7 @@ class Volunteer(Biddable):
     unavailability = TextField(blank=True)
     opt_outs = TextField(blank=True)
     pre_event = BooleanField(choices=boolean_options, default=False)
-    background = TextField(blank=True)
+    background = TextField()
     available_windows = ManyToManyField(
         VolunteerWindow,
         related_name="availablewindow_set",
