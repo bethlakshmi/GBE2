@@ -6,7 +6,6 @@ from gbe_forms_text import (
     persona_help_texts,
     persona_labels,
 )
-from gbe.expoformfields import FriendlyURLInput
 
 
 class TroupeForm (ModelForm):

@@ -14,7 +14,6 @@ from gbe_forms_text import (
     volunteer_help_texts,
     volunteer_labels,
 )
-from gbe.expoformfields import FriendlyURLInput
 
 
 class VolunteerBidForm(ModelForm):

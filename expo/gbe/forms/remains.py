@@ -4,14 +4,9 @@ from gbe.models import (
     AvailableInterest,
     Class,
     Costume,
-    StageInfo,
     Vendor,
 )
 from django import forms
-from django.forms import ModelMultipleChoiceField
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbetext import (
@@ -21,40 +16,8 @@ from gbetext import (
 )
 from gbe.expoformfields import (
     DurationFormField,
-    FriendlyURLInput,
 )
-from gbe.functions import get_current_conference
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
-
-
-class UserCreateForm(UserCreationForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    email = forms.EmailField(required=True)
-    username = forms.CharField(label=username_label, help_text=username_help)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
-
-    def is_valid(self):
-        valid = super(UserCreateForm, self).is_valid()
-
-        if valid:
-            email = self.cleaned_data['email']
-            if User.objects.filter(email=email).count():
-                self._errors['email'] = 'That email address is already in use'
-                valid = False
-        return valid
-
-    class Meta:
-        model = User
-        fields = ['username',
-                  'email',
-                  'first_name',
-                  'last_name',
-                  'password1',
-                  'password2',
-                  ]
 
 
 class ActEditForm(forms.ModelForm):
@@ -202,77 +165,6 @@ class ClassBidDraftForm(forms.ModelForm):
         labels = classbid_labels
 
 
-class RehearsalSelectionForm(forms.Form):
-    show = forms.CharField(widget=forms.TextInput(
-        attrs={'readonly': 'readonly'})
-    )
-    show_private = forms.IntegerField(widget=forms.HiddenInput)
-
-    def __init__(self, *args, **kwargs):
-        super(RehearsalSelectionForm, self).__init__(*args, **kwargs)
-        if 'rehearsal' in kwargs['initial']:
-            self.fields['rehearsal'] = forms.ChoiceField(
-                choices=kwargs['initial']['rehearsal_choices'],
-                initial=kwargs['initial']['rehearsal'])
-        else:
-            self.fields['rehearsal'] = forms.ChoiceField(
-                choices=kwargs['initial']['rehearsal_choices'])
-
-    class Meta:
-        fields = ['show_private', 'show', 'rehearsal']
-
-
-class VendorBidForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    b_description = forms.CharField(
-        required=True,
-        widget=forms.Textarea,
-        help_text=vendor_help_texts['description'],
-        label=vendor_labels['description'])
-    help_times = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                           choices=vendor_schedule_options,
-                                           required=False,
-                                           label=vendor_labels['help_times'])
-
-    class Meta:
-        model = Vendor
-        fields = ['b_title',
-                  'b_description',
-                  'profile',
-                  'website',
-                  'physical_address',
-                  'publish_physical_address',
-                  'logo',
-                  'want_help',
-                  'help_description',
-                  'help_times',
-                  ]
-        help_texts = vendor_help_texts
-        labels = vendor_labels
-        widgets = {'accepted': forms.HiddenInput(),
-                   'submitted': forms.HiddenInput(),
-                   'profile': forms.HiddenInput(),
-                   'website': FriendlyURLInput,
-                   }
-
-
-class ActTechInfoForm(forms.ModelForm):
-    form_title = "Act Tech Info"
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = Act
-        fields = ['b_title',
-                  'b_description',
-                  'performer',
-                  'video_link',
-                  'video_choice']
-        widgets = {'video_link': FriendlyURLInput}
-        labels = act_bid_labels
-
-
 class AudioInfoForm(forms.ModelForm):
     form_title = "Audio Info"
     required_css_class = 'required'
@@ -318,52 +210,6 @@ class AudioInfoSubmitForm(forms.ModelForm):
                 ('Incomplete Audio Info - please either provide Track Title,'
                  'Artist and Duration, or confirm that there is no music.'),
                 code='invalid')
-        return cleaned_data
-
-
-class StageInfoForm(forms.ModelForm):
-    form_title = "Stage Info"
-    required_css_class = 'required'
-    error_css_class = 'error'
-    act_duration = DurationFormField(required=False,
-                                     help_text=act_help_texts['act_duration'])
-
-    class Meta:
-        model = StageInfo
-        labels = prop_labels
-        help_texts = act_help_texts
-        fields = '__all__'
-
-
-class StageInfoSubmitForm(forms.ModelForm):
-    form_title = "Stage Info"
-    required_css_class = 'required'
-    error_css_class = 'error'
-    act_duration = DurationFormField(required=False,
-                                     help_text=act_help_texts['act_duration'])
-
-    class Meta:
-        model = StageInfo
-        labels = prop_labels
-        help_texts = act_help_texts
-        fields = '__all__'
-
-    def clean(self):
-        # run the parent validation first
-        cleaned_data = super(StageInfoSubmitForm, self).clean()
-        # doing is_complete doesn't work, that executes the pre-existing
-        # instance, not the current data
-
-        if not (self.cleaned_data['set_props'] or
-                self.cleaned_data['clear_props'] or
-                self.cleaned_data['cue_props'] or
-                self.cleaned_data['confirm']):
-            raise ValidationError(
-                '''Incomplete Prop Info - please either check of whether props
-                must set, cleaned up or provided on cue, or confirm that no
-                props or set pieces are needed.''',
-                code='invalid')
-
         return cleaned_data
 
 
