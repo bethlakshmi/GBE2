@@ -10,10 +10,6 @@ from remains import (
     ActEditForm,
     ClassBidDraftForm,
     ClassBidForm,
-    CostumeBidDraftForm,
-    CostumeBidSubmitForm,
-    CostumeDetailsDraftForm,
-    CostumeDetailsSubmitForm,
 )
 from contact_form import ContactForm
 from participant_form import ParticipantForm
@@ -37,6 +33,14 @@ from bid_evaluation_form import BidEvaluationForm
 from act_bid_evaluation_form import ActBidEvaluationForm
 from bid_state_change_form import BidStateChangeForm
 
+from costume_bid_form import (
+    CostumeBidDraftForm,
+    CostumeBidSubmitForm,
+)
+from costume_details_form import (
+    CostumeDetailsDraftForm,
+    CostumeDetailsSubmitForm,
+)
 from vendor_bid_form import VendorBidForm
 from volunteer_bid_form import VolunteerBidForm
 from volunteer_interest_form import VolunteerInterestForm
