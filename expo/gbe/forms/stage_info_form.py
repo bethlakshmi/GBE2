@@ -24,10 +24,6 @@ class StageInfoForm(ModelForm):
 
 class StageInfoSubmitForm(StageInfoForm):
 
-    class Meta:
-        model = StageInfo
-        fields = '__all__'
-
     def clean(self):
         # run the parent validation first
         cleaned_data = super(StageInfoSubmitForm, self).clean()
