@@ -4,22 +4,13 @@ from gbe.models import (
     AvailableInterest,
     Class,
     Costume,
-    CueInfo,
-    GenericEvent,
-    LightingInfo,
-    Persona,
-    Room,
     StageInfo,
     Vendor,
-    Volunteer,
-    VolunteerInterest,
-    VolunteerWindow,
 )
 from django import forms
 from django.forms import ModelMultipleChoiceField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from datetime import datetime, time
 from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
@@ -35,15 +26,6 @@ from gbe.expoformfields import (
 from gbe.functions import get_current_conference
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
-from django.utils.formats import date_format
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins / 60, mins % 60),
-                     date_format(time(mins / 60, mins % 60),
-                                 "TIME_FORMAT"))
-                    for mins in range(time_start, time_stop, 30)]
 
 
 class UserCreateForm(UserCreationForm):
@@ -220,141 +202,6 @@ class ClassBidDraftForm(forms.ModelForm):
         labels = classbid_labels
 
 
-class VolunteerBidForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    b_title = forms.HiddenInput()
-    description = forms.HiddenInput()
-    available_windows = forms.ModelMultipleChoiceField(
-        queryset=VolunteerWindow.objects.none(),
-        widget=forms.CheckboxSelectMultiple,
-        label=volunteer_labels['availability'],
-        help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=True)
-    unavailable_windows = forms.ModelMultipleChoiceField(
-        queryset=VolunteerWindow.objects.none(),
-        widget=forms.CheckboxSelectMultiple,
-        label=volunteer_labels['unavailability'],
-        help_text=volunteer_help_texts['volunteer_availability_options'],
-        required=False)
-
-    def __init__(self, *args, **kwargs):
-        if 'available_windows' in kwargs:
-            available_windows = kwargs.pop('available_windows')
-        if 'unavailable_windows' in kwargs:
-            unavailable_windows = kwargs.pop('unavailable_windows')
-        super(VolunteerBidForm, self).__init__(*args, **kwargs)
-        self.fields['available_windows'].queryset = available_windows
-        self.fields['unavailable_windows'].queryset = unavailable_windows
-
-    def clean(self):
-        cleaned_data = super(VolunteerBidForm, self).clean()
-        conflict_windows = []
-        if ('available_windows' in self.cleaned_data) and (
-                'unavailable_windows' in self.cleaned_data):
-            conflict_windows = set(
-                self.cleaned_data['available_windows']).intersection(
-                self.cleaned_data['unavailable_windows'])
-        if len(conflict_windows) > 0:
-            windows = ", ".join(str(w) for w in conflict_windows)
-            self._errors['available_windows'] = \
-                volunteer_available_time_conflict % windows
-            self._errors['unavailable_windows'] = \
-                volunteer_unavailable_time_conflict
-        return cleaned_data
-
-    class Meta:
-        model = Volunteer
-        fields = ['number_shifts',
-                  'available_windows',
-                  'unavailable_windows',
-                  'opt_outs',
-                  'pre_event',
-                  'background',
-                  'b_title',
-                  ]
-
-        widgets = {'accepted': forms.HiddenInput(),
-                   'submitted': forms.HiddenInput(),
-                   'b_title': forms.HiddenInput(),
-                   'b_description': forms.HiddenInput(),
-                   'profile': forms.HiddenInput()}
-        labels = volunteer_labels
-        help_texts = volunteer_help_texts
-
-
-class VolunteerInterestForm(forms.ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    def __init__(self, *args, **kwargs):
-        super(VolunteerInterestForm, self).__init__(*args, **kwargs)
-        if 'initial' in kwargs:
-            initial = kwargs.pop('initial')
-            self.fields['rank'] = forms.ChoiceField(
-                choices=rank_interest_options,
-                label=initial['interest'].interest,
-                help_text=initial['interest'].help_text,
-                required=False)
-
-    class Meta:
-        model = VolunteerInterest
-        fields = ['rank',
-                  'interest']
-        widgets = {'interest': forms.HiddenInput()}
-
-
-class VolunteerOpportunityForm(forms.ModelForm):
-    day = forms.ChoiceField(
-        choices=['No Days Specified'],
-        error_messages={'required': 'required'})
-    time = forms.ChoiceField(choices=conference_times)
-    opp_event_id = forms.IntegerField(widget=forms.HiddenInput(),
-                                      required=False)
-    opp_sched_id = forms.IntegerField(widget=forms.HiddenInput(),
-                                      required=False)
-    num_volunteers = forms.IntegerField(
-        error_messages={'required': 'required'})
-    location = forms.ModelChoiceField(
-        queryset=Room.objects.all(),
-        error_messages={'required': 'required'})
-    duration = DurationFormField(
-        error_messages={'null': 'required'})
-    volunteer_type = forms.ModelChoiceField(
-        queryset=AvailableInterest.objects.filter(visible=True),
-        required=False)
-
-    def __init__(self, *args, **kwargs):
-        conference = kwargs.pop('e_conference')
-        super(VolunteerOpportunityForm, self).__init__(*args, **kwargs)
-        self.fields['day'] = forms.ModelChoiceField(
-            queryset=conference.conferenceday_set.all(),
-            error_messages={'required': 'required'})
-
-    class Meta:
-        model = GenericEvent
-        fields = ['e_title',
-                  'volunteer_type',
-                  'num_volunteers',
-                  'duration',
-                  'day',
-                  'time',
-                  'location',
-                  ]
-        hidden_fields = ['opp_event_id']
-
-    def save(self, commit=True):
-        data = self.cleaned_data
-        event = super(VolunteerOpportunityForm, self).save(commit=False)
-        day = data.get('day').day
-        time_parts = map(int, data.get('time').split(":"))
-        starttime = time(*time_parts)
-        event.starttime = datetime.combine(day, starttime)
-        super(VolunteerOpportunityForm, self).save(commit=commit)
-
-        return event
-
-
 class RehearsalSelectionForm(forms.Form):
     show = forms.CharField(widget=forms.TextInput(
         attrs={'readonly': 'readonly'})
@@ -472,65 +319,6 @@ class AudioInfoSubmitForm(forms.ModelForm):
                  'Artist and Duration, or confirm that there is no music.'),
                 code='invalid')
         return cleaned_data
-
-
-class LightingInfoForm(forms.ModelForm):
-    form_title = "Lighting Info"
-
-    class Meta:
-        model = LightingInfo
-        labels = lighting_labels
-        help_texts = lighting_help_texts
-        fields = '__all__'
-
-
-class CueInfoForm(forms.ModelForm):
-    form_title = "Cue List"
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = CueInfo
-        widgets = {'techinfo': forms.HiddenInput(),
-                   'cue_sequence': forms.TextInput(
-                       attrs={'readonly': 'readonly',
-                              'size': '1'}),
-                   'cue_off_of': forms.Textarea(attrs={'cols': '20',
-                                                       'rows': '8'}),
-                   'sound_note': forms.Textarea(attrs={'rows': '8'})}
-        required = ['wash', 'cyc_color']
-        labels = main_cue_header
-        cue_off_of_msg = ('Add text if you wish to save information '
-                          'for this cue.')
-        error_messages = {'cue_off_of': {'required': cue_off_of_msg}}
-        fields = '__all__'
-
-
-class VendorCueInfoForm(forms.ModelForm):
-    form_title = "Cue List"
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    class Meta:
-        model = CueInfo
-        fields = ['cue_sequence',
-                  'cue_off_of',
-                  'follow_spot',
-                  'wash',
-                  'sound_note',
-                  'techinfo']
-        widgets = {'techinfo': forms.HiddenInput(),
-                   'cue_sequence': forms.TextInput(
-                       attrs={'readonly': 'readonly',
-                              'size': '1'}),
-                   'cue_off_of': forms.Textarea(attrs={'cols': '20',
-                                                       'rows': '8'}),
-                   'sound_note': forms.Textarea(attrs={'rows': '8'})}
-        required = ['wash']
-        labels = main_cue_header
-        cue_off_of_msg = ("Add text if you wish to save information "
-                          "for this cue.")
-        error_messages = {'cue_off_of': {'required': cue_off_of_msg}}
 
 
 class StageInfoForm(forms.ModelForm):
