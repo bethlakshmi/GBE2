@@ -1,10 +1,8 @@
 from gbe.models import (
     Act,
     AudioInfo,
-    AvailableInterest,
     Class,
     Costume,
-    Vendor,
 )
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,7 +15,6 @@ from gbetext import (
 from gbe.expoformfields import (
     DurationFormField,
 )
-from django.core.exceptions import ValidationError
 
 
 class ActEditForm(forms.ModelForm):
@@ -163,54 +160,6 @@ class ClassBidDraftForm(forms.ModelForm):
         required = Class().get_draft_fields
         help_texts = classbid_help_texts
         labels = classbid_labels
-
-
-class AudioInfoForm(forms.ModelForm):
-    form_title = "Audio Info"
-    required_css_class = 'required'
-    error_css_class = 'error'
-    track_duration = DurationFormField(
-        required=False,
-        help_text=act_help_texts['track_duration'],
-        label=act_bid_labels['track_duration']
-    )
-
-    class Meta:
-        model = AudioInfo
-        fields = '__all__'
-
-
-class AudioInfoSubmitForm(forms.ModelForm):
-    form_title = "Audio Info"
-    required_css_class = 'required'
-    error_css_class = 'error'
-    track_duration = DurationFormField(
-        required=False,
-        help_text=act_help_texts['track_duration'],
-        label=act_bid_labels['track_duration']
-    )
-
-    class Meta:
-        model = AudioInfo
-        fields = '__all__'
-
-    def clean(self):
-        # run the parent validation first
-        cleaned_data = super(AudioInfoSubmitForm, self).clean()
-
-        # doing is_complete doesn't work, that executes the pre-existing
-        # instance, not the current data
-        if not (
-                (self.cleaned_data['track_title'] and
-                 self.cleaned_data['track_artist'] and
-                 self.cleaned_data['track_duration']
-                 ) or
-                self.cleaned_data['confirm_no_music']):
-            raise ValidationError(
-                ('Incomplete Audio Info - please either provide Track Title,'
-                 'Artist and Duration, or confirm that there is no music.'),
-                code='invalid')
-        return cleaned_data
 
 
 class CostumeBidDraftForm(forms.ModelForm):

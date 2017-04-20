@@ -8,8 +8,6 @@ from show_vote_field import ShowVoteField
 from remains import (
     ActEditDraftForm,
     ActEditForm,
-    AudioInfoForm,
-    AudioInfoSubmitForm,
     ClassBidDraftForm,
     ClassBidForm,
     CostumeBidDraftForm,
@@ -45,6 +43,10 @@ from volunteer_interest_form import VolunteerInterestForm
 from volunteer_opportunity_form import VolunteerOpportunityForm
 
 from act_tech_info_form import ActTechInfoForm
+from audio_info_form import (
+    AudioInfoForm,
+    AudioInfoSubmitForm
+)
 from cue_info_form import CueInfoForm
 from lighting_info_form import LightingInfoForm
 from rehearsal_selection_form import RehearsalSelectionForm
