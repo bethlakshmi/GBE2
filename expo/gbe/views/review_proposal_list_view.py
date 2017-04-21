@@ -29,6 +29,7 @@ def ReviewProposalListView(request):
     rows = []
     for aclass in classes:
         bid_row = {}
+        bid_row['bidder_active'] = True
         bid_row['bid'] = aclass.bid_review_summary
         bid_row['id'] = aclass.id
         bid_row['review_url'] = reverse('proposal_publish',

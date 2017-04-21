@@ -95,6 +95,10 @@ class Profile(WorkerItem):
         return reviews
 
     @property
+    def is_active(self):
+        return self.user_object.is_active
+
+    @property
     def contact_email(self):
         return self.user_object.email
 

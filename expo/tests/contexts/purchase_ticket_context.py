@@ -16,8 +16,10 @@ class PurchasedTicketContext:
         )
         if profile:
             self.profile = profile
-            self.profile.user_object = \
-                self.transaction.purchaser.matched_to_user
+            # the order of setting this line matters - see test_reports - BB
+            self.transaction.purchaser.matched_to_user = \
+                self.profile.user_object
+            self.transaction.purchaser.save()
         else:
             self.profile = ProfileFactory(
                 user_object=self.transaction.purchaser.matched_to_user

@@ -28,16 +28,17 @@ class VolunteerContext():
                  role=None):
         self.window = VolunteerWindowFactory()
         self.conference = self.window.day.conference
+        self.profile = profile or ProfileFactory()
+
         if bid is False:
-            self.profile = profile or ProfileFactory()
             self.bid = None
         elif bid:
             self.bid = bid
             self.profile = self.bid.profile
         else:
             self.bid = VolunteerFactory(
-                b_conference=self.conference)
-            self.profile = self.bid.profile
+                b_conference=self.conference,
+                profile=self.profile)
         self.interest = VolunteerInterestFactory(
             volunteer=self.bid)
         self.opportunity = opportunity or GenericEventFactory(
