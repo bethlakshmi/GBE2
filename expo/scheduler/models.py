@@ -389,6 +389,12 @@ class WorkerItem(ResourceItem):
         return p
 
     @property
+    def is_active(self):
+        return WorkerItem.objects.get_subclass(
+            resourceitem_id=self.resourceitem_id
+        ).is_active
+
+    @property
     def contact_email(self):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -829,12 +835,14 @@ class Event(Schedulable):
         info = []
         for worker in self.get_direct_workers():
             profile = worker.contact
-            info.append(
-                (worker.contact_email,
-                 str(self),
-                 worker.name,
-                 profile.display_name)
-            )
+            if profile.user_object.is_active:
+                info.append(
+                    (profile.display_name,
+                     worker.contact_email,
+                     profile.phone,
+                     '',
+                     str(self))
+                )
         return info
 
     def class_contacts2(self):
@@ -848,32 +856,32 @@ class Event(Schedulable):
             try:
                 persona = WorkerItem.objects.get_subclass(
                     resourceitem_id=allocation.resource.item.resourceitem_id)
-                info.append(
-                    (persona.contact_email,
-                     str(self),
-                     allocation.resource.worker.role,
-                     persona.name,
-                     persona.contact.display_name,
-                     persona.contact_phone)
-                )
+                if persona.contact.user_object.is_active:
+                    info.append(
+                        (persona.contact_email,
+                         str(self),
+                         allocation.resource.worker.role,
+                         persona.name,
+                         persona.contact.display_name,
+                         persona.contact_phone))
             except:
                 profile = WorkerItem.objects.get_subclass(
                     resourceitem_id=allocation.resource.item.resourceitem_id)
-
-                info.append(
-                    (profile.user_object.email,
-                     str(self),
-                     allocation.resource.worker.role,
-                     "No Performer Name",
-                     profile.display_name,
-                     profile.phone)
-                )
+                if profile.user_object.is_active:
+                    info.append(
+                        (profile.user_object.email,
+                         str(self),
+                         allocation.resource.worker.role,
+                         "No Performer Name",
+                         profile.display_name,
+                         profile.phone))
         return info
 
     def act_contact_info(self, status=None):
         info = []
         for act in self.get_acts(status):
-            info.append(act.contact_info)
+            if act.performer.contact.user_object.is_active:
+                info.append(act.contact_info)
         return info
 
     def worker_contact_info(self, worker_type=None):
@@ -884,13 +892,13 @@ class Event(Schedulable):
         info = []
         for (category, worker) in self.get_workers(worker_type):
             profile = worker.item.profile
-            info.append(
-                (profile.display_name,
-                 profile.contact_email,
-                 profile.phone,
-                 worker.role,
-                 category)
-            )
+            if profile.user_object.is_active:
+                info.append(
+                    (profile.display_name,
+                     profile.contact_email,
+                     profile.phone,
+                     worker.role,
+                     category))
         return info
 
     def set_duration(self, duration):

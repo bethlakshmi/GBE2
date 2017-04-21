@@ -68,3 +68,15 @@ class TestReviewCostumeList(TestCase):
         nt.assert_equal(200, response.status_code)
         assert all([acostume.b_title in response.content
                     for acostume in self.costumes])
+
+    def test_review_costume_inactive_user(self):
+        self.costumes = CostumeFactory(
+            b_conference=self.conference,
+            submitted=True,
+            profile__user_object__is_active=False)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        self.assertIn('bid-table error_row', response.content)

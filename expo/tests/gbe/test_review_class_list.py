@@ -63,3 +63,16 @@ class TestReviewClassList(TestCase):
             url,
             data={'conf_slug': self.conference.conference_slug})
         nt.assert_equal(response.status_code, 403)
+
+    def test_review_class_inactive_user(self):
+        ClassFactory(
+            teacher__contact__user_object__is_active=False,
+            b_conference=self.conference,
+            e_conference=self.conference,
+            submitted=True)
+        url = reverse(self.view_name, urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            url,
+            data={'conf_slug': self.conference.conference_slug})
+        self.assertIn('bid-table error_row', response.content)
