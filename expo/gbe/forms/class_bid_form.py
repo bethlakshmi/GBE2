@@ -58,4 +58,3 @@ class ClassBidForm(ClassBidDraftForm):
         required=True,
         widget=Textarea,
         label=classbid_labels['b_description'])
-

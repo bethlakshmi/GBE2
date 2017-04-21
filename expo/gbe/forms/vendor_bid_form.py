@@ -23,10 +23,11 @@ class VendorBidForm(ModelForm):
         widget=Textarea,
         help_text=vendor_help_texts['description'],
         label=vendor_labels['description'])
-    help_times = MultipleChoiceField(widget=CheckboxSelectMultiple,
-                                           choices=vendor_schedule_options,
-                                           required=False,
-                                           label=vendor_labels['help_times'])
+    help_times = MultipleChoiceField(
+        widget=CheckboxSelectMultiple,
+        choices=vendor_schedule_options,
+        required=False,
+        label=vendor_labels['help_times'])
 
     class Meta:
         model = Vendor

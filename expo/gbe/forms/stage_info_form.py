@@ -23,6 +23,7 @@ class StageInfoForm(ModelForm):
         help_texts = act_help_texts
         fields = '__all__'
 
+
 class StageInfoSubmitForm(StageInfoForm):
 
     def clean(self):

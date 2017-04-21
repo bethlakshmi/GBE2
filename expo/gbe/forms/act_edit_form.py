@@ -79,4 +79,3 @@ class ActEditForm(ActEditDraftForm):
         label=act_bid_labels['description'],
         help_text=act_help_texts['description'],
         widget=Textarea)
-

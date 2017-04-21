@@ -20,7 +20,7 @@ class CueInfoForm(ModelForm):
                        attrs={'readonly': 'readonly',
                               'size': '1'}),
                    'cue_off_of': Textarea(attrs={'cols': '20',
-                                                       'rows': '8'}),
+                                                 'rows': '8'}),
                    'sound_note': Textarea(attrs={'rows': '8'})}
         required = ['wash', 'cyc_color']
         labels = main_cue_header

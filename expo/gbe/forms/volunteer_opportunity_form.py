@@ -23,15 +23,18 @@ conference_times = [(time(mins / 60, mins % 60),
                                  "TIME_FORMAT"))
                     for mins in range(time_start, time_stop, 30)]
 
+
 class VolunteerOpportunityForm(ModelForm):
     day = ChoiceField(
         choices=['No Days Specified'],
         error_messages={'required': 'required'})
     time = ChoiceField(choices=conference_times)
-    opp_event_id = IntegerField(widget=HiddenInput(),
-                                      required=False)
-    opp_sched_id = IntegerField(widget=HiddenInput(),
-                                      required=False)
+    opp_event_id = IntegerField(
+        widget=HiddenInput(),
+        required=False)
+    opp_sched_id = IntegerField(
+        widget=HiddenInput(),
+        required=False)
     num_volunteers = IntegerField(
         error_messages={'required': 'required'})
     location = ModelChoiceField(
