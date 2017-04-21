@@ -1,4 +1,9 @@
 {% extends 'base.tmpl' %}
+{% load recaptcha2 %}
+
+{% block head %}
+      {% recaptcha_init %}
+{% endblock %}
 
 {% block title %}
    Register For An Account

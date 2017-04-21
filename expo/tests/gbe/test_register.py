@@ -9,6 +9,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
+import os
 
 
 class TestRegister(TestCase):
@@ -18,6 +19,7 @@ class TestRegister(TestCase):
     def setUp(self):
         self.client = Client()
         self.counter = 0
+        os.environ['RECAPTCHA_DISABLE'] = 'True'
 
     def get_post_data(self):
         self.counter += 1
@@ -70,3 +72,6 @@ class TestRegister(TestCase):
         profile = ProfileFactory(user_object__email=post_data['email'])
         response = self.client.post(url, post_data, follow=True)
         self.assertIn("That email address is already in use", response.content)
+
+    def tearDown(self):
+        del os.environ['RECAPTCHA_DISABLE']
