@@ -9,6 +9,8 @@ from gbe_forms_text import (
     username_help,
     username_label,
 )
+from snowpenguin.django.recaptcha2.fields import ReCaptchaField
+from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
 
 class UserCreateForm(UserCreationForm):
@@ -18,6 +20,7 @@ class UserCreateForm(UserCreationForm):
     username = CharField(label=username_label, help_text=username_help)
     first_name = CharField(required=True)
     last_name = CharField(required=True)
+    verification = ReCaptchaField(widget=ReCaptchaWidget())
 
     def is_valid(self):
         valid = super(UserCreateForm, self).is_valid()
