@@ -52,6 +52,7 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from gbe.forms.common_queries import visible_personas
 
+
 time_start = 8 * 60
 time_stop = 24 * 60
 
