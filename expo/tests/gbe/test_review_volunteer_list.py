@@ -45,21 +45,19 @@ class TestReviewVolunteerList(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Reviewers')
 
         self.volunteer = VolunteerFactory(
-            submitted=True)
-        self.volunteer.profile.user_object.email = "review_vol@testemail.com"
-        self.volunteer.profile.user_object.save()
+            submitted=True,
+            profile__user_object__email="review_vol@testemail.com")
         self.prefs = ProfilePreferencesFactory(
             profile=self.volunteer.profile,
             in_hotel="Maybe",
             inform_about=True,
             show_hotel_infobox=True)
+        self.url = reverse(self.view_name, urlconf='gbe.urls')
 
     def test_review_volunteer_all_well(self):
         '''default conference selected, make sure it returns the right page'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.get(self.url)
 
         nt.assert_equal(response.status_code, 200)
         nt.assert_true('Bid Information' in response.content)
@@ -78,12 +76,9 @@ class TestReviewVolunteerList(TestCase):
             in_hotel="Maybe",
             inform_about=True,
             show_hotel_infobox=True)
-
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
@@ -104,11 +99,9 @@ class TestReviewVolunteerList(TestCase):
         grant_privilege(coord_profile, 'Volunteer Reviewers')
         grant_privilege(coord_profile, 'Volunteer Coordinator')
 
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(coord_profile, self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
@@ -143,11 +136,9 @@ class TestReviewVolunteerList(TestCase):
             event=booked_sched,
             resource=worker
         )
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
@@ -188,11 +179,9 @@ class TestReviewVolunteerList(TestCase):
             event=booked_sched,
             resource=worker
         )
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
@@ -203,20 +192,37 @@ class TestReviewVolunteerList(TestCase):
 
     def test_review_volunteer_bad_user(self):
         ''' user does not have the right privilege and permission is denied'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(ProfileFactory(), self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
         nt.assert_equal(response.status_code, 403)
 
     def test_review_volunteer_no_profile(self):
         ''' user does not have a profile, gets permission denied'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
         login_as(UserFactory(), self)
         response = self.client.get(
-            url,
+            self.url,
             {'conf_slug': self.volunteer.b_conference.conference_slug})
         nt.assert_equal(response.status_code, 403)
+
+    def test_review_volunteer_inactive_user(self):
+        '''default conference selected, make sure it returns the right page'''
+        inactive = VolunteerFactory(
+            submitted=True,
+            profile__user_object__email="review_vol@testemail.com",
+            profile__user_object__is_active=False)
+        interest = VolunteerInterestFactory(
+            volunteer=inactive
+        )
+        ProfilePreferencesFactory(
+            profile=inactive.profile,
+            in_hotel="Maybe",
+            inform_about=True,
+            show_hotel_infobox=True)
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            {'conf_slug': inactive.b_conference.conference_slug})
+        print inactive.profile.display_name
+        self.assertIn('bid-table error_row', response.content)

@@ -8,10 +8,13 @@ from django.utils.timezone import utc
 from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
-import gbe.models as conf
 from gbe.functions import get_current_conference
+from gbe.forms.common_queries import (
+    visible_personas,
+    visible_profiles,
+)
 import pytz
-
+from gbe.models import Show
 
 time_start = 8 * 60
 time_stop = 24 * 60
@@ -37,7 +40,7 @@ class ActScheduleForm(forms.Form):
         super(ActScheduleForm, self).__init__(*args, **kwargs)
         if 'initial' in kwargs:
             initial = kwargs.pop('initial')
-            conf_shows = conf.Show.objects.filter(
+            conf_shows = Show.objects.filter(
                 e_conference=initial['show'].eventitem.get_conference())
             self.fields['show'].queryset = Event.objects.filter(
                 eventitem__in=conf_shows)
@@ -50,8 +53,9 @@ class WorkerAllocationForm (forms.Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    worker = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
-                                    required=False)
+    worker = forms.ModelChoiceField(
+        queryset=visible_profiles,
+        required=False)
     role = forms.ChoiceField(choices=role_options, initial='Volunteer')
     label = forms.CharField(max_length=100, required=False)
     alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -67,14 +71,14 @@ class EventScheduleForm(forms.ModelForm):
             queryset=LocationItem.objects.all().order_by('room__name'))
     duration = DurationFormField(
                    help_text=scheduling_help_texts['duration'])
-    teacher = forms.ModelChoiceField(queryset=conf.Performer.objects.all(),
+    teacher = forms.ModelChoiceField(queryset=visible_personas,
                                      required=False)
-    moderator = forms.ModelChoiceField(queryset=conf.Persona.objects.all(),
+    moderator = forms.ModelChoiceField(queryset=visible_personas,
                                        required=False)
     panelists = forms.ModelMultipleChoiceField(
-        queryset=conf.Performer.objects.all(),
+        queryset=visible_personas,
         required=False)
-    staff_lead = forms.ModelChoiceField(queryset=conf.Profile.objects.all(),
+    staff_lead = forms.ModelChoiceField(queryset=visible_profiles,
                                         required=False)
     description = forms.CharField(required=False,
                                   widget=forms.Textarea,

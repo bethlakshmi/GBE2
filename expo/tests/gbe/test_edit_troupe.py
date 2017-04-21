@@ -48,6 +48,16 @@ class TestCreateTroupe(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.troupe_string in response.content)
 
+    def test_create_troupe_no_inactive_users(self):
+        contact = PersonaFactory()
+        inactive = PersonaFactory(contact__user_object__is_active=False)
+        login_as(contact.performer_profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(str(contact), response.content)
+        self.assertNotIn(str(inactive), response.content)
+
 
 class TestEditTroupe(TestCase):
     view_name = 'troupe_edit'
@@ -79,7 +89,7 @@ class TestEditTroupe(TestCase):
         )
         return response, data
 
-    def test_edit_troupe(self):
+    def test_get_edit_troupe(self):
         '''edit_troupe view, edit flow success
         '''
         persona = PersonaFactory()

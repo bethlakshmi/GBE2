@@ -54,10 +54,11 @@ class TestEditVolunteer(TestCase):
                 'number_shifts': 2,
                 'availability': ('SH0',),
                 'available_windows': [context.conference.windows().first().pk],
+                'background': 'this is the background',
                 'b_title': 'title',
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
-                }
+                 }
         if invalid:
             del(form['number_shifts'])
         return form

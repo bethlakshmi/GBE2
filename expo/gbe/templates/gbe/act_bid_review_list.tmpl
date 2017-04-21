@@ -13,6 +13,7 @@
   <br/>
       {% include "conference_picker.tmpl" %}
   <br/>
+  <div><span class="error_row">Red text</span> indicates a user that has become inactive.</div>
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>
   <br/>
@@ -41,7 +42,7 @@
     </tfoot>
     <tbody>
     {% for row in rows %}
-      <tr class="bid-table">
+      <tr class="bid-table {% if not row.bidder_active %}error_row{% endif %}">
               {% for value in row.bid %}
 	        <td class="bid-table">
                   {{ value|linebreaks }}

@@ -157,6 +157,10 @@ class Class(Biddable, Event):
         return self.accepted == 3
 
     @property
+    def bidder_is_active(self):
+        return self.teacher.contact.user_object.is_active
+
+    @property
     def complete(self):
         return (self.b_title is not '' and
                 self.teacher is not None and

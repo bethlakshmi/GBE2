@@ -50,6 +50,7 @@ from django.core.exceptions import ValidationError
 from django.utils.formats import date_format
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from gbe.forms.common_queries import visible_personas
 
 time_start = 8 * 60
 time_stop = 24 * 60
@@ -212,6 +213,8 @@ class PersonaForm (forms.ModelForm):
 class TroupeForm (forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    membership = forms.ModelMultipleChoiceField(
+        queryset=visible_personas)
 
     class Meta:
         model = Troupe
