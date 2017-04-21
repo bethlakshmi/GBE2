@@ -1,5 +1,6 @@
 from django.forms import (
     ModelForm,
+    ModelMultipleChoiceField,
 )
 from gbe.models import Troupe
 from gbe_forms_text import (
@@ -11,6 +12,8 @@ from gbe_forms_text import (
 class TroupeForm (ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    membership = ModelMultipleChoiceField(
+        queryset=visible_personas)
 
     class Meta:
         model = Troupe
