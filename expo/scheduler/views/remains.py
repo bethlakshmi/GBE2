@@ -8,10 +8,7 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
 )
-from django.db.models import (
-    Q,
-    Count,
-)
+from django.db.models import Count
 from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
@@ -200,14 +197,17 @@ def schedule_acts(request, show_id=None):
 
         forms.append([details, alloc])
     forms = sorted(forms, key=lambda f: f[0]['order'])
-    forms = [ActScheduleForm(initial=details,
-                             prefix='allocation_%d' % alloc.id)
-             for (details, alloc) in forms]
+    new_forms = []
+    for details, alloc in forms:
+        new_forms.append((
+            ActScheduleForm(initial=details,
+                            prefix='allocation_%d' % alloc.id),
+            details['performer'].contact.user_object.is_active))
 
     template = 'scheduler/act_schedule.tmpl'
     return render(request,
                   template,
-                  {'forms': forms})
+                  {'forms': new_forms})
 
 
 @login_required
@@ -518,7 +518,7 @@ def contact_info(request,
     cd = 'attachment; filename=%s_contacts.csv' % str(event).replace(' ', '_')
     response['Content-Disposition'] = cd
     writer = csv.writer(response)
-    writer.writerow(['Name', 'email'])
+    writer.writerow(['Name', 'Email', 'Phone', 'Role/Accepted', 'Title'])
     for row in data:
         writer.writerow(row)
     return response
@@ -529,7 +529,8 @@ def contact_performers(conference):
         conference = get_current_conference()
     from gbe.models import Act
     contacts = [act.actitem_ptr for act in Act.objects.filter(
-        b_conference=conference)]
+        b_conference=conference,
+        performer__contact__user_object__is_active=True)]
     header = ['Act',
               'Performer',
               'Profile',
@@ -564,7 +565,9 @@ def contact_volunteers(conference):
               'Event']
     from gbe.models import Volunteer
 
-    volunteers = Volunteer.objects.filter(b_conference=conference).annotate(
+    volunteers = Volunteer.objects.filter(
+        b_conference=conference,
+        profile__user_object__is_active=True).annotate(
         Count('profile__workeritem_ptr__worker')).order_by(
             '-profile__workeritem_ptr__worker__count')
     contact_info = []
@@ -617,28 +620,32 @@ def contact_teachers(conference):
               'Display Name',
               'Phone']
     from gbe.models import Class
-    classes = Class.objects.filter(b_conference=conference)
+    classes = Class.objects.filter(
+        b_conference=conference)
     contact_info = []
 
     for c in classes:
         for se in c.scheduler_events.all():
             contact_info += se.class_contacts2()
 
-        contact_info.append(
-            [c.teacher.contact_email,
-             c.b_title.encode('utf-8').strip(),
-             'Bidder',
-             c.teacher.name.encode('utf-8').strip(),
-             c.teacher.contact.display_name.encode('utf-8').strip(),
-             c.teacher.contact.phone]
-        )
+        if c.teacher.contact.user_object.is_active:
+            contact_info.append(
+                [c.teacher.contact_email,
+                 c.b_title.encode('utf-8').strip(),
+                 'Bidder',
+                 c.teacher.name.encode('utf-8').strip(),
+                 c.teacher.contact.display_name.encode('utf-8').strip(),
+                 c.teacher.contact.phone]
+            )
     return header, contact_info
 
 
 def contact_vendors(conference):
     from gbe.models import Vendor
     acceptance_dict = dict(acceptance_states)
-    contacts = Vendor.objects.filter(b_conference=conference)
+    contacts = Vendor.objects.filter(
+        b_conference=conference,
+        profile__user_object__is_active=True)
     header = ['Business Name', 'Personal Name', 'Email', 'Status']
     contact_info = [[v.b_title,
                      v.profile.display_name,

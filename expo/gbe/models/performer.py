@@ -80,6 +80,10 @@ class Performer (WorkerItem):
             resourceitem_id=self.resourceitem_id).get_profiles()
 
     @property
+    def is_active(self):
+        return self.contact.user_object.is_active
+
+    @property
     def contact_email(self):
         return self.contact.user_object.email
 

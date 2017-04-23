@@ -150,6 +150,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
+    'snowpenguin.django.recaptcha2',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
     'ticketing',

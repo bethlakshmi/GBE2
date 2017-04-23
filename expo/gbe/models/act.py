@@ -86,11 +86,11 @@ class Act (Biddable, ActItem):
 
     @property
     def contact_info(self):
-        return (self.b_title,
+        return (self.performer.contact.display_name,
                 self.contact_email,
-                self.accepted,
                 self.performer.contact.phone,
-                self.performer.contact.display_name,
+                self.accepted,
+                self.b_title,
                 )
 
     @property
@@ -231,8 +231,12 @@ class Act (Biddable, ActItem):
     def cast_shows(self):
         return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
 
+    @property
+    def bidder_is_active(self):
+        return self.performer.contact.user_object.is_active
+
     def __str__(self):
-        return "%s: %s" % (str(self.performer), self.title)
+        return "%s: %s" % (str(self.performer), self.b_title)
 
     class Meta:
         app_label = "gbe"

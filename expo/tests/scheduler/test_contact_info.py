@@ -79,6 +79,22 @@ class TestContactInfo(TestCase):
         self.assertTrue(
             self.context.teacher.contact.user_object.email in response.content)
 
+    def test_get_only_active_class_contacts(self):
+        self.context.teacher.contact.user_object.is_active = False
+        self.context.teacher.contact.user_object.save()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            reverse(
+                self.view_name,
+                urlconf="scheduler.urls",
+                args=[self.context.sched_event.pk,
+                      'Teachers']), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            self.context.teacher.contact.display_name in response.content)
+        self.assertFalse(
+            self.context.teacher.contact.user_object.email in response.content)
+
     def test_good_user_get_show_contacts(self):
         Conference.objects.all().delete()
         show = ShowContext()
@@ -93,6 +109,25 @@ class TestContactInfo(TestCase):
         for act in show.acts:
             for item in act.contact_info:
                 self.assertContains(
+                    response,
+                    str(item))
+
+    def test_only_active_show_contacts(self):
+        Conference.objects.all().delete()
+        show = ShowContext()
+        show.performer.contact.user_object.is_active = False
+        show.performer.contact.user_object.save()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            reverse(
+                self.view_name,
+                urlconf="scheduler.urls",
+                args=[show.sched_event.pk,
+                      'Act']), follow=True)
+        self.assertEqual(response.status_code, 200)
+        for act in show.acts:
+            for item in act.contact_info:
+                self.assertNotContains(
                     response,
                     str(item))
 
@@ -127,7 +162,6 @@ class TestContactInfo(TestCase):
                 urlconf="scheduler.urls",
                 args=[context.sched_event.pk, 'Worker']),
             follow=True)
-        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
@@ -144,3 +178,29 @@ class TestContactInfo(TestCase):
         self.assertContains(
             response,
             "Registration")
+
+    def test_only_active_volunteer_contacts(self):
+        Conference.objects.all().delete()
+        context = StaffAreaContext()
+        opp1 = context.add_volunteer_opp()
+        (volunteer1, alloc1) = context.book_volunteer(opp1)
+        volunteer1.user_object.is_active = False
+        volunteer1.user_object.save()
+
+        login_as(self.privileged_profile, self)
+        response = self.client.get(
+            reverse(
+                self.view_name,
+                urlconf="scheduler.urls",
+                args=[context.sched_event.pk, 'Worker']),
+            follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            volunteer1.display_name)
+        self.assertNotContains(
+            response,
+            volunteer1.contact_email)
+        self.assertNotContains(
+            response,
+            volunteer1.phone)

@@ -106,8 +106,10 @@ def env_stuff(request, conference_choice=None):
     else:
         conference = get_current_conference()
 
-    people = conf.Profile.objects.all()
-    acts = conf.Act.objects.filter(accepted=3, b_conference=conference)
+    people = conf.Profile.objects.filter(user_object__is_active=True)
+    acts = conf.Act.objects.filter(
+        accepted=3,
+        b_conference=conference)
     tickets = tix.Transaction.objects.filter(
         ticket_item__bpt_event__conference=conference)
     roles = sched.Worker.objects.filter(
@@ -185,7 +187,7 @@ def env_stuff(request, conference_choice=None):
 
 
 @never_cache
-def personal_schedule(request, profile_id='All'):
+def personal_schedule(request):
     viewer_profile = validate_perms(request, 'any', require=True)
 
     conference_slugs = conf.Conference.all_slugs()
@@ -194,11 +196,8 @@ def personal_schedule(request, profile_id='All'):
     else:
         conference = conf.Conference.current_conf()
 
-    if profile_id == 'All':
-        people = conf.Profile.objects.all().select_related()
-    else:
-        people = []  # Set it to be self, in list format
-
+    people = conf.Profile.objects.filter(
+        user_object__is_active=True).select_related()
     schedules = []
 
     for person in people:
@@ -488,7 +487,7 @@ def export_badge_report(request, conference_choice=None):
     '''
     reviewer = validate_perms(request, ('Registrar',))
 
-    people = conf.Profile.objects.all()
+    people = conf.Profile.objects.filter(user_object__is_active=True)
 
     if conference_choice:
         badges = tix.Transaction.objects.filter(
@@ -519,38 +518,26 @@ def export_badge_report(request, conference_choice=None):
     # we need ALL transactions, if they are limbo, then the purchaser
     # should have a BPT first/last name
     for badge in badges:
-        try:
-            for person in people.filter(
-                    user_object=badge.purchaser.matched_to_user):
-                badge_info.append(
-                    [badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.purchaser.last_name.encode('utf-8').strip(),
-                     person.user_object.username,
-                     person.get_badge_name().encode('utf-8').strip(),
-                     badge.ticket_item.title,
-                     badge.import_date,
-                     'In GBE'])
-            if len(people.filter(
-                    user_object=badge.purchaser.matched_to_user)) == 0:
-                badge_info.append(
-                    [badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.purchaser.last_name.encode('utf-8').strip(),
-                     badge.purchaser.matched_to_user,
-                     badge.purchaser.first_name.encode('utf-8').strip(),
-                     badge.ticket_item.title,
-                     badge.import_date,
-                     'No Profile'])
-        except:
-
-            # if no profile, use purchase info from BPT
+        for person in people.filter(
+                user_object=badge.purchaser.matched_to_user):
             badge_info.append(
                 [badge.purchaser.first_name.encode('utf-8').strip(),
                  badge.purchaser.last_name.encode('utf-8').strip(),
-                 badge.purchaser.email,
+                 person.user_object.username,
+                 person.get_badge_name().encode('utf-8').strip(),
+                 badge.ticket_item.title,
+                 badge.import_date,
+                 'In GBE'])
+        if len(people.filter(
+                user_object=badge.purchaser.matched_to_user)) == 0:
+            badge_info.append(
+                [badge.purchaser.first_name.encode('utf-8').strip(),
+                 badge.purchaser.last_name.encode('utf-8').strip(),
+                 badge.purchaser.matched_to_user,
                  badge.purchaser.first_name.encode('utf-8').strip(),
                  badge.ticket_item.title,
                  badge.import_date,
-                 'No User'])
+                 'No Profile'])
 
     # end for loop through acts
     response = HttpResponse(content_type='text/csv')
