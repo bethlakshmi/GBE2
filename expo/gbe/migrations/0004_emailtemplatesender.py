@@ -29,10 +29,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('from_email', models.EmailField(max_length=254)),
-                ('template', models.OneToOneField(to='post_office.EmailTemplate')),
+                ('template', models.OneToOneField(related_name='sender', to='post_office.EmailTemplate')),
             ],
             options={
-                'ordering': ['template'],
+                'ordering': ['template__name'],
             },
         ),
         migrations.RunPython(add_default_sender, reverse),
