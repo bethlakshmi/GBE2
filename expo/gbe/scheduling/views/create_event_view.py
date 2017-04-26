@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from expo.gbe_logging import log_func
 from gbe.models import Conference
 from gbe.functions import validate_perms
-from gbe.forms.schedule import (
+from gbe.scheduling.forms import (
     GenericEventScheduleForm,
     ShowScheduleForm,
     ClassScheduleForm,

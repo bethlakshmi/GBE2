@@ -53,7 +53,6 @@ from conference_volunteer_view import ConferenceVolunteerView
 from bios_teachers_view import BiosTeachersView
 from fashion_faire_view import FashionFaireView
 from edit_act_techinfo_view import EditActTechInfoView
-from create_event_view import CreateEventView
 from handle_user_contact_email_view import HandleUserContactEmailView
 from profile_view import ProfileView
 from review_profiles_view import ReviewProfilesView

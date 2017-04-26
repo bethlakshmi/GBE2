@@ -30,7 +30,7 @@ class TestCreateEvent(TestCase):
         self.url = reverse(
             self.view_name,
             args=['Show'],
-            urlconf='gbe.urls')
+            urlconf='gbe.scheduling.urls')
         self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
@@ -80,7 +80,7 @@ class TestCreateEvent(TestCase):
         url = reverse(
             self.view_name,
             args=['GenericEvent'],
-            urlconf='gbe.urls')
+            urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
         data = self.post_data('GenericEvent')
         room = RoomFactory()
@@ -101,7 +101,7 @@ class TestCreateEvent(TestCase):
         url = reverse(
             self.view_name,
             args=['GenericEvent'],
-            urlconf='gbe.urls')
+            urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
         data = self.post_data('GenericEvent')
         data['type'] = 'Special'
@@ -119,7 +119,7 @@ class TestCreateEvent(TestCase):
         url = reverse(
             self.view_name,
             args=['Class'],
-            urlconf='gbe.urls')
+            urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
         data = self.post_data('Class')
         data['accepted'] = '3'
