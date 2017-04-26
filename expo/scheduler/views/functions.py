@@ -90,8 +90,8 @@ def get_events_display_info(event_type='Class'):
 
         else:
             eventinfo['create'] = reverse(
-                'create_event',
-                urlconf='scheduler.urls',
+                'create_event_schedule',
+                urlconf='gbe.scheduling.urls',
                 args=[event_type,
                       entry['eventitem'].eventitem_id])
             eventinfo['delete'] = reverse(

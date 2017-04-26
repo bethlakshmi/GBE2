@@ -4,6 +4,7 @@ from django.conf.urls import (
 )
 
 from gbe.scheduling.views import (
+    CreateEventScheduleView,
     CreateEventView,
 )
 
@@ -17,4 +18,6 @@ urlpatterns = patterns(
     '',
     url(r'^create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
+    url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
+        CreateEventScheduleView.as_view(), name='create_event_schedule'),
 )

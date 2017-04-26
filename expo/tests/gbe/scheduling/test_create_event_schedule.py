@@ -37,8 +37,8 @@ from datetime import (
 )
 
 
-class TestAddEvent(TestCase):
-    view_name = 'create_event'
+class TestCreateEventSchedule(TestCase):
+    view_name = 'create_event_schedule'
 
     def setUp(self):
         self.client = Client()
@@ -71,7 +71,7 @@ class TestAddEvent(TestCase):
 
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url, follow=True)
         redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + url
@@ -81,7 +81,7 @@ class TestAddEvent(TestCase):
     def test_bad_user(self):
         login_as(ProfileFactory(), self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
@@ -90,7 +90,7 @@ class TestAddEvent(TestCase):
         login_as(self.privileged_profile, self)
         url = reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=["GenericEvent", self.eventitem.eventitem_id + 1])
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
@@ -98,7 +98,7 @@ class TestAddEvent(TestCase):
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, self.eventitem)
@@ -109,7 +109,7 @@ class TestAddEvent(TestCase):
         self.eventitem.save()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["GenericEvent", self.eventitem.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, self.eventitem)
@@ -126,7 +126,7 @@ class TestAddEvent(TestCase):
         context.bid.save()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, context.bid)
@@ -142,7 +142,7 @@ class TestAddEvent(TestCase):
         context.bid.save()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, context.bid)
@@ -153,7 +153,7 @@ class TestAddEvent(TestCase):
         context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         response = self.client.post(url,
                                     data=get_sched_event_form(context),
@@ -169,7 +169,7 @@ class TestAddEvent(TestCase):
         context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         form_data['event-location'] = 'bad room'
@@ -202,7 +202,7 @@ class TestAddEvent(TestCase):
         context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         form_data['event-duration'] = "3:00:00"
@@ -224,7 +224,7 @@ class TestAddEvent(TestCase):
         context = ClassContext()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         del form_data['event-duration']
@@ -242,7 +242,7 @@ class TestAddEvent(TestCase):
         overcommitter = PersonaFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         form_data['event-teacher'] = overcommitter.pk
@@ -265,7 +265,7 @@ class TestAddEvent(TestCase):
         overcommitter = PersonaFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         form_data['event-moderator'] = overcommitter.pk
@@ -290,7 +290,7 @@ class TestAddEvent(TestCase):
         overcommitter = ProfileFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["GenericEvent",
                             context.sched_event.eventitem.eventitem_id])
         form_data = get_sched_event_form(context, room)
@@ -318,7 +318,7 @@ class TestAddEvent(TestCase):
         overcommitter2 = PersonaFactory()
         login_as(self.privileged_profile, self)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class", context.bid.eventitem_id])
         form_data = get_sched_event_form(context)
         form_data['event-panelists'] = [overcommitter1.pk, overcommitter2.pk]
