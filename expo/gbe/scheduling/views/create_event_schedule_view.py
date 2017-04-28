@@ -9,7 +9,7 @@ from django.shortcuts import (
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from scheduler.forms import EventScheduleForm
+from gbe.scheduling.forms import ScheduleSelectionForm
 from scheduler.views.functions import (
     get_event_display_info,
     set_single_role,
@@ -50,8 +50,10 @@ class CreateEventScheduleView(View):
                 self.item.duration.seconds)
             scheduling_info = get_scheduling_info(self.item)
 
-        form = EventScheduleForm(prefix='event',
-                                 initial=initial_form_info)
+        form = ScheduleSelectionForm(
+            prefix='event',
+            instance=self.item,
+            initial=initial_form_info)
 
         return render(
             request,
@@ -65,8 +67,10 @@ class CreateEventScheduleView(View):
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        event_form = EventScheduleForm(request.POST,
-                                       prefix='event')
+        event_form = ScheduleSelectionForm(
+            request.POST,
+            instance=self.item,
+            prefix='event')
         if event_form.is_valid():
             s_event = event_form.save(commit=False)
             s_event.eventitem = self.item

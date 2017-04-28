@@ -1,5 +1,7 @@
 from django.forms import (
     ChoiceField,
+    IntegerField,
+    HiddenInput,
     ModelForm,
 )
 from gbe.models import Class
@@ -14,10 +16,9 @@ from gbetext import acceptance_states
 class ClassScheduleForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    accepted = ChoiceField(
-        choices=acceptance_states,
+    accepted = IntegerField(
         initial=3,
-        help_text=acceptance_note)
+        widget=HiddenInput)
 
     class Meta:
         model = Class
