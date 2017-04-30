@@ -646,6 +646,8 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
+        else:
+            return False
         if self.location == location.item:
             pass   # already set
         elif self.location is None:
@@ -658,6 +660,7 @@ class Event(Schedulable):
                 if allocation.resource.item in locations:
                     allocation.resource = location
                     allocation.save()
+        return True
 
     def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''
@@ -999,6 +1002,10 @@ class Event(Schedulable):
             is_conflict = True
         return is_conflict
 
+    def add_label(self, label):
+        label = EventLabel(text=label, event=self)
+        return label
+    
 
 class ResourceAllocation(Schedulable):
     '''
@@ -1060,6 +1067,17 @@ class Label (models.Model):
     '''
     text = models.TextField(default='')
     allocation = models.OneToOneField(ResourceAllocation)
+
+    def __str__(self):
+        return self.text
+
+
+class EventLabel (models.Model):
+    '''
+    A decorator allowing free-entry "tags" on allocations
+    '''
+    text = models.TextField(default='')
+    event = models.ForeignKey(Event)
 
     def __str__(self):
         return self.text
