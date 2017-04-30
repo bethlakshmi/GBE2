@@ -70,8 +70,6 @@ CMS_TEMPLATES = (
 
 LANGUAGES = [
     ('en-us', gettext('en-us')),
-    ('en', gettext('en')),
-
 ]
 
 
@@ -333,13 +331,6 @@ CMS_LANGUAGES = {
             'code': 'en-us',
             'hide_untranslated': False,
             'name': gettext('en-us'),
-            'redirect_on_fallback': True,
-        },
-        {
-            'public': True,
-            'code': 'en',
-            'hide_untranslated': False,
-            'name': gettext('en'),
             'redirect_on_fallback': True,
         },
     ],
