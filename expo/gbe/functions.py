@@ -76,15 +76,15 @@ def mail_send_gbe(to_list,
         to_list = []
         for admin in settings.ADMINS:
             to_list += [admin[1]]
-        
+
     mail.send(to_list,
               from_address,
               template=template,
               context=context,
               priority=priority,
               )
-        
-    
+
+
 def send_user_contact_email(name, from_address, message):
     subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
@@ -292,17 +292,18 @@ def notify_reviewers_on_bid_change(bidder,
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
-    mail_send_gbe(to_list,
-              template.sender.from_email,
-              template=name,
-              context={
-                'bidder': bidder,
-                'bid_type': bid_type,
-                'action': action,
-                'conference': conference,
-                'group_name': group_name,
-                'review_url': Site.objects.get_current().domain+review_url},
-              )
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'action': action,
+            'conference': conference,
+            'group_name': group_name,
+            'review_url': Site.objects.get_current().domain+review_url},
+        )
 
 
 def send_warnings_to_staff(bidder,
@@ -319,14 +320,15 @@ def send_warnings_to_staff(bidder,
         if 'email' in warning:
             to_list += [warning['email']]
 
-    mail_send_gbe(to_list,
-              template.sender.from_email,
-              template=name,
-              context={
-                'bidder': bidder,
-                'bid_type': bid_type,
-                'warnings': warnings},
-              )
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'warnings': warnings},
+        )
 
 
 def get_gbe_schedulable_items(confitem_type,
