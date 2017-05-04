@@ -1,5 +1,6 @@
 from down_view import DownView
 from landing_page_view import LandingPageView
+from create_bid_view import CreateBidView
 from review_bid_view import ReviewBidView
 from view_bid_view import ViewBidView
 from view_troupe_view import ViewTroupeView
@@ -12,15 +13,14 @@ from edit_act_view import EditActView
 from view_act_view import ViewActView
 from review_act_view import ReviewActView
 from review_act_list_view import ReviewActListView
-
 from bid_changestate_view import BidChangeStateView
 from act_changestate_view import ActChangeStateView
 from class_changestate_view import ClassChangeStateView
 from volunteer_changestate_view import VolunteerChangeStateView
 from vendor_changestate_view import VendorChangeStateView
 from costume_changestate_view import CostumeChangeStateView
+from create_class_view import CreateClassView
 from submit_act_view import SubmitActView
-from bid_class_view import BidClassView
 from edit_class_view import EditClassView
 from view_class_view import ViewClassView
 from review_class_view import ReviewClassView

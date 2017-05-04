@@ -10,13 +10,13 @@ from gbe.views import (
     AdminProfileView,
     AssignVolunteerView,
     BidActView,
-    BidClassView,
     BidCostumeView,
     BiosTeachersView,
     ClassChangeStateView,
     CloneBidView,
     ConferenceVolunteerView,
     CostumeChangeStateView,
+    CreateClassView,
     CreateComboView,
     CreateEventView,
     CreateVendorView,
@@ -113,7 +113,7 @@ urlpatterns = patterns(
 
     #  classes
     url(r'^class/create/?$',
-        BidClassView, name='class_create'),
+        CreateClassView.as_view(), name='class_create'),
     url(r'class/edit/(\d+)/?$',
         EditClassView, name='class_edit'),
     url(r'^class/view/(?P<bid_id>\d+)/?$',
@@ -162,7 +162,7 @@ urlpatterns = patterns(
         CreateComboView, name='combo_create'),
 
     #  volunteers
-    url(r'^volunteer/bid/?$',
+    url(r'^volunteer/create/?$',
         CreateVolunteerView, name='volunteer_create'),
     url(r'^volunteer/view/(?P<bid_id>\d+)/?$',
         ViewVolunteerView.as_view(), name='volunteer_view'),
