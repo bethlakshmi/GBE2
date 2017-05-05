@@ -1,5 +1,6 @@
 from gbe.views import CreateBidView
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.forms.models import ModelChoiceField
 from django.core.urlresolvers import reverse
 from gbe.duration import Duration
@@ -74,4 +75,11 @@ class CreateClassView(CreateBidView):
     
     def get_invalid_response(self, request):
         self.get_create_form(request)
+        context = self.make_context()
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            context
+            )
+
     

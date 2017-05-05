@@ -80,39 +80,39 @@ class CreateBidView(View):
         except:
             return HttpResponseRedirect(
                 reverse('profile_update', urlconf='gbe.urls'))
-        user_message = self.set_up_post(request)
-        if self.form.is_valid():
-            self.bid_object = self.form.save(commit=False)
-            self.set_valid_form(request)
 
-            if 'submit' in request.POST.keys():
-                if self.fee_paid():
-                    if self.bid_object.complete:
-                        self.bid_object.submitted = True
-                        self.bid_object.save()
-                    else:
-                        context = self.make_context()
-                        context['errors'] = [
-                            'Cannot submit, %s is not complete' % (
-                                self.bid_type.lower())]
-                        return render(
-                            request,
-                           'gbe/bid.tmpl',
-                           context
-                        )
+        user_message = self.set_up_post(request)
+        if not self.form.is_valid():
+            return self.get_invalid_response(request)
+        
+        self.bid_object = self.form.save(commit=False)
+        self.set_valid_form(request)
+
+        if 'submit' in request.POST.keys():
+            if not self.fee_paid():
+                page_title = '%s Payment' % self.bid_type
+                return render(
+                    request,
+                    'gbe/please_pay.tmpl',
+                    {'link': self.fee_link,
+                     'page_title': page_title})
+            else:
+                if self.bid_object.complete:
+                    self.bid_object.submitted = True
+                    self.bid_object.save()
                 else:
-                    page_title = '%s Payment' % self.bid_type
+                    context = self.make_context()
+                    context['errors'] = [
+                        'Cannot submit, %s is not complete' % (
+                            self.bid_type.lower())]
                     return render(
                         request,
-                        'gbe/please_pay.tmpl',
-                        {'link': self.fee_link,
-                         'page_title': page_title})
-            messages.success(request, user_message[0].description)
-            return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-        else:
-            return self.get_invalid_response(request)
+                       'gbe/bid.tmpl',
+                        context
+                        )
+        messages.success(request, user_message[0].description)
+        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(CreateBidView, self).dispatch(*args, **kwargs)
-
