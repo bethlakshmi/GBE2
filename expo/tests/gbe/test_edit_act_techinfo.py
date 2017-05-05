@@ -421,3 +421,23 @@ class TestEditActTechInfo(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_edit_act_techinfo_form_invalid(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 1))
+        data['stage_info-act_duration'] = 'bad no duration'
+        response = self.client.post(
+            url,
+            data=data,
+            follow=True)
+        self.assertContains(
+            response,
+            'Please enter your duration as mm:ss')

@@ -150,3 +150,16 @@ class TestCreateEvent(TestCase):
         login_as(self.performer.contact, self)
         response = self.client.get(url)
         self.assertContains(response, data['e_title'])
+
+    def test_create_class_no_inactive_users(self):
+        url = reverse(
+            self.view_name,
+            args=['Class'],
+            urlconf='gbe.urls')
+        contact = PersonaFactory()
+        inactive = PersonaFactory(contact__user_object__is_active=False)
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(str(contact), response.content)
+        self.assertNotIn(str(inactive), response.content)

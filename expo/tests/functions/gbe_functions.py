@@ -163,6 +163,13 @@ def assert_email_template_used(
     assert msg.from_email == email
 
 
+def assert_email_recipient(to_list):
+    assert 1 == len(mail.outbox)
+    msg = mail.outbox[0]
+    for to_msg, to_test in zip(msg.to, to_list):
+        assert to_msg == to_test
+
+
 def assert_right_mail_right_addresses(
         queue_order,
         num_email,
