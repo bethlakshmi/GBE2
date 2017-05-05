@@ -20,7 +20,7 @@ class CreateBidView(View):
     popup_text = None
 
     def groundwork(self, request, args, kwargs):
-        self.owner = validate_profile(request, require=True)
+        self.owner = validate_profile(request, require=False)
         self.conference = Conference.objects.filter(
             accepting_bids=True).first()
 
@@ -63,7 +63,12 @@ class CreateBidView(View):
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        try:
+            self.groundwork(request, args, kwargs)
+        except:
+            return HttpResponseRedirect(
+                reverse('profile', urlconf='gbe.urls'))
+
         return (self.user_not_ready_redirect() or
                 self.get_create_form(request))
 
