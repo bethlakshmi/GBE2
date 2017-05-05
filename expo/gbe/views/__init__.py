@@ -1,63 +1,86 @@
 from down_view import DownView
 from landing_page_view import LandingPageView
+
+# parent bid classes
 from create_bid_view import CreateBidView
 from review_bid_view import ReviewBidView
 from view_bid_view import ViewBidView
+from bid_changestate_view import BidChangeStateView
+
+# general bid classes
+from clone_bid_view import CloneBidView
+
+# personas
 from view_troupe_view import ViewTroupeView
 from edit_troupe_view import EditTroupeView
-from bid_act_view import BidActView
 from register_persona_view import RegisterPersonaView
 from edit_persona_view import EditPersonaView
-from clone_bid_view import CloneBidView
-from edit_act_view import EditActView
-from view_act_view import ViewActView
-from review_act_view import ReviewActView
-from review_act_list_view import ReviewActListView
-from bid_changestate_view import BidChangeStateView
-from act_changestate_view import ActChangeStateView
-from class_changestate_view import ClassChangeStateView
-from volunteer_changestate_view import VolunteerChangeStateView
-from vendor_changestate_view import VendorChangeStateView
-from costume_changestate_view import CostumeChangeStateView
-from create_class_view import CreateClassView
-from submit_act_view import SubmitActView
-from edit_class_view import EditClassView
-from view_class_view import ViewClassView
-from review_class_view import ReviewClassView
+
+# profiles
 from register_view import RegisterView
-from create_volunteer_view import CreateVolunteerView
-from review_volunteer_view import ReviewVolunteerView
-from assign_volunteer_view import AssignVolunteerView
-from view_volunteer_view import ViewVolunteerView
-from view_costume_view import ViewCostumeView
-from review_volunteer_list_view import ReviewVolunteerListView
-from edit_volunteer_view import EditVolunteerView
-from review_vendor_view import ReviewVendorView
-from review_vendor_list_view import ReviewVendorListView
-from create_vendor_view import CreateVendorView
-from edit_vendor_view import EditVendorView
-from view_vendor_view import ViewVendorView
-from edit_vendor_view import EditVendorView
-from bid_costume_view import BidCostumeView
-from edit_costume_view import EditCostumeView
-from review_class_list_view import ReviewClassListView
-from review_costume_list_view import ReviewCostumeListView
 from admin_profile_view import AdminProfileView
 from delete_profile_view import DeleteProfileView
 from update_profile_view import UpdateProfileView
+from profile_view import ProfileView
+from review_profiles_view import ReviewProfilesView
+
+# create
+from create_act_view import CreateActView
+from create_class_view import CreateClassView
+from bid_costume_view import BidCostumeView
+from create_vendor_view import CreateVendorView
+from create_volunteer_view import CreateVolunteerView
+
+# edit
+from edit_act_view import EditActView
+from edit_class_view import EditClassView
+from edit_costume_view import EditCostumeView
+from edit_vendor_view import EditVendorView
+from edit_volunteer_view import EditVolunteerView
+
+# view
+from view_act_view import ViewActView
+from view_class_view import ViewClassView
+from view_costume_view import ViewCostumeView
+from view_vendor_view import ViewVendorView
+from view_volunteer_view import ViewVolunteerView
+
+# review
+from review_act_view import ReviewActView
+from review_class_view import ReviewClassView
+from review_costume_view import ReviewCostumeView
+from review_vendor_view import ReviewVendorView
+from review_volunteer_view import ReviewVolunteerView
+
+# review list
+from review_act_list_view import ReviewActListView
+from review_class_list_view import ReviewClassListView
+from review_costume_list_view import ReviewCostumeListView
+from review_volunteer_list_view import ReviewVolunteerListView
+from review_vendor_list_view import ReviewVendorListView
+
+# change state
+from act_changestate_view import ActChangeStateView
+from class_changestate_view import ClassChangeStateView
+from costume_changestate_view import CostumeChangeStateView
+from vendor_changestate_view import VendorChangeStateView
+from volunteer_changestate_view import VolunteerChangeStateView
+
+# special
+from submit_act_view import SubmitActView
+from assign_volunteer_view import AssignVolunteerView
 from logout_view import LogoutView
 from propose_class_view import ProposeClassView
 from publish_proposal_view import PublishProposalView
 from review_proposal_list_view import ReviewProposalListView
 from conference_volunteer_view import ConferenceVolunteerView
-from bios_teachers_view import BiosTeachersView
-from fashion_faire_view import FashionFaireView
 from edit_act_techinfo_view import EditActTechInfoView
 from create_event_view import CreateEventView
 from handle_user_contact_email_view import HandleUserContactEmailView
-from profile_view import ProfileView
-from review_profiles_view import ReviewProfilesView
-from review_costume_view import ReviewCostumeView
+
+# public views
+from bios_teachers_view import BiosTeachersView
+from fashion_faire_view import FashionFaireView
 
 # untested
 
