@@ -25,6 +25,10 @@ def CreateEventView(request, event_type):
             event = form.save(commit=False)
             event.e_conference = Conference.objects.filter(
                 status='upcoming').first()
+            if event_type == "Class":
+                event.b_conference = event.e_conference
+                event.b_title = event.e_title
+                event.b_description = event.e_description
             event.save()
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',

@@ -132,6 +132,25 @@ class TestCreateEvent(TestCase):
         nt.assert_true(Class.objects.filter(
             e_title=data['e_title']).count() > 0)
 
+    def test_create_class_gbe_works_for_teacher(self):
+        url = reverse(
+            self.view_name,
+            args=['Class'],
+            urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = self.post_data('Class')
+        data['accepted'] = '3'
+        data['teacher'] = self.performer.pk
+        self.client.post(
+            url,
+            data=data,
+            follow=True)
+        # now make sure that home page is not broken
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.performer.contact, self)
+        response = self.client.get(url)
+        self.assertContains(response, data['e_title'])
+
     def test_create_class_no_inactive_users(self):
         url = reverse(
             self.view_name,
