@@ -22,8 +22,8 @@ from gbe.models import (
 )
 
 
-class TestBidClass(TestCase):
-    '''Tests for edit_class view'''
+class TestCreateClass(TestCase):
+    '''Tests for create_class view'''
     view_name = 'class_create'
 
     def setUp(self):

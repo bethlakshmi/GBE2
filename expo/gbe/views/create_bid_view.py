@@ -67,7 +67,7 @@ class CreateBidView(View):
             self.groundwork(request, args, kwargs)
         except:
             return HttpResponseRedirect(
-                reverse('profile', urlconf='gbe.urls'))
+                reverse('profile_update', urlconf='gbe.urls'))
 
         return (self.user_not_ready_redirect() or
                 self.get_create_form(request))
@@ -75,7 +75,11 @@ class CreateBidView(View):
     @never_cache
     @log_func
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        try:
+            self.groundwork(request, args, kwargs)
+        except:
+            return HttpResponseRedirect(
+                reverse('profile_update', urlconf='gbe.urls'))
         user_message = self.set_up_post(request)
         if self.form.is_valid():
             self.bid_object = self.form.save(commit=False)
