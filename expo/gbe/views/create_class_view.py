@@ -31,13 +31,14 @@ class CreateClassView(CreateBidView):
     draft_msg = default_class_draft_msg
     submit_form = ClassBidForm
     draft_form = ClassBidDraftForm
-    form = None
+    prefix = "theclass"
 
     def set_up_form(self):
         if not self.form:
             self.form = self.submit_form(
                 initial={'owner': self.owner,
-                         'teacher': self.teachers[0]})
+                         'teacher': self.teachers[0]},
+                prefix=self.prefix)
 
         q = Persona.objects.filter(
         performer_profile_id=self.owner.resourceitem_id)
@@ -52,11 +53,25 @@ class CreateClassView(CreateBidView):
                     'class_create',
                     urlconf='gbe.urls'))
 
+    def make_context(self):
+        context = super(CreateClassView, self).make_context()
+        context['popup_text'] = avoided_constraints_popup_text
+        return context
+
     def groundwork(self, request, args, kwargs):
         super(CreateClassView, self).groundwork(request, args, kwargs)
         self.teachers = self.owner.personae.all()
 
-    def set_bid_form(self):
+    def set_valid_form(self, request):
         self.bid_object.duration = Duration(
             minutes=self.bid_object.length_minutes)
-        self.bid_object.e_conference = self.bid_object.e_conference
+        self.bid_object.b_conference = self.conference
+        self.bid_object.e_conference = self.conference
+        self.bid_object = self.form.save(commit=True)
+
+    def fee_paid(self):
+        return True
+    
+    def get_invalid_response(self, request):
+        self.get_create_form(request)
+    

@@ -88,7 +88,7 @@ urlpatterns = patterns(
 
     #  acts
     url(r'^act/create/?$',
-        CreateActView, name='act_create'),
+        CreateActView.as_view(), name='act_create'),
     url(r'^act/edit/(\d+)/?$',
         EditActView, name='act_edit'),
     url(r'^act/view/(?P<bid_id>\d+)/?$',
