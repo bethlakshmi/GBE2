@@ -4,6 +4,7 @@ from landing_page_view import LandingPageView
 # parent bid classes
 from create_bid_view import CreateBidView
 from edit_bid_view import EditBidView
+from make_bid_view import MakeBidView
 from review_bid_view import ReviewBidView
 from view_bid_view import ViewBidView
 from bid_changestate_view import BidChangeStateView
@@ -24,6 +25,9 @@ from delete_profile_view import DeleteProfileView
 from update_profile_view import UpdateProfileView
 from profile_view import ProfileView
 from review_profiles_view import ReviewProfilesView
+
+# make
+from make_act_view import MakeActView
 
 # create
 from create_act_view import CreateActView

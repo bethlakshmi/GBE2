@@ -34,6 +34,7 @@ from gbe.views import (
     HandleUserContactEmailView,
     LandingPageView,
     LogoutView,
+    MakeActView,
     ProfileView,
     ProposeClassView,
     PublishProposalView,
@@ -88,9 +89,9 @@ urlpatterns = patterns(
 
     #  acts
     url(r'^act/create/?$',
-        CreateActView.as_view(), name='act_create'),
+        MakeActView.as_view(), name='act_create'),
     url(r'^act/edit/(?P<bid_id>\d+)/?$',
-        EditActView.as_view(), name='act_edit'),
+        MakeActView.as_view(), name='act_edit'),
     url(r'^act/view/(?P<bid_id>\d+)/?$',
         ViewActView.as_view(), name='act_view'),
     url(r'^act/review/(?P<object_id>\d+)/?$',
