@@ -1,5 +1,6 @@
 from down_view import DownView
 from landing_page_view import LandingPageView
+from edit_bid_view import EditBidView
 from review_bid_view import ReviewBidView
 from view_bid_view import ViewBidView
 from view_troupe_view import ViewTroupeView

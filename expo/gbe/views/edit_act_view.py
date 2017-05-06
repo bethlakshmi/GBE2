@@ -1,19 +1,6 @@
-from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.http import (
-    Http404,
-    HttpResponseRedirect,
-)
+from gbe.views import EditBidView
+from django.http import Http404
 from django.forms import ModelChoiceField
-
-from expo.gbe_logging import log_func
-from gbe.functions import validate_profile
 from gbe.ticketing_idd_interface import (
     performer_act_submittal_link,
     verify_performer_app_paid,
@@ -21,7 +8,6 @@ from gbe.ticketing_idd_interface import (
 from gbe.models import (
     Act,
     Performer,
-    UserMessage,
 )
 from gbe.forms import (
     ActEditDraftForm,
@@ -29,7 +15,6 @@ from gbe.forms import (
     AudioInfoForm,
     StageInfoForm,
 )
-from gbe.duration import Duration
 from gbetext import (
     default_act_submit_msg,
     default_act_draft_msg,
@@ -37,136 +22,75 @@ from gbetext import (
 from gbe.views.act_display_functions import display_invalid_act
 
 
-@never_cache
-@login_required
-@log_func
-def EditActView(request, act_id):
-    '''
-    Modify an existing Act object.
-    '''
+class EditActView(EditBidView):
     page_title = 'Edit Act Proposal'
     view_title = 'Edit Your Act Proposal'
-    fee_link = performer_act_submittal_link(request.user.id)
-    form = ActEditForm(prefix='theact')
+    draft_fields = ['b_title', 'performer']
+    submit_fields = ['b_title',
+                     'b_description',
+                     'shows_preferences',
+                     'performer', ]
+    bid_type = "Act"
+    has_draft = True
+    submit_msg = default_act_submit_msg
+    draft_msg = default_act_draft_msg
+    submit_form = ActEditForm
+    draft_form = ActEditDraftForm
+    prefix = "theact"
+    bid_class = Act
 
-    profile = validate_profile(request, require=False)
-    if not profile:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
+    def groundwork(self, request, args, kwargs):
+        super(EditActView, self).groundwork(request, args, kwargs)
+        if self.bid_object.performer.contact != self.owner:
+            raise Http404
 
-    act = get_object_or_404(Act, id=act_id)
-    if act.performer.contact != profile:
-        raise Http404
+    def get_initial(self):
+        audio_info = self.bid_object.tech.audio
+        stage_info = self.bid_object.tech.stage
+        return {'track_title': audio_info.track_title,
+                'track_artist': audio_info.track_artist,
+                'track_duration': audio_info.track_duration,
+                'act_duration': stage_info.act_duration}
 
-    audio_info = act.tech.audio
-    stage_info = act.tech.stage
-    draft_fields = Act().bid_draft_fields
-
-    if request.method == 'POST':
-        '''
-        If this is a formal submit request, then do all the checking.
-        If this is a draft, only a few fields are needed, use a form
-        with fewer required fields (same model)
-        '''
-        if 'submit' in request.POST.keys():
-            form = ActEditForm(request.POST,
-                               instance=act,
-                               prefix='theact',
-                               initial={
-                                   'track_title': audio_info.track_title,
-                                   'track_artist': audio_info.track_artist,
-                                   'track_duration': audio_info.track_duration,
-                                   'act_duration': stage_info.act_duration
-                               })
-            user_message = UserMessage.objects.get_or_create(
-                view='EditActView',
-                code="SUBMIT_SUCCESS",
-                defaults={
-                    'summary': "Act Edit & Submit Success",
-                    'description': default_act_submit_msg})
-        else:
-            form = ActEditDraftForm(
-                request.POST,
-                instance=act,
+    def set_up_form(self):
+        if not self.form:
+            self.form = self.submit_form(
+                instance=self.bid_object,
                 prefix='theact',
-                initial={
-                    'track_title': audio_info.track_title,
-                    'track_artist': audio_info.track_artist,
-                    'track_duration': audio_info.track_duration,
-                    'act_duration': stage_info.act_duration
-                })
-            user_message = UserMessage.objects.get_or_create(
-                view='EditActView',
-                code="DRAFT_SUCCESS",
-                defaults={
-                    'summary': "Act Edit Draft Success",
-                    'description': default_act_draft_msg})
-        audioform = AudioInfoForm(request.POST, prefix='theact',
-                                  instance=audio_info)
-        stageform = StageInfoForm(request.POST, prefix='theact',
-                                  instance=stage_info)
+                initial=self.get_initial())
+        q = Performer.objects.filter(contact=self.owner)
+        self.form.fields['performer'] = ModelChoiceField(queryset=q)
 
-        if all([form.is_valid(),
-                audioform.is_valid(),
-                stageform.is_valid()]):
-            tech = act.tech
-            tech.audio = audioform.save()
-            tech.stage = stageform.save()
-            tech.save()
-            form.save()
-        else:
-            fields, requiredsub = Act().bid_fields
-            return display_invalid_act(
-                request,
-                {'forms': [form],
-                 'page_title': page_title,
-                 'view_title': view_title,
-                 'draft_fields': draft_fields,
-                 'fee_link': fee_link,
-                 'submit_fields': requiredsub},
-                form,
-                act.b_conference,
-                profile,
-                'EditActView')
+    def make_context(self):
+        context = super(EditActView, self).make_context()
+        context['fee_link'] = self.fee_link
+        return context
 
-        if 'submit' in request.POST.keys():
-            '''
-            If this is a formal submit request, did they pay?
-            They can't submit w/out paying
-            '''
-            if verify_performer_app_paid(request.user.username,
-                                         act.b_conference):
-                act.submitted = True
-                act.save()
-            else:
-                page_title = 'Act Payment'
-                return render(
-                    request,
-                    'gbe/please_pay.tmpl',
-                    {'link': fee_link,
-                     'page_title': page_title}
-                )
-        messages.success(request, user_message[0].description)
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
-    else:
-        audio_info = act.tech.audio
-        stage_info = act.tech.stage
+    def check_validity(self, request):
+        self.audioform = AudioInfoForm(request.POST, prefix='theact',
+                                  instance=self.bid_object.tech.audio)
+        self.stageform = StageInfoForm(request.POST, prefix='theact',
+                                  instance=self.bid_object.tech.stage)
+        return all([self.form.is_valid(),
+                    self.audioform.is_valid(),
+                    self.stageform.is_valid()])
 
-        form = ActEditForm(instance=act,
-                           prefix='theact',
-                           initial={
-                               'track_title': audio_info.track_title,
-                               'track_artist': audio_info.track_artist,
-                               'track_duration': audio_info.track_duration,
-                               'act_duration': stage_info.act_duration
-                           })
-        q = Performer.objects.filter(contact=profile)
-        form.fields['performer'] = ModelChoiceField(queryset=q)
-        return render(
+    def set_valid_form(self, request):
+        self.bid_object.tech.audio = self.audioform.save()
+        self.bid_object.tech.stage = self.stageform.save()
+        self.bid_object.tech.save()
+        self.form.save()
+
+    def get_invalid_response(self, request):
+        return display_invalid_act(
             request,
-            'gbe/bid.tmpl',
-            {'forms': [form],
-             'page_title': page_title,
-             'view_title': view_title,
-             'fee_link': fee_link,
-             'draft_fields': draft_fields}
-        )
+            self.make_context(),
+            self.form,
+            self.bid_object.b_conference,
+            self.owner,
+            'EditActView')
+
+    def fee_paid(self):
+        return verify_performer_app_paid(
+            self.owner.user_object.username,
+            self.bid_object.b_conference)
