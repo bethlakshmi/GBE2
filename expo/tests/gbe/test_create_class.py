@@ -22,8 +22,8 @@ from gbe.models import (
 )
 
 
-class TestBidClass(TestCase):
-    '''Tests for edit_class view'''
+class TestCreateClass(TestCase):
+    '''Tests for create_class view'''
     view_name = 'class_create'
 
     def setUp(self):
@@ -37,20 +37,20 @@ class TestBidClass(TestCase):
                        submit=False,
                        invalid=False,
                        incomplete=False):
-        data = {'teacher': self.performer.pk,
-                'b_title': 'A class',
-                'b_description': 'a description',
-                'length_minutes': 60,
-                'maximum_enrollment': 20,
-                'fee': 0,
-                'schedule_constraints': ['0'],
+        data = {'theclass-teacher': self.performer.pk,
+                'theclass-b_title': 'A class',
+                'theclass-b_description': 'a description',
+                'theclass-length_minutes': 60,
+                'theclass-maximum_enrollment': 20,
+                'theclass-fee': 0,
+                'theclass-schedule_constraints': ['0'],
                 }
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['b_title'])
+            del(data['theclass-b_title'])
         if incomplete:
-            data['b_title'] = ''
+            data['theclass-b_title'] = ''
         return data
 
     def post_bid(self, submit=True):
@@ -101,7 +101,7 @@ class TestBidClass(TestCase):
         should redirect to home'''
         response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
-        assert data['b_title'] in response.content
+        assert data['theclass-b_title'] in response.content
         # stricter test required here
 
     def test_class_bid_post_with_submit_incomplete(self):
@@ -125,7 +125,7 @@ class TestBidClass(TestCase):
         response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
         assert 'Profile View' in response.content
-        assert data['b_title'] in response.content
+        assert data['theclass-b_title'] in response.content
 
     def test_class_bid_post_invalid_form_no_submit(self):
         url = reverse(self.view_name,
@@ -134,7 +134,7 @@ class TestBidClass(TestCase):
         other_profile = other_performer.performer_profile
         login_as(self.performer.performer_profile, self)
         data = self.get_class_form(submit=False, invalid=True)
-        data['teacher'] = other_performer.pk
+        data['theclass-teacher'] = other_performer.pk
         response = self.client.post(url, data=data, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertTrue('Submit a Class' in response.content)
@@ -190,7 +190,7 @@ class TestBidClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='BidClassView',
+            view='CreateClassView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
@@ -201,7 +201,7 @@ class TestBidClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='BidClassView',
+            view='CreateClassView',
             code='DRAFT_SUCCESS')
         response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)

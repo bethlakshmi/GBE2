@@ -159,8 +159,7 @@ class Act (Biddable, ActItem):
     def complete(self):
         return (self.performer.complete and
                 len(self.b_title) > 0 and
-                len(self.b_description) > 0 and
-                len(self.video_choice) > 0)
+                len(self.b_description) > 0)
 
     def validate_unique(self, *args, **kwargs):
         # conference, title and performer contact should all be unique before

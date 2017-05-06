@@ -30,8 +30,8 @@ from gbe.models import (
 )
 
 
-class TestBidAct(TestCase):
-    '''Tests for bid_act view'''
+class TestCreateAct(TestCase):
+    '''Tests for create_act view'''
     view_name = 'act_create'
 
     def setUp(self):
@@ -157,6 +157,15 @@ class TestBidAct(TestCase):
         self.assertContains(response, "View</a> act")
         self.assertContains(response, data['theact-b_title'])
 
+    def test_bid_act_post_no_profile(self):
+        '''act_bid, when user has no profile, should bounce out to /profile'''
+        user = UserFactory()
+        login_as(user, self)
+        act_form = self.get_act_form()
+        url = reverse(self.view_name, urlconf='gbe.urls')
+        response = self.client.post(url, data=act_form)
+        self.assertEqual(response.status_code, 302)
+
     def test_act_submit_paid_act_w_old_comp_act(self):
         prev_act = ActFactory(
             submitted=True,
@@ -203,7 +212,7 @@ class TestBidAct(TestCase):
 
     def test_act_submit_has_message(self):
         msg = UserMessageFactory(
-            view='BidActView',
+            view='CreateActView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
@@ -212,7 +221,7 @@ class TestBidAct(TestCase):
 
     def test_act_draft_has_message(self):
         msg = UserMessageFactory(
-            view='BidActView',
+            view='CreateActView',
             code='DRAFT_SUCCESS')
         response, data = self.post_paid_act_draft()
         self.assertEqual(200, response.status_code)
@@ -239,7 +248,7 @@ class TestBidAct(TestCase):
     def test_act_title_collision_w_msg(self):
         message_string = "link: %s title: %s"
         msg = UserMessageFactory(
-            view='BidActView',
+            view='CreateActView',
             code='ACT_TITLE_CONFLICT',
             description=message_string)
         response, original = post_act_conflict(
