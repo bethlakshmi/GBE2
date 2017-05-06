@@ -4,8 +4,6 @@ from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ClassFactory,
     PersonaFactory,
-    ProfileFactory,
-    ProfileFactory,
     UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
@@ -35,18 +33,18 @@ class TestEditClass(TestCase):
         self.teacher = PersonaFactory()
 
     def get_form(self, submit=True, invalid=False):
-        data = {"teacher": self.teacher.pk,
-                "b_title": 'A class',
-                "b_description": 'a description',
-                "length_minutes": 60,
-                'maximum_enrollment': 20,
-                'fee': 0,
-                'schedule_constraints': ['0'],
+        data = {"theclass-teacher": self.teacher.pk,
+                "theclass-b_title": 'A class',
+                "theclass-b_description": 'a description',
+                "theclass-length_minutes": 60,
+                'theclass-maximum_enrollment': 20,
+                'theclass-fee': 0,
+                'theclass-schedule_constraints': ['0'],
                 }
         if submit:
             data['submit'] = 1
         if invalid:
-            del(data['b_title'])
+            del(data['theclass-b_title'])
         return data
 
     def post_class_edit_submit(self):
@@ -74,7 +72,7 @@ class TestEditClass(TestCase):
         url = reverse(self.view_name,
                       args=[0],
                       urlconf='gbe.urls')
-        login_as(ProfileFactory(), self)
+        login_as(PersonaFactory().performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(404, response.status_code)
 
@@ -83,7 +81,7 @@ class TestEditClass(TestCase):
         url = reverse(self.view_name,
                       args=[klass.pk],
                       urlconf='gbe.urls')
-        login_as(ProfileFactory(), self)
+        login_as(PersonaFactory().performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(404, response.status_code)
 
@@ -97,7 +95,7 @@ class TestEditClass(TestCase):
         data = self.get_form(invalid=True)
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Class Proposal' in response.content)
+        self.assertTrue('Submit a Class' in response.content)
 
     def test_edit_bid_post_no_submit(self):
         '''act_bid, not submitting and no other problems,
@@ -116,7 +114,7 @@ class TestEditClass(TestCase):
         login_as(klass.teacher.performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Class Proposal' in response.content)
+        self.assertTrue('Submit a Class' in response.content)
 
     def test_edit_class_post_with_submit(self):
         response, data = self.post_class_edit_submit()
@@ -145,7 +143,7 @@ class TestEditClass(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('I Would Prefer to Avoid' in response.content)
-        self.assertTrue('Edit Your Class Proposal' in response.content)
+        self.assertTrue('Submit a Class' in response.content)
 
     def test_edit_class_post_with_submit(self):
         response, data = self.post_class_edit_submit()
@@ -174,7 +172,7 @@ class TestEditClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='EditClassView',
+            view='MakeClassView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_class_edit_submit()
         self.assertEqual(response.status_code, 200)
@@ -185,7 +183,7 @@ class TestEditClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='EditClassView',
+            view='MakeClassView',
             code='DRAFT_SUCCESS')
         response, data = self.post_class_edit_draft()
         self.assertEqual(200, response.status_code)
