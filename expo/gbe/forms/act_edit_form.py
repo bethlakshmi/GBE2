@@ -57,7 +57,6 @@ class ActEditDraftForm(ModelForm):
                    'track_duration',
                    'track_artist',
                    'track_title']
-        required = Act().bid_draft_fields
         labels = act_bid_labels
         help_texts = act_help_texts
         widgets = {'b_conference': HiddenInput(), }

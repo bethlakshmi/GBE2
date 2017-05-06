@@ -216,10 +216,6 @@ class Act (Biddable, ActItem):
         )
 
     @property
-    def bid_draft_fields(self):
-        return (['b_title', 'performer'])
-
-    @property
     def sched_payload(self):
         return {'duration': self.tech.stage.act_duration,
                 'title': self.b_title,
