@@ -84,7 +84,7 @@ class CreateBidView(View):
         user_message = self.set_up_post(request)
         if not self.form.is_valid():
             return self.get_invalid_response(request)
-        
+
         self.bid_object = self.form.save(commit=False)
         self.set_valid_form(request)
 

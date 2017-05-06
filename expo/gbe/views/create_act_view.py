@@ -61,17 +61,14 @@ class CreateActView(CreateBidView):
     def user_not_ready_redirect(self):
         if len(self.personae) == 0:
             return HttpResponseRedirect(
-                reverse('persona_create',
-                        urlconf='gbe.urls') +
-                        '?next=' +
-                        reverse('act_create',
-                                urlconf='gbe.urls'))
+                reverse('persona_create', urlconf='gbe.urls') +
+                '?next=%s' % reverse('act_create', urlconf='gbe.urls'))
 
     def make_context(self):
         context = super(CreateActView, self).make_context()
         context['fee_link'] = self.fee_link
         return context
-    
+
     def groundwork(self, request, args, kwargs):
         super(CreateActView, self).groundwork(request, args, kwargs)
         self.personae = self.owner.personae.all()
@@ -101,10 +98,10 @@ class CreateActView(CreateBidView):
              'draft_fields': self.draft_fields,
              'fee_link': self.fee_link,
              'submit_fields': self.submit_fields},
-             self.form,
-             self.conference,
-             self.owner,
-             'CreateActView')
+            self.form,
+            self.conference,
+            self.owner,
+            'CreateActView')
 
     def fee_paid(self):
         return verify_performer_app_paid(

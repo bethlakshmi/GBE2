@@ -42,7 +42,7 @@ class CreateClassView(CreateBidView):
                 prefix=self.prefix)
 
         q = Persona.objects.filter(
-        performer_profile_id=self.owner.resourceitem_id)
+            performer_profile_id=self.owner.resourceitem_id)
         self.form.fields['teacher'] = ModelChoiceField(queryset=q)
 
     def user_not_ready_redirect(self):
@@ -72,7 +72,7 @@ class CreateClassView(CreateBidView):
 
     def fee_paid(self):
         return True
-    
+
     def get_invalid_response(self, request):
         self.get_create_form(request)
         context = self.make_context()
@@ -81,5 +81,3 @@ class CreateClassView(CreateBidView):
             'gbe/bid.tmpl',
             context
             )
-
-    
