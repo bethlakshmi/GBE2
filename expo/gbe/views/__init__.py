@@ -28,16 +28,15 @@ from review_profiles_view import ReviewProfilesView
 
 # make
 from make_act_view import MakeActView
+from make_class_view import MakeClassView
 
 # create
-from create_act_view import CreateActView
 from create_class_view import CreateClassView
 from bid_costume_view import BidCostumeView
 from create_vendor_view import CreateVendorView
 from create_volunteer_view import CreateVolunteerView
 
 # edit
-from edit_act_view import EditActView
 from edit_class_view import EditClassView
 from edit_costume_view import EditCostumeView
 from edit_vendor_view import EditVendorView

@@ -78,6 +78,15 @@ class MakeBidView(View):
         return context
 
     def get_create_form(self, request):
+        if self.bid_object:
+            self.form = self.submit_form(
+                prefix=self.prefix,
+                    instance=self.bid_object,
+                    initial=self.get_initial())
+        else:
+            self.form = self.submit_form(
+                prefix=self.prefix,
+                initial=self.get_initial())
         self.set_up_form()
 
         return render(
@@ -85,6 +94,12 @@ class MakeBidView(View):
             'gbe/bid.tmpl',
             self.make_context()
         )
+
+    def check_validity(self, request):
+       return self.form.is_valid()
+
+    def fee_paid(self):
+        return True
 
     @never_cache
     @log_func

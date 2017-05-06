@@ -78,16 +78,6 @@ class MakeActView(MakeBidView):
         return initial
 
     def set_up_form(self):
-        if not self.form:
-            if self.bid_object:
-                self.form = self.submit_form(
-                    prefix='theact',
-                    instance=self.bid_object,
-                    initial=self.get_initial())
-            else:
-                self.form = self.submit_form(
-                    prefix='theact',
-                    initial=self.get_initial())
         q = Performer.objects.filter(contact=self.owner)
         self.form.fields['performer'] = ModelChoiceField(queryset=q)
 

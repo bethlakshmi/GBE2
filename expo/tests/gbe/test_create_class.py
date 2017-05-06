@@ -190,7 +190,7 @@ class TestCreateClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='CreateClassView',
+            view='MakeClassView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_bid(submit=True)
         self.assertEqual(response.status_code, 200)
@@ -201,7 +201,7 @@ class TestCreateClass(TestCase):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
         msg = UserMessageFactory(
-            view='CreateClassView',
+            view='MakeClassView',
             code='DRAFT_SUCCESS')
         response, data = self.post_bid(submit=False)
         self.assertEqual(200, response.status_code)
