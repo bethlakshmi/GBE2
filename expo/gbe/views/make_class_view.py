@@ -19,6 +19,7 @@ from gbetext import (
     default_class_draft_msg
 )
 
+
 class MakeClassView(MakeBidView):
     page_title = "Submit a Class"
     view_title = "Submit a Class"
@@ -48,7 +49,7 @@ class MakeClassView(MakeBidView):
 
         if self.bid_object and (
                 self.bid_object.teacher.contact != self.owner):
-            raise Http404            
+            raise Http404
 
     def get_initial(self):
         initial = {}

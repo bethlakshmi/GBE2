@@ -57,7 +57,7 @@ class MakeActView(MakeBidView):
 
         if self.bid_object and (
                 self.bid_object.performer.contact != self.owner):
-            raise Http404            
+            raise Http404
         self.fee_link = performer_act_submittal_link(request.user.id)
 
     def get_initial(self):

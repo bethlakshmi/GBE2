@@ -26,7 +26,7 @@ class MakeBidView(View):
         self.owner = validate_profile(request, require=False)
         if not self.owner:
             return reverse('profile_update', urlconf='gbe.urls')
-        
+
         self.bid_object = None
         if "bid_id" in kwargs:
             bid_id = kwargs.get("bid_id")
@@ -81,8 +81,8 @@ class MakeBidView(View):
         if self.bid_object:
             self.form = self.submit_form(
                 prefix=self.prefix,
-                    instance=self.bid_object,
-                    initial=self.get_initial())
+                instance=self.bid_object,
+                initial=self.get_initial())
         else:
             self.form = self.submit_form(
                 prefix=self.prefix,
@@ -96,7 +96,7 @@ class MakeBidView(View):
         )
 
     def check_validity(self, request):
-       return self.form.is_valid()
+        return self.form.is_valid()
 
     def fee_paid(self):
         return True
@@ -117,7 +117,6 @@ class MakeBidView(View):
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
-
 
         user_message = self.set_up_post(request)
         if not self.check_validity(request):
