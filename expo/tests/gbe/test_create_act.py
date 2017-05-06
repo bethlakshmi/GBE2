@@ -157,15 +157,6 @@ class TestCreateAct(TestCase):
         self.assertContains(response, "View</a> act")
         self.assertContains(response, data['theact-b_title'])
 
-    def test_bid_act_post_no_profile(self):
-        '''act_bid, when user has no profile, should bounce out to /profile'''
-        user = UserFactory()
-        login_as(user, self)
-        act_form = self.get_act_form()
-        url = reverse(self.view_name, urlconf='gbe.urls')
-        response = self.client.post(url, data=act_form)
-        self.assertEqual(response.status_code, 302)
-
     def test_act_submit_paid_act_w_old_comp_act(self):
         prev_act = ActFactory(
             submitted=True,

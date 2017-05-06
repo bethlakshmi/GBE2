@@ -197,25 +197,6 @@ class Act (Biddable, ActItem):
         return this_act_alerts
 
     @property
-    def bid_fields(self):
-        return (
-            ['performer',
-             'shows_preferences',
-             'other_performance',
-             'b_title',
-             'track_title',
-             'track_artist',
-             'track_duration',
-             'act_duration',
-             'video_link',
-             'video_choice',
-             'b_description',
-             'why_you',
-             'b_conference'],
-            ['b_title', 'b_description', 'shows_preferences', 'performer', ],
-        )
-
-    @property
     def sched_payload(self):
         return {'duration': self.tech.stage.act_duration,
                 'title': self.b_title,

@@ -122,16 +122,6 @@ class TestEditAct(TestCase):
                       args=[act.pk],
                       urlconf="gbe.urls")
         login_as(user, self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
-
-    def test_edit_act_user_has_no_profile(self):
-        user = UserFactory()
-        act = ActFactory()
-        url = reverse(self.view_name,
-                      args=[act.pk],
-                      urlconf="gbe.urls")
-        login_as(user, self)
         response = self.client.post(
             url,
             data=self.get_act_form(act, submit=True))

@@ -5,7 +5,8 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
-    UserMessageFactory
+    UserFactory,
+    UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
@@ -95,6 +96,15 @@ class TestCreateClass(TestCase):
         title = '<h2 class="subtitle">Tell Us About Your Stage Persona</h2>'
         assert title in response.content
         assert response.status_code == 200
+
+    def test_bid_class_no_profile(self):
+        '''act_bid, when user has no profile, should bounce out to /profile'''
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        user = UserFactory()
+        login_as(user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
 
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,
