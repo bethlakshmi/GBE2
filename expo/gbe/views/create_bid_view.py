@@ -97,19 +97,8 @@ class CreateBidView(View):
                     {'link': self.fee_link,
                      'page_title': page_title})
             else:
-                if self.bid_object.complete:
-                    self.bid_object.submitted = True
-                    self.bid_object.save()
-                else:
-                    context = self.make_context()
-                    context['errors'] = [
-                        'Cannot submit, %s is not complete' % (
-                            self.bid_type.lower())]
-                    return render(
-                        request,
-                       'gbe/bid.tmpl',
-                        context
-                        )
+                self.bid_object.submitted = True
+                self.bid_object.save()
         messages.success(request, user_message[0].description)
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
