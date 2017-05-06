@@ -41,7 +41,8 @@ class EditActView(EditBidView):
 
     def groundwork(self, request, args, kwargs):
         super(EditActView, self).groundwork(request, args, kwargs)
-        if self.bid_object.performer.contact != self.owner:
+        if self.bid_object and (
+                self.bid_object.performer.contact != self.owner):
             raise Http404
 
     def get_initial(self):

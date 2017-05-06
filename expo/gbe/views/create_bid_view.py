@@ -5,54 +5,41 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
+from django.shortcuts import render
 from gbe.models import (
+    Conference,
     UserMessage
 )
 from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
 
 
-class EditBidView(View):
+class CreateBidView(View):
     form = None
     fee_link = None
     popup_text = None
 
     def groundwork(self, request, args, kwargs):
-        bid_id = kwargs.get("bid_id")
         self.owner = validate_profile(request, require=False)
-        if self.owner:
-            self.bid_object = get_object_or_404(self.bid_class, pk=bid_id)
-        else:
-            self.bid_object = None
+        self.conference = Conference.objects.filter(
+            accepting_bids=True).first()
 
     def set_up_post(self, request):
         if 'submit' in request.POST.keys():
-            self.form = self.submit_form(
-                request.POST,
-                instance=self.bid_object,
-                initial=self.get_initial(),
-                prefix=self.prefix)
+            self.form = self.submit_form(request.POST, prefix=self.prefix)
             return UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="SUBMIT_SUCCESS",
                 defaults={
-                    'summary': "%s Edit & Submit Success" % self.bid_type,
+                    'summary': "%s Submit Success" % self.bid_type,
                     'description': self.submit_msg})
         else:
-            self.form = self.draft_form(
-                request.POST,
-                instance=self.bid_object,
-                initial=self.get_initial(),
-                prefix=self.prefix)
+            self.form = self.draft_form(request.POST, prefix=self.prefix)
             return UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="DRAFT_SUCCESS",
                 defaults={
-                    'summary': "%s Edit Draft Success" % self.bid_type,
+                    'summary': "%s Draft Success" % self.bid_type,
                     'description': self.draft_msg})
 
     def make_context(self):
@@ -76,24 +63,26 @@ class EditBidView(View):
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        
-        if not self.owner:
+        try:
+            self.groundwork(request, args, kwargs)
+        except:
             return HttpResponseRedirect(
                 reverse('profile_update', urlconf='gbe.urls'))
 
-        return self.get_create_form(request)
+        return (self.user_not_ready_redirect() or
+                self.get_create_form(request))
 
     @never_cache
     @log_func
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        if not self.owner:
+        try:
+            self.groundwork(request, args, kwargs)
+        except:
             return HttpResponseRedirect(
                 reverse('profile_update', urlconf='gbe.urls'))
 
         user_message = self.set_up_post(request)
-        if not self.check_validity(request):
+        if not self.form.is_valid():
             return self.get_invalid_response(request)
 
         self.bid_object = self.form.save(commit=False)
@@ -115,4 +104,4 @@ class EditBidView(View):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(EditBidView, self).dispatch(*args, **kwargs)
+        return super(CreateBidView, self).dispatch(*args, **kwargs)
