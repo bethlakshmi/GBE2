@@ -105,7 +105,7 @@ class TestEditAct(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_edit_act_profile_is_not_contact(self):
-        user = ProfileFactory().user_object
+        user = PersonaFactory().performer_profile.user_object
         act = ActFactory()
         url = reverse(self.view_name,
                       args=[act.pk],
@@ -241,7 +241,7 @@ class TestEditAct(TestCase):
     def test_edit_act_title_collision_w_msg(self):
         message_string = "link: %s title: %s"
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='ACT_TITLE_CONFLICT',
             description=message_string)
         response, original = self.post_title_collision()

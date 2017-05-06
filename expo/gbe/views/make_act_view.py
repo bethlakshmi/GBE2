@@ -46,12 +46,18 @@ class MakeActView(MakeBidView):
     bid_class = Act
 
     def groundwork(self, request, args, kwargs):
-        super(MakeActView, self).groundwork(request, args, kwargs)
+        redirect = super(MakeActView, self).groundwork(request, args, kwargs)
+        if redirect:
+            return redirect
+        self.personae = self.owner.personae.all()
+        if len(self.personae) == 0:
+            return '%s?next=%s' % (
+                reverse('persona_create', urlconf='gbe.urls'),
+                reverse('act_create', urlconf='gbe.urls'))
+
         if self.bid_object and (
                 self.bid_object.performer.contact != self.owner):
-            raise Http404
-        elif self.owner:
-            self.personae = self.owner.personae.all()
+            raise Http404            
         self.fee_link = performer_act_submittal_link(request.user.id)
 
     def get_initial(self):
@@ -70,12 +76,6 @@ class MakeActView(MakeBidView):
                 'performer': self.personae[0],
                 'b_conference': self.conference}
         return initial
-
-    def user_not_ready_redirect(self):
-        if len(self.personae) == 0:
-            return HttpResponseRedirect(
-                reverse('persona_create', urlconf='gbe.urls') +
-                '?next=%s' % reverse('act_create', urlconf='gbe.urls'))
 
     def set_up_form(self):
         if not self.form:
@@ -136,4 +136,4 @@ class MakeActView(MakeBidView):
     def fee_paid(self):
         return verify_performer_app_paid(
             self.owner.user_object.username,
-            self.bid_object.b_conference)
+            self.conference)

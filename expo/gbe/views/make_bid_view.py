@@ -24,12 +24,17 @@ class MakeBidView(View):
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
+        if not self.owner:
+            return reverse('profile_update', urlconf='gbe.urls')
+        
         self.bid_object = None
-        self.conference = Conference.objects.filter(
-                    accepting_bids=True).first()
-        if self.owner and "bid_id" in kwargs:
+        if "bid_id" in kwargs:
             bid_id = kwargs.get("bid_id")
             self.bid_object = get_object_or_404(self.bid_class, pk=bid_id)
+            self.conference = self.bid_object.b_conference
+        else:
+            self.conference = Conference.objects.filter(
+                    accepting_bids=True).first()
 
     def set_up_post(self, request):
         the_form = None
@@ -84,22 +89,20 @@ class MakeBidView(View):
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        
-        if not self.owner:
-            return HttpResponseRedirect(
-                reverse('profile_update', urlconf='gbe.urls'))
+        redirect = self.groundwork(request, args, kwargs)
+        if redirect:
+            return HttpResponseRedirect(redirect)
 
-        return (self.user_not_ready_redirect() or
-                self.get_create_form(request))
+        return self.get_create_form(request)
 
     @never_cache
     @log_func
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if not self.owner:
-            return HttpResponseRedirect(
-                reverse('profile_update', urlconf='gbe.urls'))
+        redirect = self.groundwork(request, args, kwargs)
+        if redirect:
+            return HttpResponseRedirect(redirect)
+
 
         user_message = self.set_up_post(request)
         if not self.check_validity(request):
