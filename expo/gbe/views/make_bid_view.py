@@ -25,13 +25,11 @@ class MakeBidView(View):
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
         self.bid_object = None
-        if self.owner: 
-            if "bid_id" in kwargs:
-                bid_id = kwargs.get("bid_id")
-                self.bid_object = get_object_or_404(self.bid_class, pk=bid_id)
-            else:
-                self.conference = Conference.objects.filter(
+        self.conference = Conference.objects.filter(
                     accepting_bids=True).first()
+        if self.owner and "bid_id" in kwargs:
+            bid_id = kwargs.get("bid_id")
+            self.bid_object = get_object_or_404(self.bid_class, pk=bid_id)
 
     def set_up_post(self, request):
         the_form = None
@@ -92,7 +90,8 @@ class MakeBidView(View):
             return HttpResponseRedirect(
                 reverse('profile_update', urlconf='gbe.urls'))
 
-        return self.get_create_form(request)
+        return (self.user_not_ready_redirect() or
+                self.get_create_form(request))
 
     @never_cache
     @log_func
@@ -108,6 +107,7 @@ class MakeBidView(View):
 
         if not self.bid_object:
             self.bid_object = self.form.save(commit=False)
+
         self.set_valid_form(request)
 
         if 'submit' in request.POST.keys():

@@ -1,5 +1,7 @@
 from gbe.views import MakeBidView
 from django.http import Http404
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.forms import ModelChoiceField
 from gbe.ticketing_idd_interface import (
     performer_act_submittal_link,
@@ -28,7 +30,7 @@ from gbe.views.act_display_functions import display_invalid_act
 
 class MakeActView(MakeBidView):
     page_title = 'Act Proposal'
-    view_title = 'Make Your Act Proposal'
+    view_title = 'Propose an Act'
     draft_fields = ['b_title', 'performer']
     submit_fields = ['b_title',
                      'b_description',
@@ -48,7 +50,7 @@ class MakeActView(MakeBidView):
         if self.bid_object and (
                 self.bid_object.performer.contact != self.owner):
             raise Http404
-        elif not self.bid_object:
+        elif self.owner:
             self.personae = self.owner.personae.all()
         self.fee_link = performer_act_submittal_link(request.user.id)
 
@@ -68,6 +70,12 @@ class MakeActView(MakeBidView):
                 'performer': self.personae[0],
                 'b_conference': self.conference}
         return initial
+
+    def user_not_ready_redirect(self):
+        if len(self.personae) == 0:
+            return HttpResponseRedirect(
+                reverse('persona_create', urlconf='gbe.urls') +
+                '?next=%s' % reverse('act_create', urlconf='gbe.urls'))
 
     def set_up_form(self):
         if not self.form:
@@ -121,9 +129,9 @@ class MakeActView(MakeBidView):
             request,
             self.make_context(),
             self.form,
-            self.bid_object.b_conference,
+            self.conference,
             self.owner,
-            'EditActView')
+            'MakeActView')
 
     def fee_paid(self):
         return verify_performer_app_paid(

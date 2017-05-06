@@ -148,7 +148,7 @@ class TestEditAct(TestCase):
             url,
             self.get_act_form(act, invalid=True))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Act Proposal' in response.content)
+        self.assertTrue('Propose an Act' in response.content)
 
     def test_act_edit_post_form_submit_unpaid(self):
         act = ActFactory()
@@ -194,7 +194,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.contact, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Act Proposal' in response.content)
+        self.assertTrue('Propose an Act' in response.content)
 
     def test_edit_act_submit_make_message(self):
         response = self.post_edit_paid_act_submission()
@@ -210,7 +210,7 @@ class TestEditAct(TestCase):
 
     def test_edit_act_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='SUBMIT_SUCCESS')
         response = self.post_edit_paid_act_submission()
         self.assertEqual(response.status_code, 200)
@@ -219,7 +219,7 @@ class TestEditAct(TestCase):
 
     def test_edit_act_draft_has_message(self):
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='DRAFT_SUCCESS')
         response = self.post_edit_paid_act_draft()
         self.assertEqual(200, response.status_code)
