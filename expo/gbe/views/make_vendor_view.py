@@ -19,6 +19,7 @@ from gbetext import (
     default_vendor_draft_msg
 )
 
+
 class MakeVendorView(MakeBidView):
     page_title = 'Vendor Application'
     view_title = 'Vendor Application'
@@ -56,8 +57,8 @@ class MakeVendorView(MakeBidView):
                 help_times_initial = []
             initial = {'help_times': help_times_initial}
         else:
-            initial={'profile': self.owner,
-                     'physical_address': self.owner.address}
+            initial = {'profile': self.owner,
+                       'physical_address': self.owner.address}
         return initial
 
     def make_context(self):

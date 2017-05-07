@@ -34,7 +34,7 @@ class MakeBidView(View):
             self.conference = self.bid_object.b_conference
         else:
             self.conference = Conference.objects.filter(
-                    accepting_bids=True).first()    
+                    accepting_bids=True).first()
 
     def make_post_forms(self, request, the_form):
         if self.bid_object:
@@ -105,7 +105,7 @@ class MakeBidView(View):
 
     def set_up_form(self):
         pass
-    
+
     def get_invalid_response(self, request):
         self.set_up_form()
         context = self.make_context()

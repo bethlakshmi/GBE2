@@ -46,7 +46,9 @@ class MakeCostumeView(MakeBidView):
     bid_class = Costume
 
     def groundwork(self, request, args, kwargs):
-        redirect = super(MakeCostumeView, self).groundwork(request, args, kwargs)
+        redirect = super(
+            MakeCostumeView,
+            self).groundwork(request, args, kwargs)
         if redirect:
             return redirect
         self.performers = self.owner.personae.all()
@@ -108,4 +110,3 @@ class MakeCostumeView(MakeBidView):
         self.bid_object.b_conference = self.conference
         self.bid_object = self.form.save()
         self.bid_object = self.details_form.save()
- 
