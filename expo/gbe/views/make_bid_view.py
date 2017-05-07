@@ -21,7 +21,6 @@ class MakeBidView(View):
     form = None
     fee_link = None
     popup_text = None
-    upload_file = False
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)

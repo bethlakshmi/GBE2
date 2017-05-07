@@ -118,7 +118,6 @@ class TestEditCostume(TestCase):
         data = self.get_costume_form(invalid=True)
         login_as(costume.profile, self)
         response = self.client.post(url, data=data)
-        error_string = "This bid is not one of your stage names"
         self.assertEqual(response.status_code, 404)
 
     def test_edit_bid_post_no_submit(self):

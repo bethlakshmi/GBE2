@@ -35,7 +35,6 @@ class MakeVendorView(MakeBidView):
     draft_form = VendorBidForm
     prefix = 'thebiz'
     bid_class = Vendor
-    upload_file = True
 
     def groundwork(self, request, args, kwargs):
         redirect = super(
