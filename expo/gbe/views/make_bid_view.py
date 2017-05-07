@@ -101,6 +101,18 @@ class MakeBidView(View):
     def fee_paid(self):
         return True
 
+    def set_up_form(self):
+        pass
+    
+    def get_invalid_response(self, request):
+        self.set_up_form()
+        context = self.make_context()
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            context
+            )
+
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
