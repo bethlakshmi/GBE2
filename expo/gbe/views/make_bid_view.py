@@ -15,7 +15,11 @@ from gbe.models import (
 )
 from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
-from gbetext import no_profile_msg
+from gbetext import (
+    no_profile_msg,
+    no_login_msg,
+    full_login_msg,
+)
 
 
 class MakeBidView(View):
@@ -129,6 +133,24 @@ class MakeBidView(View):
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            follow_on = '?next=%s' % reverse(
+                '%s_create' % self.bid_type.lower(),
+                urlconf='gbe.urls')
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="USER_NOT_LOGGED_IN",
+                defaults={
+                    'summary': "Need Login - %s Bid",
+                    'description': no_login_msg})
+            full_msg = full_login_msg % (
+                user_message[0].description,
+                reverse('login', urlconf='gbe.urls') + follow_on)
+            messages.warning(request, full_msg)
+
+            return HttpResponseRedirect(
+                reverse('register', urlconf='gbe.urls') + follow_on)
+
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
@@ -137,6 +159,7 @@ class MakeBidView(View):
 
     @never_cache
     @log_func
+    @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         redirect = self.groundwork(request, args, kwargs)
@@ -166,6 +189,5 @@ class MakeBidView(View):
         messages.success(request, user_message[0].description)
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(MakeBidView, self).dispatch(*args, **kwargs)
