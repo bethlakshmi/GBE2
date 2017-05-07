@@ -1,8 +1,5 @@
 from gbe.views import MakeBidView
 from django.http import Http404
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.forms import ModelChoiceField
 from gbe.ticketing_idd_interface import (
     performer_act_submittal_link,
     verify_performer_app_paid,
@@ -38,6 +35,7 @@ class MakeVendorView(MakeBidView):
     draft_form = VendorBidForm
     prefix = 'thebiz'
     bid_class = Vendor
+    upload_file = True
 
     def groundwork(self, request, args, kwargs):
         redirect = super(
@@ -76,3 +74,18 @@ class MakeVendorView(MakeBidView):
         return verify_vendor_app_paid(
             self.owner.user_object.username,
             self.conference)
+
+    def make_post_forms(self, request, the_form):
+        if self.bid_object:
+            self.form = the_form(
+                request.POST,
+                request.FILES,
+                instance=self.bid_object,
+                initial=self.get_initial(),
+                prefix=self.prefix)
+        else:
+            self.form = the_form(
+                request.POST,
+                request.FILES,
+                initial=self.get_initial(),
+                prefix=self.prefix)

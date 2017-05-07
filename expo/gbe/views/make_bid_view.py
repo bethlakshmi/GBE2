@@ -21,6 +21,7 @@ class MakeBidView(View):
     form = None
     fee_link = None
     popup_text = None
+    upload_file = False
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
@@ -34,7 +35,20 @@ class MakeBidView(View):
             self.conference = self.bid_object.b_conference
         else:
             self.conference = Conference.objects.filter(
-                    accepting_bids=True).first()
+                    accepting_bids=True).first()    
+
+    def make_post_forms(self, request, the_form):
+        if self.bid_object:
+            self.form = the_form(
+                request.POST,
+                instance=self.bid_object,
+                initial=self.get_initial(),
+                prefix=self.prefix)
+        else:
+            self.form = the_form(
+                request.POST,
+                initial=self.get_initial(),
+                prefix=self.prefix)
 
     def set_up_post(self, request):
         the_form = None
@@ -54,18 +68,7 @@ class MakeBidView(View):
                 defaults={
                     'summary': "%s Save Draft Success" % self.bid_type,
                     'description': self.draft_msg})
-        if self.bid_object:
-            self.form = the_form(
-                request.POST,
-                instance=self.bid_object,
-                initial=self.get_initial(),
-                prefix=self.prefix)
-        else:
-            self.form = the_form(
-                request.POST,
-                initial=self.get_initial(),
-                prefix=self.prefix)
-
+        self.make_post_forms(request, the_form)
         return user_message
 
     def make_context(self):
