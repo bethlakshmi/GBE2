@@ -84,7 +84,7 @@ class TestEditVendor(TestCase):
         response = self.client.get(url)
         self.assertEqual(302, response.status_code)
         self.assertEqual(location(response),
-                         'http://testserver/update_profile')
+                         'http://testserver/update_profile?next=/vendor/create')
 
     def test_edit_vendor_wrong_user(self):
         vendor = VendorFactory()

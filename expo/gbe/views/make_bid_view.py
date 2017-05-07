@@ -15,6 +15,7 @@ from gbe.models import (
 )
 from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
+from gbetext import no_profile_msg
 
 
 class MakeBidView(View):
@@ -24,8 +25,18 @@ class MakeBidView(View):
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
-        if not self.owner:
-            return reverse('profile_update', urlconf='gbe.urls')
+        if not self.owner or not self.owner.complete:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="PROFILE_INCOMPLETE",
+                defaults={
+                    'summary': "%s Profile Incomplete",
+                    'description': no_profile_msg})
+            messages.warning(request, user_message[0].description)
+            return '%s?next=%s' % (
+                reverse('profile_update', urlconf='gbe.urls'),
+                reverse('%s_create' % self.bid_type.lower(),
+                        urlconf='gbe.urls'))
 
         self.bid_object = None
         if "bid_id" in kwargs:
