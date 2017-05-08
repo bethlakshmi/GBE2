@@ -14,7 +14,10 @@ from gbe.models import (
     UserMessage,
 )
 from expo.gbe_logging import log_func
-from gbe.functions import validate_profile
+from gbe.functions import (
+    notify_reviewers_on_bid_change,
+    validate_profile,
+)
 from gbetext import (
     no_profile_msg,
     no_login_msg,
@@ -26,6 +29,7 @@ class MakeBidView(View):
     form = None
     fee_link = None
     popup_text = None
+    has_draft = True
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
@@ -66,7 +70,7 @@ class MakeBidView(View):
 
     def set_up_post(self, request):
         the_form = None
-        if 'submit' in request.POST.keys():
+        if 'submit' in request.POST.keys() or not self.has_draft:
             the_form = self.submit_form
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
@@ -186,6 +190,15 @@ class MakeBidView(View):
             else:
                 self.bid_object.submitted = True
                 self.bid_object.save()
+                notify_reviewers_on_bid_change(
+                    self.owner,
+                    self.bid_type,
+                    "Submission",
+                    self.conference,
+                    '%s Reviewers' % self.bid_type,
+                    reverse(
+                        '%s_review' % self.bid_type.lower(),
+                        urlconf='gbe.urls'))
         messages.success(request, user_message[0].description)
         return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
 

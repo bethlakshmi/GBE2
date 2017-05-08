@@ -29,12 +29,7 @@ from make_act_view import MakeActView
 from make_class_view import MakeClassView
 from make_costume_view import MakeCostumeView
 from make_vendor_view import MakeVendorView
-
-# create
-from create_volunteer_view import CreateVolunteerView
-
-# edit
-from edit_volunteer_view import EditVolunteerView
+from make_volunteer_view import MakeVolunteerView
 
 # view
 from view_act_view import ViewActView
