@@ -24,7 +24,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
 )
 from gbetext import (
-    default_volunteer_edit_msg,
+    default_volunteer_submit_msg,
     default_volunteer_no_interest_msg
 )
 from gbe.models import UserMessage
@@ -124,7 +124,7 @@ class TestEditVolunteer(TestCase):
         login_as(volunteer.profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -140,7 +140,7 @@ class TestEditVolunteer(TestCase):
                           invalid=True))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
 
     def test_volunteer_edit_post_form_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -162,7 +162,7 @@ class TestEditVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
         assert_hidden_value(
             response,
             "id_b_title",
@@ -190,17 +190,17 @@ class TestEditVolunteer(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
 
     def test_volunteer_submit_make_message(self):
         response, context = self.edit_volunteer()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
-            response, 'success', 'Success', default_volunteer_edit_msg)
+            response, 'success', 'Success', default_volunteer_submit_msg)
 
     def test_volunteer_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditVolunteerView',
+            view='MakeVolunteerView',
             code='SUBMIT_SUCCESS')
         response, context = self.edit_volunteer()
         self.assertEqual(response.status_code, 200)
@@ -215,7 +215,7 @@ class TestEditVolunteer(TestCase):
 
     def test_not_interested_at_all_make_message(self):
         msg = UserMessageFactory(
-            view='EditVolunteerView',
+            view='MakeVolunteerView',
             code='NO_INTERESTS_SUBMITTED')
         response, context = self.edit_volunteer(rank=1)
         self.assertEqual(response.status_code, 200)

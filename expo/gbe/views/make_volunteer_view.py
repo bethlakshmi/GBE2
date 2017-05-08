@@ -17,6 +17,7 @@ from gbetext import (
     default_volunteer_submit_msg,
     default_volunteer_no_interest_msg,
     default_volunteer_no_bid_msg,
+    default_window_schedule_conflict,
     existing_volunteer_msg,
 )
 from gbe.views.volunteer_display_functions import (
@@ -114,34 +115,31 @@ class MakeVolunteerView(MakeBidView):
 
         try:
             self.windows = self.conference.windows()
-            if self.bid_object:
-                self.available_interests = \
-                    self.bid_object.volunteerinterest_set.all()
-            else:
-                self.available_interests = AvailableInterest.objects.filter(
-                    visible=True).order_by('interest')
+            self.available_interests = AvailableInterest.objects.filter(
+                visible=True).order_by('interest')
         except:
             return self.no_vol_bidding(request)
 
         if len(self.windows) == 0 or len(self.available_interests) == 0:
             return self.no_vol_bidding(request)
 
-        try:
-            existing_bid = profile.volunteering.get(
-                b_conference=self.conference)
-            user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code="FOUND_EXISTING_BID",
-                defaults={
-                    'summary': "Existing Volunteer Offer Found",
-                    'description': existing_volunteer_msg})
-            messages.success(request, user_message[0].description)
-            return reverse(
-                'volunteer_edit',
-                urlconf='gbe.urls',
-                args=[existing_bid.id])
-        except:
-            pass
+        if not self.bid_object:
+            try:
+                existing_bid = self.owner.volunteering.get(
+                    b_conference=self.conference)
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="FOUND_EXISTING_BID",
+                    defaults={
+                        'summary': "Existing Volunteer Offer Found",
+                        'description': existing_volunteer_msg})
+                messages.success(request, user_message[0].description)
+                return reverse(
+                    'volunteer_edit',
+                    urlconf='gbe.urls',
+                    args=[existing_bid.id])
+            except:
+                pass
 
     def get_initial(self):
         title = 'volunteer bid: %s' % self.owner.display_name
@@ -187,7 +185,7 @@ class MakeVolunteerView(MakeBidView):
                 instance=self.bid_object,
                 available_windows=self.windows,
                 unavailable_windows=self.windows)
-            for interest in self.available_interests:
+            for interest in self.bid_object.volunteerinterest_set.all():
                 self.formset += [VolunteerInterestForm(
                     instance=interest,
                     initial={'interest': interest.interest},
