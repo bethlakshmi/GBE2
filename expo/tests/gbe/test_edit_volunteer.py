@@ -151,50 +151,50 @@ class TestEditVolunteer(TestCase):
         response, context = self.edit_volunteer()
         expected_string = ("Bid Information for %s" %
                            context.conference.conference_name)
-        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertTrue(expected_string in response.content)
 
     def test_volunteer_edit_get(self):
-        volunteer = VolunteerFactory(
-            availability='',
-            unavailability='',
-            b_title="title")
+        context = VolunteerContext()
+        add_window = context.add_window()
+        context.bid.b_title = "myTitle"
+        context.bid.save()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Volunteer at the Expo' in response.content)
         assert_hidden_value(
             response,
             "id_b_title",
             "b_title",
-            volunteer.b_title,
+            context.bid.b_title,
             128)
 
     def test_volunteer_edit_get_rank(self):
-        volunteer = VolunteerFactory(
-            availability='',
-            unavailability='')
-        interest = VolunteerInterestFactory(volunteer=volunteer)
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
-        assert_rank_choice_exists(response, interest, interest.rank)
+        assert_rank_choice_exists(response, context.interest, context.interest.rank)
 
     def test_volunteer_edit_get_with_stuff(self):
-        volunteer = VolunteerFactory()
+        clear_conferences()
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Volunteer at the Expo' in response.content)
+        self.assertTrue('I am Available....' in response.content)
 
     def test_volunteer_submit_make_message(self):
         response, context = self.edit_volunteer()
