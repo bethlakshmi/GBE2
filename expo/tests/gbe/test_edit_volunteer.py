@@ -120,14 +120,15 @@ class TestEditVolunteer(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_edit_volunteer_profile_is_owner(self):
-        volunteer = VolunteerFactory()
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
-        login_as(volunteer.profile, self)
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Volunteer at the Expo' in response.content)
+        self.assertTrue('I am Available....' in response.content)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
