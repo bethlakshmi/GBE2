@@ -137,7 +137,6 @@ class MakeBidView(View):
     def submit_bid(self, request):
         self.bid_object.submitted = True
         self.bid_object.save()
-        
         notify_reviewers_on_bid_change(
             self.owner,
             self.bid_type,
@@ -146,7 +145,7 @@ class MakeBidView(View):
             '%s Reviewers' % self.bid_type,
             reverse('%s_review' % self.bid_type.lower(),
                     urlconf='gbe.urls'))
-    
+
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):

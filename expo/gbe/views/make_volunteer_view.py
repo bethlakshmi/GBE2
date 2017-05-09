@@ -102,8 +102,8 @@ class MakeVolunteerView(MakeBidView):
             view=self.__class__.__name__,
             code="NO_BIDDING_ALLOWED",
             defaults={
-            'summary': "Volunteer Bidding Blocked",
-            'description': default_volunteer_no_bid_msg})
+                'summary': "Volunteer Bidding Blocked",
+                'description': default_volunteer_no_bid_msg})
         messages.error(request, user_message[0].description)
         return reverse('home', urlconf='gbe.urls')
 
@@ -198,7 +198,7 @@ class MakeVolunteerView(MakeBidView):
         return user_message
 
     def get_create_form(self, request):
-        self.formset =[]
+        self.formset = []
         if self.bid_object:
             self.form = VolunteerBidForm(
                 instance=self.bid_object,
@@ -221,7 +221,7 @@ class MakeVolunteerView(MakeBidView):
         self.formset += [self.form]
         return render(request,
                       'gbe/bid.tmpl',
-                       self.make_context())
+                      self.make_context())
 
     def make_context(self):
         context = super(MakeVolunteerView, self).make_context()

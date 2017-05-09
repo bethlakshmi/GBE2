@@ -60,7 +60,7 @@ class TestEditVolunteer(TestCase):
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
                 'submit': True,
-                 }
+                }
         if invalid:
             del(form['number_shifts'])
         return form
@@ -182,7 +182,10 @@ class TestEditVolunteer(TestCase):
                       args=[context.bid.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
-        assert_rank_choice_exists(response, context.interest, context.interest.rank)
+        assert_rank_choice_exists(
+            response,
+            context.interest,
+            context.interest.rank)
 
     def test_volunteer_edit_get_with_stuff(self):
         clear_conferences()

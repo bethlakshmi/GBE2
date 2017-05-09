@@ -83,8 +83,9 @@ class TestEditVendor(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         response = self.client.get(url)
         self.assertEqual(302, response.status_code)
-        self.assertEqual(location(response),
-                         'http://testserver/update_profile?next=/vendor/create')
+        self.assertEqual(
+            location(response),
+            'http://testserver/update_profile?next=/vendor/create')
 
     def test_edit_vendor_wrong_user(self):
         vendor = VendorFactory()
