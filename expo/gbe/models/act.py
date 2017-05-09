@@ -159,8 +159,7 @@ class Act (Biddable, ActItem):
     def complete(self):
         return (self.performer.complete and
                 len(self.b_title) > 0 and
-                len(self.b_description) > 0 and
-                len(self.video_choice) > 0)
+                len(self.b_description) > 0)
 
     def validate_unique(self, *args, **kwargs):
         # conference, title and performer contact should all be unique before
@@ -196,29 +195,6 @@ class Act (Biddable, ActItem):
                 this_act_alerts.append(
                     act_alerts['act_incomplete_not_submitted'] % self.id)
         return this_act_alerts
-
-    @property
-    def bid_fields(self):
-        return (
-            ['performer',
-             'shows_preferences',
-             'other_performance',
-             'b_title',
-             'track_title',
-             'track_artist',
-             'track_duration',
-             'act_duration',
-             'video_link',
-             'video_choice',
-             'b_description',
-             'why_you',
-             'b_conference'],
-            ['b_title', 'b_description', 'shows_preferences', 'performer', ],
-        )
-
-    @property
-    def bid_draft_fields(self):
-        return (['b_title', 'performer'])
 
     @property
     def sched_payload(self):

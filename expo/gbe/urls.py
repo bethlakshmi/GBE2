@@ -9,8 +9,6 @@ from gbe.views import (
     ActChangeStateView,
     AdminProfileView,
     AssignVolunteerView,
-    BidActView,
-    BidClassView,
     BidCostumeView,
     BiosTeachersView,
     ClassChangeStateView,
@@ -22,9 +20,7 @@ from gbe.views import (
     CreateVendorView,
     CreateVolunteerView,
     DeleteProfileView,
-    EditActView,
     EditActTechInfoView,
-    EditClassView,
     EditCostumeView,
     EditPersonaView,
     EditTroupeView,
@@ -34,6 +30,8 @@ from gbe.views import (
     HandleUserContactEmailView,
     LandingPageView,
     LogoutView,
+    MakeActView,
+    MakeClassView,
     ProfileView,
     ProposeClassView,
     PublishProposalView,
@@ -88,9 +86,9 @@ urlpatterns = patterns(
 
     #  acts
     url(r'^act/create/?$',
-        BidActView, name='act_create'),
-    url(r'^act/edit/(\d+)/?$',
-        EditActView, name='act_edit'),
+        MakeActView.as_view(), name='act_create'),
+    url(r'^act/edit/(?P<bid_id>\d+)/?$',
+        MakeActView.as_view(), name='act_edit'),
     url(r'^act/view/(?P<bid_id>\d+)/?$',
         ViewActView.as_view(), name='act_view'),
     url(r'^act/review/(?P<object_id>\d+)/?$',
@@ -113,9 +111,9 @@ urlpatterns = patterns(
 
     #  classes
     url(r'^class/create/?$',
-        BidClassView, name='class_create'),
-    url(r'class/edit/(\d+)/?$',
-        EditClassView, name='class_edit'),
+        MakeClassView.as_view(), name='class_create'),
+    url(r'class/edit/(?P<bid_id>\d+)/?$',
+        MakeClassView.as_view(), name='class_edit'),
     url(r'^class/view/(?P<bid_id>\d+)/?$',
         ViewClassView.as_view(), name='class_view'),
     url(r'^class/review/(?P<object_id>\d+)/?$',
@@ -162,7 +160,7 @@ urlpatterns = patterns(
         CreateComboView, name='combo_create'),
 
     #  volunteers
-    url(r'^volunteer/bid/?$',
+    url(r'^volunteer/create/?$',
         CreateVolunteerView, name='volunteer_create'),
     url(r'^volunteer/view/(?P<bid_id>\d+)/?$',
         ViewVolunteerView.as_view(), name='volunteer_view'),

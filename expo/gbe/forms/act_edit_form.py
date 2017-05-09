@@ -52,12 +52,24 @@ class ActEditDraftForm(ModelForm):
 
     class Meta:
         model = Act
-        fields, required = Act().bid_fields
-        fields += ['act_duration',
-                   'track_duration',
-                   'track_artist',
-                   'track_title']
-        required = Act().bid_draft_fields
+        fields = [
+            'performer',
+            'shows_preferences',
+            'other_performance',
+            'b_title',
+            'track_title',
+            'track_artist',
+            'track_duration',
+            'act_duration',
+            'video_link',
+            'video_choice',
+            'b_description',
+            'why_you',
+            'b_conference',
+            'act_duration',
+            'track_duration',
+            'track_artist',
+            'track_title']
         labels = act_bid_labels
         help_texts = act_help_texts
         widgets = {'b_conference': HiddenInput(), }
