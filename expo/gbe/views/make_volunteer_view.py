@@ -14,6 +14,7 @@ from gbe.models import (
     Volunteer,
 )
 from gbetext import (
+    default_volunteer_edit_msg,
     default_volunteer_submit_msg,
     default_volunteer_no_interest_msg,
     default_volunteer_no_bid_msg,
@@ -24,6 +25,7 @@ from gbe.views.volunteer_display_functions import (
     validate_interests,
 )
 from gbe.functions import (
+    notify_reviewers_on_bid_change,
     send_schedule_update_mail,
     send_warnings_to_staff,
     validate_perms,
@@ -53,6 +55,7 @@ class MakeVolunteerView(MakeBidView):
     prefix = None
     bid_class = Volunteer
     bid_edit = False
+    coordinator = None
 
     def get_reduced_availability(self, the_bid, form):
         '''  Get cases where the volunteer has reduced their availability.
@@ -111,7 +114,10 @@ class MakeVolunteerView(MakeBidView):
             return redirect
 
         if self.bid_object and (self.bid_object.profile != self.owner):
-            self.owner = validate_perms(request, ('Volunteer Coordinator',))
+            self.coordinator = validate_perms(
+                request,
+                ('Volunteer Coordinator',))
+            self.owner = self.bid_object.profile
 
         try:
             self.windows = self.conference.windows()
@@ -165,7 +171,7 @@ class MakeVolunteerView(MakeBidView):
                     instance=interest,
                     initial={'interest': interest.interest},
                     prefix=str(interest.pk)
-                    ) for interest in self.available_interests]
+                ) for interest in self.bid_object.volunteerinterest_set.all()]
         else:
             self.form = the_form(
                 request.POST,
@@ -177,6 +183,17 @@ class MakeVolunteerView(MakeBidView):
                     initial={'interest': interest},
                     prefix=str(interest.pk)
                     ) for interest in self.available_interests]
+
+    def set_up_post(self, request):
+        user_message = super(MakeVolunteerView, self).set_up_post(request)
+        if self.bid_object:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="EDIT_SUCCESS",
+                defaults={
+                    'summary': "Volunteer Edit Success",
+                    'description': default_volunteer_edit_msg})
+        return user_message
 
     def get_create_form(self, request):
         self.formset =[]
@@ -287,3 +304,21 @@ class MakeVolunteerView(MakeBidView):
             vol_interest = interest_form.save(commit=False)
             vol_interest.volunteer = self.bid_object
             vol_interest.save()
+
+    def submit_bid(self, request):
+        self.bid_object.submitted = True
+        self.bid_object.save()
+        bid_review_url = reverse(
+            '%s_review' % self.bid_type.lower(),
+            urlconf='gbe.urls')
+
+        if not self.coordinator:
+            notify_reviewers_on_bid_change(
+                self.owner,
+                self.bid_type,
+                "Submission",
+                self.conference,
+                '%s Reviewers' % self.bid_type,
+                bid_review_url)
+        else:
+            return bid_review_url

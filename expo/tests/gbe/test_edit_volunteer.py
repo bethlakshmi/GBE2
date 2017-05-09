@@ -5,6 +5,7 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
+    ProfilePreferencesFactory,
     ProfileFactory,
     UserMessageFactory,
     VolunteerFactory,
@@ -24,7 +25,7 @@ from tests.functions.gbe_functions import (
     grant_privilege,
 )
 from gbetext import (
-    default_volunteer_submit_msg,
+    default_volunteer_edit_msg,
     default_volunteer_no_interest_msg
 )
 from gbe.models import UserMessage
@@ -58,6 +59,7 @@ class TestEditVolunteer(TestCase):
                 'b_title': 'title',
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
+                'submit': True,
                  }
         if invalid:
             del(form['number_shifts'])
@@ -65,7 +67,8 @@ class TestEditVolunteer(TestCase):
 
     def edit_volunteer(self, rank=5):
         clear_conferences()
-        context = VolunteerContext()
+        pref = ProfilePreferencesFactory()
+        context = VolunteerContext(profile=pref.profile)
         add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
@@ -148,6 +151,7 @@ class TestEditVolunteer(TestCase):
         response, context = self.edit_volunteer()
         expected_string = ("Bid Information for %s" %
                            context.conference.conference_name)
+        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertTrue(expected_string in response.content)
 
@@ -196,12 +200,12 @@ class TestEditVolunteer(TestCase):
         response, context = self.edit_volunteer()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
-            response, 'success', 'Success', default_volunteer_submit_msg)
+            response, 'success', 'Success', default_volunteer_edit_msg)
 
     def test_volunteer_submit_has_message(self):
         msg = UserMessageFactory(
             view='MakeVolunteerView',
-            code='SUBMIT_SUCCESS')
+            code='EDIT_SUCCESS')
         response, context = self.edit_volunteer()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(

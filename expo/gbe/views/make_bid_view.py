@@ -134,6 +134,19 @@ class MakeBidView(View):
             context
             )
 
+    def submit_bid(self, request):
+        self.bid_object.submitted = True
+        self.bid_object.save()
+        
+        notify_reviewers_on_bid_change(
+            self.owner,
+            self.bid_type,
+            "Submission",
+            self.conference,
+            '%s Reviewers' % self.bid_type,
+            reverse('%s_review' % self.bid_type.lower(),
+                    urlconf='gbe.urls'))
+    
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
@@ -165,7 +178,7 @@ class MakeBidView(View):
     @log_func
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        redirect = None
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
@@ -188,19 +201,10 @@ class MakeBidView(View):
                     {'link': self.fee_link,
                      'page_title': page_title})
             else:
-                self.bid_object.submitted = True
-                self.bid_object.save()
-                notify_reviewers_on_bid_change(
-                    self.owner,
-                    self.bid_type,
-                    "Submission",
-                    self.conference,
-                    '%s Reviewers' % self.bid_type,
-                    reverse(
-                        '%s_review' % self.bid_type.lower(),
-                        urlconf='gbe.urls'))
+                redirect = self.submit_bid(request)
         messages.success(request, user_message[0].description)
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        return HttpResponseRedirect(
+            redirect or reverse('home', urlconf='gbe.urls'))
 
     def dispatch(self, *args, **kwargs):
         return super(MakeBidView, self).dispatch(*args, **kwargs)
