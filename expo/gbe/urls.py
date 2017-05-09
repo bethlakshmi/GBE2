@@ -15,7 +15,6 @@ from gbe.views import (
     CloneBidView,
     ConferenceVolunteerView,
     CostumeChangeStateView,
-    CreateClassView,
     CreateComboView,
     CreateEventView,
     CreateVendorView,
