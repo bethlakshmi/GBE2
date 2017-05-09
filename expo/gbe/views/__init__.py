@@ -2,8 +2,6 @@ from down_view import DownView
 from landing_page_view import LandingPageView
 
 # parent bid classes
-from create_bid_view import CreateBidView
-from edit_bid_view import EditBidView
 from make_bid_view import MakeBidView
 from review_bid_view import ReviewBidView
 from view_bid_view import ViewBidView
@@ -31,13 +29,11 @@ from make_act_view import MakeActView
 from make_class_view import MakeClassView
 
 # create
-from create_class_view import CreateClassView
 from bid_costume_view import BidCostumeView
 from create_vendor_view import CreateVendorView
 from create_volunteer_view import CreateVolunteerView
 
 # edit
-from edit_class_view import EditClassView
 from edit_costume_view import EditCostumeView
 from edit_vendor_view import EditVendorView
 from edit_volunteer_view import EditVolunteerView

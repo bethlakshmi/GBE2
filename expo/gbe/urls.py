@@ -21,7 +21,6 @@ from gbe.views import (
     CreateVolunteerView,
     DeleteProfileView,
     EditActTechInfoView,
-    EditClassView,
     EditCostumeView,
     EditPersonaView,
     EditTroupeView,
