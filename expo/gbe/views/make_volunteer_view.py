@@ -56,6 +56,7 @@ class MakeVolunteerView(MakeBidView):
     bid_class = Volunteer
     bid_edit = False
     coordinator = None
+    action = "Update"
 
     def get_reduced_availability(self, the_bid, form):
         '''  Get cases where the volunteer has reduced their availability.
@@ -130,6 +131,7 @@ class MakeVolunteerView(MakeBidView):
             return self.no_vol_bidding(request)
 
         if not self.bid_object:
+            self.action = "Submission"
             try:
                 existing_bid = self.owner.volunteering.get(
                     b_conference=self.conference)
@@ -316,7 +318,7 @@ class MakeVolunteerView(MakeBidView):
             notify_reviewers_on_bid_change(
                 self.owner,
                 self.bid_type,
-                "Submission",
+                self.action,
                 self.conference,
                 '%s Reviewers' % self.bid_type,
                 bid_review_url)
