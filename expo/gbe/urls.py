@@ -32,6 +32,7 @@ from gbe.views import (
     LogoutView,
     MakeActView,
     MakeClassView,
+    MakeSummerActView,
     ProfileView,
     ProposeClassView,
     PublishProposalView,
@@ -103,6 +104,11 @@ urlpatterns = patterns(
     url(r'^act/changestate/(?P<object_id>\d+)/?$',
         ActChangeStateView.as_view(),
         name='act_changestate'),
+
+    url(r'^summer_act/create/?$',
+        MakeSummerActView.as_view(), name='act_create'),
+    url(r'^summer_act/edit/(?P<bid_id>\d+)/?$',
+        MakeSummerActView.as_view(), name='act_edit'),
 
     #  act tech info
     url(r'^acttechinfo/edit/(\d+)/?$',

@@ -240,7 +240,8 @@ act_help_texts = {
 act_bid_labels = {
     'performer': 'Performer',
     'b_title': 'Name of Act',
-    'shows_preferences': 'I am interested in:',
+    'summer_shows_preferences': 'I am available to perform on',
+    'shows_preferences': 'I am interested in',
     'other_performance': 'Other performance opportunities',
     'song_title': ' Name of Song',
     'song_artist': 'Song Artist',
@@ -254,6 +255,8 @@ act_bid_labels = {
     'video_link': 'URL of Video'
 }
 
+also_consider_act_for = '''Please also consider this act for GBE12,
+January 5-7, 2018'''
 bio_required = "Performer/Troupe history is required."
 bio_too_long = "The History is too long."
 bio_help_text = 'Please give a brief performer/troupe history.'

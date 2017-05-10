@@ -27,6 +27,7 @@ from review_profiles_view import ReviewProfilesView
 # make
 from make_act_view import MakeActView
 from make_class_view import MakeClassView
+from make_summer_act_view import MakeSummerActView
 
 # create
 from bid_costume_view import BidCostumeView
