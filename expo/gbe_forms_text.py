@@ -358,7 +358,7 @@ summer_act_popup_text = '''<strong>Instructions (please read!):
     Once you are happy with it, pay your application fee, wait a few moments,
     and come back here to submit this act by pressing the Submit button at
     the bottom of the page.<br><br>
-    The MiniBurlExpo is a new venture for us. We don?t know how many shows
+    The MiniBurlExpo is a new venture for us. We don't know how many shows
     we're having or even how many nights of shows. Please let us know all
     nights that you would be able to be in town and perform. The current
     plans is to have one show on Saturday night and classes during the day.

@@ -18,7 +18,9 @@
     {% endfor %}
   {% endif %}
 
+   {% if popup_text %}
    <div class="alert alert-info">{{popup_text |safe }}</div>
+   {% endif %}
    <form action="" method="post" enctype="multipart/form-data">
 
    {% include "form_table_wrapper.tmpl" %}

@@ -49,6 +49,7 @@ class MakeActView(MakeBidView):
         redirect = super(MakeActView, self).groundwork(request, args, kwargs)
         if redirect:
             return redirect
+        
         self.personae = self.owner.personae.all()
         if len(self.personae) == 0:
             return '%s?next=%s' % (

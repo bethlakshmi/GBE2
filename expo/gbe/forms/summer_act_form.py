@@ -1,5 +1,7 @@
 from django.forms import (
+    BooleanField,
     CheckboxSelectMultiple,
+    HiddenInput,
     MultipleChoiceField,
 )
 from gbe.forms import (
@@ -21,6 +23,8 @@ from gbe.functions import get_current_conference
 from gbe.expoformfields import (
     DurationFormField,
 )
+from gbe.models import Act
+
 
 class SummerActDraftForm(ActEditDraftForm):
     shows_preferences = MultipleChoiceField(
@@ -46,6 +50,8 @@ class SummerActDraftForm(ActEditDraftForm):
         help_text=summer_help_texts['track_duration'],
         label=act_bid_labels['track_duration']
     )
+    is_summer = BooleanField(widget=HiddenInput, initial=True)
+
 
 class SummerActForm(SummerActDraftForm):
     shows_preferences = MultipleChoiceField(
