@@ -221,9 +221,6 @@ act_help_texts = {
     'performer': ('Select the stage persona, combo, or troupe who will be '
                   'performing. Hit "create" to create a new persona, troupe, '
                   'or combo.'),
-    'video_link': ('Link to some video of your performance, or a similar '
-                   'act. This will be used for evaluating your bid, and will '
-                   'not appear on your performer page.'),
     'other_performance': ("Don't feel badly if you're not accepted to perform "
                           "in one of the formal shows. We have a ton of other "
                           "ways to get your performance fix! Indicating that "
@@ -235,6 +232,20 @@ act_help_texts = {
     'intro_text': 'This text will be used by the MC to introduce your act.',
     'notes': ('Please clarify any instructions with respect to prop setting, '
               'clearing, or cueing')
+}
+
+summer_help_texts = {
+    'shows_preferences': 'Check as many as apply to you',
+    'act_duration': (
+        'Length of entire act in mm:ss - please include any time you are '
+        'performing before or after your song.  There is no maximum length '
+        'for acts, but remember we are trying to accommodate as many '
+        'performers as possible. The longer the act, the more stringent '
+        'the selection criteria'),
+    'track_duration': (
+        'Please enter the duration of your music or backing track in minutes '
+        'and seconds.  Something that was four minutes and twenty seconds '
+        'would be entered as "04:20".'),
 }
 
 act_bid_labels = {
@@ -254,6 +265,7 @@ act_bid_labels = {
                 'Exposition?'),
     'video_link': 'URL of Video'
 }
+summer_bid_label = "I am available to perform on"
 
 also_consider_act_for = '''Please also consider this act for GBE12,
 January 5-7, 2018'''
@@ -333,12 +345,25 @@ description_help_text = '''For use on the The Great Burlesque Expo website, \
     in advertising and in any schedule of events. The description should be \
     1-2 paragraphs.'''
 
-avoided_constraints_popup_text = '''<div class="alert alert-info">
-<strong>Info!</strong> We will do our best to accommodate everyone's
-    requests when scheduling classes, but please realize that is not always
-    possible. The more flexible you can be, the more likely we are to be able
-    to schedule your class. Thanks for your understanding!
-</div>'''
+avoided_constraints_popup_text = '''<strong>Info!</strong>
+    We will do our best to accommodate everyone's requests when scheduling
+    classes, but please realize that is not always possible. The more to
+    flexible you can be, the more likely we are to be able schedule your
+    class. Thanks for your understanding!'''
+
+summer_act_popup_text = '''<strong>Instructions (please read!): 
+    </strong> Thanks for submitting an act for consideration at the Summer 
+    2017 MiniBurlExpo. As long as you have completed all of the bold fields,
+    you will be able to save this form as a draft and come back and edit it.
+    Once you are happy with it, pay your application fee, wait a few moments,
+    and come back here to submit this act by pressing the Submit button at
+    the bottom of the page.<br><br>
+    The MiniBurlExpo is a new venture for us. We don?t know how many shows
+    we're having or even how many nights of shows. Please let us know all
+    nights that you would be able to be in town and perform. The current
+    plans is to have one show on Saturday night and classes during the day.
+    If there is demand, we?ll add a second show on Saturday, and then a
+    show on Friday, and then a show on Sunday.'''
 
 classbid_labels = {
     'min_size': ('Minimum Size'),

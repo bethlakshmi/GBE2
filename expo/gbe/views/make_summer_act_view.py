@@ -24,6 +24,7 @@ from gbetext import (
     default_act_draft_msg,
 )
 from gbe.views.act_display_functions import display_invalid_act
+from gbe_forms_text import summer_act_popup_text
 
 
 class MakeSummerActView(MakeActView):
@@ -38,6 +39,6 @@ class MakeSummerActView(MakeActView):
         return initial
 
     def make_context(self):
-        context = super(MakeSummerActView, self).make_context()
-        context['popup_text'] = "I am popup text"
+        context = super(MakeActView, self).make_context()
+        context['popup_text'] = summer_act_popup_text
         return context

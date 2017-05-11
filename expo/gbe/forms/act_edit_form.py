@@ -5,6 +5,9 @@ from django.forms import (
     ModelForm,
     MultipleChoiceField,
     Textarea,
+    TextInput,
+    URLField,
+    URLInput,
 )
 from gbe.models import Act
 from gbe_forms_text import (
@@ -46,6 +49,12 @@ class ActEditDraftForm(ModelForm):
         choices=act_other_perf_options,
         label=act_bid_labels['other_performance'],
         help_text=act_help_texts['other_performance'],
+        required=False
+    )
+    video_link = URLField(
+        widget=URLInput(attrs={'placeholder': 'http://'}),
+        help_text=act_help_texts['video_link'],
+        label=act_bid_labels['video_link'],
         required=False
     )
     b_conference = HiddenInput()

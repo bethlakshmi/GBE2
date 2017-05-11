@@ -1,5 +1,6 @@
 import pytz
 from django.db.models import(
+    BooleanField,
     CharField,
     ForeignKey,
     OneToOneField,
@@ -43,13 +44,7 @@ class Act (Biddable, ActItem):
     shows_preferences = TextField(blank=True)
     other_performance = TextField(blank=True)
     why_you = TextField(blank=True)
-
-    is_not_blank = ('len(%s) > 0', '%s cannot be blank')
-
-    validation_list = [
-        (('b_title', 'Title'), is_not_blank),
-        (('b_description', 'Description'), is_not_blank),
-    ]
+    is_summer = BooleanField(default=False)
 
     def clone(self):
         act = Act(

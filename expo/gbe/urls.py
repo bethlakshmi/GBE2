@@ -106,9 +106,9 @@ urlpatterns = patterns(
         name='act_changestate'),
 
     url(r'^summer_act/create/?$',
-        MakeSummerActView.as_view(), name='act_create'),
+        MakeSummerActView.as_view(), name='summer_act_create'),
     url(r'^summer_act/edit/(?P<bid_id>\d+)/?$',
-        MakeSummerActView.as_view(), name='act_edit'),
+        MakeSummerActView.as_view(), name='summer_act_edit'),
 
     #  act tech info
     url(r'^acttechinfo/edit/(\d+)/?$',
