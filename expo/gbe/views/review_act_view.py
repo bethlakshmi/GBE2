@@ -7,7 +7,9 @@ from gbe.models import (
 )
 from gbe.forms import (
     ActBidEvaluationForm,
+    ActEditForm,
     BidStateChangeForm,
+    SummerActForm,
 )
 from gbe.views import ReviewBidView
 from gbe.views.functions import get_performer_form
@@ -32,7 +34,16 @@ class ReviewActView(ReviewBidView):
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
         self.bidder = get_performer_form(self.object.performer)
-        self.object_form = get_act_form(self.object)
+        if self.object.is_summer:
+            self.object_form = get_act_form(
+                self.object,
+                SummerActForm,
+                "Act for Miniexpo")
+        else:
+            self.object_form = get_act_form(
+                self.object,
+                ActEditForm,
+                "The Act")
         self.readonlyform_pieces = [self.object_form, self.bidder]
 
     def create_action_form(self, act):
