@@ -43,6 +43,7 @@ from edit_volunteer_view import EditVolunteerView
 from view_act_view import ViewActView
 from view_class_view import ViewClassView
 from view_costume_view import ViewCostumeView
+from view_summer_act_view import ViewSummerActView
 from view_vendor_view import ViewVendorView
 from view_volunteer_view import ViewVolunteerView
 

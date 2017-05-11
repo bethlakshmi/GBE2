@@ -56,6 +56,7 @@ from gbe.views import (
     ViewActView,
     ViewClassView,
     ViewCostumeView,
+    ViewSummerActView,
     ViewTroupeView,
     ViewVendorView,
     ViewVolunteerView,
@@ -109,6 +110,8 @@ urlpatterns = patterns(
         MakeSummerActView.as_view(), name='summer_act_create'),
     url(r'^summer_act/edit/(?P<bid_id>\d+)/?$',
         MakeSummerActView.as_view(), name='summer_act_edit'),
+    url(r'^summer_act/view/(?P<bid_id>\d+)/?$',
+        ViewSummerActView.as_view(), name='summer_act_view'),
 
     #  act tech info
     url(r'^acttechinfo/edit/(\d+)/?$',

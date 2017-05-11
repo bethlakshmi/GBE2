@@ -13,7 +13,6 @@ from gbetext import (
     act_not_unique,
 )
 from gbe_forms_text import act_bid_labels
-from gbe.forms import ActEditForm
 
 
 def display_invalid_act(request, data, form, conference, profile, view):
@@ -51,7 +50,7 @@ def display_invalid_act(request, data, form, conference, profile, view):
     )
 
 
-def get_act_form(act):
+def get_act_form(act, form, header):
     audio_info = act.tech.audio
     stage_info = act.tech.stage
     initial = {
@@ -60,10 +59,9 @@ def get_act_form(act):
         'track_duration': audio_info.track_duration,
         'act_duration': stage_info.act_duration
     }
-
-    act_form = ActEditForm(
+    act_form = form(
         instance=act,
-        prefix="The Act",
+        prefix=header,
         initial=initial)
     act_form.fields['video_choice'] = ChoiceField(
             choices=[(act.video_choice,
