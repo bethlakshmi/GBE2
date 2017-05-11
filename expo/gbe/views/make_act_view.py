@@ -49,7 +49,18 @@ class MakeActView(MakeBidView):
         redirect = super(MakeActView, self).groundwork(request, args, kwargs)
         if redirect:
             return redirect
-        
+        if self.bid_object and self.bid_object.is_summer and (
+                self.__class__.__name__ != "MakeSummerActView"):
+            return reverse(
+                'summer_act_edit',
+                urlconf='gbe.urls',
+                args=[self.bid_object.pk])
+        elif self.bid_object and not self.bid_object.is_summer and (
+                self.__class__.__name__ == "MakeSummerActView"):
+            return reverse(
+                'act_edit',
+                urlconf='gbe.urls',
+                args=[self.bid_object.pk])
         self.personae = self.owner.personae.all()
         if len(self.personae) == 0:
             return '%s?next=%s' % (
