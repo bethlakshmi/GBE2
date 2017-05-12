@@ -38,7 +38,7 @@ class ReviewActView(ReviewBidView):
             self.object_form = get_act_form(
                 self.object,
                 SummerActForm,
-                "Act for Miniexpo")
+                "The Summer Act")
         else:
             self.object_form = get_act_form(
                 self.object,
