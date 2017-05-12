@@ -21,7 +21,7 @@ class ViewBidView(View):
 
     def check_bid(self):
         return None
-    
+
     def get_owner_profile(self):
         return self.bid.profile
 

@@ -351,8 +351,8 @@ avoided_constraints_popup_text = '''<strong>Info!</strong>
     flexible you can be, the more likely we are to be able schedule your
     class. Thanks for your understanding!'''
 
-summer_act_popup_text = '''<strong>Instructions (please read!): 
-    </strong> Thanks for submitting an act for consideration at the Summer 
+summer_act_popup_text = '''<strong>Instructions (please read!):
+    </strong> Thanks for submitting an act for consideration at the Summer
     2017 MiniBurlExpo. As long as you have completed all of the bold fields,
     you will be able to save this form as a draft and come back and edit it.
     Once you are happy with it, pay your application fee, wait a few moments,

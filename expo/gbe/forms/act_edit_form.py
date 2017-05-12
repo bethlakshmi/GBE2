@@ -83,7 +83,7 @@ class ActEditDraftForm(ModelForm):
         labels = act_bid_labels
         help_texts = act_help_texts
         widgets = {'b_conference': HiddenInput(),
-                   'is_summer': HiddenInput(),}
+                   'is_summer': HiddenInput(), }
 
 
 class ActEditForm(ActEditDraftForm):

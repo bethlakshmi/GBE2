@@ -36,6 +36,9 @@ class ViewActView(ViewBidView):
         return self.bid.performer.contact
 
     def get_display_forms(self):
-        actform = get_act_form(self.bid, self.object_form_type, self.bid_prefix)
+        actform = get_act_form(
+            self.bid,
+            self.object_form_type,
+            self.bid_prefix)
         performer_form = get_performer_form(self.bid.performer)
         return (actform, performer_form)
