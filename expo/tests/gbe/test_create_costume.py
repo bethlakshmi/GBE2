@@ -25,7 +25,7 @@ from gbe.models import (
 )
 
 
-class TestEditCostume(TestCase):
+class TestCreateCostume(TestCase):
     '''Tests for edit_costume view'''
     view_name = 'costume_create'
 
@@ -160,7 +160,7 @@ class TestEditCostume(TestCase):
 
     def test_costume_submit_has_message(self):
         msg = UserMessageFactory(
-            view='BidCostumeView',
+            view='MakeCostumeView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_costume_submission()
         self.assertEqual(response.status_code, 200)
@@ -169,7 +169,7 @@ class TestEditCostume(TestCase):
 
     def test_costume_draft_has_message(self):
         msg = UserMessageFactory(
-            view='BidCostumeView',
+            view='MakeCostumeView',
             code='DRAFT_SUCCESS')
         response, data = self.post_costume_draft()
         self.assertEqual(200, response.status_code)

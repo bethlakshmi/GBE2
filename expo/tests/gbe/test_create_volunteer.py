@@ -181,7 +181,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_volunteer_submit_has_message(self):
         msg = UserMessageFactory(
-            view='CreateVolunteerView',
+            view='MakeVolunteerView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_volunteer_submission()
         self.assertEqual(response.status_code, 200)
@@ -228,7 +228,7 @@ class TestCreateVolunteer(TestCase):
 
     def test_no_interests_has_message(self):
         msg = UserMessageFactory(
-            view='CreateVolunteerView',
+            view='MakeVolunteerView',
             code='NO_BIDDING_ALLOWED')
         AvailableInterest.objects.all().delete()
         url = reverse(self.view_name,
@@ -253,7 +253,7 @@ class TestCreateVolunteer(TestCase):
         data = self.get_volunteer_form(submit=True)
         data['%d-rank' % self.interest.pk] = 1
         msg = UserMessageFactory(
-            view='CreateVolunteerView',
+            view='MakeVolunteerView',
             code='NO_INTERESTS_SUBMITTED')
         response, data = self.post_volunteer_submission(data)
         self.assertEqual(response.status_code, 200)

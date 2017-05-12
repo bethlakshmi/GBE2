@@ -38,15 +38,15 @@ class TestCreateVendor(TestCase):
         UserMessage.objects.all().delete()
 
     def get_form(self, submit=False, invalid=False):
-        form = {'profile': 1,
-                'b_title': 'title here',
-                'b_description': 'description here',
-                'physical_address': '123 Maple St.',
+        form = {'thebiz-profile': 1,
+                'thebiz-b_title': 'title here',
+                'thebiz-b_description': 'description here',
+                'thebiz-physical_address': '123 Maple St.',
                 }
         if submit:
             form['submit'] = True
         if invalid:
-            del(form['b_description'])
+            del(form['thebiz-b_description'])
         return form
 
     def post_paid_vendor_submission(self):
@@ -56,8 +56,8 @@ class TestCreateVendor(TestCase):
         make_vendor_app_purchase(self.conference, self.profile.user_object)
         login_as(self.profile, self)
         data = self.get_form(submit=True)
-        data['profile'] = self.profile.pk
-        data['username'] = username
+        data['thebiz-profile'] = self.profile.pk
+        data['thebiz-username'] = username
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -68,7 +68,7 @@ class TestCreateVendor(TestCase):
                       urlconf='gbe.urls')
         login_as(self.profile, self)
         data = self.get_form()
-        data['profile'] = self.profile.pk
+        data['thebiz-profile'] = self.profile.pk
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -89,13 +89,13 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Profile View' in response.content)
         self.assertContains(response, "(Click to edit)")
-        self.assertContains(response, data['b_title'])
+        self.assertContains(response, data['thebiz-b_title'])
 
     def test_create_vendor_post_form_valid_submit(self):
         url = reverse(self.view_name, urlconf='gbe.urls')
         login_as(self.profile, self)
         data = self.get_form(submit=True)
-        data['profile'] = self.profile.pk
+        data['thebiz-profile'] = self.profile.pk
         response = self.client.post(url,
                                     data,
                                     follow=True)
@@ -131,7 +131,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['b_title'])
+        self.assertContains(response, data['thebiz-b_title'])
 
     def test_create_vendor_post_with_vendor_old_comp(self):
         comped_vendor = VendorFactory(
@@ -143,7 +143,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['b_title'])
+        self.assertContains(response, data['thebiz-b_title'])
 
     def test_create_vendor_post_with_second_vendor_app_paid(self):
         prev_vendor = VendorFactory(
@@ -156,7 +156,7 @@ class TestCreateVendor(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)
         self.assertContains(response, "(Click to view)")
-        self.assertContains(response, data['b_title'])
+        self.assertContains(response, data['thebiz-b_title'])
 
     def test_vendor_submit_make_message(self):
         response, data = self.post_paid_vendor_submission()
@@ -172,7 +172,7 @@ class TestCreateVendor(TestCase):
 
     def test_vendor_submit_has_message(self):
         msg = UserMessageFactory(
-            view='CreateVendorView',
+            view='MakeVendorView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
@@ -181,7 +181,7 @@ class TestCreateVendor(TestCase):
 
     def test_vendor_draft_has_message(self):
         msg = UserMessageFactory(
-            view='CreateVendorView',
+            view='MakeVendorView',
             code='DRAFT_SUCCESS')
         response, data = self.post_paid_vendor_draft()
         self.assertEqual(200, response.status_code)

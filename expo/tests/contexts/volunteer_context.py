@@ -1,6 +1,7 @@
 from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     GenericEventFactory,
+    ProfilePreferencesFactory,
     ProfileFactory,
     ShowFactory,
     VolunteerFactory,
@@ -29,6 +30,8 @@ class VolunteerContext():
         self.window = VolunteerWindowFactory()
         self.conference = self.window.day.conference
         self.profile = profile or ProfileFactory()
+        if not hasattr(self.profile, 'preferences'):
+            ProfilePreferencesFactory(profile=self.profile)
 
         if bid is False:
             self.bid = None
