@@ -14,18 +14,37 @@ from gbe.models import (
     UserMessage,
 )
 from expo.gbe_logging import log_func
-from gbe.functions import validate_profile
+from gbe.functions import (
+    notify_reviewers_on_bid_change,
+    validate_profile,
+)
+from gbetext import (
+    no_profile_msg,
+    no_login_msg,
+    full_login_msg,
+)
 
 
 class MakeBidView(View):
     form = None
     fee_link = None
     popup_text = None
+    has_draft = True
 
     def groundwork(self, request, args, kwargs):
         self.owner = validate_profile(request, require=False)
-        if not self.owner:
-            return reverse('profile_update', urlconf='gbe.urls')
+        if not self.owner or not self.owner.complete:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="PROFILE_INCOMPLETE",
+                defaults={
+                    'summary': "%s Profile Incomplete",
+                    'description': no_profile_msg})
+            messages.warning(request, user_message[0].description)
+            return '%s?next=%s' % (
+                reverse('profile_update', urlconf='gbe.urls'),
+                reverse('%s_create' % self.bid_type.lower(),
+                        urlconf='gbe.urls'))
 
         self.bid_object = None
         if "bid_id" in kwargs:
@@ -36,9 +55,22 @@ class MakeBidView(View):
             self.conference = Conference.objects.filter(
                     accepting_bids=True).first()
 
+    def make_post_forms(self, request, the_form):
+        if self.bid_object:
+            self.form = the_form(
+                request.POST,
+                instance=self.bid_object,
+                initial=self.get_initial(),
+                prefix=self.prefix)
+        else:
+            self.form = the_form(
+                request.POST,
+                initial=self.get_initial(),
+                prefix=self.prefix)
+
     def set_up_post(self, request):
         the_form = None
-        if 'submit' in request.POST.keys():
+        if 'submit' in request.POST.keys() or not self.has_draft:
             the_form = self.submit_form
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
@@ -54,18 +86,7 @@ class MakeBidView(View):
                 defaults={
                     'summary': "%s Save Draft Success" % self.bid_type,
                     'description': self.draft_msg})
-        if self.bid_object:
-            self.form = the_form(
-                request.POST,
-                instance=self.bid_object,
-                initial=self.get_initial(),
-                prefix=self.prefix)
-        else:
-            self.form = the_form(
-                request.POST,
-                initial=self.get_initial(),
-                prefix=self.prefix)
-
+        self.make_post_forms(request, the_form)
         return user_message
 
     def make_context(self):
@@ -101,9 +122,51 @@ class MakeBidView(View):
     def fee_paid(self):
         return True
 
+    def set_up_form(self):
+        pass
+
+    def get_invalid_response(self, request):
+        self.set_up_form()
+        context = self.make_context()
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            context
+            )
+
+    def submit_bid(self, request):
+        self.bid_object.submitted = True
+        self.bid_object.save()
+        notify_reviewers_on_bid_change(
+            self.owner,
+            self.bid_type,
+            "Submission",
+            self.conference,
+            '%s Reviewers' % self.bid_type,
+            reverse('%s_review' % self.bid_type.lower(),
+                    urlconf='gbe.urls'))
+
     @never_cache
     @log_func
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            follow_on = '?next=%s' % reverse(
+                '%s_create' % self.bid_type.lower(),
+                urlconf='gbe.urls')
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="USER_NOT_LOGGED_IN",
+                defaults={
+                    'summary': "Need Login - %s Bid",
+                    'description': no_login_msg})
+            full_msg = full_login_msg % (
+                user_message[0].description,
+                reverse('login', urlconf='gbe.urls') + follow_on)
+            messages.warning(request, full_msg)
+
+            return HttpResponseRedirect(
+                reverse('register', urlconf='gbe.urls') + follow_on)
+
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
@@ -112,8 +175,9 @@ class MakeBidView(View):
 
     @never_cache
     @log_func
+    @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        redirect = None
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
@@ -136,11 +200,10 @@ class MakeBidView(View):
                     {'link': self.fee_link,
                      'page_title': page_title})
             else:
-                self.bid_object.submitted = True
-                self.bid_object.save()
+                redirect = self.submit_bid(request)
         messages.success(request, user_message[0].description)
-        return HttpResponseRedirect(reverse('home', urlconf='gbe.urls'))
+        return HttpResponseRedirect(
+            redirect or reverse('home', urlconf='gbe.urls'))
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(MakeBidView, self).dispatch(*args, **kwargs)

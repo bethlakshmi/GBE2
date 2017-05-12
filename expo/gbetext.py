@@ -327,6 +327,9 @@ or edit the existing act.'''
 no_profile_msg = '''Your profile is not complete, you must provide a first \
 and last name, a name we can use on your badge, and a phone number we can \
 use to notify you of changes to the schedule at run time.'''
+no_login_msg = '''Please set up and account and give us some ways to \
+contact you, or login, if you already have an account.'''
+full_login_msg = '''%s - <a href="%s">Login</a>'''
 default_deactivate_profile_admin_msg = '''This user is involved in one or \
 more activities on this site.  To protect unintended changes, the user was \
 deactivated.  To delete, reactivate, or review the details, go to the admin: \

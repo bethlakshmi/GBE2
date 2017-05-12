@@ -56,35 +56,6 @@ class Costume(Biddable):
         return self.profile.user_object.is_active
 
     @property
-    def bid_fields(self):
-        return (
-            ['b_title',
-             'performer',
-             'creator',
-             'act_title',
-             'debut_date',
-             'active_use',
-             'pieces',
-             'b_description',
-             'pasties',
-             'dress_size',
-             'more_info',
-             'picture'],
-            ['b_title',
-             'creator',
-             'active_use',
-             'pieces',
-             'b_description',
-             'pasties',
-             'dress_size',
-             'picture']
-        )
-
-    @property
-    def bid_draft_fields(self):
-        return (['b_title', 'creator'])
-
-    @property
     def bid_review_header(self):
         return (['Performer (Creator)',
                  'Title',
