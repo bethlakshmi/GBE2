@@ -64,6 +64,12 @@ act_shows_options = [(0, 'The Bordello (Fri. Late)'),
                      (2, 'The Main Event, not in competition'),
                      (3, 'The Newcomer\'s Showcase')]
 
+more_shows_options = [
+    (4, 'Friday, July 28'),
+    (5, 'Saturday, July 29'),
+    (6, 'Sunday, July 30'),
+    (7, 'Please also consider this act for GBE12, January 5-7, 2018')]
+
 act_other_perf_options = [(0, ("Go-go dance during one or more of the shows "
                                "(we'll ask which one later)")),
                           (1, ("Be part of the opening number for The Main "
@@ -71,6 +77,11 @@ act_other_perf_options = [(0, ("Go-go dance during one or more of the shows "
                           (2, "Model in the Fashion Show (Sunday afternoon)"),
                           (3, ("Model in the Swimsuit Show (Saturday night "
                                "late)"))]
+
+summer_other_perf_options = [
+    (0, "Go-go dance during a show"),
+    (1, "Be part of the opening number."),
+    (2, "Model in the Fashion Show (Saturday afternoon)")]
 
 all_shows_options = act_shows_options + [(4, 'The Rhinestone Review')]
 
