@@ -123,6 +123,7 @@ class TestCreateEvent(TestCase):
         login_as(self.privileged_user, self)
         data = self.post_data('Class')
         data['accepted'] = '3'
+        data['submitted'] = True
         data['teacher'] = self.performer.pk
         response = self.client.post(
             url,
@@ -132,6 +133,24 @@ class TestCreateEvent(TestCase):
         nt.assert_true(Class.objects.filter(
             e_title=data['e_title']).count() > 0)
 
+    def test_create_class_submitted(self):
+        url = reverse(
+            self.view_name,
+            args=['Class'],
+            urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = self.post_data('Class')
+        data['e_title'] = "Special Title for Test 123"
+        data['submitted'] = True
+        data['accepted'] = '3'
+        data['teacher'] = self.performer.pk
+        response = self.client.post(
+            url,
+            data=data,
+            follow=True)
+        new_class = Class.objects.get(e_title=data['e_title'])
+        assert(new_class.submitted == True)
+
     def test_create_class_gbe_works_for_teacher(self):
         url = reverse(
             self.view_name,
@@ -140,6 +159,7 @@ class TestCreateEvent(TestCase):
         login_as(self.privileged_user, self)
         data = self.post_data('Class')
         data['accepted'] = '3'
+        data['submitted'] = True
         data['teacher'] = self.performer.pk
         self.client.post(
             url,
