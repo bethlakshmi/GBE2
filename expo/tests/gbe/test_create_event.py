@@ -149,7 +149,7 @@ class TestCreateEvent(TestCase):
             data=data,
             follow=True)
         new_class = Class.objects.get(e_title=data['e_title'])
-        assert(new_class.submitted == True)
+        assert(new_class.submitted)
 
     def test_create_class_gbe_works_for_teacher(self):
         url = reverse(
