@@ -5,6 +5,7 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     PersonaFactory,
+    ProfilePreferencesFactory,
     ProfileFactory,
     UserMessageFactory,
     VolunteerFactory,
@@ -58,14 +59,16 @@ class TestEditVolunteer(TestCase):
                 'b_title': 'title',
                 '%d-rank' % interest_pk: rank,
                 '%d-interest' % interest_pk: avail_pk,
-                 }
+                'submit': True,
+                }
         if invalid:
             del(form['number_shifts'])
         return form
 
     def edit_volunteer(self, rank=5):
         clear_conferences()
-        context = VolunteerContext()
+        pref = ProfilePreferencesFactory()
+        context = VolunteerContext(profile=pref.profile)
         add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
@@ -117,14 +120,15 @@ class TestEditVolunteer(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_edit_volunteer_profile_is_owner(self):
-        volunteer = VolunteerFactory()
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
-        login_as(volunteer.profile, self)
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('I am Available....' in response.content)
 
     def test_volunteer_edit_post_form_not_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -140,7 +144,7 @@ class TestEditVolunteer(TestCase):
                           invalid=True))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
 
     def test_volunteer_edit_post_form_valid(self):
         '''volunteer_edit, if form not valid, should return
@@ -152,45 +156,49 @@ class TestEditVolunteer(TestCase):
         self.assertTrue(expected_string in response.content)
 
     def test_volunteer_edit_get(self):
-        volunteer = VolunteerFactory(
-            availability='',
-            unavailability='',
-            b_title="title")
+        context = VolunteerContext()
+        add_window = context.add_window()
+        context.bid.b_title = "myTitle"
+        context.bid.save()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('Volunteer at the Expo' in response.content)
         assert_hidden_value(
             response,
             "id_b_title",
             "b_title",
-            volunteer.b_title,
+            context.bid.b_title,
             128)
 
     def test_volunteer_edit_get_rank(self):
-        volunteer = VolunteerFactory(
-            availability='',
-            unavailability='')
-        interest = VolunteerInterestFactory(volunteer=volunteer)
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
-        assert_rank_choice_exists(response, interest, interest.rank)
+        assert_rank_choice_exists(
+            response,
+            context.interest,
+            context.interest.rank)
 
     def test_volunteer_edit_get_with_stuff(self):
-        volunteer = VolunteerFactory()
+        clear_conferences()
+        context = VolunteerContext()
+        add_window = context.add_window()
         url = reverse('volunteer_edit',
                       urlconf='gbe.urls',
-                      args=[volunteer.pk])
+                      args=[context.bid.pk])
         login_as(self.privileged_user, self)
         response = self.client.get(url)
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Volunteer Bid' in response.content)
+        self.assertTrue('I am Available....' in response.content)
 
     def test_volunteer_submit_make_message(self):
         response, context = self.edit_volunteer()
@@ -200,8 +208,8 @@ class TestEditVolunteer(TestCase):
 
     def test_volunteer_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditVolunteerView',
-            code='SUBMIT_SUCCESS')
+            view='MakeVolunteerView',
+            code='EDIT_SUCCESS')
         response, context = self.edit_volunteer()
         self.assertEqual(response.status_code, 200)
         assert_alert_exists(
@@ -215,7 +223,7 @@ class TestEditVolunteer(TestCase):
 
     def test_not_interested_at_all_make_message(self):
         msg = UserMessageFactory(
-            view='EditVolunteerView',
+            view='MakeVolunteerView',
             code='NO_INTERESTS_SUBMITTED')
         response, context = self.edit_volunteer(rank=1)
         self.assertEqual(response.status_code, 200)

@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from django.test import TestCase
-from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
     ActBidEvaluationFactory,
@@ -28,7 +27,6 @@ class TestReviewAct(TestCase):
     '''Tests for review_act view'''
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.client = Client()
         self.performer = PersonaFactory()
         self.privileged_profile = ProfileFactory()
@@ -222,3 +220,13 @@ class TestReviewAct(TestCase):
         response = self.client.get(url)
         assert 'Video Notes:' in response.content
         assert video_options[1][1] not in response.content
+
+    def test_review_summer_act(self):
+        act = ActFactory(is_summer=True)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('The Summer Act' in response.content)

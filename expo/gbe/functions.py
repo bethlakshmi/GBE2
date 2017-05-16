@@ -67,6 +67,24 @@ def validate_perms(request, perms, require=True):
     return False               # or just return false if we're just checking
 
 
+def mail_send_gbe(to_list,
+                  from_address,
+                  template,
+                  context,
+                  priority='now'):
+    if settings.DEBUG:
+        to_list = []
+        for admin in settings.ADMINS:
+            to_list += [admin[1]]
+
+    mail.send(to_list,
+              from_address,
+              template=template,
+              context=context,
+              priority=priority,
+              )
+
+
 def send_user_contact_email(name, from_address, message):
     subject = "EMAIL FROM GBE SITE USER %s" % name
     to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
@@ -235,12 +253,11 @@ def send_bid_state_change_mail(
         name,
         "default_bid_status_change",
         action)
-    mail.send(
+    mail_send_gbe(
         email,
         template.sender.from_email,
         template=name,
         context=context,
-        priority='now',
     )
 
 
@@ -251,14 +268,13 @@ def send_schedule_update_mail(participant_type, profile):
         "volunteer_schedule_update",
         "A change has been made to your %s Schedule!" % (
                 participant_type))
-    mail.send(
+    mail_send_gbe(
         profile.contact_email,
         template.sender.from_email,
         template=name,
         context={
             'site': Site.objects.get_current().domain,
             'profile': profile},
-        priority='now',
     )
 
 
@@ -276,18 +292,18 @@ def notify_reviewers_on_bid_change(bidder,
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name)]
-    mail.send(to_list,
-              template.sender.from_email,
-              template=name,
-              context={
-                'bidder': bidder,
-                'bid_type': bid_type,
-                'action': action,
-                'conference': conference,
-                'group_name': group_name,
-                'review_url': Site.objects.get_current().domain+review_url},
-              priority='now',
-              )
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'action': action,
+            'conference': conference,
+            'group_name': group_name,
+            'review_url': Site.objects.get_current().domain+review_url},
+        )
 
 
 def send_warnings_to_staff(bidder,
@@ -304,15 +320,15 @@ def send_warnings_to_staff(bidder,
         if 'email' in warning:
             to_list += [warning['email']]
 
-    mail.send(to_list,
-              template.sender.from_email,
-              template=name,
-              context={
-                'bidder': bidder,
-                'bid_type': bid_type,
-                'warnings': warnings},
-              priority='now',
-              )
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'warnings': warnings},
+        )
 
 
 def get_gbe_schedulable_items(confitem_type,

@@ -5,6 +5,9 @@ from django.forms import (
     ModelForm,
     MultipleChoiceField,
     Textarea,
+    TextInput,
+    URLField,
+    URLInput,
 )
 from gbe.models import Act
 from gbe_forms_text import (
@@ -48,19 +51,39 @@ class ActEditDraftForm(ModelForm):
         help_text=act_help_texts['other_performance'],
         required=False
     )
+    video_link = URLField(
+        widget=URLInput(attrs={'placeholder': 'http://'}),
+        help_text=act_help_texts['video_link'],
+        label=act_bid_labels['video_link'],
+        required=False
+    )
     b_conference = HiddenInput()
 
     class Meta:
         model = Act
-        fields, required = Act().bid_fields
-        fields += ['act_duration',
-                   'track_duration',
-                   'track_artist',
-                   'track_title']
-        required = Act().bid_draft_fields
+        fields = [
+            'performer',
+            'shows_preferences',
+            'other_performance',
+            'b_title',
+            'track_title',
+            'track_artist',
+            'track_duration',
+            'act_duration',
+            'video_link',
+            'video_choice',
+            'b_description',
+            'why_you',
+            'b_conference',
+            'act_duration',
+            'track_duration',
+            'track_artist',
+            'track_title',
+            'is_summer']
         labels = act_bid_labels
         help_texts = act_help_texts
-        widgets = {'b_conference': HiddenInput(), }
+        widgets = {'b_conference': HiddenInput(),
+                   'is_summer': HiddenInput(), }
 
 
 class ActEditForm(ActEditDraftForm):

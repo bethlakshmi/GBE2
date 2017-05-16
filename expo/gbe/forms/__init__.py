@@ -43,6 +43,10 @@ from costume_details_form import (
     CostumeDetailsDraftForm,
     CostumeDetailsSubmitForm,
 )
+from summer_act_form import (
+    SummerActDraftForm,
+    SummerActForm,
+)
 from vendor_bid_form import VendorBidForm
 from volunteer_bid_form import VolunteerBidForm
 from volunteer_interest_form import VolunteerInterestForm

@@ -94,10 +94,9 @@ class TestEditCostume(TestCase):
         url = reverse(self.view_name,
                       args=[costume.pk],
                       urlconf='gbe.urls')
-        login_as(ProfileFactory(), self)
+        login_as(PersonaFactory().performer_profile, self)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue("You don&#39;t own that bid." in response.content)
+        self.assertEqual(response.status_code, 404)
 
     def test_edit_costume_no_profile(self):
         costume = CostumeFactory()
@@ -119,9 +118,7 @@ class TestEditCostume(TestCase):
         data = self.get_costume_form(invalid=True)
         login_as(costume.profile, self)
         response = self.client.post(url, data=data)
-        error_string = "This bid is not one of your stage names"
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(error_string in response.content)
+        self.assertEqual(response.status_code, 404)
 
     def test_edit_bid_post_no_submit(self):
         '''edit_costume, not submitting and no other problems,
@@ -158,7 +155,9 @@ class TestEditCostume(TestCase):
 
     def test_edit_bid_not_post(self):
         '''edit_costume, not post, should take us to edit process'''
-        costume = CostumeFactory()
+        persona = PersonaFactory()
+        costume = CostumeFactory(profile=persona.performer_profile,
+                                 performer=persona)
         url = reverse(self.view_name,
                       args=[costume.pk],
                       urlconf='gbe.urls')
@@ -183,7 +182,7 @@ class TestEditCostume(TestCase):
 
     def test_costume_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditCostumeView',
+            view='MakeCostumeView',
             code='SUBMIT_SUCCESS')
         response = self.post_edit_costume_submission()
         self.assertEqual(response.status_code, 200)
@@ -192,7 +191,7 @@ class TestEditCostume(TestCase):
 
     def test_costume_draft_has_message(self):
         msg = UserMessageFactory(
-            view='EditCostumeView',
+            view='MakeCostumeView',
             code='DRAFT_SUCCESS')
         response = self.post_edit_costume_draft()
         self.assertEqual(200, response.status_code)

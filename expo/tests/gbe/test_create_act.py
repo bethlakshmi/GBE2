@@ -30,8 +30,8 @@ from gbe.models import (
 )
 
 
-class TestBidAct(TestCase):
-    '''Tests for bid_act view'''
+class TestCreateAct(TestCase):
+    '''Tests for create_act view'''
     view_name = 'act_create'
 
     def setUp(self):
@@ -203,7 +203,7 @@ class TestBidAct(TestCase):
 
     def test_act_submit_has_message(self):
         msg = UserMessageFactory(
-            view='BidActView',
+            view='MakeActView',
             code='SUBMIT_SUCCESS')
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
@@ -212,7 +212,7 @@ class TestBidAct(TestCase):
 
     def test_act_draft_has_message(self):
         msg = UserMessageFactory(
-            view='BidActView',
+            view='MakeActView',
             code='DRAFT_SUCCESS')
         response, data = self.post_paid_act_draft()
         self.assertEqual(200, response.status_code)
@@ -239,7 +239,7 @@ class TestBidAct(TestCase):
     def test_act_title_collision_w_msg(self):
         message_string = "link: %s title: %s"
         msg = UserMessageFactory(
-            view='BidActView',
+            view='MakeActView',
             code='ACT_TITLE_CONFLICT',
             description=message_string)
         response, original = post_act_conflict(

@@ -2,6 +2,7 @@ from django.forms import (
     ChoiceField,
     IntegerField,
     HiddenInput,
+    ModelChoiceField,
     ModelForm,
 )
 from gbe.models import Class
@@ -11,6 +12,7 @@ from gbe_forms_text import (
     classbid_labels,
 )
 from gbetext import acceptance_states
+from gbe.forms.common_queries import visible_personas
 
 
 class ClassScheduleForm(ModelForm):
@@ -19,6 +21,7 @@ class ClassScheduleForm(ModelForm):
     accepted = IntegerField(
         initial=3,
         widget=HiddenInput)
+    teacher = ModelChoiceField(queryset=visible_personas)
 
     class Meta:
         model = Class

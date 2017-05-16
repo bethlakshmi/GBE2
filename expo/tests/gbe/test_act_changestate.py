@@ -3,6 +3,7 @@ from django.test import (
     Client,
     TestCase,
 )
+from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActFactory,
@@ -17,6 +18,7 @@ from tests.factories.scheduler_factories import (
 )
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
+    assert_email_recipient,
     assert_email_template_create,
     assert_email_template_used,
     grant_privilege,
@@ -157,3 +159,16 @@ class TestActChangestate(TestCase):
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
             "test template", "actemail@notify.com")
+        assert_email_recipient([(context.performer.contact.contact_email)])
+
+    @override_settings(ADMINS=[('Admin', 'admin@mock.test')])
+    @override_settings(DEBUG=True)
+    def test_act_accept_sends_debug_to_admin(self):
+        context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        self.data['accepted'] = '3'
+        response = self.client.post(url, data=self.data)
+        assert_email_recipient([('admin@mock.test')])

@@ -83,7 +83,9 @@ class TestEditVendor(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
         response = self.client.get(url)
         self.assertEqual(302, response.status_code)
-        self.assertEqual(location(response), 'http://testserver/profile')
+        self.assertEqual(
+            location(response),
+            'http://testserver/update_profile?next=/vendor/create')
 
     def test_edit_vendor_wrong_user(self):
         vendor = VendorFactory()
@@ -99,7 +101,7 @@ class TestEditVendor(TestCase):
         data = self.get_vendor_form(invalid=True)
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Vendor Application' in response.content)
+        self.assertTrue('Vendor Application' in response.content)
 
     def test_vendor_edit_post_form_valid(self):
         response = self.post_edit_paid_vendor_draft()
@@ -138,7 +140,7 @@ class TestEditVendor(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
-            '<h2 class="subtitle">Edit Your Vendor Application</h2>'
+            '<h2 class="subtitle">Vendor Application</h2>'
             in response.content)
 
     def test_edit_bid_get_no_help(self):
@@ -151,7 +153,7 @@ class TestEditVendor(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
-            '<h2 class="subtitle">Edit Your Vendor Application</h2>'
+            '<h2 class="subtitle">Vendor Application</h2>'
             in response.content)
 
     def test_vendor_submit_make_message(self):
@@ -168,7 +170,7 @@ class TestEditVendor(TestCase):
 
     def test_vendor_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditVendorView',
+            view='MakeVendorView',
             code='SUBMIT_SUCCESS')
         response = self.post_edit_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
@@ -177,7 +179,7 @@ class TestEditVendor(TestCase):
 
     def test_vendor_draft_has_message(self):
         msg = UserMessageFactory(
-            view='EditVendorView',
+            view='MakeVendorView',
             code='DRAFT_SUCCESS')
         response = self.post_edit_paid_vendor_draft()
         self.assertEqual(200, response.status_code)

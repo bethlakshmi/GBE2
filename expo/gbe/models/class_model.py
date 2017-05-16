@@ -128,31 +128,6 @@ class Class(Biddable, Event):
             accepted=0)
 
     @property
-    def get_bid_fields(self):
-        '''
-        Returns fields, required_fields as tuple of lists
-        '''
-        return (['b_title',
-                 'teacher',
-                 'b_description',
-                 'maximum_enrollment',
-                 'type',
-                 'fee',
-                 'length_minutes',
-                 'history',
-                 'schedule_constraints',
-                 'avoided_constraints',
-                 'space_needs'],
-                ['b_title',
-                 'teacher',
-                 'b_description',
-                 'schedule_constraints'])
-
-    @property
-    def get_draft_fields(self):
-        return (['b_title', 'teacher'])
-
-    @property
     def schedule_ready(self):
         return self.accepted == 3
 

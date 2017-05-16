@@ -160,11 +160,14 @@ def EditActTechInfoView(request, act_id):
 
         techforms = [lightingform,  audioform, stageform, ]
 
+        forms_valid = True
         for f in techforms:
-            if f.is_valid():
+            forms_valid = f.is_valid() and forms_valid
+        if forms_valid:
+            for f in techforms:
                 f.save()
         tech = act.tech
-        if tech.is_complete and not cue_fail:
+        if forms_valid and tech.is_complete and not cue_fail:
             user_message = UserMessage.objects.get_or_create(
                 view='EditActTechInfoView',
                 code="UPDATE_ACT_TECH",

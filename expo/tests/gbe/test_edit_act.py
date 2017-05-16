@@ -105,7 +105,7 @@ class TestEditAct(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_edit_act_profile_is_not_contact(self):
-        user = ProfileFactory().user_object
+        user = PersonaFactory().performer_profile.user_object
         act = ActFactory()
         url = reverse(self.view_name,
                       args=[act.pk],
@@ -122,9 +122,10 @@ class TestEditAct(TestCase):
                       args=[act.pk],
                       urlconf="gbe.urls")
         login_as(user, self)
-        response = self.client.get(url, follow=True)
-        self.assertTrue(('http://testserver/profile', 302)
-                        in response.redirect_chain)
+        response = self.client.post(
+            url,
+            data=self.get_act_form(act, submit=True))
+        self.assertEqual(response.status_code, 302)
 
     def test_act_edit_post_form_not_valid(self):
         '''act_edit, if form not valid, should return to ActEditForm'''
@@ -137,7 +138,7 @@ class TestEditAct(TestCase):
             url,
             self.get_act_form(act, invalid=True))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Act Proposal' in response.content)
+        self.assertTrue('Propose an Act' in response.content)
 
     def test_act_edit_post_form_submit_unpaid(self):
         act = ActFactory()
@@ -183,7 +184,7 @@ class TestEditAct(TestCase):
         login_as(act.performer.contact, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('Edit Your Act Proposal' in response.content)
+        self.assertTrue('Propose an Act' in response.content)
 
     def test_edit_act_submit_make_message(self):
         response = self.post_edit_paid_act_submission()
@@ -199,7 +200,7 @@ class TestEditAct(TestCase):
 
     def test_edit_act_submit_has_message(self):
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='SUBMIT_SUCCESS')
         response = self.post_edit_paid_act_submission()
         self.assertEqual(response.status_code, 200)
@@ -208,7 +209,7 @@ class TestEditAct(TestCase):
 
     def test_edit_act_draft_has_message(self):
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='DRAFT_SUCCESS')
         response = self.post_edit_paid_act_draft()
         self.assertEqual(200, response.status_code)
@@ -230,7 +231,7 @@ class TestEditAct(TestCase):
     def test_edit_act_title_collision_w_msg(self):
         message_string = "link: %s title: %s"
         msg = UserMessageFactory(
-            view='EditActView',
+            view='MakeActView',
             code='ACT_TITLE_CONFLICT',
             description=message_string)
         response, original = self.post_title_collision()
