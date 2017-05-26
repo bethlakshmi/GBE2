@@ -5,15 +5,16 @@
     <title>{% block title %}This is my new project home page{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
    {% render_block "css" %}
-
-    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">-->
-    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet"
         type="text/css"
         href= {% static "styles/base.css" %} media="all"/>
     <link rel="stylesheet"
         type="text/css"
         href= {% static "styles/gbe_bootstrap.min.css" %} media="all"/>
+    <link rel="stylesheet"
+        type="text/css"
+        href= {% static "styles/menus.css" %} media="all"/>
     <link rel="stylesheet"
         type="text/css"
         href= {% static "styles/gallery.css" %} media="all"/>
@@ -24,9 +25,6 @@
         type="text/css"
 	href="{% static 'hijack/hijack-styles.css' %}" />
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
-<!-- Latest compiled and minified CSS
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
--->
 
 <!-- jQuery library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -54,7 +52,7 @@
                   <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">NavBar</a>
+            <a class="navbar-brand" href="#">GBE</a>
           </div>
           <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
@@ -81,18 +79,3 @@
     {% render_block "js" %} 
   </body>
 </html>
-<script>
-$(document).ready(function() {
-    $('.navbar a.dropdown-toggle').on('click', function(e) {
-        var $el = $(this);
-        var $parent = $(this).offsetParent(".dropdown-menu");
-        $(this).parent("li").toggleClass('open');
-        if(!$parent.parent().hasClass('nav')) {
-            $el.next().css({"top": $el[0].offsetTop, "left": $parent.outerWidth() - 4});
-        }
-        $('.nav li.open').not($(this).parents("li")).removeClass("open");
-
-        return false;
-    });
-});
-</script>
