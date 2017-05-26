@@ -1,5 +1,7 @@
 from django.forms import (
+    BooleanField,
     ChoiceField,
+    HiddenInput,
     ModelChoiceField,
     ModelForm,
 )
@@ -21,6 +23,7 @@ class ClassScheduleForm(ModelForm):
         initial=3,
         help_text=acceptance_note)
     teacher = ModelChoiceField(queryset=visible_personas)
+    submitted = BooleanField(widget=HiddenInput, initial=True)
 
     class Meta:
         model = Class
@@ -33,6 +36,7 @@ class ClassScheduleForm(ModelForm):
                   'space_needs',
                   'teacher',
                   'accepted',
+                  'submitted',
                   ]
         help_texts = classbid_help_texts
         labels = classbid_labels
