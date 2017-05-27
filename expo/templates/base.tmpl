@@ -63,7 +63,8 @@
             </ul>          </div>
         </div><!-- /.container -->
       </div>
-      <div class="main-content" >
+      <div class="panel panel-default">
+        <div class="panel-body">
         {% if messages %}
 	{% for message in messages %}
 	{% if message.tags == "error" %}<div class="alert alert-danger">{% else %}<div class="alert alert-{{message.tags}}">{% endif %}
@@ -75,7 +76,8 @@
 
         {% block content %}
         {% endblock content %}
-      </div>
+	</div>
+      </div> <!-- panel for main content -->
       <div class='footer'>{% static_placeholder 'footer'%}</div>
     </div>
     {% render_block "js" %} 
