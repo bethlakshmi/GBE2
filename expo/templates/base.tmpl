@@ -58,7 +58,9 @@
             <ul class="nav navbar-nav">
 	      {% show_menu 0 100 100 100 "menu.tmpl" %}
             </ul>
-          </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% language_chooser "menu/language_chooser.html" %}
+            </ul>          </div>
         </div><!-- /.container -->
       </div>
       <div class="main-content" >
