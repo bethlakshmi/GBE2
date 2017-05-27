@@ -12,10 +12,6 @@
     border-radius: 0 6px 6px 6px;
 }
 
-.dropdown-submenu:hover>.dropdown-menu {
-    display: block;
-}
-
 .dropdown-submenu>a:after {
     display: block;
     content: " ";
@@ -28,10 +24,6 @@
     border-left-color: #ccc;
     margin-top: 5px;
     margin-right: -10px;
-}
-
-.dropdown-submenu:hover>a:after {
-    border-left-color: #fff;
 }
 
 .dropdown-submenu.pull-left {
