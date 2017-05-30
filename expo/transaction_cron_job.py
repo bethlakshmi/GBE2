@@ -19,8 +19,10 @@
 
 import sys
 import os
+import django
 sys.path.append('./expo')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+django.setup()
 
 from expo.gbe_logging import logger
 from django.conf import settings
