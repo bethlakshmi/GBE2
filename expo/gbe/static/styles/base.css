@@ -775,7 +775,7 @@ td.form_label {
   width: 30%;
 }
 
-td.form_label>label {
+.form-group  > label > label {
   font-weight: normal;
 }
 
@@ -811,7 +811,7 @@ td.form_field.long_choice > ul > li
   height: 20px;
 }
 
-td.form_field > ul > li
+.form-group > ul > li
 {
   list-style-type: none;
 }
