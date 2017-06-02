@@ -13,49 +13,52 @@
 
   <font color="red">{{ form.non_field_errors }}</font>
 
-<div class="container">
+    <table class="gbe_table">
     {# Include the visible fields #}
     {% for field in form.visible_fields %}
-    <div class="form-group">
-	<label for="field.name">
+        <tr>
+            <td class="form_label">
 	      
-            {% if field.errors %}
+              {% if field.errors %}
               <font color="red">!</font>&nbsp;&nbsp;
-	    {% elif field.css_classes == 'required' or field.name in submit_fields %}
+	      {% elif field.css_classes == 'required' or field.name in submit_fields %}
               <font color="red">*</font>
-            {% else %}
-              &nbsp;
-            {% endif %} 
-            {% if field.errors %}
+              {% else %}
+               
+              {% endif %} 
+              {% if field.errors %}
                 <font color="red">
-            {% endif %}
-            {% if field.name in draft_fields %}
+              {% endif %}
+              {% if field.name in draft_fields %}
 	        <b>{{ field.label_tag }}</b>
-	    {% else %}
+	      {% else %}
 	        {{ field.label_tag }}
-	    {% endif %}
-            {% if field.errors %}
-                </font>
-            {% endif %} 
+	      {% endif %}
 
-            {% if field.help_text %}
+              {% if field.errors %}
+                </font>
+              {% endif %} 
+
+              {% if field.help_text %}
                 <span class="dropt" title="Help">
                 <img src= "{% static "img/question.png" %}" alt="?"/>
                   <span style="width:200px;float:right;text-align:left;">
                   {{ field.help_text }}
                   </span>
                 </span>
-            {% endif %}
-	</label>
-        {{ field }}
-    {% if field.errors %}
-        <div class="row">
-	    <div class="col-md-2 form_label">&nbsp;</div>
-            <div class="col-md-4">
+              {% endif %}
+            </td>
+            <td class="form_field {% if field.field.choices|length > 7 %}long_choice{%endif%}">
+              {{ field }}
+            </td>
+          {% if field.errors %}
+	  <tr>
+	    <td>&nbsp;</td>
+            <td>
               <font color="red">{{ field.errors }}</font>
-            </div>
-	</div>
-    {% endif %}
-    </div>
+            </td>
+	  </tr>
+	  {% endif %}
+        </tr>
     {% endfor %}
-  </div>
+  </table>
