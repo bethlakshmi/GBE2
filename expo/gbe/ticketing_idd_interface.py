@@ -71,11 +71,11 @@ def verify_performer_app_paid(user_name, conference):
     from gbe.models import Act
     act_fees_purchased = 0
     acts_submitted = 0
-
     # First figure out how many acts this user has purchased
     for act_event in BrownPaperEvents.objects.filter(
             act_submission_event=True,
             conference=conference):
+
         for trans in Transaction.objects.all():
             trans_event = trans.ticket_item.ticket_id.split('-')[0]
             trans_user_name = trans.purchaser.matched_to_user.username
@@ -86,7 +86,9 @@ def verify_performer_app_paid(user_name, conference):
     # Then figure out how many acts have already been submitted.
     acts_submitted = Act.objects.filter(
         submitted=True,
-        b_conference=conference).count()
+        b_conference=conference,
+        performer__contact__user_object__username=user_name).count()
+
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (act_fees_purchased, acts_submitted))
     return act_fees_purchased > acts_submitted
@@ -120,7 +122,8 @@ def verify_vendor_app_paid(user_name, conference):
     # Then figure out how many vendor applications have already been submitted.
     vendor_apps_submitted = Vendor.objects.filter(
         submitted=True,
-        b_conference=conference).count()
+        b_conference=conference,
+        profile__user_object__username=user_name).count()
     logger.info("Purchased Count:  %s  Submitted Count:  %s" %
                 (vendor_fees_purchased, vendor_apps_submitted))
     return vendor_fees_purchased > vendor_apps_submitted
