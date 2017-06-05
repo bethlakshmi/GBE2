@@ -3,7 +3,6 @@ body {
   margin: 0px;
   border: 0px;
   padding: 0px;
-  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
 }
 
 
@@ -679,6 +678,61 @@ div.gbe-alert
 	left:73%;			/* Please make note of the brackets here:
 					(100% - left column width) plus (center column left and right padding) plus (left column left and right padding) plus (right column left padding) */
 }
+
+/* can remove above when we get rid of all 3 column templates in the old way, below is a nicer
+ * boostrap way that lets us revert to tabs when the screen size is small */
+/* small device */
+/* --------------- Responsive Fixes --------------- */
+/* small device */
+@media (max-width: 767px) {
+  .device-big {
+    display: none;
+  }
+  .device-small {
+    display: block;
+  }
+}
+
+.device-small > li:hover {
+  border-bottom: 4px solid #C78785;
+}
+
+.device-small > li.active {
+  border-bottom: 4px solid #8e0e0a;;
+  position: relative;
+}
+
+.device-small > li > a {
+  color: black;
+}
+  
+.device-small > li.active > a {
+  background-color: inherit;
+}
+
+.device-small > li.active > a:hover {
+  background-color: inherit;
+}
+
+.device-small > li.active > a > li:hover {
+  background-color: inherit;
+}
+
+/* big device */
+@media only screen and (min-width : 768px) {
+  .device-big, .tab-content > .tab-pane {
+    display: block;
+  }
+  .device-small {
+    display: none;
+  }
+  .tab-content > .tab-pane {
+    display: block;
+  }
+}
+/* --------------- / Responsive Fixes --------------- */
+
+
 .landing_box{
 	border: 1px solid black;
         padding: 10px;
