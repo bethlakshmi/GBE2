@@ -133,6 +133,14 @@ class TestCreateVendor(TestCase):
         self.assertContains(response, "(Click to view)")
         self.assertContains(response, data['thebiz-b_title'])
 
+    def test_create_paid_vendor_w_other_vendor_paid(self):
+        VendorFactory(b_conference=self.conference, submitted=True)
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['thebiz-b_title'])
+
     def test_create_vendor_post_with_vendor_old_comp(self):
         comped_vendor = VendorFactory(
             submitted=True,
