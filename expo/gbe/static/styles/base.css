@@ -683,6 +683,13 @@ div.gbe-alert
  * boostrap way that lets us revert to tabs when the screen size is small */
 /* small device */
 /* --------------- Responsive Fixes --------------- */
+
+.three-column-container {
+  padding-right: 0px;
+  padding-left: 0px;
+  width:inherit
+}
+
 /* small device */
 @media (max-width: 767px) {
   .device-big {
