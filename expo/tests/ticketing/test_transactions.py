@@ -86,11 +86,12 @@ class TestTransactions(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        BrownPaperSettingsFactory()
+        event = BrownPaperEventsFactory(bpt_event_id="1")
         ticket = TicketItemFactory(
             bpt_event=event,
             ticket_id='%s-%s' % (event.bpt_event_id, '3255985'))
-        BrownPaperSettingsFactory()
+
         limbo, created = User.objects.get_or_create(username='limbo')
 
         a = Mock()
