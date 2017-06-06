@@ -64,7 +64,6 @@ TEMPLATES = [
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
-    ('three_column.tmpl', 'Three Column'),
     # ('template_2.tmpl', 'Template Two'),
 )
 
