@@ -168,6 +168,8 @@ h3.readonlyform
 .errorlist
 {
     color: red;
+    padding: 0;
+    font-weight: normal;
 }
 
 .how_volunteer
@@ -779,8 +781,12 @@ td.form_label {
   width: 30%;
 }
 
-td.form_label>label {
+.form-group  > div > div > div > label > label {
   font-weight: normal;
+}
+
+.form-group  > div > div > div > ul {
+  padding: 0;
 }
 
 td.form_field {
@@ -788,7 +794,11 @@ td.form_field {
   padding: 5px;
 }
 
-td.form_field.long_choice > ul 
+.form-horizontal .control-label {
+  text-align: left;
+}
+
+.long_choice > ul 
 {
   border-top: 1px solid black;
   -webkit-column-count: 2; /* Chrome, Safari, Opera */
@@ -815,7 +825,7 @@ td.form_field.long_choice > ul > li
   height: 20px;
 }
 
-td.form_field > ul > li
+.form-group > div > div > div > ul > li
 {
   list-style-type: none;
 }
