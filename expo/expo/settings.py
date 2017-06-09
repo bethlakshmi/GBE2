@@ -147,6 +147,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
+    'aldryn_bootstrap3',
     'snowpenguin.django.recaptcha2',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',
