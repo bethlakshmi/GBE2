@@ -29,6 +29,7 @@ div.banner {
 div.banner > a > img {
     display: block;
     margin: auto;
+    width: 100%;
 }
 
 div.footer{
@@ -167,8 +168,6 @@ h3.readonlyform
 .errorlist
 {
     color: red;
-    padding: 0;
-    font-weight: normal;
 }
 
 .how_volunteer
@@ -623,57 +622,6 @@ div.gbe-alert
 }
 
 
-
-/* landing page layouts
-    taken from:  http://matthewjamestaylor.com/blog/perfect-3-column.htm */
-
-/* column container */
-.colmask {
-	position:relative;	/* This fixes the IE7 overflow hidden bug */
-	clear:both;
-	width:100%;			/* width of whole page */
-	overflow:hidden;		/* This chops off any overhanging divs */
-}
-/* common column settings */
-.colright,
-.colmid,
-.colleft {
-	float:left;
-	width:100%;			/* width of page */
-	position:relative;
-}
-.col1,
-.col2,
-.col3 {
-	float:left;
-	position:relative;
-	padding:0 0 1em 0;	/* no left and right padding on columns, we just make them narrower instead 
-					only padding top and bottom is included here, make it whatever value you need */
-	overflow:hidden;
-}
-/* 3 Column settings */
-.threecol {
-}
-.threecol .colmid {
-	right:33%;			/* width of the right column */
-}
-.threecol .colleft {
-	right:33%;			/* width of the middle column */
-}
-.threecol .col1 {
-	width:31%;			/* width of center column content (column width minus padding on either side) */
-	left:102%;			/* 100% plus left padding of center column */
-}
-.threecol .col2 {
-	width:31%;			/* Width of left column content (column width minus padding on either side) */
-	left:36%;			/* width of (right column) plus (center column left and right padding) plus (left column left padding) */
-}
-.threecol .col3 {
-	width:30%;			/* Width of right column content (column width minus padding on either side) */
-	left:73%;			/* Please make note of the brackets here:
-					(100% - left column width) plus (center column left and right padding) plus (left column left and right padding) plus (right column left padding) */
-}
-
 /* can remove above when we get rid of all 3 column templates in the old way, below is a nicer
  * boostrap way that lets us revert to tabs when the screen size is small */
 /* small device */
@@ -831,12 +779,8 @@ td.form_label {
   width: 30%;
 }
 
-.form-group  > div > div > div > label > label {
+td.form_label>label {
   font-weight: normal;
-}
-
-.form-group  > div > div > div > ul {
-  padding: 0;
 }
 
 td.form_field {
@@ -844,11 +788,7 @@ td.form_field {
   padding: 5px;
 }
 
-.form-horizontal .control-label {
-  text-align: left;
-}
-
-.long_choice > ul 
+td.form_field.long_choice > ul 
 {
   border-top: 1px solid black;
   -webkit-column-count: 2; /* Chrome, Safari, Opera */
@@ -875,7 +815,7 @@ td.form_field.long_choice > ul > li
   height: 20px;
 }
 
-.form-group > div > div > div > ul > li
+td.form_field > ul > li
 {
   list-style-type: none;
 }
