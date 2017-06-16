@@ -29,6 +29,7 @@ div.banner {
 div.banner > a > img {
     display: block;
     margin: auto;
+    width: 100%;
 }
 
 div.footer{
