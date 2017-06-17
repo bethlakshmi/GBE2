@@ -4,8 +4,11 @@
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
 {% endblock %}
 
+{% block head %}
+      {% include "gray_grids_css.tmpl" %}
+{% endblock head %}
+
 {% block content %}
- 
 {% if tickets %}
   <div class="sched_block font_regular">
   {% include "ticket_link.tmpl" %}
@@ -46,6 +49,7 @@
 
     </div>
     {% if eventitem.bio_grid_list %}
+      {% include "people_gallery.tmpl" %}
       <table class="vtable" align=center>
       <tr  class="vrow"><th colspan="3" class="vheader">
         <div class="vheadertext font_large"><p>Check out our fabulous Performers!</p></div>
