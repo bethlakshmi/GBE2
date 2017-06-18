@@ -88,6 +88,15 @@
   left: 50%;
 }
 
+.gallery-item .name
+{
+  font-size:20px;
+  font-family: "TwentiethCenturyPoster";
+  font-weight: bold;
+  text-align:center;
+  text-transform: capitalize;
+}
+
 @media (min-width:768px){#gallery .container{width:680px}
 }
 @media (min-width:992px){#gallery .container{width:900px}

@@ -49,11 +49,8 @@
 
     </div>
     {% if eventitem.bio_grid_list %}
-      {% include "people_gallery.tmpl" %}
+      {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
       <table class="vtable" align=center>
-      <tr  class="vrow"><th colspan="3" class="vheader">
-        <div class="vheadertext font_large"><p>Check out our fabulous Performers!</p></div>
-      </th></tr>
       {% for bio in eventitem.bio_grid_list %}
 	{% cycle '<tr class="vrow"><td class="vendorff">' '<td class="vendorff">' '<td class="vendorff">' %}
 	    <div class="vname">
