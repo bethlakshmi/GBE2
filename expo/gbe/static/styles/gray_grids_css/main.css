@@ -90,11 +90,13 @@
 
 .gallery-item .name
 {
-  font-size:20px;
+  font-size:15px;
   font-family: "TwentiethCenturyPoster";
   font-weight: bold;
   text-align:center;
   text-transform: capitalize;
+  height: 43px;
+  vertical-align: bottom;
 }
 
 @media (min-width:768px){#gallery .container{width:680px}
@@ -102,6 +104,15 @@
 @media (min-width:992px){#gallery .container{width:900px}
 }
 @media (min-width:1200px){#gallery .container{width:1100px}
+}
+
+.gallery_modal_icon {
+  color: rgb(51, 51, 51);
+}
+.gallery_modal_icon:hover {
+  color: rgb(51, 51, 51);
+  text-decoration: !important;
+  text-decoration-line: none;
 }
 
 /* ==========================================================================
