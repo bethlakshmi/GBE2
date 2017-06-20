@@ -26,7 +26,7 @@ div.banner {
   box-sizing: initial;
 }
 
-div.banner > div > a > img {
+div.banner > a > img {
     display: block;
     margin: auto;
     width: 100%;
