@@ -210,14 +210,12 @@ def process_bpt_order_list():
 
     Returns: the number of transactions imported.
     '''
-    if not BrownPaperEvents.objects.exists():
-        return 0
 
     count = 0
 
     # Process the list from Brown Paper Tickets
 
-    for event in BrownPaperEvents.objects.all():
+    for event in BrownPaperEvents.objects.exclude(conference__status='completed'):
         url = "?".join(['http://www.brownpapertickets.com/api2/orderlist',
                         'id=%s&event_id=%s&account=%s&includetracker=1'])
         order_list_call = url % (get_bpt_developer_id(),
