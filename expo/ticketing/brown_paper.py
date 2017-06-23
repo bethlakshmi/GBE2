@@ -216,7 +216,8 @@ def process_bpt_order_list():
     # Process the list from Brown Paper Tickets
     dev_id = get_bpt_developer_id()
     client_id = get_bpt_client_id()
-    for event in BrownPaperEvents.objects.exclude(conference__status='completed'):
+    for event in BrownPaperEvents.objects.exclude(
+            conference__status='completed'):
         url = "?".join(['http://www.brownpapertickets.com/api2/orderlist',
                         'id=%s&event_id=%s&account=%s&includetracker=1'])
         order_list_call = url % (dev_id,
@@ -252,7 +253,8 @@ def bpt_match_existing_purchasers_using_email():
     returns None
     '''
 
-    for purchaser in Purchaser.objects.filter(matched_to_user__username='limbo'):
+    for purchaser in Purchaser.objects.filter(
+            matched_to_user__username='limbo'):
         matched_user = attempt_match_purchaser_to_user(purchaser)
         if (matched_user != -1):
             purchaser.matched_to_user = User.objects.get(id=matched_user)
