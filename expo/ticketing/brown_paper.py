@@ -354,10 +354,23 @@ def attempt_match_purchaser_to_user(purchaser, tracker_id='None'):
     # the user email field for that user.
 
     for user in User.objects.filter(email=purchaser.email):
-        purchase_email = user.profile.purchase_email.strip()
+        purchase_email = get_purchase_email_from_user(user.id)
         if purchase_email is None or len(purchase_email) == 0:
             return user.id
     return -1
+
+
+def get_purchase_email_from_user(user_id):
+    '''
+    Function attempts to obtain the purchase email address, if it exists
+    in the user's profile.
+
+    user_id - the user ID for the query
+    returns - the purchase_email from the user profile, or None
+    '''
+    for profile in Profile.objects.filter(user_object__id=user_id):
+        return profile.purchase_email.strip()
+    return None
 
 
 def locate_matching_purchaser(other_pur):

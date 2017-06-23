@@ -135,7 +135,6 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'djangocms-placeholder-attr',
     'djangocms_style',
-    'djangocms_column',
     'djangocms_snippet',
     'djangocms_googlemap',
     'djangocms_inherit',
