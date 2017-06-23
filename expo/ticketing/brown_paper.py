@@ -214,13 +214,14 @@ def process_bpt_order_list():
     count = 0
 
     # Process the list from Brown Paper Tickets
-
+    dev_id = get_bpt_developer_id()
+    client_id = get_bpt_client_id()
     for event in BrownPaperEvents.objects.exclude(conference__status='completed'):
         url = "?".join(['http://www.brownpapertickets.com/api2/orderlist',
                         'id=%s&event_id=%s&account=%s&includetracker=1'])
-        order_list_call = url % (get_bpt_developer_id(),
+        order_list_call = url % (dev_id,
                                  event.bpt_event_id,
-                                 get_bpt_client_id())
+                                 client_id)
         order_list_xml = perform_bpt_api_call(order_list_call)
 
         if order_list_xml is not None:
@@ -251,12 +252,11 @@ def bpt_match_existing_purchasers_using_email():
     returns None
     '''
 
-    for purchaser in Purchaser.objects.all():
-        if (purchaser.matched_to_user.username == 'limbo'):
-            matched_user = attempt_match_purchaser_to_user(purchaser)
-            if (matched_user != -1):
-                purchaser.matched_to_user = User.objects.get(id=matched_user)
-                purchaser.save()
+    for purchaser in Purchaser.objects.filter(matched_to_user__username='limbo'):
+        matched_user = attempt_match_purchaser_to_user(purchaser)
+        if (matched_user != -1):
+            purchaser.matched_to_user = User.objects.get(id=matched_user)
+            purchaser.save()
 
 
 def bpt_save_order_to_database(event_id, bpt_order):
@@ -346,34 +346,18 @@ def attempt_match_purchaser_to_user(purchaser, tracker_id='None'):
     # Next try to match to a purchase email address from the Profile
     # (Manual Override Mechanism)
 
-    for profile in Profile.objects.all():
-        if (profile.purchase_email == purchaser.email):
-            return profile.user_object.id
+    for profile in Profile.objects.filter(purchase_email=purchaser.email):
+        return profile.user_object.id
 
     # Finally, try to match to the user's email.  If an overriding
     # purchase_email from the Profile exists for a given user, ignore
     # the user email field for that user.
 
-    for user in User.objects.all():
-        if user.email == purchaser.email:
-            purchase_email = get_purchase_email_from_user(user.id)
-            if purchase_email is None or len(purchase_email) == 0:
-                return user.id
+    for user in User.objects.filter(email=purchaser.email):
+        purchase_email = user.profile.purchase_email.strip()
+        if purchase_email is None or len(purchase_email) == 0:
+            return user.id
     return -1
-
-
-def get_purchase_email_from_user(user_id):
-    '''
-    Function attempts to obtain the purchase email address, if it exists
-    in the user's profile.
-
-    user_id - the user ID for the query
-    returns - the purchase_email from the user profile, or None
-    '''
-    for profile in Profile.objects.all():
-        if (user_id == profile.user_object.id):
-            return profile.purchase_email.strip()
-    return None
 
 
 def locate_matching_purchaser(other_pur):
@@ -398,4 +382,4 @@ def transaction_reference_exists(ref_id):
     ref_id - the reference id to check.
     returns - true if it exists, false if not.
     '''
-    return (Transaction.objects.filter(reference=ref_id).count() > 0)
+    return (Transaction.objects.filter(reference=ref_id).exists())
