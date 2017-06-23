@@ -56,4 +56,5 @@ INSTALLED_APPS = (
     'compat',
     'ad_rotator',
     'post_office',
+    'import_export',
 )
