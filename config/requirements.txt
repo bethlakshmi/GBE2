@@ -52,4 +52,3 @@ tablib
 diff-match-patch
 django-recaptcha2==1.0.0
 aldryn-bootstrap3==1.2.2
-pytest-faulthandler
