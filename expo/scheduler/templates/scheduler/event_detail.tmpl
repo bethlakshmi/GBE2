@@ -4,8 +4,11 @@
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
 {% endblock %}
 
+{% block head %}
+      {% include "gray_grids_css.tmpl" %}
+{% endblock head %}
+
 {% block content %}
- 
 {% if tickets %}
   <div class="sched_block font_regular">
   {% include "ticket_link.tmpl" %}
@@ -46,52 +49,8 @@
 
     </div>
     {% if eventitem.bio_grid_list %}
-      <table class="vtable" align=center>
-      <tr  class="vrow"><th colspan="3" class="vheader">
-        <div class="vheadertext font_large"><p>Check out our fabulous Performers!</p></div>
-      </th></tr>
-      {% for bio in eventitem.bio_grid_list %}
-	{% cycle '<tr class="vrow"><td class="vendorff">' '<td class="vendorff">' '<td class="vendorff">' %}
-	    <div class="vname">
-	      {{bio.name}}
-	    </div>
-            <span class="perfhover">
-	    <div class="vimg font_regular">
-	      <a href="{{bio.homepage}}">
-	   	{% if bio.promo_mini %}
-	   	<img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="vimage">
-		{% else %}
-		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" class="vimage">
-		{% endif %}
-	      </a><br>
-	      <span>
-               <div class="vname" ><b>{{bio.name}}</b></div><br>
-               <div align=left>
+      {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
 
-	   	  {% if bio.promo_image %}
-		  <div style="float:right">
-                  <a href="{{MEDIA_URL}}{{bio.promo_image}}">
-		    <img src="{{MEDIA_URL}}{{bio.promo_mini}}" alt="Photo" width=200 style="float:right">
-		  </a></div><BR>
-		  {%endif%}
-                  <div class="vdesc">
-	            {{bio.bio | linebreaksbr}}
-	          </div>
-                  {% if bio.homepage %}
-		  <br>
-		  <div style="float:left">
-		  <b><a href="{{bio.homepage}}">Website</a><b></div>
-
-	          {% endif %}
-
-	      </span>
-	    </div>
-	    </span>
-
-	{% cycle '</td>' '</td>' '</td></tr>' %}
-	
-      {% endfor %} 
-      </table>
     {% elif eventitem.event.roles %}
     <div class="bio_block font_regular">
       {% for worker in eventitem.event.roles %}
