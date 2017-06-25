@@ -134,10 +134,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     'djangocms-placeholder-attr',
-    'image_gallery',  # I forked this and extended a little.
-    'djangocms_flexslider',
     'djangocms_style',
-    'djangocms_column',
     'djangocms_snippet',
     'djangocms_googlemap',
     'djangocms_inherit',
