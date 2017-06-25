@@ -1,8 +1,12 @@
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils.formats import date_format
+from gbe.functions import get_current_conference
 
-from scheduler.models import EventItem
+from scheduler.models import (
+    Event,
+    EventItem,
+)
 from gbetext import event_labels
 
 
@@ -29,6 +33,58 @@ def get_event_display_info(eventitem_id):
 
 
 def get_events_display_info(event_type='Class'):
+    '''
+    Helper for displaying lists of events. Gets a supply of conference event
+    items and munges them into displayable shape
+    "Conference event items" = things in the conference model which extend
+    EventItems and therefore
+    could be Events
+    '''
+    conference = get_current_conference()
+    confitems = EventItem.objects.filter(
+        visible=True,
+        event__e_conference=conference
+        ).order_by(
+        'event__e_title').select_subclasses()
+    eventslist = {}
+    for confitem in confitems:
+        if confitem.schedule_ready:
+            eventslist[confitem.pk] = {
+                'title':  confitem.e_title,
+                'type': confitem.type,
+                'duration': confitem.duration.set_format("{1:0>2}:{2:0>2}"),
+                'sched_items': [],
+                'create': reverse(
+                    'create_event',
+                    urlconf='scheduler.urls',
+                    args=['Event',
+                          confitem.pk]),
+                'delete': reverse(
+                    'delete_event',
+                    urlconf='scheduler.urls',
+                    args=['Event',
+                          confitem.pk]),
+            }
+
+    sched_items = Event.objects.filter(
+        eventitem__visible=True,
+        eventitem__event__e_conference=conference
+        ).order_by('starttime')
+
+    for sched_item in sched_items:
+        if sched_item.eventitem.pk in eventslist:
+            entry = {
+                'datetime': date_format(
+                    sched_item.starttime, "DATETIME_FORMAT"),
+            }
+            if sched_item.max_volunteer:
+                entry['max_volunteer'] = sched_item.max_volunteer
+            eventslist[sched_item.eventitem.pk]['sched_items'].append(entry)
+
+    return eventslist
+
+
+def get_events_display_info_old(event_type='Class'):
     '''
     Helper for displaying lists of events. Gets a supply of conference event
     items and munges them into displayable shape
