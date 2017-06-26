@@ -67,19 +67,10 @@ $bootstrap = <<BOOTSTRAP
   sudo apt-fast -y install gettext
   sudo pip install -U pip setuptools
   sudo pip install --requirement /vagrant/config/requirements.txt
-  sudo pip install --requirement /vagrant/config/djangobb_requirements.txt
   ifmkdir /vagrant/tmp; cd /vagrant/tmp; rm -rf /vagrant/tmp/*
-  ###  For current version of Django and DjangoBB_Forums
-  ###  After migrations to >=Django 1.7, update DjangoBB_Forums
-  if [ -f /vagrant/config/stable.tar.gz ]
-      then cp /vagrant/config/stable.tar.gz /vagrant/tmp
-      else wget https://bitbucket.org/slav0nic/djangobb/get/stable.tar.gz ; fi
-  tar -zxvf stable.tar.gz
-  cp -a /vagrant/tmp/slav0nic-djangobb-*/djangobb_forum /vagrant/expo
   ifmkdir /vagrant/static; ifmkdir /vagrant/expo/logs; ifmkdir /vagrant/media
   if [ ! -h /vagrant/expo/expo/static ]
       then ln -s /vagrant/static /vagrant/expo/expo/static; fi
-  ifmkdir /vagrant/expo/media/djangobb_forum/attachments
   cp /vagrant/aliases /vagrant/dbreset /home/vagrant
   chown -R vagrant:vagrant /home/vagrant
   echo "source /home/vagrant/aliases" >> /home/vagrant/.bashrc 
