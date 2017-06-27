@@ -44,7 +44,6 @@ class Act (Biddable, ActItem):
     shows_preferences = TextField(blank=True)
     other_performance = TextField(blank=True)
     why_you = TextField(blank=True)
-    is_summer = BooleanField(default=False)
 
     def clone(self):
         act = Act(
