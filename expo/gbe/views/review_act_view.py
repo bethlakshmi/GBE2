@@ -34,7 +34,7 @@ class ReviewActView(ReviewBidView):
     def groundwork(self, request, args, kwargs):
         super(ReviewActView, self).groundwork(request, args, kwargs)
         self.bidder = get_performer_form(self.object.performer)
-        if self.object.is_summer:
+        if self.object.b_conference.act_style == "summer":
             self.object_form = get_act_form(
                 self.object,
                 SummerActForm,
