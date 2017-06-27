@@ -1,5 +1,8 @@
 from django.core.urlresolvers import reverse
-from django.forms import ModelChoiceField
+from django.forms import (
+    ChoiceField,
+    ModelChoiceField,
+)
 from gbe.models import (
     Act,
     ActBidEvaluation,
@@ -14,6 +17,10 @@ from gbe.forms import (
 from gbe.views import ReviewBidView
 from gbe.views.functions import get_performer_form
 from gbe.views.act_display_functions import get_act_form
+from gbetext import (
+    act_casting_options,
+    act_casting_label,
+)
 
 
 class ReviewActView(ReviewBidView):
@@ -62,6 +69,10 @@ class ReviewActView(ReviewBidView):
             empty_label=None,
             label='Pick a Show',
             initial=start)
+        self.actionform.fields['casting'] = ChoiceField(
+            choices=act_casting_options,
+            required=False,
+            label=act_casting_label)
         self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
                                  args=[act.id])

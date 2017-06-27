@@ -258,8 +258,12 @@ role_options = (('Teacher', "Teacher"),
                 ('Technical Director', "Technical Director"),
                 ('Producer', "Producer"))
 
-act_casting_options = (('Featured Performer', "Featured Performer"),
-                       ('Host', "Host"))
+act_casting_options = (
+    ('', 'Regular act'),
+    ('Featured Performer', "Featured Performer"),
+    ('Host', "Host"))
+
+act_casting_label = "Special Display Selections"
 
 vend_time_options = (
     (" ",

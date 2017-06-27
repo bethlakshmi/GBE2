@@ -41,7 +41,9 @@ class ActChangeStateView(BidChangeStateView):
             # resource time
             casting = ResourceAllocation()
             casting.event = self.new_show
-            actresource = ActResource(_item=self.object)
+            actresource = ActResource(
+                _item=self.object,
+                role=request.POST['casting'])
             actresource.save()
             for worker in self.object.get_performer_profiles():
                 conflicts = worker.get_conflicts(self.new_show)
