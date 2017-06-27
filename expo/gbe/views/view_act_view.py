@@ -18,13 +18,13 @@ class ViewActView(ViewBidView):
     bid_prefix = "The Act"
 
     def check_bid(self):
-        if self.bid and self.bid.is_summer and (
+        if self.bid and self.bid.b_conference.act_style == "summer" and (
                 self.__class__.__name__ != "ViewSummerActView"):
             return reverse(
                 'summer_act_view',
                 urlconf='gbe.urls',
                 args=[self.bid.pk])
-        elif self.bid and not self.bid.is_summer and (
+        elif self.bid and not self.bid.b_conference.act_style == "summer" and (
                 self.__class__.__name__ == "ViewSummerActView"):
             return reverse(
                 'act_view',
