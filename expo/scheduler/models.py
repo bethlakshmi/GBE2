@@ -956,6 +956,12 @@ class Event(Schedulable):
 
         return bio_list
 
+    # get castings as in what acts have been booked for this event
+    @property
+    def casting_list(self):
+        return ActResource.objects.filter(allocations__event=self,
+                                          _item__act__accepted=3)
+
     def __str__(self):
         try:
             return self.eventitem.describe

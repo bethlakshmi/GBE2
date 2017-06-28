@@ -1,0 +1,48 @@
+    <!-- Featured Performer Section Start -->
+    <section id="team" class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="section-title wow fadeInUp" data-wow-delay="0s">Featuring</h2>
+          </div>
+{% for featured in featured_items %}
+{% cycle True True False False as img_right silent %}
+    {% cycle '<div class="row">' '' '<div class="row">' '' %}
+          <div class="col-md-6 col-sm-12 col-xs-12">
+            <div class="single-member wow fadeInRight" data-wow-delay="0.2s">
+    {% if img_right %}
+              <div class="team-desc">
+                <h3>{{featured.bio.name}}</h3>
+                <h5>{{featured.role}}</h5>
+                <p>{{featured.bio.bio | linebreaksbr}}</p>
+              </div>
+    {% endif %}
+              {% if featured.bio.promo_mini %}
+              <div class="team-img">
+                <img src="{{MEDIA_URL}}{{featured.bio.promo_mini}}" alt="">
+                <div class="social-icon">
+                  <a class="social" href="#" target="_blank"><i class="fa fa-facebook"></i></a>
+                  <a class="social" href="#" target="_blank"><i class="fa fa-twitter"></i></a>
+                  <a class="social" href="#" target="_blank"><i class="fa fa-linkedin"></i></a>
+                  <a class="social" href="#" target="_blank"><i class="fa fa-dribbble"></i></a>
+                  <a class="social" href="#" target="_blank"><i class="fa fa-behance"></i></a>
+                </div>
+              </div>
+              {% endif %}
+    {% if not img_right %}
+              <div class="team-desc">
+                <h3>{{featured.bio.name}}</h3>
+                <h5>{{featured.role}}</h5>
+                <p>{{featured.bio.bio | linebreaksbr}}</p>
+              </div>
+    {% endif %}
+            </div>
+          </div>
+    {% cycle '' '</div>' '' '</div>' %}
+
+{% endfor %}
+
+        </div>
+      </div>
+    </section>
+    <!-- Featured Performers Section End -->

@@ -48,6 +48,10 @@
       {% endif %}
 
     </div>
+    {% if eventitem.featured_grid_list %}
+      {% include "featured_people.tmpl" with featured_items=eventitem.featured_grid_list%}
+    {% endif %}
+
     {% if eventitem.bio_grid_list %}
       {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
 
