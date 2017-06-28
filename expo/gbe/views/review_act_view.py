@@ -8,6 +8,7 @@ from gbe.models import (
     ActBidEvaluation,
     Show,
 )
+from scheduler.models import ActResource
 from gbe.forms import (
     ActBidEvaluationForm,
     ActEditForm,
@@ -60,6 +61,11 @@ class ReviewActView(ReviewBidView):
             scheduler_events__resources_allocated__resource__actresource___item=act).first()
         if not start:
             start = ""
+            casting = ""
+        else:
+            casting = ActResource.objects.filter(
+                allocations__event__eventitem=start,
+                _item=act).first().role
         q = Show.objects.filter(
             e_conference=act.b_conference,
             scheduler_events__isnull=False).order_by(
@@ -72,7 +78,8 @@ class ReviewActView(ReviewBidView):
         self.actionform.fields['casting'] = ChoiceField(
             choices=act_casting_options,
             required=False,
-            label=act_casting_label)
+            label=act_casting_label,
+            initial=casting)
         self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
                                  args=[act.id])

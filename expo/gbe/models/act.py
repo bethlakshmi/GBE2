@@ -137,18 +137,20 @@ class Act (Biddable, ActItem):
 
     @property
     def bid_review_summary(self):
-        show_name = ""
-        for show in self.get_scheduled_shows():
-            if len(show_name) > 0:
-                show_name += ", %s" % str(show.eventitem)
+        castings = ""
+        for (show, role) in self.get_castings():
+            if len(castings) > 0:
+                castings += ", %s" % (str(show.eventitem))
             else:
-                show_name = str(show.eventitem)
+                castings += str(show.eventitem)
+            if len(role) > 0:
+                castings += ' - %s' % role
 
         return (self.performer.name,
                 self.b_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1],
-                show_name)
+                castings)
 
     @property
     def complete(self):

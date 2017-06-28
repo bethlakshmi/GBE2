@@ -187,6 +187,17 @@ class ActItem(ResourceItem):
         except:
             return -1
 
+    def get_castings(self):
+        '''
+        Returns a list of all shows and cast roles this act is scheduled for.
+        '''
+        resources = ActResource.objects.filter(_item=self)
+        result = []
+        for resource in resources:
+            if resource.show:
+              result += [(resource.show, resource.role)]
+        return result
+
     def get_scheduled_shows(self):
         '''
         Returns a list of all shows this act is scheduled to appear in.
