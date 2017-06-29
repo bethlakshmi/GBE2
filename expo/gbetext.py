@@ -260,10 +260,11 @@ role_options = (('Teacher', "Teacher"),
 
 act_casting_options = (
     ('', 'Regular act'),
-    ('Featured Performer', "Featured Performer"),
-    ('Host', "Host"))
+    ('Featuring...', "Featuring..."),
+    ('Hosted By...', "Hosted By..."),
+    ('Returning Winner', "Returning Winner"))
 
-act_casting_label = "Special Display Selections"
+act_casting_label = "Section"
 
 vend_time_options = (
     (" ",
