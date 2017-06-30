@@ -24,7 +24,8 @@ class ActTechInfoContext():
                  conference=None,
                  room_name=None,
                  cue_count=1,
-                 schedule_rehearsal=False):
+                 schedule_rehearsal=False,
+                 act_role=""):
         self.conference = conference or ConferenceFactory()
         self.performer = performer or PersonaFactory()
         self.act = act or ActFactory(performer=self.performer,
@@ -48,7 +49,7 @@ class ActTechInfoContext():
         # schedule the act into the show
         ResourceAllocationFactory(
             event=self.sched_event,
-            resource=ActResourceFactory(_item=self.act.actitem_ptr))
+            resource=ActResourceFactory(_item=self.act.actitem_ptr, role=act_role))
         if schedule_rehearsal:
             self.rehearsal = self._schedule_rehearsal(
                 self.sched_event,
