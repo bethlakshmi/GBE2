@@ -57,7 +57,7 @@ class ActChangeStateView(BidChangeStateView):
                     defaults={
                         'summary': "Casting Role Incorrect",
                         'description': no_casting_msg})
-                messages.warning(request, user_message[0].description)
+                messages.error(request, user_message[0].description)
 
                 return HttpResponseRedirect(reverse(
                     "act_review", urlconf='gbe.urls', args=[self.object.pk]))
