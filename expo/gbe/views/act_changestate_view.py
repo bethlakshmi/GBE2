@@ -1,5 +1,10 @@
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from expo.gbe_logging import log_func
 from scheduler.models import (
     ActResource,
@@ -12,9 +17,13 @@ from expo.settings import (
     )
 from django.utils.formats import date_format
 from gbe.views import BidChangeStateView
-from gbe.models import Act
+from gbe.models import (
+    Act,
+    ActCastingOption,
+    UserMessage,
+)
 from gbe.functions import send_bid_state_change_mail
-
+from gbetext import no_casting_msg
 
 class ActChangeStateView(BidChangeStateView):
     object_type = Act
@@ -39,6 +48,19 @@ class ActChangeStateView(BidChangeStateView):
         if self.act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
+            if (not 'casting' in request.POST) or (
+                    request.POST['casting'] != '' and ActCastingOption.objects.filter(
+                        casting=request.POST['casting']).count() == 0):
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="INVALID_CASTING",
+                    defaults={
+                        'summary': "Casting Role Incorrect",
+                        'description': no_casting_msg})
+                messages.warning(request, user_message[0].description)
+
+                return HttpResponseRedirect(reverse(
+                    "act_review", urlconf='gbe.urls', args=[self.object.pk]))
             casting = ResourceAllocation()
             casting.event = self.new_show
             actresource = ActResource(

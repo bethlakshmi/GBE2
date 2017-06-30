@@ -172,6 +172,7 @@ class EmailTemplateSenderAdmin(admin.ModelAdmin):
     list_editable = ('from_email', )
     list_display_links = None
 
+
 class CastingAdmin(admin.ModelAdmin):
     list_display = ('casting',
                     'show_as_special',

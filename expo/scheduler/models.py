@@ -195,7 +195,7 @@ class ActItem(ResourceItem):
         result = []
         for resource in resources:
             if resource.show:
-              result += [(resource.show, resource.role)]
+                result += [(resource.show, resource.role)]
         return result
 
     def get_scheduled_shows(self):

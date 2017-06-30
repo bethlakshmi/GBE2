@@ -71,6 +71,7 @@ def get_act_form(act, form, header):
 
     return act_form
 
+
 def get_act_casting():
     castings = ActCastingOption.objects.all()
     cast_list = []

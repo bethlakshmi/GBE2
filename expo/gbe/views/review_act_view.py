@@ -60,7 +60,8 @@ class ReviewActView(ReviewBidView):
 
         self.actionform = BidStateChangeForm(instance=act)
         start = Show.objects.filter(
-            scheduler_events__resources_allocated__resource__actresource___item=act).first()
+            scheduler_events__resources_allocated__resource__actresource___item=act
+            ).first()
         if not start:
             start = ""
             casting = ""

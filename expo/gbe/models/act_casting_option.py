@@ -13,4 +13,4 @@ class ActCastingOption(Model):
 
     class Meta:
         app_label = "gbe"
-        ordering = ["display_order",]
+        ordering = ["display_order", ]
