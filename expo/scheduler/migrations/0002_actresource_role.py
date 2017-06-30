@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='actresource',
             name='role',
-            field=models.CharField(blank=True, max_length=50, choices=[(b'Featured Performer', b'Featured Performer'), (b'Host', b'Host')]),
+            field=models.CharField(max_length=50, blank=True),
         ),
     ]

@@ -259,7 +259,6 @@ class ActResource(Resource):
     objects = InheritanceManager()
     _item = models.ForeignKey(ActItem)
     role = models.CharField(max_length=50,
-                            choices=act_casting_options,
                             blank=True)
 
     @property

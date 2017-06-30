@@ -17,9 +17,11 @@ from gbe.forms import (
 )
 from gbe.views import ReviewBidView
 from gbe.views.functions import get_performer_form
-from gbe.views.act_display_functions import get_act_form
+from gbe.views.act_display_functions import (
+    get_act_casting,
+    get_act_form,
+)
 from gbetext import (
-    act_casting_options,
     act_casting_label,
 )
 
@@ -76,7 +78,7 @@ class ReviewActView(ReviewBidView):
             label='Pick a Show',
             initial=start)
         self.actionform.fields['casting'] = ChoiceField(
-            choices=act_casting_options,
+            choices=get_act_casting(),
             required=False,
             label=act_casting_label,
             initial=casting)

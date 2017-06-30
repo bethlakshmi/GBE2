@@ -172,6 +172,14 @@ class EmailTemplateSenderAdmin(admin.ModelAdmin):
     list_editable = ('from_email', )
     list_display_links = None
 
+class CastingAdmin(admin.ModelAdmin):
+    list_display = ('casting',
+                    'show_as_special',
+                    'display_order',)
+    list_editable = ('casting',
+                     'show_as_special',
+                     'display_order',)
+    list_display_links = None
 
 admin.site.register(Conference)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
@@ -207,3 +215,4 @@ admin.site.register(UserMessage, MessageAdmin)
 admin.site.register(ShowVote)
 admin.site.register(ActBidEvaluation)
 admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)
+admin.site.register(ActCastingOption, CastingAdmin)

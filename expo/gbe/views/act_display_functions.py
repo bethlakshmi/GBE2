@@ -6,6 +6,7 @@ from django.forms import (
 )
 from gbe.models import (
     Act,
+    ActCastingOption,
     UserMessage,
 )
 from gbetext import (
@@ -69,3 +70,14 @@ def get_act_form(act, form, header):
             label=act_bid_labels['video_choice'])
 
     return act_form
+
+def get_act_casting():
+    castings = ActCastingOption.objects.all()
+    cast_list = []
+    for casting in castings:
+        value = casting.casting
+        if not casting.show_as_special:
+            value = ''
+        cast_list += [(value, casting.casting)]
+
+    return cast_list
