@@ -50,7 +50,6 @@ class SummerActDraftForm(ActEditDraftForm):
         help_text=summer_help_texts['track_duration'],
         label=act_bid_labels['track_duration']
     )
-    is_summer = BooleanField(widget=HiddenInput, initial=True)
 
 
 class SummerActForm(SummerActDraftForm):

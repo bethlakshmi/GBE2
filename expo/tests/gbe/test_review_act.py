@@ -235,7 +235,7 @@ class TestReviewAct(TestCase):
         assert video_options[1][1] not in response.content
 
     def test_review_summer_act(self):
-        act = ActFactory(is_summer=True)
+        act = ActFactory(b_conference__act_style="summer")
         url = reverse('act_review',
                       urlconf='gbe.urls',
                       args=[act.pk])
