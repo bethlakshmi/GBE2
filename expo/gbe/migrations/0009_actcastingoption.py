@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gbe', '0006_act_is_summer'),
+        ('gbe', '0008_remove_act_is_summer'),
     ]
 
     operations = [
