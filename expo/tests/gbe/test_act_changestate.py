@@ -90,7 +90,8 @@ class TestActChangestate(TestCase):
             starttime=self.context.sched_event.starttime)
         ResourceAllocationFactory(
             event=conflict,
-            resource=WorkerFactory(_item=self.context.performer.performer_profile)
+            resource=WorkerFactory(
+                _item=self.context.performer.performer_profile)
         )
         url = reverse(self.view_name,
                       args=[self.context.act.pk],
@@ -155,7 +156,8 @@ class TestActChangestate(TestCase):
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
             "test template", "actemail@notify.com")
-        assert_email_recipient([(self.context.performer.contact.contact_email)])
+        assert_email_recipient([(
+            self.context.performer.contact.contact_email)])
 
     @override_settings(ADMINS=[('Admin', 'admin@mock.test')])
     @override_settings(DEBUG=True)
@@ -223,4 +225,3 @@ class TestActChangestate(TestCase):
             ActResource.objects.get(_item=self.context.act)
         assert_alert_exists(
             response, 'danger', 'Error', no_casting_msg)
-

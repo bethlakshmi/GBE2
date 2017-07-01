@@ -37,9 +37,10 @@ class TestDetailView(TestCase):
         self.assertContains(response, self.context.show.e_title)
 
     def test_bad_id_raises_404(self):
-        bad_url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=[bad_id_for(EventItem)])
+        bad_url = reverse(
+            self.view_name,
+            urlconf="scheduler.urls",
+            args=[bad_id_for(EventItem)])
         response = self.client.get(bad_url)
         self.assertEqual(response.status_code, 404)
 

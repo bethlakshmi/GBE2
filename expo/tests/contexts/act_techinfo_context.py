@@ -49,7 +49,9 @@ class ActTechInfoContext():
         # schedule the act into the show
         ResourceAllocationFactory(
             event=self.sched_event,
-            resource=ActResourceFactory(_item=self.act.actitem_ptr, role=act_role))
+            resource=ActResourceFactory(
+                _item=self.act.actitem_ptr,
+                role=act_role))
         if schedule_rehearsal:
             self.rehearsal = self._schedule_rehearsal(
                 self.sched_event,

@@ -25,6 +25,7 @@ from gbe.models import (
 from gbe.functions import send_bid_state_change_mail
 from gbetext import no_casting_msg
 
+
 class ActChangeStateView(BidChangeStateView):
     object_type = Act
     coordinator_permissions = ('Act Coordinator',)
@@ -48,8 +49,9 @@ class ActChangeStateView(BidChangeStateView):
         if self.act_accepted(request):
             # Cast the act into the show by adding it to the schedule
             # resource time
-            if (not 'casting' in request.POST) or (
-                    request.POST['casting'] != '' and ActCastingOption.objects.filter(
+            if ('casting' not in request.POST) or (
+                    request.POST[
+                        'casting'] != '' and ActCastingOption.objects.filter(
                         casting=request.POST['casting']).count() == 0):
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,

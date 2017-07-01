@@ -266,4 +266,5 @@ class TestReviewAct(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            '<option value="Hosted by..." selected="selected">Hosted by...</option>')
+            '<option value="Hosted by..." selected="selected"' +
+            '>Hosted by...</option>')
