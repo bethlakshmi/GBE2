@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ActCastingOptionFactory,
     ProfileFactory,
     ShowFactory,
 )
@@ -56,16 +57,28 @@ class TestDetailView(TestCase):
         response = self.client.get(reverse(
             self.view_name,
             urlconf="scheduler.urls",
-            args=[show.eventitem.pk]))
+            args=[show.pk]))
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, response.content.count(staff_lead.display_name))
 
     def test_bio_grid(self):
         self.context.performer.homepage = "www.testhomepage.com"
         self.context.performer.save()
-        url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
-                      args=[self.context.show.pk])
-        response = self.client.get(url)
+        response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
         self.assertContains(response, self.context.performer.homepage)
+
+    def test_feature_performers(self):
+        ActCastingOptionFactory(casting="Regular Act",
+                                show_as_special=False,
+                                display_order=0)
+        ActCastingOptionFactory(display_order=1)
+
+        context = ActTechInfoContext(act_role="Hosted By...")
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.show.pk])
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, context.performer.name)
+        self.assertContains(response, "Hosted By...")
