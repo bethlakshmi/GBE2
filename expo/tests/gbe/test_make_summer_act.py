@@ -30,7 +30,9 @@ class TestCreateAct(TestCase):
         Conference.objects.all().delete()
         self.client = Client()
         self.performer = PersonaFactory()
-        self.current_conference = ConferenceFactory(accepting_bids=True)
+        self.current_conference = ConferenceFactory(
+            accepting_bids=True,
+            act_style='summer')
         UserMessage.objects.all().delete()
 
     def get_act_form(self, submit=False, valid=True):
@@ -61,7 +63,7 @@ class TestCreateAct(TestCase):
         return response, act_form
 
     def post_edit_paid_act_draft(self):
-        act = ActFactory(is_summer=True)
+        act = ActFactory(b_conference=self.current_conference)
         url = reverse(self.edit_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
@@ -90,6 +92,24 @@ class TestCreateAct(TestCase):
             'Select a valid choice. 2 is not one of the available choices.'
             in response.content)
 
+    def test_act_bid_get_with_redirect(self):
+        url = reverse("act_create", urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertRedirects(
+            response,
+            reverse(self.create_name, urlconf="gbe.urls"))
+
+    def test_act_bid_get_with_redirect_other_way(self):
+        url = reverse(self.create_name, urlconf='gbe.urls')
+        self.current_conference.act_style = "normal"
+        self.current_conference.save()
+        login_as(self.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertRedirects(
+            response,
+            reverse("act_create", urlconf="gbe.urls"))
+
     def test_act_submit_paid_act(self):
         response, data = self.post_paid_act_submission()
         self.assertEqual(response.status_code, 200)
@@ -98,7 +118,7 @@ class TestCreateAct(TestCase):
 
     def test_edit_bid_not_post(self):
         '''edit_bid, not post, should take us to edit process'''
-        act = ActFactory(is_summer=True)
+        act = ActFactory(b_conference=self.current_conference)
         url = reverse(self.edit_name,
                       args=[act.pk],
                       urlconf="gbe.urls")
@@ -112,7 +132,7 @@ class TestCreateAct(TestCase):
 
     def test_edit_bid_w_redirect(self):
         '''edit_bid, not post, should take us to edit process'''
-        act = ActFactory(is_summer=True)
+        act = ActFactory(b_conference=self.current_conference)
         url = reverse("act_edit",
                       args=[act.pk],
                       urlconf="gbe.urls")

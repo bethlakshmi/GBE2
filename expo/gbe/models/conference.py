@@ -4,7 +4,10 @@ from django.db.models import (
     Model,
     SlugField,
 )
-from gbetext import conference_statuses
+from gbetext import (
+    act_format,
+    conference_statuses
+)
 
 
 class Conference(Model):
@@ -14,6 +17,9 @@ class Conference(Model):
                        max_length=50,
                        default='upcoming')
     accepting_bids = BooleanField(default=False)
+    act_style = CharField(choices=act_format,
+                          max_length=50,
+                          default='normal')
 
     def __unicode__(self):
         return self.conference_name
