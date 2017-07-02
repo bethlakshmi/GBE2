@@ -26,8 +26,6 @@ def create_filer_images(apps, schema_editor):
                                      performer.promo_image.name)
             file_name = performer.promo_image.name.split('uploads/images/', 1)[-1]
             print "\nPerformer: " + str(performer.name)
-            print "User: " + str(superuser.username)
-            print "Path:  " + full_name
             print "File: " + file_name
             file_obj = DjangoFile(open(full_name, 'rb'),
                                   name=file_name)
@@ -44,7 +42,6 @@ def create_filer_images(apps, schema_editor):
             #img.save()
             performer.img_id = img.pk
             performer.save()
-            print "Done: " + str(performer.img)
 
 
 class Migration(migrations.Migration):
