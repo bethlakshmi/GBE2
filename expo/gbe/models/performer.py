@@ -35,7 +35,9 @@ class Performer (WorkerItem):
     awards = TextField(blank=True)
     promo_image = FileField(upload_to="uploads/images",
                             blank=True)
-    img = FilerImageField(null=True)
+    img = FilerImageField(
+        null=True,
+        related_name="image_performer")
     festivals = TextField(blank=True)     # placeholder only
 
     # looks dead -jpk
