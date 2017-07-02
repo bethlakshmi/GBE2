@@ -10,6 +10,7 @@ from django.db.models import (
 )
 from gbe.models import Profile
 from scheduler.models import WorkerItem
+from filer.fields.image import FilerImageField
 
 
 class Performer (WorkerItem):
@@ -34,6 +35,7 @@ class Performer (WorkerItem):
     awards = TextField(blank=True)
     promo_image = FileField(upload_to="uploads/images",
                             blank=True)
+    img = FilerImageField(null=True)
     festivals = TextField(blank=True)     # placeholder only
 
     # looks dead -jpk
