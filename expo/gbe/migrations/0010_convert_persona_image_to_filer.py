@@ -10,6 +10,7 @@ from filer.models.foldermodels import Folder
 
 def create_filer_images(apps, schema_editor):
     Performer = apps.get_model('gbe', 'Performer')
+    
     try:
         from django.contrib.auth import get_user_model
         User = get_user_model()
@@ -38,6 +39,12 @@ def create_filer_images(apps, schema_editor):
                 author="%s_%d" % (str(performer.name), performer.pk)
             )
             img.save()
+            #img.image_performer.add([performer])
+            #img.image_performer.save()
+            #img.save()
+            performer.img_id = img.pk
+            performer.save()
+            print "Done: " + str(performer.img)
 
 
 class Migration(migrations.Migration):
