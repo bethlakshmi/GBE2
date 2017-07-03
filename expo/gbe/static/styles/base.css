@@ -474,6 +474,12 @@ td.describe
     margin: 10px;
     padding: 10px;
 }
+@media (min-width:768px){div.bios{width:680px}
+}
+@media (min-width:992px){div.bios{width:900px}
+}
+@media (min-width:1200px){div.bios{width:1100px}
+}
 .sched_detail_title
 {
   color: #333333;
@@ -484,13 +490,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_length
-{
-  
-}
-.sched_details
-{
-}
+
 
 .ticket
 {
@@ -501,14 +501,7 @@ td.describe
 {
   font-weight: bold;
 }
-.ticket_link
-{
-  
-}
-.ticket_list
-{
-  
-}
+
 .ticket_list_item
 {
   margin-left: 15px;
@@ -552,18 +545,7 @@ div.performer
   vertical-align: middle;
   word-wrap:break-word;
 }
-.bio_image_block
-{
-  width: 28%;
-  text-align:right;
-  display: inline-block;
-}
-.bio_words
-{
-  width: 45%;
-  display: inline-block;
-  vertical-align: top;
-}
+
 .bio_name
 {
   margin: 10px 0px;
