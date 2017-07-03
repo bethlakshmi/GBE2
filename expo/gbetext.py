@@ -263,12 +263,6 @@ role_options = (('Teacher', "Teacher"),
                 ('Technical Director', "Technical Director"),
                 ('Producer', "Producer"))
 
-act_casting_options = (
-    ('', 'Regular act'),
-    ('Featuring...', "Featuring..."),
-    ('Hosted By...', "Hosted By..."),
-    ('Returning Winner', "Returning Winner"))
-
 act_casting_label = "Section"
 
 vend_time_options = (
