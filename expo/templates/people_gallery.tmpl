@@ -23,6 +23,8 @@
                   {% if item.promo_image %}
                   <a class="preview lightbox" href="{{MEDIA_URL}}{{item.promo_image}}"><i class="icon-eye"></i></a>
                   {% endif %}
+                  {% if request.user.is_superuser %}
+                  <a class="lightbox below" href="/admin/gbe/performer/{{item.pk}}"><i class="icon-pencil"></i></a>{% endif %}
                   <a class="link" data-toggle="modal" data-target="#{{item.pk}}_modal" data-backdrop="true" href="#">
                     <i class="icon-share-alt"></i>
                   </a>
