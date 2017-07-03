@@ -9,9 +9,6 @@ from gbe.forms import PersonaForm
 from gbe.functions import validate_profile
 from gbetext import default_create_persona_msg
 from gbe.models import UserMessage
-from filer.models.imagemodels import Image
-from filer.models.foldermodels import Folder
-from django.contrib.auth.models import User
 
 
 @login_required
@@ -28,19 +25,6 @@ def RegisterPersonaView(request, **kwargs):
         form = PersonaForm(request.POST, request.FILES)
         if form.is_valid():
             performer = form.save(commit=True)
-            superuser = User.objects.get(username='admin_img')
-            folder, created = Folder.objects.get_or_create(name='Performers')
-
-            img, created = Image.objects.get_or_create(
-                owner=superuser,
-                original_filename=request.FILES['upload_img'].name,
-                file=request.FILES['upload_img'],
-                folder=folder,
-                author="%s_%d" % (str(performer.name), performer.pk)
-            )
-            img.save()
-            performer.img_id = img.pk
-            performer.save()
             pid = profile.pk
             if request.GET.get('next', None):
                 redirect_to = request.GET['next']
