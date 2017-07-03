@@ -56,41 +56,44 @@
       {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
 
     {% elif eventitem.event.roles %}
-    <div class="bio_block font_regular">
+    <div class="bio_block font_regular container">
       {% for worker in eventitem.event.roles %}
-      {% ifchanged worker.workeritem %}
-      <div class="bio_words">
-	{%if worker.role == "Staff Lead"%}
-	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
-        {%else%}
-          <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
-          {{worker.workeritem.bio |linebreaksbr}}
-	{%endif%}
-      <br><br>
-      </div>
+      <div class="row bio_row">
+        {% ifchanged worker.workeritem %}
+        <div class="col-md-9 col-sm-8 col-xs-12">
+  	  {%if worker.role == "Staff Lead"%}
+	    <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
+          {%else%}
+            <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
+            {{worker.workeritem.bio |linebreaksbr}}
+	  {%endif%}
+        <br><br>
+        </div>
         {% if worker.workeritem.promo_mini %}
-          <div class="bio_name bio_image_block">
-          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}" class="sched_bio_image">
+          <div class="col-md-3 col-sm-4 col-xs-12">
+          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}">
           </div>
         {% endif %}
       {%endifchanged%}
+      </div>
       {% endfor %}
-    </div>
+      </div>
     {% elif eventitem.event.bios %}
-    <div class="bio_block font_regular">
+    <div class="bio_block font_regular container">
       {% for bio in eventitem.event.bios %}
-      <div class="bio_words">
+      <div class="row bio_row">
+        <div class="col-md-9 col-sm-8 col-xs-12">
         <h2 class="bio_name subtitle">About {{bio.name}}</h2>
         {{bio.bio |linebreaksbr}}
         <br><br>
-	
-      </div>
+        </div>
 
        {% if bio.promo_mini %}
-          <div class="bio_image_block">
-            <img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="sched_bio_image">
+          <div class="col-md-3 col-sm-4 col-xs-12">
+            <img src="{{MEDIA_URL}}{{bio.promo_mini}}">
           </div>
         {% endif %}
+      </div>
       {% endfor %}
     </div>
     {% endif %}

@@ -486,6 +486,18 @@ td.describe
     margin: 10px;
     padding: 10px;
 }
+
+@media (min-width:768px){.bio_block {width:680px}
+}
+@media (min-width:992px){.bio_block {width:900px}
+}
+@media (min-width:1200px){.bio_block {width:1100px}
+}
+
+.bio_row
+{
+  padding-top: 10px;
+}
 .sched_detail_title
 {
   color: #333333;
@@ -529,12 +541,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_bio_image
-{
-  width: 300px;
-  margin: 3px;
-  display: inline-block;
-}
+
 div.performer
 {
 }
@@ -564,18 +571,7 @@ div.performer
   vertical-align: middle;
   word-wrap:break-word;
 }
-.bio_image_block
-{
-  width: 28%;
-  text-align:right;
-  display: inline-block;
-}
-.bio_words
-{
-  width: 45%;
-  display: inline-block;
-  vertical-align: top;
-}
+
 .bio_name
 {
   margin: 10px 0px;
