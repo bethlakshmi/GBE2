@@ -26,7 +26,8 @@ class ShowContext:
                  performer=None,
                  conference=None,
                  room=None,
-                 starttime=None):
+                 starttime=None,
+                 act_role=''):
         self.performer = performer or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         if not self.conference.conferenceday_set.exists():
@@ -42,7 +43,7 @@ class ShowContext:
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,
                                                   starttime=starttime)
-        self.book_act(act)
+        self.book_act(act, act_role)
 
     def schedule_instance(self,
                           starttime=None,
@@ -65,13 +66,13 @@ class ShowContext:
             resource=LocationFactory(_item=room.locationitem_ptr))
         return sched_event
 
-    def book_act(self, act=None):
+    def book_act(self, act=None, act_role=''):
         act = act or ActFactory(b_conference=self.conference,
                                 accepted=3,
                                 submitted=True)
         booking = ResourceAllocationFactory(
             event=self.sched_event,
-            resource=ActResourceFactory(_item=act))
+            resource=ActResourceFactory(_item=act, role=act_role))
         return (act, booking)
 
     def order_act(self, act, order):

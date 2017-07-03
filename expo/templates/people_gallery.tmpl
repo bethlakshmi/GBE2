@@ -1,10 +1,12 @@
 
     <!-- Gallery Section Start -->
     <section id="gallery" class="section">
-      <div class="container">        
-        <div class="col-md-12">
-          <h2 class="section-title wow fadeInUp" data-wow-delay="0s">{{heading}}</h2>
+      <div class="container">
+      <div class="row">
+        <div class="col-md-12 perf-div">
+          <h2 class="section-title perf-head fadeInUp" data-wow-delay="0s">{{heading}}</h2>
         </div>
+      </div>
         <div class="gallery-wrap wow fadeInDown">
       {% for item in grid_items %}
         {% cycle '<div class="row">' '' '' '' %}
@@ -27,37 +29,7 @@
                   </a>
                 </div>
               </div>
-              <div class="modal fade" id="{{item.pk}}_modal" role="dialog">
-              <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{{item.name}}</h4>
-                </div>
-                <div class="modal-body">
-                  <div class="row">
-                  {% if item.promo_image %}
-		      <div class="col-xs-6 col-xs-push-6">
-                         <a href="{{MEDIA_URL}}{{item.promo_image}}">
-		             <img src="{{MEDIA_URL}}{{item.promo_mini}}" alt="Photo" >
-		         </a>
-                      </div>
-                      <div class="col-xs-6 col-xs-pull-6">
-                  {% else %}
-                      <div class="col-xs-12">
-		  {%endif%}
-                      {{item.bio | linebreaksbr}}
-                  {% if item.homepage %}
- 		      <br><br>
-		      <b><a href="{{item.homepage}}" class="gallery_modal_icon"><i class="icon-link"></i>&nbsp;&nbsp; Website</a></b>
-	          {% endif %}
-                      </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-              </div></div></div>
+        {% include "people_modal.tmpl" %}
             </div>
 	</div>
         {% cycle '' '' '' '</div>' %}

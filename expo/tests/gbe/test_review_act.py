@@ -3,8 +3,10 @@ from django.core.exceptions import PermissionDenied
 import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
+from tests.contexts import ActTechInfoContext
 from tests.factories.gbe_factories import (
     ActBidEvaluationFactory,
+    ActCastingOptionFactory,
     ActFactory,
     ConferenceFactory,
     PersonaFactory,
@@ -51,6 +53,17 @@ class TestReviewAct(TestCase):
         if invalid:
             del(data['bid'])
         return data
+
+    def get_act_w_roles(self, act):
+        ActCastingOptionFactory(casting="Regular Act",
+                                show_as_special=False,
+                                display_order=0)
+        ActCastingOptionFactory(display_order=1)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[act.pk])
+        login_as(self.privileged_user, self)
+        return self.client.get(url)
 
     def test_review_act_all_well(self):
         act = ActFactory()
@@ -230,3 +243,28 @@ class TestReviewAct(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('The Summer Act' in response.content)
+
+    def test_review_default_role_present(self):
+        act = ActFactory()
+        response = self.get_act_w_roles(act)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<option value="" selected="selected">Regular Act</option>')
+
+    def test_review_special_role_present(self):
+        act = ActFactory()
+        response = self.get_act_w_roles(act)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<option value="Hosted by...">Hosted by...</option>')
+
+    def test_review_special_role_already_cast(self):
+        context = ActTechInfoContext(act_role="Hosted by...")
+        response = self.get_act_w_roles(context.act)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<option value="Hosted by..." selected="selected"' +
+            '>Hosted by...</option>')
