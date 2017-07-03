@@ -86,6 +86,7 @@
 
        {% if bio.img %}
           <div class="bio_image_block">
+            <img src="{% thumbnail bio.img 250x250 crop upscale subject_location=bio.img.subject_location %}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
