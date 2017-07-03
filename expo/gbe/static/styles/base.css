@@ -393,6 +393,18 @@ td.describe
   color: #333333;
 }
 
+.perf-head
+{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 30px;
+  color: white;
+}
+
+.perf-div
+{
+  background-color: #960320;
+}
+
 .listsubheader
 {
   font-family: Lucida Grande,Tahoma,Verdana,sans-serif;

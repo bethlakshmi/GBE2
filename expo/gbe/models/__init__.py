@@ -35,3 +35,4 @@ from bid_evaluation import BidEvaluation
 from show_vote import ShowVote
 from act_bid_evaluation import ActBidEvaluation
 from email_template_sender import EmailTemplateSender
+from act_casting_option import ActCastingOption

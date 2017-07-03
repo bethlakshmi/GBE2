@@ -17,13 +17,22 @@ def get_event_display_info(eventitem_id):
     except EventItem.DoesNotExist:
         raise Http404
     bio_grid_list = []
+    featured_grid_list = []
     for sched_event in item.scheduler_events.all():
-        bio_grid_list += sched_event.bio_list
+        for casting in sched_event.casting_list:
+            if len(casting.role):
+                featured_grid_list += [{
+                    'bio': casting._item.bio,
+                    'role': casting.role,
+                    }]
+            else:
+                bio_grid_list += [casting._item.bio]
     eventitem_view = {'event': item,
                       'scheduled_events': item.scheduler_events.all().order_by(
                           'starttime'),
                       'labels': event_labels,
-                      'bio_grid_list': bio_grid_list
+                      'bio_grid_list': bio_grid_list,
+                      'featured_grid_list': featured_grid_list,
                       }
     return eventitem_view
 

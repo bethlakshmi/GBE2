@@ -187,6 +187,17 @@ class ActItem(ResourceItem):
         except:
             return -1
 
+    def get_castings(self):
+        '''
+        Returns a list of all shows and cast roles this act is scheduled for.
+        '''
+        resources = ActResource.objects.filter(_item=self)
+        result = []
+        for resource in resources:
+            if resource.show:
+                result += [(resource.show, resource.role)]
+        return result
+
     def get_scheduled_shows(self):
         '''
         Returns a list of all shows this act is scheduled to appear in.
@@ -247,6 +258,8 @@ class ActResource(Resource):
     '''
     objects = InheritanceManager()
     _item = models.ForeignKey(ActItem)
+    role = models.CharField(max_length=50,
+                            blank=True)
 
     @property
     def show(self):
@@ -941,6 +954,12 @@ class Event(Schedulable):
         bio_list = sorted(bio_list, key=lambda bio: bio.name)
 
         return bio_list
+
+    # get castings as in what acts have been booked for this event
+    @property
+    def casting_list(self):
+        return ActResource.objects.filter(allocations__event=self,
+                                          _item__act__accepted=3)
 
     def __str__(self):
         try:

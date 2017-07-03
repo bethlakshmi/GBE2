@@ -1,0 +1,57 @@
+    <!-- Featured Performer Section Start -->
+    <section id="team" class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 perf-div">
+            <h2 class="section-title perf-head fadeInUp" data-wow-delay="0s">Special Guests</h2>
+          </div>
+{% for featured in featured_items %}
+{% cycle True True False False as img_right silent %}
+    {% cycle '<div class="row">' '' '<div class="row">' '' %}
+          <div class="col-md-6 col-sm-12 col-xs-12">
+            <div class="single-member wow fadeInRight" data-wow-delay="0.2s">
+    {% if img_right %}
+              <div class="team-desc">
+                <h5>{{featured.role}}</h5>
+                <h3>{{featured.bio.name}}</h3>
+                <p>{{featured.bio.bio | truncatechars:200 }}</p>
+              </div>
+    {% endif %}
+        {% if featured.bio.promo_mini %}
+              <div class="team-img">
+                <img src="{{MEDIA_URL}}{{featured.bio.promo_mini}}" alt="">
+                <div class="social-icon">
+            {% if featured.bio.promo_image %}
+                  <a class="social" href="{{MEDIA_URL}}{{featured.bio.promo_image}}">
+                    <i class="fa fa-eye"></i>
+                  </a>
+            {% endif %}
+            {% if featured.bio.homepage %}
+                  <a class="social" href="{{featured.bio.homepage}}" target="_blank">
+                    <i class="fa fa-link"></i>
+                  </a>
+            {% endif %}
+                  <a class="social" href="#" data-toggle="modal" data-target="#{{featured.bio.pk}}_modal" data-backdrop="true" >
+                    <i class="fa fa-external-link"></i>
+                  </a>
+                </div>
+              </div>
+        {% endif %}
+    {% if not img_right %}
+              <div class="team-desc">
+                <h5>{{featured.role}}</h5>
+                <h3>{{featured.bio.name}}</h3>
+                <p>{{featured.bio.bio | truncatechars:200}}</p>
+              </div>
+    {% endif %}
+                {% include "people_modal.tmpl" with item=featured.bio %}
+            </div>
+          </div>
+    {% cycle '' '</div>' '' '</div>' %}
+
+{% endfor %}
+
+        </div>
+      </div>
+    </section>
+    <!-- Featured Performers Section End -->

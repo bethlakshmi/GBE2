@@ -5,6 +5,7 @@ from django.test.client import RequestFactory
 from django.test import Client
 from tests.factories.gbe_factories import (
     ActBidEvaluationFactory,
+    ActCastingOptionFactory,
     ActFactory,
     ConferenceFactory,
     PersonaFactory,
@@ -88,6 +89,15 @@ class TestReviewActList(TestCase):
             data={'conf_slug': context.conference.conference_slug})
         assert context.acts[0].b_title in response.content
         assert context.show.e_title in response.content
+
+    def test_review_act_assigned_show_role(self):
+        context = ShowContext(act_role="Hosted By...")
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': context.conference.conference_slug})
+        assert context.show.e_title in response.content
+        assert "Hosted By..." in response.content
 
     def test_review_act_assigned_two_shows(self):
         context = ShowContext()
