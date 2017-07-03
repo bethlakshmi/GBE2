@@ -14,14 +14,14 @@
               <div class="name">
 	        {{item.name}}
 	      </div>
-              <a href="#">{% if item.promo_mini %}
+              <a href="#">{% if item.img %}
 		<img src="{% thumbnail item.img 250x250 crop upscale subject_location=item.img.subject_location %}" alt="">{% else %}
 		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" alt="">{% endif %}
               </a>
               <div class="overlay">
                 <div class="icons">
-                  {% if item.promo_image %}
-                  <a class="preview lightbox" href="{{MEDIA_URL}}{{item.promo_image}}"><i class="icon-eye"></i></a>
+                  {% if item.img %}
+                  <a class="preview lightbox" href="{{item.img.url}}"><i class="icon-eye"></i></a>
                   {% endif %}
                   {% if request.user.is_superuser %}
                   <a class="lightbox below" href="/admin/gbe/performer/{{item.pk}}"><i class="icon-pencil"></i></a>{% endif %}
@@ -39,10 +39,10 @@
                 </div>
                 <div class="modal-body">
                   <div class="row">
-                  {% if item.promo_image %}
+                  {% if item.img %}
 		      <div class="col-xs-6 col-xs-push-6">
-                         <a href="{{MEDIA_URL}}{{item.promo_image}}">
-		             <img src="{{MEDIA_URL}}{{item.promo_mini}}" alt="Photo" >
+                         <a href="{{item.img.url}}">
+		             <img src="{% thumbnail item.img 250x250 crop upscale subject_location=item.img.subject_location %}" alt="Photo" >
 		         </a>
                       </div>
                       <div class="col-xs-6 col-xs-pull-6">

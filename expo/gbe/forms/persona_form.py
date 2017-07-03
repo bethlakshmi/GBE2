@@ -1,5 +1,6 @@
 from django.forms import (
     HiddenInput,
+    ImageField,
     ModelForm,
 )
 from gbe.models import Persona
@@ -13,6 +14,10 @@ from gbe.expoformfields import FriendlyURLInput
 class PersonaForm (ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    upload_img = ImageField(
+        help_text=persona_help_texts['promo_image'],
+        label=persona_labels['promo_image'],
+    )
 
     class Meta:
         model = Persona
@@ -21,7 +26,6 @@ class PersonaForm (ModelForm):
                   'bio',
                   'experience',
                   'awards',
-                  'promo_image',
                   'performer_profile',
                   'contact',
                   ]
