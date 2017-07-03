@@ -1,3 +1,4 @@
+{% load thumbnail %}
 
     <!-- Gallery Section Start -->
     <section id="gallery" class="section">
@@ -14,7 +15,7 @@
 	        {{item.name}}
 	      </div>
               <a href="#">{% if item.promo_mini %}
-	   	<img src="{{MEDIA_URL}}{{item.promo_mini}}" alt="">{% else %}
+		<img src="{% thumbnail item.img 250x250 crop upscale subject_location=item.img.subject_location %}" alt="">{% else %}
 		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" alt="">{% endif %}
               </a>
               <div class="overlay">
