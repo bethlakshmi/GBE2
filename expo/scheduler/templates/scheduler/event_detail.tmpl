@@ -1,5 +1,7 @@
 {% extends "base.tmpl" %}
 {% load staticfiles %}
+{% load thumbnail %}
+
 {% block title %}
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
 {% endblock %}
@@ -64,9 +66,9 @@
 	{%endif%}
       <br><br>
       </div>
-        {% if worker.workeritem.promo_mini %}
+        {% if worker.workeritem.img %}
           <div class="bio_name bio_image_block">
-          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}" class="sched_bio_image">
+          <img src="{% thumbnail worker.workeritem.img 250x250 crop upscale subject_location=worker.workeritem.img.subject_location %}" class="sched_bio_image">
           </div>
         {% endif %}
       {%endifchanged%}
@@ -82,9 +84,8 @@
 	
       </div>
 
-       {% if bio.promo_mini %}
+       {% if bio.img %}
           <div class="bio_image_block">
-            <img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="sched_bio_image">
           </div>
         {% endif %}
       {% endfor %}
