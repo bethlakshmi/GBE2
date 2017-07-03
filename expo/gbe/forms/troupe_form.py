@@ -1,5 +1,4 @@
 from django.forms import (
-    ModelForm,
     ModelMultipleChoiceField,
 )
 from gbe.models import Troupe
@@ -8,9 +7,9 @@ from gbe_forms_text import (
     persona_labels,
 )
 from gbe.forms.common_queries import visible_personas
+from gbe.forms import PersonaForm
 
-
-class TroupeForm (ModelForm):
+class TroupeForm (PersonaForm):
     required_css_class = 'required'
     error_css_class = 'error'
     membership = ModelMultipleChoiceField(
@@ -18,6 +17,15 @@ class TroupeForm (ModelForm):
 
     class Meta:
         model = Troupe
-        fields = '__all__'
+        fields = ['contact',
+                  'name',
+                  'homepage',
+                  'bio',
+                  'experience',
+                  'awards',
+                  'upload_img',
+                  'festivals',
+                  'membership',
+                  ]
         help_texts = persona_help_texts
         labels = persona_labels

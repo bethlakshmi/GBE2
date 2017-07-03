@@ -20,6 +20,7 @@ class PersonaForm (ModelForm):
     upload_img = ImageField(
         help_text=persona_help_texts['promo_image'],
         label=persona_labels['promo_image'],
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -29,23 +30,29 @@ class PersonaForm (ModelForm):
                 help_text=persona_help_texts['promo_image'],
                 label=persona_labels['promo_image'],
                 initial=kwargs.get('instance').img,
+                required=False,
             )
 
     def save(self, commit=True):
         performer = super(ModelForm, self).save(commit=False)
         if commit and self['upload_img']:
-            superuser = User.objects.get(username='admin_img')
-            folder, created = Folder.objects.get_or_create(name='Performers')
-            img, created = Image.objects.get_or_create(
-                owner=superuser,
-                original_filename=self['upload_img'].value().name,
-                file=self['upload_img'].value(),
-                folder=folder,
-                author="%s" % str(performer.name)
-            )
-            img.save()
-            performer.img_id = img.pk
+            if self['upload_img'].value() != False:
+                superuser = User.objects.get(username='admin_img')
+                folder, created = Folder.objects.get_or_create(
+                    name='Performers')
+                img, created = Image.objects.get_or_create(
+                    owner=superuser,
+                    original_filename=self['upload_img'].value().name,
+                    file=self['upload_img'].value(),
+                    folder=folder,
+                    author="%s" % str(performer.name,),
+                )
+                img.save()
+                performer.img_id = img.pk
+            else:
+                performer.img = None
             performer.save()
+
         return performer
 
     class Meta:
