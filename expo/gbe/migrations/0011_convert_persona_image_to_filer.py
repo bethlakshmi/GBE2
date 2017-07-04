@@ -47,7 +47,7 @@ def create_filer_images(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gbe', '0009_performer_img'),
+        ('gbe', '0010_performer_img'),
     ]
 
     operations = [
