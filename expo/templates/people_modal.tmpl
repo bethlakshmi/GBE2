@@ -1,3 +1,4 @@
+{% load thumbnail %}
 <!-- People Modal Start -->
               <div class="modal fade" id="{{item.pk}}_modal" role="dialog">
               <div class="modal-dialog">
@@ -8,10 +9,10 @@
                 </div>
                 <div class="modal-body">
                   <div class="row">
-                  {% if item.promo_image %}
+                  {% if item.img %}
 		      <div class="col-xs-6 col-xs-push-6">
-                         <a href="{{MEDIA_URL}}{{item.promo_image}}">
-		             <img src="{{MEDIA_URL}}{{item.promo_mini}}" alt="Photo" >
+                         <a href="{{item.img.url}}">
+		             <img src="{% thumbnail item.img 250x250 crop upscale subject_location=item.img.subject_location %}" alt="Photo" >
 		         </a>
                       </div>
                       <div class="col-xs-6 col-xs-pull-6">
