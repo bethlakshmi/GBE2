@@ -37,6 +37,9 @@
                   </a>
             {% if request.user.is_superuser %}</br></br>
                   <a class="social" href="/admin/filer/image/{{featured.bio.img.pk}}/?_pick=file&_popup=1" target="_blank">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a class="social" href="/admin/gbe/performer/{{featured.bio.pk}}" target="_blank">
                     <i class="fa fa-pencil-square-o"></i>
                   </a>
             {% endif %}
