@@ -486,11 +486,12 @@ td.describe
     margin: 10px;
     padding: 10px;
 }
-@media (min-width:768px){div.bios{width:680px}
+@media (min-width:768px){.bio_block{width:680px}
 }
-@media (min-width:992px){div.bios{width:900px}
+@media (min-width:992px){.bio_block{width:900px}
 }
-@media (min-width:1200px){div.bios{width:1100px}
+@media (min-width:1200px){.bio_block{width:1100px}
+}
 
 .sched_detail_title
 {

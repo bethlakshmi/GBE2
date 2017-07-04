@@ -62,7 +62,7 @@
       {% for worker in eventitem.event.roles %}
       <div class="row bio_row">
       {% ifchanged worker.workeritem %}
-        <div class="col-md-9 col-sm-8 col-xs-12">
+        <div class="col-md-8 col-sm-7 col-xs-12">
 	{%if worker.role == "Staff Lead"%}
 	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
         {%else%}
@@ -72,8 +72,8 @@
         <br><br>
         </div>
         {% if worker.workeritem.img %}
-          <div class="bio_name bio_image_block">
-          <img src="{% thumbnail worker.workeritem.img 250x250 crop upscale subject_location=worker.workeritem.img.subject_location %}" class="sched_bio_image">
+          <div class="col-md-3 col-sm-4 col-xs-12">
+          <img src="{{bio.img.url}}" class="sched_bio_image">
           </div>
         {% endif %}
       {%endifchanged%}
@@ -84,7 +84,7 @@
     <div class="bio_block font_regular container">
       {% for bio in eventitem.event.bios %}
       <div class="row bio_row">
-        <div class="col-md-9 col-sm-8 col-xs-12">
+        <div class="col-md-8 col-sm-7 col-xs-12">
         <h2 class="bio_name subtitle">About {{bio.name}}</h2>
         {{bio.bio |linebreaksbr}}
         <br><br>
@@ -92,10 +92,7 @@
 
        {% if bio.img %}
           <div class="col-md-3 col-sm-4 col-xs-12">
-            <img src="{% thumbnail bio.img 250x250 crop upscale subject_location=bio.img.subject_location %}" class="sched_bio_image">
-       {% if bio.promo_mini %}
-          <div class="col-md-3 col-sm-4 col-xs-12">
-            <img src="{{MEDIA_URL}}{{bio.promo_mini}}">
+            <img src="{{bio.img.url}}" class="sched_bio_image">
           </div>
         {% endif %}
       </div>
