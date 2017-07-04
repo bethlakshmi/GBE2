@@ -9,6 +9,7 @@ from gbe_forms_text import (
 from gbe.forms.common_queries import visible_personas
 from gbe.forms import PersonaForm
 
+
 class TroupeForm (PersonaForm):
     required_css_class = 'required'
     error_css_class = 'error'

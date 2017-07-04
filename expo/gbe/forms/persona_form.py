@@ -37,7 +37,7 @@ class PersonaForm (ModelForm):
         performer = super(ModelForm, self).save(commit=False)
         if commit and self['upload_img'] and (
                 self['upload_img'].value() != performer.img):
-            if self['upload_img'].value() != False:
+            if self['upload_img'].value():
                 superuser = User.objects.get(username='admin_img')
                 folder, created = Folder.objects.get_or_create(
                     name='Performers')
