@@ -393,6 +393,18 @@ td.describe
   color: #333333;
 }
 
+.perf-head
+{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 30px;
+  color: white;
+}
+
+.perf-div
+{
+  background-color: #960320;
+}
+
 .listsubheader
 {
   font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
@@ -479,7 +491,7 @@ td.describe
 @media (min-width:992px){div.bios{width:900px}
 }
 @media (min-width:1200px){div.bios{width:1100px}
-}
+
 .sched_detail_title
 {
   color: #333333;
@@ -510,12 +522,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_bio_image
-{
-  width: 300px;
-  margin: 3px;
-  display: inline-block;
-}
+
 div.performer
 {
 }

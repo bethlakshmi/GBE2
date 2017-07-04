@@ -178,6 +178,13 @@ class CueInfoFactory(DjangoModelFactory):
     sound_note = "sound_note field for test CueInfo object"
 
 
+class ActCastingOptionFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.ActCastingOption
+    casting = "Hosted by..."
+    display_order = 0
+
+
 class ActFactory(DjangoModelFactory):
     class Meta:
         model = conf.Act

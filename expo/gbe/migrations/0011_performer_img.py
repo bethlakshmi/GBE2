@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('filer', '0007_auto_20161016_1055'),
-        ('gbe', '0008_remove_act_is_summer'),
+        ('gbe', '0010_actcastingoption'),
     ]
 
     operations = [
