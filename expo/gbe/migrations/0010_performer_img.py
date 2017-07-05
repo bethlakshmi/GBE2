@@ -16,6 +16,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='performer',
             name='img',
-            field=filer.fields.image.FilerImageField(related_name='image_performer', to='filer.Image', null=True),
+            field=filer.fields.image.FilerImageField(
+                related_name='image_performer',
+                to='filer.Image',
+                null=True),
         ),
     ]

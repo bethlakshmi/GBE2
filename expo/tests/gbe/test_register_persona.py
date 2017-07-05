@@ -32,13 +32,13 @@ class TestRegisterPersona(TestCase):
         url = reverse(self.view_name, urlconf='gbe.urls')
         response = self.client.get(url)
 
-        data={'performer_profile': self.profile.pk,
-              'contact': self.profile.pk,
-              'name': 'persona for %s' % self.profile.display_name,
-              'homepage': 'foo.bar.com/~quux',
-              'bio': 'bio bio bio',
-              'experience': 3,
-              'awards': 'Generic string here'}
+        data = {'performer_profile': self.profile.pk,
+                'contact': self.profile.pk,
+                'name': 'persona for %s' % self.profile.display_name,
+                'homepage': 'foo.bar.com/~quux',
+                'bio': 'bio bio bio',
+                'experience': 3,
+                'awards': 'Generic string here'}
         if image:
             data['upload_img'] = image
         persona_count = self.profile.personae.count()

@@ -38,13 +38,13 @@ class TestEditPersona(TestCase):
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       args=[self.persona.resourceitem_id])
-        data={'performer_profile': self.persona.performer_profile.pk,
-              'contact': self.persona.performer_profile.pk,
-              'name': new_name,
-              'homepage': self.persona.homepage,
-              'bio': "bio",
-              'experience': 1,
-              'awards': "many"}
+        data = {'performer_profile': self.persona.performer_profile.pk,
+                'contact': self.persona.performer_profile.pk,
+                'name': new_name,
+                'homepage': self.persona.homepage,
+                'bio': "bio",
+                'experience': 1,
+                'awards': "many"}
         if image:
             data['upload_img'] = image
         if delete_image:

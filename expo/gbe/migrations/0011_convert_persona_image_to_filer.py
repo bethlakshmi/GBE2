@@ -10,7 +10,7 @@ from filer.models.foldermodels import Folder
 
 def create_filer_images(apps, schema_editor):
     Performer = apps.get_model('gbe', 'Performer')
-    
+
     try:
         from django.contrib.auth import get_user_model
         User = get_user_model()
@@ -24,7 +24,8 @@ def create_filer_images(apps, schema_editor):
         if performer.promo_image:
             full_name = os.path.join(settings.MEDIA_ROOT,
                                      performer.promo_image.name)
-            file_name = performer.promo_image.name.split('uploads/images/', 1)[-1]
+            file_name = performer.promo_image.name.split(
+                'uploads/images/', 1)[-1]
             print "\nPerformer: " + str(performer.name)
             print "File: " + file_name
             file_obj = DjangoFile(open(full_name, 'rb'),
