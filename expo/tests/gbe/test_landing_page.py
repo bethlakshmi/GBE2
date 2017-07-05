@@ -30,6 +30,8 @@ from tests.functions.gbe_functions import (
 from django.core.files.uploadedfile import SimpleUploadedFile
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
+from filer.models.imagemodels import Image
+from django.contrib.auth.models import User  # NOQA
 
 
 class TestIndex(TestCase):
@@ -275,16 +277,24 @@ class TestIndex(TestCase):
         assert costume.b_title in response.content
 
     def test_profile_image(self):
-        self.performer.promo_image = SimpleUploadedFile(
+        superuser = User.objects.create_superuser(
+            'test_costumes_to_review',
+            'admin@importimage.com',
+            'secret')
+        file_obj = SimpleUploadedFile(
             "file.jpg",
             "file_content",
             content_type="image/jpg")
+        image = Image.objects.create(owner=superuser,
+                                     original_filename="file.jpg",
+                                     file=file_obj)
+        self.performer.img = image
         self.performer.save()
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
         response = self.client.get(url)
         self.assertContains(response, self.performer.name)
-        self.assertContains(response, self.performer.promo_thumb)
+        self.assertContains(response, self.performer.img.url)
 
     def test_cannot_edit_troupe_if_not_contact(self):
         troupe = TroupeFactory()

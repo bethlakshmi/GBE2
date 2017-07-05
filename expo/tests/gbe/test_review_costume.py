@@ -40,7 +40,7 @@ class TestReviewCostume(TestCase):
         return data
 
     def test_review_costume_all_well(self):
-        costume = CostumeFactory()
+        costume = CostumeFactory(performer=self.performer)
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url)
@@ -49,7 +49,8 @@ class TestReviewCostume(TestCase):
 
     def test_review_costume_past_conference(self):
         conference = ConferenceFactory(status='completed')
-        costume = CostumeFactory(b_conference=conference)
+        costume = CostumeFactory(b_conference=conference,
+                                 performer=self.performer)
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url, follow=True)
@@ -76,7 +77,7 @@ class TestReviewCostume(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_review_costume_post_valid(self):
-        bid = CostumeFactory()
+        bid = CostumeFactory(performer=self.performer)
         url = reverse(self.view_name,
                       args=[bid.pk],
                       urlconf='gbe.urls')
