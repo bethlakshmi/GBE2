@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
 )
 from gbetext import default_create_persona_msg
 from gbe.models import UserMessage
+from django.core.files import File
 
 
 class TestRegisterPersona(TestCase):
@@ -26,22 +27,24 @@ class TestRegisterPersona(TestCase):
         self.client = Client()
         self.profile = ProfileFactory()
 
-    def submit_persona(self):
+    def submit_persona(self, image=None):
         login_as(self.profile, self)
         url = reverse(self.view_name, urlconf='gbe.urls')
         response = self.client.get(url)
 
+        data={'performer_profile': self.profile.pk,
+              'contact': self.profile.pk,
+              'name': 'persona for %s' % self.profile.display_name,
+              'homepage': 'foo.bar.com/~quux',
+              'bio': 'bio bio bio',
+              'experience': 3,
+              'awards': 'Generic string here'}
+        if image:
+            data['upload_img'] = image
         persona_count = self.profile.personae.count()
         response = self.client.post(
             url,
-            data={'performer_profile': self.profile.pk,
-                  'contact': self.profile.pk,
-                  'name': 'persona for %s' % self.profile.display_name,
-                  'homepage': 'foo.bar.com/~quux',
-                  'bio': 'bio bio bio',
-                  'experience': 3,
-                  'awards': 'Generic string here'
-                  },
+            data,
             follow=True)
         return response, persona_count
 
@@ -57,6 +60,13 @@ class TestRegisterPersona(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_register_persona_w_image(self):
+        pic_filename = open("tests/gbe/gbe_pagebanner.png", 'r')
+        picture = File(pic_filename)
+        response, persona_count = self.submit_persona(picture)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "gbe_pagebanner.png")
 
     def test_register_persona_friendly_urls(self):
         response, persona_count = self.submit_persona()

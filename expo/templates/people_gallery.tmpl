@@ -28,10 +28,10 @@
                   <a class="link" data-toggle="modal" data-target="#{{item.pk}}_modal" data-backdrop="true" href="#">
                     <i class="icon-share-alt"></i>
                   </a>
-                  {% if request.user.is_superuser %}
+                  {% if request.user.is_superuser %}{% if item.img %}
                   <a class="lightbox below" href="/admin/filer/image/{{item.img.pk}}/?_pick=file&_popup=1" target="_blank">
                     <i class="icon-pencil"></i>
-                  </a>
+                  </a>{% endif %}
                   <a class="performer below" href="/admin/gbe/performer/{{item.pk}}" target="_blank">
                     <i class="icon-note"></i>
                   </a>{% endif %}

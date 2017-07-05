@@ -96,10 +96,6 @@ class Performer (WorkerItem):
         return self.contact.phone
 
     @property
-    def complete(self):
-        return True
-
-    @property
     def describe(self):
         return self.name
 

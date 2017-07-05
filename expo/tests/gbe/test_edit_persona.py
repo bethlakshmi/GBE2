@@ -16,6 +16,9 @@ from tests.functions.gbe_functions import (
 )
 from gbetext import default_edit_persona_msg
 from gbe.models import UserMessage
+from django.core.files import File
+from django.contrib.auth.models import User
+from filer.models.imagemodels import Image
 
 
 class TestEditPersona(TestCase):
@@ -28,7 +31,7 @@ class TestEditPersona(TestCase):
         self.expected_string = 'Tell Us About Your Stage Persona'
         self.persona = PersonaFactory()
 
-    def submit_persona(self):
+    def submit_persona(self, image=None, delete_image=False):
         login_as(self.persona.performer_profile, self)
         old_name = self.persona.name
         new_name = "Fifi"
@@ -36,15 +39,21 @@ class TestEditPersona(TestCase):
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       args=[self.persona.resourceitem_id])
-        response = self.client.post(
-            url,
-            data={'performer_profile': self.persona.performer_profile.pk,
+        data={'performer_profile': self.persona.performer_profile.pk,
                   'contact': self.persona.performer_profile.pk,
                   'name': new_name,
                   'homepage': self.persona.homepage,
                   'bio': "bio",
                   'experience': 1,
-                  'awards': "many"},
+                  'awards': "many"}
+        if image:
+            data['upload_img'] = image
+        if delete_image:
+            data['upload_img-clear'] = True
+
+        response = self.client.post(
+            url,
+            data,
             follow=True
         )
         return response, new_name
@@ -78,6 +87,30 @@ class TestEditPersona(TestCase):
         response, new_name = self.submit_persona()
         persona_reloaded = Persona.objects.get(pk=self.persona.pk)
         self.assertEqual(persona_reloaded.name, new_name)
+
+    def test_edit_persona_change_image(self):
+        pic_filename = open("tests/gbe/gbe_pagebanner.png", 'r')
+        picture = File(pic_filename)
+
+        response, new_name = self.submit_persona(picture)
+        persona_reloaded = Persona.objects.get(pk=self.persona.pk)
+        self.assertEqual(str(persona_reloaded.img), "gbe_pagebanner.png")
+
+    def test_edit_persona_remove_image(self):
+        superuser = User.objects.create_superuser('test_edit_persona_remove_image',
+                                                  'admin@importimage.com',
+                                                  'secret')
+        current_picture = File(open("tests/gbe/gbe_pagebanner.png", 'r'))
+        current_img = Image.objects.create(
+            owner=superuser,
+            original_filename="gbe_pagebanner.png",
+            file=current_picture)
+        current_img.save()
+        self.persona.img_id = current_img.pk
+        self.persona.save()
+        response, new_name = self.submit_persona(delete_image=True)
+        persona_reloaded = Persona.objects.get(pk=self.persona.pk)
+        self.assertEqual(persona_reloaded.img, None)
 
     def test_edit_persona_invalid_post(self):
         login_as(self.persona.performer_profile, self)
