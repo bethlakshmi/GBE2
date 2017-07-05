@@ -113,6 +113,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        set_performer_image(context.performer)
         login_as(superuser, self)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
