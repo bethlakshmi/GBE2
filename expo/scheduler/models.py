@@ -959,7 +959,7 @@ class Event(Schedulable):
     @property
     def casting_list(self):
         return ActResource.objects.filter(allocations__event=self,
-                                          _item__act__accepted=3)
+                                          _item__act__accepted=3).order_by('_item__act__performer__name')
 
     def __str__(self):
         try:
