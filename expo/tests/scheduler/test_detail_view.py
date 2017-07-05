@@ -16,7 +16,11 @@ from django.test import (
 from tests.contexts import ActTechInfoContext
 from gbe.models import Conference
 from scheduler.models import EventItem
-from tests.functions.gbe_functions import bad_id_for
+from tests.functions.gbe_functions import (
+    bad_id_for,
+    login_as,
+    set_performer_image,
+)
 from django.contrib.auth.models import User
 
 
@@ -106,7 +110,7 @@ class TestDetailView(TestCase):
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.show.pk])
-        superuser = User.objects.create_superuser('test_bio_grid_editor',
+        superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
         login_as(superuser, self)
@@ -114,13 +118,14 @@ class TestDetailView(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertContains(
             response,
-            "/admin/gbe/performer/%d" % self.context.performer.pk)
+            "/admin/gbe/performer/%d" % context.performer.pk)
 
     def test_bio_grid_for_admin_w_image(self):
-        superuser = User.objects.create_superuser('test_bio_grid_editor',
+        superuser = User.objects.create_superuser('test_bio_grid_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
         login_as(superuser, self)
+        set_performer_image(self.context.performer)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
         self.assertContains(
@@ -135,10 +140,11 @@ class TestDetailView(TestCase):
         ActCastingOptionFactory(display_order=1)
 
         context = ActTechInfoContext(act_role="Hosted By...")
+        set_performer_image(context.performer)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.show.pk])
-        superuser = User.objects.create_superuser('test_bio_grid_editor',
+        superuser = User.objects.create_superuser('test_feature_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
         login_as(superuser, self)
@@ -147,4 +153,4 @@ class TestDetailView(TestCase):
         self.assertContains(
             response,
             "/admin/filer/image/%d/?_pick=file&_popup=1" % (
-                self.context.performer.img.pk))
+                context.performer.img.pk))

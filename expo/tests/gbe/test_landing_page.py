@@ -26,12 +26,10 @@ from tests.factories.scheduler_factories import (
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
+    set_performer_image,
 )
-from django.core.files.uploadedfile import SimpleUploadedFile
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
-from filer.models.imagemodels import Image
-from django.contrib.auth.models import User  # NOQA
 
 
 class TestIndex(TestCase):
@@ -277,19 +275,7 @@ class TestIndex(TestCase):
         assert costume.b_title in response.content
 
     def test_profile_image(self):
-        superuser = User.objects.create_superuser(
-            'test_costumes_to_review',
-            'admin@importimage.com',
-            'secret')
-        file_obj = SimpleUploadedFile(
-            "file.jpg",
-            "file_content",
-            content_type="image/jpg")
-        image = Image.objects.create(owner=superuser,
-                                     original_filename="file.jpg",
-                                     file=file_obj)
-        self.performer.img = image
-        self.performer.save()
+        set_performer_image(self.performer)
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
         response = self.client.get(url)

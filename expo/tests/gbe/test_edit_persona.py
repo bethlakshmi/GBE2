@@ -13,12 +13,11 @@ from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as,
     location,
+    set_performer_image,
 )
 from gbetext import default_edit_persona_msg
 from gbe.models import UserMessage
 from django.core.files import File
-from django.contrib.auth.models import User
-from filer.models.imagemodels import Image
 
 
 class TestEditPersona(TestCase):
@@ -40,12 +39,12 @@ class TestEditPersona(TestCase):
                       urlconf="gbe.urls",
                       args=[self.persona.resourceitem_id])
         data={'performer_profile': self.persona.performer_profile.pk,
-                  'contact': self.persona.performer_profile.pk,
-                  'name': new_name,
-                  'homepage': self.persona.homepage,
-                  'bio': "bio",
-                  'experience': 1,
-                  'awards': "many"}
+              'contact': self.persona.performer_profile.pk,
+              'name': new_name,
+              'homepage': self.persona.homepage,
+              'bio': "bio",
+              'experience': 1,
+              'awards': "many"}
         if image:
             data['upload_img'] = image
         if delete_image:
@@ -97,17 +96,8 @@ class TestEditPersona(TestCase):
         self.assertEqual(str(persona_reloaded.img), "gbe_pagebanner.png")
 
     def test_edit_persona_remove_image(self):
-        superuser = User.objects.create_superuser('test_edit_persona_remove_image',
-                                                  'admin@importimage.com',
-                                                  'secret')
-        current_picture = File(open("tests/gbe/gbe_pagebanner.png", 'r'))
-        current_img = Image.objects.create(
-            owner=superuser,
-            original_filename="gbe_pagebanner.png",
-            file=current_picture)
-        current_img.save()
-        self.persona.img_id = current_img.pk
-        self.persona.save()
+        set_performer_image(self.persona)
+        self.assertEqual(str(self.persona.img), "gbe_pagebanner.png")
         response, new_name = self.submit_persona(delete_image=True)
         persona_reloaded = Persona.objects.get(pk=self.persona.pk)
         self.assertEqual(persona_reloaded.img, None)
