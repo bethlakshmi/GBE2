@@ -73,6 +73,19 @@ class TestEditPersona(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.expected_string in response.content)
 
+    def test_edit_persona_load_img(self):
+        '''edit_troupe view, create flow
+        '''
+        set_performer_image(self.persona)
+
+        url = reverse(self.view_name,
+                      urlconf="gbe.urls",
+                      args=[self.persona.resourceitem_id])
+        login_as(self.persona.performer_profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.persona.img.url in response.content)
+
     def test_wrong_profile(self):
         viewer = ProfileFactory()
         url = (reverse(self.view_name,
