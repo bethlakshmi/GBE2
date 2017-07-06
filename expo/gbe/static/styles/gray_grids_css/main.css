@@ -21,6 +21,7 @@
 .gallery-item {
   position: relative;
   margin-bottom: 10px;
+  padding-top: 15px;
 }
 .gallery-item .overlay {
   position: absolute;
