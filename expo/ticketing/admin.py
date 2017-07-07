@@ -59,6 +59,8 @@ class TicketItemAdmin(admin.ModelAdmin):
 
 
 class BPTEventsAdmin(admin.ModelAdmin):
+    filter_horizontal = ("linked_events",)
+
     list_display = ('bpt_event_id',
                     'primary',
                     'act_submission_event',
