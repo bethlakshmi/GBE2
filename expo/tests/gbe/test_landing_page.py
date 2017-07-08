@@ -26,8 +26,8 @@ from tests.factories.scheduler_factories import (
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
+    set_performer_image,
 )
-from django.core.files.uploadedfile import SimpleUploadedFile
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
 
@@ -275,16 +275,12 @@ class TestIndex(TestCase):
         assert costume.b_title in response.content
 
     def test_profile_image(self):
-        self.performer.promo_image = SimpleUploadedFile(
-            "file.jpg",
-            "file_content",
-            content_type="image/jpg")
-        self.performer.save()
+        set_performer_image(self.performer)
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
         response = self.client.get(url)
         self.assertContains(response, self.performer.name)
-        self.assertContains(response, self.performer.promo_thumb)
+        self.assertContains(response, self.performer.img.url)
 
     def test_cannot_edit_troupe_if_not_contact(self):
         troupe = TroupeFactory()

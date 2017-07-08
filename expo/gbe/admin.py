@@ -30,6 +30,7 @@ class ActAdmin(admin.ModelAdmin):
 
 class PerformerAdmin(admin.ModelAdmin):
     list_display = ('name', 'contact')
+    search_fields = ['name']
 
 
 class TroupeAdmin(admin.ModelAdmin):
