@@ -21,6 +21,9 @@ from gbe_forms_text import rank_interest_options
 from post_office.models import EmailTemplate
 from django.core import mail
 from django.conf import settings
+from django.core.files import File
+from django.contrib.auth.models import User
+from filer.models.imagemodels import Image
 
 
 def _user_for(user_or_profile):
@@ -223,3 +226,18 @@ def bad_id_for(cls):
     if objects.exists():
         return objects.latest('pk').pk + 1
     return 1
+
+
+def set_performer_image(performer):
+    superuser = User.objects.create_superuser(
+        'superuser_for_%d' % performer.pk,
+        'admin@importimage.com',
+        'secret')
+    path = "tests/gbe/gbe_pagebanner.png"
+    current_img = Image.objects.create(
+        owner=superuser,
+        original_filename="gbe_pagebanner.png",
+        file=File(open(path, 'r')))
+    current_img.save()
+    performer.img_id = current_img.pk
+    performer.save()

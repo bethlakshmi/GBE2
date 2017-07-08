@@ -403,6 +403,7 @@ td.describe
 .perf-div
 {
   background-color: #960320;
+  margin-top: 20px;
 }
 
 .listsubheader
@@ -486,18 +487,13 @@ td.describe
     margin: 10px;
     padding: 10px;
 }
+@media (min-width:768px){.bio_block{width:680px}
+}
+@media (min-width:992px){.bio_block{width:900px}
+}
+@media (min-width:1200px){.bio_block{width:1100px}
+}
 
-@media (min-width:768px){.bio_block {width:680px}
-}
-@media (min-width:992px){.bio_block {width:900px}
-}
-@media (min-width:1200px){.bio_block {width:1100px}
-}
-
-.bio_row
-{
-  padding-top: 10px;
-}
 .sched_detail_title
 {
   color: #333333;
@@ -508,13 +504,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_length
-{
-  
-}
-.sched_details
-{
-}
+
 
 .ticket
 {
@@ -525,14 +515,7 @@ td.describe
 {
   font-weight: bold;
 }
-.ticket_link
-{
-  
-}
-.ticket_list
-{
-  
-}
+
 .ticket_list_item
 {
   margin-left: 15px;

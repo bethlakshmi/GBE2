@@ -92,6 +92,7 @@ fieldset[disabled] .btn {
 .gallery-item {
   position: relative;
   margin-bottom: 10px;
+  padding-top: 15px;
 }
 .gallery-item .overlay {
   position: absolute;
@@ -141,6 +142,20 @@ fieldset[disabled] .btn {
   -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
 }
+.gallery-item .icons .below {
+  text-decoration: none;
+  position: absolute;
+  left: 45%;
+  top: 70%;
+  color: #fff;
+  -webkit-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+  -moz-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+  -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+  transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+}
+.gallery-item .icons .performer {
+  left: 73%;
+}
 .gallery-item .icons .link {
   text-decoration: none;
   position: absolute;
@@ -167,7 +182,7 @@ fieldset[disabled] .btn {
   font-weight: bold;
   text-align:center;
   text-transform: capitalize;
-  height: 43px;
+  height: 25px;
   vertical-align: bottom;
 }
 
@@ -314,13 +329,18 @@ fieldset[disabled] .btn {
   float: left;
 }
 #team .team-desc h3 {
-  font-size: 22px;
+  font-size: 18px;
   text-transform: uppercase;
   font-weight: 400;
+  margin-top: 10px;
 }
 #team .team-desc h5 {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: bold;
+  margin-top: 0px;
+}
+#team .team-desc p {
+  margin: 0px;
 }
 #team .social-icon {
   position: absolute;
@@ -351,13 +371,6 @@ fieldset[disabled] .btn {
 @media (min-width:992px){#team .container{width:900px}
 }
 @media (min-width:1200px){#team .container{width:1100px}
-}
-
-@media (min-width:768px){#team .team-desc{height:275px}
-}
-@media (min-width:992px){#team .team-desc{height:330px}
-}
-@media (min-width:1200px){#team .team-desc{height:400px}
 }
 
 /* ==========================================================================
