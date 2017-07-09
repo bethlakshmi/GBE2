@@ -102,8 +102,7 @@ def import_ticket_items():
             ticket_id=i_item['ticket_id'],
             defaults=i_item)
         if not created:
-            ticket_item.description = i_item['description']
-            ticket_item.modified_by = 'BPT Description Import'
+            ticket_item.modified_by = 'BPT Import'
             ticket_item.live = i_item['live']
             ticket_item.cost = i_item['cost']
             ticket_item.save()

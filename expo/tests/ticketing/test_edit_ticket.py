@@ -33,7 +33,6 @@ class TestEditTicketItem(TestCase):
         return {
                 'ticket_id': "333333-444444",
                 'title': "Title from Form",
-                'description': "Description from Form",
                 'live': False,
                 'cost': 1.01,
                 'bpt_event': self.ticketitem.bpt_event.pk
