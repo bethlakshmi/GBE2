@@ -50,12 +50,20 @@ class BrownPaperEvents(models.Model):
     conference = models.ForeignKey('gbe.Conference',
                                    related_name='ticketing_item',
                                    blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    title = models.CharField(max_length=50, blank=True, null=True)
+    display_icon = models.CharField(max_length=50, blank=True)
 
     def __unicode__(self):
         return self.bpt_event_id
 
     class Meta:
         verbose_name_plural = 'Brown Paper Events'
+
+class EventDetails(object):
+    detail = models.CharField(max_length=50, blank=True)
+    bpt_event = models.ForeignKey(BrownPaperEvents,
+                                  blank=True)
 
 
 class TicketItem(models.Model):
@@ -69,7 +77,6 @@ class TicketItem(models.Model):
     '''
     ticket_id = models.CharField(max_length=30)
     title = models.CharField(max_length=50)
-    description = models.TextField()
     cost = models.DecimalField(max_digits=20, decimal_places=2)
     datestamp = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(max_length=30)
