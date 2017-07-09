@@ -11,50 +11,6 @@
 
 {% block content %}
 
-<H2 class="subtitle">Ticket Purchase Options for {{ site_name }}</H2>
-
-Welcome!
-<br>
-Thanks for your interest in the Great Burlesque Expo.
-Below are the ticket options available for purchase.
-There are many ways you can be a part of the convention, so
-please read the descriptions carefully.
-<br>
-
-<table>
-
-{% for key, item in ticket_items.items %}
-<tr><td>
-
-</td>
-</tr>
-
-<tr valign="top">
-    <th class="font_large" align="left"> {{ item.title }} </th>
-    <td align=\"right\"> ${{ item.cost|floatformat:2 }} </td>
-</tr>
-<tr valign="top">
-    <td class="font_regular" align=\"left\" colspan=2> {{ item.description | safe }} </td>
-</tr>
-<tr valign="top">
-</tr>
-    <td class="font_regular" align=\"left\" colspan=2> &nbsp </td>
-<tr valign="top">
-    <td class="font_regular" align="left" colspan=2>
-    <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank">
-    Purchase {{ item.title }} from Brown Paper Tickets
-    </a>
-    </td>
-</tr>
-
-<tr><td>
-{% static_placeholder "separator" %}
-</td>
-</tr>
-{% endfor %}
-</table>
-
-
     <!-- Pricing Table Section Start -->
     <section id="pricing" class="section">
       <div class="container">
@@ -70,7 +26,7 @@ please read the descriptions carefully.
             please read the descriptions carefully.</p>
           </div>
         </div>
-{% for key, item in ticket_items.items %}
+{% for item in events %}
         {% cycle '<div class="row">' '' '' %}
           <div class="col-md-4 col-sm-4 col-xs-12">
             <div class="pricing-table wow fadeInLeft" data-wow-delay="0.3s">
@@ -84,10 +40,10 @@ please read the descriptions carefully.
                 <li><i class="icon-minus"></i> Printed Materials</li>                
               </ul>
               <div class="price">
-                <h4>{{ item.cost|floatformat:2 }}</h4>
+                <h4>${{ item.price_range.cost__min|floatformat:2 }} - ${{ item.price_range.cost__max|floatformat:2 }}</h4>
               </div>
               <div class="button-area">
-                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank" class="btn btn-common">Buy Now</a>
+                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">Buy Now</a>
               </div>
             </div>
           </div>

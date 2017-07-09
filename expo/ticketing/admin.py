@@ -58,6 +58,10 @@ class TicketItemAdmin(admin.ModelAdmin):
         return obj.active
 
 
+class DetailInline(admin.TabularInline):
+    model = EventDetail
+
+
 class BPTEventsAdmin(admin.ModelAdmin):
     filter_horizontal = ("linked_events",)
 
@@ -65,16 +69,17 @@ class BPTEventsAdmin(admin.ModelAdmin):
                     'primary',
                     'act_submission_event',
                     'vendor_submission_event',
-                    'badgeable',
-                    'ticket_style',
                     'include_conference',
-                    'include_most',
-                    'conference')
-    list_filter = ['primary',
+                    'include_most')
+    list_filter = ['conference',
+                   'primary',
                    'act_submission_event',
                    'vendor_submission_event',
                    'badgeable',
-                   'conference']
+                   ]
+    inlines = [
+        DetailInline,
+    ]
 
 
 class TicketingExclusionInline(admin.TabularInline):

@@ -18,10 +18,10 @@ from ticketing.models import (
 )
 from ticketing.forms import *
 from ticketing.brown_paper import *
-from ticketing.functions import get_all_tickets
 from gbe.functions import *
 from gbe.models import Conference
 import pytz
+from django.db.models import Q
 
 
 def index(request):
@@ -30,9 +30,14 @@ def index(request):
     equivalent of cost.php from the old site.
     '''
 
-    ticket_items = get_all_tickets()
+    events = BrownPaperEvents.objects.exclude(
+        Q(conference__status='completed') | Q(
+            act_submission_event=True) | Q(
+            vendor_submission_event=True)).order_by(
+        'conference__conference_slug')
 
-    context = {'ticket_items': ticket_items,
+
+    context = {'events': events,
                'user_id': request.user.id,
                'site_name': get_current_site(request).name
                }

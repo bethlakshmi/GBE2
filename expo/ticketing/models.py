@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from gbe.models import Conference
 from gbetext import role_options
+from django.db.models import (
+    Max,
+    Min,
+)
 
 
 class BrownPaperSettings(models.Model):
@@ -56,11 +60,19 @@ class BrownPaperEvents(models.Model):
 
     def __unicode__(self):
         return self.bpt_event_id
+    
+    @property
+    def price_range(self):
+        return TicketItem.objects.filter(
+            bpt_event=self,
+            live=True,
+            has_coupon=False).aggregate(Max('cost'), Min('cost'))
 
     class Meta:
         verbose_name_plural = 'Brown Paper Events'
 
-class EventDetails(object):
+
+class EventDetail(models.Model):
     detail = models.CharField(max_length=50, blank=True)
     bpt_event = models.ForeignKey(BrownPaperEvents,
                                   blank=True)
