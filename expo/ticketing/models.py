@@ -60,13 +60,26 @@ class BrownPaperEvents(models.Model):
 
     def __unicode__(self):
         return self.bpt_event_id
-    
+
     @property
-    def price_range(self):
+    def visible(self):
+        return self.ticketitems.filter(
+            live=True,
+            has_coupon=False).count() > 0
+
+    @property
+    def min_price(self):
         return TicketItem.objects.filter(
             bpt_event=self,
             live=True,
-            has_coupon=False).aggregate(Max('cost'), Min('cost'))
+            has_coupon=False).aggregate(Min('cost'))['cost__min']
+
+    @property
+    def max_price(self):
+        return TicketItem.objects.filter(
+            bpt_event=self,
+            live=True,
+            has_coupon=False).aggregate(Max('cost'))['cost__max']
 
     class Meta:
         verbose_name_plural = 'Brown Paper Events'
