@@ -454,6 +454,7 @@ fieldset[disabled] .btn {
 }
 
 .pricing-table {
+  position: relative;
   text-align: center;
   box-shadow: 0px 1px 9px rgba(0, 0, 0, 0.08);
   margin: 60px 15px;
@@ -463,6 +464,7 @@ fieldset[disabled] .btn {
   -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   background-color: white;
+   min-height: 580px;
 }
 .pricing-table .table-icon {
   padding: 60px 0 40px;
@@ -480,15 +482,17 @@ fieldset[disabled] .btn {
   font-weight: 700;
   padding: 6px;
 }
-.pricing-table .plan-info {
-  margin-top: 30px;
-}
 .pricing-table .plan-info li {
   font-size: 16px;
   line-height: 32px;
 }
 .pricing-table .price {
   padding: 30px 0px 20px;
+  position: absolute;
+  bottom: 80px;
+  left: 0px;
+  right:  0px;
+  margin: auto;
 }
 .pricing-table .price h4 {
   font-size: 30px;
@@ -501,6 +505,11 @@ fieldset[disabled] .btn {
   -moz-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right:  0px;
+  margin: auto;
 }
 .pricing-table:hover,
 .pricing-active {

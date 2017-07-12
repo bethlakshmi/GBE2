@@ -29,15 +29,15 @@
 {% for item in events %}
     {% if item.visible %}
         {% cycle '<div class="row">' '' '' %}
-          <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="pricing-table wow fadeInLeft" data-wow-delay="0.3s">
               <div class="table-icon">
-                <i class="icon-user"></i>
+                <i class="{{ item.display_icon }}"></i>
               </div>
               <h3>{{ item.title }}</h3>
               <ul class="plan-info">
                 {% for detail in item.eventdetail_set.all %}
-                <li><i class="icon-check"></i> {{ detail.detail }}</li>
+                <li><i class="icon-star"></i> {{ detail.detail }}</li>
                 {% endfor %}
               </ul>
               <div class="price">

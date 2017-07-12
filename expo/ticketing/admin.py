@@ -64,8 +64,9 @@ class DetailInline(admin.TabularInline):
 
 class BPTEventsAdmin(admin.ModelAdmin):
     filter_horizontal = ("linked_events",)
-
-    list_display = ('bpt_event_id',
+    search_fields = ('title', )
+    list_display = ('title',
+                    'bpt_event_id',
                     'primary',
                     'act_submission_event',
                     'vendor_submission_event',
