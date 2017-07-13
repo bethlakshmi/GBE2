@@ -467,7 +467,7 @@ fieldset[disabled] .btn {
    min-height: 580px;
 }
 .pricing-table .table-icon {
-  padding: 60px 0 40px;
+  padding: 40px 0 40px;
 }
 .pricing-table .table-icon i {
   font-size: 44px;
@@ -487,7 +487,7 @@ fieldset[disabled] .btn {
   line-height: 32px;
 }
 .pricing-table .price {
-  padding: 30px 0px 20px;
+  padding: 0px 0px 20px;
   position: absolute;
   bottom: 80px;
   left: 0px;
