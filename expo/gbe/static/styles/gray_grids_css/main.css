@@ -477,6 +477,17 @@ fieldset[disabled] .btn {
   border-radius: 50%;
   color: #be0e0a;
 }
+.pricing-table .edit-icon {
+  padding: 0 30px;
+  text-align: right;
+}
+.pricing-table .edit-icon i {
+  font-size: 20px;
+  color: #be0e0a;
+}
+.pricing-table .edit-icon a:hover,  .pricing-table .edit-icon a:active{
+  text-decoration: none;
+}
 .pricing-table h3 {
   font-size: 24px;
   font-weight: 700;

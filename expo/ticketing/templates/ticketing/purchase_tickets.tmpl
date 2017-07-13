@@ -31,6 +31,10 @@
         {% cycle '<div class="row">' '' '' %}
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="pricing-table wow fadeInLeft" data-wow-delay="0.3s">
+              {% if request.user.is_superuser %}<div class="edit-icon">
+                <a href="/admin/ticketing/brownpaperevents/{{item.pk}}" target="_blank">
+                    <i class="icon-pencil"></i>
+                </a></div>{% endif %}
               <div class="table-icon">
                 <i class="{{ item.display_icon }}"></i>
               </div>
