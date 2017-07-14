@@ -1,7 +1,6 @@
 from tests.factories.ticketing_factories import (
     TicketItemFactory
 )
-import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
@@ -12,6 +11,8 @@ from tests.factories.gbe_factories import (
     UserFactory
 )
 from django.core.urlresolvers import reverse
+from tests.functions.gbe_functions import login_as
+from django.contrib.auth.models import User
 
 
 class TestTicketingIndex(TestCase):
@@ -20,32 +21,57 @@ class TestTicketingIndex(TestCase):
         self.factory = RequestFactory()
         self.client = Client()
         self.url = reverse('index', urlconf='ticketing.urls')
+        self.ticket = TicketItemFactory(live=True,
+                                        bpt_event__title="Event Title")
 
     def test_one_ticket(self):
         '''
            user gets the list
         '''
-        ticket = TicketItemFactory(live=True)
         response = self.client.get(self.url)
-        assert ticket.title in response.content
+        self.assertContains(response, self.ticket.cost, count=1)
 
     def test_no_ticket(self):
         '''
            user gets the list
         '''
         response = self.client.get(self.url)
-        nt.assert_equal(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
-    def test_one_ticket_per_event(self):
+    def test_only_visible_ticket(self):
         '''
            user gets the list
         '''
         not_shown = TicketItemFactory(
-            live=True,
-            cost=1.00,
-            title='Do Not Show Me')
+            live=False,
+            cost=999.99,
+            bpt_event__title='This is the Event Title')
+        also_not_shown = TicketItemFactory(
+            has_coupon=True,
+            cost=not_shown.cost,
+            bpt_event__title=not_shown.bpt_event)
         ticket = TicketItemFactory(live=True,
-                                   bpt_event=not_shown.bpt_event)
+                                   bpt_event=not_shown.bpt_event,
+                                   cost=123.00)
         response = self.client.get(self.url)
-        assert ticket.title in response.content
-        assert not_shown.title not in response.content
+        assert 'This is the Event Title' in response.content
+        assert str(not_shown.cost) not in response.content
+        assert str(ticket.cost) in response.content
+
+    def test_not_superuser(self):
+        response = self.client.get(self.url)
+        assert '<i class="icon-pencil"></i>' not in response.content
+
+    def test_edit_for_superuser(self):
+        superuser = User.objects.create_superuser('ticketing_editor',
+                                                  'admin@ticketing.com',
+                                                  'secret')
+        login_as(superuser, self)
+        response = self.client.get(self.url)    
+        assert '<i class="icon-pencil"></i>' in response.content
+
+    def test_two_prices_one_event(self):
+        second_ticket = TicketItemFactory(bpt_event=self.ticket.bpt_event,
+                                          cost=self.ticket.cost+10)
+        response = self.client.get(self.url)
+        assert "$%f - $%f" % (self.ticket.cost, second_ticket.cost)
