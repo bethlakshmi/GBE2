@@ -19,7 +19,7 @@ class BrownPaperEventsFactory(DjangoModelFactory):
         model = tickets.BrownPaperEvents
     title = Sequence(lambda x: "title #%d" % x)
     description = "This is a desription"
-    bpt_event_id = Sequence(lambda x: "bpt_id #%d" % x)
+    bpt_event_id = Sequence(lambda x: "%d" % x)
     conference = SubFactory(ConferenceFactory)
     primary = False
     act_submission_event = False

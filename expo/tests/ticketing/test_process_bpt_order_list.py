@@ -12,7 +12,7 @@ from tests.factories.ticketing_factories import (
 )
 import nose.tools as nt
 from django.test import TestCase
-from ticketing.views import process_bpt_order_list
+from ticketing.brown_paper import process_bpt_order_list
 from tests.factories.gbe_factories import (
     ProfileFactory,
     UserFactory
