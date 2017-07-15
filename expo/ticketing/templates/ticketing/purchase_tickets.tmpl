@@ -1,5 +1,4 @@
 {% extends "base.tmpl" %}
-{% load ticketing_filters %}
 {% load staticfiles cms_tags %}
 {% block head %}
       {% include "gray_grids_css.tmpl" %}
@@ -50,7 +49,7 @@
                 - ${{ item.max_price|floatformat:2 }}{% endif %}</h4>
               </div>
               <div class="button-area">
-                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank" class="btn btn-common">Buy Now</a>
+                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">Buy Now</a>
               </div>
             </div>
           </div>
