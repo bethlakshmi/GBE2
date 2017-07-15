@@ -479,7 +479,7 @@ fieldset[disabled] .btn {
 }
 .pricing-table .edit-icon {
   padding: 0 30px;
-  text-align: right;
+  float: right;
 }
 .pricing-table .edit-icon i {
   font-size: 20px;
