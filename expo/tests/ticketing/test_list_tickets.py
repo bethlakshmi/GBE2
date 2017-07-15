@@ -160,7 +160,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -177,7 +177,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -195,7 +195,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -215,7 +215,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -232,7 +232,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
 
         a = Mock()
         event_filename = open("tests/ticketing/eventlist.xml", 'r')

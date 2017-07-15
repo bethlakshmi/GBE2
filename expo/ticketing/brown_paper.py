@@ -115,7 +115,6 @@ def set_bpt_event_detail(event):
                         get_bpt_client_id(),
                         event.bpt_event_id)
     event_xml = perform_bpt_api_call(event_call)
-
     if event_xml is None:
         return None
 
@@ -154,10 +153,6 @@ def get_bpt_price_list():
 
     Returns: the price list as an array of TicketItems.
     '''
-
-    if (BrownPaperEvents.objects.count() <= 0):
-        return []
-
     ti_list = []
 
     for event in BrownPaperEvents.objects.all():
