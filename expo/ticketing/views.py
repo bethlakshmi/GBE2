@@ -36,7 +36,6 @@ def index(request):
             vendor_submission_event=True)).order_by(
         'conference__conference_slug')
 
-
     context = {'events': events,
                'user_id': request.user.id,
                'site_name': get_current_site(request).name

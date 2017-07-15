@@ -67,7 +67,7 @@ class TestTicketingIndex(TestCase):
                                                   'admin@ticketing.com',
                                                   'secret')
         login_as(superuser, self)
-        response = self.client.get(self.url)    
+        response = self.client.get(self.url)
         assert '<i class="icon-pencil"></i>' in response.content
 
     def test_two_prices_one_event(self):

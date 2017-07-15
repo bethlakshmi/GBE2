@@ -105,7 +105,7 @@ def set_bpt_event_detail(event):
     and sets them in the GBE database.  It only does this once, to avoid over
     writing changes made in GBE
     '''
-    
+
     if event.title and len(event.title) > 0:
         return
 

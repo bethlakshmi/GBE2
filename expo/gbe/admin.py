@@ -11,6 +11,7 @@ class ConferenceAdmin(admin.ModelAdmin):
                     'accepting_bids')
     list_filter = ['status', 'act_style']
 
+
 class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
