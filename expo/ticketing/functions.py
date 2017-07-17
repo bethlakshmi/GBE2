@@ -35,12 +35,3 @@ def get_tickets(linked_event, most=False, conference=False):
             bpt_event__linked_events=linked_event)))
 
     return get_unique_tickets(general_events)
-
-
-def get_all_tickets():
-    from ticketing.models import TicketItem
-
-    general_events = TicketItem.objects.exclude(
-        bpt_event__conference__status='completed')
-
-    return get_unique_tickets(general_events)

@@ -4,6 +4,14 @@ from model_utils.managers import InheritanceManager
 from import_export.admin import ImportExportActionModelAdmin
 
 
+class ConferenceAdmin(admin.ModelAdmin):
+    list_display = ('conference_name',
+                    'conference_slug',
+                    'status',
+                    'accepting_bids')
+    list_filter = ['status', 'act_style']
+
+
 class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
@@ -183,7 +191,7 @@ class CastingAdmin(admin.ModelAdmin):
                      'display_order',)
     list_display_links = None
 
-admin.site.register(Conference)
+admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
 admin.site.register(VolunteerInterest, VolunteerInterestAdmin)

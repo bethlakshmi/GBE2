@@ -25,6 +25,9 @@ class TestEditBPTEvent(TestCase):
 
     def get_bptevent_form(self):
         return {
+                'title': "Title",
+                'description': 'Description',
+                'display_icon': 'fa display-icon',
                 'primary': True,
                 'act_submission_event': True,
                 'vendor_submission_event': True,

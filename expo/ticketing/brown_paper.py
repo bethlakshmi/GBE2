@@ -99,24 +99,29 @@ def set_bpt_last_poll_time():
     return None
 
 
-def get_bpt_event_description(event_id):
+def set_bpt_event_detail(event):
     '''
-    Used to get the description of the event as given in BPT.
+    Given the bpt event, this queries BPT and gets the title & description
+    and sets them in the GBE database.  It only does this once, to avoid over
+    writing changes made in GBE
+    '''
 
-    event_id - the event id for the event to query
-    Returns: the description.
-    '''
+    if event.title and len(event.title) > 0:
+        return
+
     url = "?".join(['http://www.brownpapertickets.com/api2/eventlist',
                     'id=%s&client=%s&event_id=%s'])
-    event_call = url % (get_bpt_developer_id(), get_bpt_client_id(), event_id)
+    event_call = url % (get_bpt_developer_id(),
+                        get_bpt_client_id(),
+                        event.bpt_event_id)
     event_xml = perform_bpt_api_call(event_call)
-
     if event_xml is None:
         return None
 
     h = HTMLParser.HTMLParser()
-    descr = h.unescape(event_xml.find('.//e_description').text)
-    return descr
+    event.title = h.unescape(event_xml.find('.//title').text)
+    event.description = h.unescape(event_xml.find('.//e_description').text)
+    event.save()
 
 
 def get_bpt_event_date_list(event_id):
@@ -148,35 +153,29 @@ def get_bpt_price_list():
 
     Returns: the price list as an array of TicketItems.
     '''
-
-    if (BrownPaperEvents.objects.count() <= 0):
-        return []
-
     ti_list = []
 
     for event in BrownPaperEvents.objects.all():
-        event_text = get_bpt_event_description(event.bpt_event_id)
+        set_bpt_event_detail(event)
 
-        if event_text:
-            for date in get_bpt_event_date_list(event.bpt_event_id):
-                url = "?".join(
-                    ['http://www.brownpapertickets.com/api2/pricelist',
-                     'id=%s&event_id=%s&date_id=%s'])
-                price_call = url % (get_bpt_developer_id(),
-                                    event.bpt_event_id,
-                                    date)
-                price_xml = perform_bpt_api_call(price_call)
+        for date in get_bpt_event_date_list(event.bpt_event_id):
+            url = "?".join(
+                ['http://www.brownpapertickets.com/api2/pricelist',
+                 'id=%s&event_id=%s&date_id=%s'])
+            price_call = url % (get_bpt_developer_id(),
+                                event.bpt_event_id,
+                                date)
+            price_xml = perform_bpt_api_call(price_call)
 
-                if price_xml is not None:
-                    for price in price_xml.findall('.//price'):
-                        ti_list.append(bpt_price_to_ticketitem(event,
-                                                               price,
-                                                               event_text))
+            if price_xml is not None:
+                for price in price_xml.findall('.//price'):
+                    ti_list.append(
+                        bpt_price_to_ticketitem(event, price))
 
     return ti_list
 
 
-def bpt_price_to_ticketitem(event, bpt_price, event_text):
+def bpt_price_to_ticketitem(event, bpt_price):
     '''
     Function takes an XML price object from the BPT pricelist call and returns
     an equivalent dictionary that is appropriate to the TicketItem object.
@@ -194,7 +193,6 @@ def bpt_price_to_ticketitem(event, bpt_price, event_text):
                                 bpt_price.find('price_id').text),
         'title': bpt_price.find('name').text,
         'cost': bpt_price.find('value').text,
-        'description': event_text,
         'modified_by': 'BPT Auto Import',
         'bpt_event': event,
         'live': live,
