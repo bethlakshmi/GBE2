@@ -290,3 +290,18 @@ class TestIndex(TestCase):
         login_as(member.performer_profile, self)
         response = self.client.get(url)
         assert response.content.count("(Click to edit)") == 1
+
+    def test_review_act_w_troupe(self):
+        # causes a check on act complete state that is different from soloist
+        troupe = TroupeFactory()
+        member = PersonaFactory()
+        troupe.membership.add(member)
+        act = ActFactory(performer=troupe,
+                         submitted=True,
+                         b_conference=self.current_conf)
+        login_as(member.performer_profile, self)
+        url = reverse("home", urlconf="gbe.urls")
+        response = self.client.get(url)
+        print "Act::: " + act.b_title
+        print response.content
+        assert act.b_title in response.content
