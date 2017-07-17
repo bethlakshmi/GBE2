@@ -83,7 +83,8 @@
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
 }
 .gallery-item .icons .performer {
-  left: 73%;
+  left: 50%;
+  margin-left: 42px;
 }
 .gallery-item .icons .link {
   text-decoration: none;
