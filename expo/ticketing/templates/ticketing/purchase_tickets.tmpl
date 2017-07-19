@@ -52,13 +52,11 @@
                 <li><i class="icon-star"></i> {{ detail.detail }}</li>
                 {% endfor %}
               </ul>
-              <div class="price">
-                <h4>${{ item.min_price|floatformat:2 }}
-                {% if item.min_price < item.max_price%}
-                - ${{ item.max_price|floatformat:2 }}{% endif %}</h4>
-              </div>
               <div class="button-area">
-                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">Buy Now</a>
+                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">
+                    ${{ item.min_price|floatformat:2 }}
+                {% if item.min_price < item.max_price%}
+                - ${{ item.max_price|floatformat:2 }}{% endif %}</a>
               </div>
             </div>
           </div>
