@@ -39,7 +39,7 @@ ul li {
 }
 .btn-common:hover {
   color: #fff;
-  box-shadow: 0 14px 26px -12px rgba(233, 30, 99, 0.42), 0 4px 23px 0px rgba(233, 30, 99, 0.12), 0 8px 10px -5px rgba(233, 30, 99, 0.02);
+  box-shadow: 0 14px 26px -12px rgba(233, 30, 99, 0.42), 0 4px 23px 0px rgba(233, 30, 99, 0.5), 0 8px 10px -5px rgba(233, 30, 99, 0.02);
 }
 .btn-border {
   color: #777777;
@@ -459,22 +459,22 @@ fieldset[disabled] .btn {
   text-align: center;
   box-shadow: 0px 1px 9px rgba(0, 0, 0, 0.08);
   margin: 60px 15px;
-  padding: 30px 0px 0px;
+  padding: 15px 0px 0px;
   -webkit-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   -moz-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   background-color: white;
-   min-height: 580px;
+   min-height: 440px;
 }
 .pricing-table .table-icon {
-  padding: 40px 0 40px;
+  padding: 20px 0 20px;
 }
 .pricing-table .table-icon i {
   font-size: 44px;
   width: 70px;
   height: 70px;
-  padding: 48px;
+  padding: 20px 60px 20px 60px;
   border-radius: 50%;
   color: #be0e0a;
 }
@@ -493,23 +493,11 @@ fieldset[disabled] .btn {
   font-size: 24px;
   font-weight: 700;
   padding: 6px;
+  margin-top: 10px;
 }
 .pricing-table .plan-info li {
   font-size: 16px;
   line-height: 32px;
-}
-.pricing-table .price {
-  padding: 0px 0px 20px;
-  position: absolute;
-  bottom: 80px;
-  left: 0px;
-  right:  0px;
-  margin: auto;
-}
-.pricing-table .price h4 {
-  font-size: 30px;
-  color: #777777;
-  font-weight: 700;
 }
 .pricing-table .button-area {
   padding: 0px 0px 30px;
@@ -525,7 +513,7 @@ fieldset[disabled] .btn {
 }
 .pricing-table:hover,
 .pricing-active {
-  box-shadow: 0px 9px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 9px 32px rgba(0, 0, 0, 0.5);
 }
 .pricing-table:hover .button-area,
 .pricing-active .button-area {

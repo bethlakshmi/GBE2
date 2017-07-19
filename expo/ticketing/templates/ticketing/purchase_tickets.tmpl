@@ -26,8 +26,17 @@
           </div>
         </div>
 {% for item in events %}
+    {% ifchanged item.conference %}
+        {% if not forloop.first %}</div>{% endif %}
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="section-title wow fadeInUp" data-wow-delay="0s">
+                {{ item.conference }}</h2>
+          </div>
+        </div>
+        <div class="row">
+    {% endifchanged %}
     {% if item.visible %}
-        {% cycle '<div class="row">' '' '' %}
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="pricing-table wow fadeInLeft" data-wow-delay="0.3s">
               {% if request.user.is_superuser %}<div class="edit-icon">
@@ -43,17 +52,15 @@
                 <li><i class="icon-star"></i> {{ detail.detail }}</li>
                 {% endfor %}
               </ul>
-              <div class="price">
-                <h4>${{ item.min_price|floatformat:2 }}
-                {% if item.min_price < item.max_price%}
-                - ${{ item.max_price|floatformat:2 }}{% endif %}</h4>
-              </div>
               <div class="button-area">
-                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">Buy Now</a>
+                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">
+                    ${{ item.min_price|floatformat:2 }}
+                {% if item.min_price < item.max_price%}
+                - ${{ item.max_price|floatformat:2 }}{% endif %}</a>
               </div>
             </div>
           </div>
-        {% cycle  '' '' '</div>'%}
+        {% if forloop.last %}</div>{% endif %}
     {% endif %}
 {% endfor %}
 

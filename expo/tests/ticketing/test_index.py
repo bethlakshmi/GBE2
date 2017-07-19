@@ -1,6 +1,7 @@
 from tests.factories.ticketing_factories import (
     TicketItemFactory
 )
+from ticketing.models import TicketItem
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
@@ -35,6 +36,7 @@ class TestTicketingIndex(TestCase):
         '''
            user gets the list
         '''
+        TicketItem.objects.all().delete()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
