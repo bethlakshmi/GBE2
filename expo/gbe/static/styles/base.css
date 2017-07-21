@@ -90,22 +90,21 @@ table.conf_list {
 }
 
 div.reviewer_col{
-    width:35%;
     margin: 10px;
     padding: 10px;
-    bottom: 10%;
-  
 }
-div.bid_col {
-    width:55%;
-    float:right;
-}
-
 
 div.side_box {
     border: 1px solid black;
     margin: 10px;
     padding: 10px;
+}
+
+@media (min-width:768px){.bid_review{width:680px}
+}
+@media (min-width:992px){.bid_review{width:900px}
+}
+@media (min-width:1200px){.bid_review{width:1100px}
 }
 
 /* used in bid review and readonly forms */
