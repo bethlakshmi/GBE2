@@ -5,7 +5,6 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
-    UserFactory,
     UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
@@ -97,15 +96,6 @@ class TestCreateClass(TestCase):
         assert title in response.content
         assert response.status_code == 200
 
-    def test_bid_class_no_profile(self):
-        '''act_bid, when user has no profile, should bounce out to /profile'''
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        user = UserFactory()
-        login_as(user, self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
-
     def test_class_bid_post_with_submit(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
@@ -154,14 +144,6 @@ class TestCreateClass(TestCase):
         selection_string = current_user_selection % (persona_id,
                                                      self.performer.name)
         self.assertTrue(selection_string in response.content)
-
-    def test_class_bid_not_post(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(self.performer.performer_profile, self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('Submit a Class' in response.content)
 
     def test_class_bid_verify_info_popup_text(self):
         url = reverse(self.view_name,
