@@ -68,6 +68,13 @@ class BrownPaperEvents(models.Model):
             has_coupon=False).count() > 0
 
     @property
+    def live_ticket_count(self):
+        return TicketItem.objects.filter(
+            bpt_event=self,
+            live=True,
+            has_coupon=False).count()
+
+    @property
     def min_price(self):
         return TicketItem.objects.filter(
             bpt_event=self,
