@@ -355,7 +355,7 @@ class Profile(WorkerItem):
         '''
         doing_it = False
         if role == "Performer":
-            for show in self.get_shows():
+            for show, act in self.get_shows():
                 if show.pk == event.pk:
                     doing_it = True
         elif not doing_it:
