@@ -20,10 +20,19 @@
      {% include "readonly_form_table.tmpl" %}
 
   </div>
-  <div class="review_area">
+  <div class="bid_review container">
+    <div class="row">
+    <div class="reviewer_col col-md-6 col-sm-12">
+      <h2>Review Information</h2>
+      <p><font color=red>*</font> indicates a required field</p>
+      <form action="" method="post">
+      {% include "form_table.tmpl" %}
+      <input type="submit" value="Submit Form"> 
+      </form>
+    </div>
 
     {% if actionURL %}
-    <div class="bid_col side_box">
+    <div class="side_box col-md-5 col-sm-12">
       <h2>Bid Control for Coordinator</h2>
         {% if actionform.errors %}
         <p style= "color:red"> There is an error on the form.  </p>
@@ -45,14 +54,6 @@
         </form>
     </div>
     {% endif %}
-    <h2>Review Information</h2>
-    <p><font color=red>*</font> indicates a required field
-    </p>
-    <div class=reviewer_col>
-      <form action="" method="post">
-      {% include "form_table.tmpl" %}
-      <input type="submit" value="Submit Form"> 
-      </form>
     </div>
   </div>
   

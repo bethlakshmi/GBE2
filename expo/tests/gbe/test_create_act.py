@@ -8,7 +8,6 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     PersonaFactory,
     ProfileFactory,
-    UserFactory,
     UserMessageFactory,
 )
 from tests.functions.gbe_functions import (
@@ -77,13 +76,6 @@ class TestCreateAct(TestCase):
         POST = self.get_act_form()
         response = self.client.post(self.url, data=POST, follow=True)
         return response, POST
-
-    def test_bid_act_no_profile(self):
-        '''act_bid, when user has no profile, should bounce out to /profile'''
-        user = UserFactory()
-        login_as(user, self)
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 302)
 
     def test_bid_act_no_personae(self):
         '''act_bid, when profile has no personae,

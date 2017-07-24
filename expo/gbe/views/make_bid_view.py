@@ -91,6 +91,7 @@ class MakeBidView(View):
 
     def make_context(self):
         context = {
+            'conference': self.conference,
             'forms': [self.form],
             'page_title': self.page_title,
             'view_title': self.view_title,
