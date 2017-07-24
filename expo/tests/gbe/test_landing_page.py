@@ -28,6 +28,7 @@ from tests.functions.gbe_functions import (
     login_as,
     set_performer_image,
 )
+from tests.contexts import ActTechInfoContext
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
 
@@ -305,3 +306,26 @@ class TestIndex(TestCase):
         print "Act::: " + act.b_title
         print response.content
         assert act.b_title in response.content
+
+    def test_two_acts_one_show(self):
+        '''Basic test of landing_page view
+        '''
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        # Bid types previous and current
+        current_act_context = ActTechInfoContext(
+            performer=self.performer,
+            act=self.current_act,
+            conference=self.current_conf)
+        second_act_context = ActTechInfoContext(
+            performer=self.performer,
+            conference=self.current_conf,
+            show=current_act_context.show)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            second_act_context.act.b_title,
+                            count=3)
+        self.assertContains(response,
+                            second_act_context.show.e_title,
+                            count=2)
