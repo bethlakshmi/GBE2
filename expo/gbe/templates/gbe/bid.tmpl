@@ -6,6 +6,7 @@
 
 {% block content %}
 <h2 class="subtitle">{{view_title}}</h2>
+<h3>{{conference.conference_name}}</h3>
 <p>{{view_header_text | safe}}
 {% for form in forms %}
   {% if form.errors %}

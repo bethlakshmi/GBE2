@@ -8,7 +8,6 @@ from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     ProfileFactory,
     ProfilePreferencesFactory,
-    UserFactory,
     UserMessageFactory,
     VolunteerFactory,
     VolunteerWindowFactory,
@@ -90,17 +89,6 @@ class TestCreateVolunteer(TestCase):
                 reverse('register', urlconf='gbe.urls'),
                 url))
 
-    def test_create_volunteer_no_profile(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(UserFactory(), self)
-        response = self.client.get(url, follow=True)
-        self.assertRedirects(
-            response,
-            "%s?next=%s" % (
-                reverse('profile_update', urlconf='gbe.urls'),
-                url))
-
     def test_create_volunteer_bad_profile(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
@@ -115,14 +103,6 @@ class TestCreateVolunteer(TestCase):
                 url))
         assert_alert_exists(
             response, 'warning', 'Warning', no_profile_msg)
-
-    def test_create_volunteer_post_no_profile(self):
-        url = reverse(self.view_name,
-                      urlconf='gbe.urls')
-        login_as(UserFactory(), self)
-        data = self.get_volunteer_form()
-        response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, 302)
 
     def test_create_volunteer_post_valid_form(self):
         url = reverse(self.view_name,
