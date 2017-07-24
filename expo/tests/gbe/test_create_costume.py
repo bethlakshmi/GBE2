@@ -5,7 +5,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import(
     PersonaFactory,
-    UserFactory,
     ProfileFactory,
     UserMessageFactory
 )
@@ -71,15 +70,6 @@ class TestCreateCostume(TestCase):
         data = self.get_costume_form()
         response = self.client.post(url, data=data, follow=True)
         return response, data
-
-    def test_bid_costume_no_profile(self):
-        '''costume_bid, when profile has no personae,
-        should redirect to persona_create'''
-        url = reverse(self.view_name,
-                      urlconf="gbe.urls")
-        login_as(UserFactory(), self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
 
     def test_costume_bid_post_form_not_valid(self):
         '''costume_bid, if form not valid, should return to CostumeEditForm'''
