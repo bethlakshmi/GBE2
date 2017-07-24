@@ -22,7 +22,7 @@ from gbetext import (
 class MakeClassView(MakeBidView):
     page_title = "Submit a Class"
     view_title = "Submit a Class"
-    draft_fields = ['b_title', 'teacher']
+    draft_fields = ['b_title', 'teacher', 'b_description']
     submit_fields = ['b_title',
                      'teacher',
                      'b_description',
