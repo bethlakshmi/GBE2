@@ -108,7 +108,7 @@ class TestEditCostume(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_costume_edit_post_form_not_valid(self):
-        '''costume_edit, if form not valid, should return to ActEditForm'''
+        '''costume_edit, if form not valid, should return to edit'''
         costume = CostumeFactory()
         PersonaFactory(performer_profile=costume.profile,
                        contact=costume.profile)
@@ -165,8 +165,8 @@ class TestEditCostume(TestCase):
         login_as(costume.profile, self)
         response = self.client.get(url)
         expected_text = "Displaying a Costume"
-        self.assertEqual(response.status_code, 200)
         self.assertTrue(expected_text in response.content)
+        self.assertContains(response, costume.b_description)
 
     def test_costume_submit_make_message(self):
         response = self.post_edit_costume_submission()
