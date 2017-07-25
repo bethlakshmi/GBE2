@@ -153,6 +153,24 @@ class TestEditCostume(TestCase):
         self.assertTrue(expected_string in response.content)
         self.assertEqual(response.status_code, 200)
 
+    def test_submit_bid_post_invalid(self):
+        '''edit_costume, not submitting and no other problems,
+        should redirect to home'''
+        persona = PersonaFactory()
+        costume = CostumeFactory(profile=persona.performer_profile,
+                                 performer=persona)
+
+        url = reverse(self.view_name,
+                      args=[costume.pk],
+                      urlconf='gbe.urls')
+        data = self.get_costume_form(submit=True)
+        data['b_title'] = ''
+        data['b_description'] = ''
+        login_as(costume.profile, self)
+        response = self.client.post(url, data=data)
+        print response.content
+        self.assertContains(response, 'This field is required.', count=2)
+
     def test_edit_bid_not_post(self):
         '''edit_costume, not post, should take us to edit process'''
         persona = PersonaFactory()
