@@ -247,10 +247,14 @@ class Profile(WorkerItem):
     def get_shows(self):
         from gbe.models import Show  # late import, circularity
         acts = self.get_acts()
-        shows = [Show.objects.filter(
-            scheduler_events__resources_allocated__resource__actresource___item=act)
-            for act in acts if act.accepted == 3 and act.is_current]
-        return sum([list(s) for s in shows], [])
+        shows = []
+        for act in acts:
+            if act.accepted == 3 and act.is_current:
+                for show in Show.objects.filter(
+                        scheduler_events__resources_allocated__resource__actresource___item=act):
+                    shows += [(show, act)]
+        shows = sorted(shows, key=lambda show: show[0].e_title)
+        return shows
 
     def get_schedule(self, conference=None):
         '''
@@ -351,7 +355,7 @@ class Profile(WorkerItem):
         '''
         doing_it = False
         if role == "Performer":
-            for show in self.get_shows():
+            for show, act in self.get_shows():
                 if show.pk == event.pk:
                     doing_it = True
         elif not doing_it:
