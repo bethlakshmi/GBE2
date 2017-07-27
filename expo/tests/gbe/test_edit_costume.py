@@ -108,7 +108,7 @@ class TestEditCostume(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_costume_edit_post_form_not_valid(self):
-        '''costume_edit, if form not valid, should return to ActEditForm'''
+        '''costume_edit, if form not valid, should return to edit'''
         costume = CostumeFactory()
         PersonaFactory(performer_profile=costume.profile,
                        contact=costume.profile)
@@ -153,6 +153,24 @@ class TestEditCostume(TestCase):
         self.assertTrue(expected_string in response.content)
         self.assertEqual(response.status_code, 200)
 
+    def test_submit_bid_post_invalid(self):
+        '''edit_costume, not submitting and no other problems,
+        should redirect to home'''
+        persona = PersonaFactory()
+        costume = CostumeFactory(profile=persona.performer_profile,
+                                 performer=persona)
+
+        url = reverse(self.view_name,
+                      args=[costume.pk],
+                      urlconf='gbe.urls')
+        data = self.get_costume_form(submit=True)
+        data['b_title'] = ''
+        data['b_description'] = ''
+        login_as(costume.profile, self)
+        response = self.client.post(url, data=data)
+        print response.content
+        self.assertContains(response, 'This field is required.', count=2)
+
     def test_edit_bid_not_post(self):
         '''edit_costume, not post, should take us to edit process'''
         persona = PersonaFactory()
@@ -165,8 +183,8 @@ class TestEditCostume(TestCase):
         login_as(costume.profile, self)
         response = self.client.get(url)
         expected_text = "Displaying a Costume"
-        self.assertEqual(response.status_code, 200)
         self.assertTrue(expected_text in response.content)
+        self.assertContains(response, costume.b_description)
 
     def test_costume_submit_make_message(self):
         response = self.post_edit_costume_submission()
