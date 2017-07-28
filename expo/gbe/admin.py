@@ -4,6 +4,14 @@ from model_utils.managers import InheritanceManager
 from import_export.admin import ImportExportActionModelAdmin
 
 
+class ConferenceAdmin(admin.ModelAdmin):
+    list_display = ('conference_name',
+                    'conference_slug',
+                    'status',
+                    'accepting_bids')
+    list_filter = ['status', 'act_style']
+
+
 class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
@@ -30,6 +38,7 @@ class ActAdmin(admin.ModelAdmin):
 
 class PerformerAdmin(admin.ModelAdmin):
     list_display = ('name', 'contact')
+    search_fields = ['name']
 
 
 class TroupeAdmin(admin.ModelAdmin):
@@ -173,7 +182,16 @@ class EmailTemplateSenderAdmin(admin.ModelAdmin):
     list_display_links = None
 
 
-admin.site.register(Conference)
+class CastingAdmin(admin.ModelAdmin):
+    list_display = ('casting',
+                    'show_as_special',
+                    'display_order',)
+    list_editable = ('casting',
+                     'show_as_special',
+                     'display_order',)
+    list_display_links = None
+
+admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
 admin.site.register(VolunteerInterest, VolunteerInterestAdmin)
@@ -207,3 +225,4 @@ admin.site.register(UserMessage, MessageAdmin)
 admin.site.register(ShowVote)
 admin.site.register(ActBidEvaluation)
 admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)
+admin.site.register(ActCastingOption, CastingAdmin)

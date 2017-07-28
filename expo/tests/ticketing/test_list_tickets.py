@@ -73,11 +73,9 @@ class TestListTickets(TestCase):
         BrownPaperSettingsFactory()
 
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml", 'r')
         date_filename = open("tests/ticketing/datelist.xml", 'r')
         price_filename = open("tests/ticketing/pricelist.xml", 'r')
-        a.read.side_effect = [File(event_filename).read(),
-                              File(date_filename).read(),
+        a.read.side_effect = [File(date_filename).read(),
                               File(price_filename).read()]
         m_urlopen.return_value = a
 
@@ -88,9 +86,6 @@ class TestListTickets(TestCase):
             ticket_id='%s-4513068' % (event.bpt_event_id))
         nt.assert_equal(response.status_code, 200)
         nt.assert_equal(ticket.cost, Decimal('125.00'))
-        nt.assert_in(
-            "The Great Burlesque Exposition of 2016 takes place Feb. 5-7",
-            ticket.description)
 
     @patch('urllib2.urlopen', autospec=True)
     def test_reimport_inventory(self, m_urlopen):
@@ -107,11 +102,9 @@ class TestListTickets(TestCase):
             live=False,
             bpt_event=event)
         a = Mock()
-        event_filename = open("tests/ticketing/eventlist.xml", 'r')
         date_filename = open("tests/ticketing/datelist.xml", 'r')
         price_filename = open("tests/ticketing/pricelist.xml", 'r')
-        a.read.side_effect = [File(event_filename).read(),
-                              File(date_filename).read(),
+        a.read.side_effect = [File(date_filename).read(),
                               File(price_filename).read()]
         m_urlopen.return_value = a
 
@@ -122,6 +115,35 @@ class TestListTickets(TestCase):
             ticket_id='%s-4513068' % (event.bpt_event_id))
         assert ticket.live
         assert ticket.has_coupon
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_get_event_detail(self, m_urlopen):
+        '''
+           privileged user gets the inventory of tickets from (fake) BPT
+        '''
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        event = BrownPaperEventsFactory(title='', description='')
+        BrownPaperSettingsFactory()
+
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
+        price_filename = open("tests/ticketing/pricelist.xml", 'r')
+        a.read.side_effect = [File(event_filename).read(),
+                              File(date_filename).read(),
+                              File(price_filename).read()]
+        m_urlopen.return_value = a
+
+        response = self.import_tickets()
+        nt.assert_equal(response.status_code, 200)
+        reload_event = get_object_or_404(
+            BrownPaperEvents,
+            bpt_event_id='%s' % (event.bpt_event_id))
+        nt.assert_equal(response.status_code, 200)
+        nt.assert_in(
+            "The Great Burlesque Exposition of 2016 takes place Feb. 5-7",
+            reload_event.description)
 
     def test_get_no_inventory(self):
         '''
@@ -138,7 +160,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -155,7 +177,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -173,7 +195,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -193,7 +215,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
         BrownPaperSettingsFactory()
 
         a = Mock()
@@ -210,7 +232,7 @@ class TestListTickets(TestCase):
         '''
         BrownPaperEvents.objects.all().delete()
         BrownPaperSettings.objects.all().delete()
-        event = BrownPaperEventsFactory()
+        event = BrownPaperEventsFactory(title="", description="")
 
         a = Mock()
         event_filename = open("tests/ticketing/eventlist.xml", 'r')

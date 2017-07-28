@@ -20,31 +20,29 @@ profile information. If you're teaching, the conference committee
 members and staff will be able to see your profile information,
 etc.).
 </p>
-
-
+ 
 <form method="POST" action="" enctype="multipart/form-data">
   {% for form in left_forms %}
     {% if form.errors %}
       <p style= "color:red"> There is an error on the form.  </p>
     {% endif %}
   {% endfor %}
-
-<div class="colmask">
-<div class = "left_col">
+<div class="container">
+<div class="row">
+<div class="col-md-6">
   {% for form in left_forms %}
     {% include "form_table.tmpl" %}
   {% endfor %}
-    <input type="submit" value="Update my account"> 
 </div>
-
-<div class = "right_col">
+<div class="col-md-4">
   {% for form in right_forms %}
   {%include "form_table.tmpl" %}
   {% endfor %}
 </div>
 </div>
-     
-</form>
+</div>
+  <input type="submit" value="Update my account"> 
 
+</form>
 
 {% endblock %}

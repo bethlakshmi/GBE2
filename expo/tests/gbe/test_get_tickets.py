@@ -12,12 +12,14 @@ from tests.factories.ticketing_factories import (
     BrownPaperEventsFactory,
     TicketItemFactory
 )
+from ticketing.models import BrownPaperEvents
 
 
 class TestGetTickets(TestCase):
     '''Tests for edit_event view'''
 
-    # Fixture to create some rooms, location items, and resource items
+    def setUp(self):
+        BrownPaperEvents.objects.all().delete()
 
     def test_get_tickets_for_volunteer_opp(self):
         '''should get no tickets, volunteer opportunities are free
@@ -25,25 +27,25 @@ class TestGetTickets(TestCase):
         event = GenericEventFactory()
         tickets = event.get_tickets()
 
-        self.assertEqual(tickets, {})
+        self.assertEqual(tickets, [])
 
     def test_get_tickets_for_master_class(self):
         '''get the one ticket that is active for the Master Class
         '''
         event = GenericEventFactory(
             type='Master')
-        bpt_event = BrownPaperEventsFactory(conference=event.e_conference)
+        bpt_event = BrownPaperEventsFactory(conference=event.e_conference,
+                                            title="Master Class 2017")
         bpt_event.linked_events.add(event)
         bpt_event.save()
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
-                          has_coupon=False,
-                          title="Master Class 2017")
+                          has_coupon=False)
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
         self.assertEqual(
-            tickets[bpt_event.bpt_event_id].title,
+            tickets[0].title,
             "Master Class 2017")
 
     def test_get_tickets_for_special_event(self):
@@ -53,17 +55,17 @@ class TestGetTickets(TestCase):
             type='Special')
         bpt_event = BrownPaperEventsFactory(
             conference=event.e_conference,
-            include_most=True)
+            include_most=True,
+            title="The Whole Shebang 2016")
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
-                          has_coupon=False,
-                          title="The Whole Shebang 2016")
+                          has_coupon=False)
 
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
         self.assertEqual(
-            tickets[bpt_event.bpt_event_id].title,
+            tickets[0].title,
             "The Whole Shebang 2016")
 
     def test_get_tickets_for_class(self):
@@ -72,29 +74,29 @@ class TestGetTickets(TestCase):
         event = ClassFactory()
         ws_bpt_event = BrownPaperEventsFactory(
             conference=event.e_conference,
-            include_most=True)
+            include_most=True,
+            title="The Whole Shebang 2016")
         sch_bpt_event = BrownPaperEventsFactory(
             conference=event.e_conference,
-            include_conference=True)
+            include_conference=True,
+            title="The Scholar 2016")
         whole_shebang = TicketItemFactory(
             bpt_event=ws_bpt_event,
             live=True,
-            has_coupon=False,
-            title="The Whole Shebang 2016")
+            has_coupon=False)
         scholar = TicketItemFactory(
             bpt_event=sch_bpt_event,
             live=True,
-            has_coupon=False,
-            title="The Scholar 2016")
+            has_coupon=False)
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 2)
         self.assertEqual(
-            tickets[ws_bpt_event.bpt_event_id],
-            whole_shebang)
+            tickets[0],
+            ws_bpt_event)
         self.assertEqual(
-            tickets[sch_bpt_event.bpt_event_id],
-            scholar)
+            tickets[1],
+            sch_bpt_event)
 
     def test_get_tickets_for_show(self):
         '''just gets 1 ticket for Whole Shebang
@@ -102,16 +104,16 @@ class TestGetTickets(TestCase):
         event = ShowFactory()
         bpt_event = BrownPaperEventsFactory(
             conference=event.e_conference,
-            include_most=True)
+            include_most=True,
+            title="The Whole Shebang 2016")
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
-                          has_coupon=False,
-                          title="The Whole Shebang 2016")
+                          has_coupon=False)
         tickets = event.get_tickets()
 
         self.assertEqual(len(tickets), 1)
         self.assertEqual(
-            tickets[bpt_event.bpt_event_id].title,
+            tickets[0].title,
             "The Whole Shebang 2016")
 
     def test_get_tickets_for_class_three_ways(self):
@@ -122,19 +124,18 @@ class TestGetTickets(TestCase):
         bpt_event = BrownPaperEventsFactory(
             conference=event.e_conference,
             include_most=True,
-            include_conference=True)
+            include_conference=True,
+            title="The Whole Shebang 2016")
         bpt_event.linked_events.add(event)
         bpt_event.save()
         TicketItemFactory(bpt_event=bpt_event,
                           live=True,
-                          has_coupon=False,
-                          title="The Whole Shebang 2016")
+                          has_coupon=False)
 
         tickets = event.get_tickets()
-
         self.assertEqual(len(tickets), 1)
         self.assertEqual(
-            tickets[bpt_event.bpt_event_id].title,
+            tickets[0].title,
             "The Whole Shebang 2016")
 
     def test_get_tickets_nothing_active(self):

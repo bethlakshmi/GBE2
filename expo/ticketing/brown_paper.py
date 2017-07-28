@@ -99,24 +99,29 @@ def set_bpt_last_poll_time():
     return None
 
 
-def get_bpt_event_description(event_id):
+def set_bpt_event_detail(event):
     '''
-    Used to get the description of the event as given in BPT.
+    Given the bpt event, this queries BPT and gets the title & description
+    and sets them in the GBE database.  It only does this once, to avoid over
+    writing changes made in GBE
+    '''
 
-    event_id - the event id for the event to query
-    Returns: the description.
-    '''
+    if event.title and len(event.title) > 0:
+        return
+
     url = "?".join(['http://www.brownpapertickets.com/api2/eventlist',
                     'id=%s&client=%s&event_id=%s'])
-    event_call = url % (get_bpt_developer_id(), get_bpt_client_id(), event_id)
+    event_call = url % (get_bpt_developer_id(),
+                        get_bpt_client_id(),
+                        event.bpt_event_id)
     event_xml = perform_bpt_api_call(event_call)
-
     if event_xml is None:
         return None
 
     h = HTMLParser.HTMLParser()
-    descr = h.unescape(event_xml.find('.//e_description').text)
-    return descr
+    event.title = h.unescape(event_xml.find('.//title').text)
+    event.description = h.unescape(event_xml.find('.//e_description').text)
+    event.save()
 
 
 def get_bpt_event_date_list(event_id):
@@ -148,35 +153,29 @@ def get_bpt_price_list():
 
     Returns: the price list as an array of TicketItems.
     '''
-
-    if (BrownPaperEvents.objects.count() <= 0):
-        return []
-
     ti_list = []
 
     for event in BrownPaperEvents.objects.all():
-        event_text = get_bpt_event_description(event.bpt_event_id)
+        set_bpt_event_detail(event)
 
-        if event_text:
-            for date in get_bpt_event_date_list(event.bpt_event_id):
-                url = "?".join(
-                    ['http://www.brownpapertickets.com/api2/pricelist',
-                     'id=%s&event_id=%s&date_id=%s'])
-                price_call = url % (get_bpt_developer_id(),
-                                    event.bpt_event_id,
-                                    date)
-                price_xml = perform_bpt_api_call(price_call)
+        for date in get_bpt_event_date_list(event.bpt_event_id):
+            url = "?".join(
+                ['http://www.brownpapertickets.com/api2/pricelist',
+                 'id=%s&event_id=%s&date_id=%s'])
+            price_call = url % (get_bpt_developer_id(),
+                                event.bpt_event_id,
+                                date)
+            price_xml = perform_bpt_api_call(price_call)
 
-                if price_xml is not None:
-                    for price in price_xml.findall('.//price'):
-                        ti_list.append(bpt_price_to_ticketitem(event,
-                                                               price,
-                                                               event_text))
+            if price_xml is not None:
+                for price in price_xml.findall('.//price'):
+                    ti_list.append(
+                        bpt_price_to_ticketitem(event, price))
 
     return ti_list
 
 
-def bpt_price_to_ticketitem(event, bpt_price, event_text):
+def bpt_price_to_ticketitem(event, bpt_price):
     '''
     Function takes an XML price object from the BPT pricelist call and returns
     an equivalent dictionary that is appropriate to the TicketItem object.
@@ -194,7 +193,6 @@ def bpt_price_to_ticketitem(event, bpt_price, event_text):
                                 bpt_price.find('price_id').text),
         'title': bpt_price.find('name').text,
         'cost': bpt_price.find('value').text,
-        'description': event_text,
         'modified_by': 'BPT Auto Import',
         'bpt_event': event,
         'live': live,
@@ -210,19 +208,19 @@ def process_bpt_order_list():
 
     Returns: the number of transactions imported.
     '''
-    if not BrownPaperEvents.objects.exists():
-        return 0
 
     count = 0
 
     # Process the list from Brown Paper Tickets
-
-    for event in BrownPaperEvents.objects.all():
+    dev_id = get_bpt_developer_id()
+    client_id = get_bpt_client_id()
+    for event in BrownPaperEvents.objects.exclude(
+            conference__status='completed'):
         url = "?".join(['http://www.brownpapertickets.com/api2/orderlist',
                         'id=%s&event_id=%s&account=%s&includetracker=1'])
-        order_list_call = url % (get_bpt_developer_id(),
+        order_list_call = url % (dev_id,
                                  event.bpt_event_id,
-                                 get_bpt_client_id())
+                                 client_id)
         order_list_xml = perform_bpt_api_call(order_list_call)
 
         if order_list_xml is not None:
@@ -253,12 +251,12 @@ def bpt_match_existing_purchasers_using_email():
     returns None
     '''
 
-    for purchaser in Purchaser.objects.all():
-        if (purchaser.matched_to_user.username == 'limbo'):
-            matched_user = attempt_match_purchaser_to_user(purchaser)
-            if (matched_user != -1):
-                purchaser.matched_to_user = User.objects.get(id=matched_user)
-                purchaser.save()
+    for purchaser in Purchaser.objects.filter(
+            matched_to_user__username='limbo'):
+        matched_user = attempt_match_purchaser_to_user(purchaser)
+        if (matched_user != -1):
+            purchaser.matched_to_user = User.objects.get(id=matched_user)
+            purchaser.save()
 
 
 def bpt_save_order_to_database(event_id, bpt_order):
@@ -348,19 +346,17 @@ def attempt_match_purchaser_to_user(purchaser, tracker_id='None'):
     # Next try to match to a purchase email address from the Profile
     # (Manual Override Mechanism)
 
-    for profile in Profile.objects.all():
-        if (profile.purchase_email == purchaser.email):
-            return profile.user_object.id
+    for profile in Profile.objects.filter(purchase_email=purchaser.email):
+        return profile.user_object.id
 
     # Finally, try to match to the user's email.  If an overriding
     # purchase_email from the Profile exists for a given user, ignore
     # the user email field for that user.
 
-    for user in User.objects.all():
-        if user.email == purchaser.email:
-            purchase_email = get_purchase_email_from_user(user.id)
-            if purchase_email is None or len(purchase_email) == 0:
-                return user.id
+    for user in User.objects.filter(email=purchaser.email):
+        purchase_email = get_purchase_email_from_user(user.id)
+        if purchase_email is None or len(purchase_email) == 0:
+            return user.id
     return -1
 
 
@@ -372,9 +368,8 @@ def get_purchase_email_from_user(user_id):
     user_id - the user ID for the query
     returns - the purchase_email from the user profile, or None
     '''
-    for profile in Profile.objects.all():
-        if (user_id == profile.user_object.id):
-            return profile.purchase_email.strip()
+    for profile in Profile.objects.filter(user_object__id=user_id):
+        return profile.purchase_email.strip()
     return None
 
 
@@ -400,4 +395,4 @@ def transaction_reference_exists(ref_id):
     ref_id - the reference id to check.
     returns - true if it exists, false if not.
     '''
-    return (Transaction.objects.filter(reference=ref_id).count() > 0)
+    return (Transaction.objects.filter(reference=ref_id).exists())

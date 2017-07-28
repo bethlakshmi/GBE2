@@ -64,7 +64,6 @@ TEMPLATES = [
 
 CMS_TEMPLATES = (
     ('big_block.tmpl', 'Big Block of Content'),
-    ('three_column.tmpl', 'Three Column'),
     # ('template_2.tmpl', 'Template Two'),
 )
 
@@ -135,10 +134,7 @@ INSTALLED_APPS = (
     'filer',
     'easy_thumbnails',
     'djangocms-placeholder-attr',
-    'image_gallery',  # I forked this and extended a little.
-    'djangocms_flexslider',
     'djangocms_style',
-    'djangocms_column',
     'djangocms_snippet',
     'djangocms_googlemap',
     'djangocms_inherit',
@@ -148,6 +144,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
+    'aldryn_bootstrap3',
     'snowpenguin.django.recaptcha2',
     'reversion',  # for versioning in cms -- use easy install
     'scheduler',

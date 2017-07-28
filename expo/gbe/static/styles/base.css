@@ -3,48 +3,36 @@ body {
   margin: 0px;
   border: 0px;
   padding: 0px;
-  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
 }
 
 
 div.container {
     top:0;
-    width: 960px;
-    padding-top: 0px;
-    padding-bottom: 0px;
 }
 
     
 div.banner {
   left: 0px;
   top: 0px;
-  width: 960px;
-
-  height: 130px;
-  overflow: hidden;
   padding: 10px 0px;
   margin-top: 10px;
   margin-bottom: 10px;
-  
+  overflow: hidden;
 }
 
+
 .big_block {
-  width: 910px;
+  width: inherit;
   box-sizing: initial;
 }
 
-
-
-
-div.main-content{
-    top:0;
-    width: 960px;
-    padding: 20px;
-    background-color: rgb(235,235,235);
+div.banner > a > img {
+    display: block;
+    margin: auto;
+    width: 100%;
 }
 
 div.footer{
-  width:960px;
   color:#FFF;
   margin: 0px;
   text-align: center;
@@ -102,22 +90,21 @@ table.conf_list {
 }
 
 div.reviewer_col{
-    width:35%;
     margin: 10px;
     padding: 10px;
-    bottom: 10%;
-  
 }
-div.bid_col {
-    width:55%;
-    float:right;
-}
-
 
 div.side_box {
     border: 1px solid black;
     margin: 10px;
     padding: 10px;
+}
+
+@media (min-width:768px){.bid_review{width:680px}
+}
+@media (min-width:992px){.bid_review{width:900px}
+}
+@media (min-width:1200px){.bid_review{width:1100px}
 }
 
 /* used in bid review and readonly forms */
@@ -180,6 +167,8 @@ h3.readonlyform
 .errorlist
 {
     color: red;
+    padding: 0;
+    font-weight: normal;
 }
 
 .how_volunteer
@@ -403,6 +392,19 @@ td.describe
   color: #333333;
 }
 
+.perf-head
+{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 30px;
+  color: white;
+}
+
+.perf-div
+{
+  background-color: #960320;
+  margin-top: 20px;
+}
+
 .listsubheader
 {
   font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
@@ -484,6 +486,13 @@ td.describe
     margin: 10px;
     padding: 10px;
 }
+@media (min-width:768px){.bio_block{width:680px}
+}
+@media (min-width:992px){.bio_block{width:900px}
+}
+@media (min-width:1200px){.bio_block{width:1100px}
+}
+
 .sched_detail_title
 {
   color: #333333;
@@ -494,13 +503,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_length
-{
-  
-}
-.sched_details
-{
-}
+
 
 .ticket
 {
@@ -511,14 +514,7 @@ td.describe
 {
   font-weight: bold;
 }
-.ticket_link
-{
-  
-}
-.ticket_list
-{
-  
-}
+
 .ticket_list_item
 {
   margin-left: 15px;
@@ -527,12 +523,7 @@ td.describe
 {
  font-weight: bold;
 }
-.sched_bio_image
-{
-  width: 300px;
-  margin: 3px;
-  display: inline-block;
-}
+
 div.performer
 {
 }
@@ -562,18 +553,7 @@ div.performer
   vertical-align: middle;
   word-wrap:break-word;
 }
-.bio_image_block
-{
-  width: 28%;
-  text-align:right;
-  display: inline-block;
-}
-.bio_words
-{
-  width: 45%;
-  display: inline-block;
-  vertical-align: top;
-}
+
 .bio_name
 {
   margin: 10px 0px;
@@ -634,56 +614,67 @@ div.gbe-alert
 }
 
 
+/* can remove above when we get rid of all 3 column templates in the old way, below is a nicer
+ * boostrap way that lets us revert to tabs when the screen size is small */
+/* small device */
+/* --------------- Responsive Fixes --------------- */
 
-/* landing page layouts
-    taken from:  http://matthewjamestaylor.com/blog/perfect-3-column.htm */
+.three-column-container {
+  padding-right: 0px;
+  padding-left: 0px;
+  width:inherit
+}
 
-/* column container */
-.colmask {
-	position:relative;	/* This fixes the IE7 overflow hidden bug */
-	clear:both;
-	width:100%;			/* width of whole page */
-	overflow:hidden;		/* This chops off any overhanging divs */
+/* small device */
+@media (max-width: 767px) {
+  .device-big {
+    display: none;
+  }
+  .device-small {
+    display: block;
+  }
 }
-/* common column settings */
-.colright,
-.colmid,
-.colleft {
-	float:left;
-	width:100%;			/* width of page */
-	position:relative;
+
+.device-small > li:hover {
+  border-bottom: 4px solid #C78785;
 }
-.col1,
-.col2,
-.col3 {
-	float:left;
-	position:relative;
-	padding:0 0 1em 0;	/* no left and right padding on columns, we just make them narrower instead 
-					only padding top and bottom is included here, make it whatever value you need */
-	overflow:hidden;
+
+.device-small > li.active {
+  border-bottom: 4px solid #8e0e0a;;
+  position: relative;
 }
-/* 3 Column settings */
-.threecol {
+
+.device-small > li > a {
+  color: black;
 }
-.threecol .colmid {
-	right:33%;			/* width of the right column */
+  
+.device-small > li.active > a {
+  background-color: inherit;
 }
-.threecol .colleft {
-	right:33%;			/* width of the middle column */
+
+.device-small > li.active > a:hover {
+  background-color: inherit;
 }
-.threecol .col1 {
-	width:31%;			/* width of center column content (column width minus padding on either side) */
-	left:102%;			/* 100% plus left padding of center column */
+
+.device-small > li.active > a > li:hover {
+  background-color: inherit;
 }
-.threecol .col2 {
-	width:31%;			/* Width of left column content (column width minus padding on either side) */
-	left:36%;			/* width of (right column) plus (center column left and right padding) plus (left column left padding) */
+
+/* big device */
+@media only screen and (min-width : 768px) {
+  .device-big, .tab-content > .tab-pane {
+    display: block;
+  }
+  .device-small {
+    display: none;
+  }
+  .tab-content > .tab-pane {
+    display: block;
+  }
 }
-.threecol .col3 {
-	width:30%;			/* Width of right column content (column width minus padding on either side) */
-	left:73%;			/* Please make note of the brackets here:
-					(100% - left column width) plus (center column left and right padding) plus (left column left and right padding) plus (right column left padding) */
-}
+/* --------------- / Responsive Fixes --------------- */
+
+
 .landing_box{
 	border: 1px solid black;
         padding: 10px;
@@ -780,8 +771,12 @@ td.form_label {
   width: 30%;
 }
 
-td.form_label>label {
+.form-group  > div > div > div > label > label {
   font-weight: normal;
+}
+
+.form-group  > div > div > div > ul {
+  padding: 0;
 }
 
 td.form_field {
@@ -789,7 +784,11 @@ td.form_field {
   padding: 5px;
 }
 
-td.form_field.long_choice > ul 
+.form-horizontal .control-label {
+  text-align: left;
+}
+
+.long_choice > ul 
 {
   border-top: 1px solid black;
   -webkit-column-count: 2; /* Chrome, Safari, Opera */
@@ -816,7 +815,7 @@ td.form_field.long_choice > ul > li
   height: 20px;
 }
 
-td.form_field > ul > li
+.form-group > div > div > div > ul > li
 {
   list-style-type: none;
 }

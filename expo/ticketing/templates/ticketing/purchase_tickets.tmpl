@@ -1,6 +1,8 @@
 {% extends "base.tmpl" %}
-{% load ticketing_filters %}
 {% load staticfiles cms_tags %}
+{% block head %}
+      {% include "gray_grids_css.tmpl" %}
+{% endblock head %}
 
 {% block title %}
   Great Burlesque Exposition
@@ -8,50 +10,63 @@
 
 {% block content %}
 
-<H2 class="subtitle">Ticket Purchase Options for {{ site_name }}</H2>
-
-Welcome!
-<br>
-Thanks for your interest in the Great Burlesque Expo.
-Below are the ticket options available for purchase.
-There are many ways you can be a part of the convention, so
-please read the descriptions carefully.
-<br>
-
-<table>
-
-{% for key, item in ticket_items.items %}
-<tr><td>
-
-</td>
-</tr>
-
-<tr valign="top">
-    <th class="font_large" align="left"> {{ item.title }} </th>
-    <td align=\"right\"> ${{ item.cost|floatformat:2 }} </td>
-</tr>
-<tr valign="top">
-    <td class="font_regular" align=\"left\" colspan=2> {{ item.description | safe }} </td>
-</tr>
-<tr valign="top">
-</tr>
-    <td class="font_regular" align=\"left\" colspan=2> &nbsp </td>
-<tr valign="top">
-    <td class="font_regular" align="left" colspan=2>
-    <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.ticket_id|bpt_event }}/" target="_blank">
-    Purchase {{ item.title }} from Brown Paper Tickets
-    </a>
-    </td>
-</tr>
-
+    <!-- Pricing Table Section Start -->
+    <section id="pricing" class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="section-title wow fadeInUp" data-wow-delay="0s">
+                Ticket Purchase Options for {{ site_name }}</h2>
+            <p class="section-subcontent wow fadeInUp" data-wow-delay="0.2s">Welcome!
+            <br>
+            Thanks for your interest in the Great Burlesque Expo.
+            Below are the ticket options available for purchase.
+            There are many ways you can be a part of the convention, so
+            please read the descriptions carefully.</p>
+          </div>
+        </div>
+{% for item in events %}
+    {% ifchanged item.conference %}
+        {% if not forloop.first %}</div>{% endif %}
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="section-title wow fadeInUp" data-wow-delay="0s">
+                {{ item.conference }}</h2>
+          </div>
+        </div>
+        <div class="row">
+    {% endifchanged %}
+    {% if item.visible %}
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="pricing-table wow fadeInLeft" data-wow-delay="0.3s">
+              {% if request.user.is_superuser %}<div class="edit-icon">
+                <a href="/admin/ticketing/brownpaperevents/{{item.pk}}" target="_blank">
+                    <i class="icon-pencil"></i>
+                </a></div>{% endif %}
+              <div class="table-icon">
+                <i class="{{ item.display_icon }}"></i>
+              </div>
+              <h3>{{ item.title }}</h3>
+              <ul class="plan-info">
+                {% for detail in item.eventdetail_set.all %}
+                <li><i class="icon-star"></i> {{ detail.detail }}</li>
+                {% endfor %}
+              </ul>
+              <div class="button-area">
+                <a href="http://www.brownpapertickets.com/event/ID-{{ user_id }}/{{ item.bpt_event_id }}/" target="_blank" class="btn btn-common">
+                    ${{ item.min_price|floatformat:2 }}
+                {% if item.min_price < item.max_price%}
+                - ${{ item.max_price|floatformat:2 }}{% endif %}</a>
+              </div>
+            </div>
+          </div>
+        {% if forloop.last %}</div>{% endif %}
+    {% endif %}
 {% endfor %}
 
-<tr><td>
-{% static_placeholder "separator" %}
-</td>
-</tr>
-</table>
-
+      </div>
+    </section>
+    <!-- Pricing Table Section End -->
 
 
 {% endblock %}

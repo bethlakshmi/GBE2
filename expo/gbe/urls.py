@@ -14,8 +14,6 @@ from gbe.views import (
     ConferenceVolunteerView,
     CostumeChangeStateView,
     CreateComboView,
-    CreateVendorView,
-    CreateVolunteerView,
     DeleteProfileView,
     EditActTechInfoView,
     EditPersonaView,

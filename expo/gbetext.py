@@ -17,6 +17,11 @@ conference_statuses = (
     ('completed', 'completed'),
 )
 
+act_format = (
+    ('normal', 'normal'),
+    ('summer', 'summer'),
+)
+
 landing_page_no_profile_alert = ("There's been an issue with your "
                                  "registration. Contact "
                                  "registrar@burlesque-expo.com")
@@ -258,6 +263,8 @@ role_options = (('Teacher', "Teacher"),
                 ('Technical Director', "Technical Director"),
                 ('Producer', "Producer"))
 
+act_casting_label = "Section"
+
 vend_time_options = (
     (" ",
      " "),
@@ -335,6 +342,8 @@ default_act_title_conflict = '''You've aready created a draft or made a \
 submission for this act.  View or edit that act here:  <a href="%s">%s</a>'''
 act_not_unique = '''Please name this act with a different title, \
 or edit the existing act.'''
+no_casting_msg = '''The casting role you've specified is not one our defined \
+roles.  Check the dropdown and try again.'''
 no_profile_msg = '''Your profile is not complete, you must provide a first \
 and last name, a name we can use on your badge, and a phone number we can \
 use to notify you of changes to the schedule at run time.'''

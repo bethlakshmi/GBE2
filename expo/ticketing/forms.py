@@ -27,7 +27,6 @@ class TicketItemForm(forms.ModelForm):
         model = TicketItem
         fields = ['ticket_id',
                   'title',
-                  'description',
                   'cost',
                   'bpt_event',
                   'has_coupon',
@@ -68,15 +67,18 @@ class BPTEventForm(forms.ModelForm):
 
     class Meta:
         model = BrownPaperEvents
-        fields = ['primary',
-                  'act_submission_event',
-                  'vendor_submission_event',
-                  'linked_events',
-                  'include_conference',
-                  'include_most',
-                  'badgeable',
-                  'ticket_style',
-                  'conference'
-                  ]
+        fields = [
+            'title',
+            'description',
+            'display_icon',
+            'primary',
+            'act_submission_event',
+            'vendor_submission_event',
+            'linked_events',
+            'include_conference',
+            'include_most',
+            'badgeable',
+            'ticket_style',
+            'conference']
         labels = bpt_event_labels
         help_texts = bpt_event_help_text

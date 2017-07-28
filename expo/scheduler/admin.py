@@ -72,6 +72,11 @@ class WorkerAdmin(admin.ModelAdmin):
     list_filter = ['role', '_item']
 
 
+class ActResourceAdmin(admin.ModelAdmin):
+    list_display = ('_item', 'role')
+    list_filter = ['role', '_item__act__b_conference']
+
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order', 'allocation')
 
@@ -87,5 +92,5 @@ admin.site.register(Resource)
 admin.site.register(ResourceAllocation, ResourceAllocationAdmin)
 admin.site.register(ActItem)
 admin.site.register(Ordering, OrderAdmin)
-admin.site.register(ActResource)
+admin.site.register(ActResource, ActResourceAdmin)
 admin.site.register(EventContainer, EventContainerAdmin)

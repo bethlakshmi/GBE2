@@ -58,21 +58,60 @@ class TicketItemAdmin(admin.ModelAdmin):
         return obj.active
 
 
+class DetailInline(admin.TabularInline):
+    model = EventDetail
+
+
 class BPTEventsAdmin(admin.ModelAdmin):
-    list_display = ('bpt_event_id',
+    filter_horizontal = ("linked_events",)
+    search_fields = ('title', )
+    list_display = ('title',
+                    'bpt_event_id',
                     'primary',
                     'act_submission_event',
                     'vendor_submission_event',
-                    'badgeable',
-                    'ticket_style',
                     'include_conference',
-                    'include_most',
-                    'conference')
-    list_filter = ['primary',
+                    'include_most')
+    list_filter = ['conference',
+                   'primary',
                    'act_submission_event',
                    'vendor_submission_event',
                    'badgeable',
-                   'conference']
+                   ]
+    inlines = [
+        DetailInline,
+    ]
+    fieldsets = (
+        ("Control Fields", {
+            'fields': ('bpt_event_id', 'conference',),
+            'description': '''Use the event id from BPT.  Conference controls
+                where events are displayed - only active/upcoming conferences
+                are synced.''',
+        }),
+        ('Event Links', {
+            'fields': ('primary',
+                       'act_submission_event',
+                       'vendor_submission_event',
+                       'include_conference',
+                       'include_most',
+                       "linked_events",),
+            'description': '''Rules for what this ticket gives.  Controls
+                when it's advertised and special actions like act/vendor submit
+                ''',
+        }),
+        ("Registration", {
+            'fields': ('badgeable', 'ticket_style'),
+            'description': '''Older rules for registration.''',
+            'classes': ('collapse',),
+        }),
+        ("Display Text", {
+            'fields': ('display_icon', 'title', 'description'),
+            'description': '''What is shown on the 'I Want to Buy Tickets'
+                page.  Description is not shown there, it's pulled from
+                BPT but not shown.  Display Icon must come from
+                http://simplelineicons.com/ -- NOTE:  Avoid the "."''',
+        }),
+    )
 
 
 class TicketingExclusionInline(admin.TabularInline):

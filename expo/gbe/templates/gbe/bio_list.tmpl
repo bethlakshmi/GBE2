@@ -1,6 +1,7 @@
 {% extends "base.tmpl" %}
-{% load ticketing_filters %}
 {% load staticfiles cms_tags %}
+{% load thumbnail %}
+
 {% block title %}
   Great Burlesque Exposition: {{title}}
 {% endblock %}
@@ -18,8 +19,10 @@
      {{conf.conference_slug}}</a>&nbsp;|&nbsp;
    {% endfor %}
    </div>
+   <div class="bios container">        
    {% for teacher in bios %}
-      <div class="bio_words">
+     <div class="row">
+      <div class="col-md-8 col-sm-6 col-xs-12">
         <h2>About {{teacher.bio.name}}</h2>
 	{% for class in teacher.classes %}
 	  <b>{{ class.role }}</b> -
@@ -34,14 +37,15 @@
         {{teacher.bio.bio |linebreaksbr}}
         <br><br>
       </div>
-        <div class="bio_image_block">
-        {% if teacher.bio.promo_mini %}
-        <img src="{{MEDIA_URL}}{{teacher.bio.promo_mini}}" class="sched_bio_image">
+      <div class="col-md-4 col-sm-6 col-xs-12">
+        {% if teacher.bio.img %}
+        <img src="{% thumbnail teacher.bio.img 350x350 crop=scale subject_location=teacher.bio.img.subject_location %}" class="sched_bio_image">
         {% else %}
         {% static_placeholder "default_performer" %}
 
         {% endif %}
-        </div>
+      </div>
+     </div>
     {% endfor %}
-
+   </div>
 {% endblock %}

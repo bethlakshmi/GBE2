@@ -5,7 +5,6 @@ from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ProfileFactory,
-    UserFactory,
     UserMessageFactory,
     VendorFactory
 )
@@ -74,13 +73,6 @@ class TestCreateVendor(TestCase):
                                     follow=True)
         return response, data
 
-    def test_create_vendor_no_profile(self):
-        url = reverse('vendor_create', urlconf='gbe.urls')
-        login_as(UserFactory(), self)
-        response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue('Update Your Profile' in response.content)
-
     def test_create_vendor_post_form_valid(self):
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
@@ -127,6 +119,14 @@ class TestCreateVendor(TestCase):
         self.assertIn('Vendor Application', response.content)
 
     def test_create_vendor_post_with_vendor_app_paid(self):
+        response, data = self.post_paid_vendor_submission()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Profile View", response.content)
+        self.assertContains(response, "(Click to view)")
+        self.assertContains(response, data['thebiz-b_title'])
+
+    def test_create_paid_vendor_w_other_vendor_paid(self):
+        VendorFactory(b_conference=self.conference, submitted=True)
         response, data = self.post_paid_vendor_submission()
         self.assertEqual(response.status_code, 200)
         self.assertIn("Profile View", response.content)

@@ -6,6 +6,7 @@ from django.test import (
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ActCastingOptionFactory,
     ActFactory,
     EmailTemplateSenderFactory,
     ProfileFactory,
@@ -18,13 +19,19 @@ from tests.factories.scheduler_factories import (
 )
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     assert_email_recipient,
     assert_email_template_create,
     assert_email_template_used,
     grant_privilege,
     login_as,
 )
-from scheduler.models import ResourceAllocation
+from scheduler.models import (
+    ActResource,
+    ResourceAllocation,
+)
+from gbe.models import UserMessage
+from gbetext import no_casting_msg
 
 
 class TestActChangestate(TestCase):
@@ -33,18 +40,20 @@ class TestActChangestate(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.act = ActFactory()
+        self.context = ActTechInfoContext()
         self.show = ShowFactory()
         self.sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Act Coordinator')
+        grant_privilege(self.privileged_user, 'Act Reviewers')
         self.data = {'show': self.show.pk,
+                     'casting': '',
                      'accepted': '2'}
 
     def test_act_changestate_authorized_user(self):
-
+        act = ActFactory()
         url = reverse(self.view_name,
-                      args=[self.act.pk],
+                      args=[act.pk],
                       urlconf='gbe.urls')
 
         login_as(self.privileged_user, self)
@@ -52,15 +61,10 @@ class TestActChangestate(TestCase):
         nt.assert_equal(response.status_code, 302)
 
     def test_act_changestate_post_accepted_act(self):
-        context = ActTechInfoContext()
-        prev_count1 = ResourceAllocation.objects.filter(
-            event=context.sched_event).count()
         prev_count2 = ResourceAllocation.objects.filter(
             event=self.sched_event).count()
-        # url = reverse('%s/%d' % (self.view_name, context.act.pk),
-        #               urlconf='gbe.urls')
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url,
@@ -70,11 +74,8 @@ class TestActChangestate(TestCase):
                             event=self.sched_event).count() - prev_count2)
 
     def test_act_changestate_unauthorized_user(self):
-        context = ActTechInfoContext()
-        # url = reverse('%s/%d' % (self.view_name, context.act.pk),
-        #               urlconf='gbe.urls')
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
 
         login_as(ProfileFactory(), self)
@@ -84,16 +85,16 @@ class TestActChangestate(TestCase):
         nt.assert_equal(403, response.status_code)
 
     def test_act_changestate_book_act_with_conflict(self):
-        context = ActTechInfoContext()
         grant_privilege(self.privileged_user, 'Act Reviewers')
         conflict = SchedEventFactory(
-            starttime=context.sched_event.starttime)
+            starttime=self.context.sched_event.starttime)
         ResourceAllocationFactory(
             event=conflict,
-            resource=WorkerFactory(_item=context.performer.performer_profile)
+            resource=WorkerFactory(
+                _item=self.context.performer.performer_profile)
         )
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url,
@@ -105,9 +106,8 @@ class TestActChangestate(TestCase):
         )
 
     def test_act_waitlist_sends_notification_makes_template(self):
-        context = ActTechInfoContext()
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
@@ -122,9 +122,8 @@ class TestActChangestate(TestCase):
             template__name='act wait list',
             template__subject="test template"
         )
-        context = ActTechInfoContext()
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
@@ -132,9 +131,8 @@ class TestActChangestate(TestCase):
             "test template", "actemail@notify.com")
 
     def test_act_accept_makes_template_per_show(self):
-        context = ActTechInfoContext()
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         self.data['accepted'] = '3'
@@ -150,25 +148,80 @@ class TestActChangestate(TestCase):
             template__name='act accepted - %s' % self.show.e_title.lower(),
             template__subject="test template"
         )
-        context = ActTechInfoContext()
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
         assert_email_template_used(
             "test template", "actemail@notify.com")
-        assert_email_recipient([(context.performer.contact.contact_email)])
+        assert_email_recipient([(
+            self.context.performer.contact.contact_email)])
 
     @override_settings(ADMINS=[('Admin', 'admin@mock.test')])
     @override_settings(DEBUG=True)
     def test_act_accept_sends_debug_to_admin(self):
-        context = ActTechInfoContext()
         url = reverse(self.view_name,
-                      args=[context.act.pk],
+                      args=[self.context.act.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
         self.data['accepted'] = '3'
         response = self.client.post(url, data=self.data)
         assert_email_recipient([('admin@mock.test')])
+
+    def test_act_special_role(self):
+        ActCastingOptionFactory()
+        new_context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[self.context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = self.data
+        data['casting'] = "Hosted by..."
+        response = self.client.post(url,
+                                    data=self.data,
+                                    follow=True)
+        casting = ActResource.objects.get(_item=self.context.act)
+        assert(casting.role == data['casting'])
+        self.assertRedirects(response, reverse(
+            'act_review_list',
+            urlconf='gbe.urls'))
+
+    def test_act_bad_role(self):
+        UserMessage.objects.all().delete()
+
+        ActCastingOptionFactory()
+        new_context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[self.context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = self.data
+        data['casting'] = "I'm a bad role"
+        response = self.client.post(url,
+                                    data=self.data,
+                                    follow=True)
+        with self.assertRaises(ActResource.DoesNotExist):
+            ActResource.objects.get(_item=self.context.act)
+        assert_alert_exists(
+            response, 'danger', 'Error', no_casting_msg)
+
+    def test_act_no_role(self):
+        UserMessage.objects.all().delete()
+
+        ActCastingOptionFactory()
+        new_context = ActTechInfoContext()
+        url = reverse(self.view_name,
+                      args=[self.context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = self.data
+        data.pop('casting', None)
+        response = self.client.post(url,
+                                    data=self.data,
+                                    follow=True)
+        with self.assertRaises(ActResource.DoesNotExist):
+            ActResource.objects.get(_item=self.context.act)
+        assert_alert_exists(
+            response, 'danger', 'Error', no_casting_msg)

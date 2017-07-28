@@ -109,7 +109,6 @@ expo/db.sqlite3.current
 htmlcov
 .mysql
 *.mysql
-*.png
 *.emacs*
 
 expo/.coverage
@@ -129,3 +128,7 @@ expo/gbe/static/preview_images/admin-style.psd
 expo/gbe/static/sortedm2m/selector-search.gif
 
 random_docs/~$heduling API.docx
+
+expo/gbe/static/aldryn_bootstrap3/*
+expo/gbe/static/mptt/*
+expo/gbe/static/preview_images/*

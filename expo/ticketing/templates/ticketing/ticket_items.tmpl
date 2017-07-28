@@ -41,6 +41,9 @@ tickets on the site.</p><br>
     <th class="ticketing">Reg Info</th>
   </tr>
 {% for event in events %}
+  <tr class="dark_row ticketing"><td class="ticketing" colspan=4>
+  {{ event.title }}
+  </td></tr>
   <tr class="dark_row ticketing">
     <td class="ticketing"><a href="{% url 'ticketing:bptevent_edit' event.id %}">{{event}}</a></td>
     <td class="ticketing">{% if event.primary %}Primary, {%endif%}
@@ -65,7 +68,6 @@ tickets on the site.</p><br>
   <a href="{% url 'ticketing:ticket_item_edit' item.id %}">{{item.ticket_id}}</a>
   </td>
   <td class="ticket_item">{{ item.title | safe }}</td>
-  <td class="ticket_item">{{ item.description | safe | truncatechars:80 }}</td>
   <td class="ticket_item">{% if item.active %}Visible{% else %}Hidden{% endif %}</td>
   <td class="ticket_item">${{ item.cost }}</td>
   <td class="ticket_item">{{ item.modified_by }}</td>

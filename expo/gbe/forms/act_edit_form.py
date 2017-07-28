@@ -78,12 +78,10 @@ class ActEditDraftForm(ModelForm):
             'act_duration',
             'track_duration',
             'track_artist',
-            'track_title',
-            'is_summer']
+            'track_title']
         labels = act_bid_labels
         help_texts = act_help_texts
-        widgets = {'b_conference': HiddenInput(),
-                   'is_summer': HiddenInput(), }
+        widgets = {'b_conference': HiddenInput()}
 
 
 class ActEditForm(ActEditDraftForm):

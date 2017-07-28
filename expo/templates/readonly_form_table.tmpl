@@ -48,7 +48,11 @@
             {% if field.field.widget.input_type == "url" %}
               <a href="{{field.value}}">Go to {{ field.label }}</a>
             {% elif field.field.widget.input_type == "file" %}
-              <a href="{{MEDIA_URL}}{{field.value}}">Go to {{ field.label }}</a>
+	      {% if field.name == 'upload_img'%}
+	       <a href="{{field.value.url}}">Go to {{ field.label }}</a>
+	      {% else %}
+                <a href="{{MEDIA_URL}}{{field.value}}">Go to {{ field.label }}</a>
+	      {% endif %}
             {% elif field.field.choices %}
               <ul>
               {% if field.field.choices|length > 7 and field.value|length %}

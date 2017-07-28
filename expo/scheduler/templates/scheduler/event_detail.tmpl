@@ -1,11 +1,16 @@
 {% extends "base.tmpl" %}
 {% load staticfiles %}
+{% load thumbnail %}
+
 {% block title %}
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
 {% endblock %}
 
+{% block head %}
+      {% include "gray_grids_css.tmpl" %}
+{% endblock head %}
+
 {% block content %}
- 
 {% if tickets %}
   <div class="sched_block font_regular">
   {% include "ticket_link.tmpl" %}
@@ -45,89 +50,52 @@
       {% endif %}
 
     </div>
+    {% if eventitem.featured_grid_list %}
+      {% include "featured_people.tmpl" with featured_items=eventitem.featured_grid_list%}
+    {% endif %}
+
     {% if eventitem.bio_grid_list %}
-      <table class="vtable" align=center>
-      <tr  class="vrow"><th colspan="3" class="vheader">
-        <div class="vheadertext font_large"><p>Check out our fabulous Performers!</p></div>
-      </th></tr>
-      {% for bio in eventitem.bio_grid_list %}
-	{% cycle '<tr class="vrow"><td class="vendorff">' '<td class="vendorff">' '<td class="vendorff">' %}
-	    <div class="vname">
-	      {{bio.name}}
-	    </div>
-            <span class="perfhover">
-	    <div class="vimg font_regular">
-	      <a href="{{bio.homepage}}">
-	   	{% if bio.promo_mini %}
-	   	<img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="vimage">
-		{% else %}
-		<img src="{{STATIC_URL}}/img/defaultperfpromo.png" class="vimage">
-		{% endif %}
-	      </a><br>
-	      <span>
-               <div class="vname" ><b>{{bio.name}}</b></div><br>
-               <div align=left>
+      {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
 
-	   	  {% if bio.promo_image %}
-		  <div style="float:right">
-                  <a href="{{MEDIA_URL}}{{bio.promo_image}}">
-		    <img src="{{MEDIA_URL}}{{bio.promo_mini}}" alt="Photo" width=200 style="float:right">
-		  </a></div><BR>
-		  {%endif%}
-                  <div class="vdesc">
-	            {{bio.bio | linebreaksbr}}
-	          </div>
-                  {% if bio.homepage %}
-		  <br>
-		  <div style="float:left">
-		  <b><a href="{{bio.homepage}}">Website</a><b></div>
-
-	          {% endif %}
-
-	      </span>
-	    </div>
-	    </span>
-
-	{% cycle '</td>' '</td>' '</td></tr>' %}
-	
-      {% endfor %} 
-      </table>
     {% elif eventitem.event.roles %}
-    <div class="bio_block font_regular">
+    <div class="bio_block font_regular container">
       {% for worker in eventitem.event.roles %}
+      <div class="row bio_row">
       {% ifchanged worker.workeritem %}
-      <div class="bio_words">
+        <div class="col-md-8 col-sm-7 col-xs-12">
 	{%if worker.role == "Staff Lead"%}
 	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
         {%else%}
           <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
           {{worker.workeritem.bio |linebreaksbr}}
 	{%endif%}
-      <br><br>
-      </div>
-        {% if worker.workeritem.promo_mini %}
-          <div class="bio_name bio_image_block">
-          <img src="{{MEDIA_URL}}{{worker.workeritem.promo_mini}}" class="sched_bio_image">
+        <br><br>
+        </div>
+        {% if worker.workeritem.img %}
+          <div class="col-md-3 col-sm-4 col-xs-12">
+          <img src="{{bio.img.url}}" class="sched_bio_image">
           </div>
         {% endif %}
       {%endifchanged%}
+      </div>
       {% endfor %}
-    </div>
+      </div>
     {% elif eventitem.event.bios %}
-    <div class="bio_block font_regular">
+    <div class="bio_block font_regular container">
       {% for bio in eventitem.event.bios %}
-      <div class="bio_words">
+      <div class="row bio_row">
+        <div class="col-md-8 col-sm-7 col-xs-12">
         <h2 class="bio_name subtitle">About {{bio.name}}</h2>
         {{bio.bio |linebreaksbr}}
         <br><br>
-	
-      </div>
+        </div>
 
-       {% if bio.promo_mini %}
-          <div class="bio_image_block">
-            <img src="{{MEDIA_URL}}{{bio.promo_mini}}" class="sched_bio_image">
+       {% if bio.img %}
+          <div class="col-md-3 col-sm-4 col-xs-12">
+            <img src="{{bio.img.url}}" class="sched_bio_image">
           </div>
         {% endif %}
+      </div>
       {% endfor %}
     </div>
     {% endif %}
