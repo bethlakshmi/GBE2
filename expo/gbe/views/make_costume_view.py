@@ -2,6 +2,7 @@ from gbe.views import MakeBidView
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
+from django.shortcuts import render
 from gbe.forms import (
     CostumeBidDraftForm,
     CostumeDetailsDraftForm,
@@ -87,8 +88,28 @@ class MakeCostumeView(MakeBidView):
             request.FILES,
             instance=self.bid_object)
 
+    def get_create_form(self, request):
+        if self.bid_object:
+            self.form = self.submit_form(
+                prefix=self.prefix,
+                instance=self.bid_object,
+                initial=self.get_initial())
+            self.details_form = CostumeDetailsSubmitForm(
+                instance=self.bid_object)
+        else:
+            self.form = self.submit_form(
+                prefix=self.prefix,
+                initial=self.get_initial())
+            self.details_form = CostumeDetailsSubmitForm()
+        self.set_up_form()
+
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            self.make_context()
+        )
+
     def set_up_form(self):
-        self.details_form = CostumeDetailsSubmitForm()
         q = Persona.objects.filter(
             performer_profile_id=self.owner.resourceitem_id)
         self.form.fields['performer'] = ModelChoiceField(
