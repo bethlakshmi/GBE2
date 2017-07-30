@@ -16,7 +16,7 @@ from gbe.scheduling.views import (
 
 urlpatterns = patterns(
     '',
-    url(r'^create_event/(?P<event_type>[-\w]+)/?$',
+    url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         CreateEventScheduleView.as_view(), name='create_event_schedule'),

@@ -10,10 +10,14 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from gbe.scheduling.forms import ScheduleSelectionForm
+from scheduler.idd.create_occurrence import create_occurrence
 from scheduler.views.functions import (
     get_event_display_info,
-    set_single_role,
-    set_multi_role,
+)
+from gbe.scheduling.views.functions import (
+    get_single_role,
+    get_multi_role,
+    get_start_time,
 )
 from gbe.models import (
     Event,
@@ -72,24 +76,24 @@ class CreateEventScheduleView(View):
             instance=self.item,
             prefix='event')
         if event_form.is_valid():
-            s_event = event_form.save(commit=False)
-            s_event.eventitem = self.item
+            event = event_form.save(commit=False)
+            event.eventitem = self.item
             data = event_form.cleaned_data
 
-            if data['duration']:
-                s_event.set_duration(data['duration'])
+            room = get_object_or_404(Room, name=data['location'])
+            people = get_single_role(data)
+            people += get_multi_role(data)
+            max_volunteer = 0
+            if data['max_volunteer']:
+                max_volunteer = data['max_volunteer']
+            start_time = get_start_time(data)
 
-            l = get_object_or_404(Room, name=data['location'])
-            s_event.save()
-            s_event.set_location(l)
-            set_single_role(s_event, data)
-            set_multi_role(s_event, data)
-            if data['description'] or data['title']:
-                c_event = s_event.as_subtype
-                c_event.description = data['description']
-                c_event.title = data['title']
-                c_event.save()
-
+            response = create_occurrence(
+                event.eventitem_id,
+                start_time,
+                max_volunteer,
+                people=people,
+                locations=[room])
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',
                                                 args=[self.event_type]))
@@ -97,7 +101,7 @@ class CreateEventScheduleView(View):
             return render(
                 request,
                 self.template,
-                {'eventitem': eventitem_view,
+                {'eventitem': self.eventitem_view,
                  'form': event_form,
                  'user_id': request.user.id,
                  'event_type': self.event_type})

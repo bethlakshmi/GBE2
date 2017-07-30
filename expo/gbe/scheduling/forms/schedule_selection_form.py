@@ -16,8 +16,7 @@ from gbe.expoformfields import (
 )
 from gbe.functions import get_current_conference
 from django.utils.formats import date_format
-from datetime import datetime, time
-import pytz
+from datetime import time
 from gbe_forms_text import (
     scheduling_help_texts,
     scheduling_labels,
@@ -71,15 +70,3 @@ class ScheduleSelectionForm(ModelForm):
         super(ScheduleSelectionForm, self).__init__(*args, **kwargs)
         self.fields['day'] = ModelChoiceField(
             queryset=conference.conferenceday_set.all())
-
-    def save(self, commit=True):
-        data = self.cleaned_data
-        event = super(ScheduleSelectionForm, self).save(commit=False)
-        day = data.get('day').day
-        time_parts = map(int, data.get('time').split(":"))
-        starttime = time(*time_parts, tzinfo=pytz.utc)
-        event.starttime = datetime.combine(day, starttime)
-
-        if commit:
-            self.save()
-        return event

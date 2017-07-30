@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scheduler', '0001_initial'),
+        ('scheduler', '0002_actresource_role'),
     ]
 
     operations = [

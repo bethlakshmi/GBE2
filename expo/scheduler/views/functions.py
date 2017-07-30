@@ -114,6 +114,7 @@ def get_events_display_info(event_type='Class'):
     return eventslist
 
 
+# Deprecate when scheduling refactor is done
 def set_single_role(event, data, roles=None):
     if not roles:
         roles = [('teacher', 'Teacher'),
@@ -126,6 +127,7 @@ def set_single_role(event, data, roles=None):
     event.save()
 
 
+# Deprecate when scheduling refactor is done
 def set_multi_role(event, data, roles=None):
     if not roles:
         roles = [('panelists', 'Panelist')]
