@@ -6,9 +6,11 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.http import HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+)
 from django.core.urlresolvers import reverse
-
 from gbe.scheduling.forms import ScheduleSelectionForm
 from scheduler.idd.create_occurrence import create_occurrence
 from scheduler.views.functions import (
@@ -35,7 +37,10 @@ class CreateEventScheduleView(View):
         eventitem_id = kwargs['eventitem_id']
         self.event_type = kwargs['event_type'] or 'Class'
         self.profile = validate_perms(request, ('Scheduling Mavens',))
-        self.item = Event.objects.get_subclass(pk=eventitem_id)
+        try:
+            self.item = Event.objects.get_subclass(pk=eventitem_id)
+        except Event.DoesNotExist:
+            raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
 
     @never_cache
