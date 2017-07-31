@@ -25,7 +25,7 @@ from tests.contexts import (
     PanelContext,
     StaffAreaContext,
 )
-from tests.functions.scheduler_functions import (
+from tests.functions.gbe_scheduling_functions import (
     assert_good_sched_event_form,
     assert_selected,
     get_sched_event_form
@@ -177,7 +177,7 @@ class TestCreateEventSchedule(TestCase):
                                     data=form_data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('<input id="id_event-title" name="event-title" ' +
+        self.assertIn('<input id="id_event-e_title" name="event-e_title" ' +
                       'type="text" value="New Title" />',
                       response.content)
         self.assertIn("New Description",

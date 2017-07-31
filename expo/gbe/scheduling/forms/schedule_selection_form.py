@@ -66,7 +66,10 @@ class ScheduleSelectionForm(ModelForm):
 
 
     def __init__(self, *args, **kwargs):
-        conference = get_current_conference()
+        if 'instance' in kwargs:
+            conference = kwargs['instance'].e_conference
+        else:
+            conference = get_current_conference()
         super(ScheduleSelectionForm, self).__init__(*args, **kwargs)
         self.fields['day'] = ModelChoiceField(
             queryset=conference.conferenceday_set.all())
