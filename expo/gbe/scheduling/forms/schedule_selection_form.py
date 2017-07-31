@@ -42,8 +42,6 @@ class ScheduleSelectionForm(ModelForm):
     time = ChoiceField(choices=conference_times)
     location = ModelChoiceField(
         queryset=Room.objects.all().order_by('name'))
-    duration = DurationFormField(
-        help_text=scheduling_help_texts['duration'])
     max_volunteer = IntegerField(required=False)
     teacher = ModelChoiceField(
         queryset=visible_personas,
@@ -60,7 +58,7 @@ class ScheduleSelectionForm(ModelForm):
 
     class Meta:
         model = Event
-        fields = ['e_title', 'e_description']
+        fields = ['e_title', 'e_description', 'duration']
         help_texts = scheduling_help_texts
         labels = scheduling_labels
 

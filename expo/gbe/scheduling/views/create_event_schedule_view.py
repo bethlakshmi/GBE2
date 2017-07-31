@@ -77,7 +77,6 @@ class CreateEventScheduleView(View):
             prefix='event')
         if event_form.is_valid():
             event = event_form.save(commit=False)
-            event.eventitem = self.item
             data = event_form.cleaned_data
 
             room = get_object_or_404(Room, name=data['location'])
@@ -94,6 +93,8 @@ class CreateEventScheduleView(View):
                 max_volunteer,
                 people=people,
                 locations=[room])
+            if response.occurrence:
+                event_form.save()
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',
                                                 args=[self.event_type]))
