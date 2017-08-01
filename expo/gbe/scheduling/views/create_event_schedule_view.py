@@ -20,6 +20,7 @@ from gbe.scheduling.views.functions import (
     get_single_role,
     get_multi_role,
     get_start_time,
+    show_scheduling_occurrence_status,
 )
 from gbe.models import (
     Event,
@@ -103,6 +104,10 @@ class CreateEventScheduleView(View):
                 labels=labels)
             if response.occurrence:
                 event_form.save()
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
             return HttpResponseRedirect(reverse('event_schedule',
                                                 urlconf='scheduler.urls',
                                                 args=[self.event_type]))

@@ -14,7 +14,7 @@ def create_occurrence(event_id,
                       locations=[],
                       parent_event=None,
                       labels=[]):
-    response = OccurrenceResponse
+    response = OccurrenceResponse()
     response.occurrence = Event(
         eventitem=EventItem.objects.get(eventitem_id=event_id),
         starttime=start_time,
@@ -23,7 +23,9 @@ def create_occurrence(event_id,
     for l in locations:
         success = response.occurrence.set_location(l)
         if not success:
-            response.add_error('LOCATION_SET_FAILURE', str(location))
+            response.add_error(
+                'LOCATION_SET_FAILURE',
+                'Could not find %s' % str(location))
 
     for person in people:
         response.warnings = response.occurrence.allocate_person(person)
