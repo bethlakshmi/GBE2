@@ -13,7 +13,10 @@ from tests.factories.gbe_factories import (
 from gbe.models import (
     Room,
 )
-from scheduler.models import Worker
+from scheduler.models import (
+    EventLabel,
+    Worker
+)
 from tests.functions.gbe_functions import (
     clear_conferences,
     grant_privilege,
@@ -23,6 +26,7 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ClassContext,
     PanelContext,
+    ShowContext,
     StaffAreaContext,
 )
 from tests.functions.gbe_scheduling_functions import (
@@ -257,6 +261,12 @@ class TestCreateEventSchedule(TestCase):
         teachers = session.get_direct_workers('Teacher')
         self.assertEqual(len(teachers), 1)
         self.assertEqual(teachers[0].pk, overcommitter.pk)
+        self.assertEqual(EventLabel.objects.filter(
+            text=context.conference.conference_slug,
+            event__eventitem=context.bid).count(),1)
+        self.assertEqual(EventLabel.objects.filter(
+            text="Conference",
+            event__eventitem=context.bid).count(),1)
 
     def test_good_user_with_moderator(self):
         clear_conferences()
@@ -308,6 +318,54 @@ class TestCreateEventSchedule(TestCase):
                                       allocations__event=session)
         self.assertEqual(len(leads), 1)
         self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
+        self.assertEqual(EventLabel.objects.filter(
+            event__eventitem=context.sched_event.eventitem).count(),1)
+
+    def test_good_user_with_special_event(self):
+        clear_conferences()
+        Room.objects.all().delete()
+        room = RoomFactory()
+        context = ClassContext()
+        special = GenericEventFactory(type="Special",
+                                      e_conference=context.conference)
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["GenericEvent",
+                            special.eventitem_id])
+        form_data = get_sched_event_form(context, room)
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+        self.assertEqual(EventLabel.objects.filter(
+            text=context.conference.conference_slug,
+            event__eventitem=special).count(),1)
+        self.assertEqual(EventLabel.objects.filter(
+            text="General",
+            event__eventitem=special).count(),1)
+
+    def test_good_user_with_show(self):
+        clear_conferences()
+        Room.objects.all().delete()
+        room = RoomFactory()
+        context = ShowContext()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["GenericEvent",
+                            context.show.eventitem_id])
+        form_data = get_sched_event_form(context, room)
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+        self.assertEqual(EventLabel.objects.filter(
+            text=context.conference.conference_slug,
+            event__eventitem=context.show).count(),1)
+        self.assertEqual(EventLabel.objects.filter(
+            text="General",
+            event__eventitem=context.show).count(),1)
 
     def test_good_user_with_panelists(self):
         clear_conferences()
