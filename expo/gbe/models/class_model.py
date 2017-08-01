@@ -157,6 +157,8 @@ class Class(Biddable, Event):
                 acceptance_states[self.accepted][1])
 
     def __str__(self):
+        if self.e_title and len(self.e_title) > 0:
+            return self.e_title
         return self.b_title
 
     # tickets that apply to class are:

@@ -18,6 +18,7 @@ from scheduler.models import (
     Worker
 )
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     clear_conferences,
     grant_privilege,
     is_login_page,
@@ -221,6 +222,15 @@ class TestCreateEventSchedule(TestCase):
         self.assertIn('<td class="events-table">      \n            ' +
                       '\t\t03:00\n          \t\t</td>',
                       response.content)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>- %s, Start Time: %s' % (
+                form_data['event-e_title'],
+                'Fri, Feb 5 12:00 PM')
+            )
+
 
     def test_no_duration(self):
         clear_conferences()
@@ -291,6 +301,42 @@ class TestCreateEventSchedule(TestCase):
         moderators = session.get_direct_workers('Moderator')
         self.assertEqual(len(moderators), 1)
         self.assertEqual(moderators[0].pk, overcommitter.pk)
+
+    def test_assignee_conflict(self):
+        clear_conferences()
+        Room.objects.all().delete()
+        context = PanelContext()
+        overcommitter = PersonaFactory()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["Class", context.bid.eventitem_id])
+        form_data = get_sched_event_form(context)
+        form_data['event-moderator'] = overcommitter.pk
+        form_data['event-panelists'] = [overcommitter.pk]
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+
+        session = self.assert_good_post(response,
+                                        context.bid,
+                                        context.days[0].day,
+                                        context.room)
+        moderators = session.get_direct_workers('Moderator')
+        self.assertEqual(len(moderators), 1)
+        self.assertEqual(moderators[0].pk, overcommitter.pk)
+        print response.content
+
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- Conflicting booking: %s, Start Time: %s' % (
+                overcommitter.contact.display_name,
+                form_data['event-e_title'],
+                'Fri, Feb 5 12:00 PM')
+            )
 
     def test_good_user_with_staff_area_lead(self):
         clear_conferences()

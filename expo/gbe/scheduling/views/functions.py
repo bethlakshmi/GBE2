@@ -87,10 +87,10 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
                 code="OCCURRENCE_UPDATE_SUCCESS",
                 defaults={
                     'summary': "Occurrence has been updated",
-                    'description': "Occurrence has been updated"})
+                    'description': "Occurrence has been updated."})
         messages.success(
             request,
-            '%s  <br>- %s, Start Time: %s' % (
+            '%s<br>- %s, Start Time: %s' % (
                 user_message[0].description,
                 str(occurrence_response.occurrence),
                 occurrence_response.occurrence.starttime.strftime(DATETIME_FORMAT)))
