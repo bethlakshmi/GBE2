@@ -97,7 +97,9 @@ class CreateEventScheduleView(View):
                 start_time,
                 max_volunteer,
                 people=people,
-                locations=[room])
+                locations=[room],
+                labels=[event.e_conference.conference_slug,
+                        event.calendar_type])
             if response.occurrence:
                 event_form.save()
             return HttpResponseRedirect(reverse('event_schedule',

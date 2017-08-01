@@ -625,9 +625,6 @@ panel_participation_types = [('Moderator', 'Moderator'),
 
 class_participation_types = [('Teacher', 'Teacher')]
 
-calendar_types = {0: 'General',
-                  1: 'Conference'}
-
 list_titles = {
     'class': '''Class Descriptions at GBE''',
     'panel': '''Panel Descriptions at GBE''',

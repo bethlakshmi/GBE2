@@ -80,6 +80,10 @@ class ActResourceAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order', 'allocation')
 
+class EventLabelAdmin(admin.ModelAdmin):
+    list_display = ('text', 'event')
+    list_filter = ['text']
+
 
 admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)
@@ -94,3 +98,4 @@ admin.site.register(ActItem)
 admin.site.register(Ordering, OrderAdmin)
 admin.site.register(ActResource, ActResourceAdmin)
 admin.site.register(EventContainer, EventContainerAdmin)
+admin.site.register(EventLabel, EventLabelAdmin)

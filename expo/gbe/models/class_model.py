@@ -25,7 +25,6 @@ from gbetext import (
     space_options,
     yesno_options,
 )
-from gbe_forms_text import calendar_types
 from ticketing.functions import get_tickets
 
 
@@ -115,10 +114,6 @@ class Class(Biddable, Event):
     @property
     def bio_payload(self):
         return [self.teacher]
-
-    @property
-    def calendar_type(self):
-        return calendar_types[1]
 
     @property
     def bids_to_review(self):
