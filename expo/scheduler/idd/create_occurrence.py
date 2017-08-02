@@ -31,8 +31,7 @@ def create_occurrence(event_id,
         response.warnings = response.occurrence.allocate_person(person)
 
     for label in labels:
-        event_label = EventLabel(event=response.occurrence, text=label)
-        event_label.save()
+        response.occurrence.add_label(label)
 
     if parent_event:
         family = EventContainer(

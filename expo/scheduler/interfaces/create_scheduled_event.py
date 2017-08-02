@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
-    
 from scheduler.models import (
     Event,
     EventContainer,
     EventItem,
     WorkerItem,
 )
+
 
 def create_scheduled_event(
         event_id,
@@ -22,7 +22,7 @@ def create_scheduled_event(
     event = Event(eventitem=eventitem,
                   starttime=start_time,
                   max_volunteer=max_volunteer)
-    
+
     if parent_sched_id:
         parent = get_object_or_404(Event, pk=parent_sched_id)
         EventContainer(parent=parent, child=event)
@@ -32,7 +32,7 @@ def create_scheduled_event(
         success = event.set_location(location)
         if not success:
             loc_details += [location]
-            
+
     if len(loc_details) > 0:
         errors += [{
             'code': "LOCATION_ADD_FAILED",
@@ -52,4 +52,3 @@ def create_scheduled_event(
         new_label = event.add_label(label)
         if not new_label:
             errors += "EVENT_LABEL_CREATE_FAILURE"
-    

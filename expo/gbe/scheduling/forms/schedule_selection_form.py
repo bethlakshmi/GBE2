@@ -62,7 +62,6 @@ class ScheduleSelectionForm(ModelForm):
         help_texts = scheduling_help_texts
         labels = scheduling_labels
 
-
     def __init__(self, *args, **kwargs):
         if 'instance' in kwargs:
             conference = kwargs['instance'].e_conference

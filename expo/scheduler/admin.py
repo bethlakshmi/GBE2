@@ -80,6 +80,7 @@ class ActResourceAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order', 'allocation')
 
+
 class EventLabelAdmin(admin.ModelAdmin):
     list_display = ('text', 'event')
     list_filter = ['text']

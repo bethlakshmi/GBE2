@@ -5,6 +5,7 @@ from django.contrib import messages
 from gbe.models import UserMessage
 from expo.settings import DATETIME_FORMAT
 
+
 def get_single_role(data, roles=None):
     people = []
     if not roles:
@@ -33,11 +34,13 @@ def get_multi_role(data, roles=None):
                     role=role)]
     return people
 
+
 def get_start_time(data):
     day = data['day'].day
     time_parts = map(int, data['time'].split(":"))
     starttime = time(*time_parts, tzinfo=pytz.utc)
     return datetime.combine(day, starttime)
+
 
 #
 # Takes the HTTP Request from the view and builds the following user messages,
@@ -72,7 +75,8 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
         if warning.details:
             message_text += warning.details
         if warning.user:
-            message_text += '<br>- Affected user: %s' % warning.user.profile.display_name
+            message_text += '<br>- Affected user: %s' % (
+                warning.user.profile.display_name)
         if warning.occurrence:
             message_text += '<br>- Conflicting booking: %s, Start Time: %s' % (
                 str(warning.occurrence),
@@ -93,4 +97,5 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
             '%s<br>- %s, Start Time: %s' % (
                 user_message[0].description,
                 str(occurrence_response.occurrence),
-                occurrence_response.occurrence.starttime.strftime(DATETIME_FORMAT)))
+                occurrence_response.occurrence.starttime.strftime(
+                    DATETIME_FORMAT)))

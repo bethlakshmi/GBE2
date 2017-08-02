@@ -713,7 +713,8 @@ scheduling_help_texts = {
     'title': "Note, this will change the title for all bookings of this event",
     'e_description': "Note, this will change the description for all bookings \
         of this event",
-    'e_title': "Note, this will change the title for all bookings of this event",
+    'e_title': "Note, this will change the title for all bookings of this \
+        event",
     'duration': "Enter duration as HH:MM:SS"
 }
 

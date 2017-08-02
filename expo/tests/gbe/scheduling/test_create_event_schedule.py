@@ -253,7 +253,6 @@ class TestCreateEventSchedule(TestCase):
                 'Fri, Feb 5 12:00 PM')
             )
 
-
     def test_no_duration(self):
         clear_conferences()
         Room.objects.all().delete()
@@ -295,10 +294,10 @@ class TestCreateEventSchedule(TestCase):
         self.assertEqual(teachers[0].pk, overcommitter.pk)
         self.assertEqual(EventLabel.objects.filter(
             text=context.conference.conference_slug,
-            event__eventitem=context.bid).count(),1)
+            event__eventitem=context.bid).count(), 1)
         self.assertEqual(EventLabel.objects.filter(
             text="Conference",
-            event__eventitem=context.bid).count(),1)
+            event__eventitem=context.bid).count(), 1)
 
     def test_good_user_with_moderator(self):
         clear_conferences()
@@ -354,7 +353,8 @@ class TestCreateEventSchedule(TestCase):
             response,
             'warning',
             'Warning',
-            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- Conflicting booking: %s, Start Time: %s' % (
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' +
+            'Conflicting booking: %s, Start Time: %s' % (
                 overcommitter.contact.display_name,
                 form_data['event-e_title'],
                 'Fri, Feb 5 12:00 PM')
@@ -387,7 +387,7 @@ class TestCreateEventSchedule(TestCase):
         self.assertEqual(len(leads), 1)
         self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
         self.assertEqual(EventLabel.objects.filter(
-            event__eventitem=context.sched_event.eventitem).count(),1)
+            event__eventitem=context.sched_event.eventitem).count(), 1)
 
     def test_good_user_with_special_event(self):
         clear_conferences()
@@ -408,10 +408,10 @@ class TestCreateEventSchedule(TestCase):
             follow=True)
         self.assertEqual(EventLabel.objects.filter(
             text=context.conference.conference_slug,
-            event__eventitem=special).count(),1)
+            event__eventitem=special).count(), 1)
         self.assertEqual(EventLabel.objects.filter(
             text="General",
-            event__eventitem=special).count(),1)
+            event__eventitem=special).count(), 1)
 
     def test_good_user_with_show(self):
         clear_conferences()
@@ -430,10 +430,10 @@ class TestCreateEventSchedule(TestCase):
             follow=True)
         self.assertEqual(EventLabel.objects.filter(
             text=context.conference.conference_slug,
-            event__eventitem=context.show).count(),1)
+            event__eventitem=context.show).count(), 1)
         self.assertEqual(EventLabel.objects.filter(
             text="General",
-            event__eventitem=context.show).count(),1)
+            event__eventitem=context.show).count(), 1)
 
     def test_good_user_with_panelists(self):
         clear_conferences()

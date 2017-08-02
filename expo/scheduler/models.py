@@ -660,8 +660,7 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
-        else:
-            return False
+
         if self.location == location.item:
             pass   # already set
         elif self.location is None:
@@ -688,7 +687,7 @@ class Event(Schedulable):
         if person.public_id:
             item = WorkerItem.objects.get(pk=person.public_id)
             worker = Worker(_item=item, role=person.role)
-            
+
         else:
             worker = Worker(_item=self.user.profile, role=person.role)
         worker.save()
@@ -729,7 +728,7 @@ class Event(Schedulable):
            - conflicts found with the worker item's existing schedule
            - any case where the event is already booked with the maximum
              number of volunteers
-        
+
         DEPRECATE - when schedule refactor is complete.
         '''
         warnings = []
@@ -1067,8 +1066,9 @@ class Event(Schedulable):
 
     def add_label(self, label):
         label = EventLabel(text=label, event=self)
+        label.save()
         return label
-    
+
 
 class ResourceAllocation(Schedulable):
     '''

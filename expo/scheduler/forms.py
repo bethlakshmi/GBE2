@@ -61,6 +61,7 @@ class EventItemScheduleForm(forms.ModelForm):
         model = EventItem
         fields = '__all__'
 
+
 # DEPRECATED - remove after refactor done
 class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
