@@ -97,7 +97,6 @@ def assert_alert_exists(response, tag, label, text):
         'aria-label="close">&times;</a>\n' + \
         '          <strong>%s:</strong> %s\n' \
         '	</div>'
-    print ""
     assert alert_html % (tag, label, text) in response.content
 
 
