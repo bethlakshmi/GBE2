@@ -25,7 +25,7 @@ def create_occurrence(event_id,
         if not success:
             response.add_error(
                 'LOCATION_SET_FAILURE',
-                'Could not find %s' % str(location))
+                'Could not find %s' % str(l))
 
     for person in people:
         response.warnings = response.occurrence.allocate_person(person)

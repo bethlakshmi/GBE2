@@ -14,6 +14,7 @@ from gbe.models import (
     Room,
 )
 from scheduler.models import (
+    Event,
     EventLabel,
     Worker
 )
@@ -40,6 +41,7 @@ from datetime import (
     datetime,
     time,
 )
+from mock import patch, Mock
 
 
 class TestCreateEventSchedule(TestCase):
@@ -167,6 +169,26 @@ class TestCreateEventSchedule(TestCase):
                               context.bid,
                               context.days[0].day,
                               context.room)
+
+    @patch.object(Event, 'set_location')
+    def test_location_error(self, m_set_loc):
+        clear_conferences()
+        Room.objects.all().delete()
+        context = ClassContext()
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["Class", context.bid.eventitem_id])
+        m_set_loc.return_value = False
+        response = self.client.post(url,
+                                    data=get_sched_event_form(context),
+                                    follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'LOCATION_SET_FAILURE  Could not find %s' % str(context.room)
+            )
 
     def test_good_user_invalid_submit(self):
         clear_conferences()
