@@ -54,17 +54,16 @@ def ticket_items(request, conference_choice=None):
     if 'Import' in request.POST:
         import_ticket_items()
 
+    conference_choice = request.GET.get('conference', None)
     if conference_choice:
         events = BrownPaperEvents.objects.filter(
             conference__conference_slug=conference_choice)
     else:
         events = BrownPaperEvents.objects.exclude(
             conference__status='completed')
-
-    conferences = Conference.objects.all()
     context = {'events': events,
-               'conferences': conferences,
-               'conference_choice':  conference_choice}
+               'conference_slugs': conference_slugs(),
+               'conf_slug': conference_choice}
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
 
