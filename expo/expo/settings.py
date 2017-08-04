@@ -196,6 +196,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+    'gbe.auth.EmailUsernameAuth',
+)
+
 TEXT_SAVE_IMAGE_FUNCTION = \
     'cmsplugin_filer_image.integrations.ckeditor.create_image_plugin'
 
