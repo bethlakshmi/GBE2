@@ -49,7 +49,7 @@ from scheduler.views.functions import (
     set_multi_role,
 )
 from gbe.functions import (
-    conference_list,
+    conference_slugs,
     eligible_volunteers,
     get_current_conference,
     get_conference_by_slug,
@@ -103,7 +103,7 @@ def event_list(request, event_type=''):
                   {'events': events,
                    'header': header,
                    'create_url': reverse('create_event',
-                                         urlconf='gbe.urls',
+                                         urlconf='gbe.scheduling.urls',
                                          args=[event_type])})
 
 
@@ -846,14 +846,14 @@ def view_list(request, event_type='All'):
          }
         for item in items]
 
-    conferences = conference_list()
     return render(request, 'scheduler/event_display_list.tmpl',
                   {'title': list_titles.get(event_type.lower(), ""),
                    'view_header_text': list_text.get(event_type.lower(), ""),
                    'labels': event_labels,
                    'events': events,
-                   'conferences': conferences,
+                   'conference_slugs': conference_slugs(),
                    'etype': event_type,
+                   'conf_slug': conf_slug,
                    })
 
 

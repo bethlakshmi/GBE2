@@ -17,21 +17,9 @@ tickets on the site.</p><br>
 <a href={% url 'ticketing:ticket_item_edit' %}> click here</a>.
 </p>
 
-<table class="conf_list">
-  <tr>
-    {% for conference in conferences %}
-    <td>
-      {% if conference.conference_slug == conference_choice %}
-        <b>{{ conference.conference_name }}</b>
-      {% else %}
-      <a href="{% url 'ticketing:ticket_items' conference.conference_slug %}"}}>
-        {{ conference.conference_name }}
-      </a>&nbsp;
-      {% endif %}
-    </td>
-    {% endfor %}
-  </tr>
-</table>
+<div class="conf_list">
+   {% include "conference_list.tmpl" %}
+</div>
 
 <table class="ticketing">
   <tr class="header ticketing">
