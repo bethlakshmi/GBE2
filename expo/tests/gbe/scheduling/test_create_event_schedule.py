@@ -353,9 +353,9 @@ class TestCreateEventSchedule(TestCase):
             response,
             'warning',
             'Warning',
-            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' +
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' % (
+                overcommitter.contact.display_name) +
             'Conflicting booking: %s, Start Time: %s' % (
-                overcommitter.contact.display_name,
                 form_data['event-e_title'],
                 'Fri, Feb 5 12:00 PM')
             )
