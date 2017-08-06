@@ -99,8 +99,8 @@ def get_events_display_info(event_type='Class'):
 
         else:
             eventinfo['create'] = reverse(
-                'create_event',
-                urlconf='scheduler.urls',
+                'create_event_schedule',
+                urlconf='gbe.scheduling.urls',
                 args=[event_type,
                       entry['eventitem'].eventitem_id])
             eventinfo['delete'] = reverse(
@@ -114,6 +114,7 @@ def get_events_display_info(event_type='Class'):
     return eventslist
 
 
+# Deprecate when scheduling refactor is done
 def set_single_role(event, data, roles=None):
     if not roles:
         roles = [('teacher', 'Teacher'),
@@ -126,6 +127,7 @@ def set_single_role(event, data, roles=None):
     event.save()
 
 
+# Deprecate when scheduling refactor is done
 def set_multi_role(event, data, roles=None):
     if not roles:
         roles = [('panelists', 'Panelist')]

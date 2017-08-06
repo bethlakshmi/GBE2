@@ -25,7 +25,6 @@ from gbetext import (
     space_options,
     yesno_options,
 )
-from gbe_forms_text import calendar_types
 from ticketing.functions import get_tickets
 
 
@@ -117,10 +116,6 @@ class Class(Biddable, Event):
         return [self.teacher]
 
     @property
-    def calendar_type(self):
-        return calendar_types[1]
-
-    @property
     def bids_to_review(self):
         return type(self).objects.filter(
             visible_bid_query,
@@ -162,6 +157,8 @@ class Class(Biddable, Event):
                 acceptance_states[self.accepted][1])
 
     def __str__(self):
+        if self.e_title and len(self.e_title) > 0:
+            return self.e_title
         return self.b_title
 
     # tickets that apply to class are:

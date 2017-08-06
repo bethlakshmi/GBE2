@@ -54,6 +54,10 @@ class Performer (WorkerItem):
         return self.contact.user_object.is_active
 
     @property
+    def user_object(self):
+        return self.contact.user_object
+
+    @property
     def contact_email(self):
         return self.contact.user_object.email
 

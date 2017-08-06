@@ -91,7 +91,8 @@ class TestEditTicketItem(TestCase):
         conf_slug = self.ticketitem.bpt_event.conference.conference_slug
 
         nt.assert_equal(response.status_code, 302)
-        assert '/ticketing/ticket_items/%s' % conf_slug in location(response)
+        assert '/ticketing/ticket_items?conference=%s' % conf_slug in location(
+            response)
 
     def test_ticket_add_post_form_all_good(self):
         '''
@@ -106,7 +107,7 @@ class TestEditTicketItem(TestCase):
 
         nt.assert_equal(response.status_code, 302)
         nt.assert_equal(location(response),
-                        '/ticketing/ticket_items/%s' % conf_slug)
+                        '/ticketing/ticket_items?conference=%s' % conf_slug)
 
     def test_ticket_edit_post_form_bad_bptevent(self):
         '''
@@ -141,7 +142,8 @@ class TestEditTicketItem(TestCase):
             delete_url,
             data=delete_ticket)
         nt.assert_equal(response.status_code, 302)
-        assert '/ticketing/ticket_items/%s' % conf_slug in location(response)
+        assert '/ticketing/ticket_items?conference=%s' % conf_slug in location(
+            response)
 
     def test_ticket_form_delete_missing_item(self):
         '''

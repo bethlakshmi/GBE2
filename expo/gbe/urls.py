@@ -1,7 +1,6 @@
 from django.conf.urls import (
     patterns,
     url,
-    include,
 )
 from django.contrib.auth.views import *
 
@@ -15,7 +14,6 @@ from gbe.views import (
     ConferenceVolunteerView,
     CostumeChangeStateView,
     CreateComboView,
-    CreateEventView,
     DeleteProfileView,
     EditActTechInfoView,
     EditPersonaView,
@@ -230,10 +228,6 @@ urlpatterns = patterns(
     #  miscellaneous URLs
     url(r'^fashion_faire/$',
         FashionFaireView, name='fashion_faire'),
-
-    #  create and schedule events
-    url(r'^create_event/(?P<event_type>[-\w]+)/?$',
-        CreateEventView, name='create_event'),
 
     #  site utility stuff
     url(r'^login/?$',
