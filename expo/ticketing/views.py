@@ -54,17 +54,17 @@ def ticket_items(request, conference_choice=None):
     if 'Import' in request.POST:
         import_ticket_items()
 
+    conference_choice = request.GET.get('conference', None)
+
     if conference_choice:
         events = BrownPaperEvents.objects.filter(
             conference__conference_slug=conference_choice)
     else:
         events = BrownPaperEvents.objects.exclude(
             conference__status='completed')
-
-    conferences = Conference.objects.all()
     context = {'events': events,
-               'conferences': conferences,
-               'conference_choice':  conference_choice}
+               'conference_slugs': conference_slugs(),
+               'conf_slug': conference_choice}
     return render(request, r'ticketing/ticket_items.tmpl', context)
 
 
@@ -140,10 +140,11 @@ def ticket_item_edit(request, item_id=None):
             if (not trans_exists):
                 item.delete()
                 return HttpResponseRedirect(
-                    reverse(
-                        'ticket_items',
-                        urlconf='ticketing.urls',
-                        args=[str(item.bpt_event.conference.conference_slug)]))
+                    '%s?conference=%s' % (
+                        reverse(
+                            'ticket_items',
+                            urlconf='ticketing.urls'),
+                        str(item.bpt_event.conference.conference_slug)))
             else:
                 error = 'Cannot remove Ticket Item: %s \
                         It is used in a Transaction.' % item.ticket_id
@@ -158,10 +159,11 @@ def ticket_item_edit(request, item_id=None):
                 item = form.save(str(request.user))
                 form.save_m2m()
                 return HttpResponseRedirect(
-                    reverse(
-                        'ticket_items',
-                        urlconf='ticketing.urls',
-                        args=[str(item.bpt_event.conference.conference_slug)]))
+                    '%s?conference=%s' % (
+                        reverse(
+                            'ticket_items',
+                            urlconf='ticketing.urls'),
+                        str(item.bpt_event.conference.conference_slug)))
     else:
         if (item_id is not None):
             item = get_object_or_404(TicketItem, id=item_id)
