@@ -103,7 +103,7 @@ def event_list(request, event_type=''):
                   {'events': events,
                    'header': header,
                    'create_url': reverse('create_event',
-                                         urlconf='gbe.urls',
+                                         urlconf='gbe.scheduling.urls',
                                          args=[event_type])})
 
 

@@ -1,6 +1,7 @@
 from django.forms import (
     BooleanField,
     ChoiceField,
+    IntegerField,
     HiddenInput,
     ModelChoiceField,
     ModelForm,
@@ -18,10 +19,9 @@ from gbe.forms.common_queries import visible_personas
 class ClassScheduleForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    accepted = ChoiceField(
-        choices=acceptance_states,
+    accepted = IntegerField(
         initial=3,
-        help_text=acceptance_note)
+        widget=HiddenInput)
     teacher = ModelChoiceField(queryset=visible_personas)
     submitted = BooleanField(widget=HiddenInput, initial=True)
 

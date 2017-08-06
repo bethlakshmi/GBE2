@@ -12,6 +12,7 @@ from gbe.models import (
     Conference,
     Room
 )
+from gbetext import calendar_for_event
 
 
 class Event(EventItem):
@@ -70,7 +71,7 @@ class Event(EventItem):
 
     @property
     def calendar_type(self):
-        return calendar_types[0]
+        return calendar_for_event[self.__class__.__name__]
 
     @property
     def get_tickets(self):
