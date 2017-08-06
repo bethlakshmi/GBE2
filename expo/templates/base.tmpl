@@ -58,6 +58,9 @@
             <ul class="nav navbar-nav">
 	      {% show_menu 0 100 100 100 "menu.tmpl" %}
             </ul>
+	    {% if not user.is_authenticated %}
+	    {% include "registration/login_popover.tmpl" %}
+	    {% endif %}
             <ul class="nav navbar-nav navbar-right">
                 {% language_chooser "menu/language_chooser.html" %}
             </ul>
