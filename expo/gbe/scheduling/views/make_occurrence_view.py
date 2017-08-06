@@ -79,7 +79,14 @@ class MakeOccurrenceView(View):
         self.groundwork(request, args, kwargs)
         scheduling_info = {}
         initial_form_info = {}
+
+        context = {'eventitem': self.eventitem_view,
+                   'user_id': request.user.id,
+                   'event_type': self.event_type,
+                   'scheduling_info': get_scheduling_info(self.item),
+                   }
         if self.occurrence:
+            context['event_id'] = self.occurrence.pk
             initial_form_info['day'] = get_conference_day(
                 conference=self.occurrence.eventitem.get_conference(),
                 date=self.occurrence.starttime.date())
@@ -103,18 +110,11 @@ class MakeOccurrenceView(View):
                 initial_form_info['duration'] = Duration(
                     self.item.duration.days,
                     self.item.duration.seconds)
-        scheduling_info = get_scheduling_info(self.item)
-        form = ScheduleSelectionForm(
+
+        context['form'] = ScheduleSelectionForm(
             prefix='event',
             instance=self.item,
             initial=initial_form_info)
-
-        context = {'eventitem': self.eventitem_view,
-                   'form': form,
-                   'user_id': request.user.id,
-                   'event_type': self.event_type,
-                   'scheduling_info': scheduling_info}
-
 
         if validate_perms(request,
                           ('Volunteer Coordinator',), require=False
