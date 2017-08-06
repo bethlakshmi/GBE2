@@ -2,7 +2,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.core.validators import RegexValidator
-from scheduler.idd.data_transfer import Warning
+from scheduler.data_transfer import (
+    Person,
+    Warning
+)
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
@@ -548,6 +551,7 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
+    # DEPRECATE - when scheduling refactored
     def roles(self, roles=['Teacher',
                            'Panelist',
                            'Moderator',
@@ -567,7 +571,7 @@ class EventItem (models.Model):
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
-
+    
     def set_duration(self, duration):
         child = self.child()
         child.duration = duration
@@ -675,6 +679,18 @@ class Event(Schedulable):
                     allocation.save()
         return True
 
+    # New - from refactoring
+    @property
+    def people(self):
+        people = []
+        for booking in ResourceAllocation.objects.filter(event=self):
+            if booking.resource.as_subtype.__class__.__name__ == "Worker":
+                people += [Person(
+                    booking_id=booking.pk,
+                    worker=booking.resource.worker)]
+        return people
+
+    # New - from refactoring
     def allocate_person(self, person):
         '''
         allocated worker for the new model - right now, focused on create
@@ -828,6 +844,7 @@ class Event(Schedulable):
                 return "%d acts" % acts
         return 0
 
+    # DEPRECATE - when scheduling is refactored
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
@@ -863,6 +880,7 @@ class Event(Schedulable):
             acts = [act for act in acts if act.accepted == status]
         return acts
 
+    # DEPRECATE - when scheduling is refactored
     def get_direct_workers(self, worker_role=None):
         '''
         Returns workers allocated directly to an Event -

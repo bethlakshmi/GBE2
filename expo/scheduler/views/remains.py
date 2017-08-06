@@ -725,9 +725,6 @@ def edit_event(request, scheduler_event_id, event_type='class'):
                 'form': event_form,
                 'event_type': item.event_type_name})
 
-    else:
-        return edit_event_display(request, item)
-
 
 def get_volunteer_info(opp, errorcontext=None):
     volunteer_set = []

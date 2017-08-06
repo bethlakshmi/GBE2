@@ -7,7 +7,7 @@ from scheduler.models import (
 from scheduler.data_transfer import OccurrenceResponse
 
 
-def create_occurrence(event_id,
+def edit_occurrence(event_id,
                       start_time,
                       max_volunteer=0,
                       people=[],

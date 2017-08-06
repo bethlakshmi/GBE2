@@ -83,9 +83,10 @@ def get_events_display_info(event_type='Class'):
                                        args=[entry['eventitem'].eventitem_id])}
 
         if entry['schedule_event']:
-            eventinfo['edit'] = reverse('edit_event',
-                                        urlconf='scheduler.urls',
+            eventinfo['edit'] = reverse('edit_event_schedule',
+                                        urlconf='gbe.scheduling.urls',
                                         args=[event_type,
+                                              entry['eventitem'].eventitem_id,
                                               entry['schedule_event'].id])
             eventinfo['location'] = entry['schedule_event'].location
             eventinfo['datetime'] = date_format(
