@@ -2,6 +2,7 @@ from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.forms import HiddenInput
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -37,11 +38,16 @@ from gbe.models import (
     Room,
 )
 from gbe.functions import (
+    eligible_volunteers,
     get_conference_day,
     validate_perms
 )
 from gbe.duration import Duration
 from gbe.views.class_display_functions import get_scheduling_info
+from scheduler.forms import WorkerAllocationForm
+from gbe_forms_text import (
+    rank_interest_options,
+)
 
 
 class MakeOccurrenceView(View):
@@ -73,6 +79,33 @@ class MakeOccurrenceView(View):
                 raise Exception("broken!")
             else:
                 self.occurrence = result.occurrence
+
+    def get_volunteer_info(self, opp, errorcontext=None):
+        volunteer_set = []
+        for volunteer in eligible_volunteers(
+                opp.start_time,
+                opp.end_time,
+                self.item.e_conference):
+            assign_form = WorkerAllocationForm(
+                initial={'role': 'Volunteer',
+                         'worker': volunteer.profile,
+                         'alloc_id': -1})
+            assign_form.fields['worker'].widget = HiddenInput()
+            assign_form.fields['label'].widget = HiddenInput()
+            volunteer_set += [{
+                'display_name': volunteer.profile.display_name,
+                'interest': rank_interest_options[
+                    volunteer.volunteerinterest_set.get(
+                        interest=opp.as_subtype.volunteer_type).rank],
+                'available': volunteer.check_available(
+                    opp.start_time,
+                    opp.end_time),
+                'conflicts': volunteer.profile.get_conflicts(opp),
+                'id': volunteer.pk,
+                'assign_form': assign_form
+            }]
+
+        return {'eligible_volunteers': volunteer_set}
 
     @never_cache
     def get(self, request, *args, **kwargs):
@@ -122,7 +155,7 @@ class MakeOccurrenceView(View):
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
                 context.update(get_worker_allocation_forms(self.occurrence))
-                context.update(get_volunteer_info(self.occurrence))
+                context.update(self.get_volunteer_info(self.occurrence))
             else:
                 context.update(get_manage_opportunity_forms(self.occurrence,
                                                             initial_form_info))
