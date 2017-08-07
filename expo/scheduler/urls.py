@@ -43,8 +43,6 @@ urlpatterns = patterns(
         views.edit_event, name='edit_event'),
     url(r'^scheduler/delete_schedule/(?P<scheduler_event_id>\d+)/?$',
         views.delete_schedule, name='delete_schedule'),
-    url(r'^scheduler/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
-        views.add_event, name='create_event'),
     url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/?$',
         views.delete_event, name='delete_event'),

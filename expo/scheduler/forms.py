@@ -1,11 +1,7 @@
 from scheduler.models import *
 from django import forms
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, logout
 from datetime import datetime, time
 from django.utils.timezone import utc
-from django.core.exceptions import ObjectDoesNotExist
 from gbe_forms_text import *
 from gbe.expoformfields import DurationFormField
 from gbe.functions import get_current_conference
@@ -15,13 +11,7 @@ from gbe.forms.common_queries import (
 )
 import pytz
 from gbe.models import Show
-
-time_start = 8 * 60
-time_stop = 24 * 60
-
-conference_times = [(time(mins/60, mins % 60),
-                     date_format(time(mins/60, mins % 60), "TIME_FORMAT"))
-                    for mins in range(time_start, time_stop, 30)]
+from gbe.scheduling.forms.schedule_selection_form import conference_times
 
 
 class ActScheduleForm(forms.Form):
@@ -61,6 +51,18 @@ class WorkerAllocationForm (forms.Form):
     alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
 
+class EventItemScheduleForm(forms.ModelForm):
+    '''
+    When we save an Event, we need to save changes to its duration
+    '''
+    duration = DurationFormField()
+
+    class Meta:
+        model = EventItem
+        fields = '__all__'
+
+
+# DEPRECATED - remove after refactor done
 class EventScheduleForm(forms.ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -118,14 +120,3 @@ class EventScheduleForm(forms.ModelForm):
         if commit:
             self.save()
         return event
-
-
-class EventItemScheduleForm(forms.ModelForm):
-    '''
-    When we save an Event, we need to save changes to its duration
-    '''
-    duration = DurationFormField()
-
-    class Meta:
-        model = EventItem
-        fields = '__all__'

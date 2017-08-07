@@ -249,11 +249,11 @@ class TestListTickets(TestCase):
         ticket = TicketItemFactory()
         url = reverse(
             self.view_name,
-            urlconf='ticketing.urls',
-            args=[str(
-                ticket.bpt_event.conference.conference_slug)])
+            urlconf='ticketing.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.get(
+            url,
+            data={"conference": ticket.bpt_event.conference.conference_slug})
         nt.assert_equal(response.status_code, 200)
 
     def test_ticket_active_state(self):
@@ -271,11 +271,10 @@ class TestListTickets(TestCase):
 
         url = reverse(
             self.view_name,
-            urlconf='ticketing.urls',
-            args=[str(
-                active_ticket.bpt_event.conference.conference_slug)])
+            urlconf='ticketing.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(url)
+        response = self.client.get(url, data={
+            "conference": active_ticket.bpt_event.conference.conference_slug})
 
         nt.assert_equal(response.status_code, 200)
         assert 'Visible' in response.content

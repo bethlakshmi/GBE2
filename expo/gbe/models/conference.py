@@ -37,7 +37,7 @@ class Conference(Model):
 
     @classmethod
     def all_slugs(cls):
-        return cls.objects.order_by('-accepting_bids').values_list(
+        return cls.objects.order_by('-conference_slug').values_list(
             'conference_slug', flat=True)
 
     def windows(self):

@@ -625,9 +625,6 @@ panel_participation_types = [('Moderator', 'Moderator'),
 
 class_participation_types = [('Teacher', 'Teacher')]
 
-calendar_types = {0: 'General',
-                  1: 'Conference'}
-
 list_titles = {
     'class': '''Class Descriptions at GBE''',
     'panel': '''Panel Descriptions at GBE''',
@@ -709,11 +706,22 @@ list_text = {
 acceptance_note = '''Only accepted classes will show up in scheduling and on \
         the website.'''
 
+# stop gap for refactoring - BB 4/28/2017
 scheduling_help_texts = {
     'description': "Note, this will change the description for all bookings \
         of this event",
     'title': "Note, this will change the title for all bookings of this event",
+    'e_description': "Note, this will change the description for all bookings \
+        of this event",
+    'e_title': "Note, this will change the title for all bookings of this \
+        event",
     'duration': "Enter duration as HH:MM:SS"
+}
+
+scheduling_labels = {
+    'e_title': 'Title',
+    'e_description': 'Description'
+
 }
 
 costume_proposal_form_text = '''<p>Thanks for your interest in our costume \

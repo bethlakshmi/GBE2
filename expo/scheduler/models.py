@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.core.validators import RegexValidator
+from scheduler.idd.data_transfer import Warning
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
@@ -659,6 +660,7 @@ class Event(Schedulable):
         '''
         if isinstance(location, LocationItem):
             location = location.get_resource()
+
         if self.location == location.item:
             pass   # already set
         elif self.location is None:
@@ -671,6 +673,47 @@ class Event(Schedulable):
                 if allocation.resource.item in locations:
                     allocation.resource = location
                     allocation.save()
+        return True
+
+    def allocate_person(self, person):
+        '''
+        allocated worker for the new model - right now, focused on create
+        uses the Person from the data_transfer objects.
+        '''
+        warnings = []
+        time_format = DATETIME_FORMAT
+
+        worker = None
+        if person.public_id:
+            item = WorkerItem.objects.get(pk=person.public_id)
+            worker = Worker(_item=item, role=person.role)
+
+        else:
+            worker = Worker(_item=self.user.profile, role=person.role)
+        worker.save()
+
+        for conflict in worker.workeritem.get_conflicts(self):
+            warnings += [
+                Warning(
+                    code="SCHEDULE_CONFLICT",
+                    user=person.user,
+                    occurrence=conflict)]
+        if person.booking_id:
+            allocation = ResourceAllocation.objects.get(
+                id=person.booking_id)
+            allocation.resource = worker
+        else:
+            allocation = ResourceAllocation(event=self,
+                                            resource=worker)
+        allocation.save()
+        if self.extra_volunteers() > 0:
+            warnings += [Warning(
+                code="OCCURRENCE_OVERBOOKED",
+                details="Over booked by %s volunteers" % (
+                    self.extravolunteers()))]
+        if person.label:
+            allocation.set_label(person.label)
+        return warnings
 
     def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''
@@ -685,6 +728,8 @@ class Event(Schedulable):
            - conflicts found with the worker item's existing schedule
            - any case where the event is already booked with the maximum
              number of volunteers
+
+        DEPRECATE - when schedule refactor is complete.
         '''
         warnings = []
         time_format = DATETIME_FORMAT
@@ -1019,6 +1064,11 @@ class Event(Schedulable):
             is_conflict = True
         return is_conflict
 
+    def add_label(self, label):
+        label = EventLabel(text=label, event=self)
+        label.save()
+        return label
+
 
 class ResourceAllocation(Schedulable):
     '''
@@ -1080,6 +1130,17 @@ class Label (models.Model):
     '''
     text = models.TextField(default='')
     allocation = models.OneToOneField(ResourceAllocation)
+
+    def __str__(self):
+        return self.text
+
+
+class EventLabel (models.Model):
+    '''
+    A decorator allowing free-entry "tags" on allocations
+    '''
+    text = models.TextField(default='')
+    event = models.ForeignKey(Event)
 
     def __str__(self):
         return self.text

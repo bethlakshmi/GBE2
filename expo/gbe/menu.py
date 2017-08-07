@@ -35,15 +35,6 @@ class LoginMenu(Menu):
         nodes.append(NavigationNode(_("Logout"),
                                     reverse('gbe:logout'), 4, 1,
                                     attr={'visible_for_anonymous': False}))
-        nodes.append(NavigationNode(_("Join Today"), "", 4,
-                                    attr={'visible_for_authenticated': False}))
-        nodes.append(NavigationNode(_("Register"),
-                                    reverse('gbe:register'), 5, 4,
-                                    attr={'visible_for_authenticated': False}))
-        nodes.append(NavigationNode(_("Login"),
-                                    reverse('gbe:login'), 6, 4,
-                                    attr={'visible_for_authenticated': False}))
-
         return nodes
 
 '''

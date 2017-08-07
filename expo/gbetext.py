@@ -311,6 +311,22 @@ event_labels = {'type': 'Type',
 
 overlap_location_text = ' (alt)'
 
+
+calendar_type = {0: 'General',
+                 1: 'Conference',
+                 2: 'Volunteer'}
+
+calendar_for_event = {
+    'Special': "General",
+    'Volunteer': "Volunteer",
+    'Master': "General",
+    'Drop-In': "General",
+    'Staff Area': None,
+    'Rehearsal Slot': None,
+    'Class': 'Conference',
+    'Show': 'General'
+}
+
 default_class_submit_msg = "Your class was successfully submitted"
 default_class_draft_msg = "Your draft was successfully saved"
 default_act_submit_msg = "Your act was successfully submitted"
