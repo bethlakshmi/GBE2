@@ -201,6 +201,10 @@ class MakeOccurrenceView(View):
                     people=people,
                     locations=[room],
                     labels=labels)
+                success_url = reverse(
+                    'event_schedule',
+                    urlconf='scheduler.urls',
+                    args=[self.event_type])
             else:
                 response = update_occurrence(
                     self.occurrence.pk,
@@ -208,15 +212,18 @@ class MakeOccurrenceView(View):
                     max_volunteer,
                     people=people,
                     locations=[room])
+                success_url = reverse('edit_event_schedule',
+                                      urlconf='gbe.scheduling.urls',
+                                      args=[self.event_type,
+                                            self.item.eventitem_id,
+                                            self.occurrence.pk])
             if response.occurrence:
                 event_form.save()
             show_scheduling_occurrence_status(
                 request,
                 response,
                 self.__class__.__name__)
-            return HttpResponseRedirect(reverse('event_schedule',
-                                                urlconf='scheduler.urls',
-                                                args=[self.event_type]))
+            return HttpResponseRedirect(success_url)
         else:
             return render(
                 request,

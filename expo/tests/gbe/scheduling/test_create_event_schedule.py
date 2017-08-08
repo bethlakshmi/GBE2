@@ -44,7 +44,7 @@ from datetime import (
 from mock import patch, Mock
 
 
-class TestCreateEventSchedule(TestCase):
+class TestCreateOccurrence(TestCase):
     view_name = 'create_event_schedule'
 
     def setUp(self):
