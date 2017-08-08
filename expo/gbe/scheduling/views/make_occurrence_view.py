@@ -75,9 +75,9 @@ class MakeOccurrenceView(View):
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
         if "occurrence_id" in kwargs:
-            result = get_occurrence(kwargs['occurrence_id'])
+            result = get_occurrence(int(kwargs['occurrence_id']))
             if result.errors and len(result.errors) > 0:
-                raise Exception("broken!")
+                raise Http404
             else:
                 self.occurrence = result.occurrence
 
