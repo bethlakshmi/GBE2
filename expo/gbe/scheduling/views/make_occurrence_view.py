@@ -158,6 +158,7 @@ class MakeOccurrenceView(View):
                 context.update(get_worker_allocation_forms(self.occurrence))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
+                initial_form_info['duration'] = self.item.duration
                 context.update(get_manage_opportunity_forms(self.occurrence,
                                                             initial_form_info))
                 if len(context['actionform']) > 0 and self.request.GET.get(
