@@ -480,19 +480,23 @@ def manage_volunteer_opportunities(request, event_id):
         changed_event = opp_event
 
     elif 'allocate' in request.POST.keys():
-        return HttpResponseRedirect(reverse('edit_event',
-                                            urlconf='scheduler.urls',
+        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
+        return HttpResponseRedirect(reverse('edit_event_schedule',
+                                            urlconf='gbe.scheduling.urls',
                                     args=['GenericEvent',
-                                            request.POST['opp_sched_id']]))
+                                          opp_event.eventitem.pk,
+                                          request.POST['opp_sched_id']]))
     if changed_event:
         return HttpResponseRedirect("%s?changed_id=%d" % (
-            reverse('edit_event', urlconf='scheduler.urls', args=[
-                event.event_type_name, event_id]),
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[event.event_type_name, event.eventitem.pk, event_id]
+                    ),
             changed_event.pk))
     else:
         return HttpResponseRedirect(reverse(
-            'edit_event', urlconf='scheduler.urls', args=[
-                event.event_type_name, event_id]))
+            'edit_event_schedule', urlconf='gbe.scheduling.urls', args=[
+                event.event_type_name, event.eventitem.pk, event_id]))
 
 
 @login_required
