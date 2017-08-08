@@ -25,15 +25,15 @@ def update_occurrence(occurrence_id,
     if start_time or max_volunteer:
         response.occurrence.save()
 
-    if locations:
+    if not locations == None:
         response.occurrence.set_locations(locations)
 
-    if people:
+    if not people == None:
         Worker.objects.filter(allocations__event=response.occurrence).delete()
         for person in people:
             response.warnings += response.occurrence.allocate_person(person)
 
-    if labels:
+    if not labels == None:
         if EventLabel.objects.filter(event=response.occurrence).exists():
             EventLabel.objects.filter(event=response.occurrence).delete()
         for label in labels:
