@@ -150,7 +150,7 @@ class TestEditOccurrence(TestCase):
                       response.content)
         self.assertIn("New Description",
                       response.content)
-        self.assertIn('<input id="id_event-max_volunteer" min="0" ' +
+        self.assertIn('<input id="id_event-max_volunteer" ' +
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
         self.assertIn('<option value="12:00:00" selected="selected">',
