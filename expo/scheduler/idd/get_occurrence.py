@@ -13,5 +13,7 @@ def get_occurrence(occurrence_id):
             occurrence=Event.objects.get(pk=occurrence_id))
     except Event.DoesNotExist:
         response = OccurrenceResponse(
-            errors=[Error(code="OCCURENCE_NOT_FOUND"),])
+            errors=[Error(
+                code="OCCURENCE_NOT_FOUND",
+                details="Occurrence id %d not found" % occurrence_id),])
     return response

@@ -20,15 +20,11 @@ def create_occurrence(event_id,
         starttime=start_time,
         max_volunteer=max_volunteer)
     response.occurrence.save()
-    for l in locations:
-        success = response.occurrence.set_location(l)
-        if not success:
-            response.add_error(
-                'LOCATION_SET_FAILURE',
-                'Could not find %s' % str(l))
+    if len(locations) > 0:
+        response.occurrence.set_locations(locations)
 
     for person in people:
-        response.warnings = response.occurrence.allocate_person(person)
+        response.warnings += response.occurrence.allocate_person(person)
 
     for label in labels:
         response.occurrence.add_label(label)

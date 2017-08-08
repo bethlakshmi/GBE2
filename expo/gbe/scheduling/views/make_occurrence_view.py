@@ -15,8 +15,8 @@ from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import ScheduleSelectionForm
 from scheduler.idd import (
     create_occurrence,
-    edit_occurrence,
-    get_occurrence
+    get_occurrence,
+    update_occurrence,
 )
 from scheduler.views.functions import (
     get_event_display_info,
@@ -63,6 +63,7 @@ class MakeOccurrenceView(View):
         'Moderator': 'Performer',
         'Teacher': 'Performer',
     }
+    occurrence = None
 
     def groundwork(self, request, args, kwargs):
         eventitem_id = kwargs['eventitem_id']
@@ -172,6 +173,7 @@ class MakeOccurrenceView(View):
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
+
         event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
@@ -187,16 +189,24 @@ class MakeOccurrenceView(View):
             if data['max_volunteer']:
                 max_volunteer = data['max_volunteer']
             start_time = get_start_time(data)
-            labels = [event.e_conference.conference_slug]
-            if event.calendar_type:
-                labels += [event.calendar_type]
-            response = create_occurrence(
-                event.eventitem_id,
-                start_time,
-                max_volunteer,
-                people=people,
-                locations=[room],
-                labels=labels)
+            if not self.occurrence:
+                labels = [event.e_conference.conference_slug]
+                if event.calendar_type:
+                    labels += [event.calendar_type]
+                response = create_occurrence(
+                    event.eventitem_id,
+                    start_time,
+                    max_volunteer,
+                    people=people,
+                    locations=[room],
+                    labels=labels)
+            else:
+                response = update_occurrence(
+                    self.occurrence.pk,
+                    start_time,
+                    max_volunteer,
+                    people=people,
+                    locations=[room])
             if response.occurrence:
                 event_form.save()
             show_scheduling_occurrence_status(

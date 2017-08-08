@@ -658,6 +658,7 @@ class Event(Schedulable):
         except:
             return None   # need to do some defensive programming here
 
+    # DEPRECATE - when scheduling refactor is done
     def set_location(self, location):
         '''
         location is a LocationItem or a Location resource
@@ -678,6 +679,19 @@ class Event(Schedulable):
                     allocation.resource = location
                     allocation.save()
         return True
+
+    # New - fits scheduling API refactor
+    def set_locations(self, locations):
+        '''
+        Takes a LIST of locations, removes all existing location settings
+        and replaces them with the given list.  Locations are expected to be
+        location items
+        '''
+        if Location.objects.filter(allocations__event=self).exists():
+            Location.objects.filter(allocations__event=self).delete()
+        for location in locations:
+            ra = ResourceAllocation(resource=location.get_resource(), event=self)
+            ra.save()
 
     # New - from refactoring
     @property
@@ -1082,6 +1096,7 @@ class Event(Schedulable):
             is_conflict = True
         return is_conflict
 
+    # New with Scheduler API
     def add_label(self, label):
         label = EventLabel(text=label, event=self)
         label.save()
