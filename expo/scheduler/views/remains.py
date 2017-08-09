@@ -411,9 +411,10 @@ def manage_volunteer_opportunities(request, event_id):
     changed_event = None
     if request.method != 'POST':
         # TO DO: review this
-        return HttpResponseRedirect(reverse('edit_event',
-                                    urlconf='scheduler.urls',
+        return HttpResponseRedirect(reverse('edit_event_schedule',
+                                    urlconf='gbe.scheduling.urls',
                                     args=[event.event_type_name,
+                                          event.eventitem.eventitem_id,
                                           event_id]))
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():

@@ -19,7 +19,7 @@ from tests.contexts import (
 from gbe.models import AvailableInterest
 
 
-class TestEventList(TestCase):
+class TestManageVolunteerOpportunity(TestCase):
     view_name = 'manage_opps'
 
     def setUp(self):
@@ -104,10 +104,13 @@ class TestEventList(TestCase):
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
         response = self.client.get(url, follow=True)
-        assert_redirects(response, reverse('edit_event',
-                                           urlconf='scheduler.urls',
-                                           args=['GenericEvent',
-                                                 context.sched_event.pk]))
+        assert_redirects(
+            response,
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
+                          context.sched_event.pk]))
         assert "Volunteer Management" in response.content
 
     def test_good_user_get_w_interest(self):
@@ -157,9 +160,10 @@ class TestEventList(TestCase):
                 response,
                 opp.child_event.eventitem.child().volunteer_type)
             assert_redirects(response, "%s?changed_id=%d" % (
-                reverse('edit_event',
-                        urlconf='scheduler.urls',
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
                         args=['GenericEvent',
+                              context.sched_event.eventitem.eventitem_id,
                               context.sched_event.pk]),
                 opp.child_event.pk))
 
@@ -212,9 +216,10 @@ class TestEventList(TestCase):
                 response.content)
             if opp.child_event != old:
                 assert_redirects(response, "%s?changed_id=%d" % (
-                    reverse('edit_event',
-                            urlconf='scheduler.urls',
+                    reverse('edit_event_schedule',
+                            urlconf='gbe.scheduling.urls',
                             args=['GenericEvent',
+                                  context.sched_event.eventitem.eventitem_id,
                                   context.sched_event.pk]),
                     opp.child_event.pk))
 
@@ -232,9 +237,10 @@ class TestEventList(TestCase):
             data=self.get_basic_action_data(context, vol_opp, 'edit'),
             follow=True)
         assert_redirects(response, "%s?changed_id=%d" % (
-            reverse('edit_event',
-                    urlconf='scheduler.urls',
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
                     args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
                           context.sched_event.pk]),
             vol_opp.pk))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
