@@ -18,7 +18,6 @@ from remains import (
     contact_by_role,
     set_single_role,
     set_multi_role,
-    edit_event,
     edit_event_display,
     view_list,
     calendar_view,

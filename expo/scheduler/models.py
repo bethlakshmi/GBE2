@@ -533,12 +533,6 @@ class EventItem (models.Model):
     def get_conference(self):
         return self.child().e_conference
 
-    def day_options(self):
-        return self.get_conference().conferenceday_set.all()
-
-    def volunteer_options(self):
-        return VolunteerWindow.objects.filter(day__in=self.day_options())
-
     @property
     def bios(self):
         people = WorkerItem.objects.filter(
@@ -571,11 +565,6 @@ class EventItem (models.Model):
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
-    
-    def set_duration(self, duration):
-        child = self.child()
-        child.duration = duration
-        child.save(update_fields=('duration',))
 
     def remove(self):
         Event.objects.filter(eventitem=self).delete()

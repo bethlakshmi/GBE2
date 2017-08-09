@@ -685,52 +685,6 @@ def contact_by_role(request, participant_type):
     return response
 
 
-@login_required
-@never_cache
-def edit_event(request, scheduler_event_id, event_type='class'):
-    '''
-    Add an item to the conference schedule and/or set its schedule details
-    (start time, location, duration, or allocations)
-    Takes a scheduler.Event id
-    '''
-    profile = validate_perms(request, ('Scheduling Mavens',))
-
-    item = get_object_or_404(Event, id=scheduler_event_id)
-
-    if request.method == 'POST':
-        event_form = EventScheduleForm(request.POST,
-                                       instance=item,
-                                       prefix='event')
-        if event_form.is_valid():
-            s_event = event_form.save(commit=False)
-            data = event_form.cleaned_data
-
-            if data['duration']:
-                s_event.set_duration(data['duration'])
-            l = LocationItem.objects.get_subclass(
-                room__name=data['location'])
-            s_event.save()
-            s_event.set_location(l)
-            set_single_role(s_event, data)
-            set_multi_role(s_event, data)
-            if data['description'] or data['title']:
-                c_event = s_event.as_subtype
-                c_event.e_description = data['description']
-                c_event.e_title = data['title']
-                c_event.save()
-            return HttpResponseRedirect(reverse('edit_event',
-                                                urlconf='scheduler.urls',
-                                                args=[event_type,
-                                                      scheduler_event_id]))
-        else:
-            template = 'scheduler/event_schedule.tmpl'
-            return render(request, template, {
-                'eventitem': get_event_display_info(
-                    item.eventitem.eventitem_id),
-                'form': event_form,
-                'event_type': item.event_type_name})
-
-
 def get_volunteer_info(opp, errorcontext=None):
     volunteer_set = []
     for volunteer in eligible_volunteers(
@@ -765,9 +719,10 @@ def edit_event_display(request, item, errorcontext=None):
     template = 'scheduler/event_schedule.tmpl'
     context = {'user_id': request.user.id,
                'event_id': item.id,
-               'event_edit_url': reverse('edit_event',
-                                         urlconf='scheduler.urls',
+               'event_edit_url': reverse('edit_event_schedule',
+                                         urlconf='gbe.scheduling.urls',
                                          args=[item.event_type_name,
+                                               item.eventitem.eventitem_id,
                                                item.id])}
     context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
 
