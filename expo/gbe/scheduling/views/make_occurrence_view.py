@@ -77,9 +77,18 @@ class MakeOccurrenceView(View):
         if "occurrence_id" in kwargs:
             result = get_occurrence(int(kwargs['occurrence_id']))
             if result.errors and len(result.errors) > 0:
-                raise Http404
+                show_scheduling_occurrence_status(
+                    request,
+                    result,
+                    self.__class__.__name__)
+                error_url = reverse(
+                    'event_schedule',
+                    urlconf='scheduler.urls',
+                    args=[self.event_type])
+                return error_url
             else:
                 self.occurrence = result.occurrence
+        return None
 
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
@@ -110,7 +119,9 @@ class MakeOccurrenceView(View):
 
     @never_cache
     def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        url = self.groundwork(request, args, kwargs)
+        if url:
+            return HttpResponseRedirect(url)
         scheduling_info = {}
         initial_form_info = {}
 
@@ -173,8 +184,10 @@ class MakeOccurrenceView(View):
 
     @never_cache
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-
+        url = self.groundwork(request, args, kwargs)
+        if url:
+            return HttpResponseRedirect(url)
+  
         event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,

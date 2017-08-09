@@ -17,6 +17,7 @@ from tests.contexts import (
     StaffAreaContext,
 )
 from gbe.models import AvailableInterest
+from django.utils.formats import date_format
 
 
 class TestManageVolunteerOpportunity(TestCase):
@@ -139,6 +140,10 @@ class TestManageVolunteerOpportunity(TestCase):
         self.assert_volunteer_type_selector(
             response,
             opp.eventitem.volunteer_type)
+        sched_day = date_format(context.sched_event.start_time, "DATE_FORMAT")
+        expected_string = 'selected="selected">%s</option>' % sched_day
+        print response.content
+        self.assertContains(response, expected_string)
 
     def test_create_opportunity(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')

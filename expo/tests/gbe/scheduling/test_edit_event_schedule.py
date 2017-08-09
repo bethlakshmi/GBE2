@@ -110,7 +110,33 @@ class TestEditOccurrence(TestCase):
                             self.context.bid.eventitem_id,
                             self.context.sched_event.pk+1])
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 404)
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+1))
+        self.assertRedirects(
+            response,
+            reverse('event_schedule',
+                    urlconf='scheduler.urls',
+                    args=["Class"])
+        )
+
+    def test_good_user_post_bad_event(self):
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["Class",
+                            self.context.bid.eventitem_id,
+                            self.context.sched_event.pk+1])
+        response = self.client.post(url, follow=True)
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+1))
+        self.assertRedirects(
+            response,
+            reverse('event_schedule',
+                    urlconf='scheduler.urls',
+                    args=["Class"])
+        )
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
