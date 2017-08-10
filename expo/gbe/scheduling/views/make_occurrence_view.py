@@ -74,20 +74,7 @@ class MakeOccurrenceView(View):
         except Event.DoesNotExist:
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
-        if "occurrence_id" in kwargs:
-            result = get_occurrence(int(kwargs['occurrence_id']))
-            if result.errors and len(result.errors) > 0:
-                show_scheduling_occurrence_status(
-                    request,
-                    result,
-                    self.__class__.__name__)
-                error_url = reverse(
-                    'event_schedule',
-                    urlconf='scheduler.urls',
-                    args=[self.event_type])
-                return error_url
-            else:
-                self.occurrence = result.occurrence
+
         return None
 
     def get_volunteer_info(self, opp, errorcontext=None):
@@ -119,11 +106,25 @@ class MakeOccurrenceView(View):
 
     @never_cache
     def get(self, request, *args, **kwargs):
-        url = self.groundwork(request, args, kwargs)
-        if url:
-            return HttpResponseRedirect(url)
+        self.groundwork(request, args, kwargs)
         scheduling_info = {}
         initial_form_info = {}
+
+        if "occurrence_id" in kwargs:
+            result = get_occurrence(int(kwargs['occurrence_id']))
+            if result.errors and len(result.errors) > 0:
+                show_scheduling_occurrence_status(
+                    request,
+                    result,
+                    self.__class__.__name__)
+                error_url = reverse(
+                    'event_schedule',
+                    urlconf='scheduler.urls',
+                    args=[self.event_type])
+                return HttpResponseRedirect(error_url)
+
+            else:
+                self.occurrence = result.occurrence
 
         context = {'eventitem': self.eventitem_view,
                    'user_id': request.user.id,
@@ -184,9 +185,7 @@ class MakeOccurrenceView(View):
 
     @never_cache
     def post(self, request, *args, **kwargs):
-        url = self.groundwork(request, args, kwargs)
-        if url:
-            return HttpResponseRedirect(url)
+        self.groundwork(request, args, kwargs)
   
         event_form = ScheduleSelectionForm(
             request.POST,
@@ -203,7 +202,7 @@ class MakeOccurrenceView(View):
             if data['max_volunteer']:
                 max_volunteer = data['max_volunteer']
             start_time = get_start_time(data)
-            if not self.occurrence:
+            if not "occurrence_id" in kwargs:
                 labels = [event.e_conference.conference_slug]
                 if event.calendar_type:
                     labels += [event.calendar_type]
@@ -220,7 +219,7 @@ class MakeOccurrenceView(View):
                     args=[self.event_type])
             else:
                 response = update_occurrence(
-                    self.occurrence.pk,
+                    int(kwargs['occurrence_id']),
                     start_time,
                     max_volunteer,
                     people=people,
@@ -229,7 +228,7 @@ class MakeOccurrenceView(View):
                                       urlconf='gbe.scheduling.urls',
                                       args=[self.event_type,
                                             self.item.eventitem_id,
-                                            self.occurrence.pk])
+                                            int(kwargs['occurrence_id'])])
             if response.occurrence:
                 event_form.save()
             show_scheduling_occurrence_status(

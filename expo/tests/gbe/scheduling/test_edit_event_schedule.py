@@ -4,9 +4,6 @@ from django.test import (
     TestCase,
 )
 from tests.factories.gbe_factories import (
-    ClassFactory,
-    ConferenceDayFactory,
-    GenericEventFactory,
     ProfileFactory,
     PersonaFactory,
     RoomFactory,
@@ -34,6 +31,8 @@ from datetime import (
     time,
     timedelta,
 )
+from tests.factories.scheduler_factories import EventLabelFactory
+from scheduler.models import EventLabel
 
 
 class TestEditOccurrence(TestCase):
@@ -127,7 +126,12 @@ class TestEditOccurrence(TestCase):
                       args=["Class",
                             self.context.bid.eventitem_id,
                             self.context.sched_event.pk+1])
-        response = self.client.post(url, follow=True)
+        form_data = get_sched_event_form(self.context)
+        response = self.client.post(
+            url,
+            data=form_data,
+            follow=True)
+        print response.content
         self.assertContains(
             response,
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
@@ -397,3 +401,15 @@ class TestEditOccurrence(TestCase):
         response = self.client.get(url)
         self.assertNotIn(str(inactive_persona), response.content)
         self.assertNotIn(str(inactive_persona.contact), response.content)
+
+    def test_no_change_to_labels(self):
+        login_as(self.privileged_profile, self)
+        form_data = get_sched_event_form(self.context)
+        label = EventLabelFactory(text="Label test no change",
+                                  event=self.context.sched_event)
+        response = self.client.post(
+            self.url,
+            data=form_data,
+            follow=True)
+        test = EventLabel.objects.get(pk=label.pk)
+        self.assertEqual(test.text, "Label test no change")

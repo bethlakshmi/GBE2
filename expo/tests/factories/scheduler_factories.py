@@ -122,3 +122,10 @@ class EventContainerFactory(DjangoModelFactory):
 
     class Meta:
         model = sched.EventContainer
+
+class EventLabelFactory(DjangoModelFactory):
+    text = Sequence(lambda x: "Label #%d" % x)
+    event = SubFactory(SchedEventFactory)
+
+    class Meta:
+        model = sched.EventLabel
