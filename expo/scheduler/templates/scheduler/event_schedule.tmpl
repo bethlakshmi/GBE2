@@ -4,6 +4,10 @@
   Great Burlesque Exposition: {{eventitem.event.payload.title}}
 {% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
+{% endblock %}
 {% block content %}
  
 <a href="{% url 'gbe:home' %}">Home</a> >>
