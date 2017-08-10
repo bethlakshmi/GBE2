@@ -49,6 +49,3 @@ class OccurrenceResponse(object):
         self.occurrence = occurrence
         self.warnings = warnings
         self.errors = errors
-
-    def add_error(self, code, details):
-        self.errors += [Error(code=code, details=details)]

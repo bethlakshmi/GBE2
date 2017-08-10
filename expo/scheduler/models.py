@@ -969,12 +969,6 @@ class Event(Schedulable):
                      category))
         return info
 
-    def set_duration(self, duration):
-        '''
-        duration should be a gbe.Duration or a timedelta
-        '''
-        self.eventitem.set_duration(duration)
-
     @property
     def event_type_name(self):
         '''
