@@ -6,6 +6,7 @@ from scheduler.data_transfer import (
     OccurrenceResponse
 )
 
+
 def get_occurrence(occurrence_id):
     response = None
     try:
@@ -15,5 +16,5 @@ def get_occurrence(occurrence_id):
         response = OccurrenceResponse(
             errors=[Error(
                 code="OCCURENCE_NOT_FOUND",
-                details="Occurrence id %d not found" % occurrence_id),])
+                details="Occurrence id %d not found" % occurrence_id), ])
     return response

@@ -679,7 +679,9 @@ class Event(Schedulable):
         if Location.objects.filter(allocations__event=self).exists():
             Location.objects.filter(allocations__event=self).delete()
         for location in locations:
-            ra = ResourceAllocation(resource=location.get_resource(), event=self)
+            ra = ResourceAllocation(
+                resource=location.get_resource(),
+                event=self)
             ra.save()
 
     # New - from refactoring

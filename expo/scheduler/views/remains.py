@@ -387,7 +387,9 @@ def allocate_workers(request, opp_id):
             send_schedule_update_mail("Volunteer", data['worker'])
     return HttpResponseRedirect(reverse('edit_event_schedule',
                                         urlconf='gbe.scheduling.urls',
-                                        args=[opp.event_type_name, opp.eventitem.pk, opp_id]))
+                                        args=[opp.event_type_name,
+                                              opp.eventitem.pk,
+                                              opp_id]))
 
 
 @login_required

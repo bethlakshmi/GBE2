@@ -7,6 +7,7 @@ from scheduler.models import (
 from scheduler.data_transfer import OccurrenceResponse
 from scheduler.idd import get_occurrence
 
+
 def update_occurrence(occurrence_id,
                       start_time=None,
                       max_volunteer=None,
@@ -25,15 +26,15 @@ def update_occurrence(occurrence_id,
     if start_time or max_volunteer:
         response.occurrence.save()
 
-    if not locations == None:
+    if locations is not None:
         response.occurrence.set_locations(locations)
 
-    if not people == None:
+    if people is not None:
         Worker.objects.filter(allocations__event=response.occurrence).delete()
         for person in people:
             response.warnings += response.occurrence.allocate_person(person)
 
-    if not labels == None:
+    if labels is not None:
         if EventLabel.objects.filter(event=response.occurrence).exists():
             EventLabel.objects.filter(event=response.occurrence).delete()
         for label in labels:

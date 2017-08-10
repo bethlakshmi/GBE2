@@ -136,17 +136,19 @@ class MakeOccurrenceView(View):
             initial_form_info['day'] = get_conference_day(
                 conference=self.occurrence.eventitem.get_conference(),
                 date=self.occurrence.starttime.date())
-            initial_form_info['time'] = self.occurrence.starttime.strftime("%H:%M:%S")
+            initial_form_info['time'] = self.occurrence.starttime.strftime(
+                "%H:%M:%S")
             initial_form_info['max_volunteer'] = self.occurrence.max_volunteer
             initial_form_info['location'] = self.occurrence.location
             panelists = []
             for person in self.occurrence.people:
                 if person.role:
                     if person.role == "Panelist":
-                        panelists +=[person.public_id]
-                    elif self.role_key.has_key(person.role):
+                        panelists += [person.public_id]
+                    elif person.role in self.role_key:
                         initial_form_info[self.role_key[person.role]] = eval(
-                            self.role_class[person.role]).objects.get(pk=person.public_id)
+                            self.role_class[person.role]
+                            ).objects.get(pk=person.public_id)
             initial_form_info['panelists'] = panelists
         else:
             initial_form_info['location'] = self.item.default_location
@@ -186,7 +188,7 @@ class MakeOccurrenceView(View):
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-  
+
         event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
@@ -202,7 +204,7 @@ class MakeOccurrenceView(View):
             if data['max_volunteer']:
                 max_volunteer = data['max_volunteer']
             start_time = get_start_time(data)
-            if not "occurrence_id" in kwargs:
+            if "occurrence_id" not in kwargs:
                 labels = [event.e_conference.conference_slug]
                 if event.calendar_type:
                     labels += [event.calendar_type]

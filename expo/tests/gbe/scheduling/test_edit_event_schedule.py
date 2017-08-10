@@ -47,10 +47,10 @@ class TestEditOccurrence(TestCase):
         Room.objects.all().delete()
         self.context = ClassContext()
         self.url = reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=["Class",
-                            self.context.bid.eventitem_id,
-                            self.context.sched_event.pk])
+                           urlconf="gbe.scheduling.urls",
+                           args=["Class",
+                                 self.context.bid.eventitem_id,
+                                 self.context.sched_event.pk])
 
     def assert_good_post(self,
                          response,
@@ -62,7 +62,9 @@ class TestEditOccurrence(TestCase):
         self.assertRedirects(response, reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[event_type, sched_event.eventitem.eventitem_id, sched_event.pk]))
+            args=[event_type,
+                  sched_event.eventitem.eventitem_id,
+                  sched_event.pk]))
 
         self.assertNotIn('<ul class="errorlist">', response.content)
         # check title
@@ -92,7 +94,8 @@ class TestEditOccurrence(TestCase):
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
-        redirect_url = reverse('login', urlconf='gbe.urls') + "/?next=" + self.url
+        redirect_url = reverse(
+            'login', urlconf='gbe.urls') + "/?next=" + self.url
         self.assertRedirects(response, redirect_url)
         self.assertTrue(is_login_page(response))
 
