@@ -788,17 +788,6 @@ class Event(Schedulable):
             resource__worker___item=worker,
             resource__worker__role=role).delete()
 
-    def unallocate_role(self, role):
-        '''
-        Remove all Worker allocations with this role
-        '''
-        allocations = ResourceAllocation.objects.filter(event=self)
-        for allocation in allocations:
-            if type(allocation.resource.item) == WorkerItem:
-                if Worker.objects.get(
-                        id=allocation.resource.id).role == role:
-                    allocation.delete()
-
     def get_volunteer_opps(self, role='Volunteer'):
         '''
         return volunteer opportunities associated with this event

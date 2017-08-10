@@ -113,28 +113,3 @@ def get_events_display_info(event_type='Class'):
             eventinfo['max_volunteer'] = None
         eventslist.append(eventinfo)
     return eventslist
-
-
-# Deprecate when scheduling refactor is done
-def set_single_role(event, data, roles=None):
-    if not roles:
-        roles = [('teacher', 'Teacher'),
-                 ('moderator', 'Moderator'),
-                 ('staff_lead', 'Staff Lead')]
-    for role_key, role in roles:
-        event.unallocate_role(role)
-        if data[role_key]:
-            event.allocate_worker(data[role_key].workeritem, role)
-    event.save()
-
-
-# Deprecate when scheduling refactor is done
-def set_multi_role(event, data, roles=None):
-    if not roles:
-        roles = [('panelists', 'Panelist')]
-    for role_key, role in roles:
-        event.unallocate_role(role)
-        if len(data[role_key]) > 0:
-            for worker in data[role_key]:
-                event.allocate_worker(worker.workeritem, role)
-    event.save()

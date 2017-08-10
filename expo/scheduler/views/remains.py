@@ -45,8 +45,6 @@ from scheduler.functions import (
 from scheduler.views.functions import (
     get_event_display_info,
     get_events_display_info,
-    set_single_role,
-    set_multi_role,
 )
 from gbe.functions import (
     conference_slugs,

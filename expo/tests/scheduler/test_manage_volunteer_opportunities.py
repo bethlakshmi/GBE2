@@ -254,6 +254,31 @@ class TestManageVolunteerOpportunity(TestCase):
                      'type="text" value="Modify Volunteer Opportunity" />',
                      response.content)
 
+    def test_edit_opportunity_change_room(self):
+        context = StaffAreaContext()
+        vol_opp = context.add_volunteer_opp()
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+
+        response = self.client.post(
+            url,
+            data=self.get_basic_action_data(context, vol_opp, 'edit'),
+            follow=True)
+        assert_redirects(response, "%s?changed_id=%d" % (
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
+                          context.sched_event.pk]),
+            vol_opp.pk))
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(len(opps), 1)
+        nt.assert_in(self.room.name,
+                     response.content)
+
     def test_edit_opportunity_error(self):
         context = StaffAreaContext()
         vol_opp = context.add_volunteer_opp(room=self.room)
