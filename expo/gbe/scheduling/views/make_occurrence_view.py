@@ -66,6 +66,8 @@ class MakeOccurrenceView(View):
         'Teacher': 'Performer',
     }
     occurrence = None
+    people = []
+    event_form = None
 
     def groundwork(self, request, args, kwargs):
         eventitem_id = kwargs['eventitem_id']
@@ -202,11 +204,28 @@ class MakeOccurrenceView(View):
 
         return data
 
+    def make_post_response(self, request, response=None):
+        if response:
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
+
+        if response and response.occurrence:
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return render(
+                request,
+                self.template,
+                {'eventitem': self.eventitem_view,
+                 'form': self.event_form,
+                 'user_id': request.user.id,
+                 'event_type': self.event_type})
 
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-
+        success = False
         self.event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
@@ -215,8 +234,8 @@ class MakeOccurrenceView(View):
 
         if event_form.is_valid():
             data = self.get_basic_form_settings()
-            people = get_single_role(data)
-            people += get_multi_role(data)
+            self.people = get_single_role(data)
+            self.people += get_multi_role(data)
             
             if self.create:
                 response = create_occurrence(
@@ -226,7 +245,7 @@ class MakeOccurrenceView(View):
                     people=people,
                     locations=[self.room],
                     labels=self.labels)
-                success_url = reverse(
+                self.success_url = reverse(
                     'event_schedule',
                     urlconf='scheduler.urls',
                     args=[self.event_type])
@@ -237,26 +256,15 @@ class MakeOccurrenceView(View):
                     self.max_volunteer,
                     people=people,
                     locations=[self.room])
-                success_url = reverse('edit_event_schedule',
+                self.success_url = reverse('edit_event_schedule',
                                       urlconf='gbe.scheduling.urls',
                                       args=[self.event_type,
                                             self.item.eventitem_id,
                                             int(kwargs['occurrence_id'])])
             if response.occurrence:
                 event_form.save()
-            show_scheduling_occurrence_status(
-                request,
-                response,
-                self.__class__.__name__)
-            return HttpResponseRedirect(success_url)
-        else:
-            return render(
-                request,
-                self.template,
-                {'eventitem': self.eventitem_view,
-                 'form': event_form,
-                 'user_id': request.user.id,
-                 'event_type': self.event_type})
+        return self.make_post_response(request, response)
+
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
