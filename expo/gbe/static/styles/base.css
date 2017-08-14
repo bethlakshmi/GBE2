@@ -5,6 +5,31 @@ body {
   padding: 0px;
 }
 
+/* Used in django CMS provided styles, do not delete */
+.subtitle{
+  font-family: "TwentiethCenturyPoster";
+  font-size: 20px;
+  color: #000;
+  letter-spacing: normal;
+  font-weight: normal;
+  text-transform: none;
+  font-style: normal;
+  vertical-align: middle;
+}
+
+.font_large{
+  color: #000;
+  font-size: 15.4px;
+  line-height: 1.5;
+  font-family: Lucida Grande,Tahoma,Verdana,sans-serif;
+  font-weight: normal;
+  text-transform: none;
+  font-style: normal;
+  letter-spacing: normal;
+	
+}
+/* END: Used in django CMS provided styles, do not delete */
+
 
 div.container {
     top:0;

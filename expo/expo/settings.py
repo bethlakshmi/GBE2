@@ -308,15 +308,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'expo', 'static'),
 )
 
-DJANGOCMS_STYLE_CHOICES = (
-    ('info', ("info")),
-    ('new', ("new")),
-    ('hint', ("hint")),
-    ('footer', ("footer")),
-    ('subtitle', ("20th Century Poster")),
-    ('font_large', ("Large, plain font")),
-    ('font_regular', ("Regular Text"))
-)
+DJANGOCMS_STYLE_CHOICES = ['subtitle', 'font_large', 'container', 'content', 'teaser']
 
 
 CMS_LANGUAGES = {
