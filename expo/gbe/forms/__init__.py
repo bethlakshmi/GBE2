@@ -50,7 +50,6 @@ from summer_act_form import (
 from vendor_bid_form import VendorBidForm
 from volunteer_bid_form import VolunteerBidForm
 from volunteer_interest_form import VolunteerInterestForm
-from volunteer_opportunity_form import VolunteerOpportunityForm
 
 # act tech forms
 from act_tech_info_form import ActTechInfoForm

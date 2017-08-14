@@ -52,6 +52,8 @@ from gbe_forms_text import (
 
 class MakeOccurrenceView(View):
     template = 'scheduler/event_schedule.tmpl'
+    permissions = ('Scheduling Mavens',)
+
     role_key = {
         'Staff Lead': 'staff_lead',
         'Moderator': 'moderator',
@@ -68,7 +70,7 @@ class MakeOccurrenceView(View):
     def groundwork(self, request, args, kwargs):
         eventitem_id = kwargs['eventitem_id']
         self.event_type = kwargs['event_type'] or 'Class'
-        self.profile = validate_perms(request, ('Scheduling Mavens',))
+        self.profile = validate_perms(request, self.permissions)
         try:
             self.item = Event.objects.get_subclass(pk=eventitem_id)
         except Event.DoesNotExist:
@@ -185,36 +187,45 @@ class MakeOccurrenceView(View):
             self.template,
             context)
 
+    def get_basic_form_settings(self):
+        self.event = event_form.save(commit=False)
+        data = event_form.cleaned_data
+        self.room = get_object_or_404(Room, name=data['location'])
+        self.max_volunteer = 0
+        if data['max_volunteer']:
+                self.max_volunteer = data['max_volunteer']
+        self.start_time = get_start_time(data)
+        if self.create:
+            self.labels = [self.event.e_conference.conference_slug]
+            if event.calendar_type:
+                self.labels += [self.event.calendar_type]
+
+        return data
+
+
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
 
-        event_form = ScheduleSelectionForm(
+        self.event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
             prefix='event')
-        if event_form.is_valid():
-            event = event_form.save(commit=False)
-            data = event_form.cleaned_data
+        self.create = ("occurrence_id" not in kwargs)
 
-            room = get_object_or_404(Room, name=data['location'])
+        if event_form.is_valid():
+            data = self.get_basic_form_settings()
             people = get_single_role(data)
             people += get_multi_role(data)
-            max_volunteer = 0
-            if data['max_volunteer']:
-                max_volunteer = data['max_volunteer']
-            start_time = get_start_time(data)
-            if "occurrence_id" not in kwargs:
-                labels = [event.e_conference.conference_slug]
-                if event.calendar_type:
-                    labels += [event.calendar_type]
+            
+            if self.create:
                 response = create_occurrence(
-                    event.eventitem_id,
-                    start_time,
-                    max_volunteer,
+                    self.event.eventitem_id,
+                    self.start_time,
+                    self.max_volunteer,
                     people=people,
-                    locations=[room],
-                    labels=labels)
+                    locations=[self.room],
+                    labels=self.labels)
                 success_url = reverse(
                     'event_schedule',
                     urlconf='scheduler.urls',
@@ -222,10 +233,10 @@ class MakeOccurrenceView(View):
             else:
                 response = update_occurrence(
                     int(kwargs['occurrence_id']),
-                    start_time,
-                    max_volunteer,
+                    self.start_time,
+                    self.max_volunteer,
                     people=people,
-                    locations=[room])
+                    locations=[self.room])
                 success_url = reverse('edit_event_schedule',
                                       urlconf='gbe.scheduling.urls',
                                       args=[self.event_type,
