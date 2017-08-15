@@ -187,10 +187,11 @@ class TestEditOccurrence(TestCase):
                       response.content)
         self.assertIn('<option value="12:00:00" selected="selected">',
                       response.content)
-        self.assertIn('<option value="'+str(self.context.days[0].pk) +
-                      '" selected="selected">'+str(self.context.days[0]) +
-                      '</option>',
-                      response.content)
+        self.assertIn(
+            '<option value="%s" selected="selected">%s</option>' % (
+                str(self.context.days[0].pk),
+                str(self.context.days[0])),
+            response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
                       'the available choices.</li>',
                       response.content)
