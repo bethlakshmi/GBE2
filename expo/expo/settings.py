@@ -309,7 +309,9 @@ STATICFILES_DIRS = (
 )
 
 DJANGOCMS_STYLE_CHOICES = ['subtitle', 'font_large', 'container', 'content', 'teaser']
-
+CKEDITOR_SETTINGS = {
+    'stylesSet': 'default:/static/styles/styles.js',
+}
 
 CMS_LANGUAGES = {
     # Customize this
