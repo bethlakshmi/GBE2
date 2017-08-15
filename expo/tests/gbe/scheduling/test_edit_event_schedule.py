@@ -134,7 +134,6 @@ class TestEditOccurrence(TestCase):
             url,
             data=form_data,
             follow=True)
-        print response.content
         self.assertContains(
             response,
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
