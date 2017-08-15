@@ -271,7 +271,6 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                              'time': time,
                              'location': room,
                              },
-                    conference=conference
                 )
             )
     context['actionform'] = actionform

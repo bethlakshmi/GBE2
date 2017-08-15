@@ -5,6 +5,7 @@ from scheduler.models import (
     EventLabel,
 )
 from scheduler.data_transfer import OccurrenceResponse
+from scheduler.idd import get_occurrence
 
 
 def create_occurrence(event_id,
@@ -12,8 +13,13 @@ def create_occurrence(event_id,
                       max_volunteer=0,
                       people=[],
                       locations=[],
-                      parent_event=None,
+                      parent_event_id=None,
                       labels=[]):
+    if parent_event_id:
+        parent_response = get_occurrence(parent_event_id)
+        if parent_response.errors:
+            return parent_response
+
     response = OccurrenceResponse()
     response.occurrence = Event(
         eventitem=EventItem.objects.get(eventitem_id=event_id),
@@ -29,9 +35,9 @@ def create_occurrence(event_id,
     for label in labels:
         response.occurrence.add_label(label)
 
-    if parent_event:
+    if parent_event_id:
         family = EventContainer(
-            parent_event=parent_event,
+            parent_event=parent_response.occurrence,
             child_event=response.occurrence)
         family.save()
 

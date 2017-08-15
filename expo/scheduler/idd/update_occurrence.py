@@ -13,11 +13,16 @@ def update_occurrence(occurrence_id,
                       max_volunteer=None,
                       people=None,
                       locations=None,
-                      parent_event=-1,
+                      parent_event_id=None,
                       labels=None):
     response = get_occurrence(occurrence_id)
     if response.errors:
         return response
+
+    if parent_event_id and parent_event_id > -1:
+        parent_response = get_occurrence(parent_event_id)
+        if parent_response.errors:
+            return parent_response
 
     if start_time:
         response.occurrence.starttime = start_time
@@ -40,15 +45,15 @@ def update_occurrence(occurrence_id,
         for label in labels:
             response.occurrence.add_label(label)
 
-    if parent_event:
-        if parent_event != -1:
+    if parent_event_id:
+        if parent_event_id > -1:
             family = EventContainer(
-                parent_event=parent_event,
+                parent_event=parent_response.occurrence,
                 child_event=response.occurrence)
             family.save()
-    # no parent event means "delete all parents"
-    elif EventContainer.objects.filter(
-            child_event=response.occurrence).exists():
-        EventContainer.objects.filter(child_event=response.occurrence).delete()
+        # -1 means "delete all parents"
+        elif EventContainer.objects.filter(
+                child_event=response.occurrence).exists():
+            EventContainer.objects.filter(child_event=response.occurrence).delete()
 
     return response

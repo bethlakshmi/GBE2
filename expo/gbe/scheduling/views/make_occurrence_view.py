@@ -189,16 +189,16 @@ class MakeOccurrenceView(View):
             context)
 
     def get_basic_form_settings(self):
-        self.event = event_form.save(commit=False)
-        data = event_form.cleaned_data
+        self.event = self.event_form.save(commit=False)
+        data = self.event_form.cleaned_data
         self.room = get_object_or_404(Room, name=data['location'])
         self.max_volunteer = 0
         if data['max_volunteer']:
                 self.max_volunteer = data['max_volunteer']
         self.start_time = get_start_time(data)
         if self.create:
-            self.labels = [self.event.e_conference.conference_slug]
-            if event.calendar_type:
+            self.labels = [self.item.e_conference.conference_slug]
+            if self.event.calendar_type:
                 self.labels += [self.event.calendar_type]
 
         return data
@@ -231,7 +231,7 @@ class MakeOccurrenceView(View):
             prefix='event')
         self.create = ("occurrence_id" not in kwargs)
 
-        if event_form.is_valid():
+        if self.event_form.is_valid():
             data = self.get_basic_form_settings()
             self.people = get_single_role(data)
             self.people += get_multi_role(data)
@@ -261,7 +261,7 @@ class MakeOccurrenceView(View):
                                             self.item.eventitem_id,
                                             int(kwargs['occurrence_id'])])
             if response.occurrence:
-                event_form.save()
+                self.event_form.save()
         return self.make_post_response(request, response)
 
 

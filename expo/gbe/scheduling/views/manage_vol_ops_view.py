@@ -32,16 +32,17 @@ class ManageVolOpsView(MakeOccurrenceView):
                                       urlconf='gbe.scheduling.urls',
                                       args=[self.event_type,
                                             self.item.eventitem_id,
-                                            int(kwargs['parent_event_id'])])
+                                            self.parent_id])
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
                 response.occurrence.pk)
-        return super(ManageVolOps, self).make_post_response(request, response)
+        return super(ManageVolOpsView, self).make_post_response(request, response)
 
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
+        self.parent_id = int(kwargs['parent_event_id'])
         self.create = False
         response = None
 
@@ -56,7 +57,7 @@ class ManageVolOpsView(MakeOccurrenceView):
                 self.event_form = VolunteerOpportunityForm(
                     request.POST,
                     conference=self.item.get_conference())
-            if form.is_valid():
+            if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
 
                 self.event.type = "Volunteer"
@@ -69,7 +70,7 @@ class ManageVolOpsView(MakeOccurrenceView):
                     people=[],
                     locations=[self.room],
                     labels=self.labels,
-                    parent=self.item)
+                    parent_event_id=self.parent_id)
             return self.make_post_response(request, response)
         elif 'edit' in request.POST.keys():
             self.event = get_object_or_404(
@@ -97,7 +98,7 @@ class ManageVolOpsView(MakeOccurrenceView):
                         urlconf='gbe.scheduling.urls',
                         args=[self.event_type,
                               self.item.eventitem_id,
-                              int(kwargs['parent_event_id'])]))
+                              self.parent_id]))
 
         elif 'allocate' in request.POST.keys():
             opp_event = get_occurrence(id=request.POST['opp_sched_id'])
