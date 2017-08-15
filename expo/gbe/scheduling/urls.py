@@ -6,7 +6,7 @@ from django.conf.urls import (
 from gbe.scheduling.views import (
     CreateEventView,
     MakeOccurrenceView,
-    ManageVolOps,
+    ManageVolOpsView,
 )
 
 # NOTE: in general, url patterns should end with '/?$'. This

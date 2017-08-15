@@ -7,6 +7,7 @@ from gbe.models import (
     AvailableInterest,
     GenericEvent,
 )
+from gbe.scheduling.forms import ScheduleBasicForm
 
 class VolunteerOpportunityForm(ScheduleBasicForm):
     opp_event_id = IntegerField(
@@ -15,8 +16,6 @@ class VolunteerOpportunityForm(ScheduleBasicForm):
     opp_sched_id = IntegerField(
         widget=HiddenInput(),
         required=False)
-    duration = DurationFormField(
-        error_messages={'null': 'required'})
     volunteer_type = ModelChoiceField(
         queryset=AvailableInterest.objects.filter(visible=True),
         required=False)
@@ -25,10 +24,10 @@ class VolunteerOpportunityForm(ScheduleBasicForm):
         model = GenericEvent
         fields = ['e_title',
                   'volunteer_type',
-                  'num_volunteers',
+                  'max_volunteer',
                   'duration',
                   'day',
                   'time',
                   'location',
                   ]
-        hidden_fields = ['opp_event_id']
+        hidden_fields = ['opp_event_id', 'e_description']

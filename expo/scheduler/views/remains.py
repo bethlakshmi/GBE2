@@ -13,7 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
-from gbe.forms import VolunteerOpportunityForm
+from gbe.scheduling.forms import VolunteerOpportunityForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     login,
@@ -271,7 +271,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                              'time': time,
                              'location': room,
                              },
-                    e_conference=conference
+                    conference=conference
                 )
             )
     context['actionform'] = actionform
@@ -281,7 +281,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
         createform = VolunteerOpportunityForm(
             prefix='new_opp',
             initial=initial,
-            e_conference=item.eventitem.get_conference())
+            conference=item.eventitem.get_conference())
 
     actionheaders = ['Title',
                      'Volunteer Type',
@@ -421,11 +421,11 @@ def manage_volunteer_opportunities(request, event_id):
             form = VolunteerOpportunityForm(
                 request.POST,
                 prefix='new_opp',
-                e_conference=event.eventitem.get_conference())
+                conference=event.eventitem.get_conference())
         else:
             form = VolunteerOpportunityForm(
                 request.POST,
-                e_conference=event.eventitem.get_conference())
+                conference=event.eventitem.get_conference())
         if form.is_valid():
             opp = form.save(commit=False)
             opp.type = "Volunteer"
@@ -463,7 +463,7 @@ def manage_volunteer_opportunities(request, event_id):
         opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
         form = VolunteerOpportunityForm(request.POST,
                                         instance=opp,
-                                        e_conference=opp.e_conference)
+                                        conference=opp.e_conference)
         if not form.is_valid():
             return edit_event_display(request, event, {'error_opp_form': form})
 

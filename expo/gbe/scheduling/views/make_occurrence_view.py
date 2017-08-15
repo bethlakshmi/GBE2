@@ -135,6 +135,7 @@ class MakeOccurrenceView(View):
                    }
         if self.occurrence:
             context['event_id'] = self.occurrence.pk
+            context['eventitem_id'] = self.occurrence.eventitem.eventitem_id
             initial_form_info['day'] = get_conference_day(
                 conference=self.occurrence.eventitem.get_conference(),
                 date=self.occurrence.starttime.date())

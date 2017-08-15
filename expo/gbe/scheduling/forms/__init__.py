@@ -1,4 +1,5 @@
 # event management forms
+from schedule_basic_form import ScheduleBasicForm
 from class_schedule_form import ClassScheduleForm
 from generic_event_schedule_form import GenericEventScheduleForm
 from schedule_selection_form import ScheduleSelectionForm

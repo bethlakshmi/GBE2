@@ -35,6 +35,14 @@ class ScheduleBasicForm(ModelForm):
 
     class Meta:
         model = Event
+        fields = ['e_title',
+                  'e_description',
+                  'duration',
+                  'max_volunteer',
+                  'day',
+                  'time',
+                  'location',
+                  ]
 
     def __init__(self, *args, **kwargs):
         if 'instance' in kwargs:

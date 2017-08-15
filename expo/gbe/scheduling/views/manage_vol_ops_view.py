@@ -15,7 +15,7 @@ from gbe.scheduling.views import MakeOccurrenceView
 from gbe.scheduling.forms import VolunteerOpportunityForm
 
 
-class ManageVolOps(MakeOccurrenceView):
+class ManageVolOpsView(MakeOccurrenceView):
 
     permissions = ('Volunteer Coordinator',)
 
@@ -92,6 +92,13 @@ class ManageVolOps(MakeOccurrenceView):
             opp = get_object_or_404(GenericEvent,
                                 event_id=request.POST['opp_event_id'])
             opp.delete()
+            return HttpResponseRedirect(
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.event_type,
+                              self.item.eventitem_id,
+                              int(kwargs['parent_event_id'])]))
+
         elif 'allocate' in request.POST.keys():
             opp_event = get_occurrence(id=request.POST['opp_sched_id'])
             return HttpResponseRedirect(

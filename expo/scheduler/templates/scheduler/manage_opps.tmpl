@@ -18,7 +18,7 @@ included in event edit flow. If there is an actionform, show it
     </tr>
     {% for form in actionform %}
     <tr class="{% if changed_id == form.opp_sched_id.value %}changed{% else %}event_opp_row{% endif %}">
-      <form method="POST" action="{% url 'scheduler:manage_opps'  event_id %}" 
+      <form method="POST" action="{% url 'scheduling:manage_opps' event_type eventitem_id event_id %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
@@ -42,7 +42,7 @@ included in event edit flow. If there is an actionform, show it
     </tr>
     {% endfor %}
     <tr class="event_opp_row">
-      <form method="POST" action="{% url 'scheduler:manage_opps' event_id  %}" 
+      <form method="POST" action="{% url 'scheduling:manage_opps' event_type eventitem_id event_id  %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in createform.visible_fields %}
