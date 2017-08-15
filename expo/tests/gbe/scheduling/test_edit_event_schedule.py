@@ -134,7 +134,6 @@ class TestEditOccurrence(TestCase):
             url,
             data=form_data,
             follow=True)
-        print response.content
         self.assertContains(
             response,
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
@@ -188,10 +187,11 @@ class TestEditOccurrence(TestCase):
                       response.content)
         self.assertIn('<option value="12:00:00" selected="selected">',
                       response.content)
-        self.assertIn('<option value="'+str(self.context.days[0].pk) +
-                      '" selected="selected">'+str(self.context.days[0]) +
-                      '</option>',
-                      response.content)
+        self.assertIn(
+            '<option value="%s" selected="selected">%s</option>' % (
+                str(self.context.days[0].pk),
+                str(self.context.days[0])),
+            response.content)
         self.assertIn('<li>Select a valid choice. That choice is not one of ' +
                       'the available choices.</li>',
                       response.content)

@@ -142,7 +142,6 @@ class TestManageVolunteerOpportunity(TestCase):
             opp.eventitem.volunteer_type)
         sched_day = date_format(context.sched_event.start_time, "DATE_FORMAT")
         expected_string = 'selected="selected">%s</option>' % sched_day
-        print response.content
         self.assertContains(response, expected_string)
 
     def test_create_opportunity(self):

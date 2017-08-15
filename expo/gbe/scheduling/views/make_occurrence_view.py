@@ -79,8 +79,6 @@ class MakeOccurrenceView(View):
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
 
-        return None
-
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
         for volunteer in eligible_volunteers(
