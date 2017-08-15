@@ -85,7 +85,7 @@ included in event edit flow. Show WorkerAllocationForms
         <td class="bid-table">{{ volunteer.available }}</td>
         <td class="bid-table">
 	{% for conflict in volunteer.conflicts %}
-          <a href="{%url 'scheduler:edit_event' conflict.event_type_name conflict.pk %}">
+          <a href="{%url 'scheduling:edit_event_schedule' conflict.event_type_name conflict.eventitem.eventitem_id conflict.pk %}">
 	    {{ conflict }}
 	  </a></br>
 	{% empty %}&nbsp;{% endfor %}

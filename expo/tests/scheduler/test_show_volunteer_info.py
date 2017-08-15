@@ -30,7 +30,7 @@ from gbe.models import AvailableInterest
 
 
 class TestShowVolunteers(TestCase):
-    view_name = 'edit_event'
+    view_name = 'edit_event_schedule'
 
     def setUp(self):
         self.client = Client()
@@ -42,8 +42,10 @@ class TestShowVolunteers(TestCase):
         self.context = VolunteerContext()
         self.url = reverse(
             self.view_name,
-            args=["GenericEvent", self.context.opp_event.pk],
-            urlconf="scheduler.urls")
+            args=["GenericEvent",
+                  self.context.opp_event.eventitem.eventitem_id,
+                  self.context.opp_event.pk],
+            urlconf="gbe.scheduling.urls")
 
     def test_no_available_volunteers(self):
         context = StaffAreaContext()
@@ -54,8 +56,10 @@ class TestShowVolunteers(TestCase):
         response = self.client.get(
             reverse(
                 self.view_name,
-                args=["GenericEvent", volunteer_opp.pk],
-                urlconf="scheduler.urls"),
+                args=["GenericEvent",
+                      volunteer_opp.eventitem.eventitem_id,
+                      volunteer_opp.pk],
+                urlconf="gbe.scheduling.urls"),
             follow=True)
         assert ("no available volunteers" in response.content)
 

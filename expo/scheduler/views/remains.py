@@ -45,8 +45,6 @@ from scheduler.functions import (
 from scheduler.views.functions import (
     get_event_display_info,
     get_events_display_info,
-    set_single_role,
-    set_multi_role,
 )
 from gbe.functions import (
     conference_slugs,
@@ -387,9 +385,11 @@ def allocate_workers(request, opp_id):
                     request,
                     warning)
             send_schedule_update_mail("Volunteer", data['worker'])
-    return HttpResponseRedirect(reverse('edit_event',
-                                        urlconf='scheduler.urls',
-                                        args=[opp.event_type_name, opp_id]))
+    return HttpResponseRedirect(reverse('edit_event_schedule',
+                                        urlconf='gbe.scheduling.urls',
+                                        args=[opp.event_type_name,
+                                              opp.eventitem.pk,
+                                              opp_id]))
 
 
 @login_required
@@ -411,9 +411,10 @@ def manage_volunteer_opportunities(request, event_id):
     changed_event = None
     if request.method != 'POST':
         # TO DO: review this
-        return HttpResponseRedirect(reverse('edit_event',
-                                    urlconf='scheduler.urls',
+        return HttpResponseRedirect(reverse('edit_event_schedule',
+                                    urlconf='gbe.scheduling.urls',
                                     args=[event.event_type_name,
+                                          event.eventitem.eventitem_id,
                                           event_id]))
     if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
         if 'create' in request.POST.keys():
@@ -480,19 +481,23 @@ def manage_volunteer_opportunities(request, event_id):
         changed_event = opp_event
 
     elif 'allocate' in request.POST.keys():
-        return HttpResponseRedirect(reverse('edit_event',
-                                            urlconf='scheduler.urls',
+        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
+        return HttpResponseRedirect(reverse('edit_event_schedule',
+                                            urlconf='gbe.scheduling.urls',
                                     args=['GenericEvent',
-                                            request.POST['opp_sched_id']]))
+                                          opp_event.eventitem.pk,
+                                          request.POST['opp_sched_id']]))
     if changed_event:
         return HttpResponseRedirect("%s?changed_id=%d" % (
-            reverse('edit_event', urlconf='scheduler.urls', args=[
-                event.event_type_name, event_id]),
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[event.event_type_name, event.eventitem.pk, event_id]
+                    ),
             changed_event.pk))
     else:
         return HttpResponseRedirect(reverse(
-            'edit_event', urlconf='scheduler.urls', args=[
-                event.event_type_name, event_id]))
+            'edit_event_schedule', urlconf='gbe.scheduling.urls', args=[
+                event.event_type_name, event.eventitem.pk, event_id]))
 
 
 @login_required
@@ -680,55 +685,6 @@ def contact_by_role(request, participant_type):
     return response
 
 
-@login_required
-@never_cache
-def edit_event(request, scheduler_event_id, event_type='class'):
-    '''
-    Add an item to the conference schedule and/or set its schedule details
-    (start time, location, duration, or allocations)
-    Takes a scheduler.Event id
-    '''
-    profile = validate_perms(request, ('Scheduling Mavens',))
-
-    item = get_object_or_404(Event, id=scheduler_event_id)
-
-    if request.method == 'POST':
-        event_form = EventScheduleForm(request.POST,
-                                       instance=item,
-                                       prefix='event')
-        if event_form.is_valid():
-            s_event = event_form.save(commit=False)
-            data = event_form.cleaned_data
-
-            if data['duration']:
-                s_event.set_duration(data['duration'])
-            l = LocationItem.objects.get_subclass(
-                room__name=data['location'])
-            s_event.save()
-            s_event.set_location(l)
-            set_single_role(s_event, data)
-            set_multi_role(s_event, data)
-            if data['description'] or data['title']:
-                c_event = s_event.as_subtype
-                c_event.e_description = data['description']
-                c_event.e_title = data['title']
-                c_event.save()
-            return HttpResponseRedirect(reverse('edit_event',
-                                                urlconf='scheduler.urls',
-                                                args=[event_type,
-                                                      scheduler_event_id]))
-        else:
-            template = 'scheduler/event_schedule.tmpl'
-            return render(request, template, {
-                'eventitem': get_event_display_info(
-                    item.eventitem.eventitem_id),
-                'form': event_form,
-                'event_type': item.event_type_name})
-
-    else:
-        return edit_event_display(request, item)
-
-
 def get_volunteer_info(opp, errorcontext=None):
     volunteer_set = []
     for volunteer in eligible_volunteers(
@@ -763,9 +719,10 @@ def edit_event_display(request, item, errorcontext=None):
     template = 'scheduler/event_schedule.tmpl'
     context = {'user_id': request.user.id,
                'event_id': item.id,
-               'event_edit_url': reverse('edit_event',
-                                         urlconf='scheduler.urls',
+               'event_edit_url': reverse('edit_event_schedule',
+                                         urlconf='gbe.scheduling.urls',
                                          args=[item.event_type_name,
+                                               item.eventitem.eventitem_id,
                                                item.id])}
     context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
 

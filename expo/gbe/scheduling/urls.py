@@ -4,8 +4,8 @@ from django.conf.urls import (
 )
 
 from gbe.scheduling.views import (
-    CreateEventScheduleView,
     CreateEventView,
+    MakeOccurrenceView,
 )
 
 # NOTE: in general, url patterns should end with '/?$'. This
@@ -19,5 +19,8 @@ urlpatterns = patterns(
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
-        CreateEventScheduleView.as_view(), name='create_event_schedule'),
+        MakeOccurrenceView.as_view(), name='create_event_schedule'),
+    url(r'^scheduling/edit/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/' +
+        '(?P<occurrence_id>\d+)/?$',
+        MakeOccurrenceView.as_view(), name='edit_event_schedule'),
 )

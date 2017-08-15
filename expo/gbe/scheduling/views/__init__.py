@@ -1,2 +1,2 @@
-from create_event_schedule_view import CreateEventScheduleView
+from make_occurrence_view import MakeOccurrenceView
 from create_event_view import CreateEventView
