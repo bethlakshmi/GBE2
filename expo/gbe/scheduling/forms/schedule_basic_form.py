@@ -31,7 +31,7 @@ class ScheduleBasicForm(ModelForm):
     time = ChoiceField(choices=conference_times)
     location = ModelChoiceField(
         queryset=Room.objects.all().order_by('name'))
-    max_volunteer = IntegerField(required=False)
+    max_volunteer = IntegerField(required=True)
 
     class Meta:
         model = Event
