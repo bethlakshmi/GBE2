@@ -100,10 +100,10 @@ class ManageVolOpsView(MakeOccurrenceView):
                               self.parent_id]))
 
         elif 'allocate' in request.POST.keys():
-            opp_event = get_occurrence(id=request.POST['opp_sched_id'])
+            response = get_occurrence(request.POST['opp_sched_id'])
             return HttpResponseRedirect(
                 reverse('edit_event_schedule',
                         urlconf='gbe.scheduling.urls',
                         args=['GenericEvent',
-                              opp_event.eventitem.pk,
+                              response.occurrence.eventitem.eventitem_id,
                               request.POST['opp_sched_id']]))
