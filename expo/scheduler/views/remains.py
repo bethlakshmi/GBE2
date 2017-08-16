@@ -266,7 +266,7 @@ def get_manage_opportunity_forms(item, initial, errorcontext=None):
                     instance=opp['conf'],
                     initial={'opp_event_id': opp['conf'].event_id,
                              'opp_sched_id': opp['sched'].id,
-                             'num_volunteers': num_volunteers,
+                             'max_volunteer': num_volunteers,
                              'day': day,
                              'time': time,
                              'location': room,
@@ -436,7 +436,7 @@ def manage_volunteer_opportunities(request, event_id):
             start_time = datetime.combine(day, dttime(*time_parts,
                                                       tzinfo=pytz.utc))
             opp_event = Event(eventitem=opp.eventitem_ptr,
-                              max_volunteer=data.get('num_volunteers', 1),
+                              max_volunteer=data.get('max_volunteer', 1),
                               starttime=start_time,
                               duration=data.get('duration'))
             opp_event.save()
@@ -468,7 +468,7 @@ def manage_volunteer_opportunities(request, event_id):
 
         form.save()
         data = form.cleaned_data
-        opp_event.max_volunteer = data['num_volunteers']
+        opp_event.max_volunteer = data['max_volunteer']
         day = data.get('day').day
         time_parts = map(int, data.get('time').split(":"))
         start_time = datetime.combine(day,

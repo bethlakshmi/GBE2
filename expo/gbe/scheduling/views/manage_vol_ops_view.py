@@ -9,6 +9,7 @@ from scheduler.idd import (
 )
 from gbe.models import (
     Event,
+    GenericEvent,
     Room,
 )
 from gbe.scheduling.views import MakeOccurrenceView
@@ -67,7 +68,6 @@ class ManageVolOpsView(MakeOccurrenceView):
                     self.event.eventitem_id,
                     self.start_time,
                     self.max_volunteer,
-                    people=[],
                     locations=[self.room],
                     labels=self.labels,
                     parent_event_id=self.parent_id)
@@ -79,14 +79,13 @@ class ManageVolOpsView(MakeOccurrenceView):
             self.event_form = VolunteerOpportunityForm(
                 request.POST,
                 instance=self.event)
-            if form.is_valid():
+            if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
                 self.event_form.save()
                 response = update_occurrence(
-                    int(kwargs['opp_sched_id']),
+                    data['opp_sched_id'],
                     self.start_time,
                     self.max_volunteer,
-                    people=[],
                     locations=[self.room])
             return self.make_post_response(request, response)
         elif 'delete' in request.POST.keys():

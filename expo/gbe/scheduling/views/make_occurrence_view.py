@@ -225,6 +225,7 @@ class MakeOccurrenceView(View):
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         success = False
+        response = None
         self.event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
@@ -241,7 +242,7 @@ class MakeOccurrenceView(View):
                     self.event.eventitem_id,
                     self.start_time,
                     self.max_volunteer,
-                    people=people,
+                    people=self.people,
                     locations=[self.room],
                     labels=self.labels)
                 self.success_url = reverse(
@@ -253,7 +254,7 @@ class MakeOccurrenceView(View):
                     int(kwargs['occurrence_id']),
                     self.start_time,
                     self.max_volunteer,
-                    people=people,
+                    people=self.people,
                     locations=[self.room])
                 self.success_url = reverse('edit_event_schedule',
                                       urlconf='gbe.scheduling.urls',
@@ -263,7 +264,6 @@ class MakeOccurrenceView(View):
             if response.occurrence:
                 self.event_form.save()
         return self.make_post_response(request, response)
-
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
