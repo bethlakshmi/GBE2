@@ -101,7 +101,7 @@ class TestManageVolunteerOpportunity(TestCase):
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
                       args=["GenericEvent", "1", "1"])
-        response = self.client.get(url)
+        response = self.client.get(url, follow=True)
         nt.assert_equal(response.status_code, 403)
 
     def test_good_user_get_not_post(self):
@@ -181,7 +181,7 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_equal(response.status_code, 200)
         opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
         nt.assert_false(opps.exists())
-        nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
+        nt.assert_in('<ul class="errorlist"><li>This field is required.</li></ul>',
                      response.content)
 
     def test_copy_opportunity(self):
@@ -272,7 +272,7 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
                      response.content)
-        nt.assert_in('<ul class="errorlist"><li>required</li></ul>',
+        nt.assert_in('<ul class="errorlist"><li>This field is required.</li></ul>',
                      response.content)
 
     def test_delete_opportunity(self):

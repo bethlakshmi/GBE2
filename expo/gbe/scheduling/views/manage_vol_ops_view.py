@@ -28,7 +28,11 @@ class ManageVolOpsView(MakeOccurrenceView):
                                           kwargs['eventitem_id'],
                                           kwargs['parent_event_id']]))
 
-    def make_post_response(self, request, response=None):
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           occurrence_id=None,
+                           errorcontext=None):
         self.success_url = reverse('edit_event_schedule',
                                       urlconf='gbe.scheduling.urls',
                                       args=[self.event_type,
@@ -38,7 +42,11 @@ class ManageVolOpsView(MakeOccurrenceView):
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
                 response.occurrence.pk)
-        return super(ManageVolOpsView, self).make_post_response(request, response)
+        return super(ManageVolOpsView, self).make_post_response(
+            request,
+            response,
+            occurrence_id,
+            errorcontext)
 
     @never_cache
     def post(self, request, *args, **kwargs):
@@ -76,7 +84,10 @@ class ManageVolOpsView(MakeOccurrenceView):
             else:
                 context = {'createform': self.event_form}
 
-            return self.make_post_response(request, response)
+            return self.make_post_response(request,
+                                           response=response,
+                                           occurrence_id=self.parent_id,
+                                           errorcontext=context)
 
         elif 'edit' in request.POST.keys():
             self.event = get_object_or_404(
@@ -96,7 +107,10 @@ class ManageVolOpsView(MakeOccurrenceView):
             else:
                 context = {'error_opp_form': self.event_form}
 
-            return self.make_post_response(request, response)
+            return self.make_post_response(request,
+                                           response=response,
+                                           occurrence_id=self.parent_id,
+                                           errorcontext=context)
 
         elif 'delete' in request.POST.keys():
             opp = get_object_or_404(GenericEvent,
