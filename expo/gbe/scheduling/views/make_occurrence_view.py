@@ -12,17 +12,20 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
-from gbe.scheduling.forms import ScheduleSelectionForm
+from gbe.scheduling.forms import (
+    ScheduleSelectionForm,
+    VolunteerOpportunityForm,
+)
 from scheduler.idd import (
     create_occurrence,
     get_occurrence,
+    get_occurrences,
     update_occurrence,
 )
 from scheduler.views.functions import (
     get_event_display_info,
 )
 from scheduler.views import (
-    get_manage_opportunity_forms,
     get_worker_allocation_forms,
 )
 from gbe.scheduling.views.functions import (
@@ -79,6 +82,75 @@ class MakeOccurrenceView(View):
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
 
+    def get_manage_opportunity_forms(self,
+                                     initial,
+                                     occurrence_id,
+                                     errorcontext=None):
+        '''
+        Generate the forms to allocate, edit, or delete volunteer
+        opportunities associated with a scheduler event.
+        '''
+        actionform = []
+        context = {}
+        response = get_occurrences(occurrence_id)
+        for vol_occurence in response.occurrences:
+            try:
+                vol_event = Event.objects.get_subclass(
+                    pk=vol_occurence.foreign_event_id)
+            except Event.DoesNotExist:
+                response.errors.append(Error(
+                    code="VOLUNTEER_EVENT_NOT_FOUND",
+                    details="Can't find Volunteer Event for id %s" % (
+                        vol_occurence.foreign_event_id)))
+            if (errorcontext and
+                    'error_opp_form' in errorcontext and
+                    errorcontext['error_opp_form'].instance == vol_event):
+                actionform.append(errorcontext['error_opp_form'])
+            else:
+                num_volunteers = vol_occurence.max_volunteer
+                date = vol_occurence.start_time.date()
+
+                time = vol_occurence.start_time.time
+                day = get_conference_day(
+                    conference=vol_event.e_conference,
+                    date=date)
+                location = vol_occurence.location
+                if location:
+                    room = location.room
+                else:
+                    room = self.occurrence.location.room
+                actionform.append(
+                    VolunteerOpportunityForm(
+                        instance=vol_event,
+                        initial={'opp_event_id': vol_event.event_id,
+                                 'opp_sched_id': vol_occurence.id,
+                                 'max_volunteer': num_volunteers,
+                                 'day': day,
+                                 'time': time,
+                                 'location': room,
+                                 },
+                        )
+                    )
+        context['actionform'] = actionform
+        if errorcontext and 'createform' in errorcontext:
+            createform = errorcontext['createform']
+        else:
+            createform = VolunteerOpportunityForm(
+                prefix='new_opp',
+                initial=initial,
+                conference=self.occurrence.eventitem.get_conference())
+
+        actionheaders = ['Title',
+                         'Volunteer Type',
+                         '#',
+                        'Duration',
+                        'Day',
+                        'Time',
+                        'Location']
+        context.update({'createform': createform,
+                        'actionheaders': actionheaders})
+        return context
+
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
         for volunteer in eligible_volunteers(
@@ -132,9 +204,9 @@ class MakeOccurrenceView(View):
                    }
         if self.occurrence:
             context['event_id'] = self.occurrence.pk
-            context['eventitem_id'] = self.occurrence.eventitem.eventitem_id
+            context['eventitem_id'] = self.occurrence.foreign_event_id
             initial_form_info['day'] = get_conference_day(
-                conference=self.occurrence.eventitem.get_conference(),
+                conference=self.item.get_conference(),
                 date=self.occurrence.starttime.date())
             initial_form_info['time'] = self.occurrence.starttime.strftime(
                 "%H:%M:%S")
@@ -176,9 +248,10 @@ class MakeOccurrenceView(View):
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
                 initial_form_info['duration'] = self.item.duration
-                context.update(get_manage_opportunity_forms(self.occurrence,
-                                                            initial_form_info,
-                                                            errorcontext))
+                context.update(
+                    self.get_manage_opportunity_forms(initial_form_info,
+                                                      occurrence_id,
+                                                      errorcontext))
                 if len(context['actionform']) > 0 and self.request.GET.get(
                         'changed_id', None):
                     context['changed_id'] = int(

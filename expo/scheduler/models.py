@@ -669,6 +669,10 @@ class Event(Schedulable):
                     allocation.save()
         return True
 
+    @property
+    def foreign_event_id(self):
+        return self.eventitem.eventitem_id
+
     # New - fits scheduling API refactor
     def set_locations(self, locations):
         '''

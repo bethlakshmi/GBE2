@@ -9,7 +9,6 @@ from remains import (
     get_manage_opportunity_forms,
     get_worker_allocation_forms,
     allocate_workers,
-    manage_volunteer_opportunities,
     contact_info,
     contact_performers,
     contact_volunteers,

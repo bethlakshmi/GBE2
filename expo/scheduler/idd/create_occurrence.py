@@ -8,7 +8,7 @@ from scheduler.data_transfer import OccurrenceResponse
 from scheduler.idd import get_occurrence
 
 
-def create_occurrence(event_id,
+def create_occurrence(foreign_event_id,
                       start_time,
                       max_volunteer=0,
                       people=[],
@@ -22,7 +22,7 @@ def create_occurrence(event_id,
 
     response = OccurrenceResponse()
     response.occurrence = Event(
-        eventitem=EventItem.objects.get(eventitem_id=event_id),
+        eventitem=EventItem.objects.get(eventitem_id=foreign_event_id),
         starttime=start_time,
         max_volunteer=max_volunteer)
     response.occurrence.save()
