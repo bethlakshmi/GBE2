@@ -106,14 +106,11 @@ class MakeOccurrenceView(View):
 
         return {'eligible_volunteers': volunteer_set}
 
-    @never_cache
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        scheduling_info = {}
+    def make_context(self, request, occurrence_id=None, errorcontext=None):
         initial_form_info = {}
-
-        if "occurrence_id" in kwargs:
-            result = get_occurrence(int(kwargs['occurrence_id']))
+        scheduling_info = {}
+        if occurrence_id:
+            result = get_occurrence(occurrence_id)
             if result.errors and len(result.errors) > 0:
                 show_scheduling_occurrence_status(
                     request,
@@ -161,23 +158,27 @@ class MakeOccurrenceView(View):
                 initial_form_info['duration'] = Duration(
                     self.item.duration.days,
                     self.item.duration.seconds)
-
-        context['form'] = ScheduleSelectionForm(
-            prefix='event',
-            instance=self.item,
-            initial=initial_form_info)
+        if errorcontext and ('form' in errorcontext):
+            context['form'] = errorcontext['form']
+        else:
+            context['form'] = ScheduleSelectionForm(
+                prefix='event',
+                instance=self.item,
+                initial=initial_form_info)
 
         if validate_perms(request,
                           ('Volunteer Coordinator',), require=False
                           ) and self.occurrence:
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
-                context.update(get_worker_allocation_forms(self.occurrence))
+                context.update(get_worker_allocation_forms(self.occurrence,
+                                                           errorcontext))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
                 initial_form_info['duration'] = self.item.duration
                 context.update(get_manage_opportunity_forms(self.occurrence,
-                                                            initial_form_info))
+                                                            initial_form_info,
+                                                            errorcontext))
                 if len(context['actionform']) > 0 and self.request.GET.get(
                         'changed_id', None):
                     context['changed_id'] = int(
@@ -187,6 +188,15 @@ class MakeOccurrenceView(View):
             request,
             self.template,
             context)
+
+    @never_cache
+    def get(self, request, *args, **kwargs):
+        self.groundwork(request, args, kwargs)
+        occurrence_id = None
+        if "occurrence_id" in kwargs:
+            occurrence_id = int(kwargs['occurrence_id'])
+
+        return self.make_context(request, occurrence_id)
 
     def get_basic_form_settings(self):
         self.event = self.event_form.save(commit=False)
@@ -203,7 +213,11 @@ class MakeOccurrenceView(View):
 
         return data
 
-    def make_post_response(self, request, response=None):
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           occurrence_id=None,
+                           errorcontext=None):
         if response:
             show_scheduling_occurrence_status(
                 request,
@@ -213,24 +227,23 @@ class MakeOccurrenceView(View):
         if response and response.occurrence:
             return HttpResponseRedirect(self.success_url)
         else:
-            return render(
-                request,
-                self.template,
-                {'eventitem': self.eventitem_view,
-                 'form': self.event_form,
-                 'user_id': request.user.id,
-                 'event_type': self.event_type})
+            return self.make_context(request, occurrence_id, errorcontext)
 
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         success = False
         response = None
+        context = None
         self.event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
             prefix='event')
-        self.create = ("occurrence_id" not in kwargs)
+        occurrence_id = None
+        self.create = True
+        if "occurrence_id" in kwargs:
+            occurrence_id = int(kwargs['occurrence_id'])
+            self.create = False
 
         if self.event_form.is_valid():
             data = self.get_basic_form_settings()
@@ -263,7 +276,13 @@ class MakeOccurrenceView(View):
                                             int(kwargs['occurrence_id'])])
             if response.occurrence:
                 self.event_form.save()
-        return self.make_post_response(request, response)
+        else:
+            context = {'form': self.event_form}
+
+        return self.make_post_response(request,
+                                       response=response,
+                                       occurrence_id=occurrence_id,
+                                       errorcontext=context)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

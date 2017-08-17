@@ -44,8 +44,10 @@ class ManageVolOpsView(MakeOccurrenceView):
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         self.parent_id = int(kwargs['parent_event_id'])
+        self.occurrence_id = self.parent_id
         self.create = False
         response = None
+        context = None
 
         if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
             self.create = True
@@ -71,7 +73,11 @@ class ManageVolOpsView(MakeOccurrenceView):
                     locations=[self.room],
                     labels=self.labels,
                     parent_event_id=self.parent_id)
+            else:
+                context = {'createform': self.event_form}
+
             return self.make_post_response(request, response)
+
         elif 'edit' in request.POST.keys():
             self.event = get_object_or_404(
                 GenericEvent,
@@ -87,7 +93,11 @@ class ManageVolOpsView(MakeOccurrenceView):
                     self.start_time,
                     self.max_volunteer,
                     locations=[self.room])
+            else:
+                context = {'error_opp_form': self.event_form}
+
             return self.make_post_response(request, response)
+
         elif 'delete' in request.POST.keys():
             opp = get_object_or_404(GenericEvent,
                                 event_id=request.POST['opp_event_id'])
