@@ -8,7 +8,10 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     RoomFactory
 )
-from scheduler.models import EventContainer
+from scheduler.models import (
+    EventContainer,
+    EventLabel,
+)
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -45,6 +48,7 @@ class TestManageVolunteerOpportunity(TestCase):
             'create': 'create',
             'new_opp-e_title': 'New Volunteer Opportunity',
             'new_opp-volunteer_type': self.avail_interest.pk,
+            'new_opp-type': "Volunteer",
             'new_opp-max_volunteer': '1',
             'new_opp-duration': '1:00:00',
             'new_opp-day': context.conf_day.pk,
@@ -56,6 +60,7 @@ class TestManageVolunteerOpportunity(TestCase):
         data = {
             'e_title': 'Copied Volunteer Opportunity',
             'volunteer_type': self.avail_interest.pk,
+            'type': 'Volunteer',
             'max_volunteer': '1',
             'duration': '1:00:00',
             'day': context.conf_day.pk,
@@ -162,10 +167,18 @@ class TestManageVolunteerOpportunity(TestCase):
                               self.context.sched_event.eventitem.eventitem_id,
                               self.context.sched_event.pk]),
                 opp.child_event.pk))
+            self.assertEqual(EventLabel.objects.filter(
+                text=opp.child_event.eventitem.child(
+                    ).e_conference.conference_slug,
+                event=opp.child_event).count(), 1)
+            self.assertEqual(EventLabel.objects.filter(
+                text="Volunteer",
+                event=opp.child_event).count(), 1)
 
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
+
 
     def test_create_opportunity_bad_parent(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')

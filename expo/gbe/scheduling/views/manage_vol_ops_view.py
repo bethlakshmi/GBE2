@@ -70,8 +70,6 @@ class ManageVolOpsView(MakeOccurrenceView):
                     conference=self.item.get_conference())
             if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
-
-                self.event.type = "Volunteer"
                 self.event.e_conference = self.item.get_conference()
                 self.event.save()
                 response = create_occurrence(

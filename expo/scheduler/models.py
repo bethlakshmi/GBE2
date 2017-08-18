@@ -647,28 +647,6 @@ class Event(Schedulable):
         except:
             return None   # need to do some defensive programming here
 
-    # DEPRECATE - when scheduling refactor is done
-    def set_location(self, location):
-        '''
-        location is a LocationItem or a Location resource
-        '''
-        if isinstance(location, LocationItem):
-            location = location.get_resource()
-
-        if self.location == location.item:
-            pass   # already set
-        elif self.location is None:
-            ra = ResourceAllocation(resource=location, event=self)
-            ra.save()
-        else:
-            locations = LocationItem.objects.all()
-            allocations = ResourceAllocation.objects.filter(event=self)
-            for allocation in allocations:
-                if allocation.resource.item in locations:
-                    allocation.resource = location
-                    allocation.save()
-        return True
-
     @property
     def foreign_event_id(self):
         return self.eventitem.eventitem_id

@@ -128,6 +128,7 @@ class MakeOccurrenceView(View):
                                  'day': day,
                                  'time': time,
                                  'location': room,
+                                 'type': "Volunteer"
                                  },
                         )
                     )
