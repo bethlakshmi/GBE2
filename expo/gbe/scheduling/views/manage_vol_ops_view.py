@@ -34,10 +34,10 @@ class ManageVolOpsView(MakeOccurrenceView):
                            occurrence_id=None,
                            errorcontext=None):
         self.success_url = reverse('edit_event_schedule',
-                                      urlconf='gbe.scheduling.urls',
-                                      args=[self.event_type,
-                                            self.item.eventitem_id,
-                                            self.parent_id])
+                                   urlconf='gbe.scheduling.urls',
+                                   args=[self.event_type,
+                                         self.item.eventitem_id,
+                                         self.parent_id])
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
@@ -57,7 +57,8 @@ class ManageVolOpsView(MakeOccurrenceView):
         response = None
         context = None
 
-        if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
+        if ('create' in request.POST.keys()) or (
+                'duplicate' in request.POST.keys()):
             self.create = True
             if 'create' in request.POST.keys():
                 self.event_form = VolunteerOpportunityForm(
@@ -111,8 +112,9 @@ class ManageVolOpsView(MakeOccurrenceView):
                                            errorcontext=context)
 
         elif 'delete' in request.POST.keys():
-            opp = get_object_or_404(GenericEvent,
-                                event_id=request.POST['opp_event_id'])
+            opp = get_object_or_404(
+                GenericEvent,
+                event_id=request.POST['opp_event_id'])
             opp.delete()
             return HttpResponseRedirect(
                 reverse('edit_event_schedule',

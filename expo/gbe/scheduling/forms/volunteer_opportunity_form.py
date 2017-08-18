@@ -10,6 +10,7 @@ from gbe.models import (
 )
 from gbe.scheduling.forms import ScheduleBasicForm
 
+
 class VolunteerOpportunityForm(ScheduleBasicForm):
     opp_event_id = IntegerField(
         widget=HiddenInput(),
@@ -24,6 +25,7 @@ class VolunteerOpportunityForm(ScheduleBasicForm):
         widget=HiddenInput(),
         required=True,
         initial="Volunteer")
+
     class Meta:
         model = GenericEvent
         fields = ['e_title',

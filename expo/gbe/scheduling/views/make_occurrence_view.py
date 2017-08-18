@@ -144,10 +144,10 @@ class MakeOccurrenceView(View):
         actionheaders = ['Title',
                          'Volunteer Type',
                          '#',
-                        'Duration',
-                        'Day',
-                        'Time',
-                        'Location']
+                         'Duration',
+                         'Day',
+                         'Time',
+                         'Location']
         context.update({'createform': createform,
                         'actionheaders': actionheaders})
         return context
@@ -323,7 +323,7 @@ class MakeOccurrenceView(View):
             data = self.get_basic_form_settings()
             self.people = get_single_role(data)
             self.people += get_multi_role(data)
-            
+
             if self.create:
                 response = create_occurrence(
                     self.event.eventitem_id,
@@ -343,11 +343,12 @@ class MakeOccurrenceView(View):
                     self.max_volunteer,
                     people=self.people,
                     locations=[self.room])
-                self.success_url = reverse('edit_event_schedule',
-                                      urlconf='gbe.scheduling.urls',
-                                      args=[self.event_type,
-                                            self.item.eventitem_id,
-                                            int(kwargs['occurrence_id'])])
+                self.success_url = reverse(
+                    'edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.event_type,
+                          self.item.eventitem_id,
+                          int(kwargs['occurrence_id'])])
             if response.occurrence:
                 self.event_form.save()
         else:

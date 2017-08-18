@@ -140,7 +140,8 @@ class TestManageVolunteerOpportunity(TestCase):
         self.assert_volunteer_type_selector(
             response,
             opp.eventitem.volunteer_type)
-        sched_day = date_format(self.context.sched_event.start_time, "DATE_FORMAT")
+        sched_day = date_format(
+            self.context.sched_event.start_time, "DATE_FORMAT")
         expected_string = 'selected="selected">%s</option>' % sched_day
         self.assertContains(response, expected_string)
 
@@ -179,7 +180,6 @@ class TestManageVolunteerOpportunity(TestCase):
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
-
     def test_create_opportunity_bad_parent(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
@@ -209,10 +209,12 @@ class TestManageVolunteerOpportunity(TestCase):
             data=data,
             follow=True)
         nt.assert_equal(response.status_code, 200)
-        opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
+        opps = EventContainer.objects.filter(
+            parent_event=self.context.sched_event)
         nt.assert_false(opps.exists())
-        nt.assert_in('<ul class="errorlist"><li>This field is required.</li></ul>',
-                     response.content)
+        nt.assert_in(
+            '<ul class="errorlist"><li>This field is required.</li></ul>',
+            response.content)
 
     def test_copy_opportunity(self):
         old = self.context.add_volunteer_opp(room=self.room)
@@ -242,7 +244,7 @@ class TestManageVolunteerOpportunity(TestCase):
                         args=['GenericEvent',
                               self.context.sched_event.eventitem.eventitem_id,
                               self.context.sched_event.pk]),
-                    opp.child_event.pk))
+                                          opp.child_event.pk))
 
     def test_edit_opportunity(self):
         vol_opp = self.context.add_volunteer_opp(room=self.room)
@@ -260,7 +262,8 @@ class TestManageVolunteerOpportunity(TestCase):
                           self.context.sched_event.eventitem.eventitem_id,
                           self.context.sched_event.pk]),
             vol_opp.pk))
-        opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
+        opps = EventContainer.objects.filter(
+            parent_event=self.context.sched_event)
         nt.assert_true(len(opps), 1)
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
@@ -281,7 +284,8 @@ class TestManageVolunteerOpportunity(TestCase):
                           self.context.sched_event.eventitem.eventitem_id,
                           self.context.sched_event.pk]),
             vol_opp.pk))
-        opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
+        opps = EventContainer.objects.filter(
+            parent_event=self.context.sched_event)
         nt.assert_true(len(opps), 1)
         nt.assert_in(self.room.name,
                      response.content)
@@ -302,8 +306,9 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
                      response.content)
-        nt.assert_in('<ul class="errorlist"><li>This field is required.</li></ul>',
-                     response.content)
+        nt.assert_in(
+            '<ul class="errorlist"><li>This field is required.</li></ul>',
+            response.content)
 
     def test_delete_opportunity(self):
         vol_opp = self.context.add_volunteer_opp(room=self.room)
@@ -318,7 +323,8 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_not_in('Modify Volunteer Opportunity',
                          response.content)
-        opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
+        opps = EventContainer.objects.filter(
+            parent_event=self.context.sched_event)
         nt.assert_false(opps.exists())
 
     def test_allocate_opportunity(self):
@@ -336,6 +342,7 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_equal(response.status_code, 200)
         nt.assert_not_in('Modify Volunteer Opportunity',
                          response.content)
-        opps = EventContainer.objects.filter(parent_event=self.context.sched_event)
+        opps = EventContainer.objects.filter(
+            parent_event=self.context.sched_event)
         nt.assert_true(opps.exists())
         nt.assert_in("Volunteer Allocation", response.content)
