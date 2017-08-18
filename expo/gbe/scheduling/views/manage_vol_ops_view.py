@@ -52,7 +52,6 @@ class ManageVolOpsView(MakeOccurrenceView):
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         self.parent_id = int(kwargs['parent_event_id'])
-        self.occurrence_id = self.parent_id
         self.create = False
         response = None
         context = None

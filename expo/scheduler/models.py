@@ -328,11 +328,8 @@ class LocationItem(ResourceItem):
         Return the resource corresonding to this item
         To do: find a way to make this work at the Resource level
         '''
-        try:
-            loc = Location.objects.select_subclasses().get(_item=self)
-        except:
-            loc = Location(_item=self)
-            loc.save()
+        loc = Location(_item=self)
+        loc.save()
         return loc
 
     @property
