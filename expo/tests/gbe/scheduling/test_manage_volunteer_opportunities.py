@@ -167,6 +167,23 @@ class TestManageVolunteerOpportunity(TestCase):
                      'type="text" value="New Volunteer Opportunity" />',
                      response.content)
 
+    def test_create_opportunity_bad_parent(self):
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        self.url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[self.context.sched_event.eventitem.event.__class__.__name__,
+                  self.context.sched_event.eventitem.eventitem_id,
+                  self.context.sched_event.pk+1])
+        response = self.client.post(
+            self.url,
+            data=self.get_new_opp_data(self.context),
+            follow=True)
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+1))
+
     def test_create_opportunity_error(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)

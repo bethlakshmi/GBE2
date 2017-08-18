@@ -235,65 +235,6 @@ def delete_event(request, eventitem_id, event_type):
                                         args=[event_type]))
 
 
-def get_manage_opportunity_forms(item, initial, errorcontext=None):
-    '''
-    Generate the forms to allocate, edit, or delete volunteer
-    opportunities associated with a scheduler event.
-    '''
-    actionform = []
-    context = {}
-    for opp in item.get_volunteer_opps():
-        if (errorcontext and
-                'error_opp_form' in errorcontext and
-                errorcontext['error_opp_form'].instance == opp['conf']):
-            actionform.append(errorcontext['error_opp_form'])
-        else:
-            sevent = opp['sched']
-            num_volunteers = sevent.max_volunteer
-            date = sevent.start_time.date()
-            conference = opp['conf'].e_conference
-
-            time = sevent.start_time.time
-            day = get_conference_day(conference=conference,
-                                     date=date)
-            location = sevent.location
-            if location:
-                room = location.room
-            else:
-                room = item.location.room
-            actionform.append(
-                VolunteerOpportunityForm(
-                    instance=opp['conf'],
-                    initial={'opp_event_id': opp['conf'].event_id,
-                             'opp_sched_id': opp['sched'].id,
-                             'max_volunteer': num_volunteers,
-                             'day': day,
-                             'time': time,
-                             'location': room,
-                             },
-                )
-            )
-    context['actionform'] = actionform
-    if errorcontext and 'createform' in errorcontext:
-        createform = errorcontext['createform']
-    else:
-        createform = VolunteerOpportunityForm(
-            prefix='new_opp',
-            initial=initial,
-            conference=item.eventitem.get_conference())
-
-    actionheaders = ['Title',
-                     'Volunteer Type',
-                     '#',
-                     'Duration',
-                     'Day',
-                     'Time',
-                     'Location']
-    context.update({'createform': createform,
-                    'actionheaders': actionheaders})
-    return context
-
-
 def get_worker_allocation_forms(opp, errorcontext=None):
     '''
     Returns a list of allocation forms for a volunteer opportunity
@@ -654,14 +595,6 @@ def edit_event_display(request, item, errorcontext=None):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
             context.update(get_volunteer_info(item))
-        else:
-            context.update(get_manage_opportunity_forms(item,
-                                                        initial,
-                                                        errorcontext))
-            if len(context['actionform']) > 0 and request.GET.get(
-                    'changed_id', None):
-                context['changed_id'] = int(
-                    request.GET.get('changed_id', None))
 
     scheduling_info = get_scheduling_info(item.as_subtype)
     if scheduling_info:
