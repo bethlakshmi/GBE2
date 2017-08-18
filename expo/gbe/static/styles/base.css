@@ -878,7 +878,7 @@ td.form_field.long_choice > ul > li
   color: black;
 }
 
-input#id_num_volunteers, input#id_new_opp-num_volunteers
+input#id_max_volunteer, input#id_new_opp-max_volunteer
 {
   width: 40px
 }

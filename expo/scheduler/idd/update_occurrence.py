@@ -12,9 +12,7 @@ def update_occurrence(occurrence_id,
                       start_time=None,
                       max_volunteer=None,
                       people=None,
-                      locations=None,
-                      parent_event=-1,
-                      labels=None):
+                      locations=None):
     response = get_occurrence(occurrence_id)
     if response.errors:
         return response
@@ -33,22 +31,5 @@ def update_occurrence(occurrence_id,
         Worker.objects.filter(allocations__event=response.occurrence).delete()
         for person in people:
             response.warnings += response.occurrence.allocate_person(person)
-
-    if labels is not None:
-        if EventLabel.objects.filter(event=response.occurrence).exists():
-            EventLabel.objects.filter(event=response.occurrence).delete()
-        for label in labels:
-            response.occurrence.add_label(label)
-
-    if parent_event:
-        if parent_event != -1:
-            family = EventContainer(
-                parent_event=parent_event,
-                child_event=response.occurrence)
-            family.save()
-    # no parent event means "delete all parents"
-    elif EventContainer.objects.filter(
-            child_event=response.occurrence).exists():
-        EventContainer.objects.filter(child_event=response.occurrence).delete()
 
     return response

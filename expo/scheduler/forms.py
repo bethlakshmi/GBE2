@@ -11,7 +11,7 @@ from gbe.forms.common_queries import (
 )
 import pytz
 from gbe.models import Show
-from gbe.scheduling.forms.schedule_selection_form import conference_times
+from gbe.scheduling.forms.schedule_basic_form import conference_times
 
 
 class ActScheduleForm(forms.Form):
