@@ -54,7 +54,7 @@ from gbe_forms_text import (
 
 
 class MakeOccurrenceView(View):
-    template = 'scheduler/event_schedule.tmpl'
+    template = 'gbe/scheduling/event_schedule.tmpl'
     permissions = ('Scheduling Mavens',)
 
     role_key = {

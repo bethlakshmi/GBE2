@@ -548,7 +548,7 @@ def get_volunteer_info(opp, errorcontext=None):
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
 
-    template = 'scheduler/event_schedule.tmpl'
+    template = 'gbe/scheduling/event_schedule.tmpl'
     context = {'user_id': request.user.id,
                'event_id': item.id,
                'event_edit_url': reverse('edit_event_schedule',
