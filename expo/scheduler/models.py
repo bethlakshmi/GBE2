@@ -328,8 +328,11 @@ class LocationItem(ResourceItem):
         Return the resource corresonding to this item
         To do: find a way to make this work at the Resource level
         '''
-        loc = Location(_item=self)
-        loc.save()
+        try:
+            loc = Location.objects.select_subclasses().get(_item=self)
+        except:
+            loc = Location(_item=self)
+            loc.save()
         return loc
 
     @property
@@ -655,8 +658,8 @@ class Event(Schedulable):
         and replaces them with the given list.  Locations are expected to be
         location items
         '''
-        if Location.objects.filter(allocations__event=self).exists():
-            Location.objects.filter(allocations__event=self).delete()
+        if ResourceAllocation.objects.filter(event=self).exists():
+            ResourceAllocation.objects.filter(event=self).delete()
         for location in locations:
             ra = ResourceAllocation(
                 resource=location.get_resource(),
