@@ -658,7 +658,32 @@ tr.blank_row
   background-color: #D0D0D0 ;
 }
 
+tr.event_opp_row > td
+{
+  padding: 3px;
+  vertical-align: middle;
+}
 
+tr.changed > td
+{
+  padding: 3px;
+  vertical-align: middle;
+}
+
+tr.changed > td > select
+{
+  padding: 4px 0 4px 0;
+}
+
+tr.event_opp_row > td > select
+{
+  padding: 4px 0 4px 0;
+}
+
+tr.changed > td
+{
+  padding: 3px;
+}
 div.gbe-alert 
 {
     background-color: rgba(241, 221, 91, 01);
