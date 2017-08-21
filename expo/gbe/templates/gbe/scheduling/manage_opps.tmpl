@@ -3,6 +3,12 @@
 <div class=side_box>
   <h2>Volunteer Management</h2>
   <p># = Number of Volunteers Needed</p>
+  <i class="fa fa-pencil" aria-hidden="true"></i> - Edit &nbsp;&nbsp;||&nbsp;&nbsp;
+  <i class="fa fa-clone" aria-hidden="true"></i> - Copy &nbsp;&nbsp;||&nbsp;&nbsp;
+  <i class="fa fa-users" aria-hidden="true"></i> - Setup Staff &nbsp;&nbsp;||&nbsp;&nbsp;
+  <i class="fa fa-times" aria-hidden="true"></i> - Delete &nbsp;&nbsp;||&nbsp;&nbsp;
+  <i class="fa fa-plus" aria-hidden="true"></i> - Copy
+  <br><br>
   <table class="event_opps">
     <tr> 
     {% for header in actionheaders %}
@@ -29,18 +35,26 @@
 	{% endfor %}
 	  <td>
 	    <div class="btn-group" role="group" aria-label="...">
-              <button class="btn btn-default" type="submit" name="edit" value="Edit">
-	        <i class="fa fa-pencil" aria-hidden="true"></i>
-	      </button>
-	      <button class="btn btn-default" type="submit" name="duplicate" value="Copy">
-	        <i class="fa fa-clone" aria-hidden="true"></i>
-              </button>
-              <button class="btn btn-default" type="submit" name="allocate" value="Staff">
-         	  <i class="fa fa-users" aria-hidden="true"></i>
-              </button>
-	      <button class="btn btn-default" type="submit" name="delete" value="Delete">
-                <i class="fa fa-times" aria-hidden="true"></i>
-              </button>
+	      <a href="#" data-toggle="tooltip" title="Edit">
+                <button class="btn btn-default" type="submit" name="edit" value="Edit">
+	          <i class="fa fa-pencil" aria-hidden="true"></i>
+	        </button>
+	      </a>
+	      <a href="#" data-toggle="tooltip" title="Copy">
+  	        <button class="btn btn-default" type="submit" name="duplicate" value="Copy">
+	          <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
+	      </a>
+	      <a href="#" data-toggle="tooltip" title="Setup Staff">
+                <button class="btn btn-default" type="submit" name="allocate" value="Staff">
+         	    <i class="fa fa-users" aria-hidden="true"></i>
+                </button>
+	      </a>
+	      <a href="#" data-toggle="tooltip" title="Delete">
+	        <button class="btn btn-default" type="submit" name="delete" value="Delete">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+	      </a>
 	    </div>
 	  </td>
       </form>	      
@@ -65,9 +79,11 @@
 	{% endfor %}
  	<td>
 	  <div class="btn-group" role="group" aria-label="...">
+	    <a href="#" data-toggle="tooltip" title="Create New">
               <button class="btn btn-default" type="submit" name="create" value="Create">
 	        <i class="fa fa-plus" aria-hidden="true"></i>
 	      </button>
+	    </a>
 	  </div>
 	</td>
 
