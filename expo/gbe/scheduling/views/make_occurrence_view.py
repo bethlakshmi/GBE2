@@ -245,9 +245,16 @@ class MakeOccurrenceView(View):
                     if person.role == "Panelist":
                         panelists += [person.public_id]
                     elif person.role in self.role_key:
-                        initial_form_info[self.role_key[person.role]] = eval(
-                            self.role_class[person.role]
-                            ).objects.get(pk=person.public_id)
+                        try:
+                            initial_form_info[
+                                self.role_key[person.role]] = eval(
+                                self.role_class[person.role]
+                                ).objects.get(pk=person.public_id)
+                        except Performer.DoesNotExist:
+                            initial_form_info[
+                                self.role_key[person.role]
+                                ] = Profile.objects.get(
+                                pk=person.public_id)
             initial_form_info['panelists'] = panelists
         else:
             initial_form_info['location'] = self.item.default_location
