@@ -35,8 +35,10 @@ class TestAllocateWorkers(TestCase):
             self.volunteer_opp)
         self.url = reverse(
             self.view_name,
-            args=[self.volunteer_opp.pk],
-            urlconf="scheduler.urls")
+            args=["GenericEvent",
+                  self.volunteer_opp.eventitem.eventitem_id,
+                  self.volunteer_opp.pk],
+            urlconf="gbe.scheduling.urls")
 
     def get_edit_data(self):
         data = self.get_either_data()
@@ -86,7 +88,7 @@ class TestAllocateWorkers(TestCase):
             'value="' + notes + '" />')
         self.assertContains(
             response,
-            '<form method="POST" action="/scheduler/allocate/' +
+            '<form method="POST" action="/scheduling/allocate/' +
             str(volunteer_opp.pk) + '"', count=allocations)
 
     def assert_good_post(self,
@@ -137,8 +139,10 @@ class TestAllocateWorkers(TestCase):
         allocations = volunteer_opp.resources_allocated.all()
         volunteer = ProfileFactory()
         url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
+                      args=["GenericEvent",
+                            volunteer_opp.eventitem.eventitem_id,
+                            volunteer_opp.pk],
+                      urlconf="gbe.scheduling.urls")
         data = self.get_create_data()
         data['worker'] = volunteer.pk,
 
@@ -169,8 +173,10 @@ class TestAllocateWorkers(TestCase):
             volunteer=volunteer,
             interest=volunteer_opp.as_subtype.volunteer_type)
         url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
+                      args=["GenericEvent",
+                            volunteer_opp.eventitem.eventitem_id,
+                            volunteer_opp.pk],
+                      urlconf="gbe.scheduling.urls")
         data = self.get_create_data()
         data['worker'] = volunteer.profile.pk,
 

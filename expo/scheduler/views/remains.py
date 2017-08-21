@@ -422,67 +422,6 @@ def contact_by_role(request, participant_type):
     return response
 
 
-def edit_event_display(request, item, errorcontext=None):
-    from gbe.models import Performer
-
-    template = 'gbe/scheduling/event_schedule.tmpl'
-    context = {'user_id': request.user.id,
-               'event_id': item.id,
-               'event_edit_url': reverse('edit_event_schedule',
-                                         urlconf='gbe.scheduling.urls',
-                                         args=[item.event_type_name,
-                                               item.eventitem.eventitem_id,
-                                               item.id])}
-    context['eventitem'] = get_event_display_info(item.eventitem.eventitem_id)
-
-    initial = {}
-    initial['duration'] = item.duration
-    initial['day'] = get_conference_day(
-        conference=item.eventitem.get_conference(),
-        date=item.starttime.date())
-    initial['time'] = item.starttime.strftime("%H:%M:%S")
-    initial['description'] = item.as_subtype.sched_payload['description']
-    initial['title'] = item.as_subtype.sched_payload['title']
-    initial['location'] = item.location
-
-    allocs = ResourceAllocation.objects.filter(event=item)
-    workers = [Worker.objects.get(id=a.resource.id)
-               for a in allocs if type(a.resource.item) == WorkerItem]
-    teachers = [worker for worker in workers if worker.role == 'Teacher']
-    moderators = [worker for worker in workers if worker.role == 'Moderator']
-    panelists = Performer.objects.filter(worker__role='Panelist',
-                                         worker__allocations__event=item)
-    staff_leads = [worker for worker in workers if worker.role == 'Staff Lead']
-
-    # Set initial values for specialized event roles
-    if len(teachers) > 0:
-        initial['teacher'] = teachers[0].item
-    if len(moderators) > 0:
-        initial['moderator'] = moderators[0].item
-    if len(panelists) > 0:
-        initial['panelists'] = panelists
-    if len(staff_leads) > 0:
-        initial['staff_lead'] = staff_leads[0].item
-
-    context['event_type'] = item.event_type_name
-
-    if validate_perms(request, ('Volunteer Coordinator',), require=False):
-        if (item.event_type_name == 'GenericEvent' and
-                item.as_subtype.type == 'Volunteer'):
-
-            context.update(get_volunteer_info(item))
-
-    scheduling_info = get_scheduling_info(item.as_subtype)
-    if scheduling_info:
-        context['scheduling_info'] = scheduling_info
-
-    context['form'] = EventScheduleForm(
-        prefix='event',
-        instance=item,
-        initial=initial)
-    return render(request, template, context)
-
-
 def view_list(request, event_type='All'):
     if not event_type.lower() in list_titles:
         event_type = "All"

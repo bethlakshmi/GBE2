@@ -12,7 +12,6 @@ from remains import (
     contact_teachers,
     contact_vendors,
     contact_by_role,
-    edit_event_display,
     view_list,
     calendar_view,
 )
