@@ -1,3 +1,4 @@
 from make_occurrence_view import MakeOccurrenceView
 from create_event_view import CreateEventView
 from manage_vol_ops_view import ManageVolOpsView
+from allocate_worker_view import AllocateWorkerView

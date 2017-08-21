@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     ScheduleSelectionForm,
     VolunteerOpportunityForm,
+    WorkerAllocationForm,
 )
 from scheduler.idd import (
     create_occurrence,
@@ -24,9 +25,6 @@ from scheduler.idd import (
 )
 from scheduler.views.functions import (
     get_event_display_info,
-)
-from scheduler.views import (
-    get_worker_allocation_forms,
 )
 from gbe.scheduling.views.functions import (
     get_single_role,
@@ -47,7 +45,6 @@ from gbe.functions import (
 )
 from gbe.duration import Duration
 from gbe.views.class_display_functions import get_scheduling_info
-from scheduler.forms import WorkerAllocationForm
 from gbe_forms_text import (
     rank_interest_options,
 )
@@ -152,6 +149,35 @@ class MakeOccurrenceView(View):
                         'actionheaders': actionheaders})
         return context
 
+    def get_worker_allocation_forms(self, opp, errorcontext=None):
+        '''
+        Returns a list of allocation forms for a volunteer opportunity
+        Each form can be used to schedule one worker. Initially, must
+        allocate one at a time.
+        '''
+        forms = []
+        for person in opp.people:
+            if (errorcontext and
+                    'worker_alloc_forms' in errorcontext and
+                    errorcontext['worker_alloc_forms'].cleaned_data[
+                        'alloc_id'] == person.booking_id):
+                forms.append(errorcontext['worker_alloc_forms'])
+            else:
+                forms.append(WorkerAllocationForm(
+                    initial={
+                        'worker': Profile.objects.get(pk=person.public_id),
+                        'role': person.role,
+                        'label': person.label,
+                        'alloc_id': person.booking_id}))
+        if errorcontext and 'new_worker_alloc_form' in errorcontext:
+            forms.append(errorcontext['new_worker_alloc_form'])
+        else:
+            forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
+                                                       'alloc_id': -1}))
+        return {'worker_alloc_forms': forms,
+                'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
+                'opp_id': opp.id}
+
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
         for volunteer in eligible_volunteers(
@@ -244,7 +270,7 @@ class MakeOccurrenceView(View):
                           ) and self.occurrence:
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
-                context.update(get_worker_allocation_forms(self.occurrence,
+                context.update(self.get_worker_allocation_forms(self.occurrence,
                                                            errorcontext))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
@@ -303,6 +329,7 @@ class MakeOccurrenceView(View):
         else:
             return self.make_context(request, occurrence_id, errorcontext)
 
+
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
@@ -321,15 +348,15 @@ class MakeOccurrenceView(View):
 
         if self.event_form.is_valid():
             data = self.get_basic_form_settings()
-            self.people = get_single_role(data)
-            self.people += get_multi_role(data)
+            people = get_single_role(data)
+            people += get_multi_role(data)
 
             if self.create:
                 response = create_occurrence(
                     self.event.eventitem_id,
                     self.start_time,
                     self.max_volunteer,
-                    people=self.people,
+                    people=people,
                     locations=[self.room],
                     labels=self.labels)
                 self.success_url = reverse(
@@ -341,7 +368,7 @@ class MakeOccurrenceView(View):
                     int(kwargs['occurrence_id']),
                     self.start_time,
                     self.max_volunteer,
-                    people=self.people,
+                    people=people,
                     locations=[self.room])
                 self.success_url = reverse(
                     'edit_event_schedule',

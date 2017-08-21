@@ -13,7 +13,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
-from gbe.scheduling.forms import VolunteerOpportunityForm
+from gbe.scheduling.forms import (
+    VolunteerOpportunityForm,
+    WorkerAllocationForm,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     login,
@@ -53,7 +56,6 @@ from gbe.functions import (
     get_conference_by_slug,
     get_conference_day,
     get_events_list_by_type,
-    send_schedule_update_mail,
     validate_perms,
     validate_profile,
 )
@@ -233,103 +235,6 @@ def delete_event(request, eventitem_id, event_type):
     return HttpResponseRedirect(reverse('event_schedule',
                                         urlconf='scheduler.urls',
                                         args=[event_type]))
-
-
-def get_worker_allocation_forms(opp, errorcontext=None):
-    '''
-    Returns a list of allocation forms for a volunteer opportunity
-    Each form can be used to schedule one worker. Initially, must
-    allocate one at a time.
-    '''
-    allocations = ResourceAllocation.objects.filter(event=opp)
-    allocs = (alloc for alloc in allocations if
-              type(alloc.resource.item).__name__ == 'WorkerItem' and
-              type(alloc.resource.item.as_subtype).__name__ == 'Profile')
-    forms = []
-    for alloc in allocs:
-        if (errorcontext and
-                'worker_alloc_forms' in errorcontext and
-                errorcontext['worker_alloc_forms'].cleaned_data[
-                    'alloc_id'] == alloc.id):
-            forms.append(errorcontext['worker_alloc_forms'])
-        else:
-            forms.append(WorkerAllocationForm(
-                initial={'worker': alloc.resource.item.as_subtype,
-                         'role': Worker.objects.get(
-                             id=alloc.resource.id).role,
-                         'label': alloc.get_label,
-                         'alloc_id': alloc.id}))
-    if errorcontext and 'new_worker_alloc_form' in errorcontext:
-        forms.append(errorcontext['new_worker_alloc_form'])
-    else:
-        forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
-                                                   'alloc_id': -1}))
-    return {'worker_alloc_forms': forms,
-            'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
-            'opp_id': opp.id}
-
-
-@login_required
-@never_cache
-def allocate_workers(request, opp_id):
-    '''
-    Process a worker allocation form
-    Needs a scheduler_event id
-    '''
-    if request.method != "POST":
-        raise Http404
-
-    coordinator = validate_perms(request, ('Volunteer Coordinator',))
-
-    opp = get_object_or_404(Event, id=opp_id)
-    form = WorkerAllocationForm(request.POST)
-
-    if 'delete' in request.POST.keys():
-        alloc = ResourceAllocation.objects.get(id=request.POST['alloc_id'])
-        res = alloc.resource
-        profile = res.as_subtype.workeritem
-        alloc.delete()
-        res.delete()
-        # This delete looks dangerous, considering that Event.allocate_worker
-        # seems to allow us to create multiple allocations for the same Worker
-        send_schedule_update_mail("Volunteer", profile)
-
-    elif not form.is_valid():
-        if request.POST['alloc_id'] == '-1':
-            form.data['alloc_id'] = -1
-            return edit_event_display(
-                request,
-                opp,
-                {'new_worker_alloc_form': form})
-        else:
-            get_object_or_404(ResourceAllocation,
-                              id=request.POST['alloc_id'])
-            return edit_event_display(
-                request,
-                opp,
-                {'worker_alloc_forms': form})
-
-    else:
-        data = form.cleaned_data
-        if data.get('worker', None):
-            if data['role'] == "Volunteer":
-                data['worker'].workeritem.as_subtype.check_vol_bid(
-                    opp.eventitem.get_conference())
-            warnings = opp.allocate_worker(
-                data['worker'].workeritem,
-                data['role'],
-                data['label'],
-                data['alloc_id'])
-            for warning in warnings:
-                messages.warning(
-                    request,
-                    warning)
-            send_schedule_update_mail("Volunteer", data['worker'])
-    return HttpResponseRedirect(reverse('edit_event_schedule',
-                                        urlconf='gbe.scheduling.urls',
-                                        args=[opp.event_type_name,
-                                              opp.eventitem.pk,
-                                              opp_id]))
 
 
 @login_required
@@ -517,34 +422,6 @@ def contact_by_role(request, participant_type):
     return response
 
 
-def get_volunteer_info(opp, errorcontext=None):
-    volunteer_set = []
-    for volunteer in eligible_volunteers(
-            opp.start_time,
-            opp.end_time,
-            opp.eventitem.get_conference()):
-        assign_form = WorkerAllocationForm(
-            initial={'role': 'Volunteer',
-                     'worker': volunteer.profile,
-                     'alloc_id': -1})
-        assign_form.fields['worker'].widget = forms.HiddenInput()
-        assign_form.fields['label'].widget = forms.HiddenInput()
-        volunteer_set += [{
-            'display_name': volunteer.profile.display_name,
-            'interest': rank_interest_options[
-                volunteer.volunteerinterest_set.get(
-                    interest=opp.as_subtype.volunteer_type).rank],
-            'available': volunteer.check_available(
-                opp.start_time,
-                opp.end_time),
-            'conflicts': volunteer.profile.get_conflicts(opp),
-            'id': volunteer.pk,
-            'assign_form': assign_form
-        }]
-
-    return {'eligible_volunteers': volunteer_set}
-
-
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
 
@@ -593,7 +470,6 @@ def edit_event_display(request, item, errorcontext=None):
         if (item.event_type_name == 'GenericEvent' and
                 item.as_subtype.type == 'Volunteer'):
 
-            context.update(get_worker_allocation_forms(item, errorcontext))
             context.update(get_volunteer_info(item))
 
     scheduling_info = get_scheduling_info(item.as_subtype)

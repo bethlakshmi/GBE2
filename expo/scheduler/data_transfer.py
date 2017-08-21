@@ -41,21 +41,34 @@ class Error(object):
         self.details = details
 
 
-class OccurrenceResponse(object):
+class GeneralResponse(object):
+    def __init__(self,
+                 warnings=[],
+                 errors=[]):
+        self.warnings = warnings
+        self.errors = errors
+
+class OccurrenceResponse(GeneralResponse):
     def __init__(self,
                  occurrence=None,
                  warnings=[],
                  errors=[]):
         self.occurrence = occurrence
-        self.warnings = warnings
-        self.errors = errors
+        super(OccurrenceResponse, self).__init__(warnings, errors)
 
 
-class OccurrencesResponse(object):
+class OccurrencesResponse(GeneralResponse):
     def __init__(self,
                  occurrences=[],
                  warnings=[],
                  errors=[]):
         self.occurrences = occurrences
-        self.warnings = warnings
-        self.errors = errors
+        super(OccurrencesResponse, self).__init__(warnings, errors)
+
+class PersonResponse(GeneralResponse):
+    def __init__(self,
+                 booking_id=None,
+                 warnings=[],
+                 errors=[]):
+        self.booking_id = booking_id
+        super(PersonResponse, self).__init__(warnings, errors)

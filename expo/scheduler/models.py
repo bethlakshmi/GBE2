@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.core.validators import RegexValidator
 from scheduler.data_transfer import (
     Person,
-    Warning
+    PersonResponse,
+    Warning,
 )
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
@@ -672,9 +673,12 @@ class Event(Schedulable):
         people = []
         for booking in ResourceAllocation.objects.filter(event=self):
             if booking.resource.as_subtype.__class__.__name__ == "Worker":
-                people += [Person(
+                person = Person(
                     booking_id=booking.pk,
-                    worker=booking.resource.worker)]
+                    worker=booking.resource.worker)
+                if hasattr(booking, 'label'):
+                    person.label = booking.label.text
+                people += [person]
         return people
 
     # New - from refactoring
@@ -683,7 +687,7 @@ class Event(Schedulable):
         allocated worker for the new model - right now, focused on create
         uses the Person from the data_transfer objects.
         '''
-        warnings = []
+        person_response = PersonResponse()
         time_format = DATETIME_FORMAT
 
         worker = None
@@ -696,7 +700,7 @@ class Event(Schedulable):
         worker.save()
 
         for conflict in worker.workeritem.get_conflicts(self):
-            warnings += [
+            person_response.warnings += [
                 Warning(
                     code="SCHEDULE_CONFLICT",
                     user=person.user,
@@ -709,14 +713,15 @@ class Event(Schedulable):
             allocation = ResourceAllocation(event=self,
                                             resource=worker)
         allocation.save()
+        person_response.booking_id = allocation.pk
         if self.extra_volunteers() > 0:
-            warnings += [Warning(
+            person_response.warnings += [Warning(
                 code="OCCURRENCE_OVERBOOKED",
                 details="Over booked by %s volunteers" % (
                     self.extravolunteers()))]
         if person.label:
             allocation.set_label(person.label)
-        return warnings
+        return person_response
 
     def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''

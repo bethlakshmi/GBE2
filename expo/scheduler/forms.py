@@ -36,21 +36,6 @@ class ActScheduleForm(forms.Form):
                 eventitem__in=conf_shows)
 
 
-class WorkerAllocationForm (forms.Form):
-    '''
-    Form for selecting a worker to fill a slot in a Volunteer Opportunity
-    '''
-    required_css_class = 'required'
-    error_css_class = 'error'
-
-    worker = forms.ModelChoiceField(
-        queryset=visible_profiles,
-        required=False)
-    role = forms.ChoiceField(choices=role_options, initial='Volunteer')
-    label = forms.CharField(max_length=100, required=False)
-    alloc_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
-
-
 class EventItemScheduleForm(forms.ModelForm):
     '''
     When we save an Event, we need to save changes to its duration

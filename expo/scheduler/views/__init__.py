@@ -6,8 +6,6 @@ from remains import (
     schedule_acts,
     delete_schedule,
     delete_event,
-    get_worker_allocation_forms,
-    allocate_workers,
     contact_info,
     contact_performers,
     contact_volunteers,

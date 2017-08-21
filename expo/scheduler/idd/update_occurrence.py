@@ -30,6 +30,7 @@ def update_occurrence(occurrence_id,
     if people is not None:
         Worker.objects.filter(allocations__event=response.occurrence).delete()
         for person in people:
-            response.warnings += response.occurrence.allocate_person(person)
+            response.warnings += response.occurrence.allocate_person(
+                person).warnings
 
     return response

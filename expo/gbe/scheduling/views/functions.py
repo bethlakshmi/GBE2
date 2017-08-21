@@ -13,7 +13,7 @@ def get_single_role(data, roles=None):
                  ('moderator', 'Moderator'),
                  ('staff_lead', 'Staff Lead')]
     for role_key, role in roles:
-        if data[role_key]:
+        if role_key in data:
             people += [Person(
                 user=data[role_key].workeritem.as_subtype.user_object,
                 public_id=data[role_key].workeritem.pk,
@@ -26,7 +26,7 @@ def get_multi_role(data, roles=None):
     if not roles:
         roles = [('panelists', 'Panelist')]
     for role_key, role in roles:
-        if len(data[role_key]) > 0:
+        if role_key in data and len(data[role_key]) > 0:
             for worker in data[role_key]:
                 people += [Person(
                     user=worker.workeritem.as_subtype.user_object,
