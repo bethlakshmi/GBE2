@@ -1,6 +1,6 @@
 import pytz
 from datetime import datetime, time
-from scheduler.idd.data_transfer import Person
+from scheduler.data_transfer import Person
 from django.contrib import messages
 from gbe.models import UserMessage
 from expo.settings import DATETIME_FORMAT

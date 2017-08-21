@@ -17,9 +17,10 @@ from tests.contexts import (
     StaffAreaContext,
 )
 from gbe.models import AvailableInterest
+from django.utils.formats import date_format
 
 
-class TestEventList(TestCase):
+class TestManageVolunteerOpportunity(TestCase):
     view_name = 'manage_opps'
 
     def setUp(self):
@@ -104,10 +105,13 @@ class TestEventList(TestCase):
                       urlconf="scheduler.urls",
                       args=[context.sched_event.pk])
         response = self.client.get(url, follow=True)
-        assert_redirects(response, reverse('edit_event',
-                                           urlconf='scheduler.urls',
-                                           args=['GenericEvent',
-                                                 context.sched_event.pk]))
+        assert_redirects(
+            response,
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
+                          context.sched_event.pk]))
         assert "Volunteer Management" in response.content
 
     def test_good_user_get_w_interest(self):
@@ -136,6 +140,9 @@ class TestEventList(TestCase):
         self.assert_volunteer_type_selector(
             response,
             opp.eventitem.volunteer_type)
+        sched_day = date_format(context.sched_event.start_time, "DATE_FORMAT")
+        expected_string = 'selected="selected">%s</option>' % sched_day
+        self.assertContains(response, expected_string)
 
     def test_create_opportunity(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
@@ -157,9 +164,10 @@ class TestEventList(TestCase):
                 response,
                 opp.child_event.eventitem.child().volunteer_type)
             assert_redirects(response, "%s?changed_id=%d" % (
-                reverse('edit_event',
-                        urlconf='scheduler.urls',
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
                         args=['GenericEvent',
+                              context.sched_event.eventitem.eventitem_id,
                               context.sched_event.pk]),
                 opp.child_event.pk))
 
@@ -212,9 +220,10 @@ class TestEventList(TestCase):
                 response.content)
             if opp.child_event != old:
                 assert_redirects(response, "%s?changed_id=%d" % (
-                    reverse('edit_event',
-                            urlconf='scheduler.urls',
+                    reverse('edit_event_schedule',
+                            urlconf='gbe.scheduling.urls',
                             args=['GenericEvent',
+                                  context.sched_event.eventitem.eventitem_id,
                                   context.sched_event.pk]),
                     opp.child_event.pk))
 
@@ -232,15 +241,41 @@ class TestEventList(TestCase):
             data=self.get_basic_action_data(context, vol_opp, 'edit'),
             follow=True)
         assert_redirects(response, "%s?changed_id=%d" % (
-            reverse('edit_event',
-                    urlconf='scheduler.urls',
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
                     args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
                           context.sched_event.pk]),
             vol_opp.pk))
         opps = EventContainer.objects.filter(parent_event=context.sched_event)
         nt.assert_true(len(opps), 1)
         nt.assert_in('<input id="id_e_title" maxlength="128" name="e_title" ' +
                      'type="text" value="Modify Volunteer Opportunity" />',
+                     response.content)
+
+    def test_edit_opportunity_change_room(self):
+        context = StaffAreaContext()
+        vol_opp = context.add_volunteer_opp()
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="scheduler.urls",
+                      args=[context.sched_event.pk])
+
+        response = self.client.post(
+            url,
+            data=self.get_basic_action_data(context, vol_opp, 'edit'),
+            follow=True)
+        assert_redirects(response, "%s?changed_id=%d" % (
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=['GenericEvent',
+                          context.sched_event.eventitem.eventitem_id,
+                          context.sched_event.pk]),
+            vol_opp.pk))
+        opps = EventContainer.objects.filter(parent_event=context.sched_event)
+        nt.assert_true(len(opps), 1)
+        nt.assert_in(self.room.name,
                      response.content)
 
     def test_edit_opportunity_error(self):

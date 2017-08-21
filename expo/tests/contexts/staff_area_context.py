@@ -2,7 +2,6 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
     ConferenceDayFactory,
     ConferenceFactory,
-    PersonaFactory,
     ProfileFactory,
     RoomFactory,
 )
@@ -26,7 +25,7 @@ class StaffAreaContext:
                  staff_lead=None,
                  conference=None,
                  starttime=None):
-        self.staff_lead = staff_lead or PersonaFactory()
+        self.staff_lead = staff_lead or ProfileFactory()
         self.conference = conference or ConferenceFactory()
         self.area = area or GenericEventFactory(type='Staff Area',
                                                 e_conference=self.conference)

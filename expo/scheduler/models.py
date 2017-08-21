@@ -2,7 +2,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.core.validators import RegexValidator
-from scheduler.idd.data_transfer import Warning
+from scheduler.data_transfer import (
+    Person,
+    Warning
+)
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
 from gbetext import *
@@ -530,12 +533,6 @@ class EventItem (models.Model):
     def get_conference(self):
         return self.child().e_conference
 
-    def day_options(self):
-        return self.get_conference().conferenceday_set.all()
-
-    def volunteer_options(self):
-        return VolunteerWindow.objects.filter(day__in=self.day_options())
-
     @property
     def bios(self):
         people = WorkerItem.objects.filter(
@@ -548,6 +545,7 @@ class EventItem (models.Model):
             people = self.bio_payload
         return people
 
+    # DEPRECATE - when scheduling refactored
     def roles(self, roles=['Teacher',
                            'Panelist',
                            'Moderator',
@@ -567,11 +565,6 @@ class EventItem (models.Model):
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
-
-    def set_duration(self, duration):
-        child = self.child()
-        child.duration = duration
-        child.save(update_fields=('duration',))
 
     def remove(self):
         Event.objects.filter(eventitem=self).delete()
@@ -654,6 +647,7 @@ class Event(Schedulable):
         except:
             return None   # need to do some defensive programming here
 
+    # DEPRECATE - when scheduling refactor is done
     def set_location(self, location):
         '''
         location is a LocationItem or a Location resource
@@ -675,6 +669,33 @@ class Event(Schedulable):
                     allocation.save()
         return True
 
+    # New - fits scheduling API refactor
+    def set_locations(self, locations):
+        '''
+        Takes a LIST of locations, removes all existing location settings
+        and replaces them with the given list.  Locations are expected to be
+        location items
+        '''
+        if Location.objects.filter(allocations__event=self).exists():
+            Location.objects.filter(allocations__event=self).delete()
+        for location in locations:
+            ra = ResourceAllocation(
+                resource=location.get_resource(),
+                event=self)
+            ra.save()
+
+    # New - from refactoring
+    @property
+    def people(self):
+        people = []
+        for booking in ResourceAllocation.objects.filter(event=self):
+            if booking.resource.as_subtype.__class__.__name__ == "Worker":
+                people += [Person(
+                    booking_id=booking.pk,
+                    worker=booking.resource.worker)]
+        return people
+
+    # New - from refactoring
     def allocate_person(self, person):
         '''
         allocated worker for the new model - right now, focused on create
@@ -769,17 +790,6 @@ class Event(Schedulable):
             resource__worker___item=worker,
             resource__worker__role=role).delete()
 
-    def unallocate_role(self, role):
-        '''
-        Remove all Worker allocations with this role
-        '''
-        allocations = ResourceAllocation.objects.filter(event=self)
-        for allocation in allocations:
-            if type(allocation.resource.item) == WorkerItem:
-                if Worker.objects.get(
-                        id=allocation.resource.id).role == role:
-                    allocation.delete()
-
     def get_volunteer_opps(self, role='Volunteer'):
         '''
         return volunteer opportunities associated with this event
@@ -828,6 +838,7 @@ class Event(Schedulable):
                 return "%d acts" % acts
         return 0
 
+    # DEPRECATE - when scheduling is refactored
     def get_workers(self, worker_type=None):
         '''
         Return a list of workers allocated to this event,
@@ -863,6 +874,7 @@ class Event(Schedulable):
             acts = [act for act in acts if act.accepted == status]
         return acts
 
+    # DEPRECATE - when scheduling is refactored
     def get_direct_workers(self, worker_role=None):
         '''
         Returns workers allocated directly to an Event -
@@ -958,12 +970,6 @@ class Event(Schedulable):
                      worker.role,
                      category))
         return info
-
-    def set_duration(self, duration):
-        '''
-        duration should be a gbe.Duration or a timedelta
-        '''
-        self.eventitem.set_duration(duration)
 
     @property
     def event_type_name(self):
@@ -1064,6 +1070,7 @@ class Event(Schedulable):
             is_conflict = True
         return is_conflict
 
+    # New with Scheduler API
     def add_label(self, label):
         label = EventLabel(text=label, event=self)
         label.save()

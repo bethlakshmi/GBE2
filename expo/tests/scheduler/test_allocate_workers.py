@@ -97,10 +97,13 @@ class TestAllocateWorkers(TestCase):
                          notes,
                          role="Volunteer",
                          allocations=2):
-        self.assertRedirects(response,
-                             reverse('edit_event',
-                                     urlconf='scheduler.urls',
-                                     args=["GenericEvent", volunteer_opp.pk]))
+        self.assertRedirects(
+            response,
+            reverse('edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=["GenericEvent",
+                          volunteer_opp.eventitem.eventitem_id,
+                          volunteer_opp.pk]))
         self.assert_post_contents(response,
                                   volunteer_opp,
                                   volunteer,
@@ -277,9 +280,11 @@ class TestAllocateWorkers(TestCase):
         self.assertRedirects(
             response,
             reverse(
-                'edit_event',
-                urlconf='scheduler.urls',
-                args=["GenericEvent", self.volunteer_opp.pk]))
+                'edit_event_schedule',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      self.volunteer_opp.eventitem.eventitem_id,
+                      self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
             '<option value="' + str(self.volunteer.pk) +
@@ -301,9 +306,11 @@ class TestAllocateWorkers(TestCase):
         self.assertRedirects(
             response,
             reverse(
-                'edit_event',
-                urlconf='scheduler.urls',
-                args=["GenericEvent", self.volunteer_opp.pk]))
+                'edit_event_schedule',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      self.volunteer_opp.eventitem.eventitem_id,
+                      self.volunteer_opp.pk]))
         assert_email_template_used(
             "A change has been made to your Volunteer Schedule!")
 
@@ -316,9 +323,11 @@ class TestAllocateWorkers(TestCase):
         self.assertRedirects(
             response,
             reverse(
-                'edit_event',
-                urlconf='scheduler.urls',
-                args=["GenericEvent", self.volunteer_opp.pk]))
+                'edit_event_schedule',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      self.volunteer_opp.eventitem.eventitem_id,
+                      self.volunteer_opp.pk]))
         self.assertNotContains(
             response,
             '<option value="' + str(self.volunteer.pk) +
