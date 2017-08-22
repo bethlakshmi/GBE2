@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     assert_email_template_used,
     grant_privilege,
     is_login_page,
@@ -361,13 +362,22 @@ class TestAllocateWorkers(TestCase):
         data = self.get_create_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' % (
+                self.volunteer.display_name) +
+            'Conflicting booking: %s, Start Time: %s' % (
+                self.volunteer_opp.eventitem.e_title,
+                'Fri, Feb 5 12:00 PM')
+            )
 
     def test_post_form_valid_make_new_allocation_w_overfull(self):
         data = self.get_create_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Over by 1 volunteer.")
+        self.assertContains(response, "Over booked by 1 volunteers")
 
     def test_post_form_edit_w_conflict(self):
         overbook_opp = self.context.add_volunteer_opp()
@@ -377,4 +387,13 @@ class TestAllocateWorkers(TestCase):
         data = self.get_edit_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' % (
+                self.volunteer.display_name) +
+            'Conflicting booking: %s, Start Time: %s' % (
+                self.volunteer_opp.eventitem.e_title,
+                'Fri, Feb 5 12:00 PM')
+            )

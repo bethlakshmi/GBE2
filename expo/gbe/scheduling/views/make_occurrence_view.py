@@ -163,12 +163,15 @@ class MakeOccurrenceView(View):
                         'alloc_id'] == person.booking_id):
                 forms.append(errorcontext['worker_alloc_forms'])
             else:
-                forms.append(WorkerAllocationForm(
-                    initial={
-                        'worker': Profile.objects.get(pk=person.public_id),
-                        'role': person.role,
-                        'label': person.label,
-                        'alloc_id': person.booking_id}))
+                try:
+                    forms.append(WorkerAllocationForm(
+                        initial={
+                            'worker': Profile.objects.get(pk=person.public_id),
+                            'role': person.role,
+                            'label': person.label,
+                            'alloc_id': person.booking_id}))
+                except Profile.DoesNotExist:
+                    pass
         if errorcontext and 'new_worker_alloc_form' in errorcontext:
             forms.append(errorcontext['new_worker_alloc_form'])
         else:
@@ -376,6 +379,7 @@ class MakeOccurrenceView(View):
                     self.start_time,
                     self.max_volunteer,
                     people=people,
+                    roles=["Teacher", "Staff Lead", "Moderator", "Panelist"],
                     locations=[self.room])
                 self.success_url = reverse(
                     'edit_event_schedule',

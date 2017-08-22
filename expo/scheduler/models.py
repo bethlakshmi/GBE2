@@ -659,8 +659,9 @@ class Event(Schedulable):
         and replaces them with the given list.  Locations are expected to be
         location items
         '''
-        if ResourceAllocation.objects.filter(event=self).exists():
-            ResourceAllocation.objects.filter(event=self).delete()
+        for assignment in ResourceAllocation.objects.filter(event=self):
+            if assignment.resource.as_subtype.__class__.__name__ == "Location":
+                assignment.delete()
         for location in locations:
             ra = ResourceAllocation(
                 resource=location.get_resource(),
@@ -718,7 +719,7 @@ class Event(Schedulable):
             person_response.warnings += [Warning(
                 code="OCCURRENCE_OVERBOOKED",
                 details="Over booked by %s volunteers" % (
-                    self.extravolunteers()))]
+                    self.extra_volunteers()))]
         if person.label:
             allocation.set_label(person.label)
         return person_response
