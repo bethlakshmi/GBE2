@@ -60,18 +60,18 @@ class AllocateWorkerView(MakeOccurrenceView):
         occurrence_id = None
         if "occurrence_id" in kwargs:
             occurrence_id = int(kwargs['occurrence_id'])
-
         if not form.is_valid():
             context = None
             if request.POST['alloc_id'] == '-1':
                 form.data['alloc_id'] = -1
                 context = {'new_worker_alloc_form': form}
             else:
-                is_present = test_booking(int(request.POST['alloc_id']), occurrence_id)
+                is_present = test_booking(
+                    int(request.POST['alloc_id']), occurrence_id)
                 if not is_present:
                     response = PersonResponse(errors=[Error(
                         code="BOOKING_NOT_FOUND",
-                        details="Could not find booking id %s for occurrence id %d." % (
+                        details="Booking id %s for occurrence %d not found" % (
                             request.POST['alloc_id'], occurrence_id)), ])
                 context = {'worker_alloc_forms': form}
             return self.make_post_response(request,
@@ -81,6 +81,14 @@ class AllocateWorkerView(MakeOccurrenceView):
         else:
             data = form.cleaned_data
             if 'delete' in request.POST.keys():
+                if ('alloc_id' not in request.POST) or (len(
+                        request.POST['alloc_id']) == 0):
+                    return self.make_post_response(
+                        request,
+                        PersonResponse(errors=[Error(
+                            code="NO_BOOKING",
+                            details="No booking id for occurrence id %d." % (
+                                occurrence_id))]), occurrence_id)
                 response = remove_booking(occurrence_id,
                                           booking_id=int(request.POST['alloc_id']))
                 if response.booking_id:

@@ -1,7 +1,6 @@
 from django.shortcuts import (
     render,
     get_object_or_404,
-    render_to_response,
 )
 from django.http import (
     HttpResponse,
@@ -9,26 +8,17 @@ from django.http import (
     Http404,
 )
 from django.db.models import Count
-from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
-from gbe.scheduling.forms import (
-    VolunteerOpportunityForm,
-    WorkerAllocationForm,
-)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     login,
     logout,
     authenticate,
 )
-from django.forms.models import inlineformset_factory
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import reverse
-from datetime import datetime
-from datetime import time as dttime
-import pytz
 import csv
 from scheduler.table import table
 from gbe_forms_text import (
@@ -37,7 +27,6 @@ from gbe_forms_text import (
 from gbetext import acceptance_states
 from gbe.duration import (
     Duration,
-    DateTimeRange,
 )
 from scheduler.functions import (
     cal_times_for_conf,
@@ -51,18 +40,15 @@ from scheduler.views.functions import (
 )
 from gbe.functions import (
     conference_slugs,
-    eligible_volunteers,
     get_current_conference,
     get_conference_by_slug,
-    get_conference_day,
     get_events_list_by_type,
     validate_perms,
     validate_profile,
 )
-from gbe.views.class_display_functions import get_scheduling_info
-from django.contrib import messages
 from expo.settings import DATE_FORMAT
 from django.utils.formats import date_format
+from gbe_forms_text import list_text
 
 
 @login_required

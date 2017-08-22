@@ -350,6 +350,33 @@ class TestAllocateWorkers(TestCase):
             response,
             'This field is required.')
 
+    def test_post_form_valid_delete_allocation_w_no_alloc(self):
+        data = self.get_edit_data()
+        data['alloc_id'] = ''
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'NO_BOOKING  No booking id for occurrence id %d.' % (
+                self.volunteer_opp.pk))
+
+    def test_post_form_valid_delete_allocation_w_bad_alloc(self):
+        data = self.get_edit_data()
+        data['alloc_id'] = self.alloc.pk + 100
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'BOOKING_NOT_FOUND  Could not find booking id ' +
+            '%d for occurrence id %d.' % (self.alloc.pk + 100,
+                                          self.volunteer_opp.pk))
+
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
         data = self.get_edit_data()

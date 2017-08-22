@@ -125,8 +125,9 @@ def show_scheduling_booking_status(request, booking_response, view):
                 view=view,
                 code="BOOKING_UPDATE_SUCCESS",
                 defaults={
-                    'summary': "User assignment has been updated.",
-                    'description': "User has been assigned to event"})
+                    'summary': "Update successful",
+                    'description': "User has been assigned to " +
+                    "or deleted from the event"})
         messages.success(
             request,
             user_message[0].description)
