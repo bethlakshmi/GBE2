@@ -362,6 +362,7 @@ class TestAllocateWorkers(TestCase):
         data = self.get_create_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
+        print response
         assert_alert_exists(
             response,
             'warning',
@@ -370,7 +371,7 @@ class TestAllocateWorkers(TestCase):
                 self.volunteer.display_name) +
             'Conflicting booking: %s, Start Time: %s' % (
                 self.volunteer_opp.eventitem.e_title,
-                'Fri, Feb 5 12:00 PM')
+                'Wed, Feb 4 12:00 AM')
             )
 
     def test_post_form_valid_make_new_allocation_w_overfull(self):
@@ -395,5 +396,5 @@ class TestAllocateWorkers(TestCase):
                 self.volunteer.display_name) +
             'Conflicting booking: %s, Start Time: %s' % (
                 self.volunteer_opp.eventitem.e_title,
-                'Fri, Feb 5 12:00 PM')
+                'Wed, Feb 4 12:00 AM')
             )
