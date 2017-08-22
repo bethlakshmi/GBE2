@@ -28,7 +28,7 @@ class AllocateWorkerView(MakeOccurrenceView):
                                     urlconf='gbe.scheduling.urls',
                                     args=[kwargs['event_type'],
                                           kwargs['eventitem_id'],
-                                          kwargs['parent_event_id']]))
+                                          kwargs['occurrence_id']]))
 
     def make_post_response(self,
                            request,
