@@ -688,7 +688,7 @@ class Event(Schedulable):
         allocated worker for the new model - right now, focused on create
         uses the Person from the data_transfer objects.
         '''
-        person_response = PersonResponse()
+        warnings = []
         time_format = DATETIME_FORMAT
 
         worker = None
@@ -699,13 +699,11 @@ class Event(Schedulable):
         else:
             worker = Worker(_item=self.user.profile, role=person.role)
         worker.save()
-
+        
         for conflict in worker.workeritem.get_conflicts(self):
-            person_response.warnings += [
-                Warning(
-                    code="SCHEDULE_CONFLICT",
-                    user=person.user,
-                    occurrence=conflict)]
+            warnings += [Warning(code="SCHEDULE_CONFLICT",
+                                 user=person.user,
+                                 occurrence=conflict)]
         if person.booking_id:
             allocation = ResourceAllocation.objects.get(
                 id=person.booking_id)
@@ -714,15 +712,14 @@ class Event(Schedulable):
             allocation = ResourceAllocation(event=self,
                                             resource=worker)
         allocation.save()
-        person_response.booking_id = allocation.pk
         if self.extra_volunteers() > 0:
-            person_response.warnings += [Warning(
+            warnings += [Warning(
                 code="OCCURRENCE_OVERBOOKED",
                 details="Over booked by %s volunteers" % (
                     self.extra_volunteers()))]
         if person.label:
             allocation.set_label(person.label)
-        return person_response
+        return PersonResponse(warnings=warnings, booking_id=allocation.pk)
 
     def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''

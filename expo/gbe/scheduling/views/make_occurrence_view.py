@@ -114,8 +114,9 @@ class MakeOccurrenceView(View):
                 location = vol_occurence.location
                 if location:
                     room = location.room
-                else:
+                elif self.occurrence.location:
                     room = self.occurrence.location.room
+
                 actionform.append(
                     VolunteerOpportunityForm(
                         instance=vol_event,
