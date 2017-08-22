@@ -346,26 +346,9 @@ class TestAllocateWorkers(TestCase):
         data['delete'] = 1
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertRedirects(
-            response,
-            reverse(
-                'edit_event_schedule',
-                urlconf='gbe.scheduling.urls',
-                args=["GenericEvent",
-                      self.volunteer_opp.eventitem.eventitem_id,
-                      self.volunteer_opp.pk]))
-        self.assertNotContains(
-            response,
-            '<option value="' + str(self.volunteer.pk) +
-            '" selected="selected">' + str(self.volunteer) + '</option>')
-        self.assertNotContains(
-            response,
-            '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
-            str(self.alloc.pk) + '" />')
         self.assertContains(
             response,
-            '<form method="POST" action="/scheduler/allocate/' +
-            str(self.volunteer_opp.pk) + '"', count=1)
+            'This field is required.')
 
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
