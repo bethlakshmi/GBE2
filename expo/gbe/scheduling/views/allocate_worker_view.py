@@ -77,7 +77,7 @@ class AllocateWorkerView(MakeOccurrenceView):
             return self.make_post_response(request,
                                            response=response,
                                            occurrence_id=occurrence_id,
-                                           errorcontext=context) 
+                                           errorcontext=context)
         else:
             data = form.cleaned_data
             if 'delete' in request.POST.keys():
@@ -89,8 +89,9 @@ class AllocateWorkerView(MakeOccurrenceView):
                             code="NO_BOOKING",
                             details="No booking id for occurrence id %d." % (
                                 occurrence_id))]), occurrence_id)
-                response = remove_booking(occurrence_id,
-                                          booking_id=int(request.POST['alloc_id']))
+                response = remove_booking(
+                    occurrence_id,
+                    booking_id=int(request.POST['alloc_id']))
                 if response.booking_id:
                     send_schedule_update_mail(
                         "Volunteer", data['worker'].workeritem.as_subtype)
@@ -118,4 +119,4 @@ class AllocateWorkerView(MakeOccurrenceView):
                                              occurrence_id])
         return self.make_post_response(request,
                                        response=response,
-                                       occurrence_id=occurrence_id) 
+                                       occurrence_id=occurrence_id)

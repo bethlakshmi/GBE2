@@ -31,7 +31,8 @@ def update_occurrence(occurrence_id,
     warnings = []
     if people is not None:
         if roles == "All":
-            Worker.objects.filter(allocations__event=response.occurrence).delete()
+            Worker.objects.filter(
+                allocations__event=response.occurrence).delete()
         else:
             Worker.objects.filter(allocations__event=response.occurrence,
                                   role__in=roles).delete()

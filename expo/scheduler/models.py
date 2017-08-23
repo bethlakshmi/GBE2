@@ -699,7 +699,7 @@ class Event(Schedulable):
         else:
             worker = Worker(_item=self.user.profile, role=person.role)
         worker.save()
-        
+
         for conflict in worker.workeritem.get_conflicts(self):
             warnings += [Warning(code="SCHEDULE_CONFLICT",
                                  user=person.user,

@@ -275,8 +275,9 @@ class MakeOccurrenceView(View):
                           ) and self.occurrence:
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
-                context.update(self.get_worker_allocation_forms(self.occurrence,
-                                                           errorcontext))
+                context.update(
+                    self.get_worker_allocation_forms(self.occurrence,
+                                                     errorcontext))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
                 initial_form_info['duration'] = self.item.duration
@@ -333,7 +334,6 @@ class MakeOccurrenceView(View):
             return HttpResponseRedirect(self.success_url)
         else:
             return self.make_context(request, occurrence_id, errorcontext)
-
 
     @never_cache
     def post(self, request, *args, **kwargs):

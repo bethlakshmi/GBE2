@@ -41,6 +41,7 @@ def get_start_time(data):
     starttime = time(*time_parts, tzinfo=pytz.utc)
     return datetime.combine(day, starttime)
 
+
 #
 # Takes the HTTP Request from the view and builds the following user messages,
 #   based upon the nature of the occurrence_response from scheduling:
@@ -108,6 +109,7 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
                 str(occurrence_response.occurrence),
                 occurrence_response.occurrence.starttime.strftime(
                     DATETIME_FORMAT)))
+
 
 #
 # Takes the HTTP Request from the view and builds the following user messages,

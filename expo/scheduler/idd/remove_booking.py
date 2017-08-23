@@ -14,7 +14,8 @@ def remove_booking(occurrence_id,
         if not test:
             response.errors = [Error(
                 code="BOOKING_NOT_FOUND",
-                details="Could not find booking id %d for occurrence id %d." % (
+                details="Could not find booking id " +
+                "%d for occurrence id %d." % (
                     booking_id, occurrence_id))]
             return response
     ResourceAllocation.objects.filter(pk=booking_id).delete()

@@ -48,6 +48,7 @@ class GeneralResponse(object):
         self.warnings = warnings
         self.errors = errors
 
+
 class OccurrenceResponse(GeneralResponse):
     def __init__(self,
                  occurrence=None,
@@ -64,6 +65,7 @@ class OccurrencesResponse(GeneralResponse):
                  errors=[]):
         self.occurrences = occurrences
         super(OccurrencesResponse, self).__init__(warnings, errors)
+
 
 class PersonResponse(GeneralResponse):
     def __init__(self,
