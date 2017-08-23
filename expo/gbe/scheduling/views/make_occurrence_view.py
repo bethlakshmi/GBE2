@@ -12,17 +12,20 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
-from gbe.scheduling.forms import ScheduleSelectionForm
+from gbe.scheduling.forms import (
+    ScheduleSelectionForm,
+    VolunteerOpportunityForm,
+)
 from scheduler.idd import (
     create_occurrence,
     get_occurrence,
+    get_occurrences,
     update_occurrence,
 )
 from scheduler.views.functions import (
     get_event_display_info,
 )
 from scheduler.views import (
-    get_manage_opportunity_forms,
     get_worker_allocation_forms,
 )
 from gbe.scheduling.views.functions import (
@@ -51,7 +54,9 @@ from gbe_forms_text import (
 
 
 class MakeOccurrenceView(View):
-    template = 'scheduler/event_schedule.tmpl'
+    template = 'gbe/scheduling/event_schedule.tmpl'
+    permissions = ('Scheduling Mavens',)
+
     role_key = {
         'Staff Lead': 'staff_lead',
         'Moderator': 'moderator',
@@ -64,16 +69,88 @@ class MakeOccurrenceView(View):
         'Teacher': 'Performer',
     }
     occurrence = None
+    people = []
+    event_form = None
 
     def groundwork(self, request, args, kwargs):
         eventitem_id = kwargs['eventitem_id']
         self.event_type = kwargs['event_type'] or 'Class'
-        self.profile = validate_perms(request, ('Scheduling Mavens',))
+        self.profile = validate_perms(request, self.permissions)
         try:
             self.item = Event.objects.get_subclass(pk=eventitem_id)
         except Event.DoesNotExist:
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)
+
+    def get_manage_opportunity_forms(self,
+                                     initial,
+                                     occurrence_id,
+                                     errorcontext=None):
+        '''
+        Generate the forms to allocate, edit, or delete volunteer
+        opportunities associated with a scheduler event.
+        '''
+        actionform = []
+        context = {}
+        response = get_occurrences(occurrence_id)
+        for vol_occurence in response.occurrences:
+            try:
+                vol_event = Event.objects.get_subclass(
+                    pk=vol_occurence.foreign_event_id)
+            except Event.DoesNotExist:
+                response.errors.append(Error(
+                    code="VOLUNTEER_EVENT_NOT_FOUND",
+                    details="Can't find Volunteer Event for id %s" % (
+                        vol_occurence.foreign_event_id)))
+            if (errorcontext and
+                    'error_opp_form' in errorcontext and
+                    errorcontext['error_opp_form'].instance == vol_event):
+                actionform.append(errorcontext['error_opp_form'])
+            else:
+                num_volunteers = vol_occurence.max_volunteer
+                date = vol_occurence.start_time.date()
+
+                time = vol_occurence.start_time.time
+                day = get_conference_day(
+                    conference=vol_event.e_conference,
+                    date=date)
+                location = vol_occurence.location
+                if location:
+                    room = location.room
+                else:
+                    room = self.occurrence.location.room
+                actionform.append(
+                    VolunteerOpportunityForm(
+                        instance=vol_event,
+                        initial={'opp_event_id': vol_event.event_id,
+                                 'opp_sched_id': vol_occurence.id,
+                                 'max_volunteer': num_volunteers,
+                                 'day': day,
+                                 'time': time,
+                                 'location': room,
+                                 'type': "Volunteer"
+                                 },
+                        )
+                    )
+        context['actionform'] = actionform
+        if errorcontext and 'createform' in errorcontext:
+            createform = errorcontext['createform']
+        else:
+            createform = VolunteerOpportunityForm(
+                prefix='new_opp',
+                initial=initial,
+                conference=self.occurrence.eventitem.get_conference())
+
+        actionheaders = ['Title',
+                         'Volunteer Type',
+                         '#',
+                         'Duration',
+                         'Day',
+                         'Time',
+                         'Location']
+        context.update({'createform': createform,
+                        'actionheaders': actionheaders})
+        return context
 
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
@@ -102,14 +179,11 @@ class MakeOccurrenceView(View):
 
         return {'eligible_volunteers': volunteer_set}
 
-    @never_cache
-    def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
-        scheduling_info = {}
+    def make_context(self, request, occurrence_id=None, errorcontext=None):
         initial_form_info = {}
-
-        if "occurrence_id" in kwargs:
-            result = get_occurrence(int(kwargs['occurrence_id']))
+        scheduling_info = {}
+        if occurrence_id:
+            result = get_occurrence(occurrence_id)
             if result.errors and len(result.errors) > 0:
                 show_scheduling_occurrence_status(
                     request,
@@ -131,8 +205,9 @@ class MakeOccurrenceView(View):
                    }
         if self.occurrence:
             context['event_id'] = self.occurrence.pk
+            context['eventitem_id'] = self.occurrence.foreign_event_id
             initial_form_info['day'] = get_conference_day(
-                conference=self.occurrence.eventitem.get_conference(),
+                conference=self.item.get_conference(),
                 date=self.occurrence.starttime.date())
             initial_form_info['time'] = self.occurrence.starttime.strftime(
                 "%H:%M:%S")
@@ -156,23 +231,28 @@ class MakeOccurrenceView(View):
                 initial_form_info['duration'] = Duration(
                     self.item.duration.days,
                     self.item.duration.seconds)
-
-        context['form'] = ScheduleSelectionForm(
-            prefix='event',
-            instance=self.item,
-            initial=initial_form_info)
+        if errorcontext and ('form' in errorcontext):
+            context['form'] = errorcontext['form']
+        else:
+            context['form'] = ScheduleSelectionForm(
+                prefix='event',
+                instance=self.item,
+                initial=initial_form_info)
 
         if validate_perms(request,
                           ('Volunteer Coordinator',), require=False
                           ) and self.occurrence:
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
-                context.update(get_worker_allocation_forms(self.occurrence))
+                context.update(get_worker_allocation_forms(self.occurrence,
+                                                           errorcontext))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
                 initial_form_info['duration'] = self.item.duration
-                context.update(get_manage_opportunity_forms(self.occurrence,
-                                                            initial_form_info))
+                context.update(
+                    self.get_manage_opportunity_forms(initial_form_info,
+                                                      occurrence_id,
+                                                      errorcontext))
                 if len(context['actionform']) > 0 and self.request.GET.get(
                         'changed_id', None):
                     context['changed_id'] = int(
@@ -184,66 +264,100 @@ class MakeOccurrenceView(View):
             context)
 
     @never_cache
+    def get(self, request, *args, **kwargs):
+        self.groundwork(request, args, kwargs)
+        occurrence_id = None
+        if "occurrence_id" in kwargs:
+            occurrence_id = int(kwargs['occurrence_id'])
+
+        return self.make_context(request, occurrence_id)
+
+    def get_basic_form_settings(self):
+        self.event = self.event_form.save(commit=False)
+        data = self.event_form.cleaned_data
+        self.room = get_object_or_404(Room, name=data['location'])
+        self.max_volunteer = 0
+        if data['max_volunteer']:
+                self.max_volunteer = data['max_volunteer']
+        self.start_time = get_start_time(data)
+        if self.create:
+            self.labels = [self.item.e_conference.conference_slug]
+            if self.event.calendar_type:
+                self.labels += [self.event.calendar_type]
+
+        return data
+
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           occurrence_id=None,
+                           errorcontext=None):
+        if response:
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
+
+        if response and response.occurrence:
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.make_context(request, occurrence_id, errorcontext)
+
+    @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-
-        event_form = ScheduleSelectionForm(
+        success = False
+        response = None
+        context = None
+        self.event_form = ScheduleSelectionForm(
             request.POST,
             instance=self.item,
             prefix='event')
-        if event_form.is_valid():
-            event = event_form.save(commit=False)
-            data = event_form.cleaned_data
+        occurrence_id = None
+        self.create = True
+        if "occurrence_id" in kwargs:
+            occurrence_id = int(kwargs['occurrence_id'])
+            self.create = False
 
-            room = get_object_or_404(Room, name=data['location'])
-            people = get_single_role(data)
-            people += get_multi_role(data)
-            max_volunteer = 0
-            if data['max_volunteer']:
-                max_volunteer = data['max_volunteer']
-            start_time = get_start_time(data)
-            if "occurrence_id" not in kwargs:
-                labels = [event.e_conference.conference_slug]
-                if event.calendar_type:
-                    labels += [event.calendar_type]
+        if self.event_form.is_valid():
+            data = self.get_basic_form_settings()
+            self.people = get_single_role(data)
+            self.people += get_multi_role(data)
+
+            if self.create:
                 response = create_occurrence(
-                    event.eventitem_id,
-                    start_time,
-                    max_volunteer,
-                    people=people,
-                    locations=[room],
-                    labels=labels)
-                success_url = reverse(
+                    self.event.eventitem_id,
+                    self.start_time,
+                    self.max_volunteer,
+                    people=self.people,
+                    locations=[self.room],
+                    labels=self.labels)
+                self.success_url = reverse(
                     'event_schedule',
                     urlconf='scheduler.urls',
                     args=[self.event_type])
             else:
                 response = update_occurrence(
                     int(kwargs['occurrence_id']),
-                    start_time,
-                    max_volunteer,
-                    people=people,
-                    locations=[room])
-                success_url = reverse('edit_event_schedule',
-                                      urlconf='gbe.scheduling.urls',
-                                      args=[self.event_type,
-                                            self.item.eventitem_id,
-                                            int(kwargs['occurrence_id'])])
+                    self.start_time,
+                    self.max_volunteer,
+                    people=self.people,
+                    locations=[self.room])
+                self.success_url = reverse(
+                    'edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.event_type,
+                          self.item.eventitem_id,
+                          int(kwargs['occurrence_id'])])
             if response.occurrence:
-                event_form.save()
-            show_scheduling_occurrence_status(
-                request,
-                response,
-                self.__class__.__name__)
-            return HttpResponseRedirect(success_url)
+                self.event_form.save()
         else:
-            return render(
-                request,
-                self.template,
-                {'eventitem': self.eventitem_view,
-                 'form': event_form,
-                 'user_id': request.user.id,
-                 'event_type': self.event_type})
+            context = {'form': self.event_form}
+
+        return self.make_post_response(request,
+                                       response=response,
+                                       occurrence_id=occurrence_id,
+                                       errorcontext=context)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

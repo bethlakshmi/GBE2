@@ -7,6 +7,8 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
 {% endblock %}
 {% block content %}
  
@@ -86,10 +88,10 @@
 
 
   {% if worker_alloc_forms %}
-  {% include "scheduler/allocate_volunteers.tmpl" %}
+  {% include "gbe/scheduling/allocate_volunteers.tmpl" %}
 
   {% elif event_id %}
-  {% include "scheduler/manage_opps.tmpl" %}
+  {% include "gbe/scheduling/manage_opps.tmpl" %}
 
 
   {% endif %}

@@ -49,3 +49,13 @@ class OccurrenceResponse(object):
         self.occurrence = occurrence
         self.warnings = warnings
         self.errors = errors
+
+
+class OccurrencesResponse(object):
+    def __init__(self,
+                 occurrences=[],
+                 warnings=[],
+                 errors=[]):
+        self.occurrences = occurrences
+        self.warnings = warnings
+        self.errors = errors

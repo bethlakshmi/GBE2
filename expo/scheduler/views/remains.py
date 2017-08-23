@@ -13,7 +13,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
-from gbe.forms import VolunteerOpportunityForm
+from gbe.scheduling.forms import VolunteerOpportunityForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     login,
@@ -235,66 +235,6 @@ def delete_event(request, eventitem_id, event_type):
                                         args=[event_type]))
 
 
-def get_manage_opportunity_forms(item, initial, errorcontext=None):
-    '''
-    Generate the forms to allocate, edit, or delete volunteer
-    opportunities associated with a scheduler event.
-    '''
-    actionform = []
-    context = {}
-    for opp in item.get_volunteer_opps():
-        if (errorcontext and
-                'error_opp_form' in errorcontext and
-                errorcontext['error_opp_form'].instance == opp['conf']):
-            actionform.append(errorcontext['error_opp_form'])
-        else:
-            sevent = opp['sched']
-            num_volunteers = sevent.max_volunteer
-            date = sevent.start_time.date()
-            conference = opp['conf'].e_conference
-
-            time = sevent.start_time.time
-            day = get_conference_day(conference=conference,
-                                     date=date)
-            location = sevent.location
-            if location:
-                room = location.room
-            else:
-                room = item.location.room
-            actionform.append(
-                VolunteerOpportunityForm(
-                    instance=opp['conf'],
-                    initial={'opp_event_id': opp['conf'].event_id,
-                             'opp_sched_id': opp['sched'].id,
-                             'num_volunteers': num_volunteers,
-                             'day': day,
-                             'time': time,
-                             'location': room,
-                             },
-                    e_conference=conference
-                )
-            )
-    context['actionform'] = actionform
-    if errorcontext and 'createform' in errorcontext:
-        createform = errorcontext['createform']
-    else:
-        createform = VolunteerOpportunityForm(
-            prefix='new_opp',
-            initial=initial,
-            e_conference=item.eventitem.get_conference())
-
-    actionheaders = ['Title',
-                     'Volunteer Type',
-                     '#',
-                     'Duration',
-                     'Day',
-                     'Time',
-                     'Location']
-    context.update({'createform': createform,
-                    'actionheaders': actionheaders})
-    return context
-
-
 def get_worker_allocation_forms(opp, errorcontext=None):
     '''
     Returns a list of allocation forms for a volunteer opportunity
@@ -390,114 +330,6 @@ def allocate_workers(request, opp_id):
                                         args=[opp.event_type_name,
                                               opp.eventitem.pk,
                                               opp_id]))
-
-
-@login_required
-@never_cache
-def manage_volunteer_opportunities(request, event_id):
-    '''
-    Create or edit volunteer opportunities for an event.
-    Volunteer opportunities are GenericEvents linked to Events by
-    EventContainers, with a label of "Volunteer Shift". A volunteer
-    opportunity may schedule one person ("Follow spot operator") or
-    many ("Stage kittens"), but for clarity it should comprise a single
-    role, which should be the "title" of the GenericEvent
-    '''
-    coordinator = validate_perms(request, ('Volunteer Coordinator',))
-    from gbe.models import GenericEvent
-    template = 'scheduler/event_schedule.tmpl'
-
-    event = get_object_or_404(Event, id=event_id)
-    changed_event = None
-    if request.method != 'POST':
-        # TO DO: review this
-        return HttpResponseRedirect(reverse('edit_event_schedule',
-                                    urlconf='gbe.scheduling.urls',
-                                    args=[event.event_type_name,
-                                          event.eventitem.eventitem_id,
-                                          event_id]))
-    if 'create' in request.POST.keys() or 'duplicate' in request.POST.keys():
-        if 'create' in request.POST.keys():
-            form = VolunteerOpportunityForm(
-                request.POST,
-                prefix='new_opp',
-                e_conference=event.eventitem.get_conference())
-        else:
-            form = VolunteerOpportunityForm(
-                request.POST,
-                e_conference=event.eventitem.get_conference())
-        if form.is_valid():
-            opp = form.save(commit=False)
-            opp.type = "Volunteer"
-            opp.e_conference = event.eventitem.get_conference()
-            opp.save()
-            data = form.cleaned_data
-            day = data.get('day').day
-            time_parts = map(int, data.get('time').split(":"))
-            start_time = datetime.combine(day, dttime(*time_parts,
-                                                      tzinfo=pytz.utc))
-            opp_event = Event(eventitem=opp.eventitem_ptr,
-                              max_volunteer=data.get('num_volunteers', 1),
-                              starttime=start_time,
-                              duration=data.get('duration'))
-            opp_event.save()
-
-            opp_event.set_location(data.get('location').locationitem)
-            opp_event.save()
-            container = EventContainer(parent_event=event,
-                                       child_event=opp_event)
-            container.save()
-            changed_event = opp_event
-        else:
-            errors = form.errors
-            return edit_event_display(request, event, {'createform': form})
-    elif 'delete' in request.POST.keys():
-        opp = get_object_or_404(GenericEvent,
-                                event_id=request.POST['opp_event_id'])
-        opp.delete()
-    elif 'edit' in request.POST.keys():
-        opp = get_object_or_404(GenericEvent,
-                                event_id=request.POST['opp_event_id'])
-        opp_event_container = EventContainer.objects.get(
-            child_event=request.POST['opp_sched_id'])
-        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
-        form = VolunteerOpportunityForm(request.POST,
-                                        instance=opp,
-                                        e_conference=opp.e_conference)
-        if not form.is_valid():
-            return edit_event_display(request, event, {'error_opp_form': form})
-
-        form.save()
-        data = form.cleaned_data
-        opp_event.max_volunteer = data['num_volunteers']
-        day = data.get('day').day
-        time_parts = map(int, data.get('time').split(":"))
-        start_time = datetime.combine(day,
-                                      dttime(*time_parts, tzinfo=pytz.utc))
-        opp_event.starttime = start_time
-        opp_event.save()
-        opp_event.set_location(data.get('location').locationitem)
-        opp_event.save()
-        changed_event = opp_event
-
-    elif 'allocate' in request.POST.keys():
-        opp_event = Event.objects.get(id=request.POST['opp_sched_id'])
-        return HttpResponseRedirect(reverse('edit_event_schedule',
-                                            urlconf='gbe.scheduling.urls',
-                                    args=['GenericEvent',
-                                          opp_event.eventitem.pk,
-                                          request.POST['opp_sched_id']]))
-    if changed_event:
-        return HttpResponseRedirect("%s?changed_id=%d" % (
-            reverse('edit_event_schedule',
-                    urlconf='gbe.scheduling.urls',
-                    args=[event.event_type_name, event.eventitem.pk, event_id]
-                    ),
-            changed_event.pk))
-    else:
-        return HttpResponseRedirect(reverse(
-            'edit_event_schedule', urlconf='gbe.scheduling.urls', args=[
-                event.event_type_name, event.eventitem.pk, event_id]))
 
 
 @login_required
@@ -716,7 +548,7 @@ def get_volunteer_info(opp, errorcontext=None):
 def edit_event_display(request, item, errorcontext=None):
     from gbe.models import Performer
 
-    template = 'scheduler/event_schedule.tmpl'
+    template = 'gbe/scheduling/event_schedule.tmpl'
     context = {'user_id': request.user.id,
                'event_id': item.id,
                'event_edit_url': reverse('edit_event_schedule',
@@ -763,14 +595,6 @@ def edit_event_display(request, item, errorcontext=None):
 
             context.update(get_worker_allocation_forms(item, errorcontext))
             context.update(get_volunteer_info(item))
-        else:
-            context.update(get_manage_opportunity_forms(item,
-                                                        initial,
-                                                        errorcontext))
-            if len(context['actionform']) > 0 and request.GET.get(
-                    'changed_id', None):
-                context['changed_id'] = int(
-                    request.GET.get('changed_id', None))
 
     scheduling_info = get_scheduling_info(item.as_subtype)
     if scheduling_info:
