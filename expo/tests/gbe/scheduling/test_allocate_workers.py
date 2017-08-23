@@ -299,12 +299,16 @@ class TestAllocateWorkers(TestCase):
             '<li>This field is required.</li>')
         self.assertContains(
             response,
-            "Delete Allocation",
+            '<a href="#" data-toggle="tooltip" title="Delete">',
             count=1)
         self.assertContains(
             response,
-            "Edit/Create Allocation",
-            count=2)
+            '<a href="#" data-toggle="tooltip" title="Edit">',
+            count=1)
+        self.assertContains(
+            response,
+            '<a href="#" data-toggle="tooltip" title="Create New">',
+            count=1)
 
     def test_post_form_valid_delete_allocation(self):
         data = self.get_edit_data()
