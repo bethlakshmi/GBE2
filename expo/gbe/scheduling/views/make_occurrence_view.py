@@ -285,10 +285,9 @@ class MakeOccurrenceView(View):
                     self.get_manage_opportunity_forms(initial_form_info,
                                                       occurrence_id,
                                                       errorcontext))
-                if len(context['actionform']) > 0 and self.request.GET.get(
-                        'changed_id', None):
-                    context['changed_id'] = int(
-                        self.request.GET.get('changed_id', None))
+            if self.request.GET.get('changed_id', None):
+                context['changed_id'] = int(
+                    self.request.GET.get('changed_id', None))
 
         return render(
             request,
