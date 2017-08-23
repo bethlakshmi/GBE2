@@ -7,6 +7,7 @@ from gbe.scheduling.views import (
     CreateEventView,
     MakeOccurrenceView,
     ManageVolOpsView,
+    ShowCalendarView,
 )
 
 # NOTE: in general, url patterns should end with '/?$'. This
@@ -27,4 +28,6 @@ urlpatterns = patterns(
     url(r'^scheduling/manage-opps/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/(?P<parent_event_id>\d+)/?$',
         ManageVolOpsView.as_view(), name='manage_opps'),
+    url(r'^calendar/?$',
+        ShowCalendarView.as_view(), name='calendar'),
 )
