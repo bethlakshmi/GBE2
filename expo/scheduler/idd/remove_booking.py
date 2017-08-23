@@ -17,12 +17,6 @@ def remove_booking(occurrence_id,
                 details="Could not find booking id %d for occurrence id %d." % (
                     booking_id, occurrence_id))]
             return response
-    try:
-        ResourceAllocation.objects.filter(pk=booking_id).delete()
-        response.booking_id = booking_id
-    except ResourceAllocation.DoesNotExist:
-             response.errors = [Error(
-                code="BOOKING_NOT_FOUND",
-                details="Could not delete booking id %d, " +
-                "because ID not found." % (booking_id))]
+    ResourceAllocation.objects.filter(pk=booking_id).delete()
+    response.booking_id = booking_id
     return response

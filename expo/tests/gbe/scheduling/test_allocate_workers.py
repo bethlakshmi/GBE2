@@ -267,6 +267,20 @@ class TestAllocateWorkers(TestCase):
             response,
             '<li>This field is required.</li>')
 
+    def test_post_form_edit_bad_role_and_booking(self):
+        data = self.get_edit_data()
+        data['role'] = ''
+        data['alloc_id'] = self.alloc.pk + 100
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'BOOKING_NOT_FOUND  Booking id %s for occurrence %d not found' % (
+                self.alloc.pk + 100,
+                self.volunteer_opp.pk))
+
     def test_post_form_create_bad_role(self):
         data = self.get_create_data()
         data['role'] = '',

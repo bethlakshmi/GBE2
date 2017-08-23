@@ -91,14 +91,8 @@ class MakeOccurrenceView(View):
         context = {}
         response = get_occurrences(occurrence_id)
         for vol_occurence in response.occurrences:
-            try:
-                vol_event = Event.objects.get_subclass(
-                    pk=vol_occurence.foreign_event_id)
-            except Event.DoesNotExist:
-                response.errors.append(Error(
-                    code="VOLUNTEER_EVENT_NOT_FOUND",
-                    details="Can't find Volunteer Event for id %s" % (
-                        vol_occurence.foreign_event_id)))
+            vol_event = Event.objects.get_subclass(
+                pk=vol_occurence.foreign_event_id)
             if (errorcontext and
                     'error_opp_form' in errorcontext and
                     errorcontext['error_opp_form'].instance == vol_event):

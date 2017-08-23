@@ -3,13 +3,7 @@ from scheduler.models import (
 )
 
 
-def test_booking(booking_id, occurrence_id=None):
-    response = False
-    if occurrence_id:
-        response = ResourceAllocation.objects.filter(
-            pk=booking_id,
-            event__pk=occurrence_id).exists()
-    else:
-        response = ResourceAllocation.objects.filter(
-            pk=booking_id).exists()
-    return response
+def test_booking(booking_id, occurrence_id):
+    return ResourceAllocation.objects.filter(
+        pk=booking_id,
+        event__pk=occurrence_id).exists()
