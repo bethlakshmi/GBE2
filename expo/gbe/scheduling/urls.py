@@ -28,6 +28,6 @@ urlpatterns = patterns(
     url(r'^scheduling/manage-opps/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/(?P<parent_event_id>\d+)/?$',
         ManageVolOpsView.as_view(), name='manage_opps'),
-    url(r'^calendar/?$',
+    url(r'^calendar/(?P<calendar_type>[-\w]+)/?$',
         ShowCalendarView.as_view(), name='calendar'),
 )

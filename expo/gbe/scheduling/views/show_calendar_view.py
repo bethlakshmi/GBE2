@@ -12,62 +12,45 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
-from gbe.scheduling.forms import (
-    ScheduleSelectionForm,
-    VolunteerOpportunityForm,
-)
-from scheduler.idd import (
-    create_occurrence,
-    get_occurrence,
-    get_occurrences,
-    update_occurrence,
-)
-from scheduler.views.functions import (
-    get_event_display_info,
-)
-from scheduler.views import (
-    get_worker_allocation_forms,
-)
-from gbe.scheduling.views.functions import (
-    get_single_role,
-    get_multi_role,
-    get_start_time,
-    show_scheduling_occurrence_status,
-)
-from gbe.models import (
-    Event,
-    Performer,
-    Profile,
-    Room,
-)
+from gbetext import calendar_type as calendar_type_options
 from gbe.functions import (
-    eligible_volunteers,
-    get_conference_day,
-    validate_perms
+    get_current_conference,
+    get_conference_by_slug,
+    get_conference_days,
+    conference_slugs,
 )
-from gbe.duration import Duration
-from gbe.views.class_display_functions import get_scheduling_info
-from scheduler.forms import WorkerAllocationForm
-from gbe_forms_text import (
-    rank_interest_options,
-)
-
 
 class ShowCalendarView(View):
     template = 'gbe/scheduling/calendar.tmpl'
+    @property
 
     def groundwork(self, request, args, kwargs):
         pass
 
     def get(self, request, *args, **kwargs):
         context = {}
-        if "calendar_type" in kwargs:
-            calendar_type = int(kwargs['calendar_type'])
-        if "conference" in kwargs:
-            conf_slug = int(kwargs['conference'])
-        if "day" in kwargs:
-            day = int(kwargs['day'])
+        calendar_type = None
+        conference = None
+        day = None
 
+        if "calendar_type" in kwargs:
+            calendar_type = kwargs['calendar_type']
+            if calendar_type not in calendar_type_options.values():
+                raise Http404
+        if "conference" in self.request.GET:
+            conf_slug = self.request.GET.get('conference', None)
+            conference = get_conference_by_slug(conf_slug)
+        else:
+            conference = get_current_conference()
+
+        if "day" in self.request.GET:
+            day = self.request.GET.get('day', None)
+
+        context = {
+            'calendar_type': calendar_type,
+            'conference': conference,
+            'conference_slugs': conference_slugs()
+        }
         return render(request, self.template, context)
 
     def dispatch(self, *args, **kwargs):
