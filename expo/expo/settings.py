@@ -259,6 +259,7 @@ try:
     DATE_FORMAT
 except:
     DATE_FORMAT = "%a, %b %-d"
+    URL_DATE = "%m-%d-%Y"
 try:
     DATETIME_FORMAT
 except:
