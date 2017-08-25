@@ -1,8 +1,4 @@
 from django.views.generic import View
-from django.views.decorators.cache import never_cache
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.forms import HiddenInput
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -26,63 +22,76 @@ from gbe.functions import (
     get_conference_by_slug,
     conference_slugs,
 )
+from scheduler.idd import get_occurrences
+from gbe.scheduling.views.functions import show_scheduling_occurrence_status
 
 class ShowCalendarView(View):
     template = 'gbe/scheduling/calendar.tmpl'
-    @property
+    calendar_type = None
+    conference = None
+    this_day = None
 
     def groundwork(self, request, args, kwargs):
         pass
 
     def process_inputs(self, request, args, kwargs):
         context = {}
-        calendar_type = None
-        conference = None
-        this_day = None
+        self.calendar_type = None
+        self.conference = None
+        self.this_day = None
 
         if "calendar_type" in kwargs:
-            calendar_type = kwargs['calendar_type']
-            if calendar_type not in calendar_type_options.values():
+            self.calendar_type = kwargs['calendar_type']
+            if self.calendar_type not in calendar_type_options.values():
                 raise Http404
         else:
             raise Http404
 
         if "day" in self.request.GET:
-            this_day = get_object_or_404(
+            self.this_day = get_object_or_404(
                 ConferenceDay,
-                day=datetime.strptime(self.request.GET.get('day', None), URL_DATE))
-            conference = this_day.conference
+                day=datetime.strptime(self.request.GET.get('day', None),
+                                      URL_DATE))
+            self.conference = self.this_day.conference
 
-        if not conference and "conference" in self.request.GET:
-            conference = get_conference_by_slug(
+        if not self.conference and "conference" in self.request.GET:
+            self.conference = get_conference_by_slug(
                 self.request.GET.get('conference', None))
-        elif not conference:
-            conference = get_current_conference()
+        elif not self.conference:
+            self.conference = get_current_conference()
 
-        if not this_day:
-            this_day = get_conference_days(conference).order_by("day").first()
+        if not self.this_day:
+            self.this_day = get_conference_days(
+                self.conference).order_by("day").first()
 
         context = {
-            'calendar_type': calendar_type,
-            'conference': conference,
+            'calendar_type': self.calendar_type,
+            'conference': self.conference,
             'conference_slugs': conference_slugs(),
-            'this_day': this_day,
+            'this_day': self.this_day,
         }
 
-        if this_day:
-            if ConferenceDay.objects.filter(
-                    day=this_day.day+timedelta(days=1)).exists():
-                context['next_date'] = (this_day.day+timedelta(days=1)
-                                        ).strftime(URL_DATE)
-            if ConferenceDay.objects.filter(
-                    day=this_day.day-timedelta(days=1)).exists():
-                context['prev_date'] = (this_day.day-timedelta(days=1)
-                                        ).strftime(URL_DATE)
+        if ConferenceDay.objects.filter(
+                day=self.this_day.day+timedelta(days=1)).exists():
+            context['next_date'] = (self.this_day.day+timedelta(days=1)
+                                    ).strftime(URL_DATE)
+        if ConferenceDay.objects.filter(
+                day=self.this_day.day-timedelta(days=1)).exists():
+            context['prev_date'] = (self.this_day.day-timedelta(days=1)
+                                    ).strftime(URL_DATE)
 
         return context
 
     def get(self, request, *args, **kwargs):
         context = self.process_inputs(request, args, kwargs)
+        response = get_occurrences(
+            labels=[self.calendar_type, self.conference.conference_slug],
+            day=self.this_day.day)
+        # temp hack, wait for update to master
+        response.occurrence = None
+        show_scheduling_occurrence_status(request, response, self.__class__.__name__)
+        if len(response.occurrences) > 0:
+            context['occurrences'] = response.occurrences
         return render(request, self.template, context)
 
     def dispatch(self, *args, **kwargs):
