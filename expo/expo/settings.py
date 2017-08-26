@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     'djangocms_googlemap',
     'djangocms_inherit',
     'djangocms_video',
+    'djangocms_column',
     'cmsplugin_filer_file',
     'cmsplugin_filer_folder',
     'cmsplugin_filer_link',
