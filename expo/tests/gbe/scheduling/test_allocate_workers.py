@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     assert_email_template_used,
     grant_privilege,
     is_login_page,
@@ -35,8 +36,10 @@ class TestAllocateWorkers(TestCase):
             self.volunteer_opp)
         self.url = reverse(
             self.view_name,
-            args=[self.volunteer_opp.pk],
-            urlconf="scheduler.urls")
+            args=["GenericEvent",
+                  self.volunteer_opp.eventitem.eventitem_id,
+                  self.volunteer_opp.pk],
+            urlconf="gbe.scheduling.urls")
 
     def get_edit_data(self):
         data = self.get_either_data()
@@ -86,8 +89,12 @@ class TestAllocateWorkers(TestCase):
             'value="' + notes + '" />')
         self.assertContains(
             response,
-            '<form method="POST" action="/scheduler/allocate/' +
-            str(volunteer_opp.pk) + '"', count=allocations)
+            '<form method="POST" action="%s' % (reverse(
+                'allocate_workers',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      volunteer_opp.eventitem.eventitem_id,
+                      volunteer_opp.pk])))
 
     def assert_good_post(self,
                          response,
@@ -99,11 +106,13 @@ class TestAllocateWorkers(TestCase):
                          allocations=2):
         self.assertRedirects(
             response,
-            reverse('edit_event_schedule',
-                    urlconf='gbe.scheduling.urls',
-                    args=["GenericEvent",
-                          volunteer_opp.eventitem.eventitem_id,
-                          volunteer_opp.pk]))
+            "%s?changed_id=%d" % (
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
+                        args=["GenericEvent",
+                              volunteer_opp.eventitem.eventitem_id,
+                              volunteer_opp.pk]),
+                alloc.pk))
         self.assert_post_contents(response,
                                   volunteer_opp,
                                   volunteer,
@@ -128,8 +137,15 @@ class TestAllocateWorkers(TestCase):
 
     def test_not_post(self):
         login_as(self.privileged_profile, self)
-        response = self.client.get(self.url)
-        self.assertEqual(404, response.status_code)
+        response = self.client.get(self.url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse(
+                'edit_event_schedule',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      self.volunteer_opp.eventitem.eventitem_id,
+                      self.volunteer_opp.pk]))
 
     def test_post_form_valid_make_new_allocation(self):
         context = StaffAreaContext()
@@ -137,8 +153,10 @@ class TestAllocateWorkers(TestCase):
         allocations = volunteer_opp.resources_allocated.all()
         volunteer = ProfileFactory()
         url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
+                      args=["GenericEvent",
+                            volunteer_opp.eventitem.eventitem_id,
+                            volunteer_opp.pk],
+                      urlconf="gbe.scheduling.urls")
         data = self.get_create_data()
         data['worker'] = volunteer.pk,
 
@@ -169,8 +187,10 @@ class TestAllocateWorkers(TestCase):
             volunteer=volunteer,
             interest=volunteer_opp.as_subtype.volunteer_type)
         url = reverse(self.view_name,
-                      args=[volunteer_opp.pk],
-                      urlconf="scheduler.urls")
+                      args=["GenericEvent",
+                            volunteer_opp.eventitem.eventitem_id,
+                            volunteer_opp.pk],
+                      urlconf="gbe.scheduling.urls")
         data = self.get_create_data()
         data['worker'] = volunteer.profile.pk,
 
@@ -247,6 +267,20 @@ class TestAllocateWorkers(TestCase):
             response,
             '<li>This field is required.</li>')
 
+    def test_post_form_edit_bad_role_and_booking(self):
+        data = self.get_edit_data()
+        data['role'] = ''
+        data['alloc_id'] = self.alloc.pk + 100
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'BOOKING_NOT_FOUND  Booking id %s for occurrence %d not found' % (
+                self.alloc.pk + 100,
+                self.volunteer_opp.pk))
+
     def test_post_form_create_bad_role(self):
         data = self.get_create_data()
         data['role'] = '',
@@ -265,12 +299,16 @@ class TestAllocateWorkers(TestCase):
             '<li>This field is required.</li>')
         self.assertContains(
             response,
-            "Delete Allocation",
+            '<a href="#" data-toggle="tooltip" title="Delete">',
             count=1)
         self.assertContains(
             response,
-            "Edit/Create Allocation",
-            count=2)
+            '<a href="#" data-toggle="tooltip" title="Edit">',
+            count=1)
+        self.assertContains(
+            response,
+            '<a href="#" data-toggle="tooltip" title="Create New">',
+            count=1)
 
     def test_post_form_valid_delete_allocation(self):
         data = self.get_edit_data()
@@ -279,12 +317,13 @@ class TestAllocateWorkers(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(
             response,
-            reverse(
-                'edit_event_schedule',
-                urlconf='gbe.scheduling.urls',
-                args=["GenericEvent",
-                      self.volunteer_opp.eventitem.eventitem_id,
-                      self.volunteer_opp.pk]))
+            "%s?changed_id=%d" % (
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
+                        args=["GenericEvent",
+                              self.volunteer_opp.eventitem.eventitem_id,
+                              self.volunteer_opp.pk]),
+                self.alloc.pk))
         self.assertNotContains(
             response,
             '<option value="' + str(self.volunteer.pk) +
@@ -295,8 +334,12 @@ class TestAllocateWorkers(TestCase):
             str(self.alloc.pk) + '" />')
         self.assertContains(
             response,
-            '<form method="POST" action="/scheduler/allocate/' +
-            str(self.volunteer_opp.pk) + '"', count=1)
+            '<form method="POST" action="%s' % (reverse(
+                'allocate_workers',
+                urlconf='gbe.scheduling.urls',
+                args=["GenericEvent",
+                      self.volunteer_opp.eventitem.eventitem_id,
+                      self.volunteer_opp.pk])))
 
     def test_post_form_valid_delete_allocation_sends_notification(self):
         data = self.get_edit_data()
@@ -305,12 +348,13 @@ class TestAllocateWorkers(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(
             response,
-            reverse(
-                'edit_event_schedule',
-                urlconf='gbe.scheduling.urls',
-                args=["GenericEvent",
-                      self.volunteer_opp.eventitem.eventitem_id,
-                      self.volunteer_opp.pk]))
+            "%s?changed_id=%d" % (
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
+                        args=["GenericEvent",
+                              self.volunteer_opp.eventitem.eventitem_id,
+                              self.volunteer_opp.pk]),
+                self.alloc.pk))
         assert_email_template_used(
             "A change has been made to your Volunteer Schedule!")
 
@@ -320,26 +364,36 @@ class TestAllocateWorkers(TestCase):
         data['delete'] = 1
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertRedirects(
-            response,
-            reverse(
-                'edit_event_schedule',
-                urlconf='gbe.scheduling.urls',
-                args=["GenericEvent",
-                      self.volunteer_opp.eventitem.eventitem_id,
-                      self.volunteer_opp.pk]))
-        self.assertNotContains(
-            response,
-            '<option value="' + str(self.volunteer.pk) +
-            '" selected="selected">' + str(self.volunteer) + '</option>')
-        self.assertNotContains(
-            response,
-            '<input id="id_alloc_id" name="alloc_id" type="hidden" value="' +
-            str(self.alloc.pk) + '" />')
         self.assertContains(
             response,
-            '<form method="POST" action="/scheduler/allocate/' +
-            str(self.volunteer_opp.pk) + '"', count=1)
+            'This field is required.')
+
+    def test_post_form_valid_delete_allocation_w_no_alloc(self):
+        data = self.get_edit_data()
+        data['alloc_id'] = ''
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'NO_BOOKING  No booking id for occurrence id %d.' % (
+                self.volunteer_opp.pk))
+
+    def test_post_form_valid_delete_allocation_w_bad_alloc(self):
+        data = self.get_edit_data()
+        data['alloc_id'] = self.alloc.pk + 100
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            'BOOKING_NOT_FOUND  Could not find booking id ' +
+            '%d for occurrence id %d.' % (self.alloc.pk + 100,
+                                          self.volunteer_opp.pk))
 
     def test_post_form_edit_exiting_allocation(self):
         new_volunteer = ProfileFactory()
@@ -355,13 +409,22 @@ class TestAllocateWorkers(TestCase):
         data = self.get_create_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' % (
+                self.volunteer.display_name) +
+            'Conflicting booking: %s, Start Time: %s' % (
+                self.volunteer_opp.eventitem.e_title,
+                'Wed, Feb 4 12:00 AM')
+            )
 
     def test_post_form_valid_make_new_allocation_w_overfull(self):
         data = self.get_create_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Over by 1 volunteer.")
+        self.assertContains(response, "Over booked by 1 volunteers")
 
     def test_post_form_edit_w_conflict(self):
         overbook_opp = self.context.add_volunteer_opp()
@@ -371,4 +434,13 @@ class TestAllocateWorkers(TestCase):
         data = self.get_edit_data()
         login_as(self.privileged_profile, self)
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            'SCHEDULE_CONFLICT  <br>- Affected user: %s<br>- ' % (
+                self.volunteer.display_name) +
+            'Conflicting booking: %s, Start Time: %s' % (
+                self.volunteer_opp.eventitem.e_title,
+                'Wed, Feb 4 12:00 AM')
+            )

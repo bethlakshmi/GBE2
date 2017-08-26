@@ -1,4 +1,7 @@
 from get_occurrence import get_occurrence
 from get_occurrences import get_occurrences
 from create_occurrence import create_occurrence
+from test_booking import test_booking
+from remove_booking import remove_booking
+from set_person import set_person
 from update_occurrence import update_occurrence

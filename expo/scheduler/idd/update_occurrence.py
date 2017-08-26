@@ -12,6 +12,7 @@ def update_occurrence(occurrence_id,
                       start_time=None,
                       max_volunteer=None,
                       people=None,
+                      roles="All",
                       locations=None):
     response = get_occurrence(occurrence_id)
     if response.errors:
@@ -27,9 +28,16 @@ def update_occurrence(occurrence_id,
     if locations is not None:
         response.occurrence.set_locations(locations)
 
+    warnings = []
     if people is not None:
-        Worker.objects.filter(allocations__event=response.occurrence).delete()
+        if roles == "All":
+            Worker.objects.filter(
+                allocations__event=response.occurrence).delete()
+        else:
+            Worker.objects.filter(allocations__event=response.occurrence,
+                                  role__in=roles).delete()
         for person in people:
-            response.warnings += response.occurrence.allocate_person(person)
-
+            warnings += response.occurrence.allocate_person(
+                person).warnings
+    response.warnings = warnings
     return response

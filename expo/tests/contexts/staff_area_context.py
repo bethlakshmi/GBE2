@@ -87,5 +87,5 @@ class StaffAreaContext:
             volunteer = ProfileFactory()
         booking = ResourceAllocationFactory(
             event=volunteer_sched_event,
-            resource=WorkerFactory(_item=volunteer))
+            resource=WorkerFactory(_item=volunteer, role=role))
         return (volunteer, booking)

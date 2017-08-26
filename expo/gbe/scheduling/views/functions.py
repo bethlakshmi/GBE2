@@ -45,14 +45,13 @@ def get_start_time(data):
 #
 # Takes the HTTP Request from the view and builds the following user messages,
 #   based upon the nature of the occurrence_response from scheduling:
-#      - if there's an occurrence - user gets a green success
 #      - if there's a warning - user gets 1 warning colored msg per warning
 #      - if there's an error - user gets 1 red error message per error
-# These three messages are not mutually exclusive.  Order of operation is most
+# These messages are not mutually exclusive.  Order of operation is most
 #   severe (error) to least severe (success)
 #
-def show_scheduling_occurrence_status(request, occurrence_response, view):
-    for error in occurrence_response.errors:
+def show_general_status(request, status_response, view):
+    for error in status_response.errors:
         user_message = UserMessage.objects.get_or_create(
                 view=view,
                 code=error.code,
@@ -63,7 +62,7 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
             request,
             '%s  %s' % (user_message[0].description, error.details))
 
-    for warning in occurrence_response.warnings:
+    for warning in status_response.warnings:
         user_message = UserMessage.objects.get_or_create(
                 view=view,
                 code=warning.code,
@@ -85,6 +84,17 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
             request,
             '%s  %s' % (user_message[0].description, message_text))
 
+
+#
+# Takes the HTTP Request from the view and builds the following user messages,
+#   based upon the nature of the occurrence_response from scheduling:
+#      - if there's an occurrence - user gets a green success
+#      - sets warnings & errors (see show_general_status)
+# These three messages are not mutually exclusive.  Order of operation is most
+#   severe (error) to least severe (success)
+#
+def show_scheduling_occurrence_status(request, occurrence_response, view):
+    show_general_status(request, occurrence_response, view)
     if occurrence_response.occurrence:
         user_message = UserMessage.objects.get_or_create(
                 view=view,
@@ -99,3 +109,27 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
                 str(occurrence_response.occurrence),
                 occurrence_response.occurrence.starttime.strftime(
                     DATETIME_FORMAT)))
+
+
+#
+# Takes the HTTP Request from the view and builds the following user messages,
+#   based upon the nature of the occurrence_response from scheduling:
+#      - if there's a booking - user gets a green success
+#      - sets warnings & errors (see show_general_status)
+# These three messages are not mutually exclusive.  Order of operation is most
+#   severe (error) to least severe (success)
+#
+def show_scheduling_booking_status(request, booking_response, view):
+    show_general_status(request, booking_response, view)
+
+    if booking_response.booking_id:
+        user_message = UserMessage.objects.get_or_create(
+                view=view,
+                code="BOOKING_UPDATE_SUCCESS",
+                defaults={
+                    'summary': "Update successful",
+                    'description': "User has been assigned to " +
+                    "or deleted from the event"})
+        messages.success(
+            request,
+            user_message[0].description)

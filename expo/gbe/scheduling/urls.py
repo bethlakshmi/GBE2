@@ -4,6 +4,7 @@ from django.conf.urls import (
 )
 
 from gbe.scheduling.views import (
+    AllocateWorkerView,
     CreateEventView,
     MakeOccurrenceView,
     ManageVolOpsView,
@@ -27,4 +28,7 @@ urlpatterns = patterns(
     url(r'^scheduling/manage-opps/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/(?P<parent_event_id>\d+)/?$',
         ManageVolOpsView.as_view(), name='manage_opps'),
+    url(r'^scheduling/allocate/(?P<event_type>[-\w]+)/' +
+        '(?P<eventitem_id>[-\w]+)/(?P<occurrence_id>\d+)/?$',
+        AllocateWorkerView.as_view(), name='allocate_workers'),
 )

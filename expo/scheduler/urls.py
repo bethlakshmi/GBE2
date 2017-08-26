@@ -51,8 +51,6 @@ urlpatterns = patterns(
         views.schedule_acts, name='schedule_acts'),
     url(r'^scheduler/acts/(?P<show_id>\d+)/?$',
         views.schedule_acts, name='schedule_acts'),
-    url(r'^scheduler/allocate/(\d+)/?$',
-        views.allocate_workers, name='allocate_workers'),
     url(r'^scheduler/contactinfo/(\d+)/?$',
         views.contact_info, name='contact_info'),
     url(r'^scheduler/contactinfo/(\d+)/([-\w]+)/?$',
