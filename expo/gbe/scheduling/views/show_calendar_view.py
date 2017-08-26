@@ -98,7 +98,7 @@ class ShowCalendarView(View):
                 'end': occurrence.end_time.strftime(TIME_FORMAT),
                 'title': event.e_title,
                 'location': occurrence.location,
-                'hour': occurrence.start_time.hour
+                'hour': occurrence.start_time.strftime("%-I:00 %p")
             }]
         return display_list
 
