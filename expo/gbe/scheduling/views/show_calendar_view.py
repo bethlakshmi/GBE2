@@ -10,12 +10,18 @@ from django.http import (
 from django.core.urlresolvers import reverse
 from gbetext import calendar_type as calendar_type_options
 from django.utils.formats import date_format
-from expo.settings import URL_DATE
+from expo.settings import (
+    TIME_FORMAT,
+    URL_DATE,
+)
 from datetime import (
     datetime,
     timedelta,
 )
-from gbe.models import ConferenceDay
+from gbe.models import (
+    ConferenceDay,
+    Event,
+)
 from gbe.functions import (
     get_current_conference,
     get_conference_days,
@@ -82,6 +88,20 @@ class ShowCalendarView(View):
 
         return context
 
+    def build_occurrence_display(self, occurrences):
+        display_list = []
+        events = Event.objects.filter(e_conference=self.conference)
+        for occurrence in occurrences:
+            event = events.filter(pk=occurrence.eventitem.event.pk).first()
+            display_list += [{
+                'start':  occurrence.start_time.strftime(TIME_FORMAT),
+                'end': occurrence.end_time.strftime(TIME_FORMAT),
+                'title': event.e_title,
+                'location': occurrence.location,
+                'hour': occurrence.start_time.hour
+            }]
+        return display_list
+
     def get(self, request, *args, **kwargs):
         context = self.process_inputs(request, args, kwargs)
         response = get_occurrences(
@@ -91,7 +111,7 @@ class ShowCalendarView(View):
         response.occurrence = None
         show_scheduling_occurrence_status(request, response, self.__class__.__name__)
         if len(response.occurrences) > 0:
-            context['occurrences'] = response.occurrences
+            context['occurrences'] = self.build_occurrence_display(response.occurrences)
         return render(request, self.template, context)
 
     def dispatch(self, *args, **kwargs):
