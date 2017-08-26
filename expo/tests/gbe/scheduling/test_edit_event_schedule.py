@@ -155,6 +155,52 @@ class TestEditOccurrence(TestCase):
         response = self.client.get(self.url)
         assert_good_sched_event_form(response, self.context.bid)
 
+    def test_good_user_get_success_teacher_as_profile(self):
+        login_as(self.privileged_profile, self)
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        staff_context = StaffAreaContext()
+        volunteer_sched_event = staff_context.add_volunteer_opp()
+        teacher = ProfileFactory()
+        teacher, alloc = staff_context.book_volunteer(
+            volunteer_sched_event=volunteer_sched_event,
+            volunteer=teacher,
+            role="Teacher")
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["GenericEvent",
+                            volunteer_sched_event.eventitem.eventitem_id,
+                            volunteer_sched_event.pk])
+        response = self.client.get(url)
+        assert_good_sched_event_form(response, volunteer_sched_event.eventitem)
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                teacher.pk,
+                teacher.display_name))
+
+    def test_good_user_get_volunteer_w_teacher_as_persona(self):
+        login_as(self.privileged_profile, self)
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        staff_context = StaffAreaContext()
+        volunteer_sched_event = staff_context.add_volunteer_opp()
+        teacher = PersonaFactory()
+        teacher, alloc = staff_context.book_volunteer(
+            volunteer_sched_event=volunteer_sched_event,
+            volunteer=teacher,
+            role="Teacher")
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["GenericEvent",
+                            volunteer_sched_event.eventitem.eventitem_id,
+                            volunteer_sched_event.pk])
+        response = self.client.get(url)
+        assert_good_sched_event_form(response, volunteer_sched_event.eventitem)
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                teacher.pk,
+                teacher.name))
+
     def test_good_user_minimal_post(self):
         login_as(self.privileged_profile, self)
         form_data = get_sched_event_form(self.context)

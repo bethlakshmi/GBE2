@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.core.validators import RegexValidator
 from scheduler.data_transfer import (
     Person,
-    Warning
+    PersonResponse,
+    Warning,
 )
 from datetime import datetime, timedelta
 from model_utils.managers import InheritanceManager
@@ -658,8 +659,9 @@ class Event(Schedulable):
         and replaces them with the given list.  Locations are expected to be
         location items
         '''
-        if ResourceAllocation.objects.filter(event=self).exists():
-            ResourceAllocation.objects.filter(event=self).delete()
+        for assignment in ResourceAllocation.objects.filter(event=self):
+            if assignment.resource.as_subtype.__class__.__name__ == "Location":
+                assignment.delete()
         for location in locations:
             ra = ResourceAllocation(
                 resource=location.get_resource(),
@@ -672,9 +674,12 @@ class Event(Schedulable):
         people = []
         for booking in ResourceAllocation.objects.filter(event=self):
             if booking.resource.as_subtype.__class__.__name__ == "Worker":
-                people += [Person(
+                person = Person(
                     booking_id=booking.pk,
-                    worker=booking.resource.worker)]
+                    worker=booking.resource.worker)
+                if hasattr(booking, 'label'):
+                    person.label = booking.label.text
+                people += [person]
         return people
 
     # New - from refactoring
@@ -696,11 +701,9 @@ class Event(Schedulable):
         worker.save()
 
         for conflict in worker.workeritem.get_conflicts(self):
-            warnings += [
-                Warning(
-                    code="SCHEDULE_CONFLICT",
-                    user=person.user,
-                    occurrence=conflict)]
+            warnings += [Warning(code="SCHEDULE_CONFLICT",
+                                 user=person.user,
+                                 occurrence=conflict)]
         if person.booking_id:
             allocation = ResourceAllocation.objects.get(
                 id=person.booking_id)
@@ -713,10 +716,10 @@ class Event(Schedulable):
             warnings += [Warning(
                 code="OCCURRENCE_OVERBOOKED",
                 details="Over booked by %s volunteers" % (
-                    self.extravolunteers()))]
+                    self.extra_volunteers()))]
         if person.label:
             allocation.set_label(person.label)
-        return warnings
+        return PersonResponse(warnings=warnings, booking_id=allocation.pk)
 
     def allocate_worker(self, worker, role, label=None, alloc_id=-1):
         '''

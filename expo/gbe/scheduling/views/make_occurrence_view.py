@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     ScheduleSelectionForm,
     VolunteerOpportunityForm,
+    WorkerAllocationForm,
 )
 from scheduler.idd import (
     create_occurrence,
@@ -24,9 +25,6 @@ from scheduler.idd import (
 )
 from scheduler.views.functions import (
     get_event_display_info,
-)
-from scheduler.views import (
-    get_worker_allocation_forms,
 )
 from gbe.scheduling.views.functions import (
     get_single_role,
@@ -47,7 +45,6 @@ from gbe.functions import (
 )
 from gbe.duration import Duration
 from gbe.views.class_display_functions import get_scheduling_info
-from scheduler.forms import WorkerAllocationForm
 from gbe_forms_text import (
     rank_interest_options,
 )
@@ -94,14 +91,8 @@ class MakeOccurrenceView(View):
         context = {}
         response = get_occurrences(occurrence_id)
         for vol_occurence in response.occurrences:
-            try:
-                vol_event = Event.objects.get_subclass(
-                    pk=vol_occurence.foreign_event_id)
-            except Event.DoesNotExist:
-                response.errors.append(Error(
-                    code="VOLUNTEER_EVENT_NOT_FOUND",
-                    details="Can't find Volunteer Event for id %s" % (
-                        vol_occurence.foreign_event_id)))
+            vol_event = Event.objects.get_subclass(
+                pk=vol_occurence.foreign_event_id)
             if (errorcontext and
                     'error_opp_form' in errorcontext and
                     errorcontext['error_opp_form'].instance == vol_event):
@@ -117,8 +108,9 @@ class MakeOccurrenceView(View):
                 location = vol_occurence.location
                 if location:
                     room = location.room
-                else:
+                elif self.occurrence.location:
                     room = self.occurrence.location.room
+
                 actionform.append(
                     VolunteerOpportunityForm(
                         instance=vol_event,
@@ -151,6 +143,38 @@ class MakeOccurrenceView(View):
         context.update({'createform': createform,
                         'actionheaders': actionheaders})
         return context
+
+    def get_worker_allocation_forms(self, opp, errorcontext=None):
+        '''
+        Returns a list of allocation forms for a volunteer opportunity
+        Each form can be used to schedule one worker. Initially, must
+        allocate one at a time.
+        '''
+        forms = []
+        for person in opp.people:
+            if (errorcontext and
+                    'worker_alloc_forms' in errorcontext and
+                    errorcontext['worker_alloc_forms'].cleaned_data[
+                        'alloc_id'] == person.booking_id):
+                forms.append(errorcontext['worker_alloc_forms'])
+            else:
+                try:
+                    forms.append(WorkerAllocationForm(
+                        initial={
+                            'worker': Profile.objects.get(pk=person.public_id),
+                            'role': person.role,
+                            'label': person.label,
+                            'alloc_id': person.booking_id}))
+                except Profile.DoesNotExist:
+                    pass
+        if errorcontext and 'new_worker_alloc_form' in errorcontext:
+            forms.append(errorcontext['new_worker_alloc_form'])
+        else:
+            forms.append(WorkerAllocationForm(initial={'role': 'Volunteer',
+                                                       'alloc_id': -1}))
+        return {'worker_alloc_forms': forms,
+                'worker_alloc_headers': ['Worker', 'Role', 'Notes'],
+                'opp_id': opp.id}
 
     def get_volunteer_info(self, opp, errorcontext=None):
         volunteer_set = []
@@ -219,9 +243,16 @@ class MakeOccurrenceView(View):
                     if person.role == "Panelist":
                         panelists += [person.public_id]
                     elif person.role in self.role_key:
-                        initial_form_info[self.role_key[person.role]] = eval(
-                            self.role_class[person.role]
-                            ).objects.get(pk=person.public_id)
+                        try:
+                            initial_form_info[
+                                self.role_key[person.role]] = eval(
+                                self.role_class[person.role]
+                                ).objects.get(pk=person.public_id)
+                        except Performer.DoesNotExist:
+                            initial_form_info[
+                                self.role_key[person.role]
+                                ] = Profile.objects.get(
+                                pk=person.public_id)
             initial_form_info['panelists'] = panelists
         else:
             initial_form_info['location'] = self.item.default_location
@@ -244,8 +275,9 @@ class MakeOccurrenceView(View):
                           ) and self.occurrence:
             if (self.item.__class__.__name__ == 'GenericEvent' and
                     self.item.type == 'Volunteer'):
-                context.update(get_worker_allocation_forms(self.occurrence,
-                                                           errorcontext))
+                context.update(
+                    self.get_worker_allocation_forms(self.occurrence,
+                                                     errorcontext))
                 context.update(self.get_volunteer_info(self.occurrence))
             else:
                 initial_form_info['duration'] = self.item.duration
@@ -253,10 +285,9 @@ class MakeOccurrenceView(View):
                     self.get_manage_opportunity_forms(initial_form_info,
                                                       occurrence_id,
                                                       errorcontext))
-                if len(context['actionform']) > 0 and self.request.GET.get(
-                        'changed_id', None):
-                    context['changed_id'] = int(
-                        self.request.GET.get('changed_id', None))
+            if self.request.GET.get('changed_id', None):
+                context['changed_id'] = int(
+                    self.request.GET.get('changed_id', None))
 
         return render(
             request,
@@ -321,15 +352,15 @@ class MakeOccurrenceView(View):
 
         if self.event_form.is_valid():
             data = self.get_basic_form_settings()
-            self.people = get_single_role(data)
-            self.people += get_multi_role(data)
+            people = get_single_role(data)
+            people += get_multi_role(data)
 
             if self.create:
                 response = create_occurrence(
                     self.event.eventitem_id,
                     self.start_time,
                     self.max_volunteer,
-                    people=self.people,
+                    people=people,
                     locations=[self.room],
                     labels=self.labels)
                 self.success_url = reverse(
@@ -341,7 +372,8 @@ class MakeOccurrenceView(View):
                     int(kwargs['occurrence_id']),
                     self.start_time,
                     self.max_volunteer,
-                    people=self.people,
+                    people=people,
+                    roles=["Teacher", "Staff Lead", "Moderator", "Panelist"],
                     locations=[self.room])
                 self.success_url = reverse(
                     'edit_event_schedule',

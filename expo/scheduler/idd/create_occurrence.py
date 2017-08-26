@@ -30,7 +30,8 @@ def create_occurrence(foreign_event_id,
         response.occurrence.set_locations(locations)
 
     for person in people:
-        response.warnings += response.occurrence.allocate_person(person)
+        response.warnings += response.occurrence.allocate_person(
+            person).warnings
 
     for label in labels:
         response.occurrence.add_label(label)
