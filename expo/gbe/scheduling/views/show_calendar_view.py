@@ -30,12 +30,21 @@ from gbe.functions import (
 )
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_scheduling_occurrence_status
+from operator import itemgetter
+
 
 class ShowCalendarView(View):
     template = 'gbe/scheduling/calendar.tmpl'
     calendar_type = None
     conference = None
     this_day = None
+    grid_map = {
+        5: 3,
+        4: 3,
+        3: 4,
+        2: 6,
+        1: 12,
+    }
 
     def groundwork(self, request, args, kwargs):
         pass
@@ -91,16 +100,25 @@ class ShowCalendarView(View):
     def build_occurrence_display(self, occurrences):
         display_list = []
         events = Event.objects.filter(e_conference=self.conference)
+        hour_block_size = {}
         for occurrence in occurrences:
             event = events.filter(pk=occurrence.eventitem.event.pk).first()
+            hour = occurrence.start_time.strftime("%-I:00 %p")
             display_list += [{
                 'start':  occurrence.start_time.strftime(TIME_FORMAT),
                 'end': occurrence.end_time.strftime(TIME_FORMAT),
                 'title': event.e_title,
                 'location': occurrence.location,
-                'hour': occurrence.start_time.strftime("%-I:00 %p")
+                'hour': hour,
+                'detail_link': reverse('detail_view',
+                                       urlconf='scheduler.urls',
+                                       args=[occurrence.eventitem.pk]),
             }]
-        return display_list
+            if hour in hour_block_size:
+                hour_block_size[hour] += 1
+            else:
+                hour_block_size[hour] = 1
+        return max(hour_block_size.values()), display_list
 
     def get(self, request, *args, **kwargs):
         context = self.process_inputs(request, args, kwargs)
@@ -109,9 +127,16 @@ class ShowCalendarView(View):
             day=self.this_day.day)
         # temp hack, wait for update to master
         response.occurrence = None
-        show_scheduling_occurrence_status(request, response, self.__class__.__name__)
+        show_scheduling_occurrence_status(
+            request, response, self.__class__.__name__)
         if len(response.occurrences) > 0:
-            context['occurrences'] = self.build_occurrence_display(response.occurrences)
+            max_block_size, context[
+                'occurrences'] = self.build_occurrence_display(
+                response.occurrences)
+            grid_size = 2
+            if max_block_size < 6:
+                grid_size = self.grid_map[max_block_size]
+            context['grid_size'] = grid_size
         return render(request, self.template, context)
 
     def dispatch(self, *args, **kwargs):
