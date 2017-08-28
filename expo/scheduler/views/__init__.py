@@ -13,7 +13,6 @@ from remains import (
     contact_vendors,
     contact_by_role,
     view_list,
-    calendar_view,
 )
 
 from scheduler.views.export_calendar import export_calendar

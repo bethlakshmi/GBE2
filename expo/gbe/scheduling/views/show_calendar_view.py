@@ -46,9 +46,6 @@ class ShowCalendarView(View):
         1: 12,
     }
 
-    def groundwork(self, request, args, kwargs):
-        pass
-
     def process_inputs(self, request, args, kwargs):
         context = {}
         self.calendar_type = None
@@ -59,8 +56,6 @@ class ShowCalendarView(View):
             self.calendar_type = kwargs['calendar_type']
             if self.calendar_type not in calendar_type_options.values():
                 raise Http404
-        else:
-            raise Http404
 
         if "day" in self.request.GET:
             self.this_day = get_object_or_404(
