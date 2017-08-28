@@ -273,10 +273,10 @@ class TestCreateOccurrence(TestCase):
         self.assertEqual(teachers[0].pk, overcommitter.pk)
         self.assertEqual(EventLabel.objects.filter(
             text=context.conference.conference_slug,
-            event__eventitem=context.bid).count(), 1)
+            event__eventitem=context.bid).count(), 2)
         self.assertEqual(EventLabel.objects.filter(
             text="Conference",
-            event__eventitem=context.bid).count(), 1)
+            event__eventitem=context.bid).count(), 2)
 
     def test_good_user_with_moderator(self):
         clear_conferences()
@@ -366,7 +366,7 @@ class TestCreateOccurrence(TestCase):
         self.assertEqual(len(leads), 1)
         self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
         self.assertEqual(EventLabel.objects.filter(
-            event__eventitem=context.sched_event.eventitem).count(), 1)
+            event__eventitem=context.sched_event.eventitem).count(), 2)
 
     def test_good_user_with_special_event(self):
         clear_conferences()
@@ -409,10 +409,10 @@ class TestCreateOccurrence(TestCase):
             follow=True)
         self.assertEqual(EventLabel.objects.filter(
             text=context.conference.conference_slug,
-            event__eventitem=context.show).count(), 1)
+            event__eventitem=context.show).count(), 2)
         self.assertEqual(EventLabel.objects.filter(
             text="General",
-            event__eventitem=context.show).count(), 1)
+            event__eventitem=context.show).count(), 2)
 
     def test_good_user_with_panelists(self):
         clear_conferences()
