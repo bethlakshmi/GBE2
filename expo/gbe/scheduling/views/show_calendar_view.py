@@ -29,7 +29,7 @@ from gbe.functions import (
     conference_slugs,
 )
 from scheduler.idd import get_occurrences
-from gbe.scheduling.views.functions import show_scheduling_occurrence_status
+from gbe.scheduling.views.functions import show_general_status
 from operator import itemgetter
 
 
@@ -128,8 +128,7 @@ class ShowCalendarView(View):
             labels=[self.calendar_type, self.conference.conference_slug],
             day=self.this_day.day)
         # temp hack, wait for update to master
-        response.occurrence = None
-        show_scheduling_occurrence_status(
+        show_general_status(
             request, response, self.__class__.__name__)
         if len(response.occurrences) > 0:
             max_block_size, context[

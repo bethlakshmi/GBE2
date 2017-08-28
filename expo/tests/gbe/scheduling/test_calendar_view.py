@@ -103,75 +103,85 @@ class TestCalendarView(TestCase):
         self.assertContains(
             response,
             'This calendar is not currently available.')
-'''
 
-    def test_no_day(self):
+    def test_bad_day(self):
         '''
-#        There is a day, but that's not the day we're asking for.
-'''
+        There is a day, but that's not the day we're asking for.
+        '''
         clear_conferences()
         conference = ConferenceFactory(status='upcoming')
         conference_day = ConferenceDayFactory(
             conference=conference,
             day=date(2016, 02, 06))
-        url = reverse('calendar_day',
+        url = reverse('calendar',
                       urlconf='gbe.scheduling.urls',
-                      kwargs={'event_type': 'Class',
-                              'day': 'Sunday'})
-        response = self.client.get(url)
-        self.assertNotContains(
-            response,
-            '<li><a href="http://burlesque-expo.com/class_rooms">')
+                      args=['Conference'])
+        data = {'day': "02-02-2016"}
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, 404)
+
+    def test_one_day(self):
+        '''
+        There is no day but today, so no navigation
+        '''
+        clear_conferences()
+        conference = ConferenceFactory(status='upcoming')
+        conference_day = ConferenceDayFactory(
+            conference=conference,
+            day=date(2016, 02, 06))
+        url = reverse('calendar',
+                      urlconf='gbe.scheduling.urls',
+                      args=['Conference'])
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
+        self.assertContains(response, "btn btn-default disabled", 2)
+
+    def test_day_before(self):
+        '''
+        There is no day but today, so no navigation
+        '''
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        ConferenceDayFactory(
+            conference=self.other_conference,
+            day=date(2015, 02, 07))
+        data = {'day': "02-06-2015"}
+        response = self.client.get(url, data=data)
         self.assertContains(
             response,
-            '<p>This calendar is not currently available.</p>')
+            '<div class="col-xs-1 forward"><a href="?day=02-07-2015" ' +
+            'data-toggle="tooltip" title="02-07-2015">')
+
+    def test_day_after(self):
+        '''
+        There is no day but today, so no navigation
+        '''
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        ConferenceDayFactory(
+            conference=self.other_conference,
+            day=date(2015, 02, 07))
+        data = {'day': "02-07-2015"}
+        response = self.client.get(url, data=data)
+        self.assertContains(
+            response,
+            '<div class="col-xs-1 backward"><a href="?day=02-06-2015" ' +
+            'data-toggle="tooltip" title="02-06-2015">')
 
     def test_no_sched_events(self):
         '''
-'''        There is a day, but that's not the day we're asking for.
-        clear_conferences()
-        conference = ConferenceFactory(status='upcoming')
-        conference_day = ConferenceDayFactory(
-            conference=conference,
-            day=date(2016, 02, 06))
-        url = reverse('calendar_day',
-                      urlconf='gbe.scheduling.urls',
-                      kwargs={'event_type': 'Class',
-                              'day': 'Saturday'})
-        client = Client()
-        response = self.client.get(url)
-        self.assertNotContains(
-            response,
-            '<li><a href="http://burlesque-expo.com/class_rooms">')
+        There is a day, but that's not the day we're asking for.
+        '''
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        ConferenceDayFactory(
+            conference=self.other_conference,
+            day=date(2015, 02, 07))
+        data = {'day': "02-07-2015"}
+        response = self.client.get(url, data=data)
         self.assertContains(
             response,
-            '<p>This calendar is not currently available.</p>')
-
-    def test_calendar_class(self):
-        sunday = ConferenceDayFactory(
-            conference=self.showcontext.conference,
-            day=date(2016, 02, 07))
-        classcontextSun = ClassContext(
-            conference=self.showcontext.conference,
-            starttime=noon(sunday))
-        url = reverse('calendar_day',
-                      urlconf="gbe.scheduling.urls",
-                      kwargs={'event_type': 'Class',
-                              'day': 'Saturday'})
-        response = self.client.get(url)
-        self.assertTrue(self.classcontext.bid.e_title in response.content)
-        self.assertFalse(self.showcontext.show.e_title in response.content)
-        self.assertContains(response, str(self.classcontext.room))
-        self.assertNotContains(response, str(classcontextSun.room))
-
-    def test_calendar_movement_class(self):
-        self.classcontext.bid.type = 'Movement'
-        self.classcontext.bid.save()
-        url = reverse('calendar_day',
-                      urlconf="gbe.scheduling.urls",
-                      kwargs={'event_type': 'Movement',
-                              'day': 'Saturday'})
-        response = self.client.get(url)
-        self.assertTrue(self.classcontext.bid.e_title in response.content)
-        self.assertFalse(self.showcontext.show.e_title in response.content)
-'''
+            "There are no General events scheduled for this day.")

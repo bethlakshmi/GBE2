@@ -59,7 +59,12 @@
      <a href="{{occurrence.detail_link}}" class="detail_link">{{ occurrence.title}}</a><br>
      <i>{{ occurrence.location }}</i>
     </div>
-  {% endfor %}
+{% endfor %}
+{% if not occurrences %}
+   <div class="row event-row" style="text-align: center;">
+    <div class="col-lg-12">There are no {{ calendar_type }} events scheduled for this day.</div>
+  </div>
+{% endif %}
   </div>
 
 </div>
