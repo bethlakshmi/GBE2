@@ -17,23 +17,23 @@
     <div class="col-lg-12">{{conference.conference_name}} - {{ calendar_type }} Calendar</div>
  </div>
  <div class="row header2">
-    <div class="col-lg-1 backward"><a href="#" data-toggle="tooltip" title="Next Day">
+    <div class="col-xs-1 backward"><a href="#" data-toggle="tooltip" title="Next Day">
     {% if prev_date %}
-    <div class="col-lg-1 forward"><a href="?day={{ prev_date }}" data-toggle="tooltip" title="{{ prev_date }}">
+    <div class="col-xs-1 forward"><a href="?day={{ prev_date }}" data-toggle="tooltip" title="{{ prev_date }}">
       <button class="btn btn-default" type="submit" name="{{ prev_date }}" value="{{ prev_date }}">
     {% else %}
-    <div class="col-lg-1 forward"><a href="#">
+    <div class="col-xs-1 forward"><a href="#">
       <button class="btn btn-default disabled">
     {% endif %}
         <i class="fa fa-step-backward" aria-hidden="true"></i>
       </button>
     </a></div>    </a></div>
-    <div class="col-lg-10">{{ this_day }}</div>
+    <div class="col-xs-10">{{ this_day }}</div>
     {% if next_date %}
-    <div class="col-lg-1 forward"><a href="?day={{ next_date }}" data-toggle="tooltip" title="{{ next_date }}">
+    <div class="col-xs-1 forward"><a href="?day={{ next_date }}" data-toggle="tooltip" title="{{ next_date }}">
       <button class="btn btn-default" type="submit" name="{{ next_date }}" value="{{ next_date }}">
     {% else %}
-    <div class="col-lg-1 forward"><a href="#">
+    <div class="col-xs-1 forward"><a href="#">
       <button class="btn btn-default disabled">
     {% endif %}
         <i class="fa fa-step-forward" aria-hidden="true"></i>
