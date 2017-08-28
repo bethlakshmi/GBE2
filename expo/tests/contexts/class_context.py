@@ -7,6 +7,7 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from tests.factories.scheduler_factories import (
+    EventLabelFactory,
     LocationFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
@@ -72,4 +73,8 @@ class ClassContext:
             event=sched_event,
             resource=WorkerFactory(_item=teacher.workeritem_ptr,
                                    role='Teacher'))
+        EventLabelFactory(event=sched_event,
+                          text=self.conference.conference_slug)
+        EventLabelFactory(event=sched_event,
+                          text="Conference")
         return sched_event

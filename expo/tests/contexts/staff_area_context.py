@@ -7,6 +7,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
+    EventLabelFactory,
     LocationFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
@@ -34,7 +35,7 @@ class StaffAreaContext:
         self.conf_day = ConferenceDayFactory(
             day=self.sched_event.starttime.date(),
             conference=self.conference)
-        self.days = [ConferenceDayFactory(conference=self.conference)]
+        self.days = [self.conf_day]
 
     def schedule_instance(self,
                           starttime=None,
@@ -55,6 +56,8 @@ class StaffAreaContext:
             resource=WorkerFactory(
                 _item=staff_lead.workeritem_ptr,
                 role='Staff Lead'))
+        EventLabelFactory(event=sched_event,
+                          text=self.conference.conference_slug)
         return sched_event
 
     def add_volunteer_opp(self,
@@ -75,6 +78,10 @@ class StaffAreaContext:
             resource=LocationFactory(_item=room))
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=volunteer_sched_event)
+        EventLabelFactory(event=volunteer_sched_event,
+                          text=self.conference.conference_slug)
+        EventLabelFactory(event=volunteer_sched_event,
+                          text="Volunteer")
         return volunteer_sched_event
 
     def book_volunteer(self,
