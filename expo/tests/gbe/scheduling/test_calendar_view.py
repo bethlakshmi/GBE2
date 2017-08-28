@@ -93,23 +93,17 @@ class TestCalendarView(TestCase):
         self.assertNotContains(response, self.showcontext.show.e_title)
         self.assertContains(response, self.other_show.show.e_title)
 
-'''
-
     def test_no_conference_days(self):
         clear_conferences()
         ConferenceFactory(status='upcoming')
-        url = reverse('calendar_day',
+        url = reverse('calendar',
                       urlconf='gbe.scheduling.urls',
-                      kwargs={'event_type': 'Class',
-                              'day': 'Sunday'})
-        client = Client()
+                      args=['Conference'])
         response = self.client.get(url)
-        self.assertNotContains(
-            response,
-            '<li><a href="http://burlesque-expo.com/class_rooms">')
         self.assertContains(
             response,
-            '<p>This calendar is not currently available.</p>')
+            'This calendar is not currently available.')
+'''
 
     def test_no_day(self):
         '''
@@ -124,7 +118,6 @@ class TestCalendarView(TestCase):
                       urlconf='gbe.scheduling.urls',
                       kwargs={'event_type': 'Class',
                               'day': 'Sunday'})
-        client = Client()
         response = self.client.get(url)
         self.assertNotContains(
             response,

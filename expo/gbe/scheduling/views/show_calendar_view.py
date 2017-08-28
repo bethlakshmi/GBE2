@@ -85,15 +85,15 @@ class ShowCalendarView(View):
             'conference_slugs': conference_slugs(),
             'this_day': self.this_day,
         }
-
-        if ConferenceDay.objects.filter(
-                day=self.this_day.day+timedelta(days=1)).exists():
-            context['next_date'] = (self.this_day.day+timedelta(days=1)
-                                    ).strftime(URL_DATE)
-        if ConferenceDay.objects.filter(
-                day=self.this_day.day-timedelta(days=1)).exists():
-            context['prev_date'] = (self.this_day.day-timedelta(days=1)
-                                    ).strftime(URL_DATE)
+        if self.this_day:
+            if ConferenceDay.objects.filter(
+                    day=self.this_day.day+timedelta(days=1)).exists():
+                context['next_date'] = (self.this_day.day+timedelta(days=1)
+                                        ).strftime(URL_DATE)
+            if ConferenceDay.objects.filter(
+                    day=self.this_day.day-timedelta(days=1)).exists():
+                context['prev_date'] = (self.this_day.day-timedelta(days=1)
+                                        ).strftime(URL_DATE)
 
         return context
 
@@ -122,6 +122,8 @@ class ShowCalendarView(View):
 
     def get(self, request, *args, **kwargs):
         context = self.process_inputs(request, args, kwargs)
+        if not self.conference or not self.this_day or not self.calendar_type:
+            return render(request, self.template, context)
         response = get_occurrences(
             labels=[self.calendar_type, self.conference.conference_slug],
             day=self.this_day.day)
