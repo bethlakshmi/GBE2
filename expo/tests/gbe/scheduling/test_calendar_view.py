@@ -84,22 +84,16 @@ class TestCalendarView(TestCase):
         self.assertNotContains(response, self.classcontext.bid.e_title)
         self.assertContains(response, self.volunteeropp.eventitem.e_title)
 
-'''
-    def test_calendar_event_shows_all_events(self):
-        url = reverse('calendar_day',
-                      urlconf="gbe.scheduling.urls",
-                      kwargs={'event_type': 'All',
-                              'day': 'Saturday'})
-        response = self.client.get(url)
-        self.assertContains(response, self.showcontext.show.e_title)
-        self.assertFalse(self.other_show.show.e_title in response.content)
-
     def test_calendar_shows_requested_conference(self):
-        url = reverse('calendar', urlconf="gbe.scheduling.urls")
-        data = {'conf': self.other_conference.conference_slug}
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        data = {'conference': self.other_conference.conference_slug}
         response = self.client.get(url, data=data)
-        self.assertFalse(self.showcontext.show.e_title in response.content)
-        self.assertTrue(self.other_show.show.e_title in response.content)
+        self.assertNotContains(response, self.showcontext.show.e_title)
+        self.assertContains(response, self.other_show.show.e_title)
+
+'''
 
     def test_no_conference_days(self):
         clear_conferences()
