@@ -52,7 +52,8 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-12">%s' % self.showcontext.conference.conference_name)
+            '<div class="col-lg-12">%s' % (
+                self.showcontext.conference.conference_name))
         self.assertContains(response, self.showcontext.show.e_title)
         self.assertNotContains(response, self.other_show.show.e_title)
         self.assertNotContains(response, self.classcontext.bid.e_title)
@@ -65,7 +66,8 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-12">%s' % self.showcontext.conference.conference_name)
+            '<div class="col-lg-12">%s' % (
+                self.showcontext.conference.conference_name))
         self.assertNotContains(response, self.showcontext.show.e_title)
         self.assertNotContains(response, self.other_show.show.e_title)
         self.assertContains(response, self.classcontext.bid.e_title)
@@ -78,11 +80,44 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-12">%s' % self.showcontext.conference.conference_name)
+            '<div class="col-lg-12">%s' % (
+                self.showcontext.conference.conference_name))
         self.assertNotContains(response, self.showcontext.show.e_title)
         self.assertNotContains(response, self.other_show.show.e_title)
         self.assertNotContains(response, self.classcontext.bid.e_title)
         self.assertContains(response, self.volunteeropp.eventitem.e_title)
+
+    def test_calendar_conference_w_default_conf_public_days(self):
+        conference_day = ConferenceDayFactory(
+            conference=self.staffcontext.conference,
+            day=date(2016, 02, 05),
+            public_admin=False)
+        conference_day = ConferenceDayFactory(
+            conference=self.staffcontext.conference,
+            day=date(2016, 02, 07),
+            public_admin=False)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Conference'])
+        response = self.client.get(url)
+        self.assertContains(response, "btn btn-default disabled", 2)
+        self.assertContains(response, "Feb. 6, 2016", 1)
+
+    def test_calendar_volunteer_w_default_conf_public_days(self):
+        conference_day = ConferenceDayFactory(
+            conference=self.staffcontext.conference,
+            day=date(2016, 02, 05),
+            public_admin=False)
+        conference_day = ConferenceDayFactory(
+            conference=self.staffcontext.conference,
+            day=date(2016, 02, 07),
+            public_admin=False)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Volunteer'])
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
+        self.assertNotContains(response, "btn btn-default disabled")
 
     def test_calendar_shows_requested_conference(self):
         url = reverse('calendar',

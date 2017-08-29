@@ -1,4 +1,3 @@
-from table import table
 from datetime import (
     date,
     timedelta,

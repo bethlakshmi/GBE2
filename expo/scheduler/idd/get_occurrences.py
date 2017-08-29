@@ -25,7 +25,7 @@ def get_occurrences(parent_event_id=None, labels=[], day=None):
     if day:
         filter_occurrences = filter_occurrences.filter(
             starttime__range=(
-                datetime.combine(day, time(0,0,0,0)),
+                datetime.combine(day, time(0, 0, 0, 0)),
                 datetime.combine(day, time(23, 59, 59, 999999)))
         )
 
