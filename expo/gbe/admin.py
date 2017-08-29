@@ -191,6 +191,22 @@ class CastingAdmin(admin.ModelAdmin):
                      'display_order',)
     list_display_links = None
 
+class FlexibleEvalAdmin(admin.ModelAdmin):
+    list_display = ('bid',
+                    'evaluator',
+                    'category',
+                    'ranking')
+    list_filter = ['category',]
+
+class EvalCategoryAdmin(admin.ModelAdmin):
+    list_display = ('category',
+                    'visible',
+                    'help_text')
+    list_editable = ('category',
+                    'visible',
+                    'help_text')
+    list_filter = ['visible']
+
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
@@ -223,6 +239,7 @@ admin.site.register(GenericEvent, GenericAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(UserMessage, MessageAdmin)
 admin.site.register(ShowVote)
-admin.site.register(ActBidEvaluation)
+admin.site.register(FlexibleEvaluation, FlexibleEvalAdmin)
+admin.site.register(EvaluationCategory, EvalCategoryAdmin)
 admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)
 admin.site.register(ActCastingOption, CastingAdmin)
