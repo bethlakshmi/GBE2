@@ -117,8 +117,12 @@ def get_conference_by_slug(slug):
     return Conference.by_slug(slug)
 
 
-def get_conference_days(conference):
-    return conference.conferenceday_set.all()
+def get_conference_days(conference, public_admin=None):
+    if public_admin is None:
+        return conference.conferenceday_set.all()
+    else:
+        return conference.conferenceday_set.filter(
+            public_admin=public_admin)
 
 
 def get_conference_day(conference, date):

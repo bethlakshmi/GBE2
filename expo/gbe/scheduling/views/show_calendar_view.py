@@ -72,7 +72,8 @@ class ShowCalendarView(View):
 
         if not self.this_day:
             self.this_day = get_conference_days(
-                self.conference).order_by("day").first()
+                self.conference,
+                public_admin=True).order_by("day").first()
 
         context = {
             'calendar_type': self.calendar_type,
@@ -81,12 +82,17 @@ class ShowCalendarView(View):
             'this_day': self.this_day,
         }
         if self.this_day:
+            public_admin = True
+            if self.calendar_type == "Volunteer":
+                public_admin = False
             if ConferenceDay.objects.filter(
-                    day=self.this_day.day+timedelta(days=1)).exists():
+                    day=self.this_day.day+timedelta(days=1),
+                    public_admin=public_admin).exists():
                 context['next_date'] = (self.this_day.day+timedelta(days=1)
                                         ).strftime(URL_DATE)
             if ConferenceDay.objects.filter(
-                    day=self.this_day.day-timedelta(days=1)).exists():
+                    day=self.this_day.day-timedelta(days=1),
+                    public_admin=public_admin).exists():
                 context['prev_date'] = (self.this_day.day-timedelta(days=1)
                                         ).strftime(URL_DATE)
 

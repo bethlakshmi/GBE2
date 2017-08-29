@@ -173,10 +173,12 @@ class VolunteerWindowAdmin(admin.ModelAdmin):
 class ConferenceDayAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'day',
-                    'conference')
+                    'conference',
+                    'public_admin')
     list_filter = ['conference']
     list_editable = ('day',
-                     'conference',)
+                     'conference',
+                     'public_admin')
 
 
 class EmailTemplateSenderAdmin(admin.ModelAdmin):
