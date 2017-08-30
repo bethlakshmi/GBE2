@@ -41,7 +41,7 @@ from view_vendor_view import ViewVendorView
 from view_volunteer_view import ViewVolunteerView
 
 # review
-from review_act_view import ReviewActView
+from review_flex_bid_view import FlexibleReviewBidView
 from review_class_view import ReviewClassView
 from review_costume_view import ReviewCostumeView
 from review_vendor_view import ReviewVendorView

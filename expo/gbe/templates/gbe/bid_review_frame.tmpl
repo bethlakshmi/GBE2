@@ -6,24 +6,25 @@
 {% endblock %}
 
 {% block content %}
-
+  
   {% if form.errors %}
     <p style= "color:red"> There is an error on the form.  </p>
   {% endif %}
   <p class="vanilla">{{title}} </p>
   <div class="review-pane">
     <h2 class="review-title">Bid Information</h2>
-    <h3> {{ conference.conference_name }} </h3>
+    <h3> {{ conference.conference_name }} </h3> 
     {% if old_bid %}
     <h3> This bid is for a conference which has already happened </h3>
     {% endif %}
-     {% include "readonly_form_table.tmpl" %}
+    {% include "readonly_form_table.tmpl" %}
 
   </div>
-  <div class="review_area">
+    {% block review_form %}
+    {% endblock %}
 
     {% if actionURL %}
-    <div class="bid_col side_box">
+    <div class="side_box col-md-5 col-sm-12">
       <h2>Bid Control for Coordinator</h2>
         {% if actionform.errors %}
         <p style= "color:red"> There is an error on the form.  </p>
@@ -41,19 +42,11 @@
           {{ actionform.as_table }}
         </table>
         <br><br>
-        <input type="submit" value="Submit Form">
+        <input type="submit" value="Submit Form"> 
         </form>
     </div>
     {% endif %}
-    <h2>Review Information</h2>
-    <p><font color=red>*</font> indicates a required field
-    </p>
-    <div class=reviewer_col>
-      <form action="" method="post">
-      {% include "form_table.tmpl" %}
-      <input type="submit" value="Submit Form">
-      </form>
     </div>
   </div>
-
+  
 {% endblock %}

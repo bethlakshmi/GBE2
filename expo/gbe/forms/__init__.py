@@ -23,7 +23,7 @@ from proposal_publish_form import ProposalPublishForm
 
 # bid eval forms
 from bid_evaluation_form import BidEvaluationForm
-from act_bid_evaluation_form import ActBidEvaluationForm
+from flexible_evaluation_form import FlexibleEvaluationForm
 from bid_state_change_form import BidStateChangeForm
 
 # bid submit/edit forms
