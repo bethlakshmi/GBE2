@@ -6,7 +6,6 @@
     <div class="row">
     <div class="reviewer_col col-md-6 col-sm-12">
       <h2>Review Information</h2>
-      <p><font color=red>*</font> indicates a required field</p>
       <form action="" method="post">
             {% csrf_token %}
 <table class="flex_review">
@@ -14,26 +13,18 @@
       <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
   </tr>
   {% for flex_eval_form in form %}
+    {% if form.non_field_errors %}
+  <tr class="flex_review_row"><td>
+  <font color="red">{{ form.non_field_errors }}</font>
+  </td></tr>
+    {% endif %}
     {% for field in flex_eval_form.visible_fields %}
     <tr class="flex_review_row"><td><label for="field.name" class="control-label">	      
             {% if field.errors %}
-              <font color="red">!</font>&nbsp;&nbsp;
-	    {% elif field.css_classes == 'required' or field.name in submit_fields %}
-              <font color="red">*</font>
-            {% endif %} 
-            {% if field.errors %}
-                <font color="red">
+              <font color="red">!&nbsp;&nbsp;
             {% endif %}
-            {% if field.name in draft_fields %}
-	        <b>{{ field.label_tag }}</b>
-	    {% else %}
-	        {{ field.label_tag }}
-	    {% endif %}
-
-            {% if field.errors %}
-                </font>
-            {% endif %} 
-
+	    {{ field.label_tag }}
+            {% if field.errors %}</font>{% endif %} 
             {% if field.help_text %}
                 <span class="dropt" title="Help">
                 <img src= "{% static "img/question.png" %}" alt="?"/>
@@ -52,7 +43,7 @@
             </label>
     </tr>
     {% endif %}
-    {% for hidden in form.hidden_fields %}
+    {% for hidden in flex_eval_form.hidden_fields %}
     {{ hidden }}
     {% endfor %}
   {% endfor %}{% endfor %}

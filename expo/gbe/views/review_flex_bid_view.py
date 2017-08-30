@@ -34,6 +34,7 @@ from gbe.views import ReviewBidView
 
 class FlexibleReviewBidView(ReviewBidView):
     reviewer_permissions = ('Act Reviewers', )
+    review_list_view_name = 'act_review_list'
     coordinator_permissions = ('Act Coordinator',)
     bid_state_change_form = BidStateChangeForm
     bid_evaluation_type = FlexibleEvaluation
