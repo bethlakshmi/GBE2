@@ -372,3 +372,7 @@ deactivated.  To delete, reactivate, or review the details, go to the admin: \
 '''
 default_delete_profile_admin_msg = '''No relevant site data found, this user \
 has been completely deleted'''
+default_act_review_error_msg = '''There was an issue with processing your act \
+review for act %s, see below for details and please resubmit.'''
+default_act_review_success_msg = '''You have successfully reviewed act %s, \
+from performer %s.'''

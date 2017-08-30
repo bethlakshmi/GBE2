@@ -1,6 +1,7 @@
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.forms import (
     ChoiceField,
     ModelChoiceField,
@@ -10,6 +11,7 @@ from gbe.models import (
     EvaluationCategory,
     FlexibleEvaluation,
     Show,
+    UserMessage,
 )
 from gbe.forms import (
     FlexibleEvaluationForm,
@@ -27,6 +29,8 @@ from gbe.views.act_display_functions import (
 )
 from gbetext import (
     act_casting_label,
+    default_act_review_error_msg,
+    default_act_review_success_msg,
 )
 from gbe.views.functions import get_performer_form
 from gbe.views import ReviewBidView
@@ -81,9 +85,28 @@ class FlexibleReviewBidView(ReviewBidView):
         if valid:
             for form in self.form:
                 form.save()
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="REVIEW_SUCCESS",
+                defaults={
+                    'summary': "Act Review Success",
+                    'description': default_act_review_success_msg})
+            messages.success(
+                request,
+                user_message[0].description  % (
+                    self.object.b_title,
+                    str(self.object.performer)))
             return HttpResponseRedirect(reverse(self.review_list_view_name,
                                                 urlconf='gbe.urls'))
         else:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="REVIEW_FORM_ERROR",
+                defaults={
+                    'summary': "Error Reviewing Act",
+                    'description': default_act_review_error_msg})
+            messages.error(request, user_message[0].description % (
+                self.object.b_title))
             return self.bid_review_response(request)
 
     def set_bid_eval(self):

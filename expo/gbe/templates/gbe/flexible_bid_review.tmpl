@@ -35,6 +35,9 @@
             {% endif %}
       </label></td>
       {{ field }}
+    {% for hidden in flex_eval_form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
     </tr>
       {% if field.errors %}
     <tr class="flex_review_row">
@@ -43,9 +46,6 @@
             </label>
     </tr>
     {% endif %}
-    {% for hidden in flex_eval_form.hidden_fields %}
-    {{ hidden }}
-    {% endfor %}
   {% endfor %}{% endfor %}
 </table>
         <input type="submit" value="Submit Form"> 
