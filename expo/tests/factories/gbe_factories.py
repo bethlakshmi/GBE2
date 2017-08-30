@@ -413,19 +413,22 @@ class ShowVoteFactory(DjangoModelFactory):
         model = conf.ShowVote
 
 
-class ActBidEvaluationFactory(DjangoModelFactory):
-    evaluator = SubFactory(ProfileFactory)
-    bid = SubFactory(ActFactory)
-    primary_vote = SubFactory(
-        ShowVoteFactory,
-        show__e_conference=SelfAttribute('...bid.b_conference'))
-    secondary_vote = SubFactory(
-        ShowVoteFactory,
-        show__e_conference=SelfAttribute('...bid.b_conference'))
-    notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
+class EvaluationCategoryFactory(DjangoModelFactory):
+    category = Sequence(lambda x: "Category %d" % x)
+    help_text = Sequence(lambda x: "Notes for Category %d" % x)
 
     class Meta:
-        model = conf.ActBidEvaluation
+        model = conf.EvaluationCategory
+
+
+class FlexibleEvaluationFactory(DjangoModelFactory):
+    category = SubFactory(EvaluationCategoryFactory)
+    evaluator = SubFactory(ProfileFactory)
+    bid = SubFactory(ActFactory)
+    ranking = 3
+
+    class Meta:
+        model = conf.FlexibleEvaluation
 
 
 class EmailTemplateFactory(DjangoModelFactory):

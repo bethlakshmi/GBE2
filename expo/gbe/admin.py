@@ -202,9 +202,6 @@ class EvalCategoryAdmin(admin.ModelAdmin):
     list_display = ('category',
                     'visible',
                     'help_text')
-    list_editable = ('category',
-                    'visible',
-                    'help_text')
     list_filter = ['visible']
 
 admin.site.register(Conference, ConferenceAdmin)

@@ -34,6 +34,7 @@ from gbetext import (
 )
 from gbe.views.functions import get_performer_form
 from gbe.views import ReviewBidView
+from scheduler.models import ActResource
 
 
 class FlexibleReviewBidView(ReviewBidView):
@@ -46,6 +47,7 @@ class FlexibleReviewBidView(ReviewBidView):
     review_template = 'gbe/flexible_bid_review.tmpl'
     object_type = Act
     changestate_view_name = 'act_changestate'
+    bid_view_name = 'act_view'
 
     def create_action_form(self, act):
 
@@ -111,8 +113,8 @@ class FlexibleReviewBidView(ReviewBidView):
 
     def set_bid_eval(self):
         self.bid_eval_set = self.bid_evaluation_type.objects.filter(
-            bid_id=self.object.pk,
-            evaluator_id=self.reviewer.resourceitem_id)
+            bid=self.object,
+            evaluator=self.reviewer)
         if len(self.bid_eval_set) == 0:
             self.bid_eval_set = []
             for category in EvaluationCategory.objects.filter(
