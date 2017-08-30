@@ -812,6 +812,20 @@ div.bid_review_section{
     padding-top:5px;
 }
 
+tr.flex_review_row>td, tr.flex_review_row>th{
+  text-align: center;
+  padding: 5px;
+}
+table.flex_review  tr.flex_review_row:nth-child(even)
+{
+  background-color: #CCC;
+} 
+
+table.flex_review  tr.flex_review_row:nth-child(odd)
+{
+  background-color: #EEE;
+} 
+
 div.sidebar>div.class_section {
     margin-top: 10px;
     background-color:#E3DDDF;

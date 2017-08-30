@@ -1,4 +1,5 @@
 {% extends 'gbe/bid_review_frame.tmpl' %}
+{% load staticfiles %}
 {% block review_form %}
   </div>
   <div class="bid_review container">
@@ -7,9 +8,55 @@
       <h2>Review Information</h2>
       <p><font color=red>*</font> indicates a required field</p>
       <form action="" method="post">
-  {% for flex_eval in form %}
-    {% include "form_table.tmpl" with form=flex_eval %}
-  {% endfor %}
+            {% csrf_token %}
+<table class="flex_review">
+  <tr class="flex_review_row"><th>&nbsp;</th><th>N/A</th>
+      <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+  </tr>
+  {% for flex_eval_form in form %}
+    {% for field in flex_eval_form.visible_fields %}
+    <tr class="flex_review_row"><td><label for="field.name" class="control-label">	      
+            {% if field.errors %}
+              <font color="red">!</font>&nbsp;&nbsp;
+	    {% elif field.css_classes == 'required' or field.name in submit_fields %}
+              <font color="red">*</font>
+            {% endif %} 
+            {% if field.errors %}
+                <font color="red">
+            {% endif %}
+            {% if field.name in draft_fields %}
+	        <b>{{ field.label_tag }}</b>
+	    {% else %}
+	        {{ field.label_tag }}
+	    {% endif %}
+
+            {% if field.errors %}
+                </font>
+            {% endif %} 
+
+            {% if field.help_text %}
+                <span class="dropt" title="Help">
+                <img src= "{% static "img/question.png" %}" alt="?"/>
+                  <span style="width:200px;float:right;text-align:left;">
+                  {{ field.help_text }}
+                  </span>
+                </span>
+            {% endif %}
+      </label></td>
+      {{ field }}
+    </tr>
+      {% if field.errors %}
+    <tr class="flex_review_row">
+ 	    <label for="field.name">	      
+              <font color="red">{{ field.errors }}</font>
+            </label>
+    </tr>
+    {% endif %}
+    {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+  {% endfor %}{% endfor %}
+</table>
         <input type="submit" value="Submit Form"> 
       </form>
     </div>
