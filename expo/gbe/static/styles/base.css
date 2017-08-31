@@ -838,10 +838,9 @@ th.rotate > div {
     translate(0px, 51px)
     /* 45 is really 360 - 45 */
     rotate(270deg);
-  width: 30px;
+  width: 20px;
 }
 th.rotate > div > span {
-  padding: 5px 10px;
 }
 
 div.sidebar>div.class_section {

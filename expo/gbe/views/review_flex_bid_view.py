@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.shortcuts import render
+from django.db.models import Avg
 from django.forms import (
     ChoiceField,
     ModelChoiceField,
@@ -95,6 +96,9 @@ class FlexibleReviewBidView(ReviewBidView):
                         category=category, evaluator=reviewer).ranking]
                 except:
                     self.review_results[category] += [""]
+            self.review_results[category] += [int(
+                evaluations.filter(category=category).aggregate(
+                    Avg('ranking'))['ranking__avg'])]
 
     def bid_review_response(self, request):
         return render(request,
