@@ -29,6 +29,7 @@ from gbetext import (
     default_act_review_success_msg,
 )
 
+
 class TestReviewAct(TestCase):
     '''Tests for review_act view'''
 
@@ -43,8 +44,8 @@ class TestReviewAct(TestCase):
         self.eval_cat_invisible = EvaluationCategoryFactory(visible=False)
         self.act = ActFactory()
         self.url = reverse('act_review',
-                      urlconf='gbe.urls',
-                      args=[self.act.pk])
+                           urlconf='gbe.urls',
+                           args=[self.act.pk])
 
     def get_post_data(self,
                       bid,
@@ -176,7 +177,7 @@ class TestReviewAct(TestCase):
 
         response = self.client.get(url)
         chosen_item = ('<input checked="checked" id="id_%d-ranking_%d" ' +
-        'name="%d-ranking" type="radio" value="%d" />')
+                       'name="%d-ranking" type="radio" value="%d" />')
         test_result = chosen_item % (evaluation.category.pk,
                                      evaluation.ranking+1,
                                      evaluation.category.pk,

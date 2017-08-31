@@ -191,18 +191,20 @@ class CastingAdmin(admin.ModelAdmin):
                      'display_order',)
     list_display_links = None
 
+
 class FlexibleEvalAdmin(admin.ModelAdmin):
     list_display = ('bid',
                     'evaluator',
                     'category',
                     'ranking')
-    list_filter = ['category',]
+    list_filter = ['category', ]
+
 
 class EvalCategoryAdmin(admin.ModelAdmin):
     list_display = ('category',
                     'visible',
                     'help_text')
-    list_filter = ['visible']
+    list_filter = ['visible', ]
 
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)

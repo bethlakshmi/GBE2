@@ -41,4 +41,3 @@ class FlexibleEvaluationForm(ModelForm):
         widgets = {'category': HiddenInput(),
                    'evaluator': HiddenInput(),
                    'bid': HiddenInput(), }
-

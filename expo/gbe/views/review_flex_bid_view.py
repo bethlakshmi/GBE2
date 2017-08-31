@@ -95,7 +95,7 @@ class FlexibleReviewBidView(ReviewBidView):
                     'description': default_act_review_success_msg})
             messages.success(
                 request,
-                user_message[0].description  % (
+                user_message[0].description % (
                     self.object.b_title,
                     str(self.object.performer)))
             return HttpResponseRedirect(reverse(self.review_list_view_name,
