@@ -1,13 +1,10 @@
 {% extends 'gbe/bid_review_frame.tmpl' %}
 {% load staticfiles %}
 {% block review_form %}
-  </div>
-  <div class="bid_review container">
-    <div class="row">
-    <div class="reviewer_col col-md-6 col-sm-12">
-      <h2>Review Information</h2>
-      <form action="" method="post">
-            {% csrf_token %}
+<div class="reviewer_col col-md-3 col-sm-12">
+  <h2>Review Information</h2>
+    <form action="" method="post">
+      {% csrf_token %}
 <table class="flex_review">
   <tr class="flex_review_row"><th>&nbsp;</th><th>N/A</th>
       <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
@@ -19,7 +16,7 @@
   </td></tr>
     {% endif %}
     {% for field in flex_eval_form.visible_fields %}
-    <tr class="flex_review_row"><td><label for="field.name" class="control-label">	      
+    <tr class="flex_review_row"><td><label for="{{ field.name }}" class="control-label">	      
             {% if field.errors %}
               <font color="red">!&nbsp;&nbsp;
             {% endif %}
@@ -52,3 +49,32 @@
       </form>
     </div>
 {% endblock %}
+{% block review_results %}{% if review_results %}
+<div class="col-md-4 col-sm-12">
+  <h2>Detailed Review Results</h2>
+  <table class="flex_review" border="1">
+    <tr class="flex_review_row">
+        <th>&nbsp;</th>
+      {% for reviewer in reviewers %}
+        <th class="rotate"><div><span>{{reviewer}}</span></div></th>
+      {% endfor %}
+    </tr>
+  {% for category, evaluations in review_results.items %}
+    <tr class="flex_review_row">
+      <td><b>{{ category.category }}</b>{% if category.help_text %}
+        <span class="dropt" title="Help">
+          <img src= "{% static "img/question.png" %}" alt="?"/>
+            <span style="width:200px;float:right;text-align:left;">
+              {{ category.help_text }}
+            </span>
+        </span>{% endif %}
+      </td>
+    {% for evaluation in evaluations %}
+      <td>{{evaluation}}</td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+    </tr>
+  </table>
+</div>
+{% endif %}{% endblock %}

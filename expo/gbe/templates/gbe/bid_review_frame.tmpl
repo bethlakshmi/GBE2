@@ -20,11 +20,16 @@
     {% include "readonly_form_table.tmpl" %}
 
   </div>
+  <div class="bid_review container">
+    <div class="row">
+ 
     {% block review_form %}
     {% endblock %}
 
     {% if actionURL %}
-    <div class="side_box col-md-5 col-sm-12">
+    {% block review_results %}
+    {% endblock %}
+    <div class="side_box col-md-4 col-sm-12">
       <h2>Bid Control for Coordinator</h2>
         {% if actionform.errors %}
         <p style= "color:red"> There is an error on the form.  </p>

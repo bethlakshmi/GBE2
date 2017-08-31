@@ -2,6 +2,7 @@ from django.views.decorators.cache import never_cache
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.shortcuts import render
 from django.forms import (
     ChoiceField,
     ModelChoiceField,
@@ -10,6 +11,7 @@ from gbe.models import (
     Act,
     EvaluationCategory,
     FlexibleEvaluation,
+    Profile,
     Show,
     UserMessage,
 )
@@ -79,6 +81,34 @@ class FlexibleReviewBidView(ReviewBidView):
         self.actionURL = reverse(self.changestate_view_name,
                                  urlconf='gbe.urls',
                                  args=[act.id])
+        self.reviewers = Profile.objects.filter(
+            flexibleevaluation__bid=act).order_by('display_name').distinct()
+        categories = EvaluationCategory.objects.filter(
+            flexibleevaluation__bid=act).order_by('category').distinct()
+        evaluations = FlexibleEvaluation.objects.filter(bid=act)
+        self.review_results = {}
+        for category in categories:
+            self.review_results[category] = []
+            for reviewer in self.reviewers:
+                try:
+                    self.review_results[category] += [evaluations.get(
+                        category=category, evaluator=reviewer).ranking]
+                except:
+                    self.review_results[category] += [""]
+
+    def bid_review_response(self, request):
+        return render(request,
+                      self.review_template,
+                      {'readonlyform': self.readonlyform_pieces,
+                       'reviewer': self.reviewer,
+                       'form': self.form,
+                       'actionform': self.actionform,
+                       'actionURL': self.actionURL,
+                       'conference': self.b_conference,
+                       'old_bid': self.old_bid,
+                       'review_results': self.review_results,
+                       'reviewers': self.reviewers,
+                       })
 
     def post_response_for_form(self, request):
         valid = True
