@@ -93,12 +93,17 @@ class FlexibleReviewBidView(ReviewBidView):
             for reviewer in self.reviewers:
                 try:
                     self.review_results[category] += [evaluations.get(
-                        category=category, evaluator=reviewer).ranking]
+                        category=category,
+                        evaluator=reviewer,
+                        ranking__gt=-1).ranking]
                 except:
                     self.review_results[category] += [""]
-            self.review_results[category] += [int(
-                evaluations.filter(category=category).aggregate(
-                    Avg('ranking'))['ranking__avg'])]
+            try:
+                self.review_results[category] += [int(
+                    evaluations.filter(category=category, ranking__gt=-1).aggregate(
+                        Avg('ranking'))['ranking__avg'])]
+            except:
+                self.review_results[category] += [""]
 
     def bid_review_response(self, request):
         return render(request,

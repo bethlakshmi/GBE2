@@ -18,7 +18,7 @@ from gbe.models import (
 class FlexibleEvaluation(Model):
     evaluator = ForeignKey(Profile)
     bid = ForeignKey(Biddable)
-    ranking = IntegerField(validators=[MinValueValidator(0),
+    ranking = IntegerField(validators=[MinValueValidator(-1),
                                        MaxValueValidator(5)],
                            blank=True)
     category = ForeignKey(EvaluationCategory)

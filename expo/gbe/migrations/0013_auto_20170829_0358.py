@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             name='FlexibleEvaluation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('ranking', models.IntegerField(blank=True, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(5)])),
+                ('ranking', models.IntegerField(blank=True, validators=[django.core.validators.MinValueValidator(-1), django.core.validators.MaxValueValidator(5)])),
                 ('bid', models.ForeignKey(to='gbe.Biddable')),
                 ('category', models.ForeignKey(to='gbe.EvaluationCategory')),
                 ('evaluator', models.ForeignKey(to='gbe.Profile')),

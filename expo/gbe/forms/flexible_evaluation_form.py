@@ -5,6 +5,7 @@ from django.forms import (
     RadioSelect,
 )
 from gbe.models import FlexibleEvaluation
+from django.db.models.fields import BLANK_CHOICE_DASH
 
 
 class HorizontalRadioSelect(RadioSelect):
@@ -21,8 +22,7 @@ class FlexibleEvaluationForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FlexibleEvaluationForm, self).__init__(*args, **kwargs)
-        choice_set = [("", "")]
-        choice_set += [(i, "") for i in range(0, 6)]
+        choice_set = [(i, "") for i in range(-1, 6)]
         if 'initial' in kwargs:
             initial = kwargs.pop('initial')
             self.fields['ranking'] = ChoiceField(
