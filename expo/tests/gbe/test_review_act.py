@@ -186,6 +186,67 @@ class TestReviewAct(TestCase):
         self.assertContains(response, evaluation.category.category)
         self.assertContains(response, evaluation.category.help_text)
 
+    def test_review_act_load_review_listing(self):
+        evaluation1 = FlexibleEvaluationFactory(
+            evaluator=self.privileged_profile,
+            category=self.eval_cat,
+            ranking=0
+        )
+        evaluation2 = FlexibleEvaluationFactory(
+            evaluator=ProfileFactory(),
+            category=self.eval_cat_invisible,
+            ranking=2,
+            bid=evaluation1.bid
+        )
+        evaluation3 = FlexibleEvaluationFactory(
+            evaluator=evaluation2.evaluator,
+            category=self.eval_cat,
+            ranking=4,
+            bid=evaluation1.bid
+        )
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[evaluation1.bid.pk])
+        login_as(self.privileged_user, self)
+
+        response = self.client.get(url)
+        reviewer_string = '<th class="rotate"><div><span>%s</span></div></th>'
+        self.assertContains(response,
+                            reviewer_string % str(evaluation1.evaluator))
+        self.assertContains(response,
+                            reviewer_string % str(evaluation2.evaluator))
+        self.assertContains(response, evaluation1.category.category, 4)
+        self.assertContains(response, evaluation2.category.category, 2)
+        self.assertContains(response, "<td>2</td>", 3)
+        self.assertContains(response, "<td>0</td>", 1)
+        self.assertContains(response, "<td>4</td>", 1)
+
+    def test_review_act_load_review_all_blank_category(self):
+        evaluation1 = FlexibleEvaluationFactory(
+            evaluator=self.privileged_profile,
+            category=self.eval_cat,
+            ranking=-1
+        )
+        evaluation2 = FlexibleEvaluationFactory(
+            evaluator=ProfileFactory(),
+            category=self.eval_cat,
+            ranking=-1,
+            bid=evaluation1.bid
+        )
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[evaluation1.bid.pk])
+        login_as(self.privileged_user, self)
+
+        response = self.client.get(url)
+        self.assertContains(response, "<td></td>", 3)
+        reviewer_string = '<th class="rotate"><div><span>%s</span></div></th>'
+        self.assertContains(response,
+                            reviewer_string % str(evaluation1.evaluator))
+        self.assertContains(response,
+                            reviewer_string % str(evaluation2.evaluator))
+        self.assertContains(response, evaluation1.category.category, 4)
+
     def test_review_act_update_review(self):
         eval = FlexibleEvaluationFactory(
             evaluator=self.privileged_profile,

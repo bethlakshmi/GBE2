@@ -51,6 +51,8 @@ class FlexibleReviewBidView(ReviewBidView):
     object_type = Act
     changestate_view_name = 'act_changestate'
     bid_view_name = 'act_view'
+    review_results = None
+    reviewers = None
 
     def create_action_form(self, act):
 
