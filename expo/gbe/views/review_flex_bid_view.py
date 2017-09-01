@@ -102,7 +102,9 @@ class FlexibleReviewBidView(ReviewBidView):
                     self.review_results[category] += [""]
             try:
                 self.review_results[category] += [int(
-                    evaluations.filter(category=category, ranking__gt=-1).aggregate(
+                    evaluations.filter(
+                        category=category,
+                        ranking__gt=-1).aggregate(
                         Avg('ranking'))['ranking__avg'])]
             except:
                 self.review_results[category] += [""]
