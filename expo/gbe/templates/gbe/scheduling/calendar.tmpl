@@ -43,15 +43,12 @@
  </div>
 {% for occurrence in occurrences %}
   {% ifchanged occurrence.hour %}
-   {% if not forloop.first %}
-  </div>
-  {% endif %}
-
-  <div class="row time-row">
+   {% if not forloop.first %}</div>{% endif %}
+   <div class="row time-row">
     <div class="col-lg-12">{{occurrence.hour}}</div>
-  </div>
-  <div class="row event-row">
-   {% endifchanged %}
+   </div>
+   <div class="row event-row">
+  {% endifchanged %}
     <div class="col-lg-{{grid_size}} col-md-{% if grid_size > 4 %}{{grid_size}}{% else %}4{% endif %} col-sm-{% if grid_size > 6 %}{{grid_size}}{% else %}6{% endif %} col-xs-12">
      {{ occurrence.start }}-{{ occurrence.end }}<br>
      <a href="{{occurrence.detail_link}}" class="detail_link">{{ occurrence.title}}</a><br>
