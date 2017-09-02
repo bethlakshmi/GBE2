@@ -5,10 +5,8 @@ from django.shortcuts import (
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
-    Http404,
 )
 from django.db.models import Count
-from django.conf import settings
 from scheduler.models import *
 from scheduler.forms import *
 from django.contrib.auth.decorators import login_required
@@ -20,20 +18,10 @@ from django.contrib.auth import (
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import reverse
 import csv
-from scheduler.table import table
 from gbe_forms_text import (
     list_titles,
 )
 from gbetext import acceptance_states
-from gbe.duration import (
-    Duration,
-)
-from scheduler.functions import (
-    cal_times_for_conf,
-    event_info,
-    overlap_clear,
-    table_prep,
-)
 from scheduler.views.functions import (
     get_event_display_info,
     get_events_display_info,
@@ -46,8 +34,6 @@ from gbe.functions import (
     validate_perms,
     validate_profile,
 )
-from expo.settings import DATE_FORMAT
-from django.utils.formats import date_format
 from gbe_forms_text import list_text
 
 
@@ -437,75 +423,3 @@ def view_list(request, event_type='All'):
                    'etype': event_type,
                    'conf_slug': conf_slug,
                    })
-
-
-def calendar_view(request=None,
-                  event_type='Show',
-                  day=None,
-                  duration=Duration(minutes=30)):
-    conf_slug = request.GET.get('conf', None)
-    if conf_slug:
-        conf = get_conference_by_slug(conf_slug)
-    else:
-        conf = get_current_conference()
-
-    cal_times = cal_times_for_conf(conf, day)
-
-    if event_type == 'All':
-        event_types = ['Show',
-                       'Class',
-                       'Special Event',
-                       'Master Class',
-                       'Drop-In Class']
-        events = []
-        for e_type in event_types:
-            events = events + event_info(confitem_type=e_type,
-                                         cal_times=cal_times,
-                                         conference=conf)
-
-    elif event_type == 'Show':
-        events = event_info(confitem_type='Show',
-                            cal_times=cal_times,
-                            conference=conf)
-        events += event_info(confitem_type='Special Event',
-                             cal_times=cal_times,
-                             conference=conf)
-        events += event_info(confitem_type='Master Class',
-                             cal_times=cal_times,
-                             conference=conf)
-        events += event_info(confitem_type='Drop-In Class',
-                             cal_times=cal_times,
-                             conference=conf)
-    else:
-        events = event_info(confitem_type=event_type,
-                            cal_times=cal_times,
-                            conference=conf)
-
-    events = overlap_clear(events)
-
-    table = {}
-
-    if len(events) > 0:
-        # Changing function to get table labels from the request
-        table['rows'] = table_prep(events,
-                                   duration,
-                                   cal_start=cal_times[0],
-                                   cal_stop=cal_times[1])
-        if day:
-            table['day'] = "%s - %s" % (
-                day,
-                date_format(cal_times[0], "DATE_FORMAT"))
-        else:
-            table['day'] = "%s - %s" % (
-                date_format(cal_times[0], "DATE_FORMAT"),
-                date_format(cal_times[1], "DATE_FORMAT"))
-        table['name'] = 'Event Calendar for the Great Burlesque Expo'
-        table['link'] = 'http://burlesque-expo.com'
-        table['x_name'] = {}
-        table['x_name']['html'] = 'Rooms'
-        table['x_name']['link'] = 'http://burlesque-expo.com/class_rooms'
-    # TO DO: Get rid of hard-coded links
-
-    template = 'scheduler/sched_display.tmpl'
-
-    return render(request, template, table)

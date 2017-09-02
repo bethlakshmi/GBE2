@@ -8,6 +8,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.factories.scheduler_factories import (
     ActResourceFactory,
+    EventLabelFactory,
     LocationFactory,
     OrderingFactory,
     ResourceAllocationFactory,
@@ -61,6 +62,10 @@ class ShowContext:
             sched_event = SchedEventFactory(
                 eventitem=self.show.eventitem_ptr,
                 starttime=noon(self.days[0]))
+        EventLabelFactory(event=sched_event,
+                          text=self.conference.conference_slug)
+        EventLabelFactory(event=sched_event,
+                          text="General")
         ResourceAllocationFactory(
             event=sched_event,
             resource=LocationFactory(_item=room.locationitem_ptr))

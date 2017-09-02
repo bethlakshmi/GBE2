@@ -25,6 +25,7 @@ class ClassAdmin(BidAdmin):
                     'created_at',
                     'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
+    search_fields = ['e_title']
 
 
 class ActAdmin(admin.ModelAdmin):
@@ -34,6 +35,7 @@ class ActAdmin(admin.ModelAdmin):
                     'created_at',
                     'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
+    search_fields = ['e_title']
 
 
 class PerformerAdmin(admin.ModelAdmin):
@@ -105,11 +107,13 @@ class ShowAdmin(admin.ModelAdmin):
 class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('e_title', 'type')
     list_filter = ['e_conference', 'type']
+    search_fields = ['e_title']
 
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('eventitem_id', 'e_title', 'subclass')
     list_filter = ['e_conference']
+    search_fields = ['e_title']
 
     def subclass(self, obj):
         event = Event.objects.get_subclass(event_id=obj.event_id)
@@ -169,10 +173,12 @@ class VolunteerWindowAdmin(admin.ModelAdmin):
 class ConferenceDayAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'day',
-                    'conference')
+                    'conference',
+                    'open_to_public')
     list_filter = ['conference']
     list_editable = ('day',
-                     'conference',)
+                     'conference',
+                     'open_to_public')
 
 
 class EmailTemplateSenderAdmin(admin.ModelAdmin):
