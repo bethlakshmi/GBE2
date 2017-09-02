@@ -219,7 +219,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url, data=data)
         self.assertContains(
             response,
-            "There are no General events scheduled for this day.")
+            "There are no general events scheduled for this day.")
 
     def test_calendar_1_event_per_hour(self):
         url = reverse('calendar',

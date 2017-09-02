@@ -27,7 +27,7 @@
         <i class="fa fa-step-backward" aria-hidden="true"></i>
       </button>
     </a></div>
-    <div class="col-xs-10">{{ this_day }}</div>
+    <div class="col-xs-10">{{ this_day.day | date:"l" }} - {{ this_day }}</div>
     <div class="col-xs-1 forward">
      {% if next_date %}<a href="?day={{ next_date }}" data-toggle="tooltip" title="{{ next_date }}">
       <button class="btn btn-default" type="submit" name="{{ next_date }}" value="{{ next_date }}">
@@ -57,7 +57,7 @@
 {% endfor %}
 {% if not occurrences %}
    <div class="row event-row" style="text-align: center;">
-    <div class="col-lg-12">There are no {{ calendar_type }} events scheduled for this day.</div>
+    <div class="col-lg-12">There are no {{ calendar_type | lower }} events scheduled for this day.</div>
   </div>
 {% endif %}
   </div>
