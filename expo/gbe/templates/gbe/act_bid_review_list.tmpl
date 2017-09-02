@@ -8,6 +8,7 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/simple-line-icons.css">
 {% endblock %}
 {% block content %}
 
@@ -67,43 +68,13 @@
           </td>
           {% endif %}
           <td class="bid-table">
-              <a href="{{ row.review_url }}">
-	        {% if row.action1 %}
-	          {{ row.action1 }}
-	        {% else %}
-	          Review
-	        {% endif %}
-	      </a>
-              {% if row.edit_url %}
-                <br>
-                  <a href="{{ row.edit_url }}">
-		    {% if row.action2 %}
-		      {{ row.action2 }}
-		    {% else %}
-		      Edit
-		    {% endif %}
-		  </a>
-              {% endif %}
-              {% if row.delete_url %}
-                <br>
-                <a href="{{ row.delete_url }}">
-		{% if row.action3 %}
-		{{ row.action3 }}
-		{% else %}
-		Delete
-		{% endif %}
-		</a>
-              {% endif %}
-              {%if row.assign_url%}
-                <br>
-                <a href="{{ row.assign_url }}">
-		{% if row.action4 %}
-		{{ row.action4 }}
-		{% else %}
-		Assign
-		{% endif %}
-		</a>
-              {% endif %}
+	   <div class="btn-group" role="group" aria-label="...">
+	    <a href="{{ row.review_url }}" data-toggle="tooltip" title="Edit">
+             <button class="btn btn-default">
+	        <i class="icon-like"></i> / <i class="icon-dislike"></i>
+	     </button>
+	    </a>
+	   </div>
           </td>
       </tr>
     {% endfor %}
