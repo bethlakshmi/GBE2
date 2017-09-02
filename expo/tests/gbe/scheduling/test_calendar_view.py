@@ -185,7 +185,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url, data=data)
         self.assertContains(
             response,
-            '<div class="col-xs-1 forward"><a href="?day=02-07-2015" ' +
+            '<a href="?day=02-07-2015" ' +
             'data-toggle="tooltip" title="02-07-2015">')
 
     def test_day_after(self):
@@ -202,7 +202,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url, data=data)
         self.assertContains(
             response,
-            '<div class="col-xs-1 backward"><a href="?day=02-06-2015" ' +
+            '<a href="?day=02-06-2015" ' +
             'data-toggle="tooltip" title="02-06-2015">')
 
     def test_no_sched_events(self):
