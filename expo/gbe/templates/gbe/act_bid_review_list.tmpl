@@ -112,7 +112,12 @@
 
   <script>
   $(document).ready(function() {
-    var table = $('#bid_review').DataTable();
+    var table = $('#bid_review').DataTable({
+        "columnDefs": [
+            {
+                "targets": [ 2 ],
+                "visible": false,
+            },]});
 
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
