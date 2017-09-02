@@ -91,11 +91,11 @@ class TestCalendarView(TestCase):
         conference_day = ConferenceDayFactory(
             conference=self.staffcontext.conference,
             day=date(2016, 02, 05),
-            public_admin=False)
+            open_to_public=False)
         conference_day = ConferenceDayFactory(
             conference=self.staffcontext.conference,
             day=date(2016, 02, 07),
-            public_admin=False)
+            open_to_public=False)
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['Conference'])
@@ -107,11 +107,11 @@ class TestCalendarView(TestCase):
         conference_day = ConferenceDayFactory(
             conference=self.staffcontext.conference,
             day=date(2016, 02, 05),
-            public_admin=False)
+            open_to_public=False)
         conference_day = ConferenceDayFactory(
             conference=self.staffcontext.conference,
             day=date(2016, 02, 07),
-            public_admin=False)
+            open_to_public=False)
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['Volunteer'])

@@ -11,7 +11,7 @@ from django.utils.formats import date_format
 class ConferenceDay(Model):
     day = DateField(blank=True)
     conference = ForeignKey(Conference)
-    public_admin = BooleanField(default=True)
+    open_to_public = BooleanField(default=True)
 
     def __unicode__(self):
         return date_format(self.day, "DATE_FORMAT")

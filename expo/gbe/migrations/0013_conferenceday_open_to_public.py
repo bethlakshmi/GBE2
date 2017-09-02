@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='conferenceday',
-            name='public_admin',
+            name='open_to_public',
             field=models.BooleanField(default=True),
         ),
     ]

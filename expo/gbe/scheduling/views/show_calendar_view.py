@@ -3,10 +3,7 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.http import (
-    Http404,
-    HttpResponseRedirect,
-)
+from django.http import Http404
 from django.core.urlresolvers import reverse
 from gbetext import calendar_type as calendar_type_options
 from django.utils.formats import date_format
@@ -30,7 +27,6 @@ from gbe.functions import (
 )
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
-from operator import itemgetter
 
 
 class ShowCalendarView(View):
@@ -64,16 +60,16 @@ class ShowCalendarView(View):
                                       URL_DATE))
             self.conference = self.this_day.conference
 
-        if not self.conference and "conference" in self.request.GET:
+        elif "conference" in self.request.GET:
             self.conference = get_conference_by_slug(
                 self.request.GET.get('conference', None))
-        elif not self.conference:
+        else:
             self.conference = get_current_conference()
 
         if not self.this_day:
             self.this_day = get_conference_days(
                 self.conference,
-                public_admin=True).order_by("day").first()
+                open_to_public=True).order_by("day").first()
 
         context = {
             'calendar_type': self.calendar_type,
@@ -82,17 +78,17 @@ class ShowCalendarView(View):
             'this_day': self.this_day,
         }
         if self.this_day:
-            public_admin = True
+            open_to_public = True
             if self.calendar_type == "Volunteer":
-                public_admin = False
+                open_to_public = False
             if ConferenceDay.objects.filter(
                     day=self.this_day.day+timedelta(days=1),
-                    public_admin=public_admin).exists():
+                    open_to_public=open_to_public).exists():
                 context['next_date'] = (self.this_day.day+timedelta(days=1)
                                         ).strftime(URL_DATE)
             if ConferenceDay.objects.filter(
                     day=self.this_day.day-timedelta(days=1),
-                    public_admin=public_admin).exists():
+                    open_to_public=open_to_public).exists():
                 context['prev_date'] = (self.this_day.day-timedelta(days=1)
                                         ).strftime(URL_DATE)
 
@@ -128,7 +124,6 @@ class ShowCalendarView(View):
         response = get_occurrences(
             labels=[self.calendar_type, self.conference.conference_slug],
             day=self.this_day.day)
-        # temp hack, wait for update to master
         show_general_status(
             request, response, self.__class__.__name__)
         if len(response.occurrences) > 0:

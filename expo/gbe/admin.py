@@ -174,11 +174,11 @@ class ConferenceDayAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'day',
                     'conference',
-                    'public_admin')
+                    'open_to_public')
     list_filter = ['conference']
     list_editable = ('day',
                      'conference',
-                     'public_admin')
+                     'open_to_public')
 
 
 class EmailTemplateSenderAdmin(admin.ModelAdmin):
