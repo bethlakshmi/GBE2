@@ -260,6 +260,7 @@ try:
     DATE_FORMAT
 except:
     DATE_FORMAT = "%a, %b %-d"
+    URL_DATE = "%m-%d-%Y"
 try:
     DATETIME_FORMAT
 except:
@@ -309,7 +310,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'expo', 'static'),
 )
 
-DJANGOCMS_STYLE_CHOICES = ['subtitle', 'font_large', 'container', 'content', 'teaser']
+DJANGOCMS_STYLE_CHOICES = ['subtitle',
+                           'font_large',
+                           'container',
+                           'content',
+                           'teaser']
 CKEDITOR_SETTINGS = {
     'stylesSet': 'default:/static/styles/styles.js',
 }
