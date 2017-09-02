@@ -18,22 +18,20 @@
  </div>
  <div class="row header2">
   {% if this_day %}
-    {% if prev_date %}
-    <div class="col-xs-1 backward"><a href="?day={{ prev_date }}" data-toggle="tooltip" title="{{ prev_date }}">
+   <div class="col-xs-1 backward">
+    {% if prev_date %}<a href="?day={{ prev_date }}" data-toggle="tooltip" title="{{ prev_date }}">
       <button class="btn btn-default" type="submit" name="{{ prev_date }}" value="{{ prev_date }}">
-    {% else %}
-    <div class="col-xs-1 backward"><a href="#">
+    {% else %}<a href="#">
       <button class="btn btn-default disabled">
     {% endif %}
         <i class="fa fa-step-backward" aria-hidden="true"></i>
       </button>
     </a></div>
     <div class="col-xs-10">{{ this_day }}</div>
-    {% if next_date %}
-    <div class="col-xs-1 forward"><a href="?day={{ next_date }}" data-toggle="tooltip" title="{{ next_date }}">
+    <div class="col-xs-1 forward">
+     {% if next_date %}<a href="?day={{ next_date }}" data-toggle="tooltip" title="{{ next_date }}">
       <button class="btn btn-default" type="submit" name="{{ next_date }}" value="{{ next_date }}">
-    {% else %}
-    <div class="col-xs-1 forward"><a href="#">
+    {% else %}<a href="#">
       <button class="btn btn-default disabled">
     {% endif %}
         <i class="fa fa-step-forward" aria-hidden="true"></i>
