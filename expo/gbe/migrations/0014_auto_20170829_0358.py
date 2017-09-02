@@ -8,7 +8,7 @@ import django.core.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gbe', '0012_auto_20170705_2241'),
+        ('gbe', '0013_conferenceday_open_to_public'),
     ]
 
     operations = [
