@@ -198,10 +198,15 @@ class TestReviewAct(TestCase):
             ranking=2,
             bid=evaluation1.bid
         )
-        evaluation3 = FlexibleEvaluationFactory(
+        FlexibleEvaluationFactory(
             evaluator=evaluation2.evaluator,
             category=self.eval_cat,
             ranking=4,
+            bid=evaluation1.bid
+        )
+        FlexibleEvaluationFactory(
+            category=self.eval_cat,
+            ranking=0,
             bid=evaluation1.bid
         )
         url = reverse('act_review',
@@ -217,8 +222,10 @@ class TestReviewAct(TestCase):
                             reviewer_string % str(evaluation2.evaluator))
         self.assertContains(response, evaluation1.category.category, 4)
         self.assertContains(response, evaluation2.category.category, 2)
-        self.assertContains(response, "<td>2</td>", 3)
-        self.assertContains(response, "<td>0</td>", 1)
+        self.assertContains(response, "<td>2</td>", 1)
+        self.assertContains(response, "<td>2.0</td>", 1)
+        self.assertContains(response, "<td>1.33</td>", 1)
+        self.assertContains(response, "<td>0</td>", 2)
         self.assertContains(response, "<td>4</td>", 1)
 
     def test_review_act_load_review_all_blank_category(self):
