@@ -36,6 +36,11 @@
       {% for header_item in header %}
         <th class="bid-table">{{ header_item }}</th>
       {% endfor %}
+      {% for category in categories %}
+	<th class="bid-table rotate-review"><div><span>
+	{{ category.category }}
+	</span></div></th>{% endfor %}
+        <th class="bid-table rotate-review"><div><span>Action</span></div></th>
       </tr>
     </thead>
     <tfoot>
@@ -43,39 +48,29 @@
       {% for header_item in header %}
         <th class="bid-table">{{ header_item }}</th>
       {% endfor %}
+      {% for category in categories %}
+        <th class="bid-table rotate-review"><div><span>
+	{{ category.category }}
+	</span></div></th>
+      {% endfor %}
+        <th class="bid-table rotate-review"><div><span>Action</span></div></th>
       </tr>
     </tfoot>
     <tbody>
     {% for row in rows %}
       <tr class="bid-table {% if not row.bidder_active %}error_row{% endif %}">
-              {% for value in row.bid %}
-	        <td class="bid-table">
-                  {{ value|linebreaks }}
-          	</td>
-	      {% endfor %}
-          {% if "Reviews" in header %}
-          <td class="bid-table">
- 	  {% for review in row.reviews %}
-               {% if not forloop.first %}<hr/>{% endif %}
-                <b>Reviewer:</b> {{ review.evaluator.display_name }}<br>
-                <b>First Recommendation:</b> {{ review.primary_vote.show }}:
-		{{review.primary_vote.get_vote_display }}<br>
-                 <b>Second Recommendation:</b> {{ review.secondary_vote.show }}:
-		{{review.secondary_vote.get_vote_display }}<br>
-
-                <b>Comment:</b> {{ review.notes }}<br>
- 	  {% endfor %}
-          </td>
-          {% endif %}
-          <td class="bid-table">
-	   <div class="btn-group" role="group" aria-label="...">
-	    <a href="{{ row.review_url }}" data-toggle="tooltip" title="Edit">
-             <button class="btn btn-default">
-	        <i class="icon-like"></i> / <i class="icon-dislike"></i>
-	     </button>
-	    </a>
-	   </div>
-          </td>
+        {% for value in row.bid %}<td class="bid-table">
+          {{ value|linebreaks }}
+        </td>{% endfor %}
+ 	{% for review in row.reviews %}<td class="bid-table">
+          {{ review }}
+ 	</td>{% endfor %}
+        <td class="bid-table">
+	 <div class="btn-group" role="group" aria-label="...">
+	  <a href="{{ row.review_url }}" data-toggle="tooltip" title="Review Act">
+           <button class="btn btn-default">
+	    <i class="icon-like"></i> / <i class="icon-dislike"></i>
+	</button></a></div></td>
       </tr>
     {% endfor %}
     </tbody>
