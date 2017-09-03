@@ -1,4 +1,5 @@
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 from expo.gbe_logging import log_func
 from django.shortcuts import (
     get_object_or_404,
@@ -10,6 +11,7 @@ from gbe.models import Profile
 
 @log_func
 @never_cache
+@login_required
 def ProfileView(request, profile_id=None):
     '''
     Display a profile. Display depends on user. If own profile, show
