@@ -80,7 +80,6 @@ class TestReviewAct(TestCase):
         self.assertTrue('Review Information' in response.content)
 
     def test_hidden_fields_are_populated(self):
-        grant_privilege(self.privileged_user, 'Act Reviewers')
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         evaluator_input = (
