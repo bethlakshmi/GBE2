@@ -39,11 +39,11 @@ class ReviewActListView(ReviewBidListView):
                 average = categories.filter(
                     category=category,
                     flexibleevaluation__bid=bid,
-                    flexibleevaluation__ranking__gt=-1).aggregate(Avg(
-                    'flexibleevaluation__ranking')),
-                if average[0]['flexibleevaluation__ranking__avg']:
+                    flexibleevaluation__ranking__gt=-1
+                    ).aggregate(Avg('flexibleevaluation__ranking'))
+                if average['flexibleevaluation__ranking__avg']:
                     bid_row['reviews'] += [int(round(
-                        average[0]['flexibleevaluation__ranking__avg']))]
+                        average['flexibleevaluation__ranking__avg']))]
                 else:
                     bid_row['reviews'] += ["--"]
             bid_row['id'] = bid.id

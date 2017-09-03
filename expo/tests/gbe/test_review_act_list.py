@@ -7,10 +7,10 @@ from tests.factories.gbe_factories import (
     ActCastingOptionFactory,
     ActFactory,
     ConferenceFactory,
+    FlexibleEvaluationFactory,
     PersonaFactory,
     ProfileFactory,
     UserFactory,
-
 )
 from tests.contexts import ShowContext
 from tests.functions.gbe_functions import (
@@ -101,13 +101,27 @@ class TestReviewActList(TestCase):
         assert "%s, %s" % (context.show.e_title,
                            context2.show.e_title) in response.content
 
-'''    def test_review_act_has_reviews(self):
-        eval = ActBidEvaluationFactory(bid=self.acts[0])
+    def test_review_act_has_reviews(self):
+        flex_eval = FlexibleEvaluationFactory(
+            bid=self.acts[0],
+            evaluator=self.privileged_profile,
+            )
         login_as(self.privileged_user, self)
         response = self.client.get(
             self.url,
             data={'conf_slug': self.conference.conference_slug})
-        self.assertContains(response, str(eval.primary_vote.show))
-        self.assertContains(response, str(eval.secondary_vote.show))
-        self.assertContains(response, str(eval.bid.b_title))
-'''
+        self.assertContains(response, str(flex_eval.category.category))
+        self.assertContains(response, str(flex_eval.ranking))
+
+    def test_review_act_has_empty_reviews(self):
+        flex_eval = FlexibleEvaluationFactory(
+            bid=self.acts[0],
+            evaluator=self.privileged_profile,
+            ranking=-1,
+            )
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': self.conference.conference_slug})
+        self.assertContains(response, str(flex_eval.category.category))
+        self.assertContains(response, str("--"))
