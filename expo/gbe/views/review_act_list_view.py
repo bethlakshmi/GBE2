@@ -5,6 +5,7 @@ from gbe.models import (
     EvaluationCategory,
 )
 from review_bid_list_view import ReviewBidListView
+from django.db.models import Avg
 
 
 class ReviewActListView(ReviewBidListView):
@@ -27,11 +28,24 @@ class ReviewActListView(ReviewBidListView):
 
     def get_rows(self, bids, review_query):
         rows = []
+        categories = EvaluationCategory.objects.filter(
+            visible=True).order_by('category')
         for bid in bids:
             bid_row = {}
             bid_row['bidder_active'] = bid.bidder_is_active
             bid_row['bid'] = bid.bid_review_summary
-            bid_row['reviews'] = ['0', '1', '2', '3', '4', '5', '6', ]
+            bid_row['reviews'] = []
+            for category in categories:
+                average = categories.filter(
+                    category=category,
+                    flexibleevaluation__bid=bid,
+                    flexibleevaluation__ranking__gt=-1).aggregate(Avg(
+                    'flexibleevaluation__ranking')),
+                if average[0]['flexibleevaluation__ranking__avg']:
+                    bid_row['reviews'] += [int(round(
+                        average[0]['flexibleevaluation__ranking__avg']))]
+                else:
+                    bid_row['reviews'] += ["--"]
             bid_row['id'] = bid.id
             bid_row['review_url'] = reverse(self.bid_review_view_name,
                                             urlconf='gbe.urls',
