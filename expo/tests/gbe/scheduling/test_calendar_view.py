@@ -155,6 +155,13 @@ class TestCalendarView(TestCase):
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 404)
 
+    def test_bad_cal_type(self):
+        url = reverse('calendar',
+                      urlconf='gbe.scheduling.urls',
+                      args=['Bad'])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
     def test_one_day(self):
         '''
         There is no day but today, so no navigation
