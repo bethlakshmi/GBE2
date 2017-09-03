@@ -32,6 +32,13 @@ class FlexibleEvaluationForm(ModelForm):
                 widget=HorizontalRadioSelect(),
                 choices=choice_set)
 
+    def clean_ranking(self):
+        if not self.cleaned_data['ranking'] or len(
+                self.cleaned_data['ranking']) == 0:
+            return -1
+        else:
+            return self.cleaned_data['ranking']
+
     class Meta:
         model = FlexibleEvaluation
         fields = ['ranking',

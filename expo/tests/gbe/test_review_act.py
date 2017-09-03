@@ -277,6 +277,22 @@ class TestReviewAct(TestCase):
         )
         self.assertContains(response, expected_string)
 
+    def test_review_act_no_review(self):
+        login_as(self.privileged_user, self)
+        data = self.get_post_data(self.act, self.privileged_user)
+        del data[str(self.eval_cat.pk) + '-ranking']
+        response = self.client.post(self.url,
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        evals = FlexibleEvaluation.objects.filter(
+            evaluator=self.privileged_profile,
+            bid=self.act,
+            category=self.eval_cat
+        )
+        self.assertTrue(len(evals), 1)
+        self.assertTrue(evals[0].ranking, -1)
+
     def test_video_choice_display(self):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
