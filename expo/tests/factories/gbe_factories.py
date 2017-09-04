@@ -278,6 +278,17 @@ class BidEvaluationFactory(DjangoModelFactory):
     bid = SubFactory(ActFactory)
 
 
+class ActBidEvaluationFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.ActBidEvaluation
+
+    bid = SubFactory(ActFactory)
+    evaluator = SubFactory(ProfileFactory)
+    notes = LazyAttribute(
+        lambda a: "Notes for Bid %s, by Evaluator %s" % (a.bid.b_title,
+                                                         a.evaluator))
+
+
 class VolunteerFactory(DjangoModelFactory):
     class Meta:
         model = conf.Volunteer

@@ -7,6 +7,7 @@ from tests.contexts import ActTechInfoContext
 from tests.factories.gbe_factories import (
     ActCastingOptionFactory,
     ActFactory,
+    ActBidEvaluationFactory,
     ConferenceFactory,
     EvaluationCategoryFactory,
     FlexibleEvaluationFactory,
@@ -22,7 +23,10 @@ from tests.functions.gbe_functions import (
     reload,
 )
 from tests.functions.scheduler_functions import assert_selected
-from gbe.models import FlexibleEvaluation
+from gbe.models import (
+    ActBidEvaluation,
+    FlexibleEvaluation,
+)
 from gbetext import (
     video_options,
     default_act_review_error_msg,
@@ -56,7 +60,10 @@ class TestReviewAct(TestCase):
         data = {str(self.eval_cat.pk) + '-ranking': 4,
                 str(self.eval_cat.pk) + '-category': int(self.eval_cat.pk),
                 str(self.eval_cat.pk) + '-evaluator': int(reviewer.pk),
-                str(self.eval_cat.pk) + '-bid': int(bid.pk)}
+                str(self.eval_cat.pk) + '-bid': int(bid.pk),
+                'notes': "some notes",
+                'evaluator': int(reviewer.pk),
+                'bid': int(bid.pk),}
         if invalid:
             data[str(self.eval_cat.pk) + '-ranking'] = "cheese"
         return data
@@ -335,6 +342,33 @@ class TestReviewAct(TestCase):
         self.assertTrue(evals[0].ranking, 4)
         expected_string = default_act_review_success_msg % (
             eval.bid.b_title, str(eval.bid.performer)
+        )
+        self.assertContains(response, expected_string)
+
+    def test_review_act_update_notes(self):
+        notes = ActBidEvaluationFactory()
+        show = ShowFactory()
+        login_as(self.privileged_user, self)
+        url = reverse('act_review',
+                      urlconf='gbe.urls',
+                      args=[notes.bid.pk])
+        data = self.get_post_data(
+            notes.bid,
+            reviewer=self.privileged_profile,
+            show=show
+            )
+        response = self.client.post(url,
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        new_notes = ActBidEvaluation.objects.filter(
+            evaluator=self.privileged_profile,
+            bid=notes.bid
+        )
+        self.assertTrue(len(new_notes), 1)
+        self.assertTrue(new_notes[0].notes, "some notes")
+        expected_string = default_act_review_success_msg % (
+            notes.bid.b_title, str(notes.bid.performer)
         )
         self.assertContains(response, expected_string)
 
