@@ -9,6 +9,11 @@
   <tr class="flex_review_row"><th>&nbsp;</th><th>N/A</th>
       <th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
   </tr>
+  {% if notes_form.non_field_errors %}
+  <tr class="flex_review_row"><td>
+  <font color="red">{{ notes_form.non_field_errors }}</font>
+  </td></tr>
+  {% endif %}
   {% for flex_eval_form in form %}
     {% if form.non_field_errors %}
   <tr class="flex_review_row"><td>
@@ -44,6 +49,35 @@
     </tr>
     {% endif %}
   {% endfor %}{% endfor %}
+  {% for field in notes_form.visible_fields %}
+    <tr class="flex_review_row"><td><label for="{{ field.name }}" class="control-label">	      
+      {% if field.errors %}
+      <font color="red">!&nbsp;&nbsp;
+      {% endif %}
+      {{ field.label_tag }}
+      {% if field.errors %}</font>{% endif %} 
+      {% if field.help_text %}
+        <span class="dropt" title="Help">
+          <img src= "{% static "img/question.png" %}" alt="?"/>
+            <span style="width:200px;float:right;text-align:left;">
+              {{ field.help_text }}
+            </span>
+        </span>
+      {% endif %}
+    </label></td><td colspan="7">&nbsp;</td>
+    <tr><td colspan="8">{{ field }}</td></tr>
+    </tr>
+      {% if field.errors %}
+    <tr class="flex_review_row">
+ 	    <label for="field.name">	      
+              <font color="red">{{ field.errors }}</font>
+            </label>
+    </tr>
+  {% endif %}
+    {% for hidden in notes_form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+  {% endfor %}
 </table>
         <input type="submit" value="Submit Form"> 
       </form>
@@ -51,7 +85,7 @@
 {% endblock %}
 {% block review_results %}{% if review_results %}
 <div class="col-md-4 col-sm-12">
-  <h2>Detailed Review Results</h2>
+  <h2>Detailed Reviews</h2>
   <table class="flex_review" border="1">
     <tr class="flex_review_row">
         <th>&nbsp;</th>
@@ -60,7 +94,7 @@
       {% endfor %}
         <th class="rotate"><div><span>Average</span></div></th>
     </tr>
-  {% for category, evaluations in review_results.items %}
+  {% for category, evaluations in review_results %}
     <tr class="flex_review_row">
       <td><b>{{ category.category }}</b>{% if category.help_text %}
         <span class="dropt" title="Help">
@@ -77,5 +111,11 @@
   {% endfor %}
     </tr>
   </table>
+  <br>
+  {% for note in notes %}
+    <b>Comment - {{ note.evaluator}} :</b><br>
+    {{ note.notes }}
+    <br><br>
+  {% endfor %}
 </div>
 {% endif %}{% endblock %}

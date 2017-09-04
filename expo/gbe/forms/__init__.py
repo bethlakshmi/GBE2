@@ -1,9 +1,3 @@
-# widgets
-from show_vote_widget import ShowVoteWidget
-
-# fields
-from show_vote_field import ShowVoteField
-
 # usermanagement forms
 from contact_form import ContactForm
 from participant_form import ParticipantForm
@@ -25,6 +19,7 @@ from proposal_publish_form import ProposalPublishForm
 from bid_evaluation_form import BidEvaluationForm
 from flexible_evaluation_form import FlexibleEvaluationForm
 from bid_state_change_form import BidStateChangeForm
+from act_bid_evaluation_form import ActBidEvaluationForm
 
 # bid submit/edit forms
 from act_edit_form import (
