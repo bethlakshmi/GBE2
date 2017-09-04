@@ -60,7 +60,7 @@
       {% endfor %}
         <th class="rotate"><div><span>Average</span></div></th>
     </tr>
-  {% for category, evaluations in review_results.items %}
+  {% for category, evaluations in review_results %}
     <tr class="flex_review_row">
       <td><b>{{ category.category }}</b>{% if category.help_text %}
         <span class="dropt" title="Help">

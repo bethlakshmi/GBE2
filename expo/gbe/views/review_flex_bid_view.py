@@ -86,11 +86,9 @@ class FlexibleReviewBidView(ReviewBidView):
                                  args=[act.id])
         self.reviewers = Profile.objects.filter(
             flexibleevaluation__bid=act).order_by('display_name').distinct()
-        categories = EvaluationCategory.objects.filter(
-            flexibleevaluation__bid=act).order_by('category').distinct()
         evaluations = FlexibleEvaluation.objects.filter(bid=act)
         self.review_results = {}
-        for category in categories:
+        for category in self.categories:
             self.review_results[category] = []
             for reviewer in self.reviewers:
                 try:
@@ -108,6 +106,7 @@ class FlexibleReviewBidView(ReviewBidView):
                         Avg('ranking'))['ranking__avg'], 2)]
             except:
                 self.review_results[category] += [""]
+        self.review_results = sorted(self.review_results.iteritems())
 
     def bid_review_response(self, request):
         return render(request,
@@ -155,19 +154,22 @@ class FlexibleReviewBidView(ReviewBidView):
             return self.bid_review_response(request)
 
     def set_bid_eval(self):
-        self.bid_eval_set = self.bid_evaluation_type.objects.filter(
+        previous_eval = self.bid_evaluation_type.objects.filter(
             bid=self.object,
             evaluator=self.reviewer)
-        if len(self.bid_eval_set) == 0:
-            self.bid_eval_set = []
-            for category in EvaluationCategory.objects.filter(
-                    visible=True).order_by('category'):
+        self.bid_eval_set = []
+        for category in self.categories:
+            if previous_eval.filter(category=category).exists():
+                self.bid_eval_set += [previous_eval.get(category=category)]
+            else:
                 self.bid_eval_set += [self.bid_evaluation_type(
                     evaluator=self.reviewer,
                     bid=self.object,
                     category=category)]
 
     def groundwork(self, request, args, kwargs):
+        self.categories = EvaluationCategory.objects.filter(
+                    visible=True)
         super(FlexibleReviewBidView, self).groundwork(request, args, kwargs)
         self.bidder = get_performer_form(self.object.performer)
         if self.object.b_conference.act_style == "summer":

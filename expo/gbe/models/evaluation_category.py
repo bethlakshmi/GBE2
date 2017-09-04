@@ -19,3 +19,4 @@ class EvaluationCategory(Model):
     class Meta:
         app_label = "gbe"
         verbose_name_plural = 'Evaluation Categories'
+        ordering = ['category', ]
