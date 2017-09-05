@@ -95,7 +95,8 @@ def EditActTechInfoView(request, act_id):
 
     profile = validate_profile(request, require=False)
     if not profile:
-        return HttpResponseRedirect(reverse('profile_update', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile_update',
+                                            urlconf='gbe.urls'))
 
     act = get_object_or_404(Act, id=act_id)
     if act.performer.contact != profile:
