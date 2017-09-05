@@ -28,7 +28,6 @@ from gbe.views import (
     MakeVendorView,
     MakeVolunteerView,
     MakeSummerActView,
-    ProfileView,
     ProposeClassView,
     PublishProposalView,
     RegisterView,
@@ -70,12 +69,6 @@ urlpatterns = patterns(
     #  landing page
     url(r'^gbe/?',
         LandingPageView, name='home'),
-
-    #  profile
-    url(r'^profile/?$',
-        ProfileView, name='profile'),
-    url(r'^profile/(\d+)/?$',
-        ProfileView, name='profile_view'),
 
     #  bios
     url(r'^bios/teachers/?$',
