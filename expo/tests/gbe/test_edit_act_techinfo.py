@@ -170,7 +170,9 @@ class TestEditActTechInfo(TestCase):
                       args=[context.act.pk])
         login_as(UserFactory(), self)
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 404)
+        self.assertRedirects(response,
+                             reverse("profile_update",
+                                     urlconf="gbe.urls"))
 
     def test_edit_act_techinfo_authorized_user_with_rehearsal(self):
         context = ActTechInfoContext(schedule_rehearsal=True)
