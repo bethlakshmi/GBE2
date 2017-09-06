@@ -19,7 +19,8 @@ class ReviewActListView(ReviewBidListView):
 
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,
-                'categories': EvaluationCategory.objects.filter(visible=True),
+                'categories': EvaluationCategory.objects.filter(
+                    visible=True).order_by('category'),
                 'rows': self.rows,
                 'return_link': reverse(self.bid_review_list_view_name,
                                        urlconf='gbe.urls'),
