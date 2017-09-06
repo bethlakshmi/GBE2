@@ -278,6 +278,17 @@ class BidEvaluationFactory(DjangoModelFactory):
     bid = SubFactory(ActFactory)
 
 
+class ActBidEvaluationFactory(DjangoModelFactory):
+    class Meta:
+        model = conf.ActBidEvaluation
+
+    bid = SubFactory(ActFactory)
+    evaluator = SubFactory(ProfileFactory)
+    notes = LazyAttribute(
+        lambda a: "Notes for Bid %s, by Evaluator %s" % (a.bid.b_title,
+                                                         a.evaluator))
+
+
 class VolunteerFactory(DjangoModelFactory):
     class Meta:
         model = conf.Volunteer
@@ -413,19 +424,22 @@ class ShowVoteFactory(DjangoModelFactory):
         model = conf.ShowVote
 
 
-class ActBidEvaluationFactory(DjangoModelFactory):
-    evaluator = SubFactory(ProfileFactory)
-    bid = SubFactory(ActFactory)
-    primary_vote = SubFactory(
-        ShowVoteFactory,
-        show__e_conference=SelfAttribute('...bid.b_conference'))
-    secondary_vote = SubFactory(
-        ShowVoteFactory,
-        show__e_conference=SelfAttribute('...bid.b_conference'))
-    notes = Sequence(lambda x: "Notes for ActBidEvaluation %d" % x)
+class EvaluationCategoryFactory(DjangoModelFactory):
+    category = Sequence(lambda x: "Category %d" % x)
+    help_text = Sequence(lambda x: "Notes for Category %d" % x)
 
     class Meta:
-        model = conf.ActBidEvaluation
+        model = conf.EvaluationCategory
+
+
+class FlexibleEvaluationFactory(DjangoModelFactory):
+    category = SubFactory(EvaluationCategoryFactory)
+    evaluator = SubFactory(ProfileFactory)
+    bid = SubFactory(ActFactory)
+    ranking = 3
+
+    class Meta:
+        model = conf.FlexibleEvaluation
 
 
 class EmailTemplateFactory(DjangoModelFactory):

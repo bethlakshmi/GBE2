@@ -26,6 +26,7 @@ class ReviewBidView(View):
     bid_state_change_form = BidStateChangeForm
     bid_evaluation_type = BidEvaluation
     bid_evaluation_form_type = BidEvaluationForm
+    review_template = 'gbe/bid_review.tmpl'
 
     def create_action_form(self, bid):
         self.actionform = self.bid_state_change_form(instance=bid)
@@ -35,7 +36,7 @@ class ReviewBidView(View):
 
     def bid_review_response(self, request):
         return render(request,
-                      'gbe/bid_review.tmpl',
+                      self.review_template,
                       {'readonlyform': self.readonlyform_pieces,
                        'reviewer': self.reviewer,
                        'form': self.form,
@@ -73,6 +74,14 @@ class ReviewBidView(View):
         self.object = get_object_or_404(self.object_type,
                                         id=object_id)
 
+    def set_bid_eval(self):
+        self.bid_eval = self.bid_evaluation_type.objects.filter(
+            bid_id=self.object.pk,
+            evaluator_id=self.reviewer.resourceitem_id).first()
+        if self.bid_eval is None:
+            self.bid_eval = self.bid_evaluation_type(
+                evaluator=self.reviewer, bid=self.object)
+
     def groundwork(self, request, args, kwargs):
         object_id = kwargs['object_id']
         self.get_object(request, object_id)
@@ -85,13 +94,7 @@ class ReviewBidView(View):
             self.actionform = False
             self.actionURL = False
         self.b_conference, self.old_bid = get_conf(self.object)
-
-        self.bid_eval = self.bid_evaluation_type.objects.filter(
-            bid_id=self.object.pk,
-            evaluator_id=self.reviewer.resourceitem_id).first()
-        if self.bid_eval is None:
-            self.bid_eval = self.bid_evaluation_type(
-                evaluator=self.reviewer, bid=self.object)
+        self.set_bid_eval()
 
     @never_cache
     def get(self, request, *args, **kwargs):

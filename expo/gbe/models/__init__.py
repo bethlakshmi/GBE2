@@ -1,5 +1,6 @@
 from room import Room
 from available_interest import AvailableInterest
+from evaluation_category import EvaluationCategory
 from conference import Conference
 from conference_day import ConferenceDay
 from volunteer_window import VolunteerWindow
@@ -36,3 +37,4 @@ from show_vote import ShowVote
 from act_bid_evaluation import ActBidEvaluation
 from email_template_sender import EmailTemplateSender
 from act_casting_option import ActCastingOption
+from flexible_evaluation import FlexibleEvaluation
