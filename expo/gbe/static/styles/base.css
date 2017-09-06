@@ -166,14 +166,10 @@ table.conf_list {
 }
 
 div.reviewer_col{
-    margin: 10px;
-    padding: 10px;
 }
 
 div.side_box {
     border: 1px solid black;
-    margin: 10px;
-    padding: 10px;
 }
 
 @media (min-width:768px){.bid_review{width:680px}
@@ -810,6 +806,37 @@ div.bid_review_section{
     background-color:#C3BDBF;
     padding-left:5px;
     padding-top:5px;
+}
+
+tr.flex_review_row>td, tr.flex_review_row>th{
+  text-align: center;
+  padding: 5px;
+}
+table.flex_review  tr.flex_review_row:nth-child(even)
+{
+  background-color: #CCC;
+} 
+
+table.flex_review  tr.flex_review_row:nth-child(odd)
+{
+  background-color: #EEE;
+} 
+
+th.rotate {
+  /* Something you can count on */
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 51px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 20px;
+}
+th.rotate > div > span {
 }
 
 div.sidebar>div.class_section {
