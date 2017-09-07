@@ -827,6 +827,12 @@ th.rotate {
   height: 140px;
   white-space: nowrap;
 }
+th.rotate-review {
+  /* Something you can count on */
+  height: 105px;
+  white-space: nowrap;
+  padding: 5px;
+}
 
 th.rotate > div {
   transform: 
@@ -835,6 +841,14 @@ th.rotate > div {
     /* 45 is really 360 - 45 */
     rotate(270deg);
   width: 20px;
+}
+th.rotate-review > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 88px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 10px;
 }
 th.rotate > div > span {
 }

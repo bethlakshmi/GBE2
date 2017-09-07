@@ -130,9 +130,7 @@ class Act (Biddable, ActItem):
                  'Act Title',
                  'Last Update',
                  'State',
-                 'Show',
-                 'Reviews',
-                 'Action'])
+                 'Show', ])
 
     @property
     def bid_review_summary(self):
