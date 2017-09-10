@@ -14,10 +14,8 @@ from gbe.models import (
     UserMessage,
 )
 from expo.gbe_logging import log_func
-from gbe.functions import (
-    notify_reviewers_on_bid_change,
-    validate_profile,
-)
+from gbe.functions import validate_profile
+from gbe.email.functions import notify_reviewers_on_bid_change
 from gbetext import (
     no_profile_msg,
     no_login_msg,

@@ -11,11 +11,8 @@ from django.http import HttpResponseRedirect
 from expo.gbe_logging import log_func
 from gbe.models import Biddable
 from gbe.forms import BidStateChangeForm
-from gbe.functions import (
-    send_bid_state_change_mail,
-    validate_perms,
-)
-
+from gbe.functions import validate_perms
+from gbe.email.functions import send_bid_state_change_mail
 
 class BidChangeStateView(View):
 

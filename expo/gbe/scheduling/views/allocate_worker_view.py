@@ -14,7 +14,7 @@ from scheduler.data_transfer import (
 from gbe.scheduling.views import MakeOccurrenceView
 from gbe.scheduling.forms import WorkerAllocationForm
 from gbe.scheduling.views.functions import get_single_role
-from gbe.functions import send_schedule_update_mail
+from gbe.email.functions import send_schedule_update_mail
 from gbe.scheduling.views.functions import show_scheduling_booking_status
 
 

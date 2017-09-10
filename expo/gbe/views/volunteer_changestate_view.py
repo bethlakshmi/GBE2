@@ -6,7 +6,7 @@ from gbe.models import Volunteer
 from gbe.views import BidChangeStateView
 from scheduler.models import Worker, Event
 from django.contrib import messages
-from gbe.functions import send_schedule_update_mail
+from gbe.email.functions import send_schedule_update_mail
 
 
 class VolunteerChangeStateView(BidChangeStateView):

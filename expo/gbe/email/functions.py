@@ -1,0 +1,197 @@
+from gbe.models import (
+    EmailTemplateSender,
+)
+from django.contrib.auth.models import User
+from django.conf import settings
+from gbetext import acceptance_states
+from post_office import mail
+from post_office.models import EmailTemplate
+import os
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+
+
+def mail_send_gbe(to_list,
+                  from_address,
+                  template,
+                  context,
+                  priority='now'):
+    if settings.DEBUG:
+        to_list = []
+        for admin in settings.ADMINS:
+            to_list += [admin[1]]
+
+    mail.send(to_list,
+              from_address,
+              template=template,
+              context=context,
+              priority=priority,
+              )
+
+
+def send_user_contact_email(name, from_address, message):
+    subject = "EMAIL FROM GBE SITE USER %s" % name
+    to_addresses = settings.USER_CONTACT_RECIPIENT_ADDRESSES
+    mail.send(to_addresses,
+              from_address,
+              subject=subject,
+              message=message,
+              priority='now',
+              )
+    # TO DO: handle (log) possible exceptions
+    # TO DO: log usage of this function
+    # TO DO: close the spam hole that this opens up.
+
+
+def get_or_create_template(name, base, subject):
+    try:
+        template = EmailTemplate.objects.get(name=name)
+    except:
+        with open(
+            "%s/gbe/templates/gbe/email/%s.tmpl" % (
+                settings.BASE_DIR,
+                base), "r") as textfile:
+            textcontent = textfile.read()
+        with open(
+            "%s/gbe/templates/gbe/email/%s_html.tmpl" % (
+                settings.BASE_DIR,
+                base), "r") as htmlfile:
+            htmlcontent = htmlfile.read()
+        template = EmailTemplate.objects.create(
+            name=name,
+            subject=subject,
+            content=textcontent,
+            html_content=htmlcontent,
+            )
+        template.save()
+
+    try:
+        sender = EmailTemplateSender.objects.get(template=template)
+    except:
+        sender = EmailTemplateSender.objects.create(
+            template=template,
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
+        sender.save()
+
+    return template
+
+
+def send_bid_state_change_mail(
+        bid_type,
+        email,
+        badge_name,
+        bid,
+        status,
+        show=None):
+    site = Site.objects.get_current()
+    context = {
+        'name': badge_name,
+        'bid_type': bid_type,
+        'bid': bid,
+        'status': acceptance_states[status][1],
+        'site': site.domain,
+        'site_name': site.name}
+    if show:
+        name = '%s %s - %s' % (
+            bid_type.lower(),
+            acceptance_states[status][1].lower(),
+            str(show).lower())
+        action = 'Your %s has been cast in %s' % (
+            bid_type,
+            str(show))
+        context['show'] = show
+        context['show_link'] = site.domain + reverse(
+            'detail_view',
+            args=[show.pk],
+            urlconf='scheduler.urls')
+        context['act_tech_link'] = site.domain + reverse(
+            'act_techinfo_edit',
+            args=[show.pk],
+            urlconf='gbe.urls')
+    else:
+        name = '%s %s' % (bid_type, acceptance_states[status][1].lower())
+        action = 'Your %s proposal has changed status to %s' % (
+            bid_type,
+            acceptance_states[status][1])
+
+    template = get_or_create_template(
+        name,
+        "default_bid_status_change",
+        action)
+    mail_send_gbe(
+        email,
+        template.sender.from_email,
+        template=name,
+        context=context,
+    )
+
+
+def send_schedule_update_mail(participant_type, profile):
+    name = '%s schedule update' % (participant_type.lower())
+    template = get_or_create_template(
+        name,
+        "volunteer_schedule_update",
+        "A change has been made to your %s Schedule!" % (
+                participant_type))
+    mail_send_gbe(
+        profile.contact_email,
+        template.sender.from_email,
+        template=name,
+        context={
+            'site': Site.objects.get_current().domain,
+            'profile': profile},
+    )
+
+
+def notify_reviewers_on_bid_change(bidder,
+                                   bid_type,
+                                   action,
+                                   conference,
+                                   group_name,
+                                   review_url,
+                                   show=None):
+    name = '%s %s notification' % (bid_type.lower(), action.lower())
+    template = get_or_create_template(
+        name,
+        "bid_submitted",
+        "%s %s Occurred" % (bid_type, action))
+    to_list = [user.email for user in
+               User.objects.filter(groups__name=group_name)]
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'action': action,
+            'conference': conference,
+            'group_name': group_name,
+            'review_url': Site.objects.get_current().domain+review_url},
+        )
+
+
+def send_warnings_to_staff(bidder,
+                           bid_type,
+                           warnings):
+    name = '%s schedule warning' % (bid_type.lower())
+    template = get_or_create_template(
+        name,
+        "schedule_conflict",
+        "URGENT: %s Schedule Conflict Occurred" % (bid_type))
+    to_list = [user.email for user in
+               User.objects.filter(groups__name='%s Coordinator' % bid_type)]
+    for warning in warnings:
+        if 'email' in warning:
+            to_list += [warning['email']]
+
+    mail_send_gbe(
+        to_list,
+        template.sender.from_email,
+        template=name,
+        context={
+            'bidder': bidder,
+            'bid_type': bid_type,
+            'warnings': warnings},
+        )

@@ -24,11 +24,11 @@ from gbetext import (
 from gbe.views.volunteer_display_functions import (
     validate_interests,
 )
-from gbe.functions import (
+from gbe.functions import validate_perms
+from gbe.email.functions import (
     notify_reviewers_on_bid_change,
     send_schedule_update_mail,
     send_warnings_to_staff,
-    validate_perms,
 )
 from expo.settings import DATETIME_FORMAT
 
