@@ -44,7 +44,7 @@ class EditTemplateView(View):
         self.template = None
         if "template_name" in kwargs:
             template_name = kwargs.get("template_name")
-            self.template = EmailTemplate.objects.get(
+            self.template = get_object_or_404(EmailTemplate,
                 name=template_name)
         else:
             raise Http404

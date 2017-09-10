@@ -15,6 +15,6 @@ from gbe.email.views import (
 
 urlpatterns = patterns(
     '',
-    url(r'^email/edit_template/(?P<template_name>\w+)/?$',
+    url(r'^email/edit_template/(?P<template_name>[\w|\W]+)/?$',
         EditTemplateView.as_view(), name='edit_template'),
 )
