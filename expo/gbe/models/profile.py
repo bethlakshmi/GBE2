@@ -75,7 +75,7 @@ class Profile(WorkerItem):
         if 'Act Reviewers' in self.privilege_groups:
             from gbe.models import Act
             reviews += Act().bids_to_review.exclude(
-                bidevaluation__evaluator=self)
+                flexibleevaluation__evaluator=self)
         if 'Class Reviewers' in self.privilege_groups:
             from gbe.models import Class
             reviews += Class().bids_to_review.exclude(
