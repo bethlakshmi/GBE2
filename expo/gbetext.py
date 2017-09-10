@@ -376,3 +376,6 @@ default_act_review_error_msg = '''There was an issue with processing your act \
 review for act %s, see below for details and please resubmit.'''
 default_act_review_success_msg = '''You have successfully reviewed act %s, \
 from performer %s.'''
+save_email_template_success_msg = '''The email template has been saved.  \
+Your updates will be applied to all future automated messages using this \
+template.  The Email Template name is '''

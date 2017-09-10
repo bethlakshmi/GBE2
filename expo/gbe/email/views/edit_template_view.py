@@ -12,9 +12,11 @@ from django.http import (
 )
 from django.core.urlresolvers import reverse
 from post_office.models import EmailTemplate
+from django.contrib import messages
 from gbe.models import UserMessage
 from gbetext import (
     no_profile_msg,
+    save_email_template_success_msg,
 )
 from gbe.email.forms import EmailTemplateForm
 from expo.gbe_logging import log_func
@@ -49,17 +51,21 @@ class EditTemplateView(View):
         else:
             raise Http404
 
-    def get_edit_template_form(self, request):
-        self.form = EmailTemplateForm(
-            instance=self.template)
-
-        return render(
-            request,
-            'gbe/bid.tmpl',
-            {'forms': [self.form],
+    def make_context(self):
+        context = {
+            'forms': [self.form],
              'nodraft': self.submit_button,
              'page_title': self.page_title,
              'view_title': self.view_title}
+        return context
+
+    def get_edit_template_form(self, request):
+        self.form = EmailTemplateForm(
+            instance=self.template)
+        return render(
+            request,
+            'gbe/bid.tmpl',
+            self.make_context()
         )
 
     @never_cache
@@ -78,6 +84,32 @@ class EditTemplateView(View):
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return HttpResponseRedirect(redirect)
+
+        if self.template:
+            self.form = EmailTemplateForm(
+                request.POST,
+                instance=self.template)
+        else:
+            self.form = the_form(
+                request.POST)
+
+        if not self.form.is_valid():
+            return render(request,
+                          'gbe/bid.tmpl',
+                          self.make_context())
+        else:
+            self.template = self.form.save()
+
+        user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="SAVE_SUCCESS",
+                defaults={
+                    'summary': "Email Template Success",
+                    'description': save_email_template_success_msg})
+        messages.success(request,
+                         user_message[0].description + self.template.name)
+        return HttpResponseRedirect(
+            redirect or reverse('home', urlconf='gbe.urls'))
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
