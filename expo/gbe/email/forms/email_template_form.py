@@ -2,6 +2,7 @@ from django.forms import (
     CharField,
     HiddenInput,
     ModelForm,
+    Textarea,
 )
 from post_office.models import EmailTemplate
 from gbe_forms_text import (
@@ -14,6 +15,8 @@ from tinymce.widgets import TinyMCE
 class EmailTemplateForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
+    content = CharField(
+        widget=Textarea(attrs={'cols': 80, 'rows': 15}))
     html_content = CharField(
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
 

@@ -56,7 +56,8 @@ class EditTemplateView(View):
             'forms': [self.form],
              'nodraft': self.submit_button,
              'page_title': self.page_title,
-             'view_title': self.view_title}
+             'view_title': self.view_title,
+             'email_template': self.template}
         return context
 
     def get_edit_template_form(self, request):
@@ -64,7 +65,7 @@ class EditTemplateView(View):
             instance=self.template)
         return render(
             request,
-            'gbe/bid.tmpl',
+            'gbe/email/edit_email_template.tmpl',
             self.make_context()
         )
 
@@ -95,7 +96,7 @@ class EditTemplateView(View):
 
         if not self.form.is_valid():
             return render(request,
-                          'gbe/bid.tmpl',
+                          'gbe/email/edit_email_template.tmpl',
                           self.make_context())
         else:
             self.template = self.form.save()
