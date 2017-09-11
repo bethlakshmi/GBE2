@@ -64,10 +64,10 @@ class TestEditPersona(TestCase):
                       urlconf="gbe.urls",
                       args=[self.persona.resourceitem_id])
         login_as(UserFactory(), self)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(location(response),
-                         'http://testserver/profile')
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response,
+                             reverse("profile_update",
+                                     urlconf="gbe.urls"))
         login_as(self.persona.performer_profile, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

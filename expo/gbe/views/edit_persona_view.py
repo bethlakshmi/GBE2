@@ -29,7 +29,8 @@ def EditPersonaView(request, persona_id):
     submit_button = 'Save Persona'
     profile = validate_profile(request, require=False)
     if not profile:
-        return HttpResponseRedirect(reverse('profile', urlconf='gbe.urls'))
+        return HttpResponseRedirect(reverse('profile_update',
+                                            urlconf='gbe.urls'))
     persona = get_object_or_404(Persona, resourceitem_id=persona_id)
     if persona.performer_profile != profile:
         raise PermissionDenied

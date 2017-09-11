@@ -198,6 +198,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
     'gbe.auth.EmailUsernameAuth',
 )
 
@@ -418,6 +419,6 @@ if APP_DJANGOBB is True:
 
 # DJANGO-HIJACK
 
-HIJACK_LOGIN_REDIRECT_URL = '/profile/'
+HIJACK_LOGIN_REDIRECT_URL = '/gbe/'
 HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user/'
 HIJACK_ALLOW_GET_REQUESTS = True
