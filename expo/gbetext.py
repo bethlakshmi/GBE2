@@ -327,6 +327,37 @@ calendar_for_event = {
     'Show': 'General'
 }
 
+email_template_desc = {
+    'submission notification': '''This email is sent to reviewers when a(n) \
+    %s is submitted and ready for review.''',
+    'No Decision': '''This email is sent to a bidder when the coordinator \
+    sets the %s to the state "No Decision"''',
+    'Reject': '''This email is sent to the bidder when the coordinator \
+    rejects the %s''',
+    'Wait List': '''This email is sent to the bidder when the %s is put on a \
+    wait list.''',
+    'Accepted': '''This email is send to the bidder when the %s has been \
+    accepted.''',
+    'Withdrawn': '''This email is sent to the bidder when the %s has been \
+    withdrawn.''',
+    'Duplicate': '''This email is sent to the bidder when the coordinator \
+    marks the %s as a duplicate''',
+    'act accepted': '''This email is send to the performer when they have \
+    been cast into the show %s.''',
+}
+
+unique_email_templates = {
+    'volunteer': [
+        {'name': 'volunteer schedule update',
+         'description': '''This email is sent to volunteers when \
+         their schedule has been updated''',
+         'category': 'volunteer',},
+        {'name': 'volunteer update notification',
+         'description': '''This email is sent to reviewers \
+         when a volunteer updates their offer to volunteer.''',
+         'category': 'volunteer',}],
+}
+
 default_class_submit_msg = "Your class was successfully submitted"
 default_class_draft_msg = "Your draft was successfully saved"
 default_act_submit_msg = "Your act was successfully submitted"

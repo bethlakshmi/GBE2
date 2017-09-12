@@ -129,14 +129,13 @@ class Profile(WorkerItem):
                   group in self.user_object.groups.all().order_by('name')]
         return groups
 
-    def get_email_templates(self):
-        email_templates = []
+    def get_email_privs(self):
+        email_privs = []
         for group in self.privilege_groups:
             if "Coordinator" in group:
                 bid_type = group.split()[0]
-                email_templates += [
-                    "%s submission notification" % bid_type.lower()]
-        return email_templates
+                email_privs += [bid_type.lower()]
+        return email_privs
     
     def alerts(self, historical=False):
         if historical:

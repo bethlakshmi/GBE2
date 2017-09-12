@@ -12,16 +12,21 @@ from django.http import (
 )
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from gbe.models import UserMessage
+from gbe.models import (
+    Show,
+    UserMessage
+)
 from gbetext import (
+    acceptance_states,
+    email_template_desc,
     no_profile_msg,
-    save_email_template_success_msg,
+    unique_email_templates,
 )
 from gbe.functions import validate_profile
 
 
 class ListTemplateView(View):
-    page_title = 'Email Templates'
+    page_title = 'Manage Email Templates'
     view_title = 'Choose a Template'
 
     def groundwork(self, request, args, kwargs):
@@ -46,7 +51,41 @@ class ListTemplateView(View):
         if redirect:
             return HttpResponseRedirect(redirect)
 
-        return self.user.get_email_templates() 
+        template_set = []
+        for priv in self.user.get_email_privs():
+            template_set += [{
+                'name': "%s submission notification" % priv,
+                'description': email_template_desc[
+                    "submission notification"] % priv,
+                'category': priv,}]
+            for state in acceptance_states:
+                if priv == "act" and state[1] == "Accepted":
+                    for show in Show.objects.filter(
+                            e_conference__status__in=('upcoming', 'ongoing')):
+                        template_set += [{
+                            'name': "%s %s - %s" % (priv,
+                                                  state[1].lower(),
+                                                  show.e_title.lower()),
+                            'description': email_template_desc[
+                                "%s %s" % (priv,
+                                           state[1].lower())] % show.e_title,
+                            'category': priv}]
+                else:
+                    template_set += [{
+                        'name': "%s %s" % (priv, state[1].lower()),
+                        'description': email_template_desc[state[1]] % priv,
+                        'category': priv}]
+            if priv in unique_email_templates:
+                template_set += unique_email_templates[priv]
+        return render(
+            request,
+            'gbe/email/list_email_template.tmpl',
+            {"email_templates": sorted(
+                template_set,
+                key=lambda item: (item['name'], item['category'])),
+             "page_title": self.page_title,
+             "view_title": self.view_title,}
+            )
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
