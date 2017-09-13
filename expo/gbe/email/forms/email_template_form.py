@@ -19,10 +19,11 @@ class EmailTemplateForm(ModelForm):
         widget=Textarea(attrs={'cols': 80, 'rows': 15}))
     html_content = CharField(
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    sender = CharField(max_length=100, required=True, label="From")
 
     class Meta:
         model = EmailTemplate
-        fields = ['name', 'subject', 'content', 'html_content']
+        fields = ['sender', 'name', 'subject', 'content', 'html_content']
         widgets = {'name': HiddenInput()}
         help_texts = event_help_texts
         labels = event_labels

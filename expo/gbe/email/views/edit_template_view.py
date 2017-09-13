@@ -10,10 +10,14 @@ from django.http import (
     Http404,
     HttpResponseRedirect,
 )
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from post_office.models import EmailTemplate
 from django.contrib import messages
-from gbe.models import UserMessage
+from gbe.models import (
+    EmailTemplateSender,
+    UserMessage,
+)
 from gbetext import (
     no_profile_msg,
     save_email_template_success_msg,
@@ -68,7 +72,8 @@ class EditTemplateView(View):
                     'subject': match_template_info['default_subject'],
                     'content': textcontent,
                     'html_content': htmlcontent,
-                    'description': match_template_info['description']}
+                    'description': match_template_info['description'],
+                    'sender': settings.DEFAULT_FROM_EMAIL}
         else:
             raise Http404
 
@@ -86,8 +91,16 @@ class EditTemplateView(View):
 
     def get_edit_template_form(self, request):
         if self.template:
+            sender = None
+            if EmailTemplateSender.objects.filter(
+                    template=self.template).exists():
+                sender = self.template.sender.from_email
+            else:
+                sender = settings.DEFAULT_FROM_EMAIL
+
             self.form = EmailTemplateForm(
-                instance=self.template)
+                instance=self.template,
+                initial={'sender': sender})
         else:
             self.form = EmailTemplateForm(
                 initial=self.initial)
@@ -119,7 +132,7 @@ class EditTemplateView(View):
                 request.POST,
                 instance=self.template)
         else:
-            self.form = the_form(
+            self.form = EmailTemplateForm(
                 request.POST)
 
         if not self.form.is_valid():
@@ -128,6 +141,15 @@ class EditTemplateView(View):
                           self.make_context())
         else:
             self.template = self.form.save()
+            if EmailTemplateSender.objects.filter(
+                    template=self.template).exists():
+                self.template.sender.from_email = self.form.cleaned_data[
+                    'sender']
+            else:
+                self.template.sender = EmailTemplateSender(
+                    template=self.template,
+                    from_email=self.form.cleaned_data['sender'])
+            self.template.sender.save()
 
         user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
@@ -138,7 +160,7 @@ class EditTemplateView(View):
         messages.success(request,
                          user_message[0].description + self.template.name)
         return HttpResponseRedirect(
-            redirect or reverse('home', urlconf='gbe.urls'))
+            redirect or reverse('list_template', urlconf='gbe.email.urls'))
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
