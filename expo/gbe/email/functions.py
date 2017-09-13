@@ -3,12 +3,18 @@ from gbe.models import (
 )
 from django.contrib.auth.models import User
 from django.conf import settings
-from gbetext import acceptance_states
 from post_office import mail
 from post_office.models import EmailTemplate
 import os
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
+from gbe.models import Show
+from gbetext import (
+    acceptance_states,
+    email_template_desc,
+    no_profile_msg,
+    unique_email_templates,
+)
 
 
 def mail_send_gbe(to_list,
@@ -43,20 +49,25 @@ def send_user_contact_email(name, from_address, message):
     # TO DO: close the spam hole that this opens up.
 
 
+def get_mail_content(base):
+    with open(
+        "%s/gbe/templates/gbe/email/%s.tmpl" % (
+            settings.BASE_DIR,
+            base), "r") as textfile:
+        textcontent = textfile.read()
+    with open(
+        "%s/gbe/templates/gbe/email/%s_html.tmpl" % (
+            settings.BASE_DIR,
+            base), "r") as htmlfile:
+        htmlcontent = htmlfile.read()
+    return (textcontent, htmlcontent)
+
+
 def get_or_create_template(name, base, subject):
     try:
         template = EmailTemplate.objects.get(name=name)
     except:
-        with open(
-            "%s/gbe/templates/gbe/email/%s.tmpl" % (
-                settings.BASE_DIR,
-                base), "r") as textfile:
-            textcontent = textfile.read()
-        with open(
-            "%s/gbe/templates/gbe/email/%s_html.tmpl" % (
-                settings.BASE_DIR,
-                base), "r") as htmlfile:
-            htmlcontent = htmlfile.read()
+        (textcontent, htmlcontent) = get_mail_content(base)
         template = EmailTemplate.objects.create(
             name=name,
             subject=subject,
@@ -195,3 +206,43 @@ def send_warnings_to_staff(bidder,
             'bid_type': bid_type,
             'warnings': warnings},
         )
+
+def get_user_email_templates(user):
+    template_set = []
+    for priv in user.get_email_privs():
+        template_set += [{
+            'name': "%s submission notification" % priv,
+            'description': email_template_desc[
+                "submission notification"] % priv,
+            'category': priv,
+            'default_base': "bid_submitted",
+            'default_subject': "%s Submission Occurred" % priv,}]
+        for state in acceptance_states:
+            if priv == "act" and state[1] == "Accepted":
+                for show in Show.objects.filter(
+                        e_conference__status__in=('upcoming', 'ongoing')):
+                    template_set += [{
+                        'name': "%s %s - %s" % (priv,
+                                                state[1].lower(),
+                                                show.e_title.lower()),
+                        'description': email_template_desc[
+                            "%s %s" % (priv,
+                                       state[1].lower())] % show.e_title,
+                        'category': priv,
+                        'default_base': "default_bid_status_change",
+                        'default_subject': 'Your act has been cast in %s' % (
+                            show.e_title),}]
+            else:
+                template_set += [{
+                    'name': "%s %s" % (priv, state[1].lower()),
+                    'description': email_template_desc[state[1]] % priv,
+                    'category': priv,
+                    'default_base': "default_bid_status_change",
+                    'default_subject':
+                        'Your %s proposal has changed status to %s' % (
+                            priv,
+                            state[1]),}]
+        if priv in unique_email_templates:
+            template_set += unique_email_templates[priv]
+    return sorted(template_set,
+                  key=lambda item: (item['name'], item['category']))

@@ -19,6 +19,10 @@ from gbetext import (
     save_email_template_success_msg,
 )
 from gbe.email.forms import EmailTemplateForm
+from gbe.email.functions import (
+    get_mail_content,
+    get_user_email_templates,
+)
 from expo.gbe_logging import log_func
 from gbe.functions import validate_profile
 
@@ -46,23 +50,47 @@ class EditTemplateView(View):
         self.template = None
         if "template_name" in kwargs:
             template_name = kwargs.get("template_name")
-            self.template = get_object_or_404(EmailTemplate,
-                name=template_name)
+            # permission and syntax check
+            match_template_info = None
+            for template in get_user_email_templates(self.user):
+                if template_name == template['name']:
+                    match_template_info = template
+            if not match_template_info:
+                raise Http404
+            try:
+                self.template = EmailTemplate.objects.get(
+                    name=template_name)
+            except:
+                textcontent, htmlcontent = get_mail_content(
+                    match_template_info['default_base'])
+                self.initial = {
+                    'name': template_name,
+                    'subject': match_template_info['default_subject'],
+                    'content': textcontent,
+                    'html_content': htmlcontent,
+                    'description': match_template_info['description']}
         else:
             raise Http404
 
     def make_context(self):
         context = {
             'forms': [self.form],
-             'nodraft': self.submit_button,
-             'page_title': self.page_title,
-             'view_title': self.view_title,
-             'email_template': self.template}
+            'nodraft': self.submit_button,
+            'page_title': self.page_title,
+            'view_title': self.view_title}
+        if self.template:
+            context['description'] = self.template.description
+        else:
+            context['description'] = self.initial['description']
         return context
 
     def get_edit_template_form(self, request):
-        self.form = EmailTemplateForm(
-            instance=self.template)
+        if self.template:
+            self.form = EmailTemplateForm(
+                instance=self.template)
+        else:
+            self.form = EmailTemplateForm(
+                initial=self.initial)
         return render(
             request,
             'gbe/email/edit_email_template.tmpl',
