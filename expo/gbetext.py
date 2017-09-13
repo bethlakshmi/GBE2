@@ -355,6 +355,12 @@ unique_email_templates = {
         {'name': 'volunteer update notification',
          'description': '''This email is sent to reviewers \
          when a volunteer updates their offer to volunteer.''',
+         'category': 'volunteer',},
+        {'name': 'volunteer schedule warning',
+         'description': '''This email is sent to the Volunteer Coordinator \
+         when a volunteer has edited their volunteer bid and there is a \
+         conflict between their current availability and their current \
+         schedule.''',
          'category': 'volunteer',}],
 }
 
