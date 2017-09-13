@@ -21,7 +21,6 @@ from register_view import RegisterView
 from admin_profile_view import AdminProfileView
 from delete_profile_view import DeleteProfileView
 from update_profile_view import UpdateProfileView
-from profile_view import ProfileView
 from review_profiles_view import ReviewProfilesView
 
 # make
