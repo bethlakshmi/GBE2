@@ -136,7 +136,7 @@ class Profile(WorkerItem):
                 bid_type = group.split()[0]
                 email_privs += [bid_type.lower()]
         return email_privs
-    
+
     def alerts(self, historical=False):
         if historical:
             return []

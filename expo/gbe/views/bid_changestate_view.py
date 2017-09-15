@@ -14,6 +14,7 @@ from gbe.forms import BidStateChangeForm
 from gbe.functions import validate_perms
 from gbe.email.functions import send_bid_state_change_mail
 
+
 class BidChangeStateView(View):
 
     @log_func

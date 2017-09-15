@@ -354,13 +354,13 @@ unique_email_templates = {
          'category': 'volunteer',
          'default_base': "volunteer_schedule_update",
          'default_subject':
-            "A change has been made to your Volunteer Schedule!",},
+            "A change has been made to your Volunteer Schedule!", },
         {'name': 'volunteer update notification',
          'description': '''This email is sent to reviewers \
          when a volunteer updates their offer to volunteer.''',
          'category': 'volunteer',
          'default_base': "bid_submitted",
-         'default_subject': "Volunteer Update Occurred",},
+         'default_subject': "Volunteer Update Occurred", },
         {'name': 'volunteer schedule warning',
          'description': '''This email is sent to the Volunteer Coordinator \
          when a volunteer has edited their volunteer bid and there is a \
@@ -368,7 +368,7 @@ unique_email_templates = {
          schedule.''',
          'category': 'volunteer',
          'default_base': "schedule_conflict",
-         'default_subject':"URGENT: Volunteer Schedule Conflict Occurred",}],
+         'default_subject': "URGENT: Volunteer Schedule Conflict Occurred", }],
 }
 
 default_class_submit_msg = "Your class was successfully submitted"

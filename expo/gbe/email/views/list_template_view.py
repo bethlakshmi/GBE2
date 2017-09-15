@@ -50,7 +50,7 @@ class ListTemplateView(View):
             'gbe/email/list_email_template.tmpl',
             {"email_templates": get_user_email_templates(self.user),
              "page_title": self.page_title,
-             "view_title": self.view_title,}
+             "view_title": self.view_title, }
             )
 
     @method_decorator(login_required)

@@ -116,7 +116,7 @@ class EditTemplateView(View):
         if redirect:
             return HttpResponseRedirect(redirect)
 
-        return self.get_edit_template_form(request) 
+        return self.get_edit_template_form(request)
 
     @never_cache
     @log_func

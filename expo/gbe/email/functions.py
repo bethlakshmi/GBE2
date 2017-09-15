@@ -207,6 +207,7 @@ def send_warnings_to_staff(bidder,
             'warnings': warnings},
         )
 
+
 def get_user_email_templates(user):
     template_set = []
     for priv in user.get_email_privs():
@@ -216,7 +217,7 @@ def get_user_email_templates(user):
                 "submission notification"] % priv,
             'category': priv,
             'default_base': "bid_submitted",
-            'default_subject': "%s Submission Occurred" % priv,}]
+            'default_subject': "%s Submission Occurred" % priv, }]
         for state in acceptance_states:
             if priv == "act" and state[1] == "Accepted":
                 for show in Show.objects.filter(
@@ -231,7 +232,7 @@ def get_user_email_templates(user):
                         'category': priv,
                         'default_base': "default_bid_status_change",
                         'default_subject': 'Your act has been cast in %s' % (
-                            show.e_title),}]
+                            show.e_title), }]
             else:
                 template_set += [{
                     'name': "%s %s" % (priv, state[1].lower()),
@@ -241,7 +242,7 @@ def get_user_email_templates(user):
                     'default_subject':
                         'Your %s proposal has changed status to %s' % (
                             priv,
-                            state[1]),}]
+                            state[1]), }]
         if priv in unique_email_templates:
             template_set += unique_email_templates[priv]
     return sorted(template_set,
