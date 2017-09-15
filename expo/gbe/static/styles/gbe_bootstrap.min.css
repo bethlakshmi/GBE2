@@ -1234,11 +1234,11 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
 .panel-default>.panel-heading+.panel-collapse>.panel-body{border-top-color:#ddd}
 .panel-default>.panel-heading .badge{color:#f5f5f5;background-color:#333}
 .panel-default>.panel-footer+.panel-collapse>.panel-body{border-bottom-color:#ddd}
-.panel-primary{border-color:#337ab7}
-.panel-primary>.panel-heading{color:#fff;background-color:#337ab7;border-color:#337ab7}
-.panel-primary>.panel-heading+.panel-collapse>.panel-body{border-top-color:#337ab7}
-.panel-primary>.panel-heading .badge{color:#337ab7;background-color:#fff}
-.panel-primary>.panel-footer+.panel-collapse>.panel-body{border-bottom-color:#337ab7}
+.panel-primary{border-color:#aaaaaa}
+.panel-primary>.panel-heading{color:#fff;background-color:#aaaaaa;border-color:#aaaaaa}
+.panel-primary>.panel-heading+.panel-collapse>.panel-body{border-top-color:#aaaaaa}
+.panel-primary>.panel-heading .badge{color:#aaaaaa;background-color:#fff}
+.panel-primary>.panel-footer+.panel-collapse>.panel-body{border-bottom-color:#aaaaaa}
 .panel-success{border-color:#d6e9c6}
 .panel-success>.panel-heading{color:#3c763d;background-color:#dff0d8;border-color:#d6e9c6}
 .panel-success>.panel-heading+.panel-collapse>.panel-body{border-top-color:#d6e9c6}

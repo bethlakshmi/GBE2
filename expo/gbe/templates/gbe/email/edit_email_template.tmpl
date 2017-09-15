@@ -12,16 +12,22 @@
 <h2 class="subtitle">{{view_title}}</h2>
 <h3>Template:  {{ email_template.name }}</h3>
 
+
 {% if errors %}{% for error in errors %}
   <p style= "color:red">{{error}}</p>
 {% endfor %}{% endif %}
-
- {% if popup_text %}
-  <div class="alert alert-info">{{popup_text |safe }}</div>
- {% endif %}
- 
-<p>{{ description |linebreaks }}
-</p><br>
+<p>
+HTML entered in this form will be transformed into plain text for email
+systems which require text-only messages.  Any links will be removed, so be
+sure give readers some context for any links.
+</p>
+{% if description %}
+<div class="panel panel-primary">
+  <div class="panel-heading">Using this Template</div>
+  <div class="panel-body">{{ description |linebreaks }}</div>
+</div>
+{% endif %}
+<br>
   <form action="" method="post" enctype="multipart/form-data">
 
    {% include "form_table_wrapper.tmpl" %}

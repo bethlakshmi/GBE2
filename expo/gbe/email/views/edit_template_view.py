@@ -70,7 +70,6 @@ class EditTemplateView(View):
                 self.initial = {
                     'name': template_name,
                     'subject': match_template_info['default_subject'],
-                    'content': textcontent,
                     'html_content': htmlcontent,
                     'description': match_template_info['description'],
                     'sender': settings.DEFAULT_FROM_EMAIL}

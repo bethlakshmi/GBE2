@@ -3,6 +3,7 @@ from django.forms import (
     HiddenInput,
     ModelForm,
     Textarea,
+    TextInput,
 )
 from post_office.models import EmailTemplate
 from gbe_forms_text import (
@@ -10,20 +11,30 @@ from gbe_forms_text import (
     event_labels,
 )
 from tinymce.widgets import TinyMCE
+from django.utils.html import strip_tags
 
 
 class EmailTemplateForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
-    content = CharField(
-        widget=Textarea(attrs={'cols': 80, 'rows': 15}))
     html_content = CharField(
         widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
-    sender = CharField(max_length=100, required=True, label="From")
+    sender = CharField(max_length=100,
+                       required=True,
+                       label="From")
+    subject = CharField(widget=TextInput(attrs={'size': '79'}))
+
+    def save(self, commit=True):
+        template = super(EmailTemplateForm, self).save(commit=False)
+        # do custom stuff
+        if commit:
+            template.content = strip_tags(self.cleaned_data['html_content'])
+            template.save()
+        return template
 
     class Meta:
         model = EmailTemplate
-        fields = ['sender', 'name', 'subject', 'content', 'html_content']
+        fields = ['sender', 'name', 'subject', 'html_content']
         widgets = {'name': HiddenInput()}
         help_texts = event_help_texts
         labels = event_labels
