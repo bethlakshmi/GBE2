@@ -64,8 +64,6 @@ class EditTemplateView(View):
                     'html_content': htmlcontent,
                     'description': match_template_info['description'],
                     'sender': settings.DEFAULT_FROM_EMAIL}
-        else:
-            raise Http404
 
     def make_context(self):
         context = {
@@ -103,10 +101,7 @@ class EditTemplateView(View):
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        redirect = self.groundwork(request, args, kwargs)
-        if redirect:
-            return HttpResponseRedirect(redirect)
-
+        self.groundwork(request, args, kwargs)
         return self.get_edit_template_form(request)
 
     @never_cache

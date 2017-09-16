@@ -141,3 +141,27 @@ class TestEditEmailTemplate(TestCase):
         self.assertEqual(updated.sender.template.subject, data['subject'])
         self.assertEqual(updated.sender.template.content, "New Content")
         self.assertEqual(updated.sender.template.html_content, data['html_content'])
+
+    def test_post_bad_data(self):
+        grant_privilege(self.privileged_profile.user_object,
+                        'Volunteer Coordinator')
+        login_as(self.privileged_profile, self)
+        data = self.get_template_post()
+        del data['sender']
+        response = self.client.post(self.url, data=data, follow=True)
+        updated = EmailTemplate.objects.get(name=self.sender.template.name)
+        self.assertContains(response, "This field is required")
+
+    def test_costume_duplicate_w_get_no_sender(self):
+        grant_privilege(self.privileged_profile.user_object,
+                        'Costume Coordinator')
+        login_as(self.privileged_profile, self)
+        template = EmailTemplateFactory(name='costume duplicate')
+        url = reverse(self.view_name,
+                      urlconf="gbe.email.urls",
+                      args=["costume duplicate"])
+        response = self.client.get(url)
+
+        self.assertContains(response, settings.DEFAULT_FROM_EMAIL)
+        self.assertContains(response, template.subject)
+        self.assertContains(response, template.html_content)
