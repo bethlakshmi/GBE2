@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import(
     ClassFactory,
     ConferenceFactory,
     CostumeFactory,
+    FlexibleEvaluationFactory,
     GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
@@ -230,6 +231,18 @@ class TestIndex(TestCase):
         url = reverse('home', urlconf='gbe.urls')
         response = self.client.get(url)
         nt.assert_true(act.b_title in response.content)
+
+    def test_act_was_reviewed(self):
+        staff_profile = ProfileFactory(user_object__is_staff=True)
+        grant_privilege(staff_profile, "Act Reviewers")
+        login_as(staff_profile, self)
+        reviewed_act = ActFactory(submitted=True,
+                         b_conference=self.current_conf)
+        FlexibleEvaluationFactory(bid=reviewed_act,
+                                  evaluator=staff_profile)
+        url = reverse('home', urlconf='gbe.urls')
+        response = self.client.get(url)
+        self.assertNotContains(response, reviewed_act.b_title)
 
     def test_classes_to_review(self):
         staff_profile = ProfileFactory(user_object__is_staff=True)
