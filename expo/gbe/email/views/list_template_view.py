@@ -29,14 +29,11 @@ class ListTemplateView(View):
 
     def groundwork(self, request, args, kwargs):
         self.user = validate_perms(request, self.reviewer_permissions)
-        
 
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        redirect = self.groundwork(request, args, kwargs)
-        if redirect:
-            return HttpResponseRedirect(redirect)
+        self.groundwork(request, args, kwargs)
         return render(
             request,
             'gbe/email/list_email_template.tmpl',
