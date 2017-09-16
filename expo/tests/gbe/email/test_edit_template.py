@@ -115,12 +115,15 @@ class TestEditEmailTemplate(TestCase):
         data = self.get_template_post()
         response = self.client.post(self.url, data=data, follow=True)
         updated = EmailTemplate.objects.get(name=self.sender.template.name)
-        self.assertRedirects(response, reverse('list_template', urlconf='gbe.email.urls'))
+        self.assertRedirects(
+            response,
+            reverse('list_template', urlconf='gbe.email.urls'))
         self.assertContains(response, save_email_template_success_msg)
         self.assertEqual(updated.sender.from_email, data['sender'])
         self.assertEqual(updated.sender.template.subject, data['subject'])
         self.assertEqual(updated.sender.template.content, "New Content")
-        self.assertEqual(updated.sender.template.html_content, data['html_content'])
+        self.assertEqual(updated.sender.template.html_content,
+                         data['html_content'])
 
     def test_template_not_exists_w_post(self):
         grant_privilege(self.privileged_profile.user_object,
@@ -135,12 +138,15 @@ class TestEditEmailTemplate(TestCase):
             data=data,
             follow=True)
         updated = EmailTemplate.objects.get(name=data['name'])
-        self.assertRedirects(response, reverse('list_template', urlconf='gbe.email.urls'))
+        self.assertRedirects(
+            response,
+            reverse('list_template', urlconf='gbe.email.urls'))
         self.assertContains(response, save_email_template_success_msg)
         self.assertEqual(updated.sender.from_email, data['sender'])
         self.assertEqual(updated.sender.template.subject, data['subject'])
         self.assertEqual(updated.sender.template.content, "New Content")
-        self.assertEqual(updated.sender.template.html_content, data['html_content'])
+        self.assertEqual(updated.sender.template.html_content,
+                         data['html_content'])
 
     def test_post_bad_data(self):
         grant_privilege(self.privileged_profile.user_object,
