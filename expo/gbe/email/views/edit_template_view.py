@@ -18,10 +18,7 @@ from gbe.models import (
     EmailTemplateSender,
     UserMessage,
 )
-from gbetext import (
-    no_profile_msg,
-    save_email_template_success_msg,
-)
+from gbetext import save_email_template_success_msg
 from gbe.email.forms import EmailTemplateForm
 from gbe.email.functions import (
     get_mail_content,
@@ -116,9 +113,7 @@ class EditTemplateView(View):
     @log_func
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        redirect = self.groundwork(request, args, kwargs)
-        if redirect:
-            return HttpResponseRedirect(redirect)
+        self.groundwork(request, args, kwargs)
 
         if self.template:
             self.form = EmailTemplateForm(
@@ -153,7 +148,7 @@ class EditTemplateView(View):
         messages.success(request,
                          user_message[0].description + self.template.name)
         return HttpResponseRedirect(
-            redirect or reverse('list_template', urlconf='gbe.email.urls'))
+            reverse('list_template', urlconf='gbe.email.urls'))
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
