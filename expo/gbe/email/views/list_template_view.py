@@ -13,31 +13,23 @@ from django.http import (
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from gbe.models import UserMessage
-from gbetext import (
-    no_profile_msg,
-)
-from gbe.functions import validate_profile
+from gbe.functions import validate_perms
 from gbe.email.functions import get_user_email_templates
 
 
 class ListTemplateView(View):
     page_title = 'Manage Email Templates'
     view_title = 'Choose a Template'
+    reviewer_permissions = ['Act Coordinator',
+                            'Class Coordinator',
+                            'Costume Coordinator',
+                            'Vendor Coordinator',
+                            'Volunteer Coordinator',
+                            ]
 
     def groundwork(self, request, args, kwargs):
-        self.user = validate_profile(request, require=False)
-        if not self.user or not self.user.complete:
-            user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code="PROFILE_INCOMPLETE",
-                defaults={
-                    'summary': "%s Profile Incomplete",
-                    'description': no_profile_msg})
-            messages.warning(request, user_message[0].description)
-            return '%s?next=%s' % (
-                reverse('profile_update', urlconf='gbe.urls'),
-                reverse('%s_create' % self.bid_type.lower(),
-                        urlconf='gbe.urls'))
+        self.user = validate_perms(request, self.reviewer_permissions)
+        
 
     @never_cache
     @method_decorator(login_required)
