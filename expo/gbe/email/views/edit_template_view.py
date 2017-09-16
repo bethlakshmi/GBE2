@@ -28,28 +28,22 @@ from gbe.email.functions import (
     get_user_email_templates,
 )
 from expo.gbe_logging import log_func
-from gbe.functions import validate_profile
+from gbe.functions import validate_perms
 
 
 class EditTemplateView(View):
     page_title = 'Edit Email Template'
     view_title = 'Edit Email Template'
     submit_button = 'Save Template'
+    reviewer_permissions = ['Act Coordinator',
+                            'Class Coordinator',
+                            'Costume Coordinator',
+                            'Vendor Coordinator',
+                            'Volunteer Coordinator',
+                            ]
 
     def groundwork(self, request, args, kwargs):
-        self.user = validate_profile(request, require=False)
-        if not self.user or not self.user.complete:
-            user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code="PROFILE_INCOMPLETE",
-                defaults={
-                    'summary': "%s Profile Incomplete",
-                    'description': no_profile_msg})
-            messages.warning(request, user_message[0].description)
-            return '%s?next=%s' % (
-                reverse('profile_update', urlconf='gbe.urls'),
-                reverse('%s_create' % self.bid_type.lower(),
-                        urlconf='gbe.urls'))
+        self.user = validate_perms(request, self.reviewer_permissions)
 
         self.template = None
         if "template_name" in kwargs:
