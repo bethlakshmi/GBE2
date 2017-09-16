@@ -10,7 +10,7 @@
 {% endblock %}
 {% block content %}
 <h2 class="subtitle">{{view_title}}</h2>
-<h3>Template:  {{ email_template.name }}</h3>
+<h3>Template:  {{ name|title }}</h3>
 
 
 {% if errors %}{% for error in errors %}

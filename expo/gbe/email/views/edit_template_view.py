@@ -73,8 +73,10 @@ class EditTemplateView(View):
             'view_title': self.view_title}
         if self.template:
             context['description'] = self.template.description
+            context['name'] = self.template.name
         else:
             context['description'] = self.initial['description']
+            context['name'] = self.initial['name']
         return context
 
     def get_edit_template_form(self, request):
