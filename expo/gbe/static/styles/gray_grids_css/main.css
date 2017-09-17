@@ -377,72 +377,94 @@ fieldset[disabled] .btn {
 /* ==========================================================================
    Blog Section Style
    ========================================================================== */
-#blog .blog-item {
-  text-align: center;
-  margin: 30px 0px 30px;
-  background: #fff;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-  position: relative;
-  -webkit-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
-  -moz-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
-  -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
-  transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+@media (min-width:768px){#content .container{width:680px}
 }
-#blog .blog-item:hover {
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.14);
+@media (min-width:992px){#content .container{width:900px}
 }
-#blog .blog-item .blog-image {
-  display: block;
-  position: relative;
-  overflow: hidden;
+@media (min-width:1200px){#content .container{width:1100px}
 }
-#blog .blog-item .blog-image img {
-  -webkit-transition: all 0.5s;
-  -moz-transition: all 0.5s;
-  -ms-transition: all 0.5s;
-  transition: all 0.5s;
-  -webkit-transform: scale(1);
-  -moz-transform: scale(1);
-  transform: scale(1);
+
+.post-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 30px;
+  font-family: "TwentiethCenturyPoster";
 }
-#blog .blog-image:hover img {
-  -webkit-transform: scale(1.1);
-  -moz-transform: scale(1.1);
-  transform: scale(1.1);
-}
-#blog .blog-info {
-  padding: 15px 45px;
-  width: 100%;
-  height: 180px;
-}
-#blog .blog-info h3 {
-  padding-bottom: 10px;
-  margin: 0;
-}
-#blog .blog-info h3 a {
-  font-size: 18px;
+.post-title a {
   color: #2d2d2d;
-  font-weight: 400;
 }
-#blog .blog-info h3 a:hover {
+.post-title a:hover {
   color: #e91e63;
 }
-#blog .meta {
+#content img {
+  width: 100%;
+}
+.blog-post {
+  background: #fff;
+  margin-bottom: 40px;
+  overflow: hidden;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+.blog-post .post-content {
+  float: none;
+  width: 100%;
+  clear: both;
+  padding: 30px;
+}
+.blog-post .post-content .meta {
   font-size: 13px;
-  margin-bottom: 10px;
+  font-style: italic;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 25px;
 }
-#blog .meta i {
-  margin-right: 3px;
-}
-#blog .meta .meta-part {
+.blog-post .post-content .meta .meta-part {
   display: inline-block;
-  padding-right: 13px;
+  margin-bottom: 25px;
 }
-#blog .meta .meta-part a {
+.blog-post .post-content .meta .meta-part a {
   color: #999;
+  padding-right: 10px;
+  text-decoration: none;
 }
-#blog .meta .meta-part a:hover {
-  color: #e91e63;
+.blog-post .post-content .meta .meta-part a:hover {
+  color: rgb(150, 3, 32);
+}
+.blog-post .post-content .meta .meta-part i {
+  margin-right: 5px;
+}
+.blog-post .post-format {
+  position: absolute;
+  left: 50%;
+  z-index: 999;
+}
+.blog-post .post-format span a {
+  background: #fff;
+  border-radius: 4px;
+  display: block;
+  height: 40px;
+  width: 40px;
+  line-height: 40px;
+  margin-top: -20px;
+  text-align: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
+  z-index: 1;
+}
+.blog-post .post-format span a i {
+  display: block;
+  line-height: 40px;
+  font-size: 18px;
+  position: relative;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+.blog-post .post-type i {
+  font-size: 1.2em;
+  color: #fff;
 }
 /* ==========================================================================
    Pricing Table Style

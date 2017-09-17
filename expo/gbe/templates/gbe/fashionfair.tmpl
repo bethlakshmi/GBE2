@@ -3,46 +3,47 @@
   Great Burlesque Exposition: Fashion Fair
 {% endblock %}
 
+{% block head %}
+      {% include "gray_grids_css.tmpl" %}
+{% endblock head %}
+
 {% block content %}
 
    <H1 class="subtitle">Shop 'til You Drop!</H1>
    <div class="body font_regular">
-   <B>The Great Burlesque Exposition</b> offers two different (but equally fabulous!) types of shopping experience! First, is our <I>Vintage Fashion Fair</I>, located on the first floor in the President's Ballroom, next door to the theater.  Open on Saturday and Sunday, from noon until 8:00 p.m., it's home to dozens of delightful vendors selling everything you need, whether you're a professional performer or just want to look spectacular!<P><I>The Vintage Fashion Fair</I> is also home to our <B>Costume Display</b>, our <B>Art Exhibit</b>, and our <B>Caf&eacute;</B>.<P>Feeling peckish between classes? Want to grab a quick snack or beverage? No need to run out into the cold or even up to the hotel restaurant! Attendees of <I>The Great Burlesque Exposition</I> can fortify themselves with soups, wraps, fresh fruit, and more... all at very reasonable prices!
+      {{ user_message.description|safe}}
    </div>
 
-   <table class=vtable align=center>
-   {% for row in vendor_rows %}
-      <tr class=vrow>
-      {% for vendor in row %}
-      	 <td class=vendorff>
-	   <div class=vname>
-	     {{vendor.b_title}}
-	   </div>
-	   <div class=vimg>
-	   <a href={{vendor.website}}>
-	   	{% if vendor.logo %}
-	   	<img src="{{MEDIA_URL}}{{vendor.logo}}" class='vimage'>
+    <section id="content" class="section">
+      <div class="container blog">
+        <div class="row">
+  {% for vendor in vendors %}
+          <!-- Start Blog Posts -->
+          <div class="col-md-10 col-md-offset-1 col-xs-12">
+            <!-- Start Post -->
+            <div class="blog-post">
+              <!-- Post feature-inner -->
+              <div class="feature-inner">
+	        {% if vendor.logo %}
+	   	<a class="lightbox" href="{{MEDIA_URL}}{{vendor.logo}}"><img src="{{MEDIA_URL}}{{vendor.logo}}" alt=""></a>
 		{% else %}
-		<img src="/static/img/defaultvendorlogo.png" class='vimage'>
+	   	<a class="lightbox" href="/static/img/defaultvendorlogo.png"><img src="/static/img/defaultvendorlogo.png" alt=""></a>
 		{% endif %}
-		  </a>
-	   </div>
-	   <div class="vdesc font_regular">
-	     {{vendor.b_description | truncatechars:250 | linebreaksbr}}
-	   </div>
-  	       {% if vendor.publish_physical_address  %}
-
-	   <div class=vaddr>
-	   <br>
-	   Mailing address:<br>
-	   {{ vendor.physical_address | linebreaksbr }}
-
-	   </div >
-  	       {% endif %}
-	 </td>
-	{% endfor %}
-      </tr>
+              </div>
+              <!-- Post Content -->
+              <div class="post-content">                  
+                <h3 class="post-title">{{ vendor.b_title }}</h3>
+                <div class="meta">
+                  <span class="meta-part"><a href="{{vendor.website}}"><i class="icon-link"></i> Website</a></span>
+                </div> 
+                {{vendor.b_description | linebreaks}}
+              </div>
+              <!-- Post Content -->  
+            </div>
+            <!-- End Post -->
+	  </div>
    {% endfor %}
-  </table>
-
+        </div>
+      </div>
+    </section>
 {% endblock %}
