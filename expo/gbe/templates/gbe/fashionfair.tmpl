@@ -19,11 +19,11 @@
         <div class="row">
   {% for vendor in vendors %}
           <!-- Start Blog Posts -->
-          <div class="col-md-10 col-md-offset-1 col-xs-12">
+          <div class="col-md-6 col-xs-12">
             <!-- Start Post -->
             <div class="blog-post">
               <!-- Post feature-inner -->
-              <div class="feature-inner">
+              <div class="blog-image">
 	        {% if vendor.logo %}
 	   	<a class="lightbox" href="{{MEDIA_URL}}{{vendor.logo}}"><img src="{{MEDIA_URL}}{{vendor.logo}}" alt=""></a>
 		{% else %}

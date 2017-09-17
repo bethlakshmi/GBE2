@@ -383,7 +383,9 @@ fieldset[disabled] .btn {
 }
 @media (min-width:1200px){#content .container{width:1100px}
 }
-
+.blog-image {
+  padding: 15px;
+}
 .post-title {
   font-size: 22px;
   font-weight: 700;
