@@ -1,4 +1,5 @@
 {% extends "base.tmpl" %}
+{% load thumbnail %}
 {% block title %}
   Great Burlesque Exposition: Fashion Fair
 {% endblock %}
@@ -24,8 +25,8 @@
             <div class="blog-post">
               <!-- Post feature-inner -->
               <div class="blog-image">
-	        {% if vendor.logo %}
-	   	<a class="lightbox" href="{{MEDIA_URL}}{{vendor.logo}}"><img src="{{MEDIA_URL}}{{vendor.logo}}" alt=""></a>
+	        {% if vendor.img %}
+	   	<a class="lightbox" href="{{vendor.img.url}}"><img src="{% thumbnail vendor.img 360x360 %}" alt=""></a>
 		{% else %}
 	   	<a class="lightbox" href="/static/img/defaultvendorlogo.png"><img src="/static/img/defaultvendorlogo.png" alt=""></a>
 		{% endif %}

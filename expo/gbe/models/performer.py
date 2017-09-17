@@ -6,7 +6,6 @@ from django.db.models import (
     PositiveIntegerField,
     TextField,
     URLField,
-    FileField,
 )
 from gbe.models import Profile
 from scheduler.models import WorkerItem
