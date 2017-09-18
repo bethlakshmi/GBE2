@@ -335,6 +335,9 @@ fieldset[disabled] .btn {
   font-weight: 400;
   margin-top: 10px;
 }
+#team .team-desc h3.vendor-header {
+  margin: 0px;
+}
 #team .team-desc h5 {
   font-size: 14px;
   font-weight: bold;
@@ -374,100 +377,6 @@ fieldset[disabled] .btn {
 @media (min-width:1200px){#team .container{width:1100px}
 }
 
-/* ==========================================================================
-   Blog Section Style
-   ========================================================================== */
-@media (min-width:768px){#content .container{width:680px}
-}
-@media (min-width:992px){#content .container{width:900px}
-}
-@media (min-width:1200px){#content .container{width:1100px}
-}
-.blog-image {
-  padding: 15px;
-}
-.post-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  line-height: 30px;
-  font-family: "TwentiethCenturyPoster";
-}
-.post-title a {
-  color: #2d2d2d;
-}
-.post-title a:hover {
-  color: #e91e63;
-}
-#content img {
-  width: 100%;
-}
-.blog-post {
-  background: #fff;
-  margin-bottom: 40px;
-  overflow: hidden;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-}
-.blog-post .post-content {
-  float: none;
-  width: 100%;
-  clear: both;
-  padding: 30px;
-}
-.blog-post .post-content .meta {
-  font-size: 13px;
-  font-style: italic;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 25px;
-}
-.blog-post .post-content .meta .meta-part {
-  display: inline-block;
-  margin-bottom: 25px;
-}
-.blog-post .post-content .meta .meta-part a {
-  color: #999;
-  padding-right: 10px;
-  text-decoration: none;
-}
-.blog-post .post-content .meta .meta-part a:hover {
-  color: rgb(150, 3, 32);
-}
-.blog-post .post-content .meta .meta-part i {
-  margin-right: 5px;
-}
-.blog-post .post-format {
-  position: absolute;
-  left: 50%;
-  z-index: 999;
-}
-.blog-post .post-format span a {
-  background: #fff;
-  border-radius: 4px;
-  display: block;
-  height: 40px;
-  width: 40px;
-  line-height: 40px;
-  margin-top: -20px;
-  text-align: center;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-  -webkit-transform: rotate(45deg);
-  -moz-transform: rotate(45deg);
-  transform: translateX(-50%) rotate(45deg);
-  z-index: 1;
-}
-.blog-post .post-format span a i {
-  display: block;
-  line-height: 40px;
-  font-size: 18px;
-  position: relative;
-  -webkit-transform: rotate(-45deg);
-  -moz-transform: rotate(-45deg);
-  transform: rotate(-45deg);
-}
-.blog-post .post-type i {
-  font-size: 1.2em;
-  color: #fff;
-}
 /* ==========================================================================
    Pricing Table Style
    ========================================================================== */
