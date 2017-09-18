@@ -228,9 +228,9 @@ def bad_id_for(cls):
     return 1
 
 
-def set_performer_image(performer):
+def set_image(item):
     superuser = User.objects.create_superuser(
-        'superuser_for_%d' % performer.pk,
+        'superuser_for_%d' % item.pk,
         'admin@importimage.com',
         'secret')
     path = "tests/gbe/gbe_pagebanner.png"
@@ -239,5 +239,5 @@ def set_performer_image(performer):
         original_filename="gbe_pagebanner.png",
         file=File(open(path, 'r')))
     current_img.save()
-    performer.img_id = current_img.pk
-    performer.save()
+    item.img_id = current_img.pk
+    item.save()

@@ -19,7 +19,7 @@ from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
     bad_id_for,
     login_as,
-    set_performer_image,
+    set_image,
 )
 from django.contrib.auth.models import User
 
@@ -113,7 +113,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
-        set_performer_image(context.performer)
+        set_image(context.performer)
         login_as(superuser, self)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
@@ -126,7 +126,7 @@ class TestDetailView(TestCase):
                                                   'admin@importimage.com',
                                                   'secret')
         login_as(superuser, self)
-        set_performer_image(self.context.performer)
+        set_image(self.context.performer)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
         self.assertContains(
@@ -141,7 +141,7 @@ class TestDetailView(TestCase):
         ActCastingOptionFactory(display_order=1)
 
         context = ActTechInfoContext(act_role="Hosted By...")
-        set_performer_image(context.performer)
+        set_image(context.performer)
         url = reverse(self.view_name,
                       urlconf="scheduler.urls",
                       args=[context.show.pk])

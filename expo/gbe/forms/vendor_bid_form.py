@@ -67,6 +67,7 @@ class VendorBidForm(ModelForm):
                 vendor.img_id = img.pk
             else:
                 vendor.img = None
+        if commit:
             vendor.save()
 
         return vendor
