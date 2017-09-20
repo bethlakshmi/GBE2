@@ -26,12 +26,14 @@ urlpatterns = (
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('ticketing.urls', namespace='ticketing')),
     url(r'^', include('scheduler.urls', namespace='scheduler')),
+    url(r'^', include('gbe.email.urls', namespace='email')),
     url(r'^', include('gbe.reporting.urls', namespace='reporting')),
     url(r'^', include('gbe.scheduling.urls', namespace='scheduling')),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
         {'sitemaps': {'cmspages': CMSSitemap}}),
     url(r'^hijack/', include('hijack.urls')),
+    url(r'^tinymce/', include('tinymce.urls')),
     ) + LOCAL_APPS_URLS + (
     url(r'^', include('cms.urls')),
 )

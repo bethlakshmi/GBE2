@@ -22,7 +22,7 @@ from gbe.models import (
     ActCastingOption,
     UserMessage,
 )
-from gbe.functions import send_bid_state_change_mail
+from gbe.email.functions import send_bid_state_change_mail
 from gbetext import no_casting_msg
 
 

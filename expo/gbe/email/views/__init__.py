@@ -1,0 +1,2 @@
+from edit_template_view import EditTemplateView
+from list_template_view import ListTemplateView
