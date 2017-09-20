@@ -327,6 +327,50 @@ calendar_for_event = {
     'Show': 'General'
 }
 
+email_template_desc = {
+    'submission notification': '''This email is sent to reviewers when a(n) \
+    %s is submitted and ready for review.''',
+    'No Decision': '''This email is sent to a bidder when the coordinator \
+    sets the %s to the state "No Decision"''',
+    'Reject': '''This email is sent to the bidder when the coordinator \
+    rejects the %s''',
+    'Wait List': '''This email is sent to the bidder when the %s is put on a \
+    wait list.''',
+    'Accepted': '''This email is send to the bidder when the %s has been \
+    accepted.''',
+    'Withdrawn': '''This email is sent to the bidder when the %s has been \
+    withdrawn.''',
+    'Duplicate': '''This email is sent to the bidder when the coordinator \
+    marks the %s as a duplicate''',
+    'act accepted': '''This email is send to the performer when they have \
+    been cast into the show %s.''',
+}
+
+unique_email_templates = {
+    'volunteer': [
+        {'name': 'volunteer schedule update',
+         'description': '''This email is sent to volunteers when \
+         their schedule has been updated''',
+         'category': 'volunteer',
+         'default_base': "volunteer_schedule_update",
+         'default_subject':
+            "A change has been made to your Volunteer Schedule!", },
+        {'name': 'volunteer update notification',
+         'description': '''This email is sent to reviewers \
+         when a volunteer updates their offer to volunteer.''',
+         'category': 'volunteer',
+         'default_base': "bid_submitted",
+         'default_subject': "Volunteer Update Occurred", },
+        {'name': 'volunteer schedule warning',
+         'description': '''This email is sent to the Volunteer Coordinator \
+         when a volunteer has edited their volunteer bid and there is a \
+         conflict between their current availability and their current \
+         schedule.''',
+         'category': 'volunteer',
+         'default_base': "schedule_conflict",
+         'default_subject': "URGENT: Volunteer Schedule Conflict Occurred", }],
+}
+
 default_class_submit_msg = "Your class was successfully submitted"
 default_class_draft_msg = "Your draft was successfully saved"
 default_act_submit_msg = "Your act was successfully submitted"
@@ -388,3 +432,6 @@ look spectacular!<P><I>The Vintage Fashion Fair</I> is also home to our \
 No need to run out into the cold or even up to the hotel restaurant! \
 Attendees of <I>The Great Burlesque Exposition</I> can fortify themselves \
 with soups, wraps, fresh fruit, and more... all at very reasonable prices!'''
+save_email_template_success_msg = '''The email template has been saved.  \
+Your updates will be applied to all future automated messages using this \
+template.  The Email Template name is '''

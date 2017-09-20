@@ -310,6 +310,20 @@ DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'expo', 'static'),
 )
+TINYMCE_DEFAULT_CONFIG = {
+    'plugins': "table,paste,searchreplace, insertdatetime",
+    'theme': "advanced",
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 10,
+    'theme_advanced_buttons1': "bold,italic,underline,|,justifyleft," +
+    "justifycenter,justifyright,fontselect,fontsizeselect,formatselect," +
+    "forecolor,backcolor",
+    'theme_advanced_buttons2': "cut,copy,paste,|,bullist,numlist,|," +
+    "outdent,indent,|,undo,redo,|,link,unlink,anchor,image,|,code,preview," +
+    "|,search, replace",
+    'theme_advanced_buttons3': "insertdate,inserttime,|,advhr,,removeformat," +
+    "|,sub,sup,|,charmap,emotions, tablecontrols",
+}
 
 DJANGOCMS_STYLE_CHOICES = ['subtitle',
                            'font_large',
