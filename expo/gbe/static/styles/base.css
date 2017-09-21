@@ -170,6 +170,7 @@ div.reviewer_col{
 
 div.side_box {
     border: 1px solid black;
+    padding: 0 0 0 10px;
 }
 
 @media (min-width:768px){.bid_review{width:680px}
