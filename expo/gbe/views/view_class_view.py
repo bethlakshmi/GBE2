@@ -16,9 +16,8 @@ class ViewClassView(ViewBidView):
     def get_display_forms(self):
         bid_form = self.object_form_type(instance=self.bid,
                                          prefix=self.bid_prefix)
-        persona_form = PersonaForm(instance=self.bid.teacher,
-                                   prefix=self.owner_prefix)
-        return (bid_form, persona_form)
+        self.performer = self.bid.teacher
+        return (bid_form, )
 
     def get_owner_profile(self):
         return self.bid.teacher.contact

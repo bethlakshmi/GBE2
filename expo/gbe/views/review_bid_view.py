@@ -27,6 +27,7 @@ class ReviewBidView(View):
     bid_evaluation_type = BidEvaluation
     bid_evaluation_form_type = BidEvaluationForm
     review_template = 'gbe/bid_review.tmpl'
+    performer = None
 
     def create_action_form(self, bid):
         self.actionform = self.bid_state_change_form(instance=bid)
@@ -35,16 +36,19 @@ class ReviewBidView(View):
                                  args=[bid.id])
 
     def bid_review_response(self, request):
-        return render(request,
-                      self.review_template,
-                      {'readonlyform': self.readonlyform_pieces,
+        context = {'readonlyform': self.readonlyform_pieces,
                        'reviewer': self.reviewer,
                        'form': self.form,
                        'actionform': self.actionform,
                        'actionURL': self.actionURL,
                        'conference': self.b_conference,
                        'old_bid': self.old_bid,
-                       })
+                       }
+        if self.performer:
+            context['performer'] = self.performer
+        return render(request,
+                      self.review_template,
+                      context)
 
     def create_object_form(self, initial={}):
         self.object_form = self.bid_form_type(instance=self.object,

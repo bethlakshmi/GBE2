@@ -22,10 +22,8 @@ class ReviewClassView(ReviewBidView):
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
         self.create_object_form()
-        self.teacher = self.bidder_form_type(instance=self.object.teacher,
-                                             prefix=self.bidder_prefix)
         self.contact = get_participant_form(
             self.object.teacher.performer_profile,
             prefix=self.bidder_prefix)
-        self.readonlyform_pieces = (self.object_form,
-                                    self.teacher, self.contact)
+        self.readonlyform_pieces = (self.object_form, self.contact)
+        self.performer = self.object.teacher

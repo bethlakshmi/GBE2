@@ -1,0 +1,21 @@
+{% load thumbnail %}
+<div class="review container">
+ <div class="row">
+  <div class="col-xs-12"><h3 class="readonlyform">The Presenter</h3></div>
+  <div class="col-md-4 col-sm-6 col-xs-12">
+  {% if performer.img %}
+    <img src="{% thumbnail performer.img 350x350 crop=scale subject_location=performer.img.subject_location %}" class="sched_bio_image">
+  {% else %} &nbsp;{% endif %}
+  </div>
+  <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Stage Name:</div>
+  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{{performer.name}}</div>
+  <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Web Site:</div>
+  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info"><a href="{{performer.homepage}}">Web Site</a></div>
+  <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Experience:</div>
+  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{{performer.experience}}</div>
+  <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Awards:</div>
+  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{{performer.awards}}</div>
+  <div class="col-md-3 col-sm-12 col-xs-12 read-only-label">Bio:</div>
+  <div class="col-md-5 col-sm-12 col-xs-12 read-only-info">{{performer.bio|safe}}</div>
+ </div>
+</div>

@@ -18,6 +18,7 @@ from gbe.views.functions import get_participant_form
 
 
 class ViewBidView(View):
+    performer = None
 
     def check_bid(self):
         return None
@@ -45,5 +46,7 @@ class ViewBidView(View):
         if self.owner_profile != request.user.profile:
             validate_perms(request, self.viewer_permissions, require=True)
         display_forms = self.get_display_forms()
-        return render(request, 'gbe/bid_view.tmpl',
-                      {'readonlyform': display_forms})
+        context = {'readonlyform': display_forms, }
+        if self.performer:
+            context['performer'] = self.performer
+        return render(request, 'gbe/bid_view.tmpl', context)
