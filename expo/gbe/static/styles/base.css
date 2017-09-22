@@ -582,6 +582,13 @@ td.describe
 @media (min-width:1200px){.bio_block{width:1100px}
 }
 
+@media (min-width:768px){.bios{width:680px}
+}
+@media (min-width:992px){.bios{width:900px}
+}
+@media (min-width:1200px){.bios{width:1100px}
+}
+
 .sched_detail_title
 {
   color: #333333;

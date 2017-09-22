@@ -67,7 +67,7 @@
 	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
         {%else%}
           <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
-          {{worker.workeritem.bio |linebreaksbr}}
+          {{worker.workeritem.bio |safe}}
 	{%endif%}
         <br><br>
         </div>
@@ -86,7 +86,7 @@
       <div class="row bio_row">
         <div class="col-md-8 col-sm-7 col-xs-12">
         <h2 class="bio_name subtitle">About {{bio.name}}</h2>
-        {{bio.bio |linebreaksbr}}
+        {{bio.bio |safe}}
         <br><br>
         </div>
 
