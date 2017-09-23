@@ -14,9 +14,6 @@ class ViewClassView(ViewBidView):
     bid_prefix = 'The Class'
     owner_prefix = 'The Teacher(s)'
 
-    def get_display_forms(self):
-        return None
-
     def get_owner_profile(self):
         return self.bid.teacher.contact
 

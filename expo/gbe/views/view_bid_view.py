@@ -35,6 +35,7 @@ class ViewBidView(View):
         return (bid_form, profile_form)
 
     def make_context(self):
+        display_forms = self.get_display_forms()
         context = {'readonlyform': display_forms, }
         if self.performer:
             context['performer'] = self.performer
@@ -51,5 +52,4 @@ class ViewBidView(View):
         self.owner_profile = self.get_owner_profile()
         if self.owner_profile != request.user.profile:
             validate_perms(request, self.viewer_permissions, require=True)
-        display_forms = self.get_display_forms()
         return render(request, 'gbe/bid_view.tmpl', self.make_context())
