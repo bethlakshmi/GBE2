@@ -169,7 +169,7 @@ def notify_reviewers_on_bid_change(bidder,
         "bid_submitted",
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
-               User.objects.filter(groups__name=group_name)]
+               User.objects.filter(groups__name=group_name, is_active=True)]
     mail_send_gbe(
         to_list,
         template.sender.from_email,
@@ -194,7 +194,8 @@ def send_warnings_to_staff(bidder,
         "schedule_conflict",
         "URGENT: %s Schedule Conflict Occurred" % (bid_type))
     to_list = [user.email for user in
-               User.objects.filter(groups__name='%s Coordinator' % bid_type)]
+               User.objects.filter(groups__name='%s Coordinator' % bid_type,
+                                   is_active=True)]
     for warning in warnings:
         if 'email' in warning:
             to_list += [warning['email']]
