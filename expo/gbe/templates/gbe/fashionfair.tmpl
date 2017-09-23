@@ -36,13 +36,13 @@
 		{% endif %}</p>
               </div>
     {% endif %}
-              <div class="team-img">
+              <div class="team-img vendor-img {% if img_right %}vendor-right{%else%}vendor-left{% endif %}">
       {% if vendor.img %}
-                <img src="{% thumbnail vendor.img 250x250 crop upscale subject_location=vendor.img.subject_location %}" alt="">
+                <img src="{% thumbnail vendor.img 250x250 %}" alt="">
       {% else %}
                 <img src="/static/img/defaultvendorlogo.png" alt="">
       {% endif %}
-                <div class="social-icon">
+                <div id="vendor-icon" class="social-icon">
             {% if vendor.img %}
                   <a class="social" href="{{vendor.img.url}}">
                     <i class="fa fa-eye"></i>

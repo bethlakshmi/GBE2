@@ -279,6 +279,9 @@ a.more-link:hover{
   -o-transition: all 0.2s linear;
   transition: all 0.2s linear;
 }
+.vendor-img .social-icon {
+  line-height: 32px;
+}
 .social-icon a .fa-facebook:hover {
   color: #3b5998;
 }
@@ -304,9 +307,28 @@ a.more-link:hover{
   -moz-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   -o-transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
   transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1) 0s;
+  width: 100%
 }
 #team .single-member:hover {
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.14);
+}
+.vendor-img {
+  height: 250px;
+  line-height: 250px;
+  font-size: 0;
+  white-space: nowrap;
+  display: inline-block;
+}
+.vendor-img img {
+  vertical-align: middle;
+  max-height: 250px;
+  max-width: 250px;
+}
+.vendor-right {
+  text-align: right;
+}
+.vendor-left {
+  text-align: left;
 }
 #team .team-img {
   position: relative;
@@ -354,6 +376,7 @@ a.more-link:hover{
 #team .team-desc p {
   margin: 0px;
 }
+
 #team .social-icon {
   position: absolute;
   text-align: center;
@@ -361,6 +384,9 @@ a.more-link:hover{
   left: 0;
   opacity: 0;
   width: 100%;
+}
+#vendor-icon.social-icon {
+    top: 40%;
 }
 #team .single-member:hover .team-img:before {
   opacity: 1;
