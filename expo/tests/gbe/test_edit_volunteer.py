@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    EmailTemplateSenderFactory,
     PersonaFactory,
     ProfilePreferencesFactory,
     ProfileFactory,
@@ -30,6 +31,7 @@ from gbetext import (
 )
 from gbe.models import UserMessage
 from expo.settings import DATETIME_FORMAT
+from post_office.models import EmailTemplate
 
 
 class TestEditVolunteer(TestCase):
@@ -310,6 +312,26 @@ class TestEditVolunteer(TestCase):
             3,
             "Volunteer Update Occurred",
             [self.privileged_profile.contact_email])
+
+    def test_volunteer_conflict_sends_notification_w_bid_details(self):
+        EmailTemplate.objects.all().delete()
+        subject_format = "bidder: %s, bid: %s"
+        EmailTemplateSenderFactory(
+            from_email="volunteer@notify.com",
+            template__name='volunteer update notification',
+            template__subject="bidder: %s, bid: %s" % (
+                "{{ bidder }}",
+                "{{ bid.b_title }}")
+        )
+        response, context = self.post_conflict(staff=True)
+        assert_right_mail_right_addresses(
+            2,
+            3,
+            "bidder: %s, bid: %s" % (
+                str(context.profile),
+                'title'),
+            [self.privileged_profile.contact_email],
+            from_email="volunteer@notify.com")
 
     def test_volunteer_conflict_removes_volunteer_commitment(self):
         response, context = self.post_conflict(staff=True)

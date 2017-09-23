@@ -156,6 +156,7 @@ def send_schedule_update_mail(participant_type, profile):
 
 
 def notify_reviewers_on_bid_change(bidder,
+                                   bid,
                                    bid_type,
                                    action,
                                    conference,
@@ -175,6 +176,7 @@ def notify_reviewers_on_bid_change(bidder,
         template=name,
         context={
             'bidder': bidder,
+            'bid': bid,
             'bid_type': bid_type,
             'action': action,
             'conference': conference,
