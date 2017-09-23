@@ -34,6 +34,12 @@ class ViewBidView(View):
             prefix=self.owner_prefix)
         return (bid_form, profile_form)
 
+    def make_context(self):
+        context = {'readonlyform': display_forms, }
+        if self.performer:
+            context['performer'] = self.performer
+        return context
+
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         bid_id = kwargs.get("bid_id")
@@ -46,7 +52,4 @@ class ViewBidView(View):
         if self.owner_profile != request.user.profile:
             validate_perms(request, self.viewer_permissions, require=True)
         display_forms = self.get_display_forms()
-        context = {'readonlyform': display_forms, }
-        if self.performer:
-            context['performer'] = self.performer
-        return render(request, 'gbe/bid_view.tmpl', context)
+        return render(request, 'gbe/bid_view.tmpl', self.make_context())

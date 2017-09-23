@@ -35,20 +35,19 @@ class ReviewBidView(View):
                                  urlconf='gbe.urls',
                                  args=[bid.id])
 
+    def make_context(self):
+        return {'readonlyform': self.readonlyform_pieces,
+                'reviewer': self.reviewer,
+                'form': self.form,
+                'actionform': self.actionform,
+                'actionURL': self.actionURL,
+                'conference': self.b_conference,
+                'old_bid': self.old_bid, }
+
     def bid_review_response(self, request):
-        context = {'readonlyform': self.readonlyform_pieces,
-                       'reviewer': self.reviewer,
-                       'form': self.form,
-                       'actionform': self.actionform,
-                       'actionURL': self.actionURL,
-                       'conference': self.b_conference,
-                       'old_bid': self.old_bid,
-                       }
-        if self.performer:
-            context['performer'] = self.performer
         return render(request,
                       self.review_template,
-                      context)
+                      self.make_context())
 
     def create_object_form(self, initial={}):
         self.object_form = self.bid_form_type(instance=self.object,

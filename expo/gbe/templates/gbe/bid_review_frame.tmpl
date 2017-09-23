@@ -17,8 +17,13 @@
     {% if old_bid %}
     <h3> This bid is for a conference which has already happened </h3>
     {% endif %}
+<div class="review container">
+  {% if readonlyform %}
     {% include "readonly_form_table.tmpl" %}
-    {% include "performer_review.tmpl"%}
+  {% endif %}
+    {% include "gbe/class_review.tmpl"%}
+    {% include "gbe/performer_review.tmpl"%}
+</div>
   </div>
   <div class="bid_review container">
     <div class="row">

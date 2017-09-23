@@ -604,6 +604,8 @@ td.describe
 {
   min-height: 25px;
 }
+.top-buffer { margin-top:20px; }
+
 .sched_detail_title
 {
   color: #333333;
