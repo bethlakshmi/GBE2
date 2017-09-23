@@ -12,7 +12,11 @@
                   {% if item.img %}
 		      <div class="col-xs-6 col-xs-push-6">
                          <a href="{{item.img.url}}">
+			   {% if scale %}
+		             <img src="{% thumbnail item.img 250x250%}" alt="Photo" >
+			   {% else %}
 		             <img src="{% thumbnail item.img 250x250 crop upscale subject_location=item.img.subject_location %}" alt="Photo" >
+			   {% endif %}
 		         </a>
                       </div>
                       <div class="col-xs-6 col-xs-pull-6">
