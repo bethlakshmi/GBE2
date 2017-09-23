@@ -479,14 +479,15 @@ vendor_labels = {
     'help_description': ("Tell Us About the Person You'd Like to Hire "),
     'website': 'Company website',
     'physical_address': 'Business Address',
-    'publish_physical_address': 'Publish my business address'
+    'publish_physical_address': 'Publish my business address',
+    'upload_img': 'Logo',
 }
 
 vendor_help_texts = {
     'vend_time':  ('I\'d like to vend...'),
     'want_help': ('''Would you like us to help you find someone to work at \
     your booth or table with you?'''),
-    'logo': ('''Please provide any logo you would like displayed on our \
+    'upload_img': ('''Please provide any logo you would like displayed on our \
     website and advertising'''),
     'description': ('''The information you enter here will be displayed \
     on the website exactly as you enter it, so please double-check it before \

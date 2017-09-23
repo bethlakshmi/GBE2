@@ -27,7 +27,7 @@ from tests.factories.scheduler_factories import (
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
-    set_performer_image,
+    set_image,
 )
 from tests.contexts import ActTechInfoContext
 from expo.settings import TIME_FORMAT
@@ -237,7 +237,7 @@ class TestIndex(TestCase):
         grant_privilege(staff_profile, "Act Reviewers")
         login_as(staff_profile, self)
         reviewed_act = ActFactory(submitted=True,
-                         b_conference=self.current_conf)
+                                  b_conference=self.current_conf)
         FlexibleEvaluationFactory(bid=reviewed_act,
                                   evaluator=staff_profile)
         url = reverse('home', urlconf='gbe.urls')
@@ -289,7 +289,7 @@ class TestIndex(TestCase):
         assert costume.b_title in response.content
 
     def test_profile_image(self):
-        set_performer_image(self.performer)
+        set_image(self.performer)
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
         response = self.client.get(url)

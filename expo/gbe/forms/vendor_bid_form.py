@@ -2,6 +2,7 @@ from django.forms import (
     CharField,
     CheckboxSelectMultiple,
     HiddenInput,
+    ImageField,
     ModelForm,
     MultipleChoiceField,
     Textarea,
@@ -13,6 +14,9 @@ from gbe_forms_text import (
     vendor_schedule_options,
 )
 from gbe.expoformfields import FriendlyURLInput
+from filer.models.imagemodels import Image
+from filer.models.foldermodels import Folder
+from django.contrib.auth.models import User
 
 
 class VendorBidForm(ModelForm):
@@ -28,6 +32,45 @@ class VendorBidForm(ModelForm):
         choices=vendor_schedule_options,
         required=False,
         label=vendor_labels['help_times'])
+    upload_img = ImageField(
+        help_text=vendor_help_texts['upload_img'],
+        label=vendor_labels['upload_img'],
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(VendorBidForm, self).__init__(*args, **kwargs)
+        if 'instance' in kwargs:
+            self.fields['upload_img'] = ImageField(
+                help_text=vendor_help_texts['upload_img'],
+                label=vendor_labels['upload_img'],
+                initial=kwargs.get('instance').img,
+                required=False,
+            )
+
+    def save(self, commit=True):
+        vendor = super(VendorBidForm, self).save(commit=False)
+        if commit and self['upload_img'] and (
+                self['upload_img'].value() != vendor.img):
+            if self['upload_img'].value():
+                superuser = User.objects.get(username='admin_img')
+                folder, created = Folder.objects.get_or_create(
+                    name='Vendors')
+                img, created = Image.objects.get_or_create(
+                    owner=superuser,
+                    original_filename=self['upload_img'].value().name,
+                    file=self['upload_img'].value(),
+                    folder=folder,
+                    author="%s" % str(vendor.profile),
+                )
+                img.save()
+                vendor.img_id = img.pk
+            else:
+                vendor.img = None
+        if commit:
+            vendor.save()
+
+        return vendor
 
     class Meta:
         model = Vendor
@@ -37,7 +80,6 @@ class VendorBidForm(ModelForm):
                   'website',
                   'physical_address',
                   'publish_physical_address',
-                  'logo',
                   'want_help',
                   'help_description',
                   'help_times',
