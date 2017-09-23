@@ -15,6 +15,7 @@ from gbetext import (
     acceptance_states,
     boolean_options,
 )
+from filer.fields.image import FilerImageField
 
 
 class Vendor(Biddable):
@@ -27,7 +28,9 @@ class Vendor(Biddable):
     website = URLField(blank=True)
     physical_address = TextField()  # require physical address
     publish_physical_address = BooleanField(default=False)
-    logo = FileField(upload_to="uploads/images", blank=True)
+    img = FilerImageField(
+        null=True,
+        related_name="image_vendor")
     want_help = BooleanField(choices=boolean_options,
                              blank=True,
                              default=False)

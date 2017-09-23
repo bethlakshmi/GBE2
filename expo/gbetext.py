@@ -420,6 +420,18 @@ default_act_review_error_msg = '''There was an issue with processing your act \
 review for act %s, see below for details and please resubmit.'''
 default_act_review_success_msg = '''You have successfully reviewed act %s, \
 from performer %s.'''
+fashion_fair_intro = '''<b>The Great Burlesque Exposition</b> offers two \
+different (but equally fabulous!) types of shopping experience! First, is \
+our <I>Vintage Fashion Fair</I>, located on the first floor in the \
+President's Ballroom, next door to the theater.  Open on Saturday and Sunday, \
+from noon until 8:00 p.m., it's home to dozens of delightful vendors selling \
+everything you need, whether you're a professional performer or just want to \
+look spectacular!<P><I>The Vintage Fashion Fair</I> is also home to our \
+<B>Costume Display</b>, our <B>Art Exhibit</b>, and our <B>Caf&eacute;</B>. \
+<P>Feeling peckish between classes? Want to grab a quick snack or beverage? \
+No need to run out into the cold or even up to the hotel restaurant! \
+Attendees of <I>The Great Burlesque Exposition</I> can fortify themselves \
+with soups, wraps, fresh fruit, and more... all at very reasonable prices!'''
 save_email_template_success_msg = '''The email template has been saved.  \
 Your updates will be applied to all future automated messages using this \
 template.  The Email Template name is '''
