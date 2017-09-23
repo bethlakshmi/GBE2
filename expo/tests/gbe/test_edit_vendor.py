@@ -15,12 +15,17 @@ from tests.functions.gbe_functions import (
     login_as,
     location,
     make_vendor_app_purchase,
+    set_image,
 )
 from gbetext import (
     default_vendor_submit_msg,
     default_vendor_draft_msg
 )
-from gbe.models import UserMessage
+from gbe.models import (
+    UserMessage,
+    Vendor,
+)
+from django.core.files import File
 
 
 class TestEditVendor(TestCase):
@@ -185,3 +190,41 @@ class TestEditVendor(TestCase):
         self.assertEqual(200, response.status_code)
         assert_alert_exists(
             response, 'success', 'Success', msg.description)
+
+    def test_edit_vendor_load_img(self):
+        vendor = VendorFactory()
+        set_image(vendor)
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, vendor.img.url)
+
+    def test_edit_change_image(self):
+        pic_filename = open("tests/gbe/gbe_pagebanner.png", 'r')
+        picture = File(pic_filename)
+        vendor = VendorFactory()
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        data = self.get_vendor_form(submit=True)
+        data['thebiz-profile'] = vendor.profile.pk
+        data['thebiz-upload_img'] = picture
+        make_vendor_app_purchase(vendor.b_conference,
+                                 vendor.profile.user_object)
+        response = self.client.post(url, data, follow=True)
+        vendor_reloaded = Vendor.objects.get(pk=vendor.pk)
+        self.assertEqual(str(vendor_reloaded.img), "gbe_pagebanner.png")
+
+    def test_edit_remove_image(self):
+        vendor = VendorFactory()
+        set_image(vendor)
+        login_as(vendor.profile, self)
+        url = reverse(self.view_name, urlconf='gbe.urls', args=[vendor.pk])
+        data = self.get_vendor_form(submit=True)
+        data['thebiz-profile'] = vendor.profile.pk
+        data['thebiz-upload_img-clear'] = True
+        make_vendor_app_purchase(vendor.b_conference,
+                                 vendor.profile.user_object)
+        response = self.client.post(url, data, follow=True)
+        vendor_reloaded = Vendor.objects.get(pk=vendor.pk)
+        self.assertEqual(vendor_reloaded.img, None)

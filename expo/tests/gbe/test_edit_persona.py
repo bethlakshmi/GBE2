@@ -13,7 +13,7 @@ from tests.functions.gbe_functions import (
     assert_alert_exists,
     login_as,
     location,
-    set_performer_image,
+    set_image,
 )
 from gbetext import default_edit_persona_msg
 from gbe.models import UserMessage
@@ -34,7 +34,6 @@ class TestEditPersona(TestCase):
         login_as(self.persona.performer_profile, self)
         old_name = self.persona.name
         new_name = "Fifi"
-        urlstring = '/persona/edit/%d' % self.persona.resourceitem_id
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
                       args=[self.persona.resourceitem_id])
@@ -76,7 +75,7 @@ class TestEditPersona(TestCase):
     def test_edit_persona_load_img(self):
         '''edit_troupe view, create flow
         '''
-        set_performer_image(self.persona)
+        set_image(self.persona)
 
         url = reverse(self.view_name,
                       urlconf="gbe.urls",
@@ -109,7 +108,7 @@ class TestEditPersona(TestCase):
         self.assertEqual(str(persona_reloaded.img), "gbe_pagebanner.png")
 
     def test_edit_persona_remove_image(self):
-        set_performer_image(self.persona)
+        set_image(self.persona)
         self.assertEqual(str(self.persona.img), "gbe_pagebanner.png")
         response, new_name = self.submit_persona(delete_image=True)
         persona_reloaded = Persona.objects.get(pk=self.persona.pk)

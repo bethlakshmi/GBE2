@@ -317,6 +317,7 @@ class MakeVolunteerView(MakeBidView):
         if not self.coordinator:
             notify_reviewers_on_bid_change(
                 self.owner,
+                self.bid_object,
                 self.bid_type,
                 self.action,
                 self.conference,

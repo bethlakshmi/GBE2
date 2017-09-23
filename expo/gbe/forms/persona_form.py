@@ -65,7 +65,8 @@ class PersonaForm (ModelForm):
                 performer.img_id = img.pk
             else:
                 performer.img = None
-        performer.save()
+        if commit:
+            performer.save()
 
         return performer
 
