@@ -170,19 +170,20 @@ def notify_reviewers_on_bid_change(bidder,
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
                User.objects.filter(groups__name=group_name, is_active=True)]
-    mail_send_gbe(
-        to_list,
-        template.sender.from_email,
-        template=name,
-        context={
-            'bidder': bidder,
-            'bid': bid,
-            'bid_type': bid_type,
-            'action': action,
-            'conference': conference,
-            'group_name': group_name,
-            'review_url': Site.objects.get_current().domain+review_url},
-        )
+    if len(to_list) > 0:
+        mail_send_gbe(
+            to_list,
+            template.sender.from_email,
+            template=name,
+            context={
+                'bidder': bidder,
+                'bid': bid,
+                'bid_type': bid_type,
+                'action': action,
+                'conference': conference,
+                'group_name': group_name,
+                'review_url': Site.objects.get_current().domain+review_url},
+            )
 
 
 def send_warnings_to_staff(bidder,
@@ -199,16 +200,16 @@ def send_warnings_to_staff(bidder,
     for warning in warnings:
         if 'email' in warning:
             to_list += [warning['email']]
-
-    mail_send_gbe(
-        to_list,
-        template.sender.from_email,
-        template=name,
-        context={
-            'bidder': bidder,
-            'bid_type': bid_type,
-            'warnings': warnings},
-        )
+    if len(to_list) > 0:
+        mail_send_gbe(
+            to_list,
+            template.sender.from_email,
+            template=name,
+            context={
+                'bidder': bidder,
+                'bid_type': bid_type,
+                'warnings': warnings},
+            )
 
 
 def get_user_email_templates(user):

@@ -32,6 +32,7 @@ from gbetext import (
 from gbe.models import UserMessage
 from expo.settings import DATETIME_FORMAT
 from post_office.models import EmailTemplate
+from django.core import mail
 
 
 class TestEditVolunteer(TestCase):
@@ -297,6 +298,25 @@ class TestEditVolunteer(TestCase):
             [self.privileged_profile.contact_email,
              context.profile.contact_email])
 
+    def test_volunteer_conflict_sends_warning_to_active_staff(self):
+        ProfileFactory(user_object__is_active=False)
+        response, context = self.post_conflict(staff=True)
+        assert_right_mail_right_addresses(
+            1,
+            3,
+            "URGENT: Volunteer Schedule Conflict Occurred",
+            [self.privileged_profile.contact_email,
+             context.profile.contact_email])
+
+    def test_volunteer_conflict_sends_warning_to_onlystaff(self):
+        response, context = self.post_conflict(staff=True)
+        assert_right_mail_right_addresses(
+            1,
+            3,
+            "URGENT: Volunteer Schedule Conflict Occurred",
+            [self.privileged_profile.contact_email,
+             context.profile.contact_email])
+
     def test_volunteer_conflict_sends_warning_no_staff(self):
         response, context = self.post_conflict(staff=False)
         assert_right_mail_right_addresses(
@@ -312,6 +332,14 @@ class TestEditVolunteer(TestCase):
             3,
             "Volunteer Update Occurred",
             [self.privileged_profile.contact_email])
+
+    def test_volunteer_conflict_emails_only_active(self):
+        self.privileged_profile.user_object.is_active = False
+        self.privileged_profile.user_object.save()
+        response, context = self.post_conflict(staff=True)
+        assert len(mail.outbox) == 2
+        assert mail.outbox[0].subject != "Volunteer Update Occurred"
+        assert mail.outbox[1].subject != "Volunteer Update Occurred"
 
     def test_volunteer_conflict_sends_notification_w_bid_details(self):
         EmailTemplate.objects.all().delete()
