@@ -1,0 +1,69 @@
+{% extends 'base.tmpl' %}
+
+{% block title %}
+   {{page_title}}
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Select Recipients</h3>
+  </div>
+  <div class="panel-body">
+  <font color="red">
+  {% if selection_form.errors %}
+    <p style= "color:red"> There is an error on the form.</p>
+  {% endif %}
+  {{ selection_form.non_field_errors }}</font>
+  <form action="" method="post" enctype="multipart/form-data">
+    <div class="email-select container">
+    <div class="row">
+    {# Include the visible fields #}
+    {% for field in selection_form.visible_fields %}
+      {% if forloop.first %}
+      <div class="col-md-5 col-sm-6 col-xs-12">
+      {% else %}
+      <div class="col-md-3 col-sm-2 col-xs-12">
+      {% endif %}
+	<label for="field.name" class="control-label">	      
+          {% if field.errors %}
+            <font color="red">!</font>&nbsp;&nbsp;
+	  {% elif field.css_classes == 'required' or field.name in submit_fields %}
+            <font color="red">*</font>
+          {% endif %} 
+          {% if field.errors %}
+            <font color="red">
+          {% endif %}
+          {% if field.name in draft_fields %}
+	      <b>{{ field.label_tag }}</b>
+          {% else %}
+            {{ field.label_tag }}
+	  {% endif %}
+          {% if field.errors %}
+            </font>
+          {% endif %} 
+ 	</label>
+        {{ field }}
+      {% if field.errors %}
+ 	<label for="field.name"><font color="red">{{ field.errors }}</font></label>
+      {% endif %}
+      </div>
+    {% endfor %}
+      <div class="col-md-1 col-sm-2 col-xs-12 email-submit">
+         <input type="submit" class="email-submit" name="submit" value="Filter">
+      </div></div></div>
+    </form>
+  </div>
+</div>
+{% if email_form %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Send Email</h3>
+  </div>
+  <div class="panel-body">
+    <div class="well">{{to_list}}</div>
+    {{email_form}}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

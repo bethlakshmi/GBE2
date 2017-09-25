@@ -179,6 +179,15 @@ div.side_box {
 @media (min-width:1200px){.bid_review{width:1100px}
 }
 
+@media (min-width:768px){.email-select{width:640px}
+}
+@media (min-width:992px){.email-select{width:860px}
+}
+@media (min-width:1200px){.email-select{width:1050px}
+}
+.email-select{padding:0px}
+#id_email-select-conference{width:250px}
+.email-submit{text-align:center}
 /* used in bid review and readonly forms */
 div.review-pane {
     border: 1px solid black;
@@ -702,6 +711,7 @@ div.gbe-alert
     display: block;
   }
 }
+
 /* --------------- / Responsive Fixes --------------- */
 
 
