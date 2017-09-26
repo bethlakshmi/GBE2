@@ -25,8 +25,10 @@ from gbe.email.forms import (
     SecretBidderInfoForm,
     SelectBidderForm,
 )
+from gbetext import send_email_success_msg
 from gbe.functions import validate_perms
 from django.db.models import Q
+from post_office import mail
 
 
 class MailToBiddersView(View):
@@ -91,6 +93,46 @@ class MailToBiddersView(View):
              "email_forms": [email_form, recipient_info],
              "to_list": to_list, })
 
+    def send_mail(self, request):
+        mail_form = AdHocEmailForm(request.POST)
+        recipient_info = SecretBidderInfoForm(request.POST,
+                                              prefix="email-select")
+        recipient_info.fields['bid_type'].choices = self.bid_type_choices
+        to_list = eval(request.POST["email-select-to_list"])
+        if mail_form.is_valid():
+            bcc = []
+            bcc_string = ""
+            for email, name in to_list.iteritems():
+                bcc += [email]
+                bcc_string = "%s (%s), %s" % (name, email, bcc_string)
+            
+            mail.send([mail_form.cleaned_data['sender']],
+                      mail_form.cleaned_data['sender'],
+                      subject=mail_form.cleaned_data['subject'],
+                      message=mail_form.cleaned_data['html_message'],
+                      priority='now',
+                      bcc=bcc
+                      )
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="SEND_SUCCESS",
+                defaults={
+                    'summary': "Email Sent to Bidders",
+                    'description': send_email_success_msg})
+            messages.success(
+                request,
+                user_message[0].description + bcc_string)
+            return HttpResponseRedirect(
+                reverse('mail_to_bidders', urlconf='gbe.email.urls'))
+
+        else:
+            return render(
+                request,
+                'gbe/email/mail_to_bidders.tmpl',
+                {"selection_form": self.select_form,
+                 "email_forms": [mail_form, recipient_info],
+                 "to_list": to_list, })
+    
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -108,19 +150,7 @@ class MailToBiddersView(View):
         if 'filter' in request.POST.keys() and self.select_form.is_valid():
             return self.filter_bids(request)
         elif 'send' in request.POST.keys():
-            mail_form = AdHocEmailForm(request.POST)
-            recipient_info = SecretBidderInfoForm(request.POST,
-                                                  prefix="email-select")
-            recipient_info.fields['bid_type'].choices = self.bid_type_choices
-            if mail_form.is_valid():
-                pass
-            else:
-                return render(
-                    request,
-                    'gbe/email/mail_to_bidders.tmpl',
-                     {"selection_form": self.select_form,
-                      "email_forms": [mail_form, recipient_info],
-                      "to_list": eval(request.POST["email-select-to_list"]), })
+            return self.send_mail(request)
         else:
             return render(
                 request,
