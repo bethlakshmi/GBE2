@@ -25,7 +25,10 @@ from gbe.email.forms import (
     SecretBidderInfoForm,
     SelectBidderForm,
 )
-from gbetext import send_email_success_msg
+from gbetext import (
+    send_email_success_msg,
+    to_list_empty_msg,
+)
 from gbe.functions import validate_perms
 from django.db.models import Q
 from post_office import mail
@@ -76,6 +79,20 @@ class MailToBiddersView(View):
             for bid in eval(bid_type).objects.filter(query):
                 to_list[bid.profile.user_object.email] = bid.profile.display_name
 
+        if len(to_list) == 0:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="NO_RECIPIENTs",
+                defaults={
+                    'summary': "Email Sent to Bidders",
+                    'description': to_list_empty_msg})
+            messages.error(
+                request,
+                user_message[0].description)
+            return render(
+                request,
+                'gbe/email/mail_to_bidders.tmpl',
+                {"selection_form": self.select_form})
         email_form = AdHocEmailForm(initial={'sender': self.user.user_object.email})
         recipient_info = SecretBidderInfoForm(initial={
             'conference': self.select_form.cleaned_data['conference'],
