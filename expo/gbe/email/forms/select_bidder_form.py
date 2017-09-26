@@ -1,6 +1,8 @@
 from django.forms import (
+    CharField,
     ChoiceField,
     Form,
+    HiddenInput,
     ModelChoiceField,
 )
 from gbetext import acceptance_states
@@ -16,6 +18,17 @@ class SelectBidderForm(Form):
     error_css_class = 'error'
     conference = ModelChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        empty_label=("All"))
-    bid_type = ChoiceField()
-    state = ChoiceField(choices=((('', 'All'),) + acceptance_states))
+        empty_label=("All"),
+        required=False)
+    bid_type = ChoiceField(required=False)
+    state = ChoiceField(choices=((('', 'All'),) + acceptance_states),
+                        required=False)
+
+class SecretBidderInfoForm(SelectBidderForm):
+    to_list = CharField(widget=HiddenInput())
+    conference = ModelChoiceField(
+        queryset=Conference.objects.all().order_by('conference_name'),
+        widget=HiddenInput())
+    bid_type = ChoiceField(widget=HiddenInput())
+    state = ChoiceField(widget=HiddenInput())
+
