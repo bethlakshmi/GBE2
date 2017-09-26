@@ -78,7 +78,8 @@ class MailToBiddersView(View):
 
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
-                to_list[bid.profile.user_object.email] = bid.profile.display_name
+                if bid.profile.user_object.is_active:
+                    to_list[bid.profile.user_object.email] = bid.profile.display_name
 
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
