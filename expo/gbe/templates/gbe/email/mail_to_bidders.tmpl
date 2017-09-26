@@ -1,13 +1,7 @@
 {% extends 'base.tmpl' %}
 
 {% block title %}
-  Send Email to Bidders
-{% endblock %}
-
-{% block head %}
- {% for email_form in email_forms %}
-  {{ email_form.media }}
- {% endfor %}
+   {{page_title}}
 {% endblock %}
 
 {% block content %}
@@ -22,7 +16,6 @@
   {% endif %}
   {{ selection_form.non_field_errors }}</font>
   <form action="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
     <div class="email-select container">
     <div class="row">
     {# Include the visible fields #}
@@ -57,39 +50,19 @@
       </div>
     {% endfor %}
       <div class="col-md-1 col-sm-2 col-xs-12 email-submit">
-         <input type="submit" class="email-submit" name="filter" value="Filter">
+         <input type="submit" class="email-submit" name="submit" value="Filter">
       </div></div></div>
     </form>
   </div>
 </div>
-{% if email_forms %}
+{% if email_form %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title">Send Email</h3>
   </div>
   <div class="panel-body">
-      <div class="panel-group">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" href="#to_list">Recipients...</a>
-            </h4>
-          </div>
-          <div id="to_list" class="panel-collapse collapse">
-            <div class="panel-body">
-              <i>Recipients will be BCC'd when the email is sent.
-              The "To:" address will be the same as the From address.</i></br>
-              {% for email, display_name in to_list.items %}
-                {{display_name}} &lt;{{email}}&gt;;
-              {% endfor %}</div>
-          </div>
-        </div>
-      </div>
-
-    <form action="" method="post" enctype="multipart/form-data"> 
-      {% include "form_table_wrapper.tmpl" with forms=email_forms %}
-      <input type="submit" class="email-submit" name="send" value="Send">
-    </form>
+    <div class="well">{{to_list}}</div>
+    {{email_form}}
   </div>
 </div>
 {% endif %}

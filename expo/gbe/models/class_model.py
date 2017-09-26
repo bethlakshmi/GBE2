@@ -156,10 +156,6 @@ class Class(Biddable, Event):
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1])
 
-    @property
-    def profile(self):
-        return self.teacher.contact
-
     def __str__(self):
         if self.e_title and len(self.e_title) > 0:
             return self.e_title

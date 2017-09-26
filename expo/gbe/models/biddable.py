@@ -58,8 +58,3 @@ class Biddable(Model):
     @property
     def bidder_is_active(self):
         return Biddable.objects.get_subclass(pk=self.pk).bidder_is_active
-
-    @property
-    def profile(self):
-        return Biddable.objects.get_subclass(pk=self.pk).profile
-    
