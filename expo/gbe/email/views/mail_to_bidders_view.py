@@ -1,5 +1,6 @@
 from django.views.generic import View
 from django.views.decorators.cache import never_cache
+from django.forms import HiddenInput
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
@@ -94,6 +95,8 @@ class MailToBiddersView(View):
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form})
         email_form = AdHocEmailForm(initial={'sender': self.user.user_object.email})
+        if not request.user.is_superuser:
+            email_form.fields['sender'].widget = HiddenInput()
         recipient_info = SecretBidderInfoForm(initial={
             'conference': self.select_form.cleaned_data['conference'],
             'bid_type': self.select_form.cleaned_data['bid_type'],
@@ -112,6 +115,8 @@ class MailToBiddersView(View):
 
     def send_mail(self, request):
         mail_form = AdHocEmailForm(request.POST)
+        if not request.user.is_superuser:
+            mail_form.fields['sender'].widget = HiddenInput()
         recipient_info = SecretBidderInfoForm(request.POST,
                                               prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
@@ -122,9 +127,13 @@ class MailToBiddersView(View):
             for email, name in to_list.iteritems():
                 bcc += [email]
                 bcc_string = "%s (%s), %s" % (name, email, bcc_string)
-            
-            mail.send([mail_form.cleaned_data['sender']],
-                      mail_form.cleaned_data['sender'],
+            if request.user.is_superuser:
+                sender = [mail_form.cleaned_data['sender']]
+            else:
+                sender = request.user.email
+
+            mail.send([sender],
+                      sender,
                       subject=mail_form.cleaned_data['subject'],
                       message=mail_form.cleaned_data['html_message'],
                       priority='now',
