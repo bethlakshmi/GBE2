@@ -29,6 +29,7 @@ from gbe.email.forms import (
 from gbetext import (
     send_email_success_msg,
     to_list_empty_msg,
+    unknown_request,
 )
 from gbe.functions import validate_perms
 from django.db.models import Q
@@ -178,12 +179,20 @@ class MailToBiddersView(View):
             return self.filter_bids(request)
         elif 'send' in request.POST.keys():
             return self.send_mail(request)
-        else:
-            return render(
+        user_message = UserMessage.objects.get_or_create(
+            view=self.__class__.__name__,
+            code="UNKNOWN_ACTION",
+            defaults={
+                'summary': "Unknown Request",
+                'description': unknown_request})
+        messages.error(
                 request,
-                'gbe/email/mail_to_bidders.tmpl',
-                {"selection_form": self.select_form, }
-                 )
+                user_message[0].description)
+        return render(
+            request,
+            'gbe/email/mail_to_bidders.tmpl',
+            {"selection_form": self.select_form, }
+            )
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

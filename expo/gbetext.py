@@ -438,3 +438,4 @@ template.  The Email Template name is '''
 send_email_success_msg = '''A mail was successfully sent to '''
 to_list_empty_msg = '''No recipients were found for your search criteria.  \
                     Please try something else'''
+unknown_request = '''This request makes no sense'''

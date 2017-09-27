@@ -18,9 +18,10 @@ from tests.contexts.class_context import (
     ClassContext,
 )
 from gbetext import (
+    acceptance_states,
     send_email_success_msg,
     to_list_empty_msg,
-    acceptance_states,
+    unknown_request,
 )
 from django.contrib.auth.models import User
 
@@ -300,7 +301,6 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        print response.content
         self.assertContains(
             response,
             "%s &lt;%s&gt;;" % (
@@ -361,3 +361,14 @@ class TestMailToBidder(TestCase):
             '<option value="%d" selected="selected">%s</option>' % (
                 3,
                 "Accepted"))
+
+    def test_pick_no_post_action(self):
+        second_class = ClassFactory(accepted=2)
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-state': 3,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        print response.content
+        assert_alert_exists(
+            response, 'danger', 'Error', unknown_request)
