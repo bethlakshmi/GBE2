@@ -184,7 +184,6 @@ class MailToBiddersView(View):
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form, }
                  )
-        
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

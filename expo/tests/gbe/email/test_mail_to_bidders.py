@@ -9,6 +9,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
+    assert_right_mail_right_addresses,
     grant_privilege,
     is_login_page,
     login_as,
@@ -88,6 +89,9 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             '<option value="%s">%s</option>' % ("Act", "Act"))
+        self.assertNotContains(
+            response,
+            '<option value="%s">%s</option>' % ("Class", "Class"))
 
     def test_full_login_first_get_2_conf(self):
         extra_conf = ConferenceFactory()
@@ -149,6 +153,19 @@ class TestMailToBidder(TestCase):
             response,
             second_class.teacher.contact.user_object.email)
 
+    def test_pick_forbidden_bid_type_reduced_priv(self):
+        second_bid = ActFactory()
+        self.reduced_login()
+        data = {
+            'email-select-bid_type': "Class",
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice. Class is not one of the available choices.'
+            )
+
     def test_pick_all_reduced_priv(self):
         second_bid = ActFactory()
         self.reduced_login()
@@ -196,7 +213,7 @@ class TestMailToBidder(TestCase):
             '<input id="id_sender" name="sender" type="hidden" value="%s" />' % (
                 reduced_profile.user_object.email))
 
-    def test_send_email_success(self):
+    def test_send_email_success_status(self):
         login_as(self.privileged_profile, self)
         to_list = {}
         to_list[self.context.teacher.contact.user_object.email] = \
@@ -214,3 +231,133 @@ class TestMailToBidder(TestCase):
                 send_email_success_msg,
                 self.context.teacher.contact.display_name,
                 self.context.teacher.contact.user_object.email))
+
+    def test_send_email_success_email_sent(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_right_mail_right_addresses(
+            0,
+            1,
+            data['subject'],
+            [data['sender']],
+            data['sender'],
+            [self.context.teacher.contact.user_object.email, ])
+
+    def test_send_email_reduced_w_fixed_from(self):
+        reduced_profile = self.reduced_login()
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_right_mail_right_addresses(
+            0,
+            1,
+            data['subject'],
+            [reduced_profile.user_object.email],
+            reduced_profile.user_object.email,
+            [self.context.teacher.contact.user_object.email, ])
+
+    def test_send_email_failure(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response, "This field is required.")
+
+    def test_send_email_failure_preserve_to_list(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        print response.content
+        self.assertContains(
+            response,
+            "%s &lt;%s&gt;;" % (
+                self.context.teacher.contact.display_name,
+                self.context.teacher.contact.user_object.email))
+
+    def test_send_email_failure_preserve_conference_choice(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'email-select-conference': self.context.conference.pk,
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                self.context.conference.pk,
+                self.context.conference.conference_name))
+
+    def test_send_email_failure_preserve_bid_type_choice(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'email-select-bid_type': "Class",
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            '<option value="Class" selected="selected">Class</option>')
+
+    def test_send_email_failure_preserve_state_choice(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'email-select-state': 3,
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                3,
+                "Accepted"))

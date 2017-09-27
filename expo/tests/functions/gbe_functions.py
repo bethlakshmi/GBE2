@@ -178,12 +178,15 @@ def assert_right_mail_right_addresses(
         num_email,
         expected_subject,
         to_email_array,
-        from_email=settings.DEFAULT_FROM_EMAIL):
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        bcc=None):
     assert num_email == len(mail.outbox)
     msg = mail.outbox[queue_order]
     assert msg.subject == expected_subject
     assert msg.to == to_email_array
     assert msg.from_email == from_email
+    if bcc:
+        assert msg.bcc == bcc
 
 
 def make_act_app_purchase(conference, user_object):
