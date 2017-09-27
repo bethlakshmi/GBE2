@@ -8,6 +8,7 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
 )
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     grant_privilege,
     is_login_page,
     login_as,
@@ -15,7 +16,13 @@ from tests.functions.gbe_functions import (
 from tests.contexts.class_context import (
     ClassContext,
 )
-from gbetext import acceptance_states
+from gbetext import (
+    send_email_success_msg,
+    to_list_empty_msg,
+    acceptance_states,
+)
+from django.contrib.auth.models import User
+
 
 class TestMailToBidder(TestCase):
     view_name = 'mail_to_bidders'
@@ -23,7 +30,10 @@ class TestMailToBidder(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.privileged_profile = ProfileFactory()
+        self.privileged_user = User.objects.create_superuser(
+            'myuser', 'myemail@test.com', "mypassword")
+        self.privileged_profile = ProfileFactory(
+            user_object=self.privileged_user)
         for priv in self.priv_list:
             grant_privilege(
                 self.privileged_profile.user_object,
@@ -152,3 +162,37 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             second_bid.performer.contact.user_object.email)
+
+    def test_pick_no_bidders(self):
+        reduced_profile = self.reduced_login()
+        data = {
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response, 'danger', 'Error', to_list_empty_msg)
+
+    def test_pick_admin_has_from(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        print response.content
+
+        self.assertContains(
+            response,
+            '<input id="id_sender" name="sender" type="email" value="%s" />' % (
+                self.privileged_profile.user_object.email))
+
+    def test_pick_no_admin_fixed_email(self):
+        ActFactory()
+        reduced_profile = self.reduced_login()
+        data = {
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            '<input id="id_sender" name="sender" type="hidden" value="%s" />' % (
+                reduced_profile.user_object.email))
