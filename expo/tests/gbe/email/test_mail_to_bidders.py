@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
+    ActFactory,
+    ClassFactory,
     ConferenceFactory,
     ProfileFactory,
 )
@@ -10,7 +12,9 @@ from tests.functions.gbe_functions import (
     is_login_page,
     login_as,
 )
-from tests.contexts.class_context import ClassContext
+from tests.contexts.class_context import (
+    ClassContext,
+)
 from gbetext import acceptance_states
 
 class TestMailToBidder(TestCase):
@@ -89,3 +93,62 @@ class TestMailToBidder(TestCase):
             '<option value="%s">%s</option>' % (
                 extra_conf.pk,
                 extra_conf.conference_name))
+
+    def test_pick_conf_bidder(self):
+        second_context = ClassContext()
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-conference': self.context.conference.pk,
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            second_context.teacher.contact.user_object.email)
+
+    def test_pick_class_bidder(self):
+        second_bid = ActFactory()
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-bid_type': "Class",
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            second_bid.performer.contact.user_object.email)
+
+    def test_pick_status_bidder(self):
+        second_class = ClassFactory(accepted=2)
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-state': 3,
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            second_class.teacher.contact.user_object.email)
+
+    def test_pick_all_reduced_priv(self):
+        second_bid = ActFactory()
+        self.reduced_login()
+        data = {
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            second_bid.performer.contact.user_object.email)
