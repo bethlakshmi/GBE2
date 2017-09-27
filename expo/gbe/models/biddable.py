@@ -62,4 +62,3 @@ class Biddable(Model):
     @property
     def profile(self):
         return Biddable.objects.get_subclass(pk=self.pk).profile
-    

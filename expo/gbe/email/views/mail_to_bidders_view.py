@@ -45,7 +45,7 @@ class MailToBiddersView(View):
                             ]
 
     def groundwork(self, request, args, kwargs):
-        self.bid_type_choices = [('','All')]
+        self.bid_type_choices = [('', 'All')]
         self.user = validate_perms(request, self.reviewer_permissions)
         priv_list = self.user.get_email_privs()
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
@@ -80,7 +80,8 @@ class MailToBiddersView(View):
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
                 if bid.profile.user_object.is_active:
-                    to_list[bid.profile.user_object.email] = bid.profile.display_name
+                    to_list[bid.profile.user_object.email] = \
+                        bid.profile.display_name
 
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
@@ -96,7 +97,8 @@ class MailToBiddersView(View):
                 request,
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form})
-        email_form = AdHocEmailForm(initial={'sender': self.user.user_object.email})
+        email_form = AdHocEmailForm(initial={
+            'sender': self.user.user_object.email})
         if not request.user.is_superuser:
             email_form.fields['sender'].widget = HiddenInput()
         recipient_info = SecretBidderInfoForm(initial={
@@ -104,7 +106,7 @@ class MailToBiddersView(View):
             'bid_type': self.select_form.cleaned_data['bid_type'],
             'state': self.select_form.cleaned_data['state'],
             'to_list': to_list,
-            },prefix="email-select")
+            }, prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
         recipient_info.fields['to_list'].initial = to_list
 
@@ -160,7 +162,7 @@ class MailToBiddersView(View):
                 {"selection_form": self.select_form,
                  "email_forms": [mail_form, recipient_info],
                  "to_list": to_list, })
-    
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -170,7 +172,7 @@ class MailToBiddersView(View):
             'gbe/email/mail_to_bidders.tmpl',
             {"selection_form": self.select_form, }
              )
-    
+
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):

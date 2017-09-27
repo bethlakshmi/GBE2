@@ -51,7 +51,7 @@ class TestMailToBidder(TestCase):
             '%s Coordinator' % "Act")
         login_as(reduced_profile, self)
         return reduced_profile
-    
+
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
         redirect_url = "%s/?next=/email/mail_to_bidders" % (
@@ -199,8 +199,8 @@ class TestMailToBidder(TestCase):
 
         self.assertContains(
             response,
-            '<input id="id_sender" name="sender" type="email" value="%s" />' % (
-                self.privileged_profile.user_object.email))
+            '<input id="id_sender" name="sender" type="email" ' +
+            'value="%s" />' % (self.privileged_profile.user_object.email))
 
     def test_pick_no_admin_fixed_email(self):
         ActFactory()
@@ -211,8 +211,8 @@ class TestMailToBidder(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
             response,
-            '<input id="id_sender" name="sender" type="hidden" value="%s" />' % (
-                reduced_profile.user_object.email))
+            '<input id="id_sender" name="sender" type="hidden" ' +
+            'value="%s" />' % (reduced_profile.user_object.email))
 
     def test_send_email_success_status(self):
         login_as(self.privileged_profile, self)

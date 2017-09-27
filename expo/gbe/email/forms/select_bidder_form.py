@@ -24,6 +24,7 @@ class SelectBidderForm(Form):
     state = ChoiceField(choices=((('', 'All'),) + acceptance_states),
                         required=False)
 
+
 class SecretBidderInfoForm(SelectBidderForm):
     to_list = CharField(widget=HiddenInput())
     conference = ModelChoiceField(
@@ -31,4 +32,3 @@ class SecretBidderInfoForm(SelectBidderForm):
         widget=HiddenInput())
     bid_type = ChoiceField(widget=HiddenInput())
     state = ChoiceField(widget=HiddenInput())
-
