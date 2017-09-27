@@ -172,13 +172,12 @@ class TestMailToBidder(TestCase):
         assert_alert_exists(
             response, 'danger', 'Error', to_list_empty_msg)
 
-    def test_pick_admin_has_from(self):
+    def test_pick_admin_has_sender(self):
         login_as(self.privileged_profile, self)
         data = {
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
-        print response.content
 
         self.assertContains(
             response,
@@ -196,3 +195,22 @@ class TestMailToBidder(TestCase):
             response,
             '<input id="id_sender" name="sender" type="hidden" value="%s" />' % (
                 reduced_profile.user_object.email))
+
+    def test_send_email_success(self):
+        login_as(self.privileged_profile, self)
+        to_list = {}
+        to_list[self.context.teacher.contact.user_object.email] = \
+            self.context.teacher.contact.display_name
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'email-select-to_list': str(to_list),
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response, 'success', 'Success', "%s%s (%s), " % (
+                send_email_success_msg,
+                self.context.teacher.contact.display_name,
+                self.context.teacher.contact.user_object.email))

@@ -129,11 +129,11 @@ class MailToBiddersView(View):
                 bcc += [email]
                 bcc_string = "%s (%s), %s" % (name, email, bcc_string)
             if request.user.is_superuser:
-                sender = [mail_form.cleaned_data['sender']]
+                sender = mail_form.cleaned_data['sender']
             else:
                 sender = request.user.email
 
-            mail.send([sender],
+            mail.send(sender,
                       sender,
                       subject=mail_form.cleaned_data['subject'],
                       message=mail_form.cleaned_data['html_message'],
