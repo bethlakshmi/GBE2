@@ -14,7 +14,7 @@ class ShowScheduleForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
     e_description = CharField(
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20},),
         label=event_labels['e_description'])
 
     class Meta:
