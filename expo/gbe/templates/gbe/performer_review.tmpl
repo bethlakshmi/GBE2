@@ -10,7 +10,8 @@
   <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Stage Name:</div>
   <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{{performer.name}}</div>
   <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Web Site:</div>
-  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info"><a href="{{performer.homepage}}">Web Site</a></div>
+  <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{% if performer.homepage %}
+   <a href="{{performer.homepage}}">Web Site{%else%}No Website{% endif %}</a></div>
   <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Experience:</div>
   <div class="col-md-5 col-sm-3 col-xs-12 read-only-info">{{performer.experience}}</div>
   <div class="col-md-3 col-sm-3 col-xs-12 read-only-label">Awards:</div>

@@ -15,6 +15,7 @@ from gbetext import (
     acceptance_states,
     boolean_options,
 )
+from gbe_forms_text import vendor_schedule_options
 from filer.fields.image import FilerImageField
 
 
@@ -83,6 +84,14 @@ class Vendor(Biddable):
             visible_bid_query,
             submitted=True,
             accepted=0)
+
+    @property
+    def get_help_times_display(self):
+        choices = []
+        for choice in vendor_schedule_options:
+            if choice[0] in self.help_times:
+                choices += [choice[1]]
+        return choices
 
     class Meta:
         app_label = "gbe"
