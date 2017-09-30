@@ -9,7 +9,6 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
-    assert_right_mail_right_addresses,
     grant_privilege,
     is_login_page,
     login_as,
@@ -24,6 +23,7 @@ from gbetext import (
     unknown_request,
 )
 from django.contrib.auth.models import User
+from post_office.models import Email
 
 
 class TestMailToBidder(TestCase):
@@ -51,6 +51,17 @@ class TestMailToBidder(TestCase):
             '%s Coordinator' % "Act")
         login_as(reduced_profile, self)
         return reduced_profile
+
+    def assert_queued_email(self, to_list, subject, message, sender):
+        queued_email = Email.objects.filter(
+            status=2,
+            subject=subject,
+            html_message=message,
+            from_email=sender,
+            )
+        for recipient in to_list:
+            assert queued_email.filter(
+                to=recipient).exists()
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
@@ -246,13 +257,12 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        assert_right_mail_right_addresses(
-            0,
-            1,
+        self.assert_queued_email(
+            [self.context.teacher.contact.user_object.email, ],
             data['subject'],
-            [data['sender']],
+            data['html_message'],
             data['sender'],
-            [self.context.teacher.contact.user_object.email, ])
+            )
 
     def test_send_email_reduced_w_fixed_from(self):
         reduced_profile = self.reduced_login()
@@ -267,13 +277,12 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        assert_right_mail_right_addresses(
-            0,
-            1,
+        self.assert_queued_email(
+            [self.context.teacher.contact.user_object.email, ],
             data['subject'],
-            [reduced_profile.user_object.email],
+            data['html_message'],
             reduced_profile.user_object.email,
-            [self.context.teacher.contact.user_object.email, ])
+            )
 
     def test_send_email_failure(self):
         login_as(self.privileged_profile, self)

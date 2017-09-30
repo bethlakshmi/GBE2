@@ -77,8 +77,6 @@
           </div>
           <div id="to_list" class="panel-collapse collapse">
             <div class="panel-body">
-              <i>Recipients will be BCC'd when the email is sent.
-              The "To:" address will be the same as the From address.</i></br>
               {% for email, display_name in to_list.items %}
                 {{display_name}} &lt;{{email}}&gt;;
               {% endfor %}</div>

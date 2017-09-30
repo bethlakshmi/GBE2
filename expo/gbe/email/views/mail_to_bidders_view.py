@@ -138,7 +138,7 @@ class MailToBiddersView(View):
                     'sender': sender,
                     'recipients': [email],
                     'subject': mail_form.cleaned_data['subject'],
-                    'message': mail_form.cleaned_data['html_message'], }]
+                    'html_message': mail_form.cleaned_data['html_message'], }]
                 recipient_string = "%s (%s), %s" % (name, email, recipient_string)
 
             mail.send_many(email_batch)
