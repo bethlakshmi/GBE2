@@ -85,7 +85,8 @@ class ClassBidForm(ClassBidDraftForm):
                 self.cleaned_data['schedule_constraints']).intersection(
                 self.cleaned_data['avoided_constraints'])
         if len(conflict_windows) > 0:
-            windows = ", ".join(str(w) for w in conflict_windows)
+            windows = ", ".join(
+                class_schedule_options[int(w)][1] for w in conflict_windows)
             self._errors['schedule_constraints'] = \
                 available_time_conflict % windows
             self._errors['avoided_constraints'] = \
