@@ -126,23 +126,22 @@ class MailToBiddersView(View):
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
         to_list = eval(request.POST["email-select-to_list"])
         if mail_form.is_valid():
-            bcc = []
-            bcc_string = ""
-            for email, name in to_list.iteritems():
-                bcc += [email]
-                bcc_string = "%s (%s), %s" % (name, email, bcc_string)
+            email_batch = []
+            recipient_string = ""
             if request.user.is_superuser:
                 sender = mail_form.cleaned_data['sender']
             else:
                 sender = request.user.email
 
-            mail.send(sender,
-                      sender,
-                      subject=mail_form.cleaned_data['subject'],
-                      message=mail_form.cleaned_data['html_message'],
-                      priority='now',
-                      bcc=bcc
-                      )
+            for email, name in to_list.iteritems():
+                email_batch += [{
+                    'sender': sender,
+                    'recipients': [email],
+                    'subject': mail_form.cleaned_data['subject'],
+                    'message': mail_form.cleaned_data['html_message'], }]
+                recipient_string = "%s (%s), %s" % (name, email, recipient_string)
+
+            mail.send_many(email_batch)
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="SEND_SUCCESS",
@@ -151,7 +150,7 @@ class MailToBiddersView(View):
                     'description': send_email_success_msg})
             messages.success(
                 request,
-                user_message[0].description + bcc_string)
+                user_message[0].description + recipient_string)
             return HttpResponseRedirect(
                 reverse('mail_to_bidders', urlconf='gbe.email.urls'))
 
