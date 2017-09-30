@@ -1,4 +1,5 @@
 from django.forms import (
+    CharField,
     ChoiceField,
     ModelForm,
 )
@@ -8,6 +9,7 @@ from gbe_forms_text import (
     event_labels,
 )
 from gbetext import new_event_options
+from tinymce.widgets import TinyMCE
 
 
 class GenericEventScheduleForm(ModelForm):
@@ -16,6 +18,9 @@ class GenericEventScheduleForm(ModelForm):
     type = ChoiceField(
         choices=new_event_options,
         help_text=event_help_texts['type'])
+    e_description = CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        label=event_labels['e_description'])
 
     class Meta:
         model = GenericEvent

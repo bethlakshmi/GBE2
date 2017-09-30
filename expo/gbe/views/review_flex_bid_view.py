@@ -118,6 +118,7 @@ class FlexibleReviewBidView(ReviewBidView):
             request,
             self.review_template,
             {'readonlyform': self.readonlyform_pieces,
+             'performer': self.object.performer,
              'reviewer': self.reviewer,
              'form': self.form,
              'notes_form': self.notes_form,
@@ -180,7 +181,6 @@ class FlexibleReviewBidView(ReviewBidView):
         self.categories = EvaluationCategory.objects.filter(
                     visible=True)
         super(FlexibleReviewBidView, self).groundwork(request, args, kwargs)
-        self.bidder = get_performer_form(self.object.performer)
         if self.object.b_conference.act_style == "summer":
             self.object_form = get_act_form(
                 self.object,
@@ -191,7 +191,7 @@ class FlexibleReviewBidView(ReviewBidView):
                 self.object,
                 ActEditForm,
                 "The Act")
-        self.readonlyform_pieces = [self.object_form, self.bidder]
+        self.readonlyform_pieces = [self.object_form]
         self.bid_notes = ActBidEvaluation.objects.filter(
             bid_id=self.object.pk,
             evaluator_id=self.reviewer.resourceitem_id).first()

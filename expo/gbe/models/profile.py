@@ -66,6 +66,10 @@ class Profile(WorkerItem):
     how_heard = TextField(blank=True)
 
     @property
+    def how_heard_list(self):
+        return eval(self.how_heard)
+
+    @property
     def complete(self):
         return self.display_name and self.phone
 

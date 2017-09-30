@@ -9,6 +9,7 @@
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
     <!-- Fonts -->
     <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
+    {{ form.media }}
 {% endblock %}
 {% block content %}
  
@@ -16,11 +17,10 @@
 <a href="{% url 'scheduler:event_schedule' %}">Scheduler</a> >>
 <a href="{% url 'scheduler:event_schedule' event_type %}">Schedule {{event_type}}</a>
 
-
-<H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
-    <div class="sched_block">
+<div><H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
+  <div class="sched_block">
       <div class="sched_desc">
-	 {{eventitem.event.payload.description}}
+	 {{eventitem.event.payload.description|safe}}
        <div class="sched_details">
         {% for name, value in eventitem.event.payload.details.items %}
         <label class="sched_detail">
@@ -33,17 +33,8 @@
 	      {{value |safe}}:
 	  {% endfor %}
 	</label> {{value}}<br>
-	{% endautoescape %}
-        {% endfor %}
-
+	{% endautoescape %}{% endfor %}
        </div>
-   
-  {% if form %}
-  <form method="POST" action="{{event_edit_url}}" enctype="multipart/form-data">
-
-  {% include "form_table.tmpl" %}
-  <input type = "submit" name="submit" value="Submit">
-  </form>
       </div>
       <div class='sched_sidebar'>
       {% if eventitem.scheduled_events %}
@@ -68,7 +59,12 @@
       {% endif %}
       </div>
   </div>
+  {% if form %}
+  <form method="POST" action="{{event_edit_url}}" enctype="multipart/form-data">
 
+  {% include "form_table.tmpl" %}
+  <input type = "submit" name="submit" value="Submit">
+  </form>
     {% if event_id %}
     <table> 
     <tr>

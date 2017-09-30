@@ -183,8 +183,8 @@ class TestCreateOccurrence(TestCase):
                                     data=form_data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('<input id="id_event-e_title" maxlength="128" ' +
-                      'name="event-e_title" type="text" value="New Title" />',
+        self.assertIn('<input id="id_event-e_title" name="event-e_title" ' +
+                      'size="79" type="text" value="New Title" />',
                       response.content)
         self.assertIn("New Description",
                       response.content)
