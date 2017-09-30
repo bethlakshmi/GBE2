@@ -169,20 +169,21 @@ def notify_reviewers_on_bid_change(bidder,
         "bid_submitted",
         "%s %s Occurred" % (bid_type, action))
     to_list = [user.email for user in
-               User.objects.filter(groups__name=group_name)]
-    mail_send_gbe(
-        to_list,
-        template.sender.from_email,
-        template=name,
-        context={
-            'bidder': bidder,
-            'bid': bid,
-            'bid_type': bid_type,
-            'action': action,
-            'conference': conference,
-            'group_name': group_name,
-            'review_url': Site.objects.get_current().domain+review_url},
-        )
+               User.objects.filter(groups__name=group_name, is_active=True)]
+    if len(to_list) > 0:
+        mail_send_gbe(
+            to_list,
+            template.sender.from_email,
+            template=name,
+            context={
+                'bidder': bidder,
+                'bid': bid,
+                'bid_type': bid_type,
+                'action': action,
+                'conference': conference,
+                'group_name': group_name,
+                'review_url': Site.objects.get_current().domain+review_url},
+            )
 
 
 def send_warnings_to_staff(bidder,
@@ -194,20 +195,21 @@ def send_warnings_to_staff(bidder,
         "schedule_conflict",
         "URGENT: %s Schedule Conflict Occurred" % (bid_type))
     to_list = [user.email for user in
-               User.objects.filter(groups__name='%s Coordinator' % bid_type)]
+               User.objects.filter(groups__name='%s Coordinator' % bid_type,
+                                   is_active=True)]
     for warning in warnings:
         if 'email' in warning:
             to_list += [warning['email']]
-
-    mail_send_gbe(
-        to_list,
-        template.sender.from_email,
-        template=name,
-        context={
-            'bidder': bidder,
-            'bid_type': bid_type,
-            'warnings': warnings},
-        )
+    if len(to_list) > 0:
+        mail_send_gbe(
+            to_list,
+            template.sender.from_email,
+            template=name,
+            context={
+                'bidder': bidder,
+                'bid_type': bid_type,
+                'warnings': warnings},
+            )
 
 
 def get_user_email_templates(user):
