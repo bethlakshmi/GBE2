@@ -153,10 +153,10 @@ volunteer_help_texts = {
     in the box below.')
 }
 
-volunteer_available_time_conflict = \
+available_time_conflict = \
     'Available times conflict with unavailable times.  Conflicts are: %s'
 
-volunteer_unavailable_time_conflict = \
+unavailable_time_conflict = \
     'Unavailable times conflict with Available times.'
 
 phone_error1 = ['Phone number needed here']
