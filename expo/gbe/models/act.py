@@ -205,6 +205,10 @@ class Act (Biddable, ActItem):
     def bidder_is_active(self):
         return self.performer.contact.user_object.is_active
 
+    @property
+    def profile(self):
+        return self.performer.contact
+
     def __str__(self):
         return "%s: %s" % (str(self.performer), self.b_title)
 
