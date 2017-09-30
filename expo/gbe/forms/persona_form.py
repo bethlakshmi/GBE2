@@ -1,4 +1,5 @@
 from django.forms import (
+    CharField,
     HiddenInput,
     ImageField,
     ModelForm,
@@ -12,6 +13,7 @@ from gbe.expoformfields import FriendlyURLInput
 from filer.models.imagemodels import Image
 from filer.models.foldermodels import Folder
 from django.contrib.auth.models import User
+from tinymce.widgets import TinyMCE
 
 
 class PersonaForm (ModelForm):
@@ -22,6 +24,17 @@ class PersonaForm (ModelForm):
         label=persona_labels['promo_image'],
         required=False,
     )
+    bio = CharField(
+        widget=TinyMCE(
+            attrs={'cols': 80, 'rows': 20},
+            mce_attrs={
+                'theme_advanced_buttons1': "bold,italic,underline,|," +
+                "justifyleft,justifycenter,justifyright,|,bullist,numlist,|," +
+                "cut,copy,paste",
+                'theme_advanced_buttons2': "",
+                'theme_advanced_buttons3': "", }),
+        label=persona_labels['bio'],
+        help_text=persona_help_texts['bio'])
 
     def __init__(self, *args, **kwargs):
         super(ModelForm, self).__init__(*args, **kwargs)

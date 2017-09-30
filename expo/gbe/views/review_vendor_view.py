@@ -19,3 +19,12 @@ class ReviewVendorView(ReviewBidView):
         self.object_form = self.bid_form_type(instance=self.object,
                                               prefix=self.bid_prefix)
         self.readonlyform_pieces = [self.object_form]
+
+    def make_context(self):
+        return {'vendor': self.object,
+                'reviewer': self.reviewer,
+                'form': self.form,
+                'actionform': self.actionform,
+                'actionURL': self.actionURL,
+                'conference': self.b_conference,
+                'old_bid': self.old_bid, }

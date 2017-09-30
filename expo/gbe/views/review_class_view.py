@@ -5,6 +5,7 @@ from gbe.forms import (
 from gbe.models import Class
 from gbe.views import ReviewBidView
 from gbe.views.functions import get_participant_form
+from gbe.views.class_display_functions import get_scheduling_info
 
 
 class ReviewClassView(ReviewBidView):
@@ -21,11 +22,13 @@ class ReviewClassView(ReviewBidView):
 
     def groundwork(self, request, args, kwargs):
         super(ReviewClassView, self).groundwork(request, args, kwargs)
-        self.create_object_form()
-        self.teacher = self.bidder_form_type(instance=self.object.teacher,
-                                             prefix=self.bidder_prefix)
-        self.contact = get_participant_form(
-            self.object.teacher.performer_profile,
-            prefix=self.bidder_prefix)
-        self.readonlyform_pieces = (self.object_form,
-                                    self.teacher, self.contact)
+        self.readonlyform_pieces = None
+        self.performer = self.object.teacher
+
+    def make_context(self):
+        context = super(ReviewClassView, self).make_context()
+        context['class'] = self.object
+        context['scheduling_info'] = get_scheduling_info(self.object)
+        context['performer'] = self.performer
+        context['display_contact_info'] = True
+        return context

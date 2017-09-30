@@ -1,5 +1,6 @@
 from django.forms import (
     BooleanField,
+    CharField,
     ChoiceField,
     IntegerField,
     HiddenInput,
@@ -14,6 +15,7 @@ from gbe_forms_text import (
 )
 from gbetext import acceptance_states
 from gbe.forms.common_queries import visible_personas
+from tinymce.widgets import TinyMCE
 
 
 class ClassScheduleForm(ModelForm):
@@ -24,6 +26,9 @@ class ClassScheduleForm(ModelForm):
         widget=HiddenInput)
     teacher = ModelChoiceField(queryset=visible_personas)
     submitted = BooleanField(widget=HiddenInput, initial=True)
+    e_description = CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        label=classbid_labels['e_description'])
 
     class Meta:
         model = Class

@@ -4,6 +4,7 @@ from gbe.forms import (
     PersonaForm,
 )
 from gbe.views import ViewBidView
+from gbe.views.class_display_functions import get_scheduling_info
 
 
 class ViewClassView(ViewBidView):
@@ -13,12 +14,15 @@ class ViewClassView(ViewBidView):
     bid_prefix = 'The Class'
     owner_prefix = 'The Teacher(s)'
 
-    def get_display_forms(self):
-        bid_form = self.object_form_type(instance=self.bid,
-                                         prefix=self.bid_prefix)
-        persona_form = PersonaForm(instance=self.bid.teacher,
-                                   prefix=self.owner_prefix)
-        return (bid_form, persona_form)
-
     def get_owner_profile(self):
         return self.bid.teacher.contact
+
+    def make_context(self):
+        context = {'performer': self.bid.teacher,
+                   'class': self.bid,
+                   'scheduling_info': get_scheduling_info(self.bid),
+                   'display_contact_info': True}
+        return context
+
+    def get_display_forms(self):
+        pass
