@@ -45,3 +45,15 @@ class TestViewTroupe(TestCase):
         login_as(user, self)
         response = self.client.get(url)
         nt.assert_equal(302, response.status_code)
+
+    def test_review_class_no_state_in_profile(self):
+        troupe = TroupeFactory()
+        troupe.contact.state = ''
+        troupe.contact.save()
+        url = reverse('troupe_view',
+                      args=[troupe.resourceitem_id],
+                      urlconf='gbe.urls')
+
+        login_as(troupe.contact.profile.user_object, self)
+        response = self.client.get(url)
+        assert 'No State Chosen' in response.content
