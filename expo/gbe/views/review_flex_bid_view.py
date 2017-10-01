@@ -37,7 +37,6 @@ from gbetext import (
     default_act_review_error_msg,
     default_act_review_success_msg,
 )
-from gbe.views.functions import get_performer_form
 from gbe.views import ReviewBidView
 from scheduler.models import ActResource
 

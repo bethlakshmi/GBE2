@@ -64,7 +64,7 @@ class WorkerItemFactory(DjangoModelFactory):
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
-    first_name = Sequence(lambda n: 'John_%d' % n)
+    first_name = Sequence(lambda n: 'John_%s' % str(n))
     last_name = 'Smith'
     username = LazyAttribute(lambda a: "%s" % (a.first_name))
     email = LazyAttribute(lambda a: '%s@smith.com' % (a.username))

@@ -23,6 +23,3 @@ class ViewClassView(ViewBidView):
                    'scheduling_info': get_scheduling_info(self.bid),
                    'display_contact_info': True}
         return context
-
-    def get_display_forms(self):
-        pass

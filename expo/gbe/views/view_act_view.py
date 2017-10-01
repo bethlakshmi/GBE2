@@ -6,7 +6,6 @@ from gbe.models import (
     Act,
 )
 from gbe.views import ViewBidView
-from gbe.views.functions import get_performer_form
 from gbe.views.act_display_functions import get_act_form
 
 

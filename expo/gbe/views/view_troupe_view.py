@@ -5,17 +5,13 @@ from django.shortcuts import (
 )
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-
+from django.forms import ModelChoiceField
 from expo.gbe_logging import log_func
-from gbe.forms import (
-    ParticipantForm,
-    TroupeForm,
-)
+from gbe.forms import TroupeForm
 from gbe.functions import validate_profile
 from gbe.models import Troupe
 from gbe.views.functions import (
     get_participant_form,
-    get_performer_form,
 )
 
 
@@ -34,10 +30,13 @@ def ViewTroupeView(request, troupe_id=None):
                                             urlconf='gbe.urls'))
 
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
-    form = get_performer_form(troupe, perf_type='Troupe')
+    performer_form = TroupeForm(instance=troupe,
+                                prefix="The Troupe")
+    performer_form.fields['membership'] = ModelChoiceField(
+        queryset=troupe.membership.all())
     owner = get_participant_form(
             profile,
             prefix='Troupe Contact')
     return render(request,
                   'gbe/bid_view.tmpl',
-                  {'readonlyform': [form, owner]})
+                  {'readonlyform': [performer_form, owner]})
