@@ -25,7 +25,7 @@ from gbetext import (
     existing_volunteer_msg,
     no_profile_msg,
 )
-from gbe_forms_text import volunteer_unavailable_time_conflict
+from gbe_forms_text import unavailable_time_conflict
 from gbe.models import (
     AvailableInterest,
     Conference,
@@ -244,7 +244,7 @@ class TestCreateVolunteer(TestCase):
         data = self.get_volunteer_form()
         data['available_windows'] = data['unavailable_windows']
         response, data = self.post_volunteer_submission(data=data)
-        assert volunteer_unavailable_time_conflict in response.content
+        assert unavailable_time_conflict in response.content
 
     def test_create_second_volunteer_gets_redirect(self):
         url = reverse(self.view_name,
