@@ -4,7 +4,6 @@ from gbe.forms import (
 )
 from gbe.models import Class
 from gbe.views import ReviewBidView
-from gbe.views.functions import get_participant_form
 from gbe.views.class_display_functions import get_scheduling_info
 
 
