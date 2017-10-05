@@ -14,7 +14,6 @@ from gbe.forms import (
     ParticipantForm,
 )
 from gbe.functions import validate_perms
-from gbe.views.functions import get_participant_form
 
 
 class ViewBidView(View):
@@ -25,14 +24,6 @@ class ViewBidView(View):
 
     def get_owner_profile(self):
         return self.bid.profile
-
-    def get_display_forms(self):
-        bid_form = self.object_form_type(instance=self.bid,
-                                         prefix=self.bid_prefix)
-        profile_form = get_participant_form(
-            self.owner_profile,
-            prefix=self.owner_prefix)
-        return (bid_form, profile_form)
 
     def make_context(self):
         display_forms = self.get_display_forms()
