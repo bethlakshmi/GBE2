@@ -435,3 +435,7 @@ with soups, wraps, fresh fruit, and more... all at very reasonable prices!'''
 save_email_template_success_msg = '''The email template has been saved.  \
 Your updates will be applied to all future automated messages using this \
 template.  The Email Template name is '''
+send_email_success_msg = '''A mail was successfully sent to '''
+to_list_empty_msg = '''No recipients were found for your search criteria.  \
+                    Please try something else'''
+unknown_request = '''This request makes no sense'''
