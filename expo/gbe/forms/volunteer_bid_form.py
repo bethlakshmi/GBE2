@@ -9,8 +9,8 @@ from gbe.models import (
     VolunteerWindow,
 )
 from gbe_forms_text import (
-    volunteer_available_time_conflict,
-    volunteer_unavailable_time_conflict,
+    available_time_conflict,
+    unavailable_time_conflict,
     volunteer_help_texts,
     volunteer_labels,
 )
@@ -54,9 +54,9 @@ class VolunteerBidForm(ModelForm):
         if len(conflict_windows) > 0:
             windows = ", ".join(str(w) for w in conflict_windows)
             self._errors['available_windows'] = \
-                volunteer_available_time_conflict % windows
+                available_time_conflict % windows
             self._errors['unavailable_windows'] = \
-                volunteer_unavailable_time_conflict
+                unavailable_time_conflict
         return cleaned_data
 
     class Meta:

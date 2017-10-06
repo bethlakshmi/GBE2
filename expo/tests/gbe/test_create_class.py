@@ -170,6 +170,21 @@ class TestCreateClass(TestCase):
         assert_alert_exists(
             response, 'success', 'Success', default_class_submit_msg)
 
+    def test_class_submit_conflict_times(self):
+        '''class_bid, not submitting and no other problems,
+        should redirect to home'''
+        url = reverse(self.view_name,
+                      urlconf='gbe.urls')
+        login_as(self.performer.performer_profile, self)
+        data = self.get_class_form(submit=True)
+        data['theclass-avoided_constraints'] = ['0']
+        response = self.client.post(url, data=data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        print response.content
+        self.assertContains(
+            response, "Available times conflict with unavailable times.  " +
+            "Conflicts are: Friday Afternoon")
+
     def test_class_draft_make_message(self):
         '''class_bid, not submitting and no other problems,
         should redirect to home'''
