@@ -173,6 +173,17 @@ div.side_box {
     padding: 0 0 0 10px;
 }
 
+@media (min-width:768px){.email-select{width:640px}
+}
+@media (min-width:992px){.email-select{width:860px}
+}
+@media (min-width:1200px){.email-select{width:1050px}
+}
+.email-select{padding:0px}
+#id_email-select-conference{width:250px}
+.email-submit{text-align:center}
+
+
 @media (min-width:768px){.bid_review{width:680px}
 }
 @media (min-width:992px){.bid_review{width:900px}

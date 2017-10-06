@@ -10,6 +10,7 @@ from django.db.models import (
 from gbe.models import Conference
 from gbetext import acceptance_states
 from django.db.models import Q
+from model_utils.managers import InheritanceManager
 
 
 visible_bid_query = (Q(biddable_ptr__b_conference__status='upcoming') |
@@ -21,6 +22,7 @@ class Biddable(Model):
     Abstract base class for items which can be Bid
     Essentially, specifies that we want something with a title
     '''
+    objects = InheritanceManager()
     b_title = CharField(max_length=128)
     b_description = TextField(blank=True)
     submitted = BooleanField(default=False)
@@ -58,3 +60,7 @@ class Biddable(Model):
     @property
     def bidder_is_active(self):
         return Biddable.objects.get_subclass(pk=self.pk).bidder_is_active
+
+    @property
+    def profile(self):
+        return Biddable.objects.get_subclass(pk=self.pk).profile
