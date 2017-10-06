@@ -89,7 +89,7 @@ class MailToBiddersView(View):
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
-                code="NO_RECIPIENTs",
+                code="NO_RECIPIENTS",
                 defaults={
                     'summary': "Email Sent to Bidders",
                     'description': to_list_empty_msg})
