@@ -59,7 +59,7 @@ class MailToBiddersView(View):
 
         self.select_form.fields['bid_type'].choices = self.bid_type_choices
 
-    def filter_bids(self, request):
+    def get_to_list(self):
         query = Q()
         to_list = {}
         if self.select_form.cleaned_data['bid_type']:
@@ -82,7 +82,10 @@ class MailToBiddersView(View):
                 if bid.profile.user_object.is_active:
                     to_list[bid.profile.user_object.email] = \
                         bid.profile.display_name
+        return to_list
 
+    def filter_bids(self, request):
+        to_list = self.get_to_list()
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
@@ -105,10 +108,8 @@ class MailToBiddersView(View):
             'conference': self.select_form.cleaned_data['conference'],
             'bid_type': self.select_form.cleaned_data['bid_type'],
             'state': self.select_form.cleaned_data['state'],
-            'to_list': to_list,
             }, prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
-        recipient_info.fields['to_list'].initial = to_list
 
         return render(
             request,
@@ -117,14 +118,13 @@ class MailToBiddersView(View):
              "email_forms": [email_form, recipient_info],
              "to_list": to_list, })
 
-    def send_mail(self, request):
+    def send_mail(self, request, to_list):
         mail_form = AdHocEmailForm(request.POST)
         if not request.user.is_superuser:
             mail_form.fields['sender'].widget = HiddenInput()
         recipient_info = SecretBidderInfoForm(request.POST,
                                               prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
-        to_list = eval(request.POST["email-select-to_list"])
         if mail_form.is_valid():
             email_batch = []
             recipient_string = ""
@@ -139,7 +139,10 @@ class MailToBiddersView(View):
                     'recipients': [email],
                     'subject': mail_form.cleaned_data['subject'],
                     'html_message': mail_form.cleaned_data['html_message'], }]
-                recipient_string = "%s (%s), %s" % (name, email, recipient_string)
+                recipient_string = "%s (%s), %s" % (
+                    name,
+                    email,
+                    recipient_string)
 
             mail.send_many(email_batch)
             user_message = UserMessage.objects.get_or_create(
@@ -178,8 +181,9 @@ class MailToBiddersView(View):
         self.groundwork(request, args, kwargs)
         if 'filter' in request.POST.keys() and self.select_form.is_valid():
             return self.filter_bids(request)
-        elif 'send' in request.POST.keys():
-            return self.send_mail(request)
+        elif 'send' in request.POST.keys() and self.select_form.is_valid():
+            to_list = self.get_to_list()
+            return self.send_mail(request, to_list)
         user_message = UserMessage.objects.get_or_create(
             view=self.__class__.__name__,
             code="UNKNOWN_ACTION",

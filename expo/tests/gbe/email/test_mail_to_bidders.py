@@ -266,22 +266,35 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_reduced_w_fixed_from(self):
         reduced_profile = self.reduced_login()
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
+        second_bid = ActFactory()
         data = {
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
         self.assert_queued_email(
-            [self.context.teacher.contact.user_object.email, ],
+            [second_bid.performer.contact.user_object.email, ],
             data['subject'],
             data['html_message'],
             reduced_profile.user_object.email,
+            )
+
+    def test_send_email_reduced_no_hack(self):
+        reduced_profile = self.reduced_login()
+        second_bid = ActFactory()
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'email-select-bid_type': "Class",
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice. Class is not one of the available choices.'
             )
 
     def test_send_email_failure(self):
@@ -292,7 +305,6 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -306,7 +318,6 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -324,7 +335,6 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'email-select-conference': self.context.conference.pk,
             'send': True
         }
@@ -343,7 +353,6 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'email-select-bid_type': "Class",
             'send': True
         }
@@ -360,7 +369,6 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
             'email-select-state': 3,
             'send': True
         }

@@ -26,7 +26,6 @@ class SelectBidderForm(Form):
 
 
 class SecretBidderInfoForm(SelectBidderForm):
-    to_list = CharField(widget=HiddenInput())
     conference = ModelChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
         widget=HiddenInput())
