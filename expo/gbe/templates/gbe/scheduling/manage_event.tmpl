@@ -1,0 +1,41 @@
+{% extends "base.tmpl" %}
+{% load staticfiles %}
+{% block title %}
+  Manage Expo Schedule
+{% endblock %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/styles/calendar.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container review">
+ <ul class="nav nav-tabs" id="inner">
+ {% for slug in conference_slugs %}
+  <li role="presentation" {% if conference.conference_slug == slug %}class="active"{% endif %}>
+   <a href = "{{ slug }}">{{slug}}</a></li>
+ {% endfor %}
+ </ul>
+ <div class="scheduling-area">
+ <form class="form-inline">
+ <div class="row">
+  <div class="col-xs-12">
+  {% for day in all_days %}
+  <div class="form-group"><div class="checkbox gbe-pill {% if day == this_day %}gbe-pill-active{% endif %}">
+   <input type="checkbox" {% if day == this_day %}checked{% endif %}>&nbsp;{{ day.day | date:"l" }} - {{ day }}
+   </div></div>{% endfor %}
+   </div>
+ </div>
+ <div class="row">
+  <div class="col-xs-12">
+  {% for cal_type in calendar_type_options %}
+  <div class="form-group"><div class="checkbox gbe-pill {% if day == this_day %}gbe-pill-active{% endif %}">
+   <input type="checkbox" {% if day == this_day %}checked{% endif %}>&nbsp;{{ day.day | date:"l" }} - {{ day }}
+   </div></div>{% endfor %}
+   </div>
+ </div>
+ </form></div>
+
+</div>
+</div>
+{% endblock %}
