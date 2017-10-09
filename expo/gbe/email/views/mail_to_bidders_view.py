@@ -53,8 +53,9 @@ class MailToBiddersView(View):
                 request.POST,
                 prefix="email-select")
         else:
-            self.select_form = SelectBidderForm(prefix="email-select",
-                                                initial={'state': [0, 1, 2, 3, 4, 5, 6]})
+            self.select_form = SelectBidderForm(
+                prefix="email-select",
+                initial={'state': [0, 1, 2, 3, 4, 5, 6]})
         for priv in priv_list:
             self.bid_type_choices += [(priv.title(), priv.title())]
 
@@ -85,7 +86,7 @@ class MailToBiddersView(View):
             query = query & Q(accepted__in=accept_states) & Q(submitted=True)
         elif draft:
             query = draft_query
-            draft=False
+            draft = False
 
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
