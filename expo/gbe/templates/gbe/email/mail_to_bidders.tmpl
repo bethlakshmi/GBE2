@@ -60,8 +60,7 @@
       <div class="form-group col-md-9 col-xs-12">
       {% for checkbox in selection_form.state %}
         <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
-          {{ checkbox.tag }}
-          {{ field.label_tag }}
+          {{ checkbox.tag }}{{ field.label_tag }}
             {{ checkbox.choice_label }}
         </label>{% endfor %}
         {% if selection_form.state.errors %}
