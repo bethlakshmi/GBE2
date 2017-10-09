@@ -119,11 +119,8 @@ class MailToBiddersView(View):
             'sender': self.user.user_object.email})
         if not request.user.is_superuser:
             email_form.fields['sender'].widget = HiddenInput()
-        recipient_info = SecretBidderInfoForm(initial={
-            'conference': self.select_form.cleaned_data['conference'],
-            'bid_type': self.select_form.cleaned_data['bid_type'],
-            'state': self.select_form.cleaned_data['state'],
-            }, prefix="email-select")
+        recipient_info = SecretBidderInfoForm(request.POST,
+                                              prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
 
         return render(

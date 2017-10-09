@@ -5,6 +5,7 @@ from django.forms import (
     HiddenInput,
     ModelChoiceField,
     MultipleChoiceField,
+    MultipleHiddenInput,
 )
 from django.forms.widgets import CheckboxSelectMultiple
 from gbetext import acceptance_states
@@ -32,6 +33,11 @@ class SelectBidderForm(Form):
 class SecretBidderInfoForm(SelectBidderForm):
     conference = ModelChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        widget=HiddenInput())
-    bid_type = ChoiceField(widget=HiddenInput())
-    state = MultipleChoiceField(widget=HiddenInput())
+        widget=HiddenInput(),
+        required=False)
+    bid_type = ChoiceField(widget=HiddenInput(),
+                           required=False)
+    state = MultipleChoiceField(
+        choices=((('Draft', 'Draft'),) + acceptance_states),
+        widget=MultipleHiddenInput(),
+        required=True)
