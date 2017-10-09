@@ -21,44 +21,56 @@
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
   {{ selection_form.non_field_errors }}</font>
-  <form action="" method="post" enctype="multipart/form-data">
+  <form class="form-inline" action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="email-select container">
-    <div class="row">
-    {# Include the visible fields #}
-    {% for field in selection_form.visible_fields %}
-      {% if forloop.first %}
-      <div class="col-md-5 col-sm-6 col-xs-12">
-      {% else %}
-      <div class="col-md-3 col-sm-2 col-xs-12">
-      {% endif %}
-	<label for="field.name" class="control-label">	      
-          {% if field.errors %}
-            <font color="red">!</font>&nbsp;&nbsp;
-	  {% elif field.css_classes == 'required' or field.name in submit_fields %}
-            <font color="red">*</font>
-          {% endif %} 
-          {% if field.errors %}
-            <font color="red">
-          {% endif %}
-          {% if field.name in draft_fields %}
-	      <b>{{ field.label_tag }}</b>
-          {% else %}
-            {{ field.label_tag }}
-	  {% endif %}
-          {% if field.errors %}
-            </font>
-          {% endif %} 
- 	</label>
-        {{ field }}
-      {% if field.errors %}
- 	<label for="field.name"><font color="red">{{ field.errors }}</font></label>
-      {% endif %}
+    <div class="form-row email-select">
+      <div class="form-group col-md-6">
+        {% if selection_form.conference.errors %}
+          <font color="red">!&nbsp;&nbsp;
+        {% endif %} 
+        <label class="form-check-label" id="{{ selection_form.conference.name }}">
+          {{ selection_form.conference.label }}:&nbsp;&nbsp;{{ selection_form.conference }}
+        {% if selection_form.conference.errors %}
+          {{ selection_form.conference.errors }}</font>
+        {% endif %}
+        </label>
       </div>
-    {% endfor %}
-      <div class="col-md-1 col-sm-2 col-xs-12 email-submit">
+      <div class="form-group col-md-6">
+        {% if selection_form.bid_type.errors %}
+          <font color="red">!&nbsp;&nbsp;
+        {% endif %} 
+         <label class="form-check-label" id="{{ selection_form.bid_type.name }}">
+          {{ selection_form.bid_type.label }}:&nbsp;&nbsp;{{ selection_form.bid_type }}
+        {% if selection_form.bid_type.errors %}
+          {{ selection_form.bid_type.errors }}</font>
+        {% endif %}
+         </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-2 col-xs-12">
+        <label class="form-check-label" id="{{ selection_form.state.name }}">
+          {% if selection_form.state.errors %}
+            <font color="red">!&nbsp;&nbsp;
+          {% endif %}
+          {{ selection_form.state.label }}:&nbsp;&nbsp;</label></div>
+          {% if selection_form.state.errors %}
+            </font>
+          {% endif %}
+      <div class="form-group col-md-9 col-xs-12">
+      {% for checkbox in selection_form.state %}
+        <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
+          {{ checkbox.tag }}
+          {{ field.label_tag }}
+            {{ checkbox.choice_label }}
+        </label>{% endfor %}
+        {% if selection_form.state.errors %}
+          {{ selection_form.state.errors }}</font>
+        {% endif %}
+      </div>
+      <div class="form-group col-md-1 col-xs-12">
          <input type="submit" class="email-submit" name="filter" value="Filter">
-      </div></div></div>
+      </div></div>
     </form>
   </div>
 </div>

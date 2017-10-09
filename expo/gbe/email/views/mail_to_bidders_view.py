@@ -73,15 +73,29 @@ class MailToBiddersView(View):
             query = query & Q(
                 b_conference=self.select_form.cleaned_data['conference'])
 
-        if self.select_form.cleaned_data['state']:
-            query = query & Q(
-                accepted=self.select_form.cleaned_data['state'])
+        accept_states = self.select_form.cleaned_data['state']
+        draft = False
+        if "Draft" in self.select_form.cleaned_data['state']:
+            draft = True
+            accept_states.remove('Draft')
+            draft_query = query & Q(submitted=False)
+
+        if len(accept_states) > 0:
+            query = query & Q(accepted__in=accept_states)
+        elif draft:
+            query = query & Q(submitted=False)
+            draft=False
 
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
                 if bid.profile.user_object.is_active:
                     to_list[bid.profile.user_object.email] = \
                         bid.profile.display_name
+            if draft:
+                for bid in eval(bid_type).objects.filter(draft_query):
+                    if bid.profile.user_object.is_active:
+                        to_list[bid.profile.user_object.email] = \
+                            bid.profile.display_name
         return to_list
 
     def filter_bids(self, request):
