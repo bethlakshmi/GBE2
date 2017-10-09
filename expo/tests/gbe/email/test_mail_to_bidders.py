@@ -171,6 +171,42 @@ class TestMailToBidder(TestCase):
             response,
             second_class.teacher.contact.user_object.email)
 
+    def test_pick_class_draft(self):
+        second_bid = ClassFactory()
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-bid_type': "Class",
+            'email-select-state': ["Draft"],
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            second_bid.teacher.contact.user_object.email)
+
+    def test_pick_class_draft_and_accept(self):
+        second_bid = ClassFactory()
+        third_bid = ClassFactory(submitted=True)
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-bid_type': "Class",
+            'email-select-state': ["Draft", 3],
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            second_bid.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            third_bid.teacher.contact.user_object.email)
+
     def test_pick_forbidden_bid_type_reduced_priv(self):
         second_bid = ActFactory()
         self.reduced_login()
