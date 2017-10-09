@@ -25,7 +25,7 @@ class SelectBidderForm(Form):
     bid_type = ChoiceField(required=False)
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
-        widget=CheckboxSelectMultiple(attrs={'checked' : 'checked'}),
+        widget=CheckboxSelectMultiple(),
         required=True)
 
 
