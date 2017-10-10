@@ -37,7 +37,19 @@ def ReviewProfilesView(request):
             'phone': aprofile.phone
         }
         bid_row['id'] = aprofile.resourceitem_id
-        bid_row['actions'] = []
+        bid_row['actions'] = [
+            {'url': reverse(
+                'admin_landing_page',
+                urlconf='gbe.urls',
+                args=[aprofile.resourceitem_id]),
+             'text': "View Landing Page"},
+            {'url': reverse(
+                'mail_to_individual',
+                urlconf='gbe.email.urls',
+                args=[aprofile.resourceitem_id]),
+             'text': "Email"}
+
+        ]
         if 'Registrar' in request.user.profile.privilege_groups:
             bid_row['actions'] += [
                 {'url': reverse('admin_profile',
@@ -49,13 +61,6 @@ def ReviewProfilesView(request):
                                 urlconf='gbe.urls',
                                 args=[aprofile.resourceitem_id]),
                  'text': "Delete"}]
-        bid_row['actions'] += [
-            {'url': reverse(
-                'admin_landing_page',
-                urlconf='gbe.urls',
-                args=[aprofile.resourceitem_id]),
-             'text': "View Landing Page"}
-        ]
         rows.append(bid_row)
 
     return render(request, 'gbe/profile_review.tmpl',

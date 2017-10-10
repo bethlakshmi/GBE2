@@ -8,6 +8,7 @@
 {% block head %}
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/simple-line-icons.css">
 {% endblock %}
 {% block content %}
   <p class="vanilla">{{title}} </p>
@@ -54,12 +55,22 @@
 	  {{ row.contact_info.phone }}
 	</td>
         <td class="bid-table">
+	  <div class="btn-group" role="group" aria-label="...">
           {%for action in row.actions %}
-          <a href="{{ action.url }}">
-	    {% if action.text %}{{ action.text }}{% else %}Action{% endif %}
-	  </a><br>
+	   <a href="{{ action.url }}" data-toggle="tooltip" title="{{ action.text }}">
+            <button type="button" class="btn btn-default btn-sm">
+	      {% if action.text == 'Update' %}
+	        <i class="icon-pencil"></i>
+	      {% elif action.text == 'Delete' %}
+	        <i class="icon-trash"></i>
+	      {% elif action.text == 'View Landing Page' %}
+	        <i class="icon-eye"></i>
+	      {% elif action.text == 'Email' %}
+	        <i class="icon-envelope"></i>
+	      {% endif %}
+	    </button></a>
           {%endfor%}
-        </td>
+        </div></td>
       </tr>
     {% endfor %}
     </tbody>
