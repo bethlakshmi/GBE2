@@ -125,7 +125,7 @@ class MailToBiddersView(MailView):
             to_list = self.get_to_list()
             mail_form = self.send_mail(request, to_list)
             recipient_info = SecretBidderInfoForm(request.POST,
-                                              prefix="email-select")
+                                                  prefix="email-select")
             recipient_info.fields['bid_type'].choices = self.bid_type_choices
             if mail_form.is_valid():
                 return HttpResponseRedirect(

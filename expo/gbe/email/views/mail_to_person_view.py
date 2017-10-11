@@ -13,12 +13,12 @@ from gbe.functions import validate_perms
 
 
 class MailToPersonView(MailView):
-    email_permissions = ['Act Coordinator',
-                         'Class Coordinator',
-                         'Costume Coordinator',
-                         'Vendor Coordinator',
+    email_permissions = ['Registrar',
                          'Volunteer Coordinator',
-                         ]
+                         'Act Coordinator',
+                         'Conference Coordinator',
+                         'Vendor Coordinator',
+                         'Ticketing - Admin']
 
     def groundwork(self, request, args, kwargs):
         self.user = validate_perms(request, self.email_permissions)

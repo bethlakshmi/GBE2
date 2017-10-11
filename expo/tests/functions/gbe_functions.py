@@ -18,7 +18,10 @@ from tests.factories.ticketing_factories import (
     PurchaserFactory,
 )
 from gbe_forms_text import rank_interest_options
-from post_office.models import EmailTemplate
+from post_office.models import (
+    Email,
+    EmailTemplate
+)
 from django.core import mail
 from django.conf import settings
 from django.core.files import File
@@ -184,6 +187,18 @@ def assert_right_mail_right_addresses(
     assert msg.subject == expected_subject
     assert msg.to == to_email_array
     assert msg.from_email == from_email
+
+
+def assert_queued_email(to_list, subject, message, sender):
+    queued_email = Email.objects.filter(
+        status=2,
+        subject=subject,
+        html_message=message,
+        from_email=sender,
+        )
+    for recipient in to_list:
+        assert queued_email.filter(
+            to=recipient).exists()
 
 
 def make_act_app_purchase(conference, user_object):
