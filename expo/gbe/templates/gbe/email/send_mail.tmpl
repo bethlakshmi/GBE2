@@ -19,7 +19,9 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              Recipient: {{to_address}}
+              {% for email, name in to_address.items%}
+              Recipient: {{name}} &lt;{{email}}&gt;
+              {% endfor %}
             </h4>
           </div>
         </div>
