@@ -64,6 +64,11 @@
       <input type="submit" class="email-submit" name="filter" value="Filter"></form>
    </div>
    </div>
+   <div class="form-row">
+    {% for occurence in occurrences %}
+     {{ occurence }}</br>
+    {% endfor %}
+   </div>
  </div>
 </div>
 

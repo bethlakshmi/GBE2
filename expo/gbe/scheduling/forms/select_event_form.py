@@ -11,8 +11,8 @@ class SelectEventForm(Form):
     error_css_class = 'error'
     day = MultipleChoiceField(
         widget=CheckboxSelectMultiple(),
-        required=True)
+        required=False)
     calendar_type = MultipleChoiceField(
         choices=calendar_type_options.items(),
         widget=CheckboxSelectMultiple(),
-        required=True)
+        required=False)

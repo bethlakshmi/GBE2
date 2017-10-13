@@ -32,6 +32,7 @@ from gbe.scheduling.views.functions import show_general_status
 from gbe.scheduling.forms import SelectEventForm
 from expo.settings import DATE_FORMAT
 from datetime import datetime
+from gbetext import calendar_type as calendar_type_options
 
 
 class ManageEventsView(View):
@@ -81,11 +82,16 @@ class ManageEventsView(View):
                                       prefix="event-select")
         select_form.fields['day'].choices = self.day_list
         context['selection_form'] = select_form
+        if not select_form.is_valid():
+            return render(request, self.template, context)
         search_labels = [self.conference.conference_slug, ]
-        response = get_occurrences(
-            labels=search_labels)
-        show_general_status(
-            request, response, self.__class__.__name__)
+        occurrences = []
+        for cal_type in select_form.cleaned_data['calendar_type']:
+            response = get_occurrences(labels=[
+                self.conference.conference_slug,
+                calendar_type_options[int(cal_type)]])
+            occurrences += response.occurrences
+        context['occurrences'] = occurrences
         return render(request, self.template, context)
 
     @method_decorator(login_required)
