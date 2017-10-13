@@ -4,6 +4,9 @@ from django.shortcuts import (
     render,
 )
 from django.http import Http404
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.formats import date_format
 from expo.settings import (
@@ -37,7 +40,7 @@ class ManageEventsView(View):
     conference = None
     this_day = None
 
-    def make_context(self, request, args, kwargs):
+    def setup(self, request, args, kwargs):
         context = {}
         self.calendar_type = None
         self.conference = None
@@ -49,32 +52,42 @@ class ManageEventsView(View):
         else:
             self.conference = get_current_conference()
 
-        self.select_form = SelectEventForm(prefix="event-select")
-        day_list = []
+        self.day_list = []
         for day in self.conference.conferenceday_set.all():
-            day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
-        self.select_form.fields['day'].choices = day_list
+            self.day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
 
         context = {
             'conference': self.conference,
             'conference_slugs': conference_slugs(),
-            'selection_form': self.select_form,
         }
 
         return context
 
+    @never_cache
+    @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        context = self.make_context(request, args, kwargs)
+        context = self.setup(request, args, kwargs)
+        select_form = SelectEventForm(prefix="event-select")
+        select_form.fields['day'].choices = self.day_list
+        context['selection_form'] = select_form
+
+        return render(request, self.template, context)
+
+    @never_cache
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        context = self.setup(request, args, kwargs)
+        select_form = SelectEventForm(request.POST,
+                                      prefix="event-select")
+        select_form.fields['day'].choices = self.day_list
+        context['selection_form'] = select_form
         search_labels = [self.conference.conference_slug, ]
         response = get_occurrences(
             labels=search_labels)
         show_general_status(
             request, response, self.__class__.__name__)
-
         return render(request, self.template, context)
 
-    def post(self, request, *args, **kwargs):
-        pass
-
+    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ManageEventsView, self).dispatch(*args, **kwargs)
