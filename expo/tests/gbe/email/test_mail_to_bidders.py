@@ -81,7 +81,7 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             '<option value="" selected="selected">All</option>',
-            3)
+            2)
         for priv in self.priv_list:
             self.assertContains(
                 response,
@@ -89,7 +89,10 @@ class TestMailToBidder(TestCase):
         for state in acceptance_states:
             self.assertContains(
                 response,
-                '<option value="%s">%s</option>' % (state[0], state[1]))
+                'value="%s"' % state[0])
+            self.assertContains(
+                response,
+                state[1])
 
     def test_reduced_login_first_get(self):
         self.reduced_login()
@@ -97,7 +100,7 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             '<option value="" selected="selected">All</option>',
-            3)
+            2)
         self.assertContains(
             response,
             '<option value="%s">%s</option>' % ("Act", "Act"))
@@ -125,6 +128,7 @@ class TestMailToBidder(TestCase):
         login_as(self.privileged_profile, self)
         data = {
             'email-select-conference': self.context.conference.pk,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -140,6 +144,7 @@ class TestMailToBidder(TestCase):
         login_as(self.privileged_profile, self)
         data = {
             'email-select-bid_type': "Class",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -155,6 +160,7 @@ class TestMailToBidder(TestCase):
         login_as(self.privileged_profile, self)
         data = {
             'email-select-state': 3,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -165,11 +171,48 @@ class TestMailToBidder(TestCase):
             response,
             second_class.teacher.contact.user_object.email)
 
+    def test_pick_class_draft(self):
+        second_bid = ClassFactory()
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-bid_type': "Class",
+            'email-select-state': ["Draft"],
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            second_bid.teacher.contact.user_object.email)
+
+    def test_pick_class_draft_and_accept(self):
+        second_bid = ClassFactory()
+        third_bid = ClassFactory(submitted=True)
+        login_as(self.privileged_profile, self)
+        data = {
+            'email-select-bid_type': "Class",
+            'email-select-state': ["Draft", 3],
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            second_bid.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            third_bid.teacher.contact.user_object.email)
+
     def test_pick_forbidden_bid_type_reduced_priv(self):
         second_bid = ActFactory()
         self.reduced_login()
         data = {
             'email-select-bid_type': "Class",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -179,9 +222,10 @@ class TestMailToBidder(TestCase):
             )
 
     def test_pick_all_reduced_priv(self):
-        second_bid = ActFactory()
+        second_bid = ActFactory(submitted=True)
         self.reduced_login()
         data = {
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -195,6 +239,7 @@ class TestMailToBidder(TestCase):
     def test_pick_no_bidders(self):
         reduced_profile = self.reduced_login()
         data = {
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -204,20 +249,21 @@ class TestMailToBidder(TestCase):
     def test_pick_admin_has_sender(self):
         login_as(self.privileged_profile, self)
         data = {
-            'filter': True,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'filter': "Filter",
         }
         response = self.client.post(self.url, data=data, follow=True)
-
         self.assertContains(
             response,
             '<input id="id_sender" name="sender" type="email" ' +
             'value="%s" />' % (self.privileged_profile.user_object.email))
 
     def test_pick_no_admin_fixed_email(self):
-        ActFactory()
+        ActFactory(submitted=True)
         reduced_profile = self.reduced_login()
         data = {
-            'filter': True,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'filter': "Filter",
         }
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
@@ -227,14 +273,11 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_success_status(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -246,14 +289,11 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_success_email_sent(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
-            'email-select-to_list': str(to_list),
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -266,11 +306,12 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_reduced_w_fixed_from(self):
         reduced_profile = self.reduced_login()
-        second_bid = ActFactory()
+        second_bid = ActFactory(submitted=True)
         data = {
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -289,6 +330,7 @@ class TestMailToBidder(TestCase):
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
             'email-select-bid_type': "Class",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -299,12 +341,10 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_failure(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -312,12 +352,10 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_failure_preserve_to_list(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -329,13 +367,11 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_failure_preserve_conference_choice(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
             'email-select-conference': self.context.conference.pk,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -347,13 +383,11 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_failure_preserve_bid_type_choice(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
             'email-select-bid_type': "Class",
+            'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -363,29 +397,24 @@ class TestMailToBidder(TestCase):
 
     def test_send_email_failure_preserve_state_choice(self):
         login_as(self.privileged_profile, self)
-        to_list = {}
-        to_list[self.context.teacher.contact.user_object.email] = \
-            self.context.teacher.contact.display_name
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-state': 3,
+            'email-select-state': [3, ],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
             response,
-            '<option value="%d" selected="selected">%s</option>' % (
-                3,
-                "Accepted"))
+            '<input checked="checked" id="id_email-select-state_4" ' +
+            'name="email-select-state" type="checkbox" value="3" />')
 
     def test_pick_no_post_action(self):
         second_class = ClassFactory(accepted=2)
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-state': 3,
+            'email-select-state': [0, 1, 2, 3, 4, 5],
         }
         response = self.client.post(self.url, data=data, follow=True)
-        print response.content
         assert_alert_exists(
             response, 'danger', 'Error', unknown_request)
