@@ -4,7 +4,10 @@ from django.forms import (
     Form,
     HiddenInput,
     ModelChoiceField,
+    MultipleChoiceField,
+    MultipleHiddenInput,
 )
+from django.forms.widgets import CheckboxSelectMultiple
 from gbetext import acceptance_states
 from gbe_forms_text import (
     event_help_texts,
@@ -21,13 +24,20 @@ class SelectBidderForm(Form):
         empty_label=("All"),
         required=False)
     bid_type = ChoiceField(required=False)
-    state = ChoiceField(choices=((('', 'All'),) + acceptance_states),
-                        required=False)
+    state = MultipleChoiceField(
+        choices=((('Draft', 'Draft'),) + acceptance_states),
+        widget=CheckboxSelectMultiple(),
+        required=True)
 
 
 class SecretBidderInfoForm(SelectBidderForm):
     conference = ModelChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        widget=HiddenInput())
-    bid_type = ChoiceField(widget=HiddenInput())
-    state = ChoiceField(widget=HiddenInput())
+        widget=HiddenInput(),
+        required=False)
+    bid_type = ChoiceField(widget=HiddenInput(),
+                           required=False)
+    state = MultipleChoiceField(
+        choices=((('Draft', 'Draft'),) + acceptance_states),
+        widget=MultipleHiddenInput(),
+        required=True)
