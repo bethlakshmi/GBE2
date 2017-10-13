@@ -17,25 +17,53 @@
  {% endfor %}
  </ul>
  <div class="scheduling-area">
- <form class="form-inline">
- <div class="row">
-  <div class="col-xs-12">
-  {% for day in all_days %}
-  <div class="form-group"><div class="checkbox gbe-pill {% if day == this_day %}gbe-pill-active{% endif %}">
-   <input type="checkbox" {% if day == this_day %}checked{% endif %}>&nbsp;{{ day.day | date:"l" }} - {{ day }}
-   </div></div>{% endfor %}
+ <form class="form-inline">{% csrf_token %}
+   <div class="form-row">
+   <div class="form-group col-md-2 col-xs-12">
+     <label class="form-check-label" id="{{ selection_form.day.name }}">
+      {% if selection_form.day.errors %}
+        <font color="red">!&nbsp;&nbsp;
+      {% endif %}
+       {{ selection_form.day.label }}:&nbsp;&nbsp;
+      {% if selection_form.day.errors %}
+        </font>
+      {% endif %}</label>
+   </div>
+   <div class="form-group col-md-10 col-xs-12">
+     {% for checkbox in selection_form.day %}
+      <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
+      {{ checkbox.tag }}{{ field.label_tag }}
+      {{ checkbox.choice_label }}
+      </label>{% endfor %}
+      {% if selection_form.day.errors %}
+        <font color="red">{{ selection_form.day.errors }}</font>
+      {% endif %}   </div></div>
+   <div class="form-row">
+   <div class="form-group col-md-2 col-xs-12">
+    <label class="form-check-label" id="{{ selection_form.calendar_type.name }}">
+     {% if selection_form.calendar_type.errors %}
+      <font color="red">!&nbsp;&nbsp;
+     {% endif %}
+     {{ selection_form.calendar_type.label }}:&nbsp;&nbsp;
+     {% if selection_form.calendar_type.errors %}
+      </font>
+     {% endif %}</label>
+   </div>
+   <div class="form-group col-md-9 col-xs-12">
+     {% for checkbox in selection_form.calendar_type %}
+      <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
+      {{ checkbox.tag }}{{ field.label_tag }}
+      {{ checkbox.choice_label }}
+      </label>{% endfor %}
+      {% if selection_form.calendar_type.errors %}
+        <font color="red">{{ selection_form.calendar_type.errors }}</font>
+      {% endif %}
+   </div>
+   <div class="form-group col-md-1 col-xs-12">
+      <input type="submit" class="email-submit" name="filter" value="Filter">
+   </div>
    </div>
  </div>
- <div class="row">
-  <div class="col-xs-12">
-  {% for cal_type in calendar_type_options %}
-  <div class="form-group"><div class="checkbox gbe-pill {% if day == this_day %}gbe-pill-active{% endif %}">
-   <input type="checkbox" {% if day == this_day %}checked{% endif %}>&nbsp;{{ day.day | date:"l" }} - {{ day }}
-   </div></div>{% endfor %}
-   </div>
- </div>
- </form></div>
+</div>
 
-</div>
-</div>
 {% endblock %}

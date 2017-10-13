@@ -975,6 +975,9 @@ span.opps-errors > ul
   background-color: rgb(221, 221, 221);
   padding: 5px;
 }
+.scheduling-area > .form-inline > .form-row > .form-group {
+  min-height: 26px;
+}
 .gbe-pill {
   background-color: rgb(235, 235, 235);
   padding-top: 3px;

@@ -5,7 +5,6 @@ from django.shortcuts import (
 )
 from django.http import Http404
 from django.core.urlresolvers import reverse
-from gbetext import calendar_type as calendar_type_options
 from django.utils.formats import date_format
 from expo.settings import (
     TIME_FORMAT,
@@ -27,6 +26,9 @@ from gbe.functions import (
 )
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
+from gbe.scheduling.forms import SelectEventForm
+from expo.settings import DATE_FORMAT
+from datetime import datetime
 
 
 class ManageEventsView(View):
@@ -35,7 +37,7 @@ class ManageEventsView(View):
     conference = None
     this_day = None
 
-    def process_inputs(self, request, args, kwargs):
+    def make_context(self, request, args, kwargs):
         context = {}
         self.calendar_type = None
         self.conference = None
@@ -47,43 +49,32 @@ class ManageEventsView(View):
         else:
             self.conference = get_current_conference()
 
-        if "calendar_type" in self.request.GET:
-            self.calendar_type = self.request.GET.get('calendar_type', None)
-
-        if "day" in self.request.GET:
-            self.this_day = get_object_or_404(
-                ConferenceDay,
-                day=datetime.strptime(self.request.GET.get('day', None),
-                                      URL_DATE))
-            self.conference = self.this_day.conference
-        else:
-            self.this_day = get_conference_days(
-                self.conference,
-                open_to_public=True).order_by("day").first()
+        self.select_form = SelectEventForm(prefix="event-select")
+        day_list = []
+        for day in self.conference.conferenceday_set.all():
+            day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
+        self.select_form.fields['day'].choices = day_list
 
         context = {
-            'calendar_type': self.calendar_type,
             'conference': self.conference,
             'conference_slugs': conference_slugs(),
-            'this_day': self.this_day,
-            'all_days': get_conference_days(self.conference),
-            'calendar_type_options': calendar_type_options,
+            'selection_form': self.select_form,
         }
 
         return context
 
     def get(self, request, *args, **kwargs):
-        context = self.process_inputs(request, args, kwargs)
+        context = self.make_context(request, args, kwargs)
         search_labels = [self.conference.conference_slug, ]
-        if self.calendar_type:
-            search_labels += [self.calendar_type]
         response = get_occurrences(
-            labels=search_labels,
-            day=self.this_day.day)
+            labels=search_labels)
         show_general_status(
             request, response, self.__class__.__name__)
 
         return render(request, self.template, context)
+
+    def post(self, request, *args, **kwargs):
+        pass
 
     def dispatch(self, *args, **kwargs):
         return super(ManageEventsView, self).dispatch(*args, **kwargs)
