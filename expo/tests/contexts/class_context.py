@@ -42,7 +42,8 @@ class ClassContext:
         self.bid = bid or ClassFactory(b_conference=self.conference,
                                        e_conference=self.conference,
                                        accepted=3,
-                                       teacher=self.teacher)
+                                       teacher=self.teacher,
+                                       submitted=True)
         self.room = room or RoomFactory()
         self.sched_event = None
         self.sched_event = self.schedule_instance(room=self.room,

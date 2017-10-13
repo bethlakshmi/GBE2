@@ -43,7 +43,9 @@ class MailToBiddersView(MailView):
                 request.POST,
                 prefix="email-select")
         else:
-            self.select_form = SelectBidderForm(prefix="email-select")
+            self.select_form = SelectBidderForm(
+                prefix="email-select",
+                initial={'state': [0, 1, 2, 3, 4, 5, 6]})
         for priv in priv_list:
             self.bid_type_choices += [(priv.title(), priv.title())]
 
@@ -63,15 +65,29 @@ class MailToBiddersView(MailView):
             query = query & Q(
                 b_conference=self.select_form.cleaned_data['conference'])
 
-        if self.select_form.cleaned_data['state']:
-            query = query & Q(
-                accepted=self.select_form.cleaned_data['state'])
+        accept_states = self.select_form.cleaned_data['state']
+        draft = False
+        if "Draft" in self.select_form.cleaned_data['state']:
+            draft = True
+            accept_states.remove('Draft')
+            draft_query = query & Q(submitted=False)
+
+        if len(accept_states) > 0:
+            query = query & Q(accepted__in=accept_states) & Q(submitted=True)
+        elif draft:
+            query = draft_query
+            draft = False
 
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
                 if bid.profile.user_object.is_active:
                     to_list[bid.profile.user_object.email] = \
                         bid.profile.display_name
+            if draft:
+                for bid in eval(bid_type).objects.filter(draft_query):
+                    if bid.profile.user_object.is_active:
+                        to_list[bid.profile.user_object.email] = \
+                            bid.profile.display_name
         return to_list
 
     def filter_bids(self, request):
@@ -91,11 +107,8 @@ class MailToBiddersView(MailView):
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form})
         email_form = self.setup_email_form(request)
-        recipient_info = SecretBidderInfoForm(initial={
-            'conference': self.select_form.cleaned_data['conference'],
-            'bid_type': self.select_form.cleaned_data['bid_type'],
-            'state': self.select_form.cleaned_data['state'],
-            }, prefix="email-select")
+        recipient_info = SecretBidderInfoForm(request.POST,
+                                              prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
 
         return render(
