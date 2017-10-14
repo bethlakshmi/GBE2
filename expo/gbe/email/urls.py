@@ -7,6 +7,7 @@ from gbe.email.views import (
     EditTemplateView,
     ListTemplateView,
     MailToBiddersView,
+    MailToPersonView,
 )
 
 # NOTE: in general, url patterns should end with '/?$'. This
@@ -23,4 +24,6 @@ urlpatterns = patterns(
         ListTemplateView.as_view(), name='list_template'),
     url(r'^email/mail_to_bidders/?$',
         MailToBiddersView.as_view(), name='mail_to_bidders'),
+    url(r'^email/mail_to_individual/(?P<profile_id>\d+)?$',
+        MailToPersonView.as_view(), name='mail_to_individual'),
 )
