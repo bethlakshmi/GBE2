@@ -978,16 +978,4 @@ span.opps-errors > ul
 .scheduling-area > .form-inline > .form-row > .form-group {
   min-height: 26px;
 }
-.gbe-pill {
-  background-color: rgb(235, 235, 235);
-  padding-top: 3px;
-  padding-bottom: 3px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 2px;
-  border-radius: 6px;
-}
 
-.gbe-pill-active {
-  background-color: rgba(180, 80, 80);
-}

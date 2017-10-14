@@ -9,6 +9,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
+    assert_queued_email,
     grant_privilege,
     is_login_page,
     login_as,
@@ -51,17 +52,6 @@ class TestMailToBidder(TestCase):
             '%s Coordinator' % "Act")
         login_as(reduced_profile, self)
         return reduced_profile
-
-    def assert_queued_email(self, to_list, subject, message, sender):
-        queued_email = Email.objects.filter(
-            status=2,
-            subject=subject,
-            html_message=message,
-            from_email=sender,
-            )
-        for recipient in to_list:
-            assert queued_email.filter(
-                to=recipient).exists()
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
@@ -297,7 +287,7 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assert_queued_email(
+        assert_queued_email(
             [self.context.teacher.contact.user_object.email, ],
             data['subject'],
             data['html_message'],
@@ -315,7 +305,7 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assert_queued_email(
+        assert_queued_email(
             [second_bid.performer.contact.user_object.email, ],
             data['subject'],
             data['html_message'],
