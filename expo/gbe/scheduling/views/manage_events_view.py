@@ -26,6 +26,7 @@ from gbe.functions import (
     get_conference_days,
     get_conference_by_slug,
     conference_slugs,
+    validate_perms,
 )
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
@@ -45,6 +46,7 @@ class ManageEventsView(View):
     this_day = None
 
     def setup(self, request, args, kwargs):
+        validate_perms(request, ('Scheduling Mavens',))
         context = {}
         self.calendar_type = None
         self.conference = None
@@ -66,16 +68,6 @@ class ManageEventsView(View):
         }
 
         return context
-
-    @never_cache
-    @method_decorator(login_required)
-    def get(self, request, *args, **kwargs):
-        context = self.setup(request, args, kwargs)
-        select_form = SelectEventForm(prefix="event-select")
-        select_form.fields['day'].choices = self.day_list
-        context['selection_form'] = select_form
-
-        return render(request, self.template, context)
 
     def build_occurrence_display(self, occurrences):
         display_list = []
@@ -111,14 +103,7 @@ class ManageEventsView(View):
             }]
         return display_list
 
-    @never_cache
-    @method_decorator(login_required)
-    def post(self, request, *args, **kwargs):
-        context = self.setup(request, args, kwargs)
-        select_form = SelectEventForm(request.POST,
-                                      prefix="event-select")
-        select_form.fields['day'].choices = self.day_list
-        context['selection_form'] = select_form
+    def get_filtered_occurences(self, request, select_form):
         if not select_form.is_valid():
             return render(request, self.template, context)
         occurrences = []
@@ -151,7 +136,24 @@ class ManageEventsView(View):
                 response = get_occurrences(labels=[
                     self.conference.conference_slug, ])
                 occurrences += response.occurrences
-        context['occurrences'] = self.build_occurrence_display(occurrences)
+        return self.build_occurrence_display(occurrences)
+
+    @never_cache
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        context = self.setup(request, args, kwargs)
+        if request.GET.__contains__('filter'):
+            select_form = SelectEventForm(request.GET,
+                                      prefix="event-select")
+        else:
+            select_form = SelectEventForm(prefix="event-select")
+        select_form.fields['day'].choices = self.day_list
+        context['selection_form'] = select_form
+
+        if request.GET.__contains__('filter'):
+            context['occurrences'] = self.get_filtered_occurences(
+                request,
+                select_form)
         return render(request, self.template, context)
 
     @method_decorator(login_required)

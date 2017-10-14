@@ -18,7 +18,7 @@
  {% endfor %}
  </ul>
  <div class="scheduling-area">
-   <form class="form-inline" action="" method="post" enctype="multipart/form-data">
+   <form class="form-inline" action="" method="get" enctype="multipart/form-data">
     {% csrf_token %}
    <div class="form-row">
    <div class="form-group col-md-2 col-xs-12">
@@ -64,9 +64,9 @@
    <div class="form-group col-md-1 col-xs-12">
       <input type="submit" class="email-submit" name="filter" value="Filter"></form>
    </div>
-   </div>
-   <div class="form-row">
-  <div>
+{% if occurrences %}
+   <div class="row">
+  <div class="col-xs-12">
     Toggle column(s):
       <a class="toggle-vis" data-column="0">Title</a> - 
       <a class="toggle-vis" data-column="1">Location</a> - 
@@ -75,7 +75,10 @@
       <a class="toggle-vis" data-column="4">Type</a> - 
       <a class="toggle-vis" data-column="5">Current Volunteer</a> - 
       <a class="toggle-vis" data-column="6">Max Volunteer</a>
-  </div>
+  </div></div>
+     <div class="row">
+  <div class="col-xs-12">
+
   <br/>
   <table id="bid_review" class="order-column" cellspacing="0" width="100%">
     <thead>
@@ -112,7 +115,7 @@
        <td class="bid-table">{{ occurrence.type }}</td>
        <td class="bid-table">{{ occurrence.current_volunteer }}</td>
        <td class="bid-table">{{ occurrence.max_volunteer }}</td>
-       <td class="bid-table">
+       <td class="bid-table"><div class="btn-group" role="group" aria-label="...">
         <a href="{{ occurrence.detail_link }}" data-toggle="tooltip" title="View">
          <button type="button" class="btn btn-default btn-sm"><i class="icon-eye">
          </i></button></a>
@@ -125,12 +128,13 @@
         <a href="{{ occurrence.delete_link }}" data-toggle="tooltip" title="Delete">
          <button type="button" class="btn btn-default btn-sm"><i class="icon-trash">
          </i></button></a>
-       </td>
+       </div></td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-   </div>
+   </div></div>
+{% endif %}
  </div>
 </div>
 <script>

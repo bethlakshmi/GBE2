@@ -32,7 +32,6 @@ from gbe.functions import (
     get_conference_by_slug,
     get_events_list_by_type,
     validate_perms,
-    validate_profile,
 )
 from gbe_forms_text import list_text
 
