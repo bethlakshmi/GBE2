@@ -71,36 +71,35 @@ class ManageEventsView(View):
 
     def build_occurrence_display(self, occurrences):
         display_list = []
-        events = Event.objects.filter(
-            e_conference=self.conference).select_subclasses()
         for occurrence in occurrences:
-            event = events.filter(pk=occurrence.eventitem.event.pk).first()
             display_list += [{
+                'sort_start': occurrence.start_time,
                 'start':  occurrence.start_time.strftime(DATETIME_FORMAT),
-                'title': event.e_title,
+                'title': occurrence.eventitem.event.e_title,
                 'location': occurrence.location,
-                'duration': event.duration.hours() + float(
-                    event.duration.minutes())/60,
-                'type': event.event_type,
+                'duration': occurrence.eventitem.event.duration.hours() + float(
+                    occurrence.eventitem.event.duration.minutes())/60,
+                'type': occurrence.eventitem.event.event_type,
                 'current_volunteer': occurrence.volunteer_count,
                 'max_volunteer': occurrence.max_volunteer,
                 'detail_link': reverse('detail_view',
                                        urlconf='scheduler.urls',
-                                       args=[event.eventitem_id]),
+                                       args=[occurrence.eventitem.event.eventitem_id]),
                 'create_link': reverse('create_event_schedule',
                                        urlconf='gbe.scheduling.urls',
-                                       args=[event.__class__.__name__,
-                                             event.eventitem_id]),
+                                       args=[occurrence.eventitem.event.__class__.__name__,
+                                             occurrence.eventitem.event.eventitem_id]),
                 'edit_link': reverse('edit_event_schedule',
                                         urlconf='gbe.scheduling.urls',
-                                        args=[event.__class__.__name__,
-                                              event.eventitem_id,
+                                        args=[occurrence.eventitem.event.__class__.__name__,
+                                              occurrence.eventitem.event.eventitem_id,
                                               occurrence.id]),
                 'delete_link': reverse('delete_schedule',
                                           urlconf='scheduler.urls',
-                                          args=[occurrence.pk]),
+                                          args=[occurrence.id]),
 
             }]
+        display_list.sort(key=lambda k: k['sort_start'])
         return display_list
 
     def get_filtered_occurences(self, request, select_form):
