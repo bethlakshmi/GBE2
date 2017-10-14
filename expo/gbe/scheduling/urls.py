@@ -21,9 +21,9 @@ from gbe.scheduling.views import (
 urlpatterns = patterns(
     '',
     url(r'^scheduler/manage/?$',
-        ManageEventsView.as_view(), name='manage_conference'),
+        ManageEventsView.as_view(), name='manage_event_list'),
     url(r'^scheduler/manage/(?P<conference_slug>[-\w]+)/?$',
-        ManageEventsView.as_view(), name='manage_conference'),
+        ManageEventsView.as_view(), name='manage_event_list'),
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
