@@ -122,7 +122,7 @@ class ManageEventsView(View):
         if not select_form.is_valid():
             return render(request, self.template, context)
         occurrences = []
-        if len(select_form.cleaned_data['day']) == 0:
+        if len(select_form.cleaned_data['day']) > 0:
             for day_id in select_form.cleaned_data['day']:
                 day = ConferenceDay.objects.get(pk=day_id)
                 if len(select_form.cleaned_data['calendar_type']) > 0:

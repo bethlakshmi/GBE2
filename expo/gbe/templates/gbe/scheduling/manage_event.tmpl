@@ -4,10 +4,9 @@
   Manage Expo Schedule
 {% endblock %}
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="/static/styles/calendar.css">
-    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/simple-line-icons.css">
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
-    <link rel="stylesheet" type="text/css" href="//cdn
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
 {% endblock %}
 
 {% block content %}
@@ -113,6 +112,20 @@
        <td class="bid-table">{{ occurrence.type }}</td>
        <td class="bid-table">{{ occurrence.current_volunteer }}</td>
        <td class="bid-table">{{ occurrence.max_volunteer }}</td>
+       <td class="bid-table">
+        <a href="{{ occurrence.detail_link }}" data-toggle="tooltip" title="View">
+         <button type="button" class="btn btn-default btn-sm"><i class="icon-eye">
+         </i></button></a>
+        <a href="{{ occurrence.edit_link }}" data-toggle="tooltip" title="Edit">
+         <button type="button" class="btn btn-default btn-sm"><i class="icon-pencil">
+         </i></button></a>
+        <a href="{{ occurrence.create_link }}" data-toggle="tooltip" title="Add">
+         <button type="button" class="btn btn-default btn-sm"><i class="icon-plus">
+         </i></button></a>
+        <a href="{{ occurrence.delete_link }}" data-toggle="tooltip" title="Delete">
+         <button type="button" class="btn btn-default btn-sm"><i class="icon-trash">
+         </i></button></a>
+       </td>
       </tr>
     {% endfor %}
     </tbody>
