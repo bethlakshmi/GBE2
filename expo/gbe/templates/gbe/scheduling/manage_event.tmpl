@@ -6,6 +6,8 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="/static/styles/calendar.css">
     <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn
 {% endblock %}
 
 {% block content %}
@@ -65,11 +67,72 @@
    </div>
    </div>
    <div class="form-row">
-    {% for occurence in occurrences %}
-     {{ occurence }}</br>
+  <div>
+    Toggle column(s):
+      <a class="toggle-vis" data-column="0">Title</a> - 
+      <a class="toggle-vis" data-column="1">Location</a> - 
+      <a class="toggle-vis" data-column="2">Date/Time</a> - 
+      <a class="toggle-vis" data-column="3">Duration</a> - 
+      <a class="toggle-vis" data-column="4">Type</a> - 
+      <a class="toggle-vis" data-column="5">Current Volunteer</a> - 
+      <a class="toggle-vis" data-column="6">Max Volunteer</a>
+  </div>
+  <br/>
+  <table id="bid_review" class="order-column" cellspacing="0" width="100%">
+    <thead>
+      <tr class="bid-table">
+        <th class="bid-table">Title</th>
+        <th class="bid-table">Location</th>
+        <th class="bid-table">Date/Time</th>
+        <th class="bid-table">Duration</th>
+        <th class="bid-table">Type</th>
+        <th class="bid-table">Current Volunteer</th>
+        <th class="bid-table">Max Volunteer</th>
+        <th class="bid-table">Action</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr class="bid-table">
+        <th class="bid-table">Title</th>
+        <th class="bid-table">Location</th>
+        <th class="bid-table">Date/Time</th>
+        <th class="bid-table">Duration</th>
+        <th class="bid-table">Type</th>
+        <th class="bid-table">Current Volunteer</th>
+        <th class="bid-table">Max Volunteer</th>
+        <th class="bid-table">Action</th>
+      </tr>
+    </tfoot>
+    <tbody>
+    {% for occurrence in occurrences %}
+      <tr class="bid-table">
+       <td class="bid-table">{{ occurrence.title}}</td>
+       <td class="bid-table">{{ occurrence.location}}</td>
+       <td class="bid-table">{{ occurrence.start}}</td>
+       <td class="bid-table">{{ occurrence.duration }}</td>
+       <td class="bid-table">{{ occurrence.type }}</td>
+       <td class="bid-table">{{ occurrence.current_volunteer }}</td>
+       <td class="bid-table">{{ occurrence.max_volunteer }}</td>
+      </tr>
     {% endfor %}
+    </tbody>
+  </table>
    </div>
  </div>
 </div>
+<script>
+  $(document).ready(function() {
+    var table = $('#bid_review').DataTable();
 
+    $('a.toggle-vis').on( 'click', function (e) {
+        e.preventDefault();
+
+        // Get the column API object
+        var column = table.column( $(this).attr('data-column') );
+
+        // Toggle the visibility
+        column.visible( ! column.visible() );
+    } );
+} );
+</script>
 {% endblock %}

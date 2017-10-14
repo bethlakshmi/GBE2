@@ -62,6 +62,10 @@ class Event(EventItem):
                 }
 
     @property
+    def event_type(self):
+        return self.__class__.__name__
+
+    @property
     def sched_duration(self):
         return self.duration
 
