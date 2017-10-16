@@ -43,8 +43,31 @@ class TestEventList(TestCase):
         self.class_context = ClassContext(conference=self.day.conference)
         self.show_context = ShowContext(conference=self.day.conference)
         self.staff_context = StaffAreaContext(conference=self.day.conference)
-        self.vol_opp = self.staff_context.book_volunteer()
+        booking, self.vol_opp = self.staff_context.book_volunteer()
 
+    def assert_visible_input_selected(
+            self,
+            response,
+            conf_slug,
+            input_field,
+            input_index,
+            value,
+            checked=True):
+        if checked:
+            checked = 'checked="checked" '
+        else:
+            checked = ''
+        template_input = '<input %sid="id_%s-%s_%d" name="%s-%s" type="checkbox" value="%d" />'
+        assert_string = template_input % (
+            checked,
+            conf_slug,
+            input_field,
+            input_index,
+            conf_slug,
+            input_field,
+            value)
+        self.assertContains(response, assert_string)
+    
     def test_no_login_gives_error(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
@@ -62,12 +85,12 @@ class TestEventList(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         s = '<li role="presentation" class="active">\n' + \
-        '   <a href = "%s">%s</a></li>'
+        '   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (self.day.conference.conference_slug,
                  self.day.conference.conference_slug))
-        s = '<li role="presentation" >\n   <a href = "%s">%s</a></li>'
+        s = '<li role="presentation" >\n   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (old_conf_day.conference.conference_slug,
@@ -90,12 +113,12 @@ class TestEventList(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         s = '<li role="presentation" class="active">\n' + \
-        '   <a href = "%s">%s</a></li>'
+        '   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (old_conf_day.conference.conference_slug,
                  old_conf_day.conference.conference_slug))
-        s = '<li role="presentation" >\n   <a href = "%s">%s</a></li>'
+        s = '<li role="presentation" >\n   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (self.day.conference.conference_slug,
@@ -110,9 +133,93 @@ class TestEventList(TestCase):
     def test_good_user_get_conference_cal(self):
         login_as(self.privileged_profile, self)
         data = {
-            "event-select-calendar_type": [1],
+            "%s-calendar_type" % self.day.conference.conference_slug: 1,
             "filter": "Filter",
         }
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, data=data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.class_context.bid.e_title)
+        self.assert_visible_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "calendar_type",
+            1,
+            1)
+        self.assert_visible_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "calendar_type",
+            0,
+            0,
+            checked=False)
+
+    def test_good_user_get_all_cals(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-calendar_type" % self.day.conference.conference_slug: [0, 1, 2],
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.class_context.bid.e_title)
+        self.assertContains(response, self.show_context.show.e_title)
+        self.assertContains(response, self.vol_opp.event.eventitem.e_title)
+        for value in range(0, 2):
+            self.assert_visible_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "calendar_type",
+                1,
+                1)
+
+    def test_good_user_get_day(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-day" % self.day.conference.conference_slug: self.day.pk,
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.show_context.show.e_title)
+        self.assertContains(response, self.class_context.bid.e_title)
+        counter = 0
+        for day in self.day.conference.conferenceday_set.all().order_by('day'):
+            self.assert_visible_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "day",
+                counter,
+                day.pk,
+                checked=(day==self.day))
+            counter += 1
+        for value in range(0, 2):
+            self.assert_visible_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "calendar_type",
+                1,
+                1,
+                checked=False)
+
+    def test_good_user_get_empty_day(self):
+        new_day = ConferenceDayFactory(conference=self.day.conference,
+                                       day=self.day.day+timedelta(14))
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-day" % self.day.conference.conference_slug: new_day.pk,
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.show_context.show.e_title)
+        self.assertNotContains(response, self.class_context.bid.e_title)
+        counter = 0
+        for day in self.day.conference.conferenceday_set.all().order_by('day'):
+            self.assert_visible_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "day",
+                counter,
+                day.pk,
+                checked=(day==new_day))
+            counter += 1
