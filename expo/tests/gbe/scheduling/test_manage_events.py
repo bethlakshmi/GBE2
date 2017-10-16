@@ -5,12 +5,9 @@ from django.test import Client
 from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     ProfileFactory,
-    ClassFactory,
-    ShowFactory,
 )
 from gbe.models import Conference
 from tests.functions.gbe_functions import (
-    current_conference,
     grant_privilege,
     login_as,
 )
@@ -19,6 +16,8 @@ from tests.factories.scheduler_factories import (
 )
 from tests.contexts import (
     ClassContext,
+    ShowContext,
+    StaffAreaContext,
 )
 from expo.settings import (
     DATE_FORMAT,
@@ -41,7 +40,10 @@ class TestEventList(TestCase):
         self.url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls")
         self.day = ConferenceDayFactory()
-
+        self.class_context = ClassContext(conference=self.day.conference)
+        self.show_context = ShowContext(conference=self.day.conference)
+        self.staff_context = StaffAreaContext(conference=self.day.conference)
+        self.vol_opp = self.staff_context.book_volunteer()
 
     def test_no_login_gives_error(self):
         response = self.client.get(self.url)
@@ -104,3 +106,13 @@ class TestEventList(TestCase):
         self.assertNotContains(
             response,
             self.day.day.strftime(DATE_FORMAT))
+
+    def test_good_user_get_conference_cal(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "event-select-calendar_type": [1],
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.class_context.bid.e_title)

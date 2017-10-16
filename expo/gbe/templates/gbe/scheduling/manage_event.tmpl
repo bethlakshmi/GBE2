@@ -10,15 +10,18 @@
 {% endblock %}
 
 {% block content %}
+<form class="form-inline" action="" method="get" enctype="multipart/form-data">
+ {% for form in other_forms %}
+  {{ form }}
+ {% endfor %}
 <div class="container review">
  <ul class="nav nav-tabs" id="inner">
  {% for slug in conference_slugs %}
   <li role="presentation" {% if conference.conference_slug == slug %}class="active"{% endif %}>
-   <a href = "{{ slug }}">{{slug}}</a></li>
+   <a href = "{{ slug }}?{{ request.GET.urlencode }}" onclick="form.submit();">{{slug}}</a></li>
  {% endfor %}
  </ul>
  <div class="scheduling-area">
-   <form class="form-inline" action="" method="get" enctype="multipart/form-data">
    <div class="form-row">
    <div class="form-group col-md-2 col-xs-12">
      <label class="form-check-label" id="{{ selection_form.day.name }}">

@@ -975,7 +975,7 @@ span.opps-errors > ul
   background-color: rgb(221, 221, 221);
   padding: 5px;
 }
-.scheduling-area > .form-inline > .form-row > .form-group {
+.scheduling-area > .form-row > .form-group {
   min-height: 26px;
 }
 

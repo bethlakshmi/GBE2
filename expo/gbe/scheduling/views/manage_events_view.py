@@ -25,12 +25,15 @@ from gbe.functions import (
     get_current_conference,
     get_conference_days,
     get_conference_by_slug,
-    conference_slugs,
+    conference_list,
     validate_perms,
 )
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
-from gbe.scheduling.forms import SelectEventForm
+from gbe.scheduling.forms import (
+    HiddenSelectEventForm,
+    SelectEventForm,
+)
 from expo.settings import (
     DATE_FORMAT,
     DATETIME_FORMAT,
@@ -50,6 +53,7 @@ class ManageEventsView(View):
         context = {}
         self.calendar_type = None
         self.conference = None
+        conference_set = conference_list().order_by('-conference_slug')
         self.this_day = None
 
         if "conference_slug" in kwargs:
@@ -58,15 +62,30 @@ class ManageEventsView(View):
         else:
             self.conference = get_current_conference()
 
-        self.day_list = []
+        day_list = []
         for day in self.conference.conferenceday_set.all():
-            self.day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
+            day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
 
+        
+        select_form = SelectEventForm(request.GET,
+                                      prefix=self.conference.conference_slug)
+        select_form.fields['day'].choices = day_list
         context = {
             'conference': self.conference,
-            'conference_slugs': conference_slugs(),
+            'conference_slugs': [conf.conference_slug for conf in conference_set],
+            'selection_form': select_form,
+            'other_forms': [],
         }
-
+        for conf in conference_set:
+            if self.conference != conf:
+                hidden_form = HiddenSelectEventForm(
+                    request.GET,
+                    prefix=conf.conference_slug)
+                conf_day_list = []
+                for day in conf.conferenceday_set.all():
+                    conf_day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
+                hidden_form.fields['day'].choices = conf_day_list
+                context['other_forms'] += [hidden_form]
         return context
 
     def build_occurrence_display(self, occurrences):
@@ -104,7 +123,7 @@ class ManageEventsView(View):
 
     def get_filtered_occurences(self, request, select_form):
         if not select_form.is_valid():
-            return render(request, self.template, context)
+            return None
         occurrences = []
         if len(select_form.cleaned_data['day']) > 0:
             for day_id in select_form.cleaned_data['day']:
@@ -135,24 +154,20 @@ class ManageEventsView(View):
                 response = get_occurrences(labels=[
                     self.conference.conference_slug, ])
                 occurrences += response.occurrences
+
         return self.build_occurrence_display(occurrences)
 
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = self.setup(request, args, kwargs)
-        if request.GET.__contains__('filter'):
-            select_form = SelectEventForm(request.GET,
-                                      prefix="event-select")
-        else:
-            select_form = SelectEventForm(prefix="event-select")
-        select_form.fields['day'].choices = self.day_list
-        context['selection_form'] = select_form
 
-        if request.GET.__contains__('filter'):
+        if context['selection_form'].is_valid() and (
+                len(context['selection_form'].cleaned_data['day']) > 0 or len(
+                    context['selection_form'].cleaned_data['calendar_type'])) > 0:
             context['occurrences'] = self.get_filtered_occurences(
                 request,
-                select_form)
+                context['selection_form'])
         return render(request, self.template, context)
 
     @method_decorator(login_required)
