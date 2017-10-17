@@ -38,7 +38,7 @@ class TestEventList(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.url = reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls")
+                           urlconf="gbe.scheduling.urls")
         self.day = ConferenceDayFactory()
         self.class_context = ClassContext(conference=self.day.conference)
         self.show_context = ShowContext(conference=self.day.conference)
@@ -57,7 +57,8 @@ class TestEventList(TestCase):
             checked = 'checked="checked" '
         else:
             checked = ''
-        template_input = '<input %sid="id_%s-%s_%d" name="%s-%s" type="checkbox" value="%d" />'
+        template_input = '<input %sid="id_%s-%s_%d" name="%s-%s" ' + \
+                         'type="checkbox" value="%d" />'
         assert_string = template_input % (
             checked,
             conf_slug,
@@ -76,7 +77,8 @@ class TestEventList(TestCase):
             input_index,
             value,
             exists=True):
-        template_input = '<input id="id_%s-%s_%d" name="%s-%s" type="hidden" value="%d" />'
+        template_input = '<input id="id_%s-%s_%d" name="%s-%s" ' + \
+            'type="hidden" value="%d" />'
         assert_string = template_input % (
             conf_slug,
             input_field,
@@ -88,7 +90,7 @@ class TestEventList(TestCase):
             self.assertContains(response, assert_string)
         else:
             self.assertNotContains(response, assert_string)
-    
+
     def test_no_login_gives_error(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
@@ -106,7 +108,7 @@ class TestEventList(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         s = '<li role="presentation" class="active">\n' + \
-        '   <a href = "%s?">%s</a></li>'
+            '   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (self.day.conference.conference_slug,
@@ -126,7 +128,8 @@ class TestEventList(TestCase):
     def test_good_user_get_create_edit(self):
         login_as(self.privileged_profile, self)
         data = {
-            "%s-calendar_type" % self.day.conference.conference_slug: [0, 1, 2],
+            "%s-calendar_type" % self.day.conference.conference_slug: [
+                0, 1, 2],
             "filter": "Filter",
         }
         response = self.client.get(self.url, data)
@@ -149,7 +152,7 @@ class TestEventList(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         s = '<li role="presentation" class="active">\n' + \
-        '   <a href = "%s?">%s</a></li>'
+            '   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (old_conf_day.conference.conference_slug,
@@ -172,7 +175,8 @@ class TestEventList(TestCase):
             day=self.day.day + timedelta(3))
         context = ClassContext(conference=old_conf_day.conference)
         data = {
-            "%s-calendar_type" % old_conf_day.conference.conference_slug: [0, 1, 2],
+            "%s-calendar_type" % old_conf_day.conference.conference_slug: [
+                0, 1, 2],
             "filter": "Filter",
         }
         login_as(self.privileged_profile, self)
@@ -225,11 +229,11 @@ class TestEventList(TestCase):
             response,
             "Select a valid choice. bad is not one of the available choices.")
 
-
     def test_good_user_get_all_cals(self):
         login_as(self.privileged_profile, self)
         data = {
-            "%s-calendar_type" % self.day.conference.conference_slug: [0, 1, 2],
+            "%s-calendar_type" % self.day.conference.conference_slug: [
+                0, 1, 2],
             "filter": "Filter",
         }
         response = self.client.get(self.url, data=data)
@@ -263,7 +267,7 @@ class TestEventList(TestCase):
                 "day",
                 counter,
                 day.pk,
-                checked=(day==self.day))
+                checked=(day == self.day))
             counter += 1
         for value in range(0, 2):
             self.assert_visible_input_selected(
@@ -294,7 +298,7 @@ class TestEventList(TestCase):
                 "day",
                 counter,
                 day.pk,
-                checked=(day==new_day))
+                checked=(day == new_day))
             counter += 1
 
     def test_switch_conf_keep_filter(self):
@@ -308,7 +312,8 @@ class TestEventList(TestCase):
         data = {
             "%s-day" % self.day.conference.conference_slug: self.day.pk,
             "%s-calendar_type" % self.day.conference.conference_slug: 1,
-            "%s-day" % old_conf_day.conference.conference_slug: old_conf_day.pk,
+            "%s-day" % old_conf_day.conference.conference_slug: (
+                old_conf_day.pk),
             "%s-calendar_type" % old_conf_day.conference.conference_slug: 0,
             "filter": "Filter",
         }
@@ -323,7 +328,7 @@ class TestEventList(TestCase):
                 "day",
                 0,
                 day.pk,
-                exists=(day==self.day))
+                exists=(day == self.day))
         self.assert_hidden_input_selected(
             response,
             self.day.conference.conference_slug,

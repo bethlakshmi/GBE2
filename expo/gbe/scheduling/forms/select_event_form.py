@@ -18,6 +18,7 @@ class SelectEventForm(Form):
         widget=CheckboxSelectMultiple(),
         required=False)
 
+
 class HiddenSelectEventForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'

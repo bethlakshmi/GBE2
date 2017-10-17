@@ -66,13 +66,13 @@ class ManageEventsView(View):
         for day in self.conference.conferenceday_set.all():
             day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
 
-        
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
         context = {
             'conference': self.conference,
-            'conference_slugs': [conf.conference_slug for conf in conference_set],
+            'conference_slugs': [
+                conf.conference_slug for conf in conference_set],
             'selection_form': select_form,
             'other_forms': [],
         }
@@ -96,19 +96,19 @@ class ManageEventsView(View):
                 'start':  occurrence.start_time.strftime(DATETIME_FORMAT),
                 'title': occurrence.eventitem.event.e_title,
                 'location': occurrence.location,
-                'duration': occurrence.eventitem.event.duration.hours() + float(
+                'duration': occurrence.eventitem.event.duration.hours(
+                    ) + float(
                     occurrence.eventitem.event.duration.minutes())/60,
                 'type': occurrence.eventitem.event.event_type,
                 'current_volunteer': occurrence.volunteer_count,
                 'max_volunteer': occurrence.max_volunteer,
-                'detail_link': reverse('detail_view',
-                                       urlconf='scheduler.urls',
-                                       args=[occurrence.eventitem.event.eventitem_id]),
+                'detail_link': reverse(
+                    'detail_view',
+                    urlconf='scheduler.urls',
+                    args=[occurrence.eventitem.event.eventitem_id]),
                 'delete_link': reverse('delete_schedule',
-                                          urlconf='scheduler.urls',
-                                          args=[occurrence.id]),
-
-            }
+                                       urlconf='scheduler.urls',
+                                       args=[occurrence.id])}
             if self.conference.status != "completed":
                 display_item['create_link'] = reverse(
                     'create_event_schedule',
@@ -164,7 +164,8 @@ class ManageEventsView(View):
 
         if context['selection_form'].is_valid() and (
                 len(context['selection_form'].cleaned_data['day']) > 0 or len(
-                    context['selection_form'].cleaned_data['calendar_type'])) > 0:
+                    context['selection_form'].cleaned_data[
+                        'calendar_type'])) > 0:
             context['occurrences'] = self.get_filtered_occurences(
                 request,
                 context['selection_form'])
