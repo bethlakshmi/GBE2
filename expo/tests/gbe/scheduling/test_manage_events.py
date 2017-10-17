@@ -123,6 +123,21 @@ class TestEventList(TestCase):
             response,
             old_conf_day.day.strftime(DATE_FORMAT))
 
+    def test_good_user_get_create_edit(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-calendar_type" % self.day.conference.conference_slug: [0, 1, 2],
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<i class="icon-pencil">')
+        self.assertContains(
+            response,
+            '<i class="icon-plus">')
+
     def test_good_user_get_success_pick_conf(self):
         old_conf_day = ConferenceDayFactory(
             conference__status="completed",
@@ -150,6 +165,30 @@ class TestEventList(TestCase):
         self.assertNotContains(
             response,
             self.day.day.strftime(DATE_FORMAT))
+
+    def test_good_user_get_no_create_edit(self):
+        old_conf_day = ConferenceDayFactory(
+            conference__status="completed",
+            day=self.day.day + timedelta(3))
+        context = ClassContext(conference=old_conf_day.conference)
+        data = {
+            "%s-calendar_type" % old_conf_day.conference.conference_slug: [0, 1, 2],
+            "filter": "Filter",
+        }
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=[old_conf_day.conference.conference_slug])
+        response = self.client.get(url, data)
+        self.assertContains(
+            response,
+            '<i class="icon-trash">')
+        self.assertNotContains(
+            response,
+            '<i class="icon-pencil">')
+        self.assertNotContains(
+            response,
+            '<i class="icon-plus">')
 
     def test_good_user_get_conference_cal(self):
         login_as(self.privileged_profile, self)

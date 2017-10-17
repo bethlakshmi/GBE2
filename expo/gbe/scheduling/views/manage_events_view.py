@@ -91,7 +91,7 @@ class ManageEventsView(View):
     def build_occurrence_display(self, occurrences):
         display_list = []
         for occurrence in occurrences:
-            display_list += [{
+            display_item = {
                 'sort_start': occurrence.start_time,
                 'start':  occurrence.start_time.strftime(DATETIME_FORMAT),
                 'title': occurrence.eventitem.event.e_title,
@@ -104,20 +104,25 @@ class ManageEventsView(View):
                 'detail_link': reverse('detail_view',
                                        urlconf='scheduler.urls',
                                        args=[occurrence.eventitem.event.eventitem_id]),
-                'create_link': reverse('create_event_schedule',
-                                       urlconf='gbe.scheduling.urls',
-                                       args=[occurrence.eventitem.event.__class__.__name__,
-                                             occurrence.eventitem.event.eventitem_id]),
-                'edit_link': reverse('edit_event_schedule',
-                                        urlconf='gbe.scheduling.urls',
-                                        args=[occurrence.eventitem.event.__class__.__name__,
-                                              occurrence.eventitem.event.eventitem_id,
-                                              occurrence.id]),
                 'delete_link': reverse('delete_schedule',
                                           urlconf='scheduler.urls',
                                           args=[occurrence.id]),
 
-            }]
+            }
+            if self.conference.status != "completed":
+                display_item['create_link'] = reverse(
+                    'create_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[occurrence.eventitem.event.__class__.__name__,
+                          occurrence.eventitem.event.eventitem_id])
+                display_item['edit_link'] = reverse(
+                    'edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[occurrence.eventitem.event.__class__.__name__,
+                          occurrence.eventitem.event.eventitem_id,
+                          occurrence.id])
+            display_list += [display_item]
+
         display_list.sort(key=lambda k: k['sort_start'])
         return display_list
 
