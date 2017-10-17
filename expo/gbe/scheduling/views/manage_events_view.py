@@ -155,11 +155,6 @@ class ManageEventsView(View):
                             calendar_type_options[int(cal_type)]])
                     occurrences += response.occurrences
 
-            else:
-                response = get_occurrences(labels=[
-                    self.conference.conference_slug, ])
-                occurrences += response.occurrences
-
         return self.build_occurrence_display(occurrences)
 
     @never_cache

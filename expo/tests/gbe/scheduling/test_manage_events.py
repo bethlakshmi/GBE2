@@ -213,6 +213,19 @@ class TestEventList(TestCase):
             0,
             checked=False)
 
+    def test_good_user_get_conference_bad_filter(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-calendar_type" % self.day.conference.conference_slug: "bad",
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Select a valid choice. bad is not one of the available choices.")
+
+
     def test_good_user_get_all_cals(self):
         login_as(self.privileged_profile, self)
         data = {
