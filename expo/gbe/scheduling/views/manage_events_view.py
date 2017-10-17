@@ -90,6 +90,7 @@ class ManageEventsView(View):
 
     def build_occurrence_display(self, occurrences):
         display_list = []
+        events = Event.objects.filter(e_conference=self.conference)
         for occurrence in occurrences:
             display_item = {
                 'sort_start': occurrence.start_time,
@@ -99,7 +100,8 @@ class ManageEventsView(View):
                 'duration': occurrence.eventitem.event.duration.hours(
                     ) + float(
                     occurrence.eventitem.event.duration.minutes())/60,
-                'type': occurrence.eventitem.event.event_type,
+                'type': events.filter(
+                    eventitem_id=occurrence.eventitem.eventitem_id).get_subclass().event_type,
                 'current_volunteer': occurrence.volunteer_count,
                 'max_volunteer': occurrence.max_volunteer,
                 'detail_link': reverse(
@@ -127,8 +129,6 @@ class ManageEventsView(View):
         return display_list
 
     def get_filtered_occurences(self, request, select_form):
-        if not select_form.is_valid():
-            return None
         occurrences = []
         if len(select_form.cleaned_data['day']) > 0:
             for day_id in select_form.cleaned_data['day']:

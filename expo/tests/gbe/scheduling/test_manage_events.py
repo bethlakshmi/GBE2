@@ -241,6 +241,7 @@ class TestEventList(TestCase):
         self.assertContains(response, self.class_context.bid.e_title)
         self.assertContains(response, self.show_context.show.e_title)
         self.assertContains(response, self.vol_opp.event.eventitem.e_title)
+        self.assertContains(response, '<td class="bid-table">Volunteer</td>')
         for value in range(0, 2):
             self.assert_visible_input_selected(
                 response,
