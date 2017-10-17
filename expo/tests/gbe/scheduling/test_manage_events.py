@@ -67,6 +67,27 @@ class TestEventList(TestCase):
             input_field,
             value)
         self.assertContains(response, assert_string)
+
+    def assert_hidden_input_selected(
+            self,
+            response,
+            conf_slug,
+            input_field,
+            input_index,
+            value,
+            exists=True):
+        template_input = '<input id="id_%s-%s_%d" name="%s-%s" type="hidden" value="%d" />'
+        assert_string = template_input % (
+            conf_slug,
+            input_field,
+            input_index,
+            conf_slug,
+            input_field,
+            value)
+        if exists:
+            self.assertContains(response, assert_string)
+        else:
+            self.assertNotContains(response, assert_string)
     
     def test_no_login_gives_error(self):
         response = self.client.get(self.url)
@@ -223,3 +244,44 @@ class TestEventList(TestCase):
                 day.pk,
                 checked=(day==new_day))
             counter += 1
+
+    def test_switch_conf_keep_filter(self):
+        old_conf_day = ConferenceDayFactory(
+            conference__status="completed",
+            day=self.day.day + timedelta(3))
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=[old_conf_day.conference.conference_slug])
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-day" % self.day.conference.conference_slug: self.day.pk,
+            "%s-calendar_type" % self.day.conference.conference_slug: 1,
+            "%s-day" % old_conf_day.conference.conference_slug: old_conf_day.pk,
+            "%s-calendar_type" % old_conf_day.conference.conference_slug: 0,
+            "filter": "Filter",
+        }
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.show_context.show.e_title)
+        self.assertNotContains(response, self.class_context.bid.e_title)
+        for day in self.day.conference.conferenceday_set.all().order_by('day'):
+            self.assert_hidden_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "day",
+                0,
+                day.pk,
+                exists=(day==self.day))
+        self.assert_hidden_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "calendar_type",
+            0,
+            1)
+        self.assert_hidden_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "calendar_type",
+            0,
+            0,
+            False)
