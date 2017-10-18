@@ -186,8 +186,8 @@ class MailToBiddersView(MailView):
                 to_list = self.get_to_list()
                 recipient_info = SecretBidderInfoForm(request.POST,
                                                       prefix="email-select")
-                recipient_info.fields['bid_type'].choices = self.bid_type_choices
-            
+                recipient_info.fields[
+                    'bid_type'].choices = self.bid_type_choices
             if len(to_list) > 0:
                 mail_form = self.send_mail(request, to_list)
                 if mail_form.is_valid():
