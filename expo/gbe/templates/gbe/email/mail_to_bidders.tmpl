@@ -117,6 +117,8 @@
 
     <form action="" method="post" enctype="multipart/form-data"> 
       {% include "form_table_wrapper.tmpl" with forms=email_forms %}
+      {% if everyone %}<input id="id_everyone" name="everyone" type="hidden" value="Everyone" />{% endif %}
+
       <input type="submit" class="email-submit" name="send" value="Send">
     </form>
   </div>

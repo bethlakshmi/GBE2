@@ -119,7 +119,9 @@ class MailToBiddersView(MailView):
              "email_forms": [email_form, recipient_info],
              "to_list": to_list, })
 
-    def filter_everyone(self, request):
+    def get_everyone(self, request):
+        if not request.user.is_superuser:
+            return 0
         to_list = {}
         for user_object in User.objects.filter(is_active=True).exclude(username="limbo"):
             if hasattr(user_object, 'profile') and len(
@@ -129,14 +131,17 @@ class MailToBiddersView(MailView):
             else:
                 to_list[user_object.email] = \
                             user_object.username
+        return to_list
 
+    def filter_everyone(self, request):
+        to_list = self.get_everyone(request)
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
-                code="NO_RECIPIENTS",
+                code="UNKNOWN_ACTION",
                 defaults={
-                    'summary': "Email Sent to Bidders",
-                    'description': to_list_empty_msg})
+                    'summary': "Unknown Request",
+                    'description': unknown_request})
             messages.error(
                 request,
                 user_message[0].description)
@@ -145,14 +150,12 @@ class MailToBiddersView(MailView):
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form})
         email_form = self.setup_email_form(request)
-        recipient_info = SecretBidderInfoForm(request.POST,
-                                              prefix="email-select")
 
         return render(
             request,
             'gbe/email/mail_to_bidders.tmpl',
             {"selection_form": self.select_form,
-             "email_forms": [email_form, recipient_info],
+             "email_forms": [email_form],
              "to_list": to_list,
              "everyone": True})
 
@@ -170,28 +173,38 @@ class MailToBiddersView(MailView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if 'everyone' in request.POST.keys():
-            if request.user.is_superuser:
-                return self.filter_everyone(request)
+        if 'send' in request.POST.keys():
+            everyone = False
+            recipient_info = None
+            to_list = {}
+            if 'everyone' in request.POST.keys():
+                to_list = self.get_everyone(request)
+                everyone = True
+
+            elif self.select_form.is_valid():
+                to_list = self.get_to_list()
+                recipient_info = SecretBidderInfoForm(request.POST,
+                                                      prefix="email-select")
+                recipient_info.fields['bid_type'].choices = self.bid_type_choices
+            
+            if len(to_list) > 0:
+                mail_form = self.send_mail(request, to_list)
+                if mail_form.is_valid():
+                    return HttpResponseRedirect(
+                        reverse('mail_to_bidders', urlconf='gbe.email.urls'))
+
+                else:
+                    return render(
+                        request,
+                        'gbe/email/mail_to_bidders.tmpl',
+                        {"selection_form": self.select_form,
+                         "email_forms": [mail_form, recipient_info],
+                         "to_list": to_list,
+                         "everyone": everyone})
+        elif 'everyone' in request.POST.keys():
+            return self.filter_everyone(request)
         elif 'filter' in request.POST.keys() and self.select_form.is_valid():
             return self.filter_bids(request)
-        elif 'send' in request.POST.keys() and self.select_form.is_valid():
-            to_list = self.get_to_list()
-            mail_form = self.send_mail(request, to_list)
-            recipient_info = SecretBidderInfoForm(request.POST,
-                                                  prefix="email-select")
-            recipient_info.fields['bid_type'].choices = self.bid_type_choices
-            if mail_form.is_valid():
-                return HttpResponseRedirect(
-                    reverse('mail_to_bidders', urlconf='gbe.email.urls'))
-
-            else:
-                return render(
-                    request,
-                    'gbe/email/mail_to_bidders.tmpl',
-                    {"selection_form": self.select_form,
-                     "email_forms": [mail_form, recipient_info],
-                     "to_list": to_list, })
 
         user_message = UserMessage.objects.get_or_create(
             view=self.__class__.__name__,
