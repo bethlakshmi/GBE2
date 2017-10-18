@@ -120,10 +120,11 @@ class MailToBiddersView(MailView):
              "to_list": to_list, })
 
     def get_everyone(self, request):
-        if not request.user.is_superuser:
-            return 0
         to_list = {}
-        for user_object in User.objects.filter(is_active=True).exclude(username="limbo"):
+        if not request.user.is_superuser:
+            return to_list
+        for user_object in User.objects.filter(
+                is_active=True).exclude(username="limbo").order_by('email'):
             if hasattr(user_object, 'profile') and len(
                     user_object.profile.display_name) > 0:
                 to_list[user_object.email] = \
