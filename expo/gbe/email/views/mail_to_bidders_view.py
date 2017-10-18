@@ -24,6 +24,7 @@ from gbetext import (
 )
 from gbe.functions import validate_perms
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 
 class MailToBiddersView(MailView):
@@ -118,6 +119,43 @@ class MailToBiddersView(MailView):
              "email_forms": [email_form, recipient_info],
              "to_list": to_list, })
 
+    def filter_everyone(self, request):
+        to_list = {}
+        for user_object in User.objects.filter(is_active=True).exclude(username="limbo"):
+            if hasattr(user_object, 'profile') and len(
+                    user_object.profile.display_name) > 0:
+                to_list[user_object.email] = \
+                            user_object.profile.display_name
+            else:
+                to_list[user_object.email] = \
+                            user_object.username
+
+        if len(to_list) == 0:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="NO_RECIPIENTS",
+                defaults={
+                    'summary': "Email Sent to Bidders",
+                    'description': to_list_empty_msg})
+            messages.error(
+                request,
+                user_message[0].description)
+            return render(
+                request,
+                'gbe/email/mail_to_bidders.tmpl',
+                {"selection_form": self.select_form})
+        email_form = self.setup_email_form(request)
+        recipient_info = SecretBidderInfoForm(request.POST,
+                                              prefix="email-select")
+
+        return render(
+            request,
+            'gbe/email/mail_to_bidders.tmpl',
+            {"selection_form": self.select_form,
+             "email_forms": [email_form, recipient_info],
+             "to_list": to_list,
+             "everyone": True})
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -132,7 +170,10 @@ class MailToBiddersView(MailView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        if 'filter' in request.POST.keys() and self.select_form.is_valid():
+        if 'everyone' in request.POST.keys():
+            if request.user.is_superuser:
+                return self.filter_everyone(request)
+        elif 'filter' in request.POST.keys() and self.select_form.is_valid():
             return self.filter_bids(request)
         elif 'send' in request.POST.keys() and self.select_form.is_valid():
             to_list = self.get_to_list()
