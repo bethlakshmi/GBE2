@@ -478,6 +478,6 @@ class TestMailToBidder(TestCase):
             response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
                 send_email_success_msg,
                 self.privileged_profile.display_name,
-                self.privileged_profile.user_object.email),
+                self.privileged_profile.user_object.email,
                 second_super.username,
-                second_super.email)
+                second_super.email))
