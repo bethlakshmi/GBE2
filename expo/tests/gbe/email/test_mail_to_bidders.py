@@ -83,6 +83,7 @@ class TestMailToBidder(TestCase):
             self.assertContains(
                 response,
                 state[1])
+        self.assertContains(response, "Email Everyone")
 
     def test_reduced_login_first_get(self):
         self.reduced_login()
@@ -97,6 +98,7 @@ class TestMailToBidder(TestCase):
         self.assertNotContains(
             response,
             '<option value="%s">%s</option>' % ("Class", "Class"))
+        self.assertNotContains(response, "Email Everyone")
 
     def test_full_login_first_get_2_conf(self):
         extra_conf = ConferenceFactory()
@@ -112,6 +114,24 @@ class TestMailToBidder(TestCase):
             '<option value="%s">%s</option>' % (
                 extra_conf.pk,
                 extra_conf.conference_name))
+
+    def test_pick_everyone(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            'everyone': "Everyone",
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        for user in User.objects.exclude(username="limbo"):
+            self.assertContains(response, user.email)
+
+    def test_pick_everyone_no_priv(self):
+        self.reduced_login()
+        data = {
+            'everyone': "Everyone",
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response, 'danger', 'Error', unknown_request)
 
     def test_pick_conf_bidder(self):
         second_context = ClassContext()
@@ -408,3 +428,56 @@ class TestMailToBidder(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
             response, 'danger', 'Error', unknown_request)
+
+    def test_send_everyone_success_email_sent(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'everyone': "Everyone",
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        for user in User.objects.exclude(username="limbo"):
+            assert_queued_email(
+                [user.email, ],
+                data['subject'],
+                data['html_message'],
+                data['sender'],
+                )
+
+    def test_send_everyone_reduced(self):
+        reduced_profile = self.reduced_login()
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'everyone': "Everyone",
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response, 'danger', 'Error', unknown_request)
+
+    def test_send_everyone_success_alert_displayed(self):
+        User.objects.exclude(
+            username=self.privileged_profile.user_object.username).delete()
+        second_super = User.objects.create_superuser(
+            'secondsuper', 'secondsuper@test.com', "mypassword")
+        login_as(self.privileged_profile, self)
+        data = {
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'everyone': "Everyone",
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        assert_alert_exists(
+            response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
+                send_email_success_msg,
+                self.privileged_profile.display_name,
+                self.privileged_profile.user_object.email,
+                second_super.username,
+                second_super.email))
