@@ -5,9 +5,7 @@ from django.conf.urls import (
 
 from gbe.scheduling.views import (
     AllocateWorkerView,
-    ClassWizardView,
     CreateEventView,
-    EventWizardView,
     MakeOccurrenceView,
     ManageVolOpsView,
     ShowCalendarView,
@@ -23,10 +21,6 @@ urlpatterns = patterns(
     '',
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
-    url(r'^scheduling/create_class_wizard/conference/(?P<conference>[-\w]+)/?$',
-        ClassWizardView.as_view(), name='create_class_wizard'),
-    url(r'^scheduling/create_event_wizard/(?P<conference>[-\w]+)/?$',
-        EventWizardView.as_view(), name='create_event_wizard'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         MakeOccurrenceView.as_view(), name='create_event_schedule'),
     url(r'^scheduling/edit/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/' +
