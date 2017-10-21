@@ -945,6 +945,19 @@ td.form_field.long_choice > ul > li
 {
   list-style-type: none;
 }
+.form-group > ul > li
+{
+  list-style-type: none;
+  font-size: larger;
+  font-weight: bold;
+}
+.form-group > ul > li > ul > li
+{
+  list-style-type: none;
+  font-size: smaller;
+  font-weight: normal;
+}
+
 
 .formtitle
 {
@@ -977,4 +990,9 @@ span.opps-errors > ul
 .calendar_table .cal_body TH
 {
   width: 80px;
+}
+
+div.hierarchy-1
+{
+  padding-left: 20px;
 }

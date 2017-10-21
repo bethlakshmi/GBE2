@@ -25,6 +25,19 @@ profile_preferences_labels = {
     'show_hotel_infobox': ('Show hotel booking info on your landing page?'),
 }
 
+event_type_options = [(
+    'Classes', (
+        ('drop-in', 'Drop-In Class'),
+        ('conference', 'Conference Class'),
+        ('master', 'Master Class'),),),(
+    'Other Public Events',(
+        ('show', 'Show'),
+        ('special', 'Special Event'),),),(
+    'Behind the Scenes', (
+        ('volunteer', 'Volunteering'),
+        ('rehearsal', 'Rehearsal Slot'),
+        ('staff', 'Staff Area')))]
+
 inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
