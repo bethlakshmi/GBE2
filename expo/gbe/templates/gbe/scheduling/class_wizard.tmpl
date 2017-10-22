@@ -1,0 +1,21 @@
+{% extends 'gbe/scheduling/event_wizard.tmpl' %}
+
+{% block second_form %}
+<form action="" method="post" enctype="multipart/form-data"> 
+  <font color="red">
+  {% if next_form.errors %}
+    <p style= "color:red"> There is an error on the form.</p>
+  {% endif %}
+  {{ next_form.non_field_errors }}</font>
+    <div class="form-group single-radio">
+      <h4>Pick an accepted class or create a new one below:</h4>
+      {{ next_form.accepted_class }}
+        {% if next_form.accepted_class.errors %}
+          <font color="red">{{ next_form.accepted_class.errors }}</font>
+        {% endif %}
+    </div>
+  <div class="form-row">
+    <input type="submit" class="next" name="pick_class" value="Next">
+  </div>
+</form>
+{% endblock %}

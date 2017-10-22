@@ -4,17 +4,16 @@
   Manage Events
 {% endblock %}
 
-{% block head %}
- {% for email_form in email_forms %}
-  {{ email_form.media }}
- {% endfor %}
-{% endblock %}
-
 {% block content %}
 <div class="panel panel-primary">
   <div class="panel-heading">
-    <h3 class="panel-title">Select Event Type</h3>
+    <h3 class="panel-title">
+      {% if next_form %}<a data-toggle="collapse" href="#collapse1">
+      Select Event Type: {{ event_type }}</a>
+      {% else %}Select Event Type{% endif %}
+    </h3>
   </div>
+  {% if next_form %}<div id="collapse1" class="panel-collapse collapse">{% endif %}
   <div class="panel-body">
   <font color="red">
   {% if selection_form.errors %}
@@ -30,7 +29,7 @@
          <input type="submit" class="event_wizard_button" name="pick_event" value="Next">
     </div>
   </form>
-  </div>
+  </div>{% if next_form %}</div>{% endif %}
 </div>
 {% if next_form %}
 <div class="panel panel-primary">
@@ -38,10 +37,8 @@
     <h3 class="panel-title">{{ next_title }}</h3>
   </div>
   <div class="panel-body">
-    <form action="" method="post" enctype="multipart/form-data"> 
-      {% include "form_table_wrapper.tmpl" with forms=email_forms %}
-      <input type="submit" class="next" name="pick_2" value="Next">
-    </form>
+    {% block second_form %}
+    {% endblock %}
   </div>
 </div>
 {% endif %}

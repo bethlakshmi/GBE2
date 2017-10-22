@@ -951,6 +951,11 @@ td.form_field.long_choice > ul > li
   font-size: larger;
   font-weight: bold;
 }
+.single-radio > ul > li > label
+{
+  font-size: smaller;
+  font-weight: normal;
+}
 .form-group > ul > li > ul > li
 {
   list-style-type: none;
