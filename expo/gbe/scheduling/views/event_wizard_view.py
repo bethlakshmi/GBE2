@@ -35,6 +35,7 @@ class EventWizardView(View):
                 conference_slug=kwargs['conference'])
         context = {
             'selection_form':  self.get_pick_event_form(request),
+            'conference_slug': self.conference.conference_slug,
         }
         return context
 
