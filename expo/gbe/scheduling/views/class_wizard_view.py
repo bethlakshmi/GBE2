@@ -51,10 +51,13 @@ class ClassWizardView(EventWizardView):
             request.POST,
             initial={'conference':  self.conference})
         if context['second_form'].is_valid():
+            working_class = context['second_form'].cleaned_data['accepted_class']
             context['third_form'] = ClassBookingForm(
-                instance=context['second_form'].cleaned_data['accepted_class'])
-            context['third_title'] = "Book Class:  %s" % context['second_form'].cleaned_data['accepted_class'].e_title
+                instance=working_class)
+            context['third_title'] = "Book Class:  %s" % working_class.e_title
             context['scheduling_form'] = ScheduleOccurrenceForm(
-                conference=self.conference)
+                conference=self.conference,
+                initial={'duration': working_class.duration.hours() + float(
+                    working_class.duration.minutes())/60,})
             context['scheduling_form'].fields['max_volunteer'].widget = HiddenInput()
         return render(request, self.template, context)
