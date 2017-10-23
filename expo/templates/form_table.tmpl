@@ -22,7 +22,7 @@
 	<div class="container">
 	<div class="row">
 	<div class="col-md-2">
-	<label for="field.name" class="control-label">	      
+	<label for="{{field.name}}" class="control-label">	      
             {% if field.errors %}
               <font color="red">!</font>&nbsp;&nbsp;
 	    {% elif field.css_classes == 'required' or field.name in submit_fields %}

@@ -40,6 +40,7 @@ class EventWizardView(View):
         return context
 
     @never_cache
+    @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = self.groundwork(request, args, kwargs)
         if 'pick_event' in request.GET.keys() and context[

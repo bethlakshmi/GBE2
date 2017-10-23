@@ -12,7 +12,11 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
-from gbe.scheduling.forms import PickClassForm
+from gbe.scheduling.forms import (
+    ClassBookingForm,
+    PickClassForm,
+    ScheduleOccurrenceForm,
+)
 from gbe.models import Class
 from gbe.functions import (
     eligible_volunteers,
@@ -24,12 +28,33 @@ from gbe.scheduling.views import EventWizardView
 
 class ClassWizardView(EventWizardView):
     template = 'gbe/scheduling/class_wizard.tmpl'
+    
+    def groundwork(self, request, args, kwargs):
+        context = super(ClassWizardView, self).groundwork(request, args, kwargs)
+        context['event_type'] = "Conference Class"
+        context['second_title'] = "Pick the Class"
+        return context
 
     @never_cache
+    @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = self.groundwork(request, args, kwargs)
-        context['event_type'] = "Conference Class"
-        context['next_form'] = PickClassForm(
+        context['second_form'] = PickClassForm(
             initial={'conference':  self.conference})
-        context['next_title'] = "Pick the Class"
+        return render(request, self.template, context)
+
+    @never_cache
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        context = self.groundwork(request, args, kwargs)
+        context['second_form'] = PickClassForm(
+            request.POST,
+            initial={'conference':  self.conference})
+        if context['second_form'].is_valid():
+            context['third_form'] = ClassBookingForm(
+                instance=context['second_form'].cleaned_data['accepted_class'])
+            context['third_title'] = "Book Class:  %s" % context['second_form'].cleaned_data['accepted_class'].e_title
+            context['scheduling_form'] = ScheduleOccurrenceForm(
+                conference=self.conference)
+            context['scheduling_form'].fields['max_volunteer'].widget = HiddenInput()
         return render(request, self.template, context)

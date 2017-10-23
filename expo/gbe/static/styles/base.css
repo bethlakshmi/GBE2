@@ -963,6 +963,9 @@ td.form_field.long_choice > ul > li
   font-weight: normal;
 }
 
+.event_booking > .row > .form-group > div {
+  min-height: 32px;
+}
 
 .formtitle
 {
