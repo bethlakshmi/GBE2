@@ -36,6 +36,8 @@ class ReviewActListView(ReviewBidListView):
             bid_row['bidder_active'] = bid.bidder_is_active
             bid_row['bid'] = bid.bid_review_summary
             bid_row['reviews'] = []
+            total_average = 0
+            valid_categories = 0
             for category in categories:
                 average = categories.filter(
                     category=category,
@@ -45,8 +47,14 @@ class ReviewActListView(ReviewBidListView):
                 if average['flexibleevaluation__ranking__avg']:
                     bid_row['reviews'] += [round(
                         average['flexibleevaluation__ranking__avg'], 2)]
+                    total_average += average['flexibleevaluation__ranking__avg']
+                    valid_categories += 1
                 else:
                     bid_row['reviews'] += ["--"]
+            if valid_categories > 0:
+               bid_row['total_average'] = round(total_average/valid_categories, 2)
+            else:
+                bid_row['total_average'] = "--"
             bid_row['id'] = bid.id
             bid_row['review_url'] = reverse(self.bid_review_view_name,
                                             urlconf='gbe.urls',
