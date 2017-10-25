@@ -1,4 +1,3 @@
-from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -7,6 +6,7 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
+from django.forms import formset_factory
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -16,6 +16,7 @@ from gbe.scheduling.forms import (
     ClassBookingForm,
     PickClassForm,
     ScheduleOccurrenceForm,
+    PersonAllocationForm,
 )
 from gbe.models import Class
 from gbe.functions import (
@@ -24,16 +25,65 @@ from gbe.functions import (
     validate_perms
 )
 from gbe.scheduling.views import EventWizardView
+from functools import partial, wraps
+from gbe.scheduling.views.functions import (
+    get_start_time,
+    show_scheduling_occurrence_status,
+)
+from scheduler.data_transfer import Person
 
 
 class ClassWizardView(EventWizardView):
     template = 'gbe/scheduling/class_wizard.tmpl'
-    
+    roles = ['Teacher', 'Volunteer', 'Moderator', 'Panelist', ]
+
+
     def groundwork(self, request, args, kwargs):
-        context = super(ClassWizardView, self).groundwork(request, args, kwargs)
+        context = super(ClassWizardView,
+                        self).groundwork(request, args, kwargs)
         context['event_type'] = "Conference Class"
         context['second_title'] = "Pick the Class"
         return context
+
+    def book_event(self, scheduling_form, people_formset, working_class):
+        room = get_object_or_404(Room, name=data['location'])
+        max_volunteer = 0
+        start_time = get_start_time(data)
+        self.labels = [self.conference.conference_slug]
+        if self.event.calendar_type:
+                self.labels += [working_class.calendar_type]
+        people = []
+        for assignment in people_formset:
+           if assignment.cleaned_data['role'] in self.roles:
+                raise Exception(assignment.cleaned_data['worker'])
+                people += [Person(
+                    user=assignment.cleaned_data['worker'].workeritem.as_subtype.user_object,
+                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
+                    role=assignment.cleaned_data['role'])]
+
+    def make_formset(self, working_class):
+        if working_class.type == 'Panel':
+            WorkerFormSet = formset_factory(wraps(
+                PersonAllocationForm)(partial(
+                PersonAllocationForm,
+                label_visible=False,
+                role_options=[
+                    ('Panelist', 'Panelist'),
+                    ('Moderator', 'Moderator')],
+                use_personas=True,)), extra=3, can_delete=True)
+            initial=[{'role': 'Moderator'}]
+        else:
+            WorkerFormSet = formset_factory(wraps(
+                PersonAllocationForm)(partial(
+                PersonAllocationForm,
+                label_visible=False,
+                role_options=[
+                    ('Teacher', 'Teacher'),
+                    ('Volunteer', 'Volunteer')],
+                use_personas=True,)), extra=1, can_delete=True)
+            initial=[{'worker': working_class.teacher,
+                      'role': 'Teacher'}]
+        return (WorkerFormSet, initial)
 
     @never_cache
     @method_decorator(login_required)
@@ -50,14 +100,47 @@ class ClassWizardView(EventWizardView):
         context['second_form'] = PickClassForm(
             request.POST,
             initial={'conference':  self.conference})
-        if context['second_form'].is_valid():
-            working_class = context['second_form'].cleaned_data['accepted_class']
+        if 'pick_class' in request.POST.keys() and context[
+                'second_form'].is_valid():
+            working_class = context['second_form'].cleaned_data[
+                'accepted_class']
             context['third_form'] = ClassBookingForm(
                 instance=working_class)
-            context['third_title'] = "Book Class:  %s" % working_class.e_title
             context['scheduling_form'] = ScheduleOccurrenceForm(
                 conference=self.conference,
                 initial={'duration': working_class.duration.hours() + float(
                     working_class.duration.minutes())/60,})
-            context['scheduling_form'].fields['max_volunteer'].widget = HiddenInput()
+            context['scheduling_form'].fields[
+                'max_volunteer'].widget = HiddenInput()
+            WorkerFormSet, initial = self.make_formset(working_class)
+            context['worker_formset'] = WorkerFormSet(
+                initial=initial)
+
+        elif 'set_class' in request.POST.keys(
+                ) and 'eventitem_id' in request.POST.keys():
+            working_class = get_object_or_404(
+                Class,
+                eventitem_id=request.POST['eventitem_id'])
+            context['second_form'] = PickClassForm(
+                initial={'conference':  self.conference,
+                         'accepted_class': working_class})
+            context['third_form'] = ClassBookingForm(request.POST,
+                                                     instance=working_class)
+            context['scheduling_form'] = ScheduleOccurrenceForm(
+                request.POST,
+                conference=self.conference)
+            context['scheduling_form'].fields[
+                'max_volunteer'].widget = HiddenInput()
+            WorkerFormSet, initial = self.make_formset(working_class)
+            context['worker_formset'] = WorkerFormSet(request.POST)
+            if context['third_form'].is_valid(
+                    ) and context['scheduling_form'].is_valid(
+                    ) and context['worker_formset'].is_valid():
+                raise Exception("yo")
+                context['third_form'].save()
+                self.book_event(context['scheduling_form'],
+                                context['worker_formset'],
+                                working_class)
+
+        context['third_title'] = "Book Class:  %s" % working_class.e_title
         return render(request, self.template, context)

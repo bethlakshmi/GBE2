@@ -20,6 +20,9 @@ class ClassBookingForm(ModelForm):
     accepted = IntegerField(
         initial=3,
         widget=HiddenInput)
+    eventitem_id = IntegerField(
+        widget=HiddenInput,
+        required=False)
     submitted = BooleanField(widget=HiddenInput, initial=True)
     e_title = CharField(
         widget=TextInput(attrs={'size': '79'}),
@@ -27,6 +30,12 @@ class ClassBookingForm(ModelForm):
     e_description = CharField(
         widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
         label=classbid_labels['e_description'])
+
+    def save(self, commit=True):
+        this_class = super(ClassBookingForm, self).save(commit=False)
+        this_class.b_title = this_class.e_title
+        if commit:
+            this_class.save()
 
     class Meta:
         model = Class
@@ -38,6 +47,7 @@ class ClassBookingForm(ModelForm):
                   'space_needs',
                   'accepted',
                   'submitted',
+                  'eventitem_id',
                   ]
         help_texts = classbid_help_texts
         labels = classbid_labels

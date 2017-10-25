@@ -6,10 +6,11 @@
     {% endfor %}
   <font color=red>*</font> indicates a required field
   <font color="red">
-  {% if form.errors %}
+  {% if form.errors or scheduling_form.errors %}
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
-  {{ form.non_field_errors }}</font>
+  {{ form.non_field_errors }}
+  {{ scheduling_form.non_field_errors }}</font>
 <div class="event_booking">
 <h4>Event Details</h4>
 The following fields are common to all scheduled items for this event.
@@ -43,6 +44,7 @@ Changing fields in this section will change them in all calendar items.
     {% endfor %}</div>
 <div class="event_booking">
 <h4>Booking Details</h4>
+Set the time and place for this occurence of this event.
   {% for hidden in scheduling_form.hidden_fields %}
     {{ hidden }}
   {% endfor %}
@@ -60,7 +62,7 @@ Changing fields in this section will change them in all calendar items.
       <div class="col-md-2 col-sm-3 col-xs-7">
 	{{ scheduling_form.day }}
         {% if scheduling_form.day.errors %}
- 	<label for="field.name">
+ 	<br/><label for="field.name">
 	  <font color="red">{{ scheduling_form.day.errors }}</font>
         </label>{% endif %}
       </div>
@@ -77,7 +79,7 @@ Changing fields in this section will change them in all calendar items.
       <div class="col-md-2 col-sm-3 col-xs-7">
 	{{ scheduling_form.time }}
         {% if scheduling_form.time.errors %}
- 	<label for="field.name">
+ 	<br/><label for="field.name">
 	  <font color="red">{{ scheduling_form.time.errors }}</font>
         </label>{% endif %}
       </div>
@@ -94,7 +96,7 @@ Changing fields in this section will change them in all calendar items.
       <div class="col-md-2 col-sm-9 col-xs-12">
 	{{ scheduling_form.duration }}
         {% if scheduling_form.duration.errors %}
- 	<label for="field.name">
+ 	<br/><label for="field.name">
 	  <font color="red">{{ scheduling_form.duration.errors }}</font>
         </label>{% endif %}
       </div>
@@ -111,7 +113,7 @@ Changing fields in this section will change them in all calendar items.
       <div class="col-md-9 col-sm-9 col-xs-12">
 	{{ scheduling_form.location }}
         {% if scheduling_form.location.errors %}
- 	<label for="field.name">
+ 	<br/><label for="field.name">
 	  <font color="red">{{ scheduling_form.location.errors }}</font>
         </label>{% endif %}
       </div>
@@ -135,4 +137,13 @@ Changing fields in this section will change them in all calendar items.
       </div>
       {% endif %}
   </div></div>
+<div class="event_booking">
+<h4>Staffing</h4>
+Assign people to this booking.<br><br>
+{{ worker_formset.management_form }}
+{% for worker_form in worker_formset%}
+<div class="row"><div class="form-group"><div class="col-xs-12">
+  {{ worker_form }}
+</div></div></div>
+{% endfor %}
 </div>
