@@ -35,7 +35,7 @@ class ActAdmin(admin.ModelAdmin):
                     'created_at',
                     'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
-    search_fields = ['e_title']
+    search_fields = ['b_title']
 
 
 class PerformerAdmin(admin.ModelAdmin):
