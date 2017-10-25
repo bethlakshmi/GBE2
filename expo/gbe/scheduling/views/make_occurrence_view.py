@@ -74,7 +74,7 @@ class MakeOccurrenceView(View):
         self.event_type = kwargs['event_type'] or 'Class'
         self.profile = validate_perms(request, self.permissions)
         try:
-            self.item = Event.objects.get_subclass(pk=eventitem_id)
+            self.item = Event.objects.get_subclass(eventitem_id=eventitem_id)
         except Event.DoesNotExist:
             raise Http404
         self.eventitem_view = get_event_display_info(eventitem_id)

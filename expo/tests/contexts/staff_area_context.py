@@ -89,7 +89,7 @@ class StaffAreaContext:
                        volunteer=None,
                        role="Volunteer"):
         if not volunteer_sched_event:
-            volunteer_sched_event = add_volunteer_opp()
+            volunteer_sched_event = self.add_volunteer_opp()
         if not volunteer:
             volunteer = ProfileFactory()
         booking = ResourceAllocationFactory(

@@ -31,6 +31,10 @@ class GenericEvent (Event):
         return self.e_title
 
     @property
+    def event_type(self):
+        return self.type
+
+    @property
     def volunteer_category_description(self):
         if self.volunteer_type:
             return self.volunteer_type.interest

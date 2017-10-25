@@ -11,3 +11,7 @@ from worker_allocation_form import WorkerAllocationForm
 from volunteer_opportunity_form import VolunteerOpportunityForm
 from class_booking_form import ClassBookingForm
 from person_allocation_form import PersonAllocationForm
+from select_event_form import (
+    HiddenSelectEventForm,
+    SelectEventForm,
+)

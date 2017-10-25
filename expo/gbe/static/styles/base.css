@@ -1004,3 +1004,18 @@ div.hierarchy-1
 {
   padding-left: 20px;
 }
+#inner > li.active > a {
+  background-color: rgb(221, 221, 221);
+  color: rgba(180, 80, 80);
+}
+
+#inner > li > a {
+  color: rgba(150, 150, 150);
+}
+.scheduling-area {
+  background-color: rgb(221, 221, 221);
+  padding: 5px;
+}
+.scheduling-area > .form-row > .form-group {
+  min-height: 26px;
+}
