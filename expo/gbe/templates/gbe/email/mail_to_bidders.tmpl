@@ -72,10 +72,11 @@
           {% if selection_form.state.errors %}
             <font color="red">!&nbsp;&nbsp;
           {% endif %}
-          {{ selection_form.state.label }}:&nbsp;&nbsp;</label></div>
+          {{ selection_form.state.label }}:&nbsp;&nbsp;</label>
           {% if selection_form.state.errors %}
             </font>
           {% endif %}
+      </div>
       <div class="form-group col-md-9 col-xs-12">
       {% for checkbox in selection_form.state %}
         <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">

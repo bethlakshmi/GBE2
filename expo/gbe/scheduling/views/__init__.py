@@ -3,3 +3,4 @@ from create_event_view import CreateEventView
 from manage_vol_ops_view import ManageVolOpsView
 from show_calendar_view import ShowCalendarView
 from allocate_worker_view import AllocateWorkerView
+from manage_events_view import ManageEventsView
