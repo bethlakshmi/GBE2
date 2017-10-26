@@ -36,6 +36,7 @@ class ClassBookingForm(ModelForm):
         this_class.b_title = this_class.e_title
         if commit:
             this_class.save()
+        return this_class
 
     class Meta:
         model = Class

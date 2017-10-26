@@ -35,6 +35,7 @@ from gbe.scheduling.views.functions import (
 )
 from scheduler.data_transfer import Person
 from scheduler.idd import create_occurrence
+from gbe.duration import Duration
 
 
 class ClassWizardView(EventWizardView):
@@ -157,7 +158,10 @@ class ClassWizardView(EventWizardView):
                     response,
                     self.__class__.__name__)
                 if response.occurrence:
-                    context['third_form'].save()
+                    update_class = context['third_form'].save(commit=False)
+                    update_class.duration = Duration(
+                        minutes=context['scheduling_form'].cleaned_data['duration']*60)
+                    update_class.save()
                     return HttpResponseRedirect(
                         "%s?%s-day=%d&filter=Filter&new=%d" % (
                             reverse('manage_event_list',
