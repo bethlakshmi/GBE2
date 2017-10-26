@@ -18,7 +18,10 @@ from gbe.scheduling.forms import (
     ScheduleOccurrenceForm,
     PersonAllocationForm,
 )
-from gbe.models import Class
+from gbe.models import (
+    Class,
+    Room,
+)
 from gbe.functions import (
     eligible_volunteers,
     get_conference_day,
@@ -31,6 +34,7 @@ from gbe.scheduling.views.functions import (
     show_scheduling_occurrence_status,
 )
 from scheduler.data_transfer import Person
+from scheduler.idd import create_occurrence
 
 
 class ClassWizardView(EventWizardView):
@@ -46,20 +50,28 @@ class ClassWizardView(EventWizardView):
         return context
 
     def book_event(self, scheduling_form, people_formset, working_class):
-        room = get_object_or_404(Room, name=data['location'])
+        room = get_object_or_404(Room, name=scheduling_form.cleaned_data['location'])
         max_volunteer = 0
-        start_time = get_start_time(data)
-        self.labels = [self.conference.conference_slug]
-        if self.event.calendar_type:
-                self.labels += [working_class.calendar_type]
+        start_time = get_start_time(scheduling_form.cleaned_data)
+        labels = [self.conference.conference_slug]
+        if working_class.calendar_type:
+                labels += [working_class.calendar_type]
         people = []
         for assignment in people_formset:
-           if assignment.cleaned_data['role'] in self.roles:
-                raise Exception(assignment.cleaned_data['worker'])
+            if assignment.cleaned_data[
+                    'role'] in self.roles and assignment.cleaned_data['worker']:
                 people += [Person(
                     user=assignment.cleaned_data['worker'].workeritem.as_subtype.user_object,
                     public_id=assignment.cleaned_data['worker'].workeritem.pk,
                     role=assignment.cleaned_data['role'])]
+        response = create_occurrence(
+                working_class.eventitem_id,
+                start_time,
+                0,
+                people=people,
+                locations=[room],
+                labels=labels)
+        return response
 
     def make_formset(self, working_class):
         if working_class.type == 'Panel':
@@ -136,11 +148,21 @@ class ClassWizardView(EventWizardView):
             if context['third_form'].is_valid(
                     ) and context['scheduling_form'].is_valid(
                     ) and context['worker_formset'].is_valid():
-                raise Exception("yo")
-                context['third_form'].save()
-                self.book_event(context['scheduling_form'],
+                response = self.book_event(context['scheduling_form'],
                                 context['worker_formset'],
-                                working_class)
-
+                                working_class)                
+                show_scheduling_occurrence_status(
+                    request,
+                    response,
+                    self.__class__.__name__)
+                if response.occurrence:
+                    context['third_form'].save()
+                    return HttpResponseRedirect(
+                        "%s?%s-day=%d&filter=Filter" % (
+                            reverse('manage_event_list',
+                                    urlconf='gbe.scheduling.urls',
+                                    args=[self.conference.conference_slug]),
+                            self.conference.conference_slug,
+                            context['scheduling_form'].cleaned_data['day'].pk,))
         context['third_title'] = "Book Class:  %s" % working_class.e_title
         return render(request, self.template, context)
