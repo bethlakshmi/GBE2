@@ -30,6 +30,10 @@ body {
 }
 /* END: Used in django CMS provided styles, do not delete */
 
+.table-bordered {border-color: black;}
+.table-bordered > thead > tr > th {border-color: black;}
+.table-bordered > tfoot > tr > th {border-color: black;}
+.table-bordered > tbody > tr > td {border-color: black;}
 
 div.container {
     top:0;

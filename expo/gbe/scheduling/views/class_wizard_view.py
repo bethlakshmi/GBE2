@@ -83,7 +83,8 @@ class ClassWizardView(EventWizardView):
                     ('Panelist', 'Panelist'),
                     ('Moderator', 'Moderator')],
                 use_personas=True,)), extra=3, can_delete=True)
-            initial=[{'role': 'Moderator'}]
+            initial=[{'worker': working_class.teacher,
+                      'role': 'Moderator'}]
         else:
             WorkerFormSet = formset_factory(wraps(
                 PersonAllocationForm)(partial(
@@ -158,11 +159,12 @@ class ClassWizardView(EventWizardView):
                 if response.occurrence:
                     context['third_form'].save()
                     return HttpResponseRedirect(
-                        "%s?%s-day=%d&filter=Filter" % (
+                        "%s?%s-day=%d&filter=Filter&new=%d" % (
                             reverse('manage_event_list',
                                     urlconf='gbe.scheduling.urls',
                                     args=[self.conference.conference_slug]),
                             self.conference.conference_slug,
-                            context['scheduling_form'].cleaned_data['day'].pk,))
+                            context['scheduling_form'].cleaned_data['day'].pk,
+                            response.occurrence.pk,))
         context['third_title'] = "Book Class:  %s" % working_class.e_title
         return render(request, self.template, context)

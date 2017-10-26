@@ -27,7 +27,8 @@ class PersonAllocationForm(Form):
     role = ChoiceField(choices=role_options)
     worker = ModelChoiceField(
         queryset=visible_profiles,
-        required=False)
+        required=False,
+        label="")
     label = CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):
