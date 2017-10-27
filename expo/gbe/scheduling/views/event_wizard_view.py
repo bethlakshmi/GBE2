@@ -20,10 +20,14 @@ from gbe.models import Conference
 class EventWizardView(View):
     template = 'gbe/scheduling/event_wizard.tmpl'
     permissions = ('Scheduling Mavens',)
+    default_event_type = None
 
     def get_pick_event_form(self, request):
         if 'pick_event' in request.GET.keys():
             return PickEventForm(request.GET)
+        elif self.default_event_type:
+            return PickEventForm(initial={
+                'event_type': self.default_event_type})
         else:
             return PickEventForm()
 

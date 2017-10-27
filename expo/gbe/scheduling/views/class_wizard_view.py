@@ -41,6 +41,7 @@ from gbe.duration import Duration
 class ClassWizardView(EventWizardView):
     template = 'gbe/scheduling/class_wizard.tmpl'
     roles = ['Teacher', 'Volunteer', 'Moderator', 'Panelist', ]
+    default_event_type = "conference"
 
 
     def groundwork(self, request, args, kwargs):
