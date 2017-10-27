@@ -1,25 +1,15 @@
-import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceFactory,
-    PersonaFactory,
     ProfileFactory,
-    RoomFactory,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-from gbe.models import (
-    Class,
-    Conference,
-    GenericEvent,
-    Show,
-)
-from django.core.urlresolvers import reverse
 from gbe_forms_text import event_type_options
 
 
