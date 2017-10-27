@@ -143,7 +143,6 @@ class TestReviewActList(TestCase):
         response = self.client.get(
             self.url,
             data={'conf_slug': self.conference.conference_slug})
-        print response
         self.assertContains(response, str(3.67))
         self.assertContains(response, str(flex_eval.ranking))
         self.assertContains(response, "4.0", 2)
