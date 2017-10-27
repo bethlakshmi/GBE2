@@ -125,3 +125,25 @@ class TestReviewActList(TestCase):
             data={'conf_slug': self.conference.conference_slug})
         self.assertContains(response, str(flex_eval.category.category))
         self.assertContains(response, str("--"))
+
+    def test_review_act_has_average(self):
+        flex_eval = FlexibleEvaluationFactory(
+            bid=self.acts[0],
+            evaluator=self.privileged_profile,
+            )
+        flex_eval = FlexibleEvaluationFactory(
+            bid=self.acts[0],
+            evaluator=self.privileged_profile,
+            ranking=4)
+        flex_eval = FlexibleEvaluationFactory(
+            bid=self.acts[0],
+            evaluator=self.privileged_profile,
+            ranking=4)
+        login_as(self.privileged_user, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': self.conference.conference_slug})
+        self.assertContains(response, str(3.67))
+        self.assertContains(response, str(flex_eval.ranking))
+        self.assertContains(response, "4.0", 2)
+        self.assertContains(response, '<td class="bid-table">--</td>', 12)

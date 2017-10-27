@@ -40,6 +40,7 @@
 	<th class="bid-table rotate-review"><div><span>
 	{{ category.category }}
 	</span></div></th>{% endfor %}
+        <th class="bid-table rotate-review"><div><span>Average</span></div></th>
         <th class="bid-table rotate-review"><div><span>Action</span></div></th>
       </tr>
     </thead>
@@ -53,6 +54,7 @@
 	{{ category.category }}
 	</span></div></th>
       {% endfor %}
+        <th class="bid-table rotate-review"><div><span>Average</span></div></th>
         <th class="bid-table rotate-review"><div><span>Action</span></div></th>
       </tr>
     </tfoot>
@@ -62,9 +64,9 @@
         {% for value in row.bid %}<td class="bid-table">
           {{ value|linebreaks }}
         </td>{% endfor %}
- 	{% for review in row.reviews %}<td class="bid-table">
-          {{ review }}
- 	</td>{% endfor %}
+ 	{% for review in row.reviews %}
+          <td class="bid-table">{{ review }}</td>{% endfor %}
+	<td class="bid-table">{{ row.total_average }}</td>
         <td class="bid-table">
 	 <div class="btn-group" role="group" aria-label="...">
 	  <a href="{{ row.review_url }}" data-toggle="tooltip" title="Review Act">
