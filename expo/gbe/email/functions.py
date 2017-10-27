@@ -118,7 +118,7 @@ def send_bid_state_change_mail(
             urlconf='scheduler.urls')
         context['act_tech_link'] = site.domain + reverse(
             'act_techinfo_edit',
-            args=[show.pk],
+            args=[bid.pk],
             urlconf='gbe.urls')
     else:
         name = '%s %s' % (bid_type, acceptance_states[status][1].lower())

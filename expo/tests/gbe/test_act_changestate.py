@@ -20,6 +20,7 @@ from tests.factories.scheduler_factories import (
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
     assert_alert_exists,
+    assert_email_contents,
     assert_email_recipient,
     assert_email_template_create,
     assert_email_template_used,
@@ -158,6 +159,24 @@ class TestActChangestate(TestCase):
             "test template", "actemail@notify.com")
         assert_email_recipient([(
             self.context.performer.contact.contact_email)])
+
+    def test_act_accept_act_link_correct(self):
+        EmailTemplateSenderFactory(
+            from_email="actemail@notify.com",
+            template__name='act accepted - %s' % self.show.e_title.lower(),
+            template__subject="test template",
+            template__content="stuff {{ act_tech_link }} more stuff"
+        )
+        url = reverse(self.view_name,
+                      args=[self.context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        self.data['accepted'] = '3'
+        response = self.client.post(url, data=self.data)
+        assert_email_contents(reverse(
+            'act_techinfo_edit',
+            args=[self.context.act.pk],
+            urlconf='gbe.urls'))
 
     @override_settings(ADMINS=[('Admin', 'admin@mock.test')])
     @override_settings(DEBUG=True)

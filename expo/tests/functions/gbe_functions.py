@@ -176,6 +176,12 @@ def assert_email_recipient(to_list):
         assert to_msg == to_test
 
 
+def assert_email_contents(contents):
+    assert 1 == len(mail.outbox)
+    msg = mail.outbox[0]
+    assert contents in msg.body
+
+
 def assert_right_mail_right_addresses(
         queue_order,
         num_email,
