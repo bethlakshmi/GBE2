@@ -122,6 +122,7 @@ class ClassWizardView(EventWizardView):
                 instance=working_class)
             context['scheduling_form'] = ScheduleOccurrenceForm(
                 conference=self.conference,
+                open_to_public=True,
                 initial={'duration': working_class.duration.hours() + float(
                     working_class.duration.minutes())/60,})
             context['scheduling_form'].fields[
