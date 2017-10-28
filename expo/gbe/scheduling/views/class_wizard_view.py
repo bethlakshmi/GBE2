@@ -119,6 +119,7 @@ class ClassWizardView(EventWizardView):
                 'second_form'].is_valid():
             working_class = context['second_form'].cleaned_data[
                 'accepted_class']
+            context['third_title'] = "Book Class:  %s" % working_class.e_title
             context['third_form'] = ClassBookingForm(
                 instance=working_class)
             context['scheduling_form'] = ScheduleOccurrenceForm(
@@ -140,6 +141,7 @@ class ClassWizardView(EventWizardView):
             context['second_form'] = PickClassForm(
                 initial={'conference':  self.conference,
                          'accepted_class': working_class})
+            context['third_title'] = "Book Class:  %s" % working_class.e_title
             context['third_form'] = ClassBookingForm(request.POST,
                                                      instance=working_class)
             context['scheduling_form'] = ScheduleOccurrenceForm(
@@ -173,5 +175,4 @@ class ClassWizardView(EventWizardView):
                             self.conference.conference_slug,
                             context['scheduling_form'].cleaned_data['day'].pk,
                             response.occurrence.pk,))
-            context['third_title'] = "Book Class:  %s" % working_class.e_title
         return render(request, self.template, context)

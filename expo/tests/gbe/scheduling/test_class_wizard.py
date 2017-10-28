@@ -150,6 +150,32 @@ class TestClassWizard(TestCase):
                 self.test_class.teacher.pk,
                 str(self.test_class.teacher)))
 
+    def test_auth_user_load_panel(self):
+        panel = ClassFactory(b_conference=self.current_conference,
+                             e_conference=self.current_conference,
+                             type="Panel",
+                             accepted=3,
+                             teacher=self.teacher,
+                             submitted=True)
+        login_as(self.privileged_user, self)
+        data = self.get_data()
+        data['accepted_class'] = panel.pk
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertContains(
+            response,
+            'value="%s"' %
+            panel.b_title)
+        self.assertContains(response, "Panelist")
+        self.assertContains(response, "Moderator")
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                panel.teacher.pk,
+                str(panel.teacher)))
+
     def test_auth_user_load_class(self):
         login_as(self.privileged_user, self)
         data = self.edit_class()
@@ -177,3 +203,33 @@ class TestClassWizard(TestCase):
             response,
             '<tr class="bid-table success">\n       ' +
             '<td class="bid-table">%s</td>' % data['e_title'])
+
+    def test_auth_user_bad_user_assign(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['form-0-role'] = "bad role"
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertContains(response, "bad role is not one of the available choices.")
+
+    def test_auth_user_bad_schedule_assign(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['location'] = ""
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertContains(response, "This field is required.")
+
+    def test_auth_user_bad_schedule_assign(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['type'] = "bad type"
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertContains(response, "bad type is not one of the available choices.")
