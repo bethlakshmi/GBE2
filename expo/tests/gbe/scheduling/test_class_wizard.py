@@ -12,6 +12,7 @@ from tests.factories.gbe_factories import (
 )
 from scheduler.models import Event
 from tests.functions.gbe_functions import (
+    assert_alert_exists,
     grant_privilege,
     login_as,
 )
@@ -164,3 +165,15 @@ class TestClassWizard(TestCase):
             self.current_conference.conference_slug,
             self.day.pk,
             occurrence[0].pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
+        self.assertContains(
+            response,
+            '<tr class="bid-table success">\n       ' +
+            '<td class="bid-table">%s</td>' % data['e_title'])

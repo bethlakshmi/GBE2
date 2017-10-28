@@ -155,15 +155,16 @@ class ClassWizardView(EventWizardView):
                 response = self.book_event(context['scheduling_form'],
                                 context['worker_formset'],
                                 working_class)                
-                show_scheduling_occurrence_status(
-                    request,
-                    response,
-                    self.__class__.__name__)
                 if response.occurrence:
                     update_class = context['third_form'].save(commit=False)
                     update_class.duration = Duration(
                         minutes=context['scheduling_form'].cleaned_data['duration']*60)
                     update_class.save()
+                show_scheduling_occurrence_status(
+                    request,
+                    response,
+                    self.__class__.__name__)
+                if response.occurrence:
                     return HttpResponseRedirect(
                         "%s?%s-day=%d&filter=Filter&new=%d" % (
                             reverse('manage_event_list',
