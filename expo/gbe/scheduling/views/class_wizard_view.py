@@ -172,5 +172,5 @@ class ClassWizardView(EventWizardView):
                             self.conference.conference_slug,
                             context['scheduling_form'].cleaned_data['day'].pk,
                             response.occurrence.pk,))
-        context['third_title'] = "Book Class:  %s" % working_class.e_title
+            context['third_title'] = "Book Class:  %s" % working_class.e_title
         return render(request, self.template, context)

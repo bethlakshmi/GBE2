@@ -1,34 +1,30 @@
-import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    ClassFactory,
     ConferenceFactory,
-    PersonaFactory,
     ProfileFactory,
-    RoomFactory,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-from gbe.models import (
-    Class,
-    Conference,
-    GenericEvent,
-    Show,
-)
-from django.core.urlresolvers import reverse
 from gbe_forms_text import event_type_options
+from tests.functions.gbe_scheduling_functions import assert_event_was_picked_in_wizard
 
 
-class TestEventWizard(TestCase):
-    '''Tests for the first stage in the event wizard view'''
-    view_name = 'create_event_wizard'
+class TestClassWizard(TestCase):
+    '''Tests for the 2nd and 3rd stage in the class wizard view'''
+    view_name = 'create_class_wizard'
 
     def setUp(self):
         self.current_conference = ConferenceFactory(accepting_bids=True)
+        self.test_class = ClassFactory(b_conference=self.current_conference,
+                                       e_conference=self.current_conference,
+                                       accepted=3,
+                                       submitted=True)
         self.url = reverse(
             self.view_name,
             args=[self.current_conference.conference_slug],
@@ -38,10 +34,10 @@ class TestEventWizard(TestCase):
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
 
-    def get_data(self, event_type='conference'):
+    def get_data(self):
         data = {
-            'event_type': event_type,
-            'pick_event': 'Next'
+            'accepted_class': self.test_class.pk,
+            'pick_class': 'Next'
         }
         return data
 
@@ -54,33 +50,30 @@ class TestEventWizard(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response,
-                               "panel-collapse collapse")
-        for header in event_type_options:
-            self.assertContains(response, header[0])
-            for subitem in header[1]:
-                self.assertContains(response, subitem[1])
+        assert_event_was_picked_in_wizard(response, "conference")
+        self.assertContains(response, str(self.test_class.b_title))
+        self.assertContains(response, str(self.test_class.teacher))
 
-    def test_auth_user_can_pick_conf_class(self):
+    def test_auth_user_can_pick_class(self):
         login_as(self.privileged_user, self)
         data = self.get_data()
-        response = self.client.get(
+        response = self.client.post(
             self.url,
             data=data,
             follow=True)
-        self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
-            reverse('create_class_wizard',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug]),
-            data['event_type']))
+        self.assertContains(
+            response,
+            '<input checked="checked" id="id_accepted_class_0" ' +
+            'name="accepted_class" type="radio" value="%d" />' %
+            self.test_class.pk)
 
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
         data = self.get_data()
-        data['event_type'] = 123
-        response = self.client.get(
+        data['accepted_class'] = "boo"
+        response = self.client.post(
             self.url,
             data=data)
         self.assertContains(
             response,
-            'Select a valid choice. 123 is not one of the available choices.')
+            'That choice is not one of the available choices.')

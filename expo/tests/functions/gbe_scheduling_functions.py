@@ -12,6 +12,7 @@ import pytz
 from gbe_forms_text import (
     classbid_labels,
     class_schedule_options,
+    event_type_options,
 )
 
 
@@ -95,3 +96,21 @@ def assert_label(response, label, details):
         details
     )
     assert selection in response.content
+
+def assert_event_was_picked_in_wizard(response, event_type):
+    checked_button = ""
+    x = 0
+    for header in event_type_options:
+        y = 0
+        for subitem in header[1]:
+            if event_type == subitem[0]:
+                checked_button = (
+                    '<input checked="checked" id="id_event_type_' +
+                    '%d_%d" name="event_type" type="radio" value="%s" />') % (
+                    x, y, event_type)
+            y += 1
+        x += 1
+
+
+    assert '<a data-toggle="collapse" href="#collapse1">' in response.content
+    assert checked_button in response.content
