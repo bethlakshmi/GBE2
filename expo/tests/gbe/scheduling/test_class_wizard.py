@@ -6,8 +6,11 @@ from tests.factories.gbe_factories import (
     ClassFactory,
     ConferenceFactory,
     ConferenceDayFactory,
+    PersonaFactory,
     ProfileFactory,
+    RoomFactory,
 )
+from scheduler.models import Event
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -22,11 +25,14 @@ class TestClassWizard(TestCase):
     view_name = 'create_class_wizard'
 
     def setUp(self):
+        self.room = RoomFactory()
+        self.teacher = PersonaFactory()
         self.current_conference = ConferenceFactory(accepting_bids=True)
         self.day = ConferenceDayFactory(conference=self.current_conference)
         self.test_class = ClassFactory(b_conference=self.current_conference,
                                        e_conference=self.current_conference,
                                        accepted=3,
+                                       teacher=self.teacher,
                                        submitted=True)
         self.url = reverse(
             self.view_name,
@@ -41,6 +47,34 @@ class TestClassWizard(TestCase):
         data = {
             'accepted_class': self.test_class.pk,
             'pick_class': 'Next'
+        }
+        return data
+
+    def edit_class(self):
+        data = {
+            'accepted': 3,
+            'submitted': True,
+            'eventitem_id': self.test_class.eventitem_id,
+            'type': 'Panel',
+            'e_title': 'test title',
+            'e_description': 'Description',
+            'maximum_enrollment': 10,
+            'fee': 0,
+            'space_needs': 2,
+            'max_volunteer': 0,
+            'day': self.day.pk,
+            'time': '11:00:00',
+            'duration': 2.5,
+            'location': self.room.pk,
+            'form-TOTAL_FORMS': "2",
+            'form-INITIAL_FORMS': "1",
+            'form-MIN_NUM_FORMS': "0",
+            'form-MAX_NUM_FORMS': "1000",
+            'form-0-role': 'Teacher',
+            'form-0-worker': self.teacher.pk,
+            'form-1-role': 'Volunteer',
+            'form-1-worker': "",
+            'set_class': 'Finish',
         }
         return data
 
@@ -114,3 +148,19 @@ class TestClassWizard(TestCase):
             '<option value="%d" selected="selected">%s</option>' % (
                 self.test_class.teacher.pk,
                 str(self.test_class.teacher)))
+
+    def test_auth_user_load_class(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        occurrence = Event.objects.filter(eventitem=self.test_class)
+        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug]),
+            self.current_conference.conference_slug,
+            self.day.pk,
+            occurrence[0].pk))
