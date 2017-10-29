@@ -73,6 +73,20 @@ def assert_good_sched_event_form(response, eventitem):
             assert_label(response, label, detail)
 
 
+def assert_good_sched_event_form_wizard(response, eventitem):
+    assert response.status_code is 200
+    if eventitem.__class__.__name__ == "Class":
+        for label, detail in [
+                (classbid_labels['schedule_constraints'], ', '.join(
+                    [j for i, j in class_schedule_options
+                     if i in eventitem.schedule_constraints])),
+                (classbid_labels['avoided_constraints'], ', '.join(
+                    [j for i, j in class_schedule_options
+                     if i in eventitem.avoided_constraints])),
+                ('Space Needs', eventitem.get_space_needs_display())]:
+            assert_label(response, label, detail)
+
+
 def noon(day):
     return datetime.combine(day.day,
                             time(12, 0, 0, tzinfo=pytz.utc))

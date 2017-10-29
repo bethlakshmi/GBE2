@@ -18,7 +18,10 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from gbe_forms_text import event_type_options
-from tests.functions.gbe_scheduling_functions import assert_event_was_picked_in_wizard
+from tests.functions.gbe_scheduling_functions import (
+    assert_event_was_picked_in_wizard,
+    assert_good_sched_event_form_wizard,
+)
 from expo.settings import DATE_FORMAT
 
 
@@ -311,4 +314,35 @@ class TestClassWizard(TestCase):
             self.url,
             data=data,
             follow=True)
-        self.assertContains(response, "bad type is not one of the available choices.")
+        self.assertContains(
+            response,
+            "bad type is not one of the available choices.")
+
+    def test_get_class_recommendations(self):
+        self.test_class.schedule_constraints = "[u'1']"
+        self.test_class.avoided_constraints = "[u'2']"
+        self.test_class.space_needs = "2"
+        self.test_class.type = "Panel"
+        self.test_class.save()
+        login_as(self.privileged_user, self)
+        data = self.get_data()
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        assert_good_sched_event_form_wizard(response, self.test_class)
+
+    def test_get_empty_schedule_info(self):
+        self.test_class.schedule_constraints = ""
+        self.test_class.avoided_constraints = ""
+        self.test_class.space_needs = ""
+        self.test_class.type = ""
+        self.test_class.save()
+        login_as(self.privileged_user, self)
+        data = self.get_data()
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        assert_good_sched_event_form_wizard(response, self.test_class)
+    
