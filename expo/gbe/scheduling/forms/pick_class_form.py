@@ -21,7 +21,7 @@ class PickClassForm(Form):
     accepted_class = PickClassField(
         queryset=Class.objects.filter(accepted=3).order_by('b_title'),
         widget=RadioSelect,
-        empty_label=None,
+        empty_label="Make New Class",
         )
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +29,7 @@ class PickClassForm(Form):
         if 'initial' in kwargs and 'conference' in kwargs['initial']:
             initial = kwargs.pop('initial')
             self.fields['accepted_class'] = PickClassField(
-                required=True,
+                required=False,
                 empty_label="Make New Class",
                 widget=RadioSelect,
                 queryset=Class.objects.filter(

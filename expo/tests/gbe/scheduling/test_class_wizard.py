@@ -11,6 +11,7 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from scheduler.models import Event
+from gbe.models import Class
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     grant_privilege,
@@ -57,7 +58,7 @@ class TestClassWizard(TestCase):
             'submitted': True,
             'eventitem_id': self.test_class.eventitem_id,
             'type': 'Panel',
-            'e_title': 'test title',
+            'e_title': "Test Class Wizard #%d" % self.test_class.eventitem_id,
             'e_description': 'Description',
             'maximum_enrollment': 10,
             'fee': 0,
@@ -109,7 +110,7 @@ class TestClassWizard(TestCase):
             follow=True)
         self.assertContains(
             response,
-            '<input checked="checked" id="id_accepted_class_0" ' +
+            '<input checked="checked" id="id_accepted_class_1" ' +
             'name="accepted_class" type="radio" value="%d" />' %
             self.test_class.pk)
 
@@ -123,6 +124,36 @@ class TestClassWizard(TestCase):
         self.assertContains(
             response,
             'That choice is not one of the available choices.')
+
+    def test_auth_user_pick_new_class(self):
+        login_as(self.privileged_user, self)
+        data = self.get_data()
+        data['accepted_class'] = ""
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertContains(
+            response,
+            '<input checked="checked" id="id_accepted_class_0" ' +
+            'name="accepted_class" type="radio" value="" />')
+        self.assertContains(
+            response,
+            'Make New Class')
+        self.assertContains(
+            response,
+            'type="number" value="1"')
+        self.assertContains(
+            response,
+            '<option value="%d">%s</option>' % (
+                self.day.pk,
+                self.day.day.strftime(DATE_FORMAT)
+            ))
+        self.assertContains(
+            response,
+            '<option value="%s" selected="selected">%s</option>' % (
+                'Teacher',
+                'Teacher'))
 
     def test_auth_user_load_class(self):
         login_as(self.privileged_user, self)
@@ -176,7 +207,7 @@ class TestClassWizard(TestCase):
                 panel.teacher.pk,
                 str(panel.teacher)))
 
-    def test_auth_user_load_class(self):
+    def test_auth_user_edit_class(self):
         login_as(self.privileged_user, self)
         data = self.edit_class()
         response = self.client.post(
@@ -204,6 +235,53 @@ class TestClassWizard(TestCase):
             '<tr class="bid-table success">\n       ' +
             '<td class="bid-table">%s</td>' % data['e_title'])
 
+    def test_auth_user_create_class(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['eventitem_id'] = ""
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_class = Class.objects.get(e_title=data['e_title'])
+        self.assertEqual(new_class.teacher, self.teacher)
+        occurrence = Event.objects.get(eventitem__eventitem_id=new_class.eventitem_id)
+        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug]),
+            self.current_conference.conference_slug,
+            self.day.pk,
+            occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
+        self.assertContains(
+            response,
+            '<tr class="bid-table success">\n       ' +
+            '<td class="bid-table">%s</td>' % data['e_title'])
+
+    def test_auth_user_create_class_no_teacher(self):
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['eventitem_id'] = ""
+        data['form-0-worker'] = ""
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            "You must select at least one person to run this class."
+            )
+
     def test_auth_user_bad_user_assign(self):
         login_as(self.privileged_user, self)
         data = self.edit_class()
@@ -212,7 +290,9 @@ class TestClassWizard(TestCase):
             self.url,
             data=data,
             follow=True)
-        self.assertContains(response, "bad role is not one of the available choices.")
+        self.assertContains(
+            response,
+            "bad role is not one of the available choices.")
 
     def test_auth_user_bad_schedule_assign(self):
         login_as(self.privileged_user, self)
