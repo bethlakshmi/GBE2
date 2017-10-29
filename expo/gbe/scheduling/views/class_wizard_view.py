@@ -190,7 +190,7 @@ class ClassWizardView(EventWizardView):
                 context['third_form'] = ClassBookingForm(
                     request.POST,
                     instance=working_class)
-                context['scheduling_info'] = get_scheduling_info(working_class)
+                context['scheduling_info'] = self.get_scheduling_info(working_class)
             else:
                 context['third_form'] = ClassBookingForm(request.POST)
             context['second_form'] = PickClassForm(
