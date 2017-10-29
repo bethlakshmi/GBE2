@@ -66,10 +66,12 @@
    <div class="form-group col-md-2 col-xs-12">
       <input type="submit" class="btn btn-primary" name="filter" value="Filter">
    </div></div></form>
+   {% if conference.status != "completed" %}
    <div class="form-row"><div class="form-group col-md-2 col-xs-12 pull-right">
    </br>
       <a href="{% url 'scheduling:create_event_wizard' conference.conference_slug %}" role="button" class="btn btn-primary">Create Class</a>
-   </div></div>
+   </div></div>{% endif %}
+   <div class="row"><div class="col-xs-12">&nbsp;</div></div>
 {% if occurrences %}
  <div class="row">
   <div class="col-xs-12">

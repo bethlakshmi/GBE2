@@ -30,7 +30,7 @@ class PickClassForm(Form):
             initial = kwargs.pop('initial')
             self.fields['accepted_class'] = PickClassField(
                 required=True,
-                empty_label=None,
+                empty_label="Make New Class",
                 widget=RadioSelect,
                 queryset=Class.objects.filter(
                     b_conference=initial['conference'],
