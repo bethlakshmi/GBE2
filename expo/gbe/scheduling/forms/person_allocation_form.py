@@ -24,7 +24,7 @@ class PersonAllocationForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    role = ChoiceField(choices=role_options)
+    role = ChoiceField(choices=role_options, label="")
     worker = ModelChoiceField(
         queryset=visible_profiles,
         required=False,

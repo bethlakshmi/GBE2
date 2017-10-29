@@ -45,7 +45,6 @@ class ClassBookingForm(ModelForm):
                   'e_description',
                   'maximum_enrollment',
                   'fee',
-                  'space_needs',
                   'accepted',
                   'submitted',
                   'eventitem_id',

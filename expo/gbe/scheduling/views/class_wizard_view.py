@@ -38,6 +38,10 @@ from scheduler.idd import create_occurrence
 from gbe.duration import Duration
 from django.contrib import messages
 from gbe.models import UserMessage
+from gbe_forms_text import (
+    classbid_labels,
+    class_schedule_options,
+)
 
 
 class ClassWizardView(EventWizardView):
@@ -45,13 +49,30 @@ class ClassWizardView(EventWizardView):
     roles = ['Teacher', 'Volunteer', 'Moderator', 'Panelist', ]
     default_event_type = "conference"
 
-
     def groundwork(self, request, args, kwargs):
         context = super(ClassWizardView,
                         self).groundwork(request, args, kwargs)
         context['event_type'] = "Conference Class"
         context['second_title'] = "Pick the Class"
         return context
+
+    def get_scheduling_info(self, bid_class):
+        schedule_opt = dict(class_schedule_options)
+        scheduling_info = {
+            'display_info': [
+                (classbid_labels['schedule_constraints'],
+                 ', '.join([j for i, j in class_schedule_options
+                            if i in bid_class.schedule_constraints])),
+                (classbid_labels['avoided_constraints'],
+                 ', '.join(
+                    [j for i, j in class_schedule_options
+                     if i in bid_class.avoided_constraints])),
+                ('Space Needs', bid_class.get_space_needs_display()),],
+            'reference': reverse('class_view',
+                                 urlconf='gbe.urls',
+                                 args=[bid_class.id]),
+            }
+        return scheduling_info
 
     def book_event(self, scheduling_form, people_formset, working_class):
         room = get_object_or_404(Room, name=scheduling_form.cleaned_data['location'])
@@ -144,6 +165,7 @@ class ClassWizardView(EventWizardView):
                     instance=working_class)
                 duration = working_class.duration.hours() + float(
                     working_class.duration.minutes())/60
+                context['scheduling_info'] = self.get_scheduling_info(working_class)
             else:
                 context['third_form'] = ClassBookingForm()
                 duration = 1
@@ -168,6 +190,7 @@ class ClassWizardView(EventWizardView):
                 context['third_form'] = ClassBookingForm(
                     request.POST,
                     instance=working_class)
+                context['scheduling_info'] = get_scheduling_info(working_class)
             else:
                 context['third_form'] = ClassBookingForm(request.POST)
             context['second_form'] = PickClassForm(

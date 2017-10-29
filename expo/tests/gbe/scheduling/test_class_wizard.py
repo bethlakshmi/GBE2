@@ -62,7 +62,6 @@ class TestClassWizard(TestCase):
             'e_description': 'Description',
             'maximum_enrollment': 10,
             'fee': 0,
-            'space_needs': 2,
             'max_volunteer': 0,
             'day': self.day.pk,
             'time': '11:00:00',
