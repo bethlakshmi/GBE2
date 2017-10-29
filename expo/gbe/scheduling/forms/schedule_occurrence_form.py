@@ -33,13 +33,14 @@ class DayChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.day.strftime(DATE_FORMAT)
 
+
 class ScheduleOccurrenceForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
     day = DayChoiceField(queryset=ConferenceDay.objects.none(),
-                           empty_label=None,
-                           required=True)
+                         empty_label=None,
+                         required=True)
     time = ChoiceField(choices=conference_times, required=True)
     duration = FloatField(min_value=0.5,
                           max_value=12,
@@ -48,7 +49,6 @@ class ScheduleOccurrenceForm(Form):
     location = ModelChoiceField(
         queryset=Room.objects.all().order_by('name'))
     max_volunteer = IntegerField(required=True, initial=0)
-
 
     def __init__(self, *args, **kwargs):
         open_to_public = None

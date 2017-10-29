@@ -247,7 +247,8 @@ class TestClassWizard(TestCase):
             follow=True)
         new_class = Class.objects.get(e_title=data['e_title'])
         self.assertEqual(new_class.teacher, self.teacher)
-        occurrence = Event.objects.get(eventitem__eventitem_id=new_class.eventitem_id)
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_class.eventitem_id)
         self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
@@ -345,4 +346,3 @@ class TestClassWizard(TestCase):
             data=data,
             follow=True)
         assert_good_sched_event_form_wizard(response, self.test_class)
-    

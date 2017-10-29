@@ -49,7 +49,8 @@ class EventWizardView(View):
         context = self.groundwork(request, args, kwargs)
         if 'pick_event' in request.GET.keys() and context[
                 'selection_form'].is_valid():
-            if context['selection_form'].cleaned_data['event_type'] == 'conference':
+            if context['selection_form'].cleaned_data[
+                    'event_type'] == 'conference':
                 return HttpResponseRedirect("%s?%s" % (
                     reverse('create_class_wizard',
                             urlconf='gbe.scheduling.urls',

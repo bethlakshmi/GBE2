@@ -111,6 +111,7 @@ def assert_label(response, label, details):
     )
     assert selection in response.content
 
+
 def assert_event_was_picked_in_wizard(response, event_type):
     checked_button = ""
     x = 0
@@ -124,7 +125,5 @@ def assert_event_was_picked_in_wizard(response, event_type):
                     x, y, event_type)
             y += 1
         x += 1
-
-
     assert '<a data-toggle="collapse" href="#collapse1">' in response.content
     assert checked_button in response.content

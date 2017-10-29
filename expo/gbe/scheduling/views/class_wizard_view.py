@@ -67,7 +67,7 @@ class ClassWizardView(EventWizardView):
                  ', '.join(
                     [j for i, j in class_schedule_options
                      if i in bid_class.avoided_constraints])),
-                ('Space Needs', bid_class.get_space_needs_display()),],
+                ('Space Needs', bid_class.get_space_needs_display()), ],
             'reference': reverse('class_view',
                                  urlconf='gbe.urls',
                                  args=[bid_class.id]),
@@ -75,7 +75,9 @@ class ClassWizardView(EventWizardView):
         return scheduling_info
 
     def book_event(self, scheduling_form, people_formset, working_class):
-        room = get_object_or_404(Room, name=scheduling_form.cleaned_data['location'])
+        room = get_object_or_404(
+            Room,
+            name=scheduling_form.cleaned_data['location'])
         max_volunteer = 0
         start_time = get_start_time(scheduling_form.cleaned_data)
         labels = [self.conference.conference_slug]
@@ -84,9 +86,11 @@ class ClassWizardView(EventWizardView):
         people = []
         for assignment in people_formset:
             if assignment.cleaned_data[
-                    'role'] in self.roles and assignment.cleaned_data['worker']:
+                    'role'
+                    ] in self.roles and assignment.cleaned_data['worker']:
                 people += [Person(
-                    user=assignment.cleaned_data['worker'].workeritem.as_subtype.user_object,
+                    user=assignment.cleaned_data[
+                        'worker'].workeritem.as_subtype.user_object,
                     public_id=assignment.cleaned_data['worker'].workeritem.pk,
                     role=assignment.cleaned_data['role'])]
         response = create_occurrence(
@@ -101,39 +105,39 @@ class ClassWizardView(EventWizardView):
     def make_formset(self, working_class=None):
         if working_class:
             if working_class.type == 'Panel':
-                WorkerFormSet = formset_factory(wraps(
-                    PersonAllocationForm)(partial(
-                    PersonAllocationForm,
-                    label_visible=False,
-                    role_options=[
-                        ('Panelist', 'Panelist'),
-                        ('Moderator', 'Moderator')],
-                    use_personas=True,)), extra=3, can_delete=True)
-                initial=[{'worker': working_class.teacher,
-                          'role': 'Moderator'}]
+                WorkerFormSet = formset_factory(
+                    wraps(PersonAllocationForm)(partial(
+                        PersonAllocationForm,
+                        label_visible=False,
+                        role_options=[
+                            ('Panelist', 'Panelist'),
+                            ('Moderator', 'Moderator')],
+                        use_personas=True,)), extra=3, can_delete=True)
+                initial = [{'worker': working_class.teacher,
+                            'role': 'Moderator'}]
             else:
-                WorkerFormSet = formset_factory(wraps(
-                    PersonAllocationForm)(partial(
+                WorkerFormSet = formset_factory(
+                    wraps(PersonAllocationForm)(partial(
+                        PersonAllocationForm,
+                        label_visible=False,
+                        role_options=[
+                            ('Teacher', 'Teacher'),
+                            ('Volunteer', 'Volunteer')],
+                        use_personas=True,)), extra=1, can_delete=True)
+                initial = [{'worker': working_class.teacher,
+                            'role': 'Teacher'}]
+        else:
+            WorkerFormSet = formset_factory(
+                wraps(PersonAllocationForm)(partial(
                     PersonAllocationForm,
                     label_visible=False,
                     role_options=[
                         ('Teacher', 'Teacher'),
+                        ('Panelist', 'Panelist'),
+                        ('Moderator', 'Moderator'),
                         ('Volunteer', 'Volunteer')],
-                    use_personas=True,)), extra=1, can_delete=True)
-                initial=[{'worker': working_class.teacher,
-                          'role': 'Teacher'}]
-        else:
-            WorkerFormSet = formset_factory(wraps(
-                PersonAllocationForm)(partial(
-                PersonAllocationForm,
-                label_visible=False,
-                role_options=[
-                    ('Teacher', 'Teacher'),
-                    ('Panelist', 'Panelist'),
-                    ('Moderator', 'Moderator'),
-                    ('Volunteer', 'Volunteer')],
-                use_personas=True,)), extra=3, can_delete=True)
-            initial=[{'role': 'Teacher'}]
+                    use_personas=True,)), extra=3, can_delete=True)
+            initial = [{'role': 'Teacher'}]
         return (WorkerFormSet, initial)
 
     @never_cache
@@ -147,7 +151,7 @@ class ClassWizardView(EventWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        working_class=None
+        working_class = None
         context = self.groundwork(request, args, kwargs)
         context['second_form'] = PickClassForm(
             request.POST,
@@ -156,7 +160,7 @@ class ClassWizardView(EventWizardView):
         if 'pick_class' in request.POST.keys() and context[
                 'second_form'].is_valid():
             if context['second_form'].cleaned_data[
-                'accepted_class']:
+                    'accepted_class']:
                 working_class = context['second_form'].cleaned_data[
                     'accepted_class']
                 context['third_title'] = "Book Class:  %s" % (
@@ -165,14 +169,15 @@ class ClassWizardView(EventWizardView):
                     instance=working_class)
                 duration = working_class.duration.hours() + float(
                     working_class.duration.minutes())/60
-                context['scheduling_info'] = self.get_scheduling_info(working_class)
+                context['scheduling_info'] = self.get_scheduling_info(
+                    working_class)
             else:
                 context['third_form'] = ClassBookingForm()
                 duration = 1
             context['scheduling_form'] = ScheduleOccurrenceForm(
                 conference=self.conference,
                 open_to_public=True,
-                initial={'duration': duration,})
+                initial={'duration': duration, })
             context['scheduling_form'].fields[
                 'max_volunteer'].widget = HiddenInput()
             WorkerFormSet, initial = self.make_formset(working_class)
@@ -190,7 +195,8 @@ class ClassWizardView(EventWizardView):
                 context['third_form'] = ClassBookingForm(
                     request.POST,
                     instance=working_class)
-                context['scheduling_info'] = self.get_scheduling_info(working_class)
+                context['scheduling_info'] = self.get_scheduling_info(
+                    working_class)
             else:
                 context['third_form'] = ClassBookingForm(request.POST)
             context['second_form'] = PickClassForm(
@@ -224,8 +230,8 @@ class ClassWizardView(EventWizardView):
                             code="NEED_LEADER",
                             defaults={
                                 'summary': "Need Leader for Class",
-                                'description': "You must select at least one " +
-                                "person to run this class."})
+                                'description': "You must select at least " +
+                                "one person to run this class."})
                         messages.error(
                             request,
                             user_message[0].description)
@@ -235,8 +241,8 @@ class ClassWizardView(EventWizardView):
 
                 working_class.save()
                 response = self.book_event(context['scheduling_form'],
-                                context['worker_formset'],
-                                working_class)                  
+                                           context['worker_formset'],
+                                           working_class)
                 show_scheduling_occurrence_status(
                     request,
                     response,

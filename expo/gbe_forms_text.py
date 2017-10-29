@@ -29,10 +29,10 @@ event_type_options = [(
     'Classes', (
         ('drop-in', 'Drop-In Class'),
         ('conference', 'Conference Class'),
-        ('master', 'Master Class'),),),(
-    'Other Public Events',(
+        ('master', 'Master Class'), ), ), (
+    'Other Public Events', (
         ('show', 'Show'),
-        ('special', 'Special Event'),),),(
+        ('special', 'Special Event'), ), ), (
     'Behind the Scenes', (
         ('volunteer', 'Volunteering'),
         ('rehearsal', 'Rehearsal Slot'),

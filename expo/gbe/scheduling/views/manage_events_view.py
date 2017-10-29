@@ -104,7 +104,8 @@ class ManageEventsView(View):
                     ) + float(
                     occurrence.eventitem.event.duration.minutes())/60,
                 'type': events.filter(
-                    eventitem_id=occurrence.eventitem.eventitem_id).get_subclass().event_type,
+                    eventitem_id=occurrence.eventitem.eventitem_id
+                    ).get_subclass().event_type,
                 'current_volunteer': occurrence.volunteer_count,
                 'max_volunteer': occurrence.max_volunteer,
                 'detail_link': reverse(
