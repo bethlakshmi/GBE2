@@ -140,6 +140,10 @@ div.bottom  a, .help-block a {
   color: light grey;
 }
 
+#action-button {
+  padding: 3px 8px 3px 8px;
+}
+
 p.error {
   color: red;
 }
