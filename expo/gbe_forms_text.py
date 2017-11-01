@@ -38,6 +38,13 @@ event_type_options = [(
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 
+copy_mode_labels = {
+    'copy_mode': "How would you like to copy this event?"
+}
+copy_mode_choices = [
+    ("copy_children_only", "Copy all sub-events to "),
+    ("include_parent", "Include this event and all sub events, make new event on ")
+]
 inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
