@@ -47,14 +47,19 @@
             <br>
               {{ copy_mode.copy_mode.0.tag }}
               {{ copy_mode.copy_mode.0.choice_label }} {{ copy_mode.target_event }}
+              {% if copy_mode.target_event.errors %}
+                <font color="red"><ul>{{ copy_mode.target_event.errors }}</ul></font>
+              {% endif %}
             <br>
               {{ copy_mode.copy_mode.1.tag }}
               {{ copy_mode.copy_mode.1.choice_label }} {{ copy_mode.copy_to_day }}
             <br>
-          <font color="red"><ul>
-            {% for field in copy_mode %}{% if field.errors %}
-              {% for error in field.errors %}<li>{{ field.label }} -{{ error }}</li>{% endfor %}
-          {% endif %}{% endfor %}</ul></font>
+            {% if copy_mode.copy_to_day.errors or copy_mode.copy_mode.errors %}
+            <font color="red"><ul>
+            {{ copy_mode.copy_to_day.errors }}
+            {{ copy_mode.copy_mode.errors }}
+            </ul></font>
+            {% endif %}
         </div></div></div>
       {% endif %}
     <div class="form-row pull-right">
