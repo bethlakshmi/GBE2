@@ -55,15 +55,12 @@ class CopyOccurrenceView(View):
     def groundwork(self, request, args, kwargs):
         self.occurrence_id = kwargs['occurrence_id']
         self.profile = validate_perms(request, self.permissions)
-        try:
-            response = get_occurrence(self.occurrence_id)
-            self.occurrence = response.occurrence
-            response = get_occurrences(parent_event_id=self.occurrence_id)
-            self.children = response.occurrences
-        except Event.DoesNotExist:
-            raise Http404
+        response = get_occurrence(self.occurrence_id)
+        self.occurrence = response.occurrence
+        response = get_occurrences(parent_event_id=self.occurrence_id)
+        self.children = response.occurrences
 
-    def make_context(self, request, errorcontext=None):
+    def make_context(self, request):
         context = {
             'first_title': "Copying - %s" % self.occurrence.eventitem.event.e_title}
         if self.children and len(self.children) > 0:
@@ -78,6 +75,19 @@ class CopyOccurrenceView(View):
             self.template,
             context)
 
+    def build_mode_form(self, request):
+        context = {
+            'first_title': "Copying - %s" % self.occurrence.eventitem.event.e_title}
+        if self.children and len(self.children) > 0:
+            context['copy_mode'] = CopyEventPickModeForm(
+                request.POST,
+                event_type=self.occurrence.as_subtype.event_type)
+        else:
+            context['pick_day'] = CopyEventPickDayForm(request.POST)
+            context['pick_day'].fields['copy_to_day'].empty_label = None
+            context['pick_day'].fields['copy_to_day'].required = True
+        return context
+
     @never_cache
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
@@ -86,7 +96,15 @@ class CopyOccurrenceView(View):
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        return self.make_context(request)
+        context = self.build_mode_form(request)
+        if context['copy_mode'].is_valid():
+            context['second_form'] = True
+            context['second_title'] = "Copying %s to ..." % (
+                self.occurrence.eventitem.event.e_title)
+        return render(
+            request,
+            self.template,
+            context)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

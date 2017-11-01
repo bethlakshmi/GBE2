@@ -38,6 +38,7 @@ class CopyEventPickDayForm(Form):
     copy_to_day = TargetDay(
         queryset=ConferenceDay.objects.exclude(
             conference__status="completed").order_by('day'),
+        required=False
         )
 
 class CopyEventPickModeForm(CopyEventPickDayForm):
@@ -48,7 +49,8 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
                             label=copy_mode_labels['copy_mode'],
                             widget=RadioSelect)
     
-    target_event = TargetEvent(queryset=Event.objects.none())
+    target_event = TargetEvent(queryset=Event.objects.none(),
+                               required=False)
 
     def __init__(self, *args, **kwargs):
         event_type = None
