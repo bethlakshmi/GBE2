@@ -1,26 +1,25 @@
 {% extends 'base.tmpl' %}
 
 {% block title %}
-  Manage Events
+  Create Event
 {% endblock %}
 
 {% block content %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title">
-    {% if selection_form %}
-      {% if second_form %}<a data-toggle="collapse" href="#collapse1">
-      Select Event Type: {{ event_type }}</a>
-      {% else %}Select Event Type{% endif %}
-    {% else %}
-      {% if second_form %}<a data-toggle="collapse" href="#collapse1">
-      {{ first_title }}</a>
-      {% else %}{{ first_title }}{% endif %}
-    {% endif %}
+      {% if second_form %}<a data-toggle="collapse" href="#collapse1">{% endif %}
+      {% block first_title %}
+        {% if selection_form %}
+          Select Event Type: {{ event_type }}</a>
+        {% else %}Select Event Type{% endif %}
+      {% endblock %}
+      {% if second_form %}</a>{% endif %}
     </h3>
   </div>
   {% if second_form %}<div id="collapse1" class="panel-collapse collapse">{% endif %}
   <div class="panel-body">
+  {% block first_form %}
     {% if selection_form %}
       {% if selection_form.errors %}<p style= "color:red"> There is an error on the form.</p>{% endif %}
       <font color="red">{{ selection_form.non_field_errors }}</font>
@@ -31,41 +30,12 @@
             <font color="red">{{ selection_form.event_type.errors }}</font>
           {% endif %}
         </div></div>
-    {% elif pick_day %}
-      <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-      {{ pick_day }}
-    {% elif copy_mode %}
-      {% if copy_mode.errors %}<p style= "color:red"> There is an error on the form.</p>{% endif %}
-      <font color="red">{{ copy_mode.non_field_errors }}</font>
-      <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-row"><div class="form-group"><div class="col-xs-12">
-	  <label for="{{copy_mode.copy_mode.name}}" class="control-label">	      
-            {{ copy_mode.copy_mode.label_tag }}
-          </label>
-            <br>
-              {{ copy_mode.copy_mode.0.tag }}
-              {{ copy_mode.copy_mode.0.choice_label }} {{ copy_mode.target_event }}
-              {% if copy_mode.target_event.errors %}
-                <font color="red"><ul>{{ copy_mode.target_event.errors }}</ul></font>
-              {% endif %}
-            <br>
-              {{ copy_mode.copy_mode.1.tag }}
-              {{ copy_mode.copy_mode.1.choice_label }} {{ copy_mode.copy_to_day }}
-            <br>
-            {% if copy_mode.copy_to_day.errors or copy_mode.copy_mode.errors %}
-            <font color="red"><ul>
-            {{ copy_mode.copy_to_day.errors }}
-            {{ copy_mode.copy_mode.errors }}
-            </ul></font>
-            {% endif %}
-        </div></div></div>
-      {% endif %}
+    {% endif %}
     <div class="form-row pull-right">
       <input type="submit" class="event_wizard_button" name="pick_event" value="Next">
     </div>
   </form>
+  {% endblock %}
   </div>{% if second_form %}</div>{% endif %}
 </div>
 {% if second_form %}

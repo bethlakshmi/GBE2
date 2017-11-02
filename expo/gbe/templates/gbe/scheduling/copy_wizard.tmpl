@@ -1,0 +1,77 @@
+{% extends 'gbe/scheduling/event_wizard.tmpl' %}
+
+{% block title %}
+  Copy Events
+{% endblock %}
+
+{% block first_title %}
+  {{ first_title }}
+{% endblock %}
+{% block first_form %}
+  {% if pick_day %}
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ pick_day }}
+  {% elif copy_mode %}
+    {% if copy_mode.errors %}<p style= "color:red"> There is an error on the form.</p>{% endif %}
+    <font color="red">{{ copy_mode.non_field_errors }}</font>
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-row"><div class="form-group"><div class="col-xs-12">
+	<label for="{{copy_mode.copy_mode.name}}" class="control-label">	      
+          {{ copy_mode.copy_mode.label_tag }}
+        </label>
+        <br>
+          {{ copy_mode.copy_mode.0.tag }}
+          {{ copy_mode.copy_mode.0.choice_label }} {{ copy_mode.target_event }}
+        {% if copy_mode.target_event.errors %}
+          <font color="red"><ul>{{ copy_mode.target_event.errors }}</ul></font>
+        {% endif %}
+        <br>
+          {{ copy_mode.copy_mode.1.tag }}
+          {{ copy_mode.copy_mode.1.choice_label }} {{ copy_mode.copy_to_day }}
+        <br>
+          {% if copy_mode.copy_to_day.errors or copy_mode.copy_mode.errors %}
+            <font color="red"><ul>
+            {{ copy_mode.copy_to_day.errors }}
+            {{ copy_mode.copy_mode.errors }}
+            </ul></font>
+          {% endif %}
+      </div></div></div>
+    {% endif %}
+    <div class="form-row pull-right">
+      <input type="submit" class="event_wizard_button" name="pick_event" value="Next">
+    </div>
+  </form>
+{% endblock %}
+{% block second_form %}
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <font color="red">
+  {% if second_form.errors %}
+    <p style= "color:red"> There is an error on the form.</p>
+  {% endif %}
+  {{ second_form.non_field_errors }}</font>
+    <div class="form-group single-radio">
+      <h4>Events to be copied, uncheck any that should not be copied:</h4>
+      {{ second_form.accepted_class }}
+        {% if second_form.accepted_class.errors %}
+          <font color="red">{{ second_form.accepted_class.errors }}</font>
+        {% endif %}
+    </div>
+  <div class="form-row pull-right">
+    <input type="submit" class="next" name="pick_class" value="Next">
+  </div>
+</form>
+{% endblock %}
+
+{% block third_form %}
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+      {% include "gbe/scheduling/event_booking.tmpl" with form=third_form %}
+
+  <div class="form-row pull-right">
+    <input type="submit" class="next" name="set_class" value="Finish">
+  </div>
+</form>
+{% endblock %}
