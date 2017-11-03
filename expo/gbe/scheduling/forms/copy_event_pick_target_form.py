@@ -11,21 +11,20 @@ from gbe.models import (
     Class,
     GenericEvent,
 )
-from expo.settings import DATE_FORMAT
+from expo.settings import (
+    DATE_FORMAT,
+    DATETIME_FORMAT
+)
 from gbe_forms_text import (
     copy_mode_labels,
     copy_mode_choices,
 )
+from scheduler.idd import get_occurrences
 
 
 class TargetDay(ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s - %s" % (obj.conference.conference_slug, obj.day.strftime(DATE_FORMAT))
-
-
-class TargetEvent(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "%s - %s" % (obj.e_conference.conference_slug, obj.e_title)
 
 
 class CopyEventPickDayForm(Form):
@@ -49,27 +48,38 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
                             label=copy_mode_labels['copy_mode'],
                             widget=RadioSelect)
     
-    target_event = TargetEvent(queryset=Event.objects.none(),
+    target_event = ChoiceField(choices=[],
                                required=False)
 
     def __init__(self, *args, **kwargs):
         event_type = None
+        choices = []
+        occurrences = None
+        events = None
         if 'event_type' in kwargs:
             event_type = kwargs.pop('event_type')
         super(CopyEventPickModeForm, self).__init__(*args, **kwargs)
         if event_type == "Show":
-            self.fields['target_event'].queryset = Show.objects.exclude(
+            events = Show.objects.exclude(
                 e_conference__status="completed")
         elif event_type == "Class":
-            self.fields['target_event'].queryset = Class.objects.exclude(
+            events = Class.objects.exclude(
                 e_conference__status="completed")
         elif event_type:
-            self.fields[
-                'target_event'].queryset = GenericEvent.objects.exclude(
+            events = GenericEvent.objects.exclude(
                 e_conference__status="completed").filter(type=event_type)
         else:
-            self.fields['target_event'].queryset = Event.objects.exclude(
+            events = Event.objects.exclude(
                 e_conference__status="completed")
+        if events:
+            response = get_occurrences(foreign_event_ids=events)
+        if response.occurrences:
+            for occurrence in occurrences:
+                choices += [(occurrence.pk, "%s - %s" % (
+                    str(occurrence),
+                    occurrence.start_time.strftime(DATETIME_FORMAT)))]
+            self.fields[
+                'target_event'].choices = choices
 
     def clean(self):
         cleaned_data = super(CopyEventPickModeForm, self).clean()

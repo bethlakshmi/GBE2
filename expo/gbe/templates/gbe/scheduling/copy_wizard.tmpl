@@ -40,38 +40,26 @@
       </div></div></div>
     {% endif %}
     <div class="form-row pull-right">
-      <input type="submit" class="event_wizard_button" name="pick_event" value="Next">
+      <input type="submit" class="event_wizard_button" name="pick_mode" value="Next">
     </div>
   </form>
 {% endblock %}
 {% block second_form %}
 <form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <font color="red">
   {% if second_form.errors %}
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
-  {{ second_form.non_field_errors }}</font>
     <div class="form-group single-radio">
-      <h4>Events to be copied, uncheck any that should not be copied:</h4>
-      {{ second_form.accepted_class }}
-        {% if second_form.accepted_class.errors %}
-          <font color="red">{{ second_form.accepted_class.errors }}</font>
-        {% endif %}
+      <h4>Choose Events to be copied</h4>
+      Uncheck any events that should not be copied.
+      When an event is copied, it will be moved to a target day, relative to
+      it's parent's start time.  All details about the event and it's location will
+      be copied, but no staffing assignments will be copied.</h4>
+      {{ second_form}}
     </div>
   <div class="form-row pull-right">
-    <input type="submit" class="next" name="pick_class" value="Next">
-  </div>
-</form>
-{% endblock %}
-
-{% block third_form %}
-<form action="" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-      {% include "gbe/scheduling/event_booking.tmpl" with form=third_form %}
-
-  <div class="form-row pull-right">
-    <input type="submit" class="next" name="set_class" value="Finish">
+    <input type="submit" class="next" name="pick_event" value="Finish">
   </div>
 </form>
 {% endblock %}

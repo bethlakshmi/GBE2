@@ -9,6 +9,7 @@ from copy_event_pick_target_form import (
     CopyEventPickDayForm,
     CopyEventPickModeForm,
 )
+from copy_event_form import CopyEventForm
 from schedule_selection_form import ScheduleSelectionForm
 from show_schedule_form import ShowScheduleForm
 from worker_allocation_form import WorkerAllocationForm

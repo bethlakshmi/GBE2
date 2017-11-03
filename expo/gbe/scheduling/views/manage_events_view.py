@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.formats import date_format
 from expo.settings import (
+    DATE_FORMAT,
+    DATETIME_FORMAT,
     TIME_FORMAT,
     URL_DATE,
 )
@@ -33,10 +35,6 @@ from gbe.scheduling.views.functions import show_general_status
 from gbe.scheduling.forms import (
     HiddenSelectEventForm,
     SelectEventForm,
-)
-from expo.settings import (
-    DATE_FORMAT,
-    DATETIME_FORMAT,
 )
 from datetime import datetime
 from gbetext import calendar_type as calendar_type_options
