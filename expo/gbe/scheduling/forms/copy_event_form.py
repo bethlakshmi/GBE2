@@ -1,4 +1,5 @@
 from django.forms import (
+    IntegerField,
     HiddenInput,
     ModelChoiceField,
     MultipleChoiceField,
@@ -34,9 +35,7 @@ class CopyEventForm(Form):
                             required=False,
                             widget=HiddenInput)
     
-    target_event = ModelChoiceField(
-        queryset=Event.objects.exclude(
-            e_conference__status="completed"),
+    target_event = IntegerField(
         required=False,
         widget=HiddenInput)
 

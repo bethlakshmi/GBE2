@@ -20,6 +20,7 @@ from gbe_forms_text import (
     copy_mode_choices,
 )
 from scheduler.idd import get_occurrences
+from django.db.models.fields import BLANK_CHOICE_DASH
 
 
 class TargetDay(ModelChoiceField):
@@ -54,7 +55,6 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
     def __init__(self, *args, **kwargs):
         event_type = None
         choices = []
-        occurrences = None
         events = None
         if 'event_type' in kwargs:
             event_type = kwargs.pop('event_type')
@@ -72,14 +72,15 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
             events = Event.objects.exclude(
                 e_conference__status="completed")
         if events:
-            response = get_occurrences(foreign_event_ids=events)
-        if response.occurrences:
-            for occurrence in occurrences:
+            response = get_occurrences(
+                foreign_event_ids=events.values_list('eventitem_id', flat=True))
+        if events and  response.occurrences:
+            for occurrence in response.occurrences:
                 choices += [(occurrence.pk, "%s - %s" % (
                     str(occurrence),
                     occurrence.start_time.strftime(DATETIME_FORMAT)))]
             self.fields[
-                'target_event'].choices = choices
+                'target_event'].choices = BLANK_CHOICE_DASH + choices
 
     def clean(self):
         cleaned_data = super(CopyEventPickModeForm, self).clean()

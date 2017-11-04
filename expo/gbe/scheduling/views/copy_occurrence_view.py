@@ -57,6 +57,7 @@ class CopyOccurrenceView(View):
         if self.children and len(self.children) > 0:
             context['copy_mode'] = CopyEventPickModeForm(
                 event_type=self.occurrence.as_subtype.event_type)
+
         else:
             context['pick_day'] = CopyEventPickDayForm()
             context['pick_day'].fields['copy_to_day'].empty_label = None
@@ -84,10 +85,11 @@ class CopyOccurrenceView(View):
         if 'copy_mode' in context.keys() and context['copy_mode'].is_valid():
             if context['copy_mode'].cleaned_data[
                     'copy_mode'] == "copy_children_only":
+                response = get_occurrence(
+                    context['copy_mode'].cleaned_data['target_event'])
                 context['second_title'] = "Destination is %s: %s" % (
-                    context['copy_mode'].cleaned_data[
-                        'target_event'].e_conference.conference_slug,
-                    context['copy_mode'].cleaned_data['target_event'].e_title)
+                    response.occurrence.eventitem.event.e_conference.conference_slug,
+                    response.occurrence.eventitem.event.e_title)
             elif context['copy_mode'].cleaned_data[
                     'copy_mode'] == "include_parent":
                 context['second_title'] = "Create Copied Event at %s: %s" % (
@@ -106,7 +108,7 @@ class CopyOccurrenceView(View):
                     str(context['pick_day'].cleaned_data['copy_to_day']))
         return make_copy, context
 
-    def make_event_picker(self, request, copy_parent, day_delta):
+    def make_event_picker(self, request, copy_parent):
         form = CopyEventForm(request.POST)
         event_choices = ()
         if copy_parent:
