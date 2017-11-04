@@ -90,16 +90,21 @@ class CopyOccurrenceView(View):
                 context['second_title'] = "Destination is %s: %s" % (
                     response.occurrence.eventitem.event.e_conference.conference_slug,
                     response.occurrence.eventitem.event.e_title)
+                delta = response.occurrence.starttime.date(
+                    ) - self.occurrence.starttime.date()
             elif context['copy_mode'].cleaned_data[
                     'copy_mode'] == "include_parent":
                 context['second_title'] = "Create Copied Event at %s: %s" % (
                     context['copy_mode'].cleaned_data[
                         'copy_to_day'].conference.conference_slug,
                     str(context['copy_mode'].cleaned_data['copy_to_day']))
+                delta = context['copy_mode'].cleaned_data[
+                    'copy_to_day'].day - self.occurrence.starttime.date()
             context['second_form'] = self.make_event_picker(
                 request,
                 (context['copy_mode'].cleaned_data[
-                    'copy_mode'] == "include_parent"))
+                    'copy_mode'] == "include_parent"),
+                delta)
         elif 'pick_day' in context.keys() and context['pick_day'].is_valid():
             make_copy = True
             context['second_title'] = "Create Copied Event at %s: %s" % (
@@ -108,7 +113,7 @@ class CopyOccurrenceView(View):
                     str(context['pick_day'].cleaned_data['copy_to_day']))
         return make_copy, context
 
-    def make_event_picker(self, request, copy_parent):
+    def make_event_picker(self, request, copy_parent, delta):
         form = CopyEventForm(request.POST)
         event_choices = ()
         if copy_parent:
@@ -116,13 +121,13 @@ class CopyOccurrenceView(View):
             self.occurrence.pk,
             "%s - %s" % (
                 str(self.occurrence),
-                self.occurrence.start_time.strftime(DATETIME_FORMAT))),)
+                (self.occurrence.start_time + delta).strftime(DATETIME_FORMAT))),)
         for occurrence in self.children:
             event_choices += ((
                 occurrence.pk,
                 "%s - %s" % (
                     str(occurrence),
-                    occurrence.start_time.strftime(DATETIME_FORMAT))),)
+                    (occurrence.start_time + delta).strftime(DATETIME_FORMAT))),)
         form.fields['copied_event'].choices = event_choices
         return form
 
