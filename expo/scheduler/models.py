@@ -1061,6 +1061,10 @@ class Event(Schedulable):
         label.save()
         return label
 
+    # New with Scheduler API
+    @property
+    def labels(self):
+        return EventLabel.objects.filter(event=self)
 
 class ResourceAllocation(Schedulable):
     '''
