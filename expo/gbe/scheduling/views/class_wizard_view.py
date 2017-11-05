@@ -249,11 +249,11 @@ class ClassWizardView(EventWizardView):
                     self.__class__.__name__)
                 if response.occurrence:
                     return HttpResponseRedirect(
-                        "%s?%s-day=%d&filter=Filter&new=%d" % (
+                        "%s?%s-day=%d&filter=Filter&new=%s" % (
                             reverse('manage_event_list',
                                     urlconf='gbe.scheduling.urls',
                                     args=[self.conference.conference_slug]),
                             self.conference.conference_slug,
                             context['scheduling_form'].cleaned_data['day'].pk,
-                            response.occurrence.pk,))
+                            str([response.occurrence.pk]),))
         return render(request, self.template, context)

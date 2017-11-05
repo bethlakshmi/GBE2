@@ -236,7 +236,7 @@ class CopyOccurrenceView(View):
                 if response.occurrence:
                     slug = target_day.conference.conference_slug
                     return HttpResponseRedirect(
-                        "%s?%s-day=%d&filter=Filter&new=%d" % (
+                        "%s?%s-day=%d&filter=Filter&new=%s" % (
                             reverse('manage_event_list',
                                     urlconf='gbe.scheduling.urls',
                                     args=[slug]),
