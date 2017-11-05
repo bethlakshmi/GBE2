@@ -129,7 +129,7 @@ class CopyOccurrenceView(View):
         form.fields['copied_event'].choices = event_choices
         return form
 
-    def copy_event(self, occurrence, delta, conference):
+    def copy_event(self, occurrence, delta, conference, parent_event_id=None):
         gbe_event_copy = occurrence.as_subtype
         gbe_event_copy.pk = None
         gbe_event_copy.event_id = None
@@ -146,6 +146,7 @@ class CopyOccurrenceView(View):
             self.occurrence.starttime + delta,
             max_volunteer=self.occurrence.max_volunteer,
             locations=[self.occurrence.location],
+            parent_event_id=parent_event_id,
             labels=labels
         )
         return response
@@ -153,15 +154,21 @@ class CopyOccurrenceView(View):
     def copy_events_from_form(self, request):
         form = self.make_event_picker(request, timedelta(0))
         if form.is_valid():
+            copied_ids = []
             if form.cleaned_data['copy_mode'] == "copy_children_only":
                 response = get_occurrence(
-                    context['copy_mode'].cleaned_data['target_event'])
+                    form.cleaned_data['target_event'])
                 target_event = response.occurrence
+                target_day = ConferenceDay.objects.get(
+                    day=response.occurrence.starttime.date())
                 delta = response.occurrence.starttime.date(
                     ) - self.occurrence.starttime.date()
+                conference = response.occurrence.eventitem.event.e_conference
+                parent_event_id = response.occurrence.pk
             elif form.cleaned_data['copy_mode'] == "include_parent":
                 target_day = form.cleaned_data['copy_to_day']
                 delta = target_day.day - self.occurrence.starttime.date()
+                conference = form.cleaned_data['copy_to_day'].conference
                 response = self.copy_event(
                     self.occurrence,
                     delta,
@@ -171,15 +178,31 @@ class CopyOccurrenceView(View):
                     response,
                     self.__class__.__name__)
                 if response.occurrence:
-                    slug = target_day.conference.conference_slug
-                    return HttpResponseRedirect(
-                        "%s?%s-day=%d&filter=Filter&new=%d" % (
-                            reverse('manage_event_list',
-                                    urlconf='gbe.scheduling.urls',
-                                    args=[slug]),
-                            slug,
-                            target_day.pk,
-                            response.occurrence.pk,))
+                    copied_ids += [response.occurrence.pk]
+                    parent_event_id = response.occurrence.pk
+
+            for sub_event_id in form.cleaned_data["copied_event"]:
+                response = get_occurrence(sub_event_id)
+                response = self.copy_event(
+                    response.occurrence,
+                    delta,
+                    conference,
+                    parent_event_id)
+                show_scheduling_occurrence_status(
+                    request,
+                    response,
+                    self.__class__.__name__)
+                if response.occurrence:
+                    copied_ids += [response.occurrence.pk]
+            if len(copied_ids) > 0:
+                return HttpResponseRedirect(
+                    "%s?%s-day=%d&filter=Filter&new=%s" % (
+                        reverse('manage_event_list',
+                                urlconf='gbe.scheduling.urls',
+                                args=[conference.conference_slug]),
+                        conference.conference_slug,
+                        target_day.pk,
+                        str(copied_ids),))
         else:
             context = self.build_mode_form(request)
             make_copy, context = self.validate_and_proceed(request, context)
@@ -219,7 +242,7 @@ class CopyOccurrenceView(View):
                                     args=[slug]),
                             slug,
                             target_day.pk,
-                            response.occurrence.pk,))
+                            str([response.occurrence.pk]),))
         if 'pick_event' in request.POST.keys():
             return self.copy_events_from_form(request)
         return render(

@@ -75,7 +75,7 @@ class ManageEventsView(View):
             'other_forms': [],
         }
         if 'new' in request.GET.keys():
-            context['success_occurrence'] = int(request.GET['new'])
+            context['success_occurrences'] = eval(request.GET['new'])
         for conf in conference_set:
             if self.conference != conf:
                 hidden_form = HiddenSelectEventForm(

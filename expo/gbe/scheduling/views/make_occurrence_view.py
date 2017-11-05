@@ -91,8 +91,12 @@ class MakeOccurrenceView(View):
         context = {}
         response = get_occurrences(occurrence_id)
         for vol_occurence in response.occurrences:
-            vol_event = Event.objects.get_subclass(
-                pk=vol_occurence.foreign_event_id)
+            try:
+                vol_event = Event.objects.get_subclass(
+                    pk=vol_occurence.foreign_event_id)
+            except:
+                raise Exception("%s: %d" % (str(vol_occurence),
+                                            vol_occurence.foreign_event_id))
             if (errorcontext and
                     'error_opp_form' in errorcontext and
                     errorcontext['error_opp_form'].instance == vol_event):

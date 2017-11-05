@@ -110,7 +110,7 @@
     </tfoot>
     <tbody>
     {% for occurrence in occurrences %}
-      <tr class="bid-table {% if occurrence.id == success_occurrence %}success{% endif %}">
+      <tr class="bid-table {% if occurrence.id in success_occurrences %}success{% endif %}">
        <td class="bid-table">{{ occurrence.title}}</td>
        <td class="bid-table">{{ occurrence.location}}</td>
        <td class="bid-table">{{ occurrence.start}}</td>
