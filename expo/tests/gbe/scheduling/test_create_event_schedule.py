@@ -227,7 +227,7 @@ class TestCreateOccurrence(TestCase):
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
                 form_data['event-e_title'],
                 'Fri, Feb 5 12:00 PM')
             )

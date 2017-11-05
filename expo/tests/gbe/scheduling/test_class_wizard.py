@@ -217,7 +217,7 @@ class TestClassWizard(TestCase):
             data=data,
             follow=True)
         occurrence = Event.objects.filter(eventitem=self.test_class)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
+        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[self.current_conference.conference_slug]),
@@ -228,7 +228,7 @@ class TestClassWizard(TestCase):
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
@@ -249,7 +249,7 @@ class TestClassWizard(TestCase):
         self.assertEqual(new_class.teacher, self.teacher)
         occurrence = Event.objects.get(
             eventitem__eventitem_id=new_class.eventitem_id)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
+        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[self.current_conference.conference_slug]),
@@ -260,7 +260,7 @@ class TestClassWizard(TestCase):
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
