@@ -115,10 +115,6 @@ class CopyOccurrenceView(View):
                 delta)
         elif 'pick_day' in context.keys() and context['pick_day'].is_valid():
             make_copy = True
-            context['second_title'] = "Create Copied Event at %s: %s" % (
-                context['pick_day'].cleaned_data[
-                    'copy_to_day'].conference.conference_slug,
-                    str(context['pick_day'].cleaned_data['copy_to_day']))
         return make_copy, context
 
     def make_event_picker(self, request, delta):

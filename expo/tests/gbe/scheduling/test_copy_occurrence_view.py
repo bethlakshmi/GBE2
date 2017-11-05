@@ -26,7 +26,12 @@ from expo.settings import (
     DATE_FORMAT,
     DATETIME_FORMAT,
 )
-from tests.contexts import StaffAreaContext
+from tests.contexts import (
+    ClassContext,
+    ShowContext,
+    StaffAreaContext,
+    VolunteerContext,
+)
 from gbe_forms_text import (
     copy_mode_labels,
     copy_mode_choices,
@@ -47,6 +52,16 @@ class TestClassWizard(TestCase):
         self.client = Client()
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
+
+    def assert_good_mode_form(self, response, title, date):
+        self.assertEqual(response.status_code, 200)
+        for day in self.context.days:
+            self.assertContains(response, day.day.strftime(DATE_FORMAT))
+        self.assertContains(response, copy_mode_choices[0][1])
+        self.assertContains(response, copy_mode_choices[1][1])
+        self.assertContains(response, "%s - %s" % (
+            title,
+            date.strftime(DATETIME_FORMAT)))
 
     def test_create_event_unauthorized_user(self):
         login_as(ProfileFactory(), self)
@@ -74,14 +89,10 @@ class TestClassWizard(TestCase):
         self.context.add_volunteer_opp()
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        for day in self.context.days:
-            self.assertContains(response, day.day.strftime(DATE_FORMAT))
-        self.assertContains(response, copy_mode_choices[0][1])
-        self.assertContains(response, copy_mode_choices[1][1])
-        self.assertContains(response, "%s - %s" % (
-            str(target_event.area.e_title),
-            target_event.sched_event.start_time.strftime(DATETIME_FORMAT)))
+        self.assert_good_mode_form(
+            response,
+            target_event.area.e_title,
+            target_event.sched_event.start_time)
 
     def test_bad_occurrence(self):
         url = reverse(self.view_name,
@@ -91,256 +102,47 @@ class TestClassWizard(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-'''
-    def test_authorized_user_single_conference(self):
-        other_class = ClassFactory(accepted=3,
-                                   submitted=True)
+    def test_authorized_user_get_show(self):
+        show_context = VolunteerContext()
+        target_context = ShowContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
-        response = self.client.get(self.url)
-        self.assertNotContains(response, str(other_class.b_title))
-        self.assertNotContains(response, str(other_class.teacher))
+        response = self.client.get(url)
+        self.assert_good_mode_form(
+            response,
+            target_context.show.e_title,
+            target_context.sched_event.start_time)
 
-    def test_auth_user_can_pick_class(self):
+    def test_authorized_user_get_show(self):
+        copy_class = ClassFactory()
+        vol_context = VolunteerContext(event=copy_class)
+        target_context = ClassContext()
+        url = reverse(self.view_name,
+            args=[vol_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
-        data = self.get_data()
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
+        response = self.client.get(url)
+        self.assert_good_mode_form(
             response,
-            '<input checked="checked" id="id_accepted_class_1" ' +
-            'name="accepted_class" type="radio" value="%d" />' %
-            self.test_class.pk)
+            target_context.bid.e_title,
+            target_context.sched_event.start_time)
 
-    def test_invalid_form(self):
+    def test_copy_single_event(self):
+        another_day = ConferenceDayFactory(conference=self.context.conference)
+        data = {
+            'copy_to_day': another_day.pk,
+            'pick_mode': "Next",
+        }
         login_as(self.privileged_user, self)
-        data = self.get_data()
-        data['accepted_class'] = "boo"
-        response = self.client.post(
-            self.url,
-            data=data)
-        self.assertContains(
-            response,
-            'That choice is not one of the available choices.')
-
-    def test_auth_user_pick_new_class(self):
-        login_as(self.privileged_user, self)
-        data = self.get_data()
-        data['accepted_class'] = ""
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
-            response,
-            '<input checked="checked" id="id_accepted_class_0" ' +
-            'name="accepted_class" type="radio" value="" />')
-        self.assertContains(
-            response,
-            'Make New Class')
-        self.assertContains(
-            response,
-            'type="number" value="1"')
-        self.assertContains(
-            response,
-            '<option value="%d">%s</option>' % (
-                self.day.pk,
-                self.day.day.strftime(DATE_FORMAT)
-            ))
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Teacher',
-                'Teacher'))
-
-    def test_auth_user_load_class(self):
-        login_as(self.privileged_user, self)
-        data = self.get_data()
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
-            response,
-            'value="%s"' %
-            self.test_class.b_title)
-        self.assertContains(
-            response,
-            'type="number" value="1.0"')
-        self.assertContains(
-            response,
-            '<option value="%d">%s</option>' % (
-                self.day.pk,
-                self.day.day.strftime(DATE_FORMAT)
-            ))
-        self.assertContains(
-            response,
-            '<option value="%d" selected="selected">%s</option>' % (
-                self.test_class.teacher.pk,
-                str(self.test_class.teacher)))
-
-    def test_auth_user_load_panel(self):
-        panel = ClassFactory(b_conference=self.current_conference,
-                             e_conference=self.current_conference,
-                             type="Panel",
-                             accepted=3,
-                             teacher=self.teacher,
-                             submitted=True)
-        login_as(self.privileged_user, self)
-        data = self.get_data()
-        data['accepted_class'] = panel.pk
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
-            response,
-            'value="%s"' %
-            panel.b_title)
-        self.assertContains(response, "Panelist")
-        self.assertContains(response, "Moderator")
-        self.assertContains(
-            response,
-            '<option value="%d" selected="selected">%s</option>' % (
-                panel.teacher.pk,
-                str(panel.teacher)))
-
-    def test_auth_user_edit_class(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        occurrence = Event.objects.filter(eventitem=self.test_class)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+        response = self.client.post(self.url, data=data, follow=True)
+        max_pk = Event.objects.latest('pk').pk
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug]),
-            self.current_conference.conference_slug,
-            self.day.pk,
-            occurrence[0].pk))
-        assert_alert_exists(
-            response,
-            'success',
-            'Success',
-            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
-                data['e_title'],
-                self.day.day.strftime(DATE_FORMAT))
-            )
-        self.assertContains(
-            response,
-            '<tr class="bid-table success">\n       ' +
-            '<td class="bid-table">%s</td>' % data['e_title'])
-
-    def test_auth_user_create_class(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        data['eventitem_id'] = ""
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        new_class = Class.objects.get(e_title=data['e_title'])
-        self.assertEqual(new_class.teacher, self.teacher)
-        occurrence = Event.objects.get(
-            eventitem__eventitem_id=new_class.eventitem_id)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
-            reverse('manage_event_list',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug]),
-            self.current_conference.conference_slug,
-            self.day.pk,
-            occurrence.pk))
-        assert_alert_exists(
-            response,
-            'success',
-            'Success',
-            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
-                data['e_title'],
-                self.day.day.strftime(DATE_FORMAT))
-            )
-        self.assertContains(
-            response,
-            '<tr class="bid-table success">\n       ' +
-            '<td class="bid-table">%s</td>' % data['e_title'])
-
-    def test_auth_user_create_class_no_teacher(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        data['eventitem_id'] = ""
-        data['form-0-worker'] = ""
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        assert_alert_exists(
-            response,
-            'danger',
-            'Error',
-            "You must select at least one person to run this class."
-            )
-
-    def test_auth_user_bad_user_assign(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        data['form-0-role'] = "bad role"
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
-            response,
-            "bad role is not one of the available choices.")
-
-    def test_auth_user_bad_schedule_assign(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        data['location'] = ""
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(response, "This field is required.")
-
-    def test_auth_user_bad_schedule_assign(self):
-        login_as(self.privileged_user, self)
-        data = self.edit_class()
-        data['type'] = "bad type"
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        self.assertContains(
-            response,
-            "bad type is not one of the available choices.")
-
-    def test_get_class_recommendations(self):
-        self.test_class.schedule_constraints = "[u'1']"
-        self.test_class.avoided_constraints = "[u'2']"
-        self.test_class.space_needs = "2"
-        self.test_class.type = "Panel"
-        self.test_class.save()
-        login_as(self.privileged_user, self)
-        data = self.get_data()
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        assert_good_sched_event_form_wizard(response, self.test_class)
-
-    def test_get_empty_schedule_info(self):
-        self.test_class.schedule_constraints = ""
-        self.test_class.avoided_constraints = ""
-        self.test_class.space_needs = ""
-        self.test_class.type = ""
-        self.test_class.save()
-        login_as(self.privileged_user, self)
-        data = self.get_data()
-        response = self.client.post(
-            self.url,
-            data=data,
-            follow=True)
-        assert_good_sched_event_form_wizard(response, self.test_class)
-'''
+                    args=[another_day.conference.conference_slug]),
+            another_day.conference.conference_slug,
+            another_day.pk,
+            str([max_pk]),)
+        self.assertRedirects(response, redirect_url)

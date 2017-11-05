@@ -663,10 +663,11 @@ class Event(Schedulable):
             if assignment.resource.as_subtype.__class__.__name__ == "Location":
                 assignment.delete()
         for location in locations:
-            ra = ResourceAllocation(
-                resource=location.get_resource(),
-                event=self)
-            ra.save()
+            if location is not None:
+                ra = ResourceAllocation(
+                    resource=location.get_resource(),
+                    event=self)
+                ra.save()
 
     # New - from refactoring
     @property
