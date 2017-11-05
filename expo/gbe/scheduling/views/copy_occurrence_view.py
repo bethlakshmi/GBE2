@@ -23,6 +23,7 @@ from scheduler.idd import (
     get_occurrences,
 )
 from gbe.scheduling.views.functions import (
+    show_general_status,
     show_scheduling_occurrence_status,
 )
 from gbe.models import (
@@ -45,12 +46,16 @@ class CopyOccurrenceView(View):
     future_days = None
 
     def groundwork(self, request, args, kwargs):
-        self.occurrence_id = kwargs['occurrence_id']
+        self.occurrence_id = int(kwargs['occurrence_id'])
         self.profile = validate_perms(request, self.permissions)
         response = get_occurrence(self.occurrence_id)
+        show_general_status(request, response, self.__class__.__name__)
+        if not response.occurrence:
+            raise Http404
         self.occurrence = response.occurrence
         response = get_occurrences(parent_event_id=self.occurrence_id)
         self.children = response.occurrences
+        show_general_status(request, response, self.__class__.__name__)
 
     def make_context(self, request):
         context = {

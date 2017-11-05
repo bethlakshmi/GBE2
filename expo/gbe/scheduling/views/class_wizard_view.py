@@ -8,7 +8,6 @@ from django.shortcuts import (
 )
 from django.forms import formset_factory
 from django.http import (
-    Http404,
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
