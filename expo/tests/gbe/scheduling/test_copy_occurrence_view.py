@@ -22,6 +22,7 @@ from tests.functions.gbe_scheduling_functions import (
     assert_event_was_picked_in_wizard,
     assert_good_sched_event_form_wizard,
 )
+from datetime import datetime
 from expo.settings import (
     DATE_FORMAT,
     DATETIME_FORMAT,
@@ -146,3 +147,38 @@ class TestClassWizard(TestCase):
             another_day.pk,
             str([max_pk]),)
         self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                self.context.area.e_title,
+                datetime.combine(
+                    another_day.day,
+                    self.context.sched_event.starttime.time()).strftime(
+                    DATETIME_FORMAT)))
+
+    def test_authorized_user_pick_mode_show(self):
+        another_day = ConferenceDayFactory(conference=self.context.conference)
+        show_context = VolunteerContext()
+        target_context = ShowContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk,
+            'pick_mode': "Next",
+        }
+        delta = another_day.day - show_context.sched_event.starttime.date()
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assert_good_mode_form(
+            response,
+            target_context.show.e_title,
+            target_context.sched_event.start_time)
+        self.assertContains(response, "Choose Sub-Events to be copied")
+        self.assertContains(response, "%s - %s" % (
+            show_context.opportunity.e_title,
+            (show_context.opp_event.start_time + delta).strftime(
+                        self.copy_date_format)))
