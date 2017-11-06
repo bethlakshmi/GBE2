@@ -6,12 +6,10 @@ from tests.factories.gbe_factories import (
     ClassFactory,
     ConferenceFactory,
     ConferenceDayFactory,
-    PersonaFactory,
     ProfileFactory,
     RoomFactory,
 )
 from scheduler.models import Event
-from gbe.models import Class
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     grant_privilege,
@@ -158,10 +156,9 @@ class TestClassWizard(TestCase):
                     self.context.sched_event.starttime.time()).strftime(
                     DATETIME_FORMAT)))
 
-    def test_authorized_user_pick_mode_show(self):
+    def test_authorized_user_pick_mode_include_parent(self):
         another_day = ConferenceDayFactory(conference=self.context.conference)
         show_context = VolunteerContext()
-        target_context = ShowContext()
         url = reverse(self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
@@ -173,12 +170,124 @@ class TestClassWizard(TestCase):
         delta = another_day.day - show_context.sched_event.starttime.date()
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=data, follow=True)
-        self.assert_good_mode_form(
+        self.assertContains(
             response,
-            target_context.show.e_title,
-            target_context.sched_event.start_time)
+            '<input checked="checked" id="id_copy_mode_1" name="copy_mode" ' +
+            'type="radio" value="include_parent" />')
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">' % another_day.pk)
         self.assertContains(response, "Choose Sub-Events to be copied")
         self.assertContains(response, "%s - %s" % (
             show_context.opportunity.e_title,
             (show_context.opp_event.start_time + delta).strftime(
                         self.copy_date_format)))
+
+    def test_authorized_user_pick_mode_bad_input(self):
+        another_day = ConferenceDayFactory(conference=self.context.conference)
+        show_context = VolunteerContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk + 100,
+            'pick_mode': "Next",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice.')
+
+    def test_authorized_user_pick_mode_no_day(self):
+        show_context = VolunteerContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'pick_mode': "Next",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Must choose a day when copying all events.')
+
+    def test_authorized_user_pick_mode_no_event(self):
+        show_context = VolunteerContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'copy_children_only',
+            'pick_mode': "Next",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Must choose the target event when copying sub-events.')
+
+    def test_authorized_user_pick_mode_only_children(self):
+        show_context = VolunteerContext()
+        target_context = ShowContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'copy_children_only',
+            'target_event': target_context.sched_event.pk,
+            'pick_mode': "Next",
+        }
+        delta = target_context.sched_event.starttime.date(
+            ) - show_context.sched_event.starttime.date()
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(
+            response,
+            '<input checked="checked" id="id_copy_mode_0" name="copy_mode" ' +
+            'type="radio" value="copy_children_only" />')
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">' % target_context.sched_event.pk)
+        self.assertContains(response, "Choose Sub-Events to be copied")
+        self.assertContains(response, "%s - %s" % (
+            show_context.opportunity.e_title,
+            (show_context.opp_event.start_time + delta).strftime(
+                        self.copy_date_format)))
+
+    def test_copy_child_event(self):
+        show_context = VolunteerContext()
+        target_context = ShowContext()
+        url = reverse(self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'copy_children_only',
+            'target_event': target_context.sched_event.pk,
+            'copied_event': show_context.opp_event.pk,
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        max_pk = Event.objects.latest('pk').pk
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[target_context.conference.conference_slug]),
+            target_context.conference.conference_slug,
+            target_context.days[0].pk,
+            str([max_pk]),)
+        self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                show_context.opportunity.e_title,
+                datetime.combine(
+                    target_context.days[0].day,
+                    show_context.opp_event.starttime.time()).strftime(
+                    DATETIME_FORMAT)))

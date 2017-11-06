@@ -160,8 +160,10 @@ class CopyOccurrenceView(View):
                 response = get_occurrence(
                     form.cleaned_data['target_event'])
                 target_event = response.occurrence
-                target_day = ConferenceDay.objects.get(
-                    day=response.occurrence.starttime.date())
+                target_day = ConferenceDay.objects.filter(
+                    day=response.occurrence.starttime.date(),
+                    conference=response.occurrence.eventitem.event.e_conference
+                    ).first()
                 delta = response.occurrence.starttime.date(
                     ) - self.occurrence.starttime.date()
                 conference = response.occurrence.eventitem.event.e_conference
