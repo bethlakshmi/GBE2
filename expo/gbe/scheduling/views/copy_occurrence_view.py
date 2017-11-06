@@ -95,11 +95,12 @@ class CopyOccurrenceView(View):
         if 'copy_mode' in context.keys() and context['copy_mode'].is_valid():
             if context['copy_mode'].cleaned_data[
                     'copy_mode'] == "copy_children_only":
+                event = response.occurrence.eventitem.event
                 response = get_occurrence(
                     context['copy_mode'].cleaned_data['target_event'])
                 context['second_title'] = "Destination is %s: %s" % (
-                    response.occurrence.eventitem.event.e_conference.conference_slug,
-                    response.occurrence.eventitem.event.e_title)
+                    event.e_conference.conference_slug,
+                    event.e_title)
                 delta = response.occurrence.starttime.date(
                     ) - self.occurrence.starttime.date()
             elif context['copy_mode'].cleaned_data[

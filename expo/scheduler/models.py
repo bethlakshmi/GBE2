@@ -1067,6 +1067,7 @@ class Event(Schedulable):
     def labels(self):
         return EventLabel.objects.filter(event=self)
 
+
 class ResourceAllocation(Schedulable):
     '''
     Joins a particular Resource to a particular Event

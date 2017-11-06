@@ -71,9 +71,10 @@ class TestClassWizard(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Copying - %s: %s" %(
+        self.assertContains(response, "Copying - %s: %s" % (
             self.context.area.e_title,
-            self.context.sched_event.starttime.strftime(self.copy_date_format)))
+            self.context.sched_event.starttime.strftime(
+                self.copy_date_format)))
 
     def test_authorized_user_get_no_child_event(self):
         login_as(self.privileged_user, self)
@@ -94,7 +95,8 @@ class TestClassWizard(TestCase):
             target_event.sched_event.start_time)
 
     def test_bad_occurrence(self):
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[self.context.sched_event.pk+100],
             urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
@@ -104,7 +106,8 @@ class TestClassWizard(TestCase):
     def test_authorized_user_get_show(self):
         show_context = VolunteerContext()
         target_context = ShowContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
@@ -114,11 +117,12 @@ class TestClassWizard(TestCase):
             target_context.show.e_title,
             target_context.sched_event.start_time)
 
-    def test_authorized_user_get_show(self):
+    def test_authorized_user_get_class(self):
         copy_class = ClassFactory()
         vol_context = VolunteerContext(event=copy_class)
         target_context = ClassContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[vol_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         login_as(self.privileged_user, self)
@@ -159,7 +163,8 @@ class TestClassWizard(TestCase):
     def test_authorized_user_pick_mode_include_parent(self):
         another_day = ConferenceDayFactory(conference=self.context.conference)
         show_context = VolunteerContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -186,7 +191,8 @@ class TestClassWizard(TestCase):
     def test_authorized_user_pick_mode_bad_input(self):
         another_day = ConferenceDayFactory(conference=self.context.conference)
         show_context = VolunteerContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -202,7 +208,8 @@ class TestClassWizard(TestCase):
 
     def test_authorized_user_pick_mode_no_day(self):
         show_context = VolunteerContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -217,7 +224,8 @@ class TestClassWizard(TestCase):
 
     def test_authorized_user_pick_mode_no_event(self):
         show_context = VolunteerContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -233,7 +241,8 @@ class TestClassWizard(TestCase):
     def test_authorized_user_pick_mode_only_children(self):
         show_context = VolunteerContext()
         target_context = ShowContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -251,7 +260,8 @@ class TestClassWizard(TestCase):
             'type="radio" value="copy_children_only" />')
         self.assertContains(
             response,
-            '<option value="%d" selected="selected">' % target_context.sched_event.pk)
+            '<option value="%d" selected="selected">' % (
+                target_context.sched_event.pk))
         self.assertContains(response, "Choose Sub-Events to be copied")
         self.assertContains(response, "%s - %s" % (
             show_context.opportunity.e_title,
@@ -261,7 +271,8 @@ class TestClassWizard(TestCase):
     def test_copy_child_event(self):
         show_context = VolunteerContext()
         target_context = ShowContext()
-        url = reverse(self.view_name,
+        url = reverse(
+            self.view_name,
             args=[show_context.sched_event.pk],
             urlconf='gbe.scheduling.urls')
         data = {
@@ -291,3 +302,100 @@ class TestClassWizard(TestCase):
                     target_context.days[0].day,
                     show_context.opp_event.starttime.time()).strftime(
                     DATETIME_FORMAT)))
+
+    def test_copy_child_parent_events(self):
+        another_day = ConferenceDayFactory()
+        show_context = VolunteerContext()
+        url = reverse(
+            self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk,
+            'copied_event': show_context.opp_event.pk,
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        max_pk = Event.objects.latest('pk').pk
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[another_day.conference.conference_slug]),
+            another_day.conference.conference_slug,
+            another_day.pk,
+            (str(max_pk-1) + "L,%20" + str(max_pk)),)
+        self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                show_context.opportunity.e_title,
+                datetime.combine(
+                    another_day.day,
+                    show_context.opp_event.starttime.time()).strftime(
+                    DATETIME_FORMAT)))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                show_context.event.e_title,
+                datetime.combine(
+                    another_day.day,
+                    show_context.sched_event.starttime.time()).strftime(
+                    DATETIME_FORMAT)))
+
+    def test_copy_only_parent_event(self):
+        another_day = ConferenceDayFactory()
+        show_context = VolunteerContext()
+        url = reverse(
+            self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk,
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        max_pk = Event.objects.latest('pk').pk
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[another_day.conference.conference_slug]),
+            another_day.conference.conference_slug,
+            another_day.pk,
+            str(max_pk),)
+        self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                show_context.event.e_title,
+                datetime.combine(
+                    another_day.day,
+                    show_context.sched_event.starttime.time()).strftime(
+                    DATETIME_FORMAT)))
+        self.assertContains(response, "Occurrence has been updated.<br>", 1)
+
+    def test_copy_bad_second_form(self):
+        another_day = ConferenceDayFactory()
+        show_context = VolunteerContext()
+        url = reverse(self.view_name,
+                      args=[show_context.sched_event.pk],
+                      urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk,
+            'copied_event': "bad",
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(response,
+                            "bad is not one of the available choices.")

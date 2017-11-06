@@ -26,7 +26,7 @@ class CopyEventForm(Form):
 
     copied_event = MultipleChoiceField(
         choices=(),
-        widget=CheckboxSelectMultiple(attrs={"checked":""}),
+        widget=CheckboxSelectMultiple(attrs={"checked": ""}),
         label='',
         required=False,
         )
@@ -34,7 +34,7 @@ class CopyEventForm(Form):
     copy_mode = ChoiceField(choices=copy_mode_choices,
                             required=False,
                             widget=HiddenInput)
-    
+
     target_event = IntegerField(
         required=False,
         widget=HiddenInput)

@@ -25,7 +25,9 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 
 class TargetDay(ModelChoiceField):
     def label_from_instance(self, obj):
-        return "%s - %s" % (obj.conference.conference_slug, obj.day.strftime(DATE_FORMAT))
+        return "%s - %s" % (
+            obj.conference.conference_slug,
+            obj.day.strftime(DATE_FORMAT))
 
 
 class CopyEventPickDayForm(Form):
@@ -41,6 +43,7 @@ class CopyEventPickDayForm(Form):
         required=False
         )
 
+
 class CopyEventPickModeForm(CopyEventPickDayForm):
     '''
     Form for selecting the type of event to create
@@ -48,7 +51,7 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
     copy_mode = ChoiceField(choices=copy_mode_choices,
                             label=copy_mode_labels['copy_mode'],
                             widget=RadioSelect)
-    
+
     target_event = ChoiceField(choices=[],
                                required=False)
 
@@ -73,8 +76,9 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
                 e_conference__status="completed")
         if events:
             response = get_occurrences(
-                foreign_event_ids=events.values_list('eventitem_id', flat=True))
-        if events and  response.occurrences:
+                foreign_event_ids=events.values_list('eventitem_id',
+                                                     flat=True))
+        if events and response.occurrences:
             for occurrence in response.occurrences:
                 choices += [(occurrence.pk, "%s - %s" % (
                     str(occurrence),

@@ -114,8 +114,8 @@ class ManageEventsView(View):
                                        urlconf='scheduler.urls',
                                        args=[occurrence.id]),
                 'copy_link': reverse('copy_event_schedule',
-                                       urlconf='gbe.scheduling.urls',
-                                       args=[occurrence.id])}
+                                     urlconf='gbe.scheduling.urls',
+                                     args=[occurrence.id])}
             if self.conference.status != "completed":
                 display_item['create_link'] = reverse(
                     'create_event_schedule',
