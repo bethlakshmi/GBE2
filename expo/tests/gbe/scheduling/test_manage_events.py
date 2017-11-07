@@ -112,15 +112,15 @@ class TestEventList(TestCase):
         self.assertContains(
             response,
             s % (reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=[self.day.conference.conference_slug]),
+                         urlconf="gbe.scheduling.urls",
+                         args=[self.day.conference.conference_slug]),
                  self.day.conference.conference_slug))
         s = '<li role="presentation" >\n   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=[old_conf_day.conference.conference_slug]),
+                         urlconf="gbe.scheduling.urls",
+                         args=[old_conf_day.conference.conference_slug]),
                  old_conf_day.conference.conference_slug))
         self.assertContains(
             response,
@@ -159,16 +159,14 @@ class TestEventList(TestCase):
             '   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
-            s % (reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=[old_conf_day.conference.conference_slug]),
+            s % (url,
                  old_conf_day.conference.conference_slug))
         s = '<li role="presentation" >\n   <a href = "%s?">%s</a></li>'
         self.assertContains(
             response,
             s % (reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=[self.day.conference.conference_slug]),
+                         urlconf="gbe.scheduling.urls",
+                         args=[self.day.conference.conference_slug]),
                  self.day.conference.conference_slug))
         self.assertContains(
             response,

@@ -25,6 +25,24 @@ profile_preferences_labels = {
     'show_hotel_infobox': ('Show hotel booking info on your landing page?'),
 }
 
+event_type_options = [(
+    'Classes', (
+        ('conference', 'Conference Class'), ))]
+
+event_type_options_complete = [(
+    'Classes', (
+        ('drop-in', 'Drop-In Class'),
+        ('conference', 'Conference Class'),
+        ('master', 'Master Class'), ), ), (
+    'Other Public Events', (
+        ('show', 'Show'),
+        ('special', 'Special Event'), ), ), (
+    'Behind the Scenes', (
+        ('volunteer', 'Volunteering'),
+        ('rehearsal', 'Rehearsal Slot'),
+        ('staff', 'Staff Area')))]
+
+
 inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
@@ -408,7 +426,6 @@ classbid_help_texts = {
     'run_before': ('If the class has been run before, please let us know '
                    'where and when.'),
     'fee': ('We strongly suggest that your materials fee not exceed $10'),
-    'space_needs': ('Room Preferences'),
     'physical_restrictions': ('Physical Restrictions'),
     'schedule_constraints': ('Scheduling Constraints'),
     'avoided_constraints': ('Times You Prefer To Avoid'),
@@ -721,10 +738,11 @@ scheduling_help_texts = {
 
 scheduling_labels = {
     'e_title': 'Title',
-    'e_description': 'Description'
-
+    'e_description': 'Description',
 }
-
+schedule_occurrence_labels = {
+    'duration': 'Duration (Hours)',
+}
 costume_proposal_form_text = '''<p>Thanks for your interest in our costume \
     display. Each year a team of creative volunteers puts together a \
     remarkable collection of burlesque costumes in our Exhibit Hall. The core \

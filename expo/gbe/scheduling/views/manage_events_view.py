@@ -76,6 +76,8 @@ class ManageEventsView(View):
             'selection_form': select_form,
             'other_forms': [],
         }
+        if 'new' in request.GET.keys():
+            context['success_occurrence'] = int(request.GET['new'])
         for conf in conference_set:
             if self.conference != conf:
                 hidden_form = HiddenSelectEventForm(
@@ -93,6 +95,7 @@ class ManageEventsView(View):
         events = Event.objects.filter(e_conference=self.conference)
         for occurrence in occurrences:
             display_item = {
+                'id': occurrence.id,
                 'sort_start': occurrence.start_time,
                 'start':  occurrence.start_time.strftime(DATETIME_FORMAT),
                 'title': occurrence.eventitem.event.e_title,
@@ -101,7 +104,8 @@ class ManageEventsView(View):
                     ) + float(
                     occurrence.eventitem.event.duration.minutes())/60,
                 'type': events.filter(
-                    eventitem_id=occurrence.eventitem.eventitem_id).get_subclass().event_type,
+                    eventitem_id=occurrence.eventitem.eventitem_id
+                    ).get_subclass().event_type,
                 'current_volunteer': occurrence.volunteer_count,
                 'max_volunteer': occurrence.max_volunteer,
                 'detail_link': reverse(
