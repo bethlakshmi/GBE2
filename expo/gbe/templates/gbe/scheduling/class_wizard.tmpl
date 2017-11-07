@@ -7,11 +7,10 @@
 {% block second_form %}
 <form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <font color="red">
   {% if second_form.errors %}
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
-  {{ second_form.non_field_errors }}</font>
+  <font color="red">{{ second_form.non_field_errors }}</font>
     <div class="form-group single-radio">
       <h4>Pick an accepted class or create a new one below:</h4>
       {{ second_form.accepted_class }}
