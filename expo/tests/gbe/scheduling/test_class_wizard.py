@@ -17,7 +17,6 @@ from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
 )
-from gbe_forms_text import event_type_options
 from tests.functions.gbe_scheduling_functions import (
     assert_event_was_picked_in_wizard,
     assert_good_sched_event_form_wizard,

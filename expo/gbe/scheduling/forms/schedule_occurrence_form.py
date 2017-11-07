@@ -13,7 +13,6 @@ from gbe.functions import (
     get_conference_days,
     get_current_conference
 )
-from django.utils.formats import date_format
 from datetime import time
 from gbe_forms_text import schedule_occurrence_labels
 from expo.settings import (

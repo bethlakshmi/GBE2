@@ -7,9 +7,7 @@ from django.shortcuts import (
     render,
 )
 from django.forms import formset_factory
-from django.http import (
-    HttpResponseRedirect,
-)
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     ClassBookingForm,
@@ -21,11 +19,7 @@ from gbe.models import (
     Class,
     Room,
 )
-from gbe.functions import (
-    eligible_volunteers,
-    get_conference_day,
-    validate_perms
-)
+from gbe.functions import validate_perms
 from gbe.scheduling.views import EventWizardView
 from functools import partial, wraps
 from gbe.scheduling.views.functions import (

@@ -22,16 +22,13 @@ class PickClassForm(Form):
         queryset=Class.objects.filter(accepted=3).order_by('b_title'),
         widget=RadioSelect,
         empty_label="Make New Class",
+        required=False,
         )
 
     def __init__(self, *args, **kwargs):
         super(PickClassForm, self).__init__(*args, **kwargs)
         if 'initial' in kwargs and 'conference' in kwargs['initial']:
             initial = kwargs.pop('initial')
-            self.fields['accepted_class'] = PickClassField(
-                required=False,
-                empty_label="Make New Class",
-                widget=RadioSelect,
-                queryset=Class.objects.filter(
-                    b_conference=initial['conference'],
-                    accepted=3).order_by('b_title'))
+            self.fields['accepted_class'].queryset = Class.objects.filter(
+                b_conference=initial['conference'],
+                accepted=3).order_by('b_title')

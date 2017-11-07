@@ -29,8 +29,7 @@ urlpatterns = patterns(
         ManageEventsView.as_view(), name='manage_event_list'),
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
-    url(r'^scheduling/create_class_wizard/conference/' +
-        '(?P<conference>[-\w]+)/?$',
+    url(r'^scheduling/create_class_wizard/(?P<conference>[-\w]+)/?$',
         ClassWizardView.as_view(), name='create_class_wizard'),
     url(r'^scheduling/create_event_wizard/(?P<conference>[-\w]+)/?$',
         EventWizardView.as_view(), name='create_event_wizard'),

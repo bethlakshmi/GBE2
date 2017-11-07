@@ -27,6 +27,10 @@ profile_preferences_labels = {
 
 event_type_options = [(
     'Classes', (
+        ('conference', 'Conference Class'), ))]
+
+event_type_options_complete = [(
+    'Classes', (
         ('drop-in', 'Drop-In Class'),
         ('conference', 'Conference Class'),
         ('master', 'Master Class'), ), ), (
@@ -47,6 +51,7 @@ copy_mode_choices = [
     ("include_parent",
      "Include this event and all sub events, make new event on ")
 ]
+
 inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
                         ('Performing', 'Performing'),
