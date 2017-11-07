@@ -2,13 +2,8 @@ from django.forms import (
     CharField,
     ChoiceField,
     HiddenInput,
-    IntegerField,
     Form,
     ModelChoiceField,
-)
-from gbe.models import (
-    AvailableInterest,
-    GenericEvent,
 )
 from gbe.forms.common_queries import (
     visible_personas,
