@@ -33,7 +33,7 @@ def perform_bpt_api_call(api_call):
     '''
 
     try:
-        req = urllib2.Request(api_call)
+        req = urllib2.Request(api_call, timeout=60)
         req.add_header('Accept', 'application/json')
         req.add_header("Content-type", "application/x-www-form-urlencoded")
         res = urllib2.urlopen(req)
