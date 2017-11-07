@@ -5,10 +5,10 @@
     {{ hidden }}
     {% endfor %}
   <font color=red>*</font> indicates a required field
-  <font color="red">
   {% if form.errors or scheduling_form.errors %}
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
+  <font color="red">
   {{ form.non_field_errors }}
   {{ scheduling_form.non_field_errors }}</font>
 <div class="event_booking">
