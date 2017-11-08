@@ -439,3 +439,7 @@ send_email_success_msg = '''A mail was successfully sent to '''
 to_list_empty_msg = '''No recipients were found for your search criteria.  \
                     Please try something else'''
 unknown_request = '''This request makes no sense'''
+set_favorite_msg = '''Your interest has been set and will appear on your \
+                   personal schedule.'''
+unset_favorite_msg = '''Your interest has been removed and will no longer \
+                   appear on your personal schedule.'''

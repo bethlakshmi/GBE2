@@ -697,7 +697,7 @@ class Event(Schedulable):
             worker = Worker(_item=item, role=person.role)
 
         else:
-            worker = Worker(_item=self.user.profile, role=person.role)
+            worker = Worker(_item=person.user.profile, role=person.role)
         worker.save()
 
         for conflict in worker.workeritem.get_conflicts(self):

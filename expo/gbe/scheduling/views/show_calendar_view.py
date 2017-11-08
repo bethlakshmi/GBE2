@@ -110,6 +110,10 @@ class ShowCalendarView(View):
                 'detail_link': reverse('detail_view',
                                        urlconf='scheduler.urls',
                                        args=[occurrence.eventitem.pk]),
+                'favorite_link': reverse(
+                    'set_favorite',
+                    args=[occurrence.pk, 'on'],
+                    urlconf='gbe.scheduling.urls')
             }]
             if hour in hour_block_size:
                 hour_block_size[hour] += 1
