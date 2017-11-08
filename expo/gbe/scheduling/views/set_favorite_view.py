@@ -80,8 +80,9 @@ class SetFavoriteView(View):
                                 role="Interested")
         bookings = []
         for person in interested.people:
-            if person.user == self.owner:
+            if person.user == self.owner.user_object:
                 bookings += [person.booking_id]
+
         if kwargs['state'] == 'on' and len(bookings) == 0:
             person = Person(
                 user=self.owner.user_object,
@@ -108,7 +109,7 @@ class SetFavoriteView(View):
                                     self.__class__.__name__)
                 if not response.booking_id:
                     success = False
-            if response.person:
+            if success:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,
                     code="REMOVE_FAVORITE",
