@@ -1004,6 +1004,9 @@ span.opps-errors > ul
   width: 80px;
 }
 
+.cal-favorite {
+  float: right;
+}
 div.hierarchy-1
 {
   padding-left: 20px;

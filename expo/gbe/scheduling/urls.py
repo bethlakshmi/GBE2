@@ -11,6 +11,7 @@ from gbe.scheduling.views import (
     MakeOccurrenceView,
     ManageEventsView,
     ManageVolOpsView,
+    SetFavoriteView,
     ShowCalendarView,
 )
 
@@ -22,9 +23,9 @@ from gbe.scheduling.views import (
 
 urlpatterns = patterns(
     '',
-    url(r'^scheduler/manage/?$',
+    url(r'^scheduling/manage/?$',
         ManageEventsView.as_view(), name='manage_event_list'),
-    url(r'^scheduler/manage/(?P<conference_slug>[-\w]+)/?$',
+    url(r'^scheduling/manage/(?P<conference_slug>[-\w]+)/?$',
         ManageEventsView.as_view(), name='manage_event_list'),
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
@@ -42,6 +43,8 @@ urlpatterns = patterns(
         ManageVolOpsView.as_view(), name='manage_opps'),
     url(r'^calendar/(?P<calendar_type>[-\w]+)/?$',
         ShowCalendarView.as_view(), name='calendar'),
+    url(r'^scheduling/favorite/(?P<occurrence_id>\d+)/(?P<state>on|off)/?$',
+        SetFavoriteView.as_view(), name='set_favorite'),
     url(r'^scheduling/allocate/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>[-\w]+)/(?P<occurrence_id>\d+)/?$',
         AllocateWorkerView.as_view(), name='allocate_workers'),

@@ -50,6 +50,7 @@
    <div class="row event-row">
   {% endifchanged %}
     <div class="col-lg-{{grid_size}} col-md-{% if grid_size > 4 %}{{grid_size}}{% else %}4{% endif %} col-sm-{% if grid_size > 6 %}{{grid_size}}{% else %}6{% endif %} col-xs-12">
+     <a href="" class="detail_link cal-favorite"><i class="fa fa-star-o" aria-hidden="true"></i></a>
      {{ occurrence.start }}-{{ occurrence.end }}<br>
      <a href="{{occurrence.detail_link}}" class="detail_link">{{ occurrence.title}}</a><br>
      <i>{{ occurrence.location }}</i>

@@ -3,23 +3,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import *
 from scheduler import views
 
-event_types = ['All',
-               'Show',
-               'Special Event',
-               'Class',
-               'Volunteer Opportunity',
-               'Lecture',
-               'Workshop',
-               'Panel',
-               'Movement']
-days_of_week = ['Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday',
-                'Sunday']
-
 urlpatterns = patterns(
     '',
     url(r'^scheduler/list/?$',

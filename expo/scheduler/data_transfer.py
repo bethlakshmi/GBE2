@@ -74,3 +74,11 @@ class PersonResponse(GeneralResponse):
                  errors=[]):
         self.booking_id = booking_id
         super(PersonResponse, self).__init__(warnings, errors)
+
+class PeopleResponse(GeneralResponse):
+    def __init__(self,
+                 people=[],
+                 warnings=[],
+                 errors=[]):
+        self.people = people
+        super(PeopleResponse, self).__init__(warnings, errors)
