@@ -268,6 +268,7 @@ class Profile(WorkerItem):
         shows = sorted(shows, key=lambda show: show[0].e_title)
         return shows
 
+    # DEPRECATE or refactor
     def get_schedule(self, conference=None):
         '''
         Gets all schedule items for a conference, if a conference is provided
@@ -281,6 +282,7 @@ class Profile(WorkerItem):
             conf_events = events
         return conf_events
 
+    # DEPRECATE
     @property
     def schedule(self):
         '''
@@ -303,6 +305,37 @@ class Profile(WorkerItem):
         events += [e for e in sEvent.objects.filter(
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
+
+    # DEPRECATE, yes it's new.  Deprecate anyway, this hack gets through
+    # GBE2018 safely.  Used by get_schedule IDD call.  Treat as private
+    # and log any additional use here.
+    def get_schedule_as_bookings(self, labels=[]):
+        '''
+        Gets all of a person's schedule.  Every way the actual human could be
+        committed:
+        - via profile
+        - via performer(s)
+        - via performing in acts
+        Returns schedule as a list of Scheduler.Events
+        NOTE:  Things that haven't been booked with start times won't be here.
+        '''
+        from scheduler.models import ResourceAllocation
+        acts = self.get_acts()
+        label_limit = ResourceAllocation.objects.all()
+        for label in labels:
+            label_limit = label_limit.filter(
+                event__eventlabel__text=label
+            )
+        bookings = sum([list(label_limit.filter(
+            resource__actresource___item=act))
+            for act in acts if act.accepted == 3], [])
+        for performer in self.get_performers():
+            bookings += [e for e in label_limit.filter(
+                resource__worker___item=performer)]
+        bookings += [e for e in label_limit.filter(
+            resource__worker___item=self)]
+        return sorted(set(bookings),
+                      key=lambda bookings: bookings.event.start_time)
 
     def volunteer_schedule(self, conference=None):
         conference = conference or Conference.current_conf()
