@@ -20,6 +20,7 @@ from datetime import (
 from gbe.models import (
     ConferenceDay,
     Event,
+    GenericEvent,
 )
 from gbe.functions import (
     get_current_conference,
@@ -150,15 +151,29 @@ class ManageEventsView(View):
                         self.conference.conference_slug, ],
                         day=day.day)
                     occurrences += response.occurrences
+        elif len(select_form.cleaned_data['calendar_type']) > 0:
+            for cal_type in select_form.cleaned_data['calendar_type']:
+                response = get_occurrences(
+                    labels=[
+                        self.conference.conference_slug,
+                        calendar_type_options[int(cal_type)]])
+                occurrences += response.occurrences
         else:
-            if len(select_form.cleaned_data['calendar_type']) > 0:
-                for cal_type in select_form.cleaned_data['calendar_type']:
-                    response = get_occurrences(
-                        labels=[
-                            self.conference.conference_slug,
-                            calendar_type_options[int(cal_type)]])
-                    occurrences += response.occurrences
-
+            response = get_occurrences(
+                labels=[
+                    self.conference.conference_slug,])
+            occurrences += response.occurrences
+        if len(select_form.cleaned_data['volunteer_type']) > 0:
+            volunteer_types = list(
+                map(int, select_form.cleaned_data['volunteer_type']))
+            volunteer_event_ids = GenericEvent.objects.filter(
+                e_conference=self.conference,
+                volunteer_type__in=volunteer_types).values_list(
+                'eventitem_id',
+                flat=True)
+            occurrences = [
+                occurrence for occurrence in occurrences
+                if occurrence.eventitem.eventitem_id in volunteer_event_ids]
         return self.build_occurrence_display(occurrences)
 
     @never_cache
@@ -169,7 +184,8 @@ class ManageEventsView(View):
         if context['selection_form'].is_valid() and (
                 len(context['selection_form'].cleaned_data['day']) > 0 or len(
                     context['selection_form'].cleaned_data[
-                        'calendar_type'])) > 0:
+                        'calendar_type'])) > 0 or len(
+                context['selection_form'].cleaned_data['volunteer_type']) > 0:
             context['occurrences'] = self.get_filtered_occurences(
                 request,
                 context['selection_form'])

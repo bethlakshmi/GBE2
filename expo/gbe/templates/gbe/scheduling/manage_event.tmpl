@@ -35,7 +35,7 @@
    </div>
    <div class="form-group col-md-10 col-xs-12">
      {% for checkbox in selection_form.day %}
-      <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
+      <label class="checkbox-inline gbe-filter" id="{{ checkbox.id_for_label }}">
       {{ checkbox.tag }}{{ field.label_tag }}
       {{ checkbox.choice_label }}
       </label>{% endfor %}
@@ -53,14 +53,36 @@
       </font>
      {% endif %}</label>
    </div>
-   <div class="form-group col-md-8 col-xs-12">
+   <div class="form-group col-md-10 col-xs-12">
      {% for checkbox in selection_form.calendar_type %}
-      <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
+      <label class="checkbox-inline gbe-filter" id="{{ checkbox.id_for_label }}">
       {{ checkbox.tag }}{{ field.label_tag }}
       {{ checkbox.choice_label }}
       </label>{% endfor %}
       {% if selection_form.calendar_type.errors %}
         <font color="red">{{ selection_form.calendar_type.errors }}</font>
+      {% endif %}
+   </div></div>
+   <div class="form-row">
+   <div class="form-group col-md-1 col-xs-12">
+    <label class="form-check-label" id="{{ selection_form.volunteer_type.name }}">
+     {% if selection_form.volunteer_type.errors %}
+      <font color="red">!&nbsp;&nbsp;
+     {% endif %}
+     {{ selection_form.volunteer_type.label }}:&nbsp;&nbsp;
+     {% if selection_form.volunteer_type.errors %}
+      </font>
+     {% endif %}</label>
+   </div>
+   <div class="form-group col-md-9 col-xs-12">
+     {% for checkbox in selection_form.volunteer_type %}
+      <div class="form-group col-md-3 col-sm-4 col-xs-12">
+       <label class="checkbox-inline gbe-filter" id="{{ checkbox.id_for_label }}">
+      {{ checkbox.tag }}{{ field.label_tag }}
+      {{ checkbox.choice_label }}
+      </label></div>{% endfor %}
+      {% if selection_form.volunteer_type.errors %}
+        <font color="red">{{ selection_form.volunteer_type.errors }}</font>
       {% endif %}
    </div>
    <div class="form-group col-md-2 col-xs-12">
