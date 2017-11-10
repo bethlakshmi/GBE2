@@ -3,10 +3,14 @@ import nose.tools as nt
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
+    AvailableInterestFactory,
     ConferenceDayFactory,
     ProfileFactory,
 )
-from gbe.models import Conference
+from gbe.models import (
+    AvailableInterest,
+    Conference
+)
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -18,6 +22,7 @@ from tests.contexts import (
     ClassContext,
     ShowContext,
     StaffAreaContext,
+    VolunteerContext,
 )
 from expo.settings import (
     DATE_FORMAT,
@@ -32,6 +37,7 @@ class TestEventList(TestCase):
     view_name = 'manage_event_list'
 
     def setUp(self):
+        AvailableInterest.objects.all().delete()
         self.client = Client()
         self.user = ProfileFactory.create().user_object
         self.privileged_profile = ProfileFactory()
@@ -41,6 +47,8 @@ class TestEventList(TestCase):
                            urlconf="gbe.scheduling.urls")
         self.day = ConferenceDayFactory()
         self.class_context = ClassContext(conference=self.day.conference)
+        self.volunteer_context = VolunteerContext()
+        self.another_interest = AvailableInterestFactory(interest="one more")
         self.show_context = ShowContext(conference=self.day.conference)
         self.staff_context = StaffAreaContext(conference=self.day.conference)
         booking, self.vol_opp = self.staff_context.book_volunteer()
@@ -128,6 +136,23 @@ class TestEventList(TestCase):
         self.assertNotContains(
             response,
             old_conf_day.day.strftime(DATE_FORMAT))
+
+    def test_good_user_get_interests(self):
+        old_interest = AvailableInterestFactory(
+            visible=False,
+            interest="old interest")
+        login_as(self.privileged_profile, self)
+        print AvailableInterest.objects.filter(visible=True).values_list('pk', 'interest')
+        response = self.client.get(self.url)
+        print AvailableInterest.objects.filter(visible=True).values_list('interest')
+        print response
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            self.another_interest.interest)
+        self.assertNotContains(
+            response,
+            old_interest.interest)
 
     def test_good_user_get_create_edit(self):
         login_as(self.privileged_profile, self)

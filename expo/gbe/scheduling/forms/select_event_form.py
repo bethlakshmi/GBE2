@@ -1,5 +1,6 @@
 from django.forms import (
     Form,
+    ModelMultipleChoiceField,
     MultipleChoiceField,
     MultipleHiddenInput,
 )
@@ -17,9 +18,8 @@ class SelectEventForm(Form):
         choices=calendar_type_options.items(),
         widget=CheckboxSelectMultiple(),
         required=False)
-    volunteer_type = MultipleChoiceField(
-        choices=AvailableInterest.objects.filter(
-            visible=True).values_list('pk', 'interest'),
+    volunteer_type = ModelMultipleChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
         widget=CheckboxSelectMultiple(),
         required=False)
 
@@ -34,8 +34,7 @@ class HiddenSelectEventForm(Form):
         choices=calendar_type_options.items(),
         widget=MultipleHiddenInput(),
         required=False)
-    volunteer_type = MultipleChoiceField(
-        choices=AvailableInterest.objects.filter(
-            visible=True).values_list('pk', 'interest'),
+    volunteer_type = ModelMultipleChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
         widget=MultipleHiddenInput(),
         required=False)

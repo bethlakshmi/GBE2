@@ -18,6 +18,7 @@ from datetime import (
     timedelta,
 )
 from gbe.models import (
+    AvailableInterest,
     ConferenceDay,
     Event,
     GenericEvent,
@@ -66,7 +67,7 @@ class ManageEventsView(View):
         day_list = []
         for day in self.conference.conferenceday_set.all():
             day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
-
+        
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
@@ -164,13 +165,10 @@ class ManageEventsView(View):
                     self.conference.conference_slug,])
             occurrences += response.occurrences
         if len(select_form.cleaned_data['volunteer_type']) > 0:
-            volunteer_types = list(
-                map(int, select_form.cleaned_data['volunteer_type']))
             volunteer_event_ids = GenericEvent.objects.filter(
                 e_conference=self.conference,
-                volunteer_type__in=volunteer_types).values_list(
-                'eventitem_id',
-                flat=True)
+                volunteer_type__in=select_form.cleaned_data['volunteer_type']
+                ).values_list('eventitem_id', flat=True)
             occurrences = [
                 occurrence for occurrence in occurrences
                 if occurrence.eventitem.eventitem_id in volunteer_event_ids]
