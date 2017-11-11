@@ -20,23 +20,24 @@
 
 
 {% for opp in opps%}
-  <h3>{{ opp.starttime}} - {{ opp.eventitem.event.e_title}}</h3>
-  <b>Location:</b>  {{opp.location}}<br>
-  {{opp.volunteer_count}}<br><br>
-  <table class="bid-table">
-    <tr class="bid-table">
-      <th class="bid-table">Name</th>
-      <th class="bid-table">Mail</th>
-      <th class="bid-table">Number</th>
+<div class="panel panel-primary">
+  <div class="panel-heading"><h3>{{ opp.starttime}} - {{ opp.eventitem.event.e_title}}</h3></div>
+  <div class="panel-body"><b>Location:</b>  {{opp.location}}<br>{{opp.volunteer_count}}</div>
+  <table class="table">
+    <tr>
+      <th>Name</th>
+      <th>Mail</th>
+      <th>Number</th>
     </tr>
     {% for contact in opp.people%}
-    <tr class="bid-table" {% if not contact.user.profile.is_active %}style="color:red;"{% endif %}>
-      <td class="bid-table">{{contact.user.profile}}</td>
-      <td class="bid-table">{{contact.user.email}}</td>
-      <td class="bid-table">{{contact.user.profile.phone}}</td>
+    <tr {% if not contact.user.profile.is_active %}style="color:red;"{% endif %}>
+      <td>{{contact.user.profile}}</td>
+      <td>{{contact.user.email}}</td>
+      <td>{{contact.user.profile.phone}}</td>
     </tr>
     {% endfor %}
   </table>
+</div>
 {% endfor %}
 {% endblock %}
 
