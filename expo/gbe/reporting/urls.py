@@ -1,6 +1,11 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
+from gbe.reporting.views import (
+    review_staff_area,
+    staff_area,
+    volunteer_type,
+)
 from gbe.reporting import (
     download_tracks_for_show,
     env_stuff,
@@ -9,10 +14,8 @@ from gbe.reporting import (
     list_reports,
     personal_schedule,
     review_act_techinfo,
-    review_staff_area,
     room_schedule,
     room_setup,
-    staff_area,
     view_techinfo,
 )
 from django.contrib import admin
@@ -29,6 +32,10 @@ urlpatterns = patterns(
     url(r'^reports/staff_area/(\d+)/?$',
         staff_area,
         name='staff_area'),
+    url(r'^reports/volunteer_type/(?P<conference_choice>[-\w]+)/' +
+        '(?P<eventitem_id>\d+)/?$',
+        volunteer_type,
+        name='volunteer_type'),
     url(r'^reports/stuffing/(?P<conference_choice>[-\w]+)/?$',
         env_stuff,
         name='env_stuff'),

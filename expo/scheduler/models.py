@@ -222,11 +222,6 @@ class ActItem(ResourceItem):
                       [res.rehearsal for res in resources])
 
     @property
-    def get_performer_profiles(self):
-        return ActItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id).get_performer_profiles()
-
-    @property
     def contact_email(self):
         return ActItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -423,12 +418,6 @@ class WorkerItem(ResourceItem):
         return WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
         ).describe
-
-    @property
-    def contact_phone(self):
-        return WorkerItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id
-        ).contact_phone
 
     @property
     def describe(self):
@@ -980,16 +969,6 @@ class Event(Schedulable):
     @property
     def duration(self):
         return self.eventitem.duration
-
-    # for a long list of bios, right now, that is acts in shows.
-    @property
-    def bio_list(self):
-        acts = ActResource.objects.filter(allocations__event=self,
-                                          _item__act__accepted=3)
-        bio_list = list(set([act._item.bio for act in acts]))
-        bio_list = sorted(bio_list, key=lambda bio: bio.name)
-
-        return bio_list
 
     # get castings as in what acts have been booked for this event
     @property

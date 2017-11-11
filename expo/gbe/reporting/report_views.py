@@ -48,52 +48,6 @@ def list_reports(request):
                                              urlconf='gbe.reporting.urls')})
 
 
-def review_staff_area(request):
-    '''
-      Shows listing of staff area stuff for drill down
-    '''
-    viewer_profile = validate_perms(request, 'any', require=True)
-
-    conference_slugs = conf.Conference.all_slugs()
-    if request.GET and request.GET.get('conf_slug'):
-        conference = conf.Conference.by_slug(request.GET['conf_slug'])
-    else:
-        conference = conf.Conference.current_conf()
-
-    header = ['Area', 'Leaders', 'Check Staffing']
-    areas = conf.GenericEvent.objects.filter(type='Staff Area',
-                                             visible=True).filter(
-                                                 e_conference=conference)
-    shows = conf.Show.objects.filter(e_conference=conference)
-
-    return render(request, 'gbe/report/staff_areas.tmpl',
-                  {'header': header,
-                   'areas': areas,
-                   'shows': shows,
-                   'conference_slugs': conference_slugs,
-                   'conference': conference})
-
-
-def staff_area(request, area_id):
-    '''
-    Generates a staff area report: volunteer opportunities scheduled,
-    volunteers scheduled, sorted by time/day
-    See ticket #250
-    '''
-    viewer_profile = validate_perms(request, 'any', require=True)
-
-    area = get_object_or_404(sched.EventItem, eventitem_id=area_id)
-    sched_event = sched.Event.objects.filter(
-        eventitem=area).order_by('starttime')
-    opps = []
-    for event in sched_event:
-        opps += event.get_volunteer_opps(
-            'Volunteer')
-    return render(request, 'gbe/report/staff_area_schedule.tmpl',
-                  {'opps': opps,
-                   'area': area})
-
-
 @never_cache
 def env_stuff(request, conference_choice=None):
     '''

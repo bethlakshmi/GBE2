@@ -13,27 +13,27 @@
 <font color="red">Red text</font> shows a user that has deactivated their account.
 </p>
 <ul>
-  {% for worker in area.roles %}
-    <li>{{worker.role}} - {{worker.workeritem}}</li>
+  {% for worker in area.people %}
+    <li>{{worker.role}} - {{worker.user.profile}}</li>
   {% endfor %}	
 </ul>
 
 
 {% for opp in opps%}
-  <h3>{{ opp.sched.starttime}} - {{ opp.conf.e_title}}</h3>
-  <b>Location:</b>  {{opp.sched.location}}<br>
-  {{opp.sched.volunteer_count}}<br><br>
+  <h3>{{ opp.starttime}} - {{ opp.eventitem.event.e_title}}</h3>
+  <b>Location:</b>  {{opp.location}}<br>
+  {{opp.volunteer_count}}<br><br>
   <table class="bid-table">
     <tr class="bid-table">
       <th class="bid-table">Name</th>
       <th class="bid-table">Mail</th>
       <th class="bid-table">Number</th>
     </tr>
-    {% for contact in opp.contacts%}
-    <tr class="bid-table" {% if not contact.workeritem.is_active %}style="color:red;"{% endif %}>
-      <td class="bid-table">{{contact.workeritem}}</td>
-      <td class="bid-table">{{contact.workeritem.contact_email}}</td>
-      <td class="bid-table">{{contact.workeritem.contact_phone}}</td>
+    {% for contact in opp.people%}
+    <tr class="bid-table" {% if not contact.user.profile.is_active %}style="color:red;"{% endif %}>
+      <td class="bid-table">{{contact.user.profile}}</td>
+      <td class="bid-table">{{contact.user.email}}</td>
+      <td class="bid-table">{{contact.user.profile.phone}}</td>
     </tr>
     {% endfor %}
   </table>

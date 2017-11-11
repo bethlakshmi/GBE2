@@ -31,7 +31,6 @@ from gbe.functions import (
     validate_perms,
 )
 from scheduler.idd import get_occurrences
-from gbe.scheduling.views.functions import show_general_status
 from gbe.scheduling.forms import (
     HiddenSelectEventForm,
     SelectEventForm,

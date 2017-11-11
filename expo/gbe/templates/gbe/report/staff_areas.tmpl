@@ -56,5 +56,23 @@
       </tr>
     {% endfor %}
   </table>
+
+  <h2 class="review-title">Volunteer Type</h2>
+
+    <table class="bid-table">
+    <tr class="bid-table">
+      <th class="bid-table">Type</th>
+      <th class="bid-table">&nbsp;</th>
+    </tr>
+    {% for type in volunteer_types %}
+      <tr class="bid-table">
+        <td class="bid-table">{{type.interest}}</td>
+        <td class="bid-table">
+          <a href="{%url 'reporting:staff_area' conference.conference_slug, type.pk %}">
+	    Get Staff Schedule</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
 

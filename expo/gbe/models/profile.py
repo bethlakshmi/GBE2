@@ -107,10 +107,6 @@ class Profile(WorkerItem):
         return self.user_object.email
 
     @property
-    def contact_phone(self):
-        return self.phone
-
-    @property
     def address(self):
         address_string = str(self.address1.strip() +
                              '\n' +
