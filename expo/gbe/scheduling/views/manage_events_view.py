@@ -182,9 +182,8 @@ class ManageEventsView(View):
         if context['selection_form'].is_valid() and (
                 len(context['selection_form'].cleaned_data['day']) > 0 or len(
                     context['selection_form'].cleaned_data[
-                        'calendar_type'])) > 0 or (
-                'volunteer_type' in context['selection_form'].cleaned_data and len(
-                    context['selection_form'].cleaned_data['volunteer_type']) > 0):
+                        'calendar_type']) > 0 or len(context[
+                'selection_form'].cleaned_data['volunteer_type']) > 0):
             context['occurrences'] = self.get_filtered_occurences(
                 request,
                 context['selection_form'])
