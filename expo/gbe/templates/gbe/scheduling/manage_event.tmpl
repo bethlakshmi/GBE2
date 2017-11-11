@@ -4,7 +4,7 @@
   Manage Expo Schedule
 {% endblock %}
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/simple-line-icons.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
 {% endblock %}
@@ -110,7 +110,7 @@
     </tfoot>
     <tbody>
     {% for occurrence in occurrences %}
-      <tr class="bid-table {% if occurrence.id == success_occurrence %}success{% endif %}">
+      <tr class="bid-table {% if occurrence.id in success_occurrences %}success{% endif %}">
        <td class="bid-table">{{ occurrence.title}}</td>
        <td class="bid-table">{{ occurrence.location}}</td>
        <td class="bid-table">{{ occurrence.start}}</td>
@@ -119,20 +119,18 @@
        <td class="bid-table">{{ occurrence.current_volunteer }}</td>
        <td class="bid-table">{{ occurrence.max_volunteer }}</td>
        <td class="bid-table"><div class="btn-group" role="group" aria-label="...">
-        <a href="{{ occurrence.detail_link }}" data-toggle="tooltip" title="View">
-         <button type="button" class="btn btn-default btn-sm"><i class="icon-eye">
-         </i></button></a>
+        <a href="{{ occurrence.detail_link }}" data-toggle="tooltip" title="View" class="btn btn-default btn-sm" id="action-button">
+         <i class="fa fa-eye" aria-hidden="true"></i></a>
         {% if occurrence.edit_link %}
-        <a href="{{ occurrence.edit_link }}" data-toggle="tooltip" title="Edit">
-         <button type="button" class="btn btn-default btn-sm"><i class="icon-pencil">
-         </i></button></a>{% endif %}
+        <a href="{{ occurrence.edit_link }}" data-toggle="tooltip" title="Edit" class="btn btn-default btn-sm" id="action-button">
+         <i class="fa fa-pencil" aria-hidden="true"></i></a>{% endif %}
         {% if occurrence.create_link %}
-        <a href="{{ occurrence.create_link }}" data-toggle="tooltip" title="Add">
-         <button type="button" class="btn btn-default btn-sm"><i class="icon-plus">
-         </i></button></a>{% endif %}
-        <a href="{{ occurrence.delete_link }}" data-toggle="tooltip" title="Delete">
-         <button type="button" class="btn btn-default btn-sm"><i class="icon-trash">
-         </i></button></a>
+        <a href="{{ occurrence.create_link }}" data-toggle="tooltip" title="Add" class="btn btn-default btn-sm" id="action-button">
+         <i class="fa fa-plus" aria-hidden="true"></i></a>{% endif %}
+        <a href="{{ occurrence.copy_link }}" data-toggle="tooltip" title="Copy" class="btn btn-default btn-sm" id="action-button">
+         <i class="fa fa-files-o" aria-hidden="true"></i></a>
+        <a href="{{ occurrence.delete_link }}" data-toggle="tooltip" title="Delete" class="btn btn-default btn-sm" id="action-button">
+         <i class="fa fa-trash-o" aria-hidden="true"></i></a>
        </div></td>
       </tr>
     {% endfor %}
