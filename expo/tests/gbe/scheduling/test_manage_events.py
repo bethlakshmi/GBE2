@@ -45,9 +45,9 @@ class TestEventList(TestCase):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.url = reverse(self.view_name,
                            urlconf="gbe.scheduling.urls")
-        self.day = ConferenceDayFactory()
-        self.class_context = ClassContext(conference=self.day.conference)
         self.volunteer_context = VolunteerContext()
+        self.day = self.volunteer_context.window.day
+        self.class_context = ClassContext(conference=self.day.conference)
         self.another_interest = AvailableInterestFactory(interest="one more")
         self.show_context = ShowContext(conference=self.day.conference)
         self.staff_context = StaffAreaContext(conference=self.day.conference)
@@ -142,10 +142,7 @@ class TestEventList(TestCase):
             visible=False,
             interest="old interest")
         login_as(self.privileged_profile, self)
-        print AvailableInterest.objects.filter(visible=True).values_list('pk', 'interest')
         response = self.client.get(self.url)
-        print AvailableInterest.objects.filter(visible=True).values_list('interest')
-        print response
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
@@ -332,6 +329,42 @@ class TestEventList(TestCase):
                 day.pk,
                 checked=(day == new_day))
             counter += 1
+
+    def test_good_user_get_volunteer_type(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-volunteer_type" % self.day.conference.conference_slug:
+                self.volunteer_context.interest.interest.pk,
+            "filter": "Filter",
+        }
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=[self.volunteer_context.conference.conference_slug])
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            self.volunteer_context.opportunity.e_title)
+        self.assertNotContains(response, self.show_context.show.e_title)
+        self.assertNotContains(response, self.class_context.bid.e_title)
+        self.assert_visible_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "volunteer_type",
+            2,
+            self.volunteer_context.interest.interest.pk)
+
+    def test_good_user_get_bad_volunteer_type(self):
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-volunteer_type" % self.day.conference.conference_slug:
+                "bad",
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '&quot;bad&quot; is not a valid value for a primary key')
 
     def test_switch_conf_keep_filter(self):
         old_conf_day = ConferenceDayFactory(

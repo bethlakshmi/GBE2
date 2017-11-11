@@ -19,7 +19,8 @@ class SelectEventForm(Form):
         widget=CheckboxSelectMultiple(),
         required=False)
     volunteer_type = ModelMultipleChoiceField(
-        queryset=AvailableInterest.objects.filter(visible=True),
+        queryset=AvailableInterest.objects.filter(
+            visible=True).order_by("interest"),
         widget=CheckboxSelectMultiple(),
         required=False)
 
