@@ -33,7 +33,7 @@ urlpatterns = patterns(
         staff_area,
         name='staff_area'),
     url(r'^reports/volunteer_type/(?P<conference_choice>[-\w]+)/' +
-        '(?P<eventitem_id>\d+)/?$',
+        '(?P<volunteer_type_id>\d+)/?$',
         volunteer_type,
         name='volunteer_type'),
     url(r'^reports/stuffing/(?P<conference_choice>[-\w]+)/?$',

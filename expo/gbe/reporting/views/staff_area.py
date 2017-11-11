@@ -13,7 +13,7 @@ def staff_area(request, area_id):
     viewer_profile = validate_perms(request, 'any', require=True)
     opps = None
     area = None
-    parent_response = get_occurrences(eventitem_id=area_id)
+    parent_response = get_occurrences(eventitem_id_list=[area_id])
     if parent_response.occurrences:
         area = parent_response.occurrences[0]
         opps_response = get_occurrences(

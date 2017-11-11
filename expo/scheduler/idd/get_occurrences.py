@@ -11,13 +11,13 @@ from datetime import (
 )
 
 
-def get_occurrences(parent_event_id=None, labels=[], day=None, eventitem_id=None):
+def get_occurrences(parent_event_id=None, labels=[], day=None, eventitem_id_list=[]):
     response = OccurrencesResponse()
     filter_occurrences = Event.objects.all()
 
-    if eventitem_id:
+    if len(eventitem_id_list) > 0:
         filter_occurrences = filter_occurrences.filter(
-            eventitem__eventitem_id=eventitem_id)
+            eventitem__eventitem_id__in=eventitem_id_list)
     if parent_event_id:
         filter_occurrences = filter_occurrences.filter(
             container_event__parent_event__pk=parent_event_id)
