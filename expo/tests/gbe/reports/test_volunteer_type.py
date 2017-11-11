@@ -12,12 +12,12 @@ from gbe.models import Conference
 from tests.contexts import VolunteerContext
 
 
-class TestStaffArea(TestCase):
+class TestVolunteerTypeArea(TestCase):
     def setUp(self):
         self.client = Client()
         self.profile = ProfileFactory()
 
-    def test_staff_area_path(self):
+    def test_volunteer_type_path(self):
         '''staff_area view should load
         '''
         show = ShowFactory()
@@ -25,12 +25,13 @@ class TestStaffArea(TestCase):
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
         response = self.client.get(
-            reverse('staff_area',
+            reverse('volunteer_type',
                     urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
+                    args=[context.opportunity.e_conference.conference_slug,
+                          context.interest.interest.pk]))
         self.assertEqual(response.status_code, 200)
 
-    def test_staff_area_with_inactive(self):
+    def test_volunteer_type_with_inactive(self):
         '''staff_area view should load
         '''
         show = ShowFactory()
@@ -42,33 +43,37 @@ class TestStaffArea(TestCase):
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
         response = self.client.get(
-            reverse('staff_area',
+            reverse('volunteer_type',
                     urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
+                    args=[context.opportunity.e_conference.conference_slug,
+                          context.interest.interest.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
             '<tr style="color:red;">' in response.content)
 
-    def test_staff_area_path_fail(self):
+    def test_volunteer_type_path_fail(self):
         '''staff_area view should fail for non-authenticated users
         '''
         show = ShowFactory()
+        context = VolunteerContext(event=show)
         login_as(self.profile, self)
         response = self.client.get(
-            reverse('staff_area',
+            reverse('volunteer_type',
                     urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
+                    args=[context.opportunity.e_conference.conference_slug,
+                          context.interest.interest.pk]))
         self.assertEqual(response.status_code, 403)
 
-    def test_staff_area_bad_event(self):
+    def test_volunteer_type_bad_type(self):
         '''staff_area view should fail for non-authenticated users
         '''
         show = ShowFactory()
+        context = VolunteerContext(event=show)
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
         response = self.client.get(
-            reverse('staff_area',
+            reverse('volunteer_type',
                     urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id+100]))
-        self.assertContains(response, 
-                            "Staff Schedules for None")
+                    args=[context.opportunity.e_conference.conference_slug,
+                          context.interest.interest.pk+100]))
+        self.assertEqual(response.status_code, 404)

@@ -21,8 +21,7 @@ def staff_area(request, area_id):
         opps = opps_response.occurrences
         show_general_status(request, opps_response, "staff_area" )
 
-    else:
-        show_general_status(request, parent_response, "staff_area")
+    show_general_status(request, parent_response, "staff_area")
 
     return render(request,
                   'gbe/report/staff_area_schedule.tmpl',
