@@ -57,35 +57,17 @@ class CopyOccurrenceView(View):
         self.children = response.occurrences
         show_general_status(request, response, self.__class__.__name__)
 
-    def make_context(self, request):
+    def make_context(self, request, post=None):
         context = {
             'first_title': "Copying - %s: %s" % (
                 self.occurrence.eventitem.event.e_title,
                 self.occurrence.starttime.strftime(self.copy_date_format))}
         if self.children and len(self.children) > 0:
             context['copy_mode'] = CopyEventPickModeForm(
-                event_type=self.occurrence.as_subtype.event_type)
-
-        else:
-            context['pick_day'] = CopyEventPickDayForm()
-            context['pick_day'].fields['copy_to_day'].empty_label = None
-            context['pick_day'].fields['copy_to_day'].required = True
-        return render(
-            request,
-            self.template,
-            context)
-
-    def build_mode_form(self, request):
-        context = {
-            'first_title': "Copying - %s: %s" % (
-                self.occurrence.eventitem.event.e_title,
-                self.occurrence.starttime.strftime(self.copy_date_format))}
-        if self.children and len(self.children) > 0:
-            context['copy_mode'] = CopyEventPickModeForm(
-                request.POST,
+                post,
                 event_type=self.occurrence.as_subtype.event_type)
         else:
-            context['pick_day'] = CopyEventPickDayForm(request.POST)
+            context['pick_day'] = CopyEventPickDayForm(post)
             context['pick_day'].fields['copy_to_day'].empty_label = None
             context['pick_day'].fields['copy_to_day'].required = True
         return context
@@ -208,7 +190,7 @@ class CopyOccurrenceView(View):
                         target_day.pk,
                         str(copied_ids),))
         else:
-            context = self.build_mode_form(request)
+            context = self.make_context(request, post=request.POST)
             make_copy, context = self.validate_and_proceed(request, context)
             context['second_form'] = form
             return render(request, self.template, context)
@@ -216,14 +198,17 @@ class CopyOccurrenceView(View):
     @never_cache
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        return self.make_context(request)
+        return render(
+            request,
+            self.template,
+            self.make_context(request))
 
     @never_cache
     def post(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
         context = {}
         if 'pick_mode' in request.POST.keys():
-            context = self.build_mode_form(request)
+            context = self.make_context(request, post=request.POST)
             make_copy, context = self.validate_and_proceed(request, context)
             if make_copy:
                 target_day = context['pick_day'].cleaned_data[
