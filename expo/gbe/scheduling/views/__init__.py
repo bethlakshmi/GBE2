@@ -6,3 +6,4 @@ from allocate_worker_view import AllocateWorkerView
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
 from manage_events_view import ManageEventsView
+from copy_occurrence_view import CopyOccurrenceView

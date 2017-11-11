@@ -56,6 +56,10 @@ class VolunteerContext():
             eventitem=self.event.eventitem_ptr,
             starttime=datetime.combine(self.window.day.day,
                                        self.window.start))
+        EventLabelFactory(event=self.sched_event,
+                          text="General")
+        EventLabelFactory(event=self.sched_event,
+                          text=self.conference.conference_slug)
         self.opp_event = SchedEventFactory(
             eventitem=self.opportunity.eventitem_ptr,
             starttime=datetime.combine(self.window.day.day,

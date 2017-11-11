@@ -22,7 +22,7 @@ def volunteer_type(request, conference_choice, volunteer_type_id):
         volunteer_type=vol_type).values_list('eventitem_id', flat=True)
     collection = get_occurrences(
         labels=[conference_choice, 'Volunteer'],
-        eventitem_id_list=eventitem_id_list)
+        foreign_event_ids=eventitem_id_list)
     show_general_status(request, collection, "volunteer_type")
 
     return render(request,
