@@ -8,6 +8,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 from gbetext import calendar_type as calendar_type_options
 from gbe.models import AvailableInterest
 
+
 class SelectEventForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'

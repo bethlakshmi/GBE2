@@ -64,7 +64,6 @@ class ManageEventsView(View):
         day_list = []
         for day in self.conference.conferenceday_set.all():
             day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
-        
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
@@ -161,8 +160,7 @@ class ManageEventsView(View):
                 occurrences += response.occurrences
         else:
             response = get_occurrences(
-                labels=[
-                    self.conference.conference_slug,])
+                labels=[self.conference.conference_slug, ])
             occurrences += response.occurrences
         if len(select_form.cleaned_data['volunteer_type']) > 0:
             volunteer_event_ids = GenericEvent.objects.filter(

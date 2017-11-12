@@ -19,7 +19,7 @@ def staff_area(request, area_id):
         opps_response = get_occurrences(
             parent_event_id=parent_response.occurrences[0].pk)
         opps = opps_response.occurrences
-        show_general_status(request, opps_response, "staff_area" )
+        show_general_status(request, opps_response, "staff_area")
 
     show_general_status(request, parent_response, "staff_area")
 

@@ -70,5 +70,5 @@ class TestStaffArea(TestCase):
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[show.eventitem_id+100]))
-        self.assertContains(response, 
+        self.assertContains(response,
                             "Staff Schedules for None")
