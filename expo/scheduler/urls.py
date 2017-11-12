@@ -9,8 +9,6 @@ urlpatterns = patterns(
         views.event_list, name='event_schedule'),
     url(r'^scheduler/list/([-\w]+)/?$',
         views.event_list, name='event_schedule'),
-    url(r'^scheduler/details/(\d+)/?$',
-        views.detail_view, name='detail_view'),
     url(r'^scheduler/delete_schedule/(?P<scheduler_event_id>\d+)/?$',
         views.delete_schedule, name='delete_schedule'),
     url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/' +

@@ -33,7 +33,7 @@ class TestDetailView(TestCase):
         self.context = ActTechInfoContext()
         self.url = reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[self.context.show.pk])
 
     def test_no_permission_required(self):
@@ -44,7 +44,7 @@ class TestDetailView(TestCase):
     def test_bad_id_raises_404(self):
         bad_url = reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[bad_id_for(EventItem)])
         response = self.client.get(bad_url)
         self.assertEqual(response.status_code, 404)
@@ -62,7 +62,7 @@ class TestDetailView(TestCase):
                                              resource=lead_worker)
         response = self.client.get(reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[show.pk]))
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, response.content.count(staff_lead.display_name))
@@ -82,7 +82,7 @@ class TestDetailView(TestCase):
 
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
@@ -108,7 +108,7 @@ class TestDetailView(TestCase):
 
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
@@ -143,7 +143,7 @@ class TestDetailView(TestCase):
         context = ActTechInfoContext(act_role="Hosted By...")
         set_image(context.performer)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         superuser = User.objects.create_superuser('test_feature_img_editor',
                                                   'admin@importimage.com',

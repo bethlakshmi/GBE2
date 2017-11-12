@@ -68,7 +68,7 @@ def event_info(confitem_type='Show',
                 events_dict[scheduled_events[index]] = confitem
 
     events = [{'title': confitem.e_title,
-               'link': reverse('detail_view', urlconf='scheduler.urls',
+               'link': reverse('detail_view', urlconf='gbe.scheduling.urls',
                                args=[str(confitem.eventitem_id)]),
                'description': confitem.e_description,
                'start_time': event.start_time,

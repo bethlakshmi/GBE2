@@ -142,7 +142,7 @@ class TestIndex(TestCase):
         return (unicode(event) in content and
                 date_format(event.start_time, "DATETIME_FORMAT") in content and
                 reverse('detail_view',
-                        urlconf="scheduler.urls",
+                        urlconf="gbe.scheduling.urls",
                         args=[event.eventitem.eventitem_id]) in content)
 
     def test_no_profile(self):

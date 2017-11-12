@@ -111,10 +111,10 @@ class ShowCalendarView(View):
                 'location': occurrence.location,
                 'hour': hour,
                 'detail_link': reverse('detail_view',
-                                       urlconf='scheduler.urls',
+                                       urlconf='gbe.scheduling.urls',
                                        args=[occurrence.eventitem.pk]),
             }
-            if self.calendar_type != 'Volunteer':
+            if self.calendar_type != 'Volunteer' and self.conference.status != "completed":
                 occurrence_detail['favorite_link'] = reverse(
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
@@ -145,7 +145,8 @@ class ShowCalendarView(View):
         show_general_status(
             request, response, self.__class__.__name__)
         if len(response.occurrences) > 0:
-            if request.user.is_authenticated() and request.user.profile:
+            if request.user.is_authenticated() and request.user.profile and \
+                    self.conference.status != "completed":
                 sched_response = get_schedule(
                     request.user,
                     labels=[self.calendar_type,

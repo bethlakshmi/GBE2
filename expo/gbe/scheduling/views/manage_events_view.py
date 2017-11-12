@@ -108,7 +108,7 @@ class ManageEventsView(View):
                 'max_volunteer': occurrence.max_volunteer,
                 'detail_link': reverse(
                     'detail_view',
-                    urlconf='scheduler.urls',
+                    urlconf='gbe.scheduling.urls',
                     args=[occurrence.eventitem.event.eventitem_id]),
                 'delete_link': reverse('delete_schedule',
                                        urlconf='scheduler.urls',

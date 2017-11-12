@@ -37,7 +37,7 @@ from gbetext import (
 
 class SetFavoriteView(View):
 
-    def check_user_state(self, request, url):
+    def check_user_state(self, request, this_url):
         if not request.user.is_authenticated():
             follow_on = '?next=%s' % this_url
             user_message = UserMessage.objects.get_or_create(
@@ -123,6 +123,5 @@ class SetFavoriteView(View):
             redirect_to = reverse('home', urlconf='gbe.urls')
         return HttpResponseRedirect(redirect_to)
 
-    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(SetFavoriteView, self).dispatch(*args, **kwargs)
