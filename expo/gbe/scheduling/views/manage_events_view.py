@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.formats import date_format
 from expo.settings import (
+    DATE_FORMAT,
+    DATETIME_FORMAT,
     TIME_FORMAT,
     URL_DATE,
 )
@@ -33,10 +35,6 @@ from gbe.scheduling.views.functions import show_general_status
 from gbe.scheduling.forms import (
     HiddenSelectEventForm,
     SelectEventForm,
-)
-from expo.settings import (
-    DATE_FORMAT,
-    DATETIME_FORMAT,
 )
 from datetime import datetime
 from gbetext import calendar_type as calendar_type_options
@@ -77,7 +75,7 @@ class ManageEventsView(View):
             'other_forms': [],
         }
         if 'new' in request.GET.keys():
-            context['success_occurrence'] = int(request.GET['new'])
+            context['success_occurrences'] = eval(request.GET['new'])
         for conf in conference_set:
             if self.conference != conf:
                 hidden_form = HiddenSelectEventForm(
@@ -114,7 +112,10 @@ class ManageEventsView(View):
                     args=[occurrence.eventitem.event.eventitem_id]),
                 'delete_link': reverse('delete_schedule',
                                        urlconf='scheduler.urls',
-                                       args=[occurrence.id])}
+                                       args=[occurrence.id]),
+                'copy_link': reverse('copy_event_schedule',
+                                     urlconf='gbe.scheduling.urls',
+                                     args=[occurrence.id])}
             if self.conference.status != "completed":
                 display_item['create_link'] = reverse(
                     'create_event_schedule',

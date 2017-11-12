@@ -663,10 +663,11 @@ class Event(Schedulable):
             if assignment.resource.as_subtype.__class__.__name__ == "Location":
                 assignment.delete()
         for location in locations:
-            ra = ResourceAllocation(
-                resource=location.get_resource(),
-                event=self)
-            ra.save()
+            if location is not None:
+                ra = ResourceAllocation(
+                    resource=location.get_resource(),
+                    event=self)
+                ra.save()
 
     # New - from refactoring
     @property
@@ -1060,6 +1061,11 @@ class Event(Schedulable):
         label = EventLabel(text=label, event=self)
         label.save()
         return label
+
+    # New with Scheduler API
+    @property
+    def labels(self):
+        return EventLabel.objects.filter(event=self)
 
 
 class ResourceAllocation(Schedulable):

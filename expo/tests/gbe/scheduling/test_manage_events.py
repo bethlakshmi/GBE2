@@ -140,10 +140,10 @@ class TestEventList(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            '<i class="icon-pencil">')
+            '<i class="fa fa-pencil" aria-hidden="true">')
         self.assertContains(
             response,
-            '<i class="icon-plus">')
+            '<i class="fa fa-plus" aria-hidden="true">')
 
     def test_good_user_get_success_pick_conf(self):
         old_conf_day = ConferenceDayFactory(
@@ -192,13 +192,13 @@ class TestEventList(TestCase):
         response = self.client.get(url, data)
         self.assertContains(
             response,
-            '<i class="icon-trash">')
+            '<i class="fa fa-trash-o" aria-hidden="true">')
         self.assertNotContains(
             response,
-            '<i class="icon-pencil">')
+            '<i class="fa fa-pencil" aria-hidden="true">')
         self.assertNotContains(
             response,
-            '<i class="icon-plus">')
+            '<i class="fa fa-plus" aria-hidden="true">')
 
     def test_good_user_get_conference_cal(self):
         login_as(self.privileged_profile, self)
