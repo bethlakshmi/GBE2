@@ -115,17 +115,18 @@ class ShowCalendarView(View):
                                        args=[occurrence.eventitem.pk]),
             }
             if self.calendar_type != 'Volunteer':
-                if personal_schedule and occurrence in personal_schedule:
-                    occurrence_detail['favorite_link'] = reverse(
-                        'set_favorite',
-                        args=[occurrence.pk, 'off'],
-                        urlconf='gbe.scheduling.urls')
-                    occurrence_detail['highlight'] = "Interested"
-                else:
-                    occurrence_detail['favorite_link'] = reverse(
-                        'set_favorite',
-                        args=[occurrence.pk, 'on'],
-                        urlconf='gbe.scheduling.urls')
+                occurrence_detail['favorite_link'] = reverse(
+                    'set_favorite',
+                    args=[occurrence.pk, 'on'],
+                    urlconf='gbe.scheduling.urls')
+                for booking in personal_schedule:
+                    if booking.event == occurrence:
+                        if booking.role == "Interested":
+                            occurrence_detail['favorite_link'] = reverse(
+                                'set_favorite',
+                                args=[occurrence.pk, 'off'],
+                                urlconf='gbe.scheduling.urls')
+                        occurrence_detail['highlight'] = "Interested"
             display_list += [occurrence_detail]
             if hour in hour_block_size:
                 hour_block_size[hour] += 1
