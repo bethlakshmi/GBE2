@@ -50,7 +50,6 @@
     border:  #6E6E6E solid 1px;
     background-color: #D0D0D0;
 }
-
 .header2 {
     text-align: center;
     font-family: "TwentiethCenturyPoster";
@@ -58,9 +57,6 @@
     border:  #6E6E6E solid 1px;
     background-color: #B5B5B5;
 }
-.detail_link {
-    color: black;
-}
-.detail_link:hover {
-    color: #6E6E6E;
+.cal-favorite {
+  float: right;
 }

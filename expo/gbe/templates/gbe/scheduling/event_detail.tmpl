@@ -38,17 +38,22 @@
         </div>
       </div>
       {% if eventitem.scheduled_events %}
-      <div class="sched_times">
+      <div class="sched_times container">
 	{% for sched_event in eventitem.scheduled_events %}
-	<div class="col-xs-12">
-          <a href="{% if sched_event.pk in interest_list %}OFF{% else %}ON{% endif %}?next={{ request.get_full_path }}"
-	     class="detail_link cal-favorite"data-toggle="tooltip" 
-	     title="{%if sched_event.pk in interest_list %}Remove from Schedule{% else %}Add to Schedule{% endif %}">
-          <i class="fa {%if sched_event.pk in interest_list %}fa-star{% else %}fa-star-o{% endif %}"
+	<div class="col-xs-12 sched-sub-box">
+	  {% if eventitem.event.e_conference.status != "completed" %}
+	  <div class="col-xs-1 sched-sub-box">
+          <a href="{% url 'scheduling:set_favorite' sched_event.pk toggle %}?next={{ request.get_full_path }}"
+	     class="detail_link"data-toggle="tooltip" 
+	     title="{%if toggle == "off" %}Remove from Schedule{% else %}Add to Schedule{% endif %}">
+          <i class="fa {%if toggle == "off" %}fa-star{% else %}fa-star-o{% endif %} fa-2x"
 	     aria-hidden="true"></i></a>
-	  <label class="sched_detail">Time:</label> {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
-	  <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
-          {% if not forloop.last %}<br>{%endif%}
+	  </div>
+	  {% endif %}
+	  <div class="col-xs-11 ">
+  	    <label class="sched_detail">Time:</label> {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
+	    <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
+	  </div>
 	</div>
 	{% endfor %}
       </div>

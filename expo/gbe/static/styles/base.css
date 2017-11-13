@@ -257,8 +257,11 @@ h3.readonlyform
     padding: 2px;
     vertical-align: top;
  }
- 
- .sched-header
+.sched-sub-box
+{
+  padding: 0px;
+}
+.sched-header
 {
     border: 1px solid black;
     border-collapse:collapse;
@@ -267,7 +270,6 @@ h3.readonlyform
     padding: 2px;
     vertical-align: top;
  }
- 
 .bid-table
 {
     border: 1px solid black;
@@ -519,6 +521,22 @@ td.describe
   border-radius: 8px;
   padding: 8px;
   margin-bottom: 8px;
+}
+@media (min-width:768px){.sched_times{width:690px}
+}
+@media (min-width:992px){.sched_times{width:900px}
+}
+@media (min-width:1200px){.sched_times{width:1100px}
+}
+.detail_link {color: black;}
+.sched-sub-box > .detail_link {
+    text-align: center;
+    display:block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.detail_link:hover {
+    color: #6E6E6E;
 }
 .bio_block
 {
@@ -1008,9 +1026,6 @@ span.opps-errors > ul
   width: 80px;
 }
 
-.cal-favorite {
-  float: right;
-}
 div.hierarchy-1
 {
   padding-left: 20px;
