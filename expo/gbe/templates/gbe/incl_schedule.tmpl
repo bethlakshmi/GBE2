@@ -15,7 +15,7 @@
           {% endifchanged%}
           <div class='event'>
             {{booking.starttime}}, 
-            <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
+            <a href="{% url 'scheduling:detail_view' booking.eventitem.eventitem_id%}">
             {{ booking }}
 	    </a> 
           </div>

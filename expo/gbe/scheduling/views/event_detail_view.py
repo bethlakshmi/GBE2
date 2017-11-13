@@ -15,16 +15,23 @@ class EventDetailView(View):
     
     def get(self, request, *args, **kwargs):
         eventitem_id = kwargs['eventitem_id']
-
+        interest_list = []
         eventitem_view = get_event_display_info(eventitem_id)
-
+        if request.user.is_authenticated() and request.user.profile and \
+                eventitem_view['event'].e_conference.status != "completed":
+            for item in eventitem_view['scheduled_events']:
+                for person in item.people:
+                    if person.user == request.user:
+                        interest_list += [item.pk]
+        
         template = 'gbe/scheduling/event_detail.tmpl'
         return render(request,
                       template,
                       {'eventitem': eventitem_view,
                        'show_tickets': True,
                        'tickets': eventitem_view['event'].get_tickets,
-                       'user_id': request.user.id})
+                       'user_id': request.user.id,
+                       'interest_list': interest_list})
 
     def dispatch(self, *args, **kwargs):
         return super(EventDetailView, self).dispatch(*args, **kwargs)

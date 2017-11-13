@@ -93,6 +93,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_bio_grid_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
@@ -113,6 +114,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         set_image(context.performer)
         login_as(superuser, self)
         response = self.client.get(url)
@@ -125,6 +127,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_bio_grid_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         set_image(self.context.performer)
         response = self.client.get(self.url)
@@ -148,6 +151,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_feature_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
