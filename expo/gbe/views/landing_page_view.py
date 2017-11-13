@@ -12,6 +12,7 @@ from gbe.models import (
     Class,
     Costume,
     Profile,
+    Vendor,
     Volunteer,
     Event,
 )
@@ -37,7 +38,7 @@ def LandingPageView(request, profile_id=None, historical=False):
         admin_profile = validate_perms(request, ('Registrar',
                                                  'Volunteer Coordinator',
                                                  'Act Coordinator',
-                                                 'Conference Coordinator',
+                                                 'Class Coordinator',
                                                  'Vendor Coordinator',
                                                  'Ticketing - Admin'))
         viewer_profile = get_object_or_404(Profile, pk=profile_id)
@@ -50,10 +51,12 @@ def LandingPageView(request, profile_id=None, historical=False):
     class_to_class_name = {Act: "Act",
                            Class: "Class",
                            Costume: "Costume",
+                           Vendor: "Vendor",
                            Volunteer: "Volunteer"}
     class_to_view_name = {Act: 'act_review',
                           Class: 'class_review',
                           Costume: 'costume_review',
+                          Vendor: 'vendor_review',
                           Volunteer: 'volunteer_review'}
 
     if viewer_profile:
