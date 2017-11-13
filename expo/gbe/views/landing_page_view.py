@@ -25,6 +25,7 @@ from gbe.functions import (
     validate_profile,
 )
 from expo.gbe_logging import log_func
+from scheduler.idd import get_schedule
 
 
 @login_required
@@ -96,7 +97,7 @@ def LandingPageView(request, profile_id=None, historical=False):
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
              'admin_message': admin_message,
-             'bookings': viewer_profile.schedule
+             'bookings': get_schedule(viewer_profile.user_object).schedule_items
              })
     else:
         context = RequestContext(request,

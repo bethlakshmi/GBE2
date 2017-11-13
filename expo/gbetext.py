@@ -254,14 +254,16 @@ day_options = (('Fri', "Friday"),
                ('Sat', "Saturday"),
                ('Sun', "Sunday"))
 
-role_options = (('Teacher', "Teacher"),
-                ('Performer', "Performer"),
-                ('Volunteer', "Volunteer"),
-                ('Panelist', "Panelist"),
-                ('Moderator', "Moderator"),
-                ('Staff Lead', "Staff Lead"),
-                ('Technical Director', "Technical Director"),
-                ('Producer', "Producer"))
+role_options = (
+    ('Interested', "Interested"),
+    ('Moderator', "Moderator"),
+    ('Panelist', "Panelist"),
+    ('Performer', "Performer"),
+    ('Producer', "Producer"),
+    ('Staff Lead', "Staff Lead"),
+    ('Teacher', "Teacher"),
+    ('Technical Director', "Technical Director"),
+    ('Volunteer', "Volunteer"),)
 
 act_casting_label = "Section"
 
