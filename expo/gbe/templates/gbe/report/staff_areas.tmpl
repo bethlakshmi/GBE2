@@ -7,54 +7,73 @@
 
 {% block content %}
 
-
-  <h2 class="review-title">Staff Areas</h2>
-
-
-  {% include "conference_picker.tmpl" %}
-
-  <table class="bid-table">
-    <tr class="bid-table">
+{% include "conference_picker.tmpl" %}
+<br><br>
+<div class="panel panel-primary">
+  <div class="panel-heading"><h2 class="review-title">Staff Areas</h2></div>
+  <table class="table">
+    <tr>
       {% for header_item in header %}
-      <th class="bid-table">{{ header_item }}</th>
+      <th>{{ header_item }}</th>
       {% endfor %}
     </tr>
     {% for area in areas %}
-      <tr class="bid-table">
-        <td class="bid-table">{{area.e_title}}</td>
+      <tr>
+        <td>{{area.e_title}}</td>
         <td>
  	  {% for worker in area.roles %}
             {{worker.role}} - {{worker.workeritem}}
  	  {% endfor %}	
         </td>
-        <td class="bid-table">
+        <td>
           <a href="{%url 'reporting:staff_area' area.eventitem_id %}">Get Staff Schedule</a>
         </td>
       </tr>
     {% endfor %}
   </table>
-  
-  <h2 class="review-title">Shows</h2>
+</div>
 
-    <table class="bid-table">
-    <tr class="bid-table">
+<div class="panel panel-primary">
+  <div class="panel-heading"><h2 class="review-title">Shows</h2></div>
+  <table class="table">
+    <tr>
       {% for header_item in header %}
-      <th class="bid-table">{{ header_item }}</th>
+      <th>{{ header_item }}</th>
       {% endfor %}
     </tr>
     {% for show in shows %}
-      <tr class="bid-table">
-        <td class="bid-table">{{show.e_title}}</td>
+      <tr>
+        <td>{{show.e_title}}</td>
         <td>
  	  {% for worker in show.roles %}
             {{worker.role}} - {{worker.workeritem}}
  	  {% endfor %}	
         </td>
-        <td class="bid-table">
+        <td>
           <a href="{%url 'reporting:staff_area' show.eventitem_id %}">Get Staff Schedule</a>
         </td>
       </tr>
     {% endfor %}
   </table>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading"><h2 class="review-title">Volunteer Type</h2></div>
+    <table class="table">
+    <tr>
+      <th>Type</th>
+      <th>Check Staffing</th>
+    </tr>
+    {% for type in volunteer_types %}
+      <tr>
+        <td>{{type.interest}}</td>
+        <td>
+          <a href="{%url 'reporting:volunteer_type' conference.conference_slug type.pk %}">
+	    Get Staff Schedule</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
 {% endblock %}
 
