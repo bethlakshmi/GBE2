@@ -99,3 +99,26 @@ class TestSetFavorite(TestCase):
             'success',
             'Success',
             unset_favorite_msg)
+
+    def test_show_interest_duplicate(self):
+        ResourceAllocationFactory(event=self.context.sched_event,
+                                  resource=WorkerFactory(_item=self.profile,
+                                                         role="Interested"))
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        redirect_url = reverse('home', urlconf='gbe.urls')
+        self.assertRedirects(response, redirect_url)
+        self.assertContains(response, self.context.bid.e_title)
+        self.assertNotContains(response, set_favorite_msg)
+
+    def test_remove_interest_duplicate(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        redirect_url = reverse('home', urlconf='gbe.urls')
+        self.assertRedirects(response, redirect_url)
+        self.assertNotContains(response, self.context.bid.e_title)
+        self.assertNotContains(response, unset_favorite_msg)
