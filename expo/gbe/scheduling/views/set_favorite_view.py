@@ -1,17 +1,7 @@
 from django.views.generic import View
 from django.views.decorators.cache import never_cache
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.forms import HiddenInput
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.http import (
-    Http404,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from scheduler.data_transfer import Person
 from scheduler.idd import (
@@ -19,12 +9,8 @@ from scheduler.idd import (
     remove_booking,
     set_person,
 )
-from gbe.scheduling.views.functions import (
-    show_general_status,
-)
-from gbe.models import (
-    UserMessage,
-)
+from gbe.scheduling.views.functions import show_general_status
+from gbe.models import UserMessage
 from gbe.functions import validate_profile
 from gbetext import (
     no_profile_msg,
@@ -38,8 +24,8 @@ from gbetext import (
 class SetFavoriteView(View):
 
     def check_user_state(self, request, this_url):
+        follow_on = '?next=%s' % this_url
         if not request.user.is_authenticated():
-            follow_on = '?next=%s' % this_url
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="USER_NOT_LOGGED_IN",
@@ -62,9 +48,8 @@ class SetFavoriteView(View):
                     'summary': "%s Profile Incomplete",
                     'description': no_profile_msg})
             messages.warning(request, user_message[0].description)
-            return '%s?next=%s' % (
-                reverse('profile_update', urlconf='gbe.urls'),
-                this_url)
+            return HttpResponseRedirect(
+                reverse('register', urlconf='gbe.urls') + follow_on)
 
     @never_cache
     def get(self, request, *args, **kwargs):
@@ -77,7 +62,7 @@ class SetFavoriteView(View):
             return response
         occurrence_id = int(kwargs['occurrence_id'])
         interested = get_bookings(occurrence_id,
-                                role="Interested")
+                                  role="Interested")
         bookings = []
         for person in interested.people:
             if person.user == self.owner.user_object:
