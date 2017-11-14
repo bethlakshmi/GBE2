@@ -72,9 +72,9 @@ class VolunteerContext():
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=self.opp_event)
         EventLabelFactory(event=self.opp_event,
-                          text="Volunteer")
-        EventLabelFactory(event=self.opp_event,
                           text=self.conference.conference_slug)
+        EventLabelFactory(event=self.opp_event,
+                          text="Volunteer")
 
     def add_window(self):
         add_window = VolunteerWindowFactory(

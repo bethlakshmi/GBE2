@@ -1,10 +1,12 @@
 from django.forms import (
     Form,
+    ModelMultipleChoiceField,
     MultipleChoiceField,
     MultipleHiddenInput,
 )
 from django.forms.widgets import CheckboxSelectMultiple
 from gbetext import calendar_type as calendar_type_options
+from gbe.models import AvailableInterest
 
 
 class SelectEventForm(Form):
@@ -17,6 +19,11 @@ class SelectEventForm(Form):
         choices=calendar_type_options.items(),
         widget=CheckboxSelectMultiple(),
         required=False)
+    volunteer_type = ModelMultipleChoiceField(
+        queryset=AvailableInterest.objects.filter(
+            visible=True).order_by("interest"),
+        widget=CheckboxSelectMultiple(),
+        required=False)
 
 
 class HiddenSelectEventForm(Form):
@@ -27,5 +34,9 @@ class HiddenSelectEventForm(Form):
         required=False)
     calendar_type = MultipleChoiceField(
         choices=calendar_type_options.items(),
+        widget=MultipleHiddenInput(),
+        required=False)
+    volunteer_type = ModelMultipleChoiceField(
+        queryset=AvailableInterest.objects.filter(visible=True),
         widget=MultipleHiddenInput(),
         required=False)

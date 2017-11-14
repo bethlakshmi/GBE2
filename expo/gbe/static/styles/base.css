@@ -1027,3 +1027,6 @@ div.hierarchy-1
 .scheduling-area > .form-row > .form-group {
   min-height: 26px;
 }
+.gbe-filter {
+  margin-left: 10px;
+}
