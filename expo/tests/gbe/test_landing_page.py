@@ -24,6 +24,7 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     WorkerFactory,
 )
+from tests.contexts import ClassContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -342,3 +343,22 @@ class TestIndex(TestCase):
         self.assertContains(response,
                             second_act_context.show.e_title,
                             count=2)
+
+    def test_interest(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf)
+        ResourceAllocationFactory(event=context.sched_event,
+                                  resource=WorkerFactory(_item=self.profile,
+                                                         role="Interested"))
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))

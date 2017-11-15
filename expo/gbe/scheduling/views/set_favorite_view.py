@@ -92,9 +92,7 @@ class SetFavoriteView(View):
                 show_general_status(request,
                                     response,
                                     self.__class__.__name__)
-                if not response.booking_id:
-                    success = False
-            if success:
+            if response.booking_id:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,
                     code="REMOVE_FAVORITE",

@@ -65,13 +65,11 @@ def LandingPageView(request, profile_id=None, historical=False):
         for bid in viewer_profile.bids_to_review():
             bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
             view_name = class_to_view_name.get(bid.__class__, None)
+            url = ""
             if view_name:
                 url = reverse(view_name,
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
-            else:
-                url = ""
-
             bids_to_review += [{'bid': bid,
                                 'url': url,
                                 'action': "Review",
