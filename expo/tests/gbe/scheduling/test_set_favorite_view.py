@@ -8,6 +8,7 @@ from tests.factories.gbe_factories import (
     UserFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     ResourceAllocationFactory,
     WorkerFactory,
 )
@@ -145,6 +146,21 @@ class TestSetFavorite(TestCase):
         response = self.client.get("%s?next=%s" % (self.url, redirect_url),
                                    follow=True)
         self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            set_favorite_msg)
+
+    def test_show_interest_also_volunteer(self):
+        booking = ResourceAllocationFactory(event=self.context.sched_event,
+                                  resource=WorkerFactory(_item=self.profile))
+        LabelFactory(allocation=booking, text="label text")
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        redirect_url = reverse('home', urlconf='gbe.urls')
+        self.assertRedirects(response, redirect_url)
+        self.assertContains(response, self.context.bid.e_title)
         assert_alert_exists(
             response,
             'success',

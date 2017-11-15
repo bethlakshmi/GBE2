@@ -5,6 +5,7 @@ from tests.factories.gbe_factories import (
     ShowFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
     WorkerFactory,
@@ -159,3 +160,48 @@ class TestDetailView(TestCase):
             response,
             "/admin/filer/image/%d/?_pick=file&_popup=1" % (
                 context.performer.img.pk))
+
+    def test_interested_in_event(self):
+        show = ShowFactory()
+        sched_event = SchedEventFactory(eventitem=show.eventitem_ptr)
+        interested_profile = ProfileFactory()
+        ResourceAllocationFactory(
+            event=sched_event,
+            resource=WorkerFactory(_item=interested_profile,
+                                   role="Interested"))
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[show.pk])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_not_really_interested_in_event(self):
+        show = ShowFactory()
+        sched_event = SchedEventFactory(eventitem=show.eventitem_ptr)
+        interested_profile = ProfileFactory()
+        booking = ResourceAllocationFactory(
+            event=sched_event,
+            resource=WorkerFactory(_item=interested_profile,
+                                   role="Volunteer"))
+        LabelFactory(allocation=booking, text="Interested")
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[show.pk])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
