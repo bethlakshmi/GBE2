@@ -4,9 +4,16 @@ from django.test import (
     Client,
     TestCase,
 )
+from tests.functions.gbe_functions import login_as
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
+    ProfileFactory,
+    UserFactory,
+)
+from tests.factories.scheduler_factories import (
+    ResourceAllocationFactory,
+    WorkerFactory,
 )
 from tests.functions.gbe_functions import clear_conferences
 from tests.functions.scheduler_functions import noon
@@ -300,3 +307,73 @@ class TestCalendarView(TestCase):
             response,
             '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">',
             10)
+
+    def test_logged_in_no_interest(self):
+        profile = ProfileFactory()
+        login_as(profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_logged_in_have_interest(self):
+        profile = ProfileFactory()
+        ResourceAllocationFactory(event=self.showcontext.sched_event,
+                                  resource=WorkerFactory(_item=profile,
+                                                         role="Interested"))
+        login_as(profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_logged_in_no_profile(self):
+        user = UserFactory()
+        login_as(user, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_calendar_old_conference(self):
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        data = {'conference': self.other_conference.conference_slug}
+        response = self.client.get(url, data=data)
+        self.assertNotContains(response, self.showcontext.show.e_title)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+        set_unfav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            set_unfav_link,
+            url))
