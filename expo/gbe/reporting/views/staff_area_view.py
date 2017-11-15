@@ -4,7 +4,7 @@ from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
 
 
-def staff_area(request, area_id):
+def staff_area_view(request, area_id):
     '''
     Generates a staff area report: volunteer opportunities scheduled,
     volunteers scheduled, sorted by time/day

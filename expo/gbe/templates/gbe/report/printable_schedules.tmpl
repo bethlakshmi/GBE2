@@ -26,10 +26,10 @@
     <th class='sched-header'>Time</th>
   {% for booking in schedule.bookings %}
   <tr class='sched-table'>
-    <td class='sched-table'>{{ booking }}</td>
-    <td class='sched-table'>{{booking.location}} </td>    
-    <td class='sched-table'>{{booking.starttime.date}} </td>
-    <td class='sched-table'>{{booking.starttime.time}} </td>
+    <td class='sched-table'>{{ booking.event }}</td>
+    <td class='sched-table'>{{booking.event.location}} </td>    
+    <td class='sched-table'>{{booking.event.starttime.date}} </td>
+    <td class='sched-table'>{{booking.event.starttime.time}} </td>
   </tr>
   {% endfor %}
 
