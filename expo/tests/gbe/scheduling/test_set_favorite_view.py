@@ -122,3 +122,31 @@ class TestSetFavorite(TestCase):
         self.assertRedirects(response, redirect_url)
         self.assertNotContains(response, self.context.bid.e_title)
         self.assertNotContains(response, unset_favorite_msg)
+
+    def test_show_interest_bad_event(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.sched_event.pk+100, "on"],
+            urlconf="gbe.scheduling.urls")
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        redirect_url = reverse('home', urlconf='gbe.urls')
+        self.assertRedirects(response, redirect_url)
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+100))
+
+    def test_show_interest_redirect(self):
+        login_as(self.profile, self)
+        redirect_url = reverse(
+            'detail_view',
+            args=[self.context.bid.eventitem_id],
+            urlconf='gbe.scheduling.urls')
+        response = self.client.get("%s?next=%s" % (self.url, redirect_url),
+                                   follow=True)
+        self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            set_favorite_msg)
