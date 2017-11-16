@@ -13,7 +13,6 @@ from tests.factories.ticketing_factories import (
     TicketingEligibilityConditionFactory
 )
 from tests.contexts import ClassContext
-from tests.functions.scheduler_functions import book_worker_item_for_role
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as
@@ -54,10 +53,7 @@ class TestPersonalSchedule(TestCase):
            should get a checklist item
         '''
         role_condition = RoleEligibilityConditionFactory()
-        teacher = PersonaFactory()
-        booking = book_worker_item_for_role(teacher,
-                                            role_condition.role)
-        conference = booking.event.eventitem.get_conference()
+        context = ClassContext()
 
         login_as(self.priv_profile, self)
         response = self.client.get(
@@ -68,7 +64,7 @@ class TestPersonalSchedule(TestCase):
             str(role_condition.checklistitem) in response.content,
             msg="Role condition for teacher was not found")
         nt.assert_true(
-            str(teacher.performer_profile) in response.content,
+            str(context.teacher.performer_profile) in response.content,
             msg="Teacher is not in the list")
 
     def test_personal_schedule_teacher_booking(self):
