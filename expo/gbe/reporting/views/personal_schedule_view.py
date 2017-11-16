@@ -18,7 +18,7 @@ def personal_schedule_view(request):
     if request.GET and request.GET.get('conf_slug'):
         conference = get_conference_by_slug(request.GET['conf_slug'])
     else:
-        conference = get_current_conference
+        conference = get_current_conference()
 
     people = Profile.objects.filter(
         user_object__is_active=True).select_related()
