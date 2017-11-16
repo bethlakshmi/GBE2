@@ -257,6 +257,12 @@ h3.readonlyform
     padding: 2px;
     vertical-align: top;
  }
+.interested-sched {
+  color: grey;
+}
+.dedicated-sched {
+  font-weight: bold;
+}
 .sched-sub-box
 {
   padding: 0px;

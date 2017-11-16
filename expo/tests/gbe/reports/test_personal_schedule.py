@@ -7,6 +7,10 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfileFactory,
 )
+from tests.factories.scheduler_factories import (
+    ResourceAllocationFactory,
+    WorkerFactory,
+)
 from tests.factories.ticketing_factories import (
     RoleEligibilityConditionFactory,
     TransactionFactory,
@@ -89,6 +93,34 @@ class TestPersonalSchedule(TestCase):
         self.assertContains(
             response,
             str(context.room))
+        self.assertContains(response, "dedicated-sched")
+
+    def test_personal_schedule_interest_booking(self):
+        '''a teacher booked into a class, with an active role condition
+           should have a booking
+        '''
+        role_condition = RoleEligibilityConditionFactory()
+        context = ClassContext()
+        profile = ProfileFactory()
+        booking = ResourceAllocationFactory(
+            resource=WorkerFactory(
+                _item=profile,
+                role="Interested"),
+            event=context.sched_event)
+
+        login_as(self.priv_profile, self)
+        response = self.client.get(
+            reverse('personal_schedule',
+                    urlconf='gbe.reporting.urls'),
+            data={"conf_slug": context.conference.conference_slug})
+        self.assertContains(
+            response,
+            str(profile))
+        self.assertContains(
+            response,
+            context.bid.e_title,
+            2)
+        self.assertContains(response, "interested-sched")
 
     def test_ticket_purchase(self):
         '''a ticket purchaser gets a checklist item
