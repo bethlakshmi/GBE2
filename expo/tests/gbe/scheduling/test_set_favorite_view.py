@@ -153,16 +153,21 @@ class TestSetFavorite(TestCase):
             set_favorite_msg)
 
     def test_show_interest_also_volunteer(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
         booking = ResourceAllocationFactory(event=self.context.sched_event,
-                                  resource=WorkerFactory(_item=self.profile))
+                                  resource=WorkerFactory(_item=self.profile,
+                                                         role="Interested"))
         LabelFactory(allocation=booking, text="label text")
         login_as(self.profile, self)
         response = self.client.get(self.url, follow=True)
         redirect_url = reverse('home', urlconf='gbe.urls')
         self.assertRedirects(response, redirect_url)
-        self.assertContains(response, self.context.bid.e_title)
+        self.assertNotContains(response, self.context.bid.e_title)
         assert_alert_exists(
             response,
             'success',
             'Success',
-            set_favorite_msg)
+            unset_favorite_msg)

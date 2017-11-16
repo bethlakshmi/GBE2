@@ -20,6 +20,7 @@ from tests.factories.gbe_factories import(
     VolunteerFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     SchedEventFactory,
     ResourceAllocationFactory,
     WorkerFactory,
@@ -128,6 +129,8 @@ class TestIndex(TestCase):
                 event=schedule_item,
                 resource=worker
             )
+            LabelFactory(text="label %d" % volunteer_assignment.pk,
+                         allocation=volunteer_assignment)
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
