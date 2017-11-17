@@ -47,6 +47,8 @@ def get_schedule(user=None, labels=[]):
             event=item.event,
             role=item.resource.as_subtype.role,
             label=booking_label)]
-    response = ScheduleResponse(schedule_items=sorted(set(sched_items),
-                      key=lambda sched_items: sched_items.event.start_time))
+    response = ScheduleResponse(
+        schedule_items=sorted(
+            set(sched_items),
+            key=lambda sched_items: sched_items.event.start_time))
     return response

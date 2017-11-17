@@ -104,7 +104,7 @@ class ShowCalendarView(View):
         for occurrence in occurrences:
             event = events.filter(pk=occurrence.eventitem.event.pk).first()
             hour = occurrence.start_time.strftime("%-I:00 %p")
-            occurrence_detail ={
+            occurrence_detail = {
                 'start':  occurrence.start_time.strftime(TIME_FORMAT),
                 'end': occurrence.end_time.strftime(TIME_FORMAT),
                 'title': event.e_title,

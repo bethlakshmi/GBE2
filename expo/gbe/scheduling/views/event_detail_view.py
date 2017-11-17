@@ -12,7 +12,6 @@ class EventDetailView(View):
     Takes the id of a single event_item and displays all its
     details in a template
     '''
-    
     def get(self, request, *args, **kwargs):
         eventitem_id = kwargs['eventitem_id']
         toggle = "on"
@@ -21,9 +20,9 @@ class EventDetailView(View):
                 eventitem_view['event'].e_conference.status != "completed":
             for item in eventitem_view['scheduled_events']:
                 for person in item.people:
-                    if person.user == request.user and person.role == "Interested":
+                    if (person.user == request.user) and (
+                            person.role == "Interested"):
                         toggle = "off"
-        
         template = 'gbe/scheduling/event_detail.tmpl'
         return render(request,
                       template,

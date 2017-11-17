@@ -157,9 +157,10 @@ class TestSetFavorite(TestCase):
             self.view_name,
             args=[self.context.sched_event.pk, "off"],
             urlconf="gbe.scheduling.urls")
-        booking = ResourceAllocationFactory(event=self.context.sched_event,
-                                  resource=WorkerFactory(_item=self.profile,
-                                                         role="Interested"))
+        booking = ResourceAllocationFactory(
+            event=self.context.sched_event,
+            resource=WorkerFactory(_item=self.profile,
+                                   role="Interested"))
         LabelFactory(allocation=booking, text="label text")
         login_as(self.profile, self)
         response = self.client.get(self.url, follow=True)
