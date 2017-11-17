@@ -114,7 +114,7 @@ class ShowCalendarView(View):
                                        urlconf='gbe.scheduling.urls',
                                        args=[occurrence.eventitem.pk]),
             }
-            if self.calendar_type != 'Volunteer' and self.conference.status != "completed":
+            if self.conference.status != "completed":
                 occurrence_detail['favorite_link'] = reverse(
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
@@ -129,6 +129,10 @@ class ShowCalendarView(View):
                         else:
                             occurrence_detail['favorite_link'] = "disabled"
                         occurrence_detail['highlight'] = booking.role.lower()
+            if (self.calendar_type == 'Volunteer') and (
+                    'favorite_link' in occurrence_detail) and (
+                    occurrence_detail['favorite_link'] != "disabled"):
+                occurrence_detail['favorite_link'] = None
             display_list += [occurrence_detail]
             if hour in hour_block_size:
                 hour_block_size[hour] += 1
