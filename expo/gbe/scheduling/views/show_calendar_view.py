@@ -126,7 +126,9 @@ class ShowCalendarView(View):
                                 'set_favorite',
                                 args=[occurrence.pk, 'off'],
                                 urlconf='gbe.scheduling.urls')
-                        occurrence_detail['highlight'] = "Interested"
+                        else:
+                            occurrence_detail['favorite_link'] = "disabled"
+                        occurrence_detail['highlight'] = booking.role.lower()
             display_list += [occurrence_detail]
             if hour in hour_block_size:
                 hour_block_size[hour] += 1

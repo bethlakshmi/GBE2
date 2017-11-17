@@ -24,6 +24,14 @@
     background-color: #E4BDC5;
 }
 
+div.interested {
+    background-color: #f3e1e5;
+}
+
+div.teacher, div.performer, div.volunteer {
+    background-color: #f3e1e5;
+}
+
 .calendar-container {
     border:  #6E6E6E solid 1px;
 }

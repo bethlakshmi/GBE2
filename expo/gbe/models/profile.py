@@ -305,33 +305,11 @@ class Profile(WorkerItem):
     # DEPRECATE, yes it's new.  Deprecate anyway, this hack gets through
     # GBE2018 safely.  Used by get_schedule IDD call.  Treat as private
     # and log any additional use here.
-    def get_schedule_as_bookings(self, labels=[]):
-        '''
-        Gets all of a person's schedule.  Every way the actual human could be
-        committed:
-        - via profile
-        - via performer(s)
-        - via performing in acts
-        Returns schedule as a list of Scheduler.Events
-        NOTE:  Things that haven't been booked with start times won't be here.
-        '''
-        from scheduler.models import ResourceAllocation
-        acts = self.get_acts()
-        label_limit = ResourceAllocation.objects.all()
-        for label in labels:
-            label_limit = label_limit.filter(
-                event__eventlabel__text=label
-            )
-        bookings = sum([list(label_limit.filter(
-            resource__actresource___item=act))
-            for act in acts if act.accepted == 3], [])
-        for performer in self.get_performers():
-            bookings += [e for e in label_limit.filter(
-                resource__worker___item=performer)]
-        bookings += [e for e in label_limit.filter(
-            resource__worker___item=self)]
-        return sorted(set(bookings),
-                      key=lambda bookings: bookings.event.start_time)
+    def get_bookable_items(self):
+        return {
+            "acts": [act for act in self.get_acts() if act.accepted == 3],
+            "performers": self.get_performers(),
+        }
 
     def volunteer_schedule(self, conference=None):
         conference = conference or Conference.current_conf()
