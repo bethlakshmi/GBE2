@@ -117,7 +117,7 @@ div.bottom  a, .help-block a {
     }
 }
 
-.login-button {
+button.login-button {
   padding-top: 7px;
   padding-bottom: 7px;
   color: white;
@@ -125,6 +125,11 @@ div.bottom  a, .help-block a {
   border-color:#471f1f;
   margin-top: 3px;
   margin-right: 3px;
+  border-radius: 4px;
+  font-family: "TwentiethCenturyPoster";
+  font-size: 18px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 .login-button:hover  {
   color: light grey;
@@ -520,7 +525,7 @@ td.describe
   align: right;
   display: inline-block;
 }
-.sched_times
+.sched_times, .sched_side
 {
   border-style: double;
   background: #C3BDBF;
