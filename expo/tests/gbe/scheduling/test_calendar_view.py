@@ -242,7 +242,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">',
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">',
             1)
 
     def test_calendar_2_event_per_hour(self):
@@ -253,7 +253,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">',
+            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 ">',
             2)
         self.assertContains(response, two_opp.eventitem.e_title)
 
@@ -266,7 +266,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 ">',
             3)
 
     def test_calendar_4_event_per_hour(self):
@@ -279,7 +279,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 ">',
             4)
 
     def test_calendar_6_event_per_hour(self):
@@ -292,7 +292,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 ">',
             6)
 
     def test_calendar_10_event_per_hour(self):
@@ -305,7 +305,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 ">',
             10)
 
     def test_logged_in_no_interest(self):
