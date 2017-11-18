@@ -77,7 +77,7 @@ class VolunteerContext():
         start_time = start_time or datetime.combine(
             self.window.day.day,
             self.window.start)
-        
+
         opp_event = SchedEventFactory(
             eventitem=opportunity.eventitem_ptr,
             starttime=start_time,
