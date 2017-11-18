@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
+    EventLabelFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
     WorkerFactory,
@@ -55,6 +56,10 @@ class VolunteerContext():
             eventitem=self.event.eventitem_ptr,
             starttime=datetime.combine(self.window.day.day,
                                        self.window.start))
+        EventLabelFactory(event=self.sched_event,
+                          text="General")
+        EventLabelFactory(event=self.sched_event,
+                          text=self.conference.conference_slug)
         self.opp_event = SchedEventFactory(
             eventitem=self.opportunity.eventitem_ptr,
             starttime=datetime.combine(self.window.day.day,
@@ -66,6 +71,10 @@ class VolunteerContext():
                                                     event=self.opp_event)
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=self.opp_event)
+        EventLabelFactory(event=self.opp_event,
+                          text=self.conference.conference_slug)
+        EventLabelFactory(event=self.opp_event,
+                          text="Volunteer")
 
     def add_window(self):
         add_window = VolunteerWindowFactory(

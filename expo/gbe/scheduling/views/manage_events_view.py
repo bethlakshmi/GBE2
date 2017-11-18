@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.formats import date_format
 from expo.settings import (
+    DATE_FORMAT,
+    DATETIME_FORMAT,
     TIME_FORMAT,
     URL_DATE,
 )
@@ -18,8 +20,10 @@ from datetime import (
     timedelta,
 )
 from gbe.models import (
+    AvailableInterest,
     ConferenceDay,
     Event,
+    GenericEvent,
 )
 from gbe.functions import (
     get_current_conference,
@@ -29,14 +33,9 @@ from gbe.functions import (
     validate_perms,
 )
 from scheduler.idd import get_occurrences
-from gbe.scheduling.views.functions import show_general_status
 from gbe.scheduling.forms import (
     HiddenSelectEventForm,
     SelectEventForm,
-)
-from expo.settings import (
-    DATE_FORMAT,
-    DATETIME_FORMAT,
 )
 from datetime import datetime
 from gbetext import calendar_type as calendar_type_options
@@ -65,7 +64,6 @@ class ManageEventsView(View):
         day_list = []
         for day in self.conference.conferenceday_set.all():
             day_list += [(day.pk, day.day.strftime(DATE_FORMAT))]
-
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
@@ -77,7 +75,7 @@ class ManageEventsView(View):
             'other_forms': [],
         }
         if 'new' in request.GET.keys():
-            context['success_occurrence'] = int(request.GET['new'])
+            context['success_occurrences'] = eval(request.GET['new'])
         for conf in conference_set:
             if self.conference != conf:
                 hidden_form = HiddenSelectEventForm(
@@ -114,7 +112,10 @@ class ManageEventsView(View):
                     args=[occurrence.eventitem.event.eventitem_id]),
                 'delete_link': reverse('delete_schedule',
                                        urlconf='scheduler.urls',
-                                       args=[occurrence.id])}
+                                       args=[occurrence.id]),
+                'copy_link': reverse('copy_event_schedule',
+                                     urlconf='gbe.scheduling.urls',
+                                     args=[occurrence.id])}
             if self.conference.status != "completed":
                 display_item['create_link'] = reverse(
                     'create_event_schedule',
@@ -150,15 +151,25 @@ class ManageEventsView(View):
                         self.conference.conference_slug, ],
                         day=day.day)
                     occurrences += response.occurrences
+        elif len(select_form.cleaned_data['calendar_type']) > 0:
+            for cal_type in select_form.cleaned_data['calendar_type']:
+                response = get_occurrences(
+                    labels=[
+                        self.conference.conference_slug,
+                        calendar_type_options[int(cal_type)]])
+                occurrences += response.occurrences
         else:
-            if len(select_form.cleaned_data['calendar_type']) > 0:
-                for cal_type in select_form.cleaned_data['calendar_type']:
-                    response = get_occurrences(
-                        labels=[
-                            self.conference.conference_slug,
-                            calendar_type_options[int(cal_type)]])
-                    occurrences += response.occurrences
-
+            response = get_occurrences(
+                labels=[self.conference.conference_slug, ])
+            occurrences += response.occurrences
+        if len(select_form.cleaned_data['volunteer_type']) > 0:
+            volunteer_event_ids = GenericEvent.objects.filter(
+                e_conference=self.conference,
+                volunteer_type__in=select_form.cleaned_data['volunteer_type']
+                ).values_list('eventitem_id', flat=True)
+            occurrences = [
+                occurrence for occurrence in occurrences
+                if occurrence.eventitem.eventitem_id in volunteer_event_ids]
         return self.build_occurrence_display(occurrences)
 
     @never_cache
@@ -169,7 +180,8 @@ class ManageEventsView(View):
         if context['selection_form'].is_valid() and (
                 len(context['selection_form'].cleaned_data['day']) > 0 or len(
                     context['selection_form'].cleaned_data[
-                        'calendar_type'])) > 0:
+                        'calendar_type']) > 0 or len(context[
+                'selection_form'].cleaned_data['volunteer_type']) > 0):
             context['occurrences'] = self.get_filtered_occurences(
                 request,
                 context['selection_form'])
