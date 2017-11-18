@@ -340,7 +340,10 @@ class TestCalendarView(TestCase):
         self.assertContains(response, "%s?next=%s" % (
             set_fav_link,
             url))
-
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 interested">')
+    
     def test_logged_in_no_profile(self):
         user = UserFactory()
         login_as(user, self)
@@ -377,3 +380,40 @@ class TestCalendarView(TestCase):
         self.assertNotContains(response, "%s?next=%s" % (
             set_unfav_link,
             url))
+
+    def test_logged_in_teacher(self):
+        login_as(self.classcontext.teacher.performer_profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Conference'])
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 teacher">')
+
+    def test_logged_in_performer(self):
+        login_as(self.showcontext.performer.performer_profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 performer">')
+
+    def test_logged_in_volunteer(self):
+        volunteer, booking = self.staffcontext.book_volunteer()
+        login_as(volunteer, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Volunteer'])
+        response = self.client.get(url)
+        self.assertContains(
+            response,
+            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 volunteer">')
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
