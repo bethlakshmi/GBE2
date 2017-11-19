@@ -15,9 +15,7 @@ from tests.factories.scheduler_factories import (
 )
 
 from gbe.models import Class
-from datetime import (
-    timedelta,
-)
+from datetime import timedelta
 from tests.functions.scheduler_functions import noon
 
 
