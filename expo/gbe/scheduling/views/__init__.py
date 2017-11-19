@@ -7,3 +7,4 @@ from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
 from manage_events_view import ManageEventsView
 from copy_occurrence_view import CopyOccurrenceView
+from ticketed_class_wizard_view import TicketedClassWizardView

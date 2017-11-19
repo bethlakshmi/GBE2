@@ -52,6 +52,15 @@ class EventWizardView(View):
                             urlconf='gbe.scheduling.urls',
                             args=[self.conference.conference_slug]),
                     request.GET.urlencode()))
+            if context['selection_form'].cleaned_data[
+                    'event_type'] in ('drop-in', 'master'):
+                return HttpResponseRedirect("%s?%s" % (
+                    reverse('create_ticketed_class_wizard',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug,
+                                  context['selection_form'].cleaned_data[
+                                    'event_type']]),
+                    request.GET.urlencode()))
         return render(request, self.template, context)
 
     @method_decorator(login_required)

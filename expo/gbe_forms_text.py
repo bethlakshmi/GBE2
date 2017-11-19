@@ -27,7 +27,9 @@ profile_preferences_labels = {
 
 event_type_options = [(
     'Classes', (
-        ('conference', 'Conference Class'), ))]
+        ('drop-in', 'Drop-In Class'),
+        ('conference', 'Conference Class'),
+        ('master', 'Master Class'), ), )]
 
 event_type_options_complete = [(
     'Classes', (

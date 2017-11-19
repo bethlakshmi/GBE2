@@ -51,7 +51,7 @@ Changing fields in this section will change them in all calendar items.
         {{ hidden }}
       {% endfor %}
     </div>
-      {% if scheduling_info %}
+    {% if scheduling_info %}
       <div class="sched_times col-md-5 col-sm-6 col-xs-12 pull-right">
 	  <h3>Booking Information</h3>
 	  {% for label, details in scheduling_info.display_info %}
@@ -60,8 +60,10 @@ Changing fields in this section will change them in all calendar items.
 	  <br>
 	  <a href="{{ scheduling_info.reference }}">More information</a>
       </div>
-      {% endif %}
-    <div class="form-group">
+    {% endif %}
+  </div>
+  <div class="form-group">
+    <div class="row">
       <div class="col-md-1 col-sm-3 col-xs-5">
 	<label for="{{scheduling_form.day.name}}" class="control-label">	      
           {% if scheduling_form.day.errors %}
@@ -113,7 +115,9 @@ Changing fields in this section will change them in all calendar items.
 	  <font color="red">{{ scheduling_form.duration.errors }}</font>
         </label>{% endif %}
       </div>
-      <div class="col-md-3 col-sm-6 col-xs-12">
+    </div>
+    <div class="row">
+      <div class="col-md-3 col-sm-3 col-xs-12">
 	<label for="{{scheduling_form.location.name}}" class="control-label">	      
           {% if scheduling_form.location.errors %}
             <font color="red">!&nbsp;&nbsp;
@@ -131,6 +135,8 @@ Changing fields in this section will change them in all calendar items.
         </label>{% endif %}
       </div>
       {% if scheduling_form.max_volunteer in scheduling_form.visible_fields %}
+    </div>
+    <div class="row">
       <div class="col-md-3 col-sm-3 col-xs-12">
 	<label for="{{scheduling_form.max_volunteer.name}}" class="control-label">	      
           {% if scheduling_form.max_volunteer.errors %}
@@ -150,6 +156,8 @@ Changing fields in this section will change them in all calendar items.
       </div>
       {% endif %}
     </div>
+  </div>
+  <div class="row">
     <div class="event_booking {% if scheduling_info %}col-md-7 col-sm-6 {% endif %}col-xs-12">
       <h4>Staffing</h4>
       Assign people to this booking.<br><br>
