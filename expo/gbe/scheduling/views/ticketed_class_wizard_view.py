@@ -47,27 +47,9 @@ class TicketedClassWizardView(EventWizardView):
         context = super(TicketedClassWizardView,
                         self).groundwork(request, args, kwargs)
         self.event_type = kwargs['event_type']
-        context['event_type'] = "%s Class" % self.event_type.upper()
+        context['event_type'] = "%s Class" % self.event_type.title()
         context['second_title'] = "Make New Class"
         return context
-
-    def get_scheduling_info(self, bid_class):
-        schedule_opt = dict(class_schedule_options)
-        scheduling_info = {
-            'display_info': [
-                (classbid_labels['schedule_constraints'],
-                 ', '.join([j for i, j in class_schedule_options
-                            if i in bid_class.schedule_constraints])),
-                (classbid_labels['avoided_constraints'],
-                 ', '.join(
-                    [j for i, j in class_schedule_options
-                     if i in bid_class.avoided_constraints])),
-                ('Space Needs', bid_class.get_space_needs_display()), ],
-            'reference': reverse('class_view',
-                                 urlconf='gbe.urls',
-                                 args=[bid_class.id]),
-            }
-        return scheduling_info
 
     def book_event(self, scheduling_form, people_formset, working_class):
         room = get_object_or_404(
@@ -98,41 +80,28 @@ class TicketedClassWizardView(EventWizardView):
         return response
 
     def make_formset(self, working_class=None):
-        if working_class:
-            if working_class.type == 'Panel':
-                WorkerFormSet = formset_factory(
-                    wraps(PersonAllocationForm)(partial(
-                        PersonAllocationForm,
-                        label_visible=False,
-                        role_options=[
-                            ('Panelist', 'Panelist'),
-                            ('Moderator', 'Moderator')],
-                        use_personas=True,)), extra=3, can_delete=True)
-                initial = [{'worker': working_class.teacher,
-                            'role': 'Moderator'}]
-            else:
-                WorkerFormSet = formset_factory(
-                    wraps(PersonAllocationForm)(partial(
-                        PersonAllocationForm,
-                        label_visible=False,
-                        role_options=[
-                            ('Teacher', 'Teacher'),
-                            ('Volunteer', 'Volunteer')],
-                        use_personas=True,)), extra=1, can_delete=True)
-                initial = [{'worker': working_class.teacher,
-                            'role': 'Teacher'}]
-        else:
+        if self.event_type == 'master':
             WorkerFormSet = formset_factory(
                 wraps(PersonAllocationForm)(partial(
                     PersonAllocationForm,
                     label_visible=False,
                     role_options=[
                         ('Teacher', 'Teacher'),
-                        ('Panelist', 'Panelist'),
-                        ('Moderator', 'Moderator'),
                         ('Volunteer', 'Volunteer')],
-                    use_personas=True,)), extra=3, can_delete=True)
-            initial = [{'role': 'Teacher'}]
+                    use_personas=True,)), extra=0, can_delete=True)
+            initial = [{'role': 'Teacher'}, {'role': 'Volunteer'}]
+        elif self.event_type == 'drop-in':
+            WorkerFormSet = formset_factory(
+                wraps(PersonAllocationForm)(partial(
+                    PersonAllocationForm,
+                    label_visible=False,
+                    role_options=[
+                        ('Staff Lead', 'Staff Lead'),
+                        ('Teacher', 'Teacher'),
+                        ('Volunteer', 'Volunteer')],
+                    use_personas=True,)), extra=1, can_delete=True)
+            initial = [{'role': 'Staff Lead'}]
+
         return (WorkerFormSet, initial)
 
     @never_cache
@@ -146,6 +115,9 @@ class TicketedClassWizardView(EventWizardView):
             conference=self.conference,
             open_to_public=True,
             initial={'duration': 1, })
+        WorkerFormSet, initial = self.make_formset()
+        context['worker_formset'] = WorkerFormSet(
+                initial=initial)
         return render(request, self.template, context)
 
     @never_cache
@@ -168,8 +140,6 @@ class TicketedClassWizardView(EventWizardView):
                     instance=working_class)
                 duration = working_class.duration.hours() + float(
                     working_class.duration.minutes())/60
-                context['scheduling_info'] = self.get_scheduling_info(
-                    working_class)
             else:
                 context['third_form'] = ClassBookingForm()
             context['scheduling_form'] = ScheduleOccurrenceForm(
@@ -193,8 +163,6 @@ class TicketedClassWizardView(EventWizardView):
                 context['third_form'] = ClassBookingForm(
                     request.POST,
                     instance=working_class)
-                context['scheduling_info'] = self.get_scheduling_info(
-                    working_class)
             else:
                 context['third_form'] = ClassBookingForm(request.POST)
             context['second_form'] = PickClassForm(
