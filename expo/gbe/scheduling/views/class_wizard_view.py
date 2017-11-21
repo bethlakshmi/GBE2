@@ -77,9 +77,7 @@ class ClassWizardView(EventWizardView):
                 labels += [working_class.calendar_type]
         people = []
         for assignment in people_formset:
-            if assignment.cleaned_data[
-                    'role'
-                    ] in self.roles and assignment.cleaned_data['worker']:
+            if assignment.is_valid() and assignment.cleaned_data['worker']:
                 people += [Person(
                     user=assignment.cleaned_data[
                         'worker'].workeritem.as_subtype.user_object,

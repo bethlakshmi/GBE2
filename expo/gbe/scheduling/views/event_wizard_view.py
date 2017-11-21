@@ -81,22 +81,23 @@ class EventWizardView(View):
     def make_formset(self, roles, initial=None, post=None):
         formset = []
         n = 0
+        if initial:
+            formset += [PersonAllocationForm(
+                post,
+                label_visible=False,
+                role_options=[(initial['role'], initial['role']),],
+                use_personas=self.role_map[initial['role']],
+                initial=initial,
+                prefix="alloc_0")]
+            n = n + 1
         for role in roles:
-            if n == 0 and initial:
-                formset += [PersonAllocationForm(
-                    post,
-                    label_visible=False,
-                    role_options=[(initial['role'], initial['role']),],
-                    use_personas=self.role_map[initial['role']],
-                    initial=initial,
-                    prefix="role_0")]
             formset += [PersonAllocationForm(
                 post,
                 label_visible=False,
                 role_options=[(role, role),],
                 use_personas=self.role_map[role],
                 initial={'role': role},
-                prefix="role_%d" % n),]
+                prefix="alloc_%d" % n),]
             n = n + 1
         return formset
 
