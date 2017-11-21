@@ -9,11 +9,17 @@ from django.shortcuts import (
 from django.http import HttpResponseRedirect
 from gbe.functions import validate_perms
 from django.core.urlresolvers import reverse
+from scheduler.data_transfer import Person
+from scheduler.idd import create_occurrence
 from gbe.scheduling.forms import (
     PersonAllocationForm,
     PickEventForm,
 )
-from gbe.models import Conference
+from gbe.models import (
+    Conference,
+    Room,
+)
+from gbe.scheduling.views.functions import get_start_time
 
 
 class EventWizardView(View):
@@ -106,3 +112,28 @@ class EventWizardView(View):
         for form in formset:
             validity = form.is_valid() or validity
         return validity
+
+    def book_event(self, scheduling_form, people_formset, working_class):
+        room = get_object_or_404(
+            Room,
+            name=scheduling_form.cleaned_data['location'])
+        start_time = get_start_time(scheduling_form.cleaned_data)
+        labels = [self.conference.conference_slug]
+        if working_class.calendar_type:
+                labels += [working_class.calendar_type]
+        people = []
+        for assignment in people_formset:
+            if assignment.is_valid() and assignment.cleaned_data['worker']:
+                people += [Person(
+                    user=assignment.cleaned_data[
+                        'worker'].workeritem.as_subtype.user_object,
+                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
+                    role=assignment.cleaned_data['role'])]
+        response = create_occurrence(
+                working_class.eventitem_id,
+                start_time,
+                scheduling_form.cleaned_data['max_volunteer'],
+                people=people,
+                locations=[room],
+                labels=labels)
+        return response

@@ -6,7 +6,6 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.forms import formset_factory
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
@@ -14,19 +13,11 @@ from gbe.scheduling.forms import (
     PickClassForm,
     ScheduleOccurrenceForm,
 )
-from gbe.models import (
-    Class,
-    Room,
-)
-from gbe.functions import validate_perms
+from gbe.models import Class
 from gbe.scheduling.views import EventWizardView
-from functools import partial, wraps
 from gbe.scheduling.views.functions import (
-    get_start_time,
     show_scheduling_occurrence_status,
 )
-from scheduler.data_transfer import Person
-from scheduler.idd import create_occurrence
 from gbe.duration import Duration
 from django.contrib import messages
 from gbe.models import UserMessage
@@ -65,32 +56,6 @@ class ClassWizardView(EventWizardView):
                                  args=[bid_class.id]),
             }
         return scheduling_info
-
-    def book_event(self, scheduling_form, people_formset, working_class):
-        room = get_object_or_404(
-            Room,
-            name=scheduling_form.cleaned_data['location'])
-        max_volunteer = 0
-        start_time = get_start_time(scheduling_form.cleaned_data)
-        labels = [self.conference.conference_slug]
-        if working_class.calendar_type:
-                labels += [working_class.calendar_type]
-        people = []
-        for assignment in people_formset:
-            if assignment.is_valid() and assignment.cleaned_data['worker']:
-                people += [Person(
-                    user=assignment.cleaned_data[
-                        'worker'].workeritem.as_subtype.user_object,
-                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
-                    role=assignment.cleaned_data['role'])]
-        response = create_occurrence(
-                working_class.eventitem_id,
-                start_time,
-                0,
-                people=people,
-                locations=[room],
-                labels=labels)
-        return response
 
     def make_formset(self, working_class=None, post=None):
         if working_class:
@@ -192,9 +157,8 @@ class ClassWizardView(EventWizardView):
             context['worker_formset'] = self.make_formset(working_class,
                                                           post=request.POST)
             if context['third_form'].is_valid(
-                    ) and context['scheduling_form'].is_valid() and super(
-                    ClassWizardView,
-                    self).is_formset_valid(context['worker_formset']):
+                    ) and context['scheduling_form'].is_valid(
+                    ) and self.is_formset_valid(context['worker_formset']):
                 working_class = context['third_form'].save(commit=False)
                 working_class.duration = Duration(
                     minutes=context['scheduling_form'].cleaned_data[
