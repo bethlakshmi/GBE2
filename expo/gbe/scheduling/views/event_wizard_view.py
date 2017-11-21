@@ -9,7 +9,10 @@ from django.shortcuts import (
 from django.http import HttpResponseRedirect
 from gbe.functions import validate_perms
 from django.core.urlresolvers import reverse
-from gbe.scheduling.forms import PickEventForm
+from gbe.scheduling.forms import (
+    PersonAllocationForm,
+    PickEventForm,
+)
 from gbe.models import Conference
 
 
@@ -17,6 +20,14 @@ class EventWizardView(View):
     template = 'gbe/scheduling/event_wizard.tmpl'
     permissions = ('Scheduling Mavens',)
     default_event_type = None
+
+    role_map = {
+        'Staff Lead': False,
+        'Moderator': True,
+        'Teacher': True,
+        'Panelist': True,
+        'Volunteer': False,
+    }
 
     def get_pick_event_form(self, request):
         if 'pick_event' in request.GET.keys():
@@ -66,3 +77,31 @@ class EventWizardView(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(EventWizardView, self).dispatch(*args, **kwargs)
+
+    def make_formset(self, roles, initial=None, post=None):
+        formset = []
+        n = 0
+        for role in roles:
+            formset += [PersonAllocationForm(
+                post,
+                label_visible=False,
+                role_options=[(role, role),],
+                use_personas=self.role_map[role],
+                initial={'role': role},
+                prefix="role_%d" % n),]
+            n = n + 1
+        if initial:
+            formset[0] = [PersonAllocationForm(
+                post,
+                label_visible=False,
+                role_options=[(roles[0], roles[0]),],
+                use_personas=self.role_map[roles[0]],
+                initial=initial,
+                prefix="role_0")]
+        return formset
+
+    def is_formset_valid(self, formset):
+        validity = False
+        for form in formset:
+            validity = form.is_valid() or validity
+        return validity

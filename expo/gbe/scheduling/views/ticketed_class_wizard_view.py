@@ -14,7 +14,6 @@ from gbe.scheduling.forms import (
     GenericBookingForm,
     PickClassForm,
     ScheduleOccurrenceForm,
-    PersonAllocationForm,
 )
 from gbe.models import (
     Class,
@@ -79,30 +78,6 @@ class TicketedClassWizardView(EventWizardView):
                 labels=labels)
         return response
 
-    def make_formset(self, working_class=None):
-        if self.event_type == 'master':
-            WorkerFormSet = formset_factory(
-                wraps(PersonAllocationForm)(partial(
-                    PersonAllocationForm,
-                    label_visible=False,
-                    role_options=[
-                        ('Teacher', 'Teacher'),
-                        ('Volunteer', 'Volunteer')],
-                    use_personas=True,)), extra=0, can_delete=True)
-            initial = [{'role': 'Teacher'}, {'role': 'Volunteer'}]
-        elif self.event_type == 'drop-in':
-            WorkerFormSet = formset_factory(
-                wraps(PersonAllocationForm)(partial(
-                    PersonAllocationForm,
-                    label_visible=False,
-                    role_options=[
-                        ('Staff Lead', 'Staff Lead'),
-                        ('Teacher', 'Teacher'),
-                        ('Volunteer', 'Volunteer')],
-                    use_personas=True,)), extra=1, can_delete=True)
-            initial = [{'role': 'Staff Lead'}]
-
-        return (WorkerFormSet, initial)
 
     @never_cache
     @method_decorator(login_required)
@@ -115,9 +90,12 @@ class TicketedClassWizardView(EventWizardView):
             conference=self.conference,
             open_to_public=True,
             initial={'duration': 1, })
-        WorkerFormSet, initial = self.make_formset()
-        context['worker_formset'] = WorkerFormSet(
-                initial=initial)
+        if self.event_type == 'master':
+            context['worker_formset'] = self.make_formset(
+                ['Teacher', 'Volunteer',])
+        else:
+            context['worker_formset'] = self.make_formset(
+                ['Staff Lead', 'Teacher', 'Volunteer',])
         return render(request, self.template, context)
 
     @never_cache

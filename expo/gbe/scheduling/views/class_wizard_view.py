@@ -13,7 +13,6 @@ from gbe.scheduling.forms import (
     ClassBookingForm,
     PickClassForm,
     ScheduleOccurrenceForm,
-    PersonAllocationForm,
 )
 from gbe.models import (
     Class,
@@ -95,43 +94,37 @@ class ClassWizardView(EventWizardView):
                 labels=labels)
         return response
 
-    def make_formset(self, working_class=None):
+    def make_formset(self, working_class=None, post=None):
         if working_class:
             if working_class.type == 'Panel':
-                WorkerFormSet = formset_factory(
-                    wraps(PersonAllocationForm)(partial(
-                        PersonAllocationForm,
-                        label_visible=False,
-                        role_options=[
-                            ('Panelist', 'Panelist'),
-                            ('Moderator', 'Moderator')],
-                        use_personas=True,)), extra=3, can_delete=True)
-                initial = [{'worker': working_class.teacher,
-                            'role': 'Moderator'}]
+                formset = super(ClassWizardView, self).make_formset(
+                    ['Moderator',
+                     'Panelist',
+                     'Panelist',
+                     'Panelist',
+                     'Panelist'],
+                    initial={
+                        'role': 'Moderator',
+                        'worker': working_class.teacher},
+                    post=post)
             else:
-                WorkerFormSet = formset_factory(
-                    wraps(PersonAllocationForm)(partial(
-                        PersonAllocationForm,
-                        label_visible=False,
-                        role_options=[
-                            ('Teacher', 'Teacher'),
-                            ('Volunteer', 'Volunteer')],
-                        use_personas=True,)), extra=1, can_delete=True)
-                initial = [{'worker': working_class.teacher,
-                            'role': 'Teacher'}]
+                formset = super(ClassWizardView, self).make_formset(
+                    ['Teacher',
+                     'Teacher',
+                     'Teacher'],
+                    initial={
+                        'role': 'Teacher',
+                        'worker': working_class.teacher},
+                    post=post)
         else:
-            WorkerFormSet = formset_factory(
-                wraps(PersonAllocationForm)(partial(
-                    PersonAllocationForm,
-                    label_visible=False,
-                    role_options=[
-                        ('Teacher', 'Teacher'),
-                        ('Panelist', 'Panelist'),
-                        ('Moderator', 'Moderator'),
-                        ('Volunteer', 'Volunteer')],
-                    use_personas=True,)), extra=3, can_delete=True)
-            initial = [{'role': 'Teacher'}]
-        return (WorkerFormSet, initial)
+                formset = super(ClassWizardView, self).make_formset(
+                    ['Teacher',
+                     'Moderator',
+                     'Panelist',
+                     'Panelist',
+                     'Panelist'],
+                    post=post)
+        return formset
 
     @never_cache
     @method_decorator(login_required)
@@ -173,9 +166,7 @@ class ClassWizardView(EventWizardView):
                 initial={'duration': duration, })
             context['scheduling_form'].fields[
                 'max_volunteer'].widget = HiddenInput()
-            WorkerFormSet, initial = self.make_formset(working_class)
-            context['worker_formset'] = WorkerFormSet(
-                initial=initial)
+            context['worker_formset'] = self.make_formset(working_class)
 
         elif 'set_class' in request.POST.keys(
                 ) and 'eventitem_id' in request.POST.keys():
@@ -200,11 +191,12 @@ class ClassWizardView(EventWizardView):
                 conference=self.conference)
             context['scheduling_form'].fields[
                 'max_volunteer'].widget = HiddenInput()
-            WorkerFormSet, initial = self.make_formset(working_class)
-            context['worker_formset'] = WorkerFormSet(request.POST)
+            context['worker_formset'] = self.make_formset(working_class,
+                                                          post=request.POST)
             if context['third_form'].is_valid(
-                    ) and context['scheduling_form'].is_valid(
-                    ) and context['worker_formset'].is_valid():
+                    ) and context['scheduling_form'].is_valid() and super(
+                    ClassWizardView,
+                    self).is_formset_valid(context['worker_formset']):
                 working_class = context['third_form'].save(commit=False)
                 working_class.duration = Duration(
                     minutes=context['scheduling_form'].cleaned_data[

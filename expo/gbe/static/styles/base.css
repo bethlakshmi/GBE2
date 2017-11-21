@@ -974,7 +974,9 @@ td.form_field.long_choice > ul > li
 .event_booking > .form-group > .row > div {
   min-height: 32px;
 }
-
+.event-booking-cell {
+  min-height: 32px;
+}
 .formtitle
 {
   font-family: "TwentiethCenturyPoster";
