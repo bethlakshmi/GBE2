@@ -155,18 +155,17 @@ Changing fields in this section will change them in all calendar items.
         </label>{% endif %}
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="event_booking {% if scheduling_info %}col-md-7 col-sm-6 {% endif %}col-xs-12">
+   <div class="event_booking {% if scheduling_info %}col-md-7 col-sm-6 {% endif %}col-xs-12">
       <h4>Staffing</h4>
       Assign people to this booking.<br><br>
     </div>
-{% for worker_form in worker_formset %}
+   <div class="clearfix visible-sm"></div>
+ {% for worker_form in worker_formset %}
   <div class="form-group">
-    <div class="col-md-2 col-xs-3">
+    <div class="col-md-2 col-sm-2 col-xs-6">
     {{ worker_form.role }}
     </div>
-    <div class="{% if scheduling_info %}col-md-5{% else %}col-md-10{% endif %} col-xs-9">
+    <div class="{% if scheduling_info %}col-md-5{% else %}col-md-10{% endif %} col-sm-10 col-xs-12">
     {{ worker_form.worker }}
     {% if worker_form.errors or worker_form.non_field_errors %}
       <br>{{ worker_form.errors }}{{ worker_form.non_field_errors }}
