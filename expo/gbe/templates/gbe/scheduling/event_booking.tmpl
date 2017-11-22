@@ -5,12 +5,13 @@
     {{ hidden }}
     {% endfor %}
   <font color=red>*</font> indicates a required field
-  {% if form.errors or scheduling_form.errors %}
+  {% if form.errors or scheduling_form.errors or tickets.errors %}
     <p style= "color:red"> There is an error on the form.</p>
   {% endif %}
   <font color="red">
   {{ form.non_field_errors }}
-  {{ scheduling_form.non_field_errors }}</font>
+  {{ scheduling_form.non_field_errors }}
+  {{ tickets.non_field_errors }}</font>
 <div class="event_booking">
 <h4>Event Details</h4>
 The following fields are common to all scheduled items for this event.

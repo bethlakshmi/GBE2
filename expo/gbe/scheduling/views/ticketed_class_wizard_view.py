@@ -35,6 +35,7 @@ class TicketedClassWizardView(EventWizardView):
         self.event_type = kwargs['event_type']
         context['event_type'] = "%s Class" % self.event_type.title()
         context['second_title'] = "Make New Class"
+        context['tickets'] = None
         return context
 
     def make_formset(self, post=None):
@@ -59,7 +60,8 @@ class TicketedClassWizardView(EventWizardView):
             initial={'duration': 1, })
         context['worker_formset'] = self.make_formset()
         if validate_perms(request, ('Ticketing - Admin',), require=False):
-            context['tickets'] = LinkBPTEventForm()
+            context['tickets'] = LinkBPTEventForm(initial={
+                'conference': self.conference,})
         return render(request, self.template, context)
 
     @never_cache
@@ -71,9 +73,13 @@ class TicketedClassWizardView(EventWizardView):
             request.POST,
             conference=self.conference)
         context['worker_formset'] = self.make_formset(post=request.POST)
+        if validate_perms(request, ('Ticketing - Admin',), require=False):
+            context['tickets'] = LinkBPTEventForm(request.POST, initial={
+                'conference': self.conference,})
         if context['second_form'].is_valid(
                 ) and context['scheduling_form'].is_valid(
-                ) and self.is_formset_valid(context['worker_formset']):
+                ) and self.is_formset_valid(context['worker_formset']) and (
+                not context['tickets'] or context['tickets'].is_valid()):
             working_class = context['second_form'].save(commit=False)
             working_class.duration = Duration(
                 minutes=context['scheduling_form'].cleaned_data[

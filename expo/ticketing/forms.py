@@ -61,7 +61,7 @@ class LinkBPTEventForm(forms.Form):
     error_css_class = 'error'
     bpt_events = PickBPTEventField(
         queryset=BrownPaperEvents.objects.exclude(
-            conference__status="completed"),
+            conference__status="completed").order_by('bpt_event_id'),
         required=False,
         label=link_event_labels['bpt_events'],
         widget=CheckboxSelectMultiple(),)
@@ -72,7 +72,13 @@ class LinkBPTEventForm(forms.Form):
         required=False,
         label=link_event_labels['display_icon'],
         help_text=link_event_help_text['display_icon'])
-    
+
+    def __init__(self, *args, **kwargs):
+        super(LinkBPTEventForm, self).__init__(*args, **kwargs)
+        if 'initial' in kwargs and 'conference' in kwargs['initial']:
+            initial = kwargs.pop('initial')
+            self.fields['bpt_events'].queryset = BrownPaperEvents.objects.filter(
+                conference=initial['conference']).order_by('bpt_event_id')
 
 
 class BPTEventForm(forms.ModelForm):
