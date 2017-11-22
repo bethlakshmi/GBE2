@@ -7,6 +7,8 @@ from django.shortcuts import (
     render,
 )
 from django.core.urlresolvers import reverse
+from django.contrib import messages
+from gbe.models import UserMessage
 from gbe.scheduling.forms import (
     GenericBookingForm,
     ScheduleOccurrenceForm,
@@ -39,6 +41,26 @@ class TicketedClassWizardView(EventWizardView):
             formset = super(TicketedClassWizardView, self).make_formset(
                 ['Staff Lead', 'Teacher', 'Volunteer',], post=post)
         return formset
+
+    def setup_ticket_links(self, request, new_event, ticket_form):
+        ticket_list = ""
+        for ticket_event in ticket_form.cleaned_data['bpt_events']:
+            ticket_event.linked_events.add(new_event)
+            ticket_event.save()
+            ticket_list += "%s - %s, %s" % (
+                ticket_event.bpt_event_id,
+                ticket_event.title,
+                ticket_list)
+        if len(ticket_list) > 0:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="LINKED_TICKETS",
+                defaults={
+                'summary': "Linked New Event to Tickets",
+                'description': "Successfully linked the following tickets: "})
+            messages.success(
+                request,
+                user_message[0].description + ticket_list)
 
     @never_cache
     @method_decorator(login_required)
@@ -73,14 +95,16 @@ class TicketedClassWizardView(EventWizardView):
                 ) and context['scheduling_form'].is_valid(
                 ) and self.is_formset_valid(context['worker_formset']) and (
                 not context['tickets'] or context['tickets'].is_valid()):
-            working_class = context['second_form'].save(commit=False)
-            working_class.duration = Duration(
+            new_event = context['second_form'].save(commit=False)
+            new_event.duration = Duration(
                 minutes=context['scheduling_form'].cleaned_data[
                     'duration']*60)
-            working_class.save()
+            new_event.save()
             response = self.book_event(context['scheduling_form'],
                                        context['worker_formset'],
-                                       working_class)
+                                       new_event)
+            if context['tickets']:
+                self.setup_ticket_links(request, new_event, context['tickets'])
             success = self.finish_booking(
                 request,
                 response,
