@@ -6,7 +6,6 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     ClassBookingForm,
@@ -15,9 +14,6 @@ from gbe.scheduling.forms import (
 )
 from gbe.models import Class
 from gbe.scheduling.views import EventWizardView
-from gbe.scheduling.views.functions import (
-    show_scheduling_occurrence_status,
-)
 from gbe.duration import Duration
 from django.contrib import messages
 from gbe.models import UserMessage
@@ -190,17 +186,10 @@ class ClassWizardView(EventWizardView):
                 response = self.book_event(context['scheduling_form'],
                                            context['worker_formset'],
                                            working_class)
-                show_scheduling_occurrence_status(
+                success = self.finish_booking(
                     request,
                     response,
-                    self.__class__.__name__)
-                if response.occurrence:
-                    return HttpResponseRedirect(
-                        "%s?%s-day=%d&filter=Filter&new=%s" % (
-                            reverse('manage_event_list',
-                                    urlconf='gbe.scheduling.urls',
-                                    args=[self.conference.conference_slug]),
-                            self.conference.conference_slug,
-                            context['scheduling_form'].cleaned_data['day'].pk,
-                            str([response.occurrence.pk]),))
+                    context['scheduling_form'].cleaned_data['day'].pk)
+                if success:
+                    return success
         return render(request, self.template, context)

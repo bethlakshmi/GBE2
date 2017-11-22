@@ -2,6 +2,7 @@ from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -19,8 +20,10 @@ from gbe.models import (
     Conference,
     Room,
 )
-from gbe.scheduling.views.functions import get_start_time
-
+from gbe.scheduling.views.functions import (
+    get_start_time,
+    show_scheduling_occurrence_status,
+)
 
 class EventWizardView(View):
     template = 'gbe/scheduling/event_wizard.tmpl'
@@ -137,3 +140,18 @@ class EventWizardView(View):
                 locations=[room],
                 labels=labels)
         return response
+
+    def finish_booking(self, request, response, day_pk):
+        show_scheduling_occurrence_status(
+            request,
+            response,
+            self.__class__.__name__)
+        if response.occurrence:
+            return HttpResponseRedirect(
+                "%s?%s-day=%d&filter=Filter&new=%s" % (
+                    reverse('manage_event_list',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug]),
+                    self.conference.conference_slug,
+                    day_pk,
+                    str([response.occurrence.pk]),))
