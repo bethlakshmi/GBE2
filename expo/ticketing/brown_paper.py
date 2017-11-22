@@ -146,7 +146,7 @@ def get_bpt_event_date_list(event_id):
     return date_list
 
 
-def get_bpt_price_list():
+def get_bpt_price_list(bpt_events=BrownPaperEvents.objects.all()):
     '''
     Used to get the list of prices from BPT - which directly relates to
     ticket items on our system.
@@ -155,7 +155,7 @@ def get_bpt_price_list():
     '''
     ti_list = []
 
-    for event in BrownPaperEvents.objects.all():
+    for event in bpt_events:
         set_bpt_event_detail(event)
 
         for date in get_bpt_event_date_list(event.bpt_event_id):

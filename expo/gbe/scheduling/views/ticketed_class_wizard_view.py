@@ -18,6 +18,11 @@ from gbe.duration import Duration
 from ticketing.forms import LinkBPTEventForm
 from gbe.ticketing_idd_interface import create_bpt_event
 from gbe.functions import validate_perms
+from gbetext import (
+    create_ticket_event_success_msg,
+    link_event_to_ticket_success_msg,
+    no_tickets_found_msg,
+)
 
 
 class TicketedClassWizardView(EventWizardView):
@@ -58,30 +63,42 @@ class TicketedClassWizardView(EventWizardView):
                 code="LINKED_TICKETS",
                 defaults={
                 'summary': "Linked New Event to Tickets",
-                'description': "Successfully linked the following tickets: "})
+                'description': link_event_to_ticket_success_msg})
             messages.success(
                 request,
                 user_message[0].description + ticket_list)
 
         if ticket_form.cleaned_data['bpt_event_id']:
-            result = create_bpt_event(
+            ticket_event, bpt_ticket_list = create_bpt_event(
                 ticket_form.cleaned_data['bpt_event_id'],
                 conference=self.conference,
                 events=[new_event],
                 display_icon=ticket_form.cleaned_data['display_icon'],
             )
-            if result:
+            if ticket_event:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,
                     code="NEW_TICKETING_EVENT",
                     defaults={
                     'summary': "Created New Ticked Event",
-                    'description': "Created and linked a new BPT Event: "})
+                    'description': create_ticket_event_success_msg})
                 messages.success(
                     request,
-                    user_message[0].description + "%s - %s" % (
+                    "%s %s - %s, with %d tickets from BPT" % (
+                        user_message[0].description,
                         ticket_event.bpt_event_id,
-                        ticket_event.title))
+                        ticket_event.title,
+                        len(bpt_ticket_list)))
+            if len(bpt_ticket_list) == 0:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="NO_TICKETS_FOR_EVENT",
+                    defaults={
+                    'summary': "Tickets not found for BPT Event",
+                    'description': no_tickets_found_msg })
+                messages.warning(
+                    request,
+                    user_message[0].description)
 
     @never_cache
     @method_decorator(login_required)

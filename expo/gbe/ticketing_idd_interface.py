@@ -238,4 +238,5 @@ def create_bpt_event(bpt_event_id, conference, events=[], display_icon=None):
     if len(events) > 0:
         event.linked_events.add(*events)
     event.save()
-    return event
+    ti_list = get_bpt_price_list([event])
+    return event, ti_list
