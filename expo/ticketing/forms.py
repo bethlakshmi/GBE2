@@ -53,7 +53,7 @@ class PickBPTEventField(forms.ModelMultipleChoiceField):
         return "%s - %s" % (obj.bpt_event_id, obj.title)
 
 
-class LinkBPTEventForm(forms.Form):
+class LinkBPTEventForm(forms.ModelForm):
     '''
     Used in event creation in gbe to set up ticket info when making a new class
     '''
@@ -72,6 +72,14 @@ class LinkBPTEventForm(forms.Form):
         required=False,
         label=link_event_labels['display_icon'],
         help_text=link_event_help_text['display_icon'])
+
+    class Meta:
+        model = BrownPaperEvents
+        fields = [
+            'bpt_event_id',
+            'display_icon']
+        labels = link_event_labels
+        help_texts = link_event_help_text
 
     def __init__(self, *args, **kwargs):
         super(LinkBPTEventForm, self).__init__(*args, **kwargs)

@@ -16,6 +16,7 @@ from gbe.scheduling.forms import (
 from gbe.scheduling.views import EventWizardView
 from gbe.duration import Duration
 from ticketing.forms import LinkBPTEventForm
+from gbe.ticketing_idd_interface import create_bpt_event
 from gbe.functions import validate_perms
 
 
@@ -61,6 +62,26 @@ class TicketedClassWizardView(EventWizardView):
             messages.success(
                 request,
                 user_message[0].description + ticket_list)
+
+        if ticket_form.cleaned_data['bpt_event_id']:
+            result = create_bpt_event(
+                ticket_form.cleaned_data['bpt_event_id'],
+                conference=self.conference,
+                events=[new_event],
+                display_icon=ticket_form.cleaned_data['display_icon'],
+            )
+            if result:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="NEW_TICKETING_EVENT",
+                    defaults={
+                    'summary': "Created New Ticked Event",
+                    'description': "Created and linked a new BPT Event: "})
+                messages.success(
+                    request,
+                    user_message[0].description + "%s - %s" % (
+                        ticket_event.bpt_event_id,
+                        ticket_event.title))
 
     @never_cache
     @method_decorator(login_required)
