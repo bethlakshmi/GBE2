@@ -20,6 +20,8 @@ from gbe.scheduling.views.functions import (
 from gbe.duration import Duration
 from django.contrib import messages
 from gbe.models import UserMessage
+from ticketing.forms import LinkBPTEventForm
+from gbe.functions import validate_perms
 
 
 class TicketedClassWizardView(EventWizardView):
@@ -56,6 +58,8 @@ class TicketedClassWizardView(EventWizardView):
             open_to_public=True,
             initial={'duration': 1, })
         context['worker_formset'] = self.make_formset()
+        if validate_perms(request, ('Ticketing - Admin',), require=False):
+            context['tickets'] = LinkBPTEventForm()
         return render(request, self.template, context)
 
     @never_cache

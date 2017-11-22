@@ -959,10 +959,21 @@ td.form_field.long_choice > ul > li
   font-size: larger;
   font-weight: bold;
 }
+.form-group > div > ul > li
+{
+  list-style-type: none;
+}
 .single-radio > ul > li > label
 {
   font-size: smaller;
   font-weight: normal;
+}
+.checkbox-ticketing > ul > li > label
+{
+  font-weight: normal;
+}
+.checkbox-ticketing > ul {
+  padding-left: 20px;
 }
 .form-group > ul > li > ul > li
 {

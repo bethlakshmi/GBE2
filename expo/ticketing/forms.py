@@ -9,6 +9,7 @@ from django import forms
 from gbe.models import Show, GenericEvent, Event
 from gbe_forms_text import *
 from django.db.models import Q
+from django.forms.widgets import CheckboxSelectMultiple
 
 
 class TicketItemForm(forms.ModelForm):
@@ -45,6 +46,33 @@ class TicketItemForm(forms.ModelForm):
         if commit:
             form.save()
         return form
+
+
+class PickBPTEventField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return "%s - %s" % (obj.bpt_event_id, obj.title)
+
+
+class LinkBPTEventForm(forms.Form):
+    '''
+    Used in event creation in gbe to set up ticket info when making a new class
+    '''
+    required_css_class = 'required'
+    error_css_class = 'error'
+    bpt_events = PickBPTEventField(
+        queryset=BrownPaperEvents.objects.exclude(
+            conference__status="completed"),
+        required=False,
+        label=link_event_labels['bpt_events'],
+        widget=CheckboxSelectMultiple(),)
+    bpt_event_id = forms.IntegerField(
+        required=False,
+        label=link_event_labels['bpt_event_id'])
+    display_icon = forms.CharField(
+        required=False,
+        label=link_event_labels['display_icon'],
+        help_text=link_event_help_text['display_icon'])
+    
 
 
 class BPTEventForm(forms.ModelForm):

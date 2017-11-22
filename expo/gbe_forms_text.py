@@ -616,7 +616,17 @@ ticket_item_labels = {
     'cost': 'Ticket Price:',
     'bpt_event': 'Event in BPT',
 }
-
+link_event_labels = {
+    'bpt_events': "Choose from existing tickets",
+    'bpt_event_id': "New BPT Event Id",
+    'display_icon': "Display Icon"
+}
+link_event_help_text = {
+    'display_icon': '''What is shown on the 'I Want to Buy Tickets'
+        page.  Description is not shown there, it's pulled from BPT but not
+        shown.  Display Icon must come from http://simplelineicons.com/
+        -- NOTE:  Avoid the "."'''
+}
 bpt_event_labels = {
     'act_submission_event': 'Act Submission Fee?:',
     'vendor_submission_event': 'Vendor Submission Fee?:',
