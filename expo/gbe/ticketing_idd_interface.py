@@ -18,6 +18,7 @@ from gbe.models import (
 from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
+from ticketing.views import import_ticket_items
 
 
 def performer_act_submittal_link(user_id):
@@ -238,5 +239,5 @@ def create_bpt_event(bpt_event_id, conference, events=[], display_icon=None):
     if len(events) > 0:
         event.linked_events.add(*events)
     event.save()
-    ti_list = get_bpt_price_list([event])
-    return event, ti_list
+    count = import_ticket_items([event])
+    return event, count

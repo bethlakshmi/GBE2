@@ -69,7 +69,7 @@ class TicketedClassWizardView(EventWizardView):
                 user_message[0].description + ticket_list)
 
         if ticket_form.cleaned_data['bpt_event_id']:
-            ticket_event, bpt_ticket_list = create_bpt_event(
+            ticket_event, ticket_count = create_bpt_event(
                 ticket_form.cleaned_data['bpt_event_id'],
                 conference=self.conference,
                 events=[new_event],
@@ -88,8 +88,8 @@ class TicketedClassWizardView(EventWizardView):
                         user_message[0].description,
                         ticket_event.bpt_event_id,
                         ticket_event.title,
-                        len(bpt_ticket_list)))
-            if len(bpt_ticket_list) == 0:
+                        ticket_count))
+            if ticket_count == 0:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,
                     code="NO_TICKETS_FOR_EVENT",
