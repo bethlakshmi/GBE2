@@ -81,17 +81,17 @@ class ShowCalendarView(View):
             'this_day': self.this_day,
         }
         if self.this_day:
-            open_to_public = True
+            open_to_public = [True]
             if self.calendar_type == "Volunteer":
-                open_to_public = False
+                open_to_public = [True, False]
             if ConferenceDay.objects.filter(
                     day=self.this_day.day+timedelta(days=1),
-                    open_to_public=open_to_public).exists():
+                    open_to_public__in=open_to_public).exists():
                 context['next_date'] = (self.this_day.day+timedelta(days=1)
                                         ).strftime(URL_DATE)
             if ConferenceDay.objects.filter(
                     day=self.this_day.day-timedelta(days=1),
-                    open_to_public=open_to_public).exists():
+                    open_to_public__in=open_to_public).exists():
                 context['prev_date'] = (self.this_day.day-timedelta(days=1)
                                         ).strftime(URL_DATE)
 
