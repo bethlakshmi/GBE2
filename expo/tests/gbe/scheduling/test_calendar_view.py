@@ -343,7 +343,7 @@ class TestCalendarView(TestCase):
         self.assertContains(
             response,
             '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 interested">')
-    
+
     def test_logged_in_no_profile(self):
         user = UserFactory()
         login_as(user, self)
