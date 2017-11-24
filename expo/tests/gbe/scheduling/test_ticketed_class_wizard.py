@@ -9,7 +9,14 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     RoomFactory,
 )
-from tests.factories.ticketing_factories import BrownPaperEventsFactory
+from ticketing.models import (
+    BrownPaperEvents,
+    BrownPaperSettings,
+)
+from tests.factories.ticketing_factories import (
+    BrownPaperEventsFactory,
+    BrownPaperSettingsFactory,
+)
 from scheduler.models import Event
 from gbe.models import GenericEvent
 from tests.functions.gbe_functions import (
@@ -27,6 +34,9 @@ from gbetext import (
     link_event_to_ticket_success_msg,
     no_tickets_found_msg,
 )
+from mock import patch, Mock
+import urllib2
+from django.core.files import File
 
 
 class TestTicketedClassWizard(TestCase):
@@ -335,4 +345,102 @@ class TestTicketedClassWizard(TestCase):
             link_event_to_ticket_success_msg + '%s - %s, ' % (
                 bpt_event.bpt_event_id,
                 bpt_event.title)
+            )
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_make_new_ticket(self, m_urlopen):
+        grant_privilege(self.privileged_user, 'Ticketing - Admin')
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        BrownPaperSettingsFactory()
+        bpt_event = BrownPaperEventsFactory(
+            conference=self.current_conference)
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        a.read.side_effect = [File(event_filename).read()]
+        m_urlopen.return_value = a
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['bpt_event_id'] = "1122333"
+        data['display_icon'] = "icon-diamond"
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_class = GenericEvent.objects.get(e_title=data['e_title'])
+        self.assertEqual(new_class.type, "Master")
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_class.eventitem_id)
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            "%s %s - %s, with %d tickets from BPT" % (
+                create_ticket_event_success_msg,
+                data['bpt_event_id'],
+                "GBE10 Whole Shebang 2016",
+                0)
+            )
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            no_tickets_found_msg
+            )
+
+    @patch('urllib2.urlopen', autospec=True)
+    def test_make_and_sync_new_ticket(self, m_urlopen):
+        grant_privilege(self.privileged_user, 'Ticketing - Admin')
+        BrownPaperEvents.objects.all().delete()
+        BrownPaperSettings.objects.all().delete()
+        BrownPaperSettingsFactory()
+        bpt_event = BrownPaperEventsFactory(
+            conference=self.current_conference)
+        a = Mock()
+        event_filename = open("tests/ticketing/eventlist.xml", 'r')
+        date_filename = open("tests/ticketing/datelist.xml", 'r')
+        price_filename = open("tests/ticketing/pricelist.xml", 'r')
+        a.read.side_effect = [File(event_filename).read(),
+                              File(date_filename).read(),
+                              File(price_filename).read()]
+        m_urlopen.return_value = a
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['bpt_event_id'] = "1122333"
+        data['display_icon'] = "icon-diamond"
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_class = GenericEvent.objects.get(e_title=data['e_title'])
+        self.assertEqual(new_class.type, "Master")
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_class.eventitem_id)
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            "%s %s - %s, with %d tickets from BPT" % (
+                create_ticket_event_success_msg,
+                data['bpt_event_id'],
+                "GBE10 Whole Shebang 2016",
+                12)
             )
