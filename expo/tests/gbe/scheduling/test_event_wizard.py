@@ -64,6 +64,34 @@ class TestEventWizard(TestCase):
                     args=[self.current_conference.conference_slug]),
             data['event_type']))
 
+    def test_auth_user_can_pick_master_class(self):
+        login_as(self.privileged_user, self)
+        data = self.get_data("master")
+        response = self.client.get(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
+            reverse('create_ticketed_class_wizard',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug,
+                          data['event_type']]),
+            data['event_type']))
+
+    def test_auth_user_can_pick_dropin_class(self):
+        login_as(self.privileged_user, self)
+        data = self.get_data("drop-in")
+        response = self.client.get(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
+            reverse('create_ticketed_class_wizard',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug,
+                          data['event_type']]),
+            data['event_type']))
+
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
         data = self.get_data()
