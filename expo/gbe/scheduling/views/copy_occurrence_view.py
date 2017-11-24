@@ -127,9 +127,9 @@ class CopyOccurrenceView(View):
                 labels += [label]
         response = create_occurrence(
             gbe_event_copy.eventitem_id,
-            self.occurrence.starttime + delta,
-            max_volunteer=self.occurrence.max_volunteer,
-            locations=[self.occurrence.location],
+            occurrence.starttime + delta,
+            max_volunteer=occurrence.max_volunteer,
+            locations=[occurrence.location],
             parent_event_id=parent_event_id,
             labels=labels
         )

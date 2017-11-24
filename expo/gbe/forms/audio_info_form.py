@@ -36,7 +36,7 @@ class AudioInfoSubmitForm(AudioInfoForm):
         if not (
                 (self.cleaned_data['track_title'] and
                  self.cleaned_data['track_artist'] and
-                 self.cleaned_data['track_duration']
+                 'track_duration' in self.cleaned_data
                  ) or
                 self.cleaned_data['confirm_no_music']):
             raise ValidationError(

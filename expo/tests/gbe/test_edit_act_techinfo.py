@@ -443,3 +443,26 @@ class TestEditActTechInfo(TestCase):
         self.assertContains(
             response,
             'Please enter your duration as mm:ss')
+
+    def test_edit_act_techinfo_post_complete_alt_cues_full_rehearsal(self):
+        context = ActTechInfoContext(schedule_rehearsal=True)
+        context.show.cue_sheet = "Alternate"
+        context.show.save()
+        context.rehearsal.max_volunteer = 1
+        context.rehearsal.save()
+
+        another_rehearsal = context._schedule_rehearsal(context.sched_event)
+        url = reverse('act_techinfo_edit',
+                      urlconf='gbe.urls',
+                      args=[context.act.pk])
+        login_as(context.performer.contact, self)
+        data = self.get_full_post(
+            another_rehearsal,
+            context.show).copy()
+        data.update(self.get_cues(context.act.tech, 3, False))
+        data['audio_info-track_duration'] = 3.3
+        response = self.client.post(
+            url,
+            data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Please enter your duration as mm:ss")

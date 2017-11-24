@@ -20,7 +20,10 @@ from tests.functions.gbe_scheduling_functions import (
     assert_event_was_picked_in_wizard,
     assert_good_sched_event_form_wizard,
 )
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta,
+)
 from expo.settings import (
     DATE_FORMAT,
     DATETIME_FORMAT,
@@ -347,6 +350,46 @@ class TestClassWizard(TestCase):
                     another_day.day,
                     show_context.sched_event.starttime.time()).strftime(
                     DATETIME_FORMAT)))
+
+    def test_copy_child_not_like_parent(self):
+        another_day = ConferenceDayFactory()
+        show_context = VolunteerContext()
+        opportunity, opp_sched = show_context.add_opportunity(
+            start_time=show_context.sched_event.starttime + timedelta(1.3))
+        url = reverse(
+            self.view_name,
+            args=[show_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'include_parent',
+            'copy_to_day': another_day.pk,
+            'copied_event': opp_sched.pk,
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(url, data=data, follow=True)
+        max_pk = Event.objects.latest('pk').pk
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[another_day.conference.conference_slug]),
+            another_day.conference.conference_slug,
+            another_day.pk,
+            (str(max_pk-1) + "L,%20" + str(max_pk)),)
+        self.assertRedirects(response, redirect_url)
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
+                opportunity.e_title,
+                datetime.combine(
+                    another_day.day + timedelta(1),
+                    opp_sched.starttime.time()).strftime(
+                    DATETIME_FORMAT)))
+        new_vol_opp = Event.objects.get(pk=max_pk)
+        self.assertEqual(new_vol_opp.max_volunteer, opp_sched.max_volunteer)
+        self.assertEqual(new_vol_opp.location, opp_sched.location)
 
     def test_copy_only_parent_event(self):
         another_day = ConferenceDayFactory()
