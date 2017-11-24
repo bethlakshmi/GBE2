@@ -25,6 +25,7 @@ from gbe.scheduling.views.functions import (
     show_scheduling_occurrence_status,
 )
 
+
 class EventWizardView(View):
     template = 'gbe/scheduling/event_wizard.tmpl'
     permissions = ('Scheduling Mavens',)
@@ -94,7 +95,7 @@ class EventWizardView(View):
             formset += [PersonAllocationForm(
                 post,
                 label_visible=False,
-                role_options=[(initial['role'], initial['role']),],
+                role_options=[(initial['role'], initial['role']), ],
                 use_personas=self.role_map[initial['role']],
                 initial=initial,
                 prefix="alloc_0")]
@@ -103,10 +104,10 @@ class EventWizardView(View):
             formset += [PersonAllocationForm(
                 post,
                 label_visible=False,
-                role_options=[(role, role),],
+                role_options=[(role, role), ],
                 use_personas=self.role_map[role],
                 initial={'role': role},
-                prefix="alloc_%d" % n),]
+                prefix="alloc_%d" % n), ]
             n = n + 1
         return formset
 

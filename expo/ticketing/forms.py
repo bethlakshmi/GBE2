@@ -85,7 +85,8 @@ class LinkBPTEventForm(forms.ModelForm):
         super(LinkBPTEventForm, self).__init__(*args, **kwargs)
         if 'initial' in kwargs and 'conference' in kwargs['initial']:
             initial = kwargs.pop('initial')
-            self.fields['bpt_events'].queryset = BrownPaperEvents.objects.filter(
+            self.fields[
+                'bpt_events'].queryset = BrownPaperEvents.objects.filter(
                 conference=initial['conference']).order_by('bpt_event_id')
 
 

@@ -34,7 +34,8 @@ urlpatterns = patterns(
         ClassWizardView.as_view(), name='create_class_wizard'),
     url(r'^scheduling/create_class_wizard/(?P<conference>[-\w]+)/' +
         '(?P<event_type>[-\w]+)/?$',
-        TicketedClassWizardView.as_view(), name='create_ticketed_class_wizard'),
+        TicketedClassWizardView.as_view(),
+        name='create_ticketed_class_wizard'),
     url(r'^scheduling/create_event_wizard/(?P<conference>[-\w]+)/?$',
         EventWizardView.as_view(), name='create_event_wizard'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',

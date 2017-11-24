@@ -439,7 +439,8 @@ send_email_success_msg = '''A mail was successfully sent to '''
 to_list_empty_msg = '''No recipients were found for your search criteria.  \
                     Please try something else'''
 unknown_request = '''This request makes no sense'''
-link_event_to_ticket_success_msg = "Successfully linked the following tickets: "
+link_event_to_ticket_success_msg = '''Successfully linked the following \
+                                   tickets: '''
 create_ticket_event_success_msg = "Created and linked a new BPT Event: "
 no_tickets_found_msg = '''No tickets could be found for the bpt event id.  \
 Check the BPT Event id and your connection to Brown Paper Tickets.  With no \

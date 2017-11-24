@@ -21,7 +21,7 @@ class PersonAllocationForm(Form):
     error_css_class = 'error'
 
     role = ChoiceField(choices=role_options, label="", widget=Select(
-        attrs={'style': 'width:100px',}) )
+        attrs={'style': 'width:100px', }))
     worker = ModelChoiceField(
         queryset=visible_profiles,
         required=False,

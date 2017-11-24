@@ -42,10 +42,10 @@ class TicketedClassWizardView(EventWizardView):
     def make_formset(self, post=None):
         if self.event_type == 'master':
             formset = super(TicketedClassWizardView, self).make_formset(
-                ['Teacher', 'Volunteer',], post=post)
+                ['Teacher', 'Volunteer', ], post=post)
         else:
             formset = super(TicketedClassWizardView, self).make_formset(
-                ['Staff Lead', 'Teacher', 'Volunteer',], post=post)
+                ['Staff Lead', 'Teacher', 'Volunteer', ], post=post)
         return formset
 
     def setup_ticket_links(self, request, new_event, ticket_form):
@@ -62,8 +62,8 @@ class TicketedClassWizardView(EventWizardView):
                 view=self.__class__.__name__,
                 code="LINKED_TICKETS",
                 defaults={
-                'summary': "Linked New Event to Tickets",
-                'description': link_event_to_ticket_success_msg})
+                    'summary': "Linked New Event to Tickets",
+                    'description': link_event_to_ticket_success_msg})
             messages.success(
                 request,
                 user_message[0].description + ticket_list)
@@ -80,8 +80,8 @@ class TicketedClassWizardView(EventWizardView):
                     view=self.__class__.__name__,
                     code="NEW_TICKETING_EVENT",
                     defaults={
-                    'summary': "Created New Ticked Event",
-                    'description': create_ticket_event_success_msg})
+                        'summary': "Created New Ticked Event",
+                        'description': create_ticket_event_success_msg})
                 messages.success(
                     request,
                     "%s %s - %s, with %d tickets from BPT" % (
@@ -94,8 +94,8 @@ class TicketedClassWizardView(EventWizardView):
                     view=self.__class__.__name__,
                     code="NO_TICKETS_FOR_EVENT",
                     defaults={
-                    'summary': "Tickets not found for BPT Event",
-                    'description': no_tickets_found_msg })
+                        'summary': "Tickets not found for BPT Event",
+                        'description': no_tickets_found_msg, })
                 messages.warning(
                     request,
                     user_message[0].description)
@@ -114,7 +114,7 @@ class TicketedClassWizardView(EventWizardView):
         context['worker_formset'] = self.make_formset()
         if validate_perms(request, ('Ticketing - Admin',), require=False):
             context['tickets'] = LinkBPTEventForm(initial={
-                'conference': self.conference,})
+                'conference': self.conference, })
         return render(request, self.template, context)
 
     @never_cache
@@ -128,7 +128,7 @@ class TicketedClassWizardView(EventWizardView):
         context['worker_formset'] = self.make_formset(post=request.POST)
         if validate_perms(request, ('Ticketing - Admin',), require=False):
             context['tickets'] = LinkBPTEventForm(request.POST, initial={
-                'conference': self.conference,})
+                'conference': self.conference, })
         if context['second_form'].is_valid(
                 ) and context['scheduling_form'].is_valid(
                 ) and self.is_formset_valid(context['worker_formset']) and (

@@ -24,7 +24,7 @@ class GenericBookingForm(ModelForm):
             'e_title',
             'e_description',
             'type',
-            'e_conference',]
+            'e_conference', ]
         help_texts = event_help_texts
         labels = event_labels
         widgets = {'type': HiddenInput(),

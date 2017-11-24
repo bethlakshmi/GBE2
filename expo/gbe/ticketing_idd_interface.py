@@ -231,6 +231,7 @@ def get_checklist_items(profile, conference):
 
     return checklist_items
 
+
 def create_bpt_event(bpt_event_id, conference, events=[], display_icon=None):
     event = BrownPaperEvents.objects.create(
             bpt_event_id=bpt_event_id,
