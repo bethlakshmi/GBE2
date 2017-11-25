@@ -17,10 +17,10 @@ class EventDetailView(View):
         eventitem_id = kwargs['eventitem_id']
         toggle = "on"
         eventitem_view = get_event_display_info(eventitem_id)
-        if eventitem_view['event'].calendar_type == "Volunteer":
+        if eventitem_view['event'].calendar_type == "Volunteer" or (
+                eventitem_view['event'].e_conference.status == "completed"):
             toggle = None
-        elif request.user.is_authenticated() and request.user.profile and \
-                eventitem_view['event'].e_conference.status != "completed":
+        elif request.user.is_authenticated() and request.user.profile:
             sched_response = get_schedule(
                 request.user,
                 labels=[eventitem_view['event'].calendar_type,
