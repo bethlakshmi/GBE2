@@ -7,9 +7,11 @@ from gbe.views import ViewTroupeView
 from tests.factories.gbe_factories import (
     TroupeFactory,
     PersonaFactory,
+    ProfileFactory,
     UserFactory,
 )
 from tests.functions.gbe_functions import (
+    grant_privilege,
     login_as,
 )
 
@@ -34,6 +36,7 @@ class TestViewTroupe(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, troupe.name)
 
     def test_no_profile(self):
         troupe = TroupeFactory()
@@ -57,3 +60,42 @@ class TestViewTroupe(TestCase):
         login_as(troupe.contact.profile.user_object, self)
         response = self.client.get(url)
         assert 'No State Chosen' in response.content
+
+    def test_view_troupe_as_privileged_user(self):
+        '''view_troupe view, success
+        '''
+        persona = PersonaFactory()
+        contact = persona.performer_profile
+        troupe = TroupeFactory(contact=contact)
+        priv_profile = ProfileFactory()
+        grant_privilege(priv_profile.user_object, 'Registrar')
+
+        url = reverse('troupe_view',
+                      args=[troupe.resourceitem_id],
+                      urlconf='gbe.urls')
+        login_as(priv_profile.user_object, self)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, troupe.name)
+        self.assertContains(response, troupe.contact.user_object.email)
+
+    def test_view_troupe_as_member(self):
+        '''view_troupe view, success
+        '''
+        persona = PersonaFactory()
+        member = PersonaFactory()
+        contact = persona.performer_profile
+        troupe = TroupeFactory(contact=contact)
+        troupe.membership.add(member)
+        troupe.save()
+        url = reverse('troupe_view',
+                      args=[troupe.resourceitem_id],
+                      urlconf='gbe.urls')
+        login_as(member.performer_profile.user_object, self)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, troupe.name)
+        self.assertContains(response, troupe.contact.user_object.email)
+        self.assertContains(response, member.name)
