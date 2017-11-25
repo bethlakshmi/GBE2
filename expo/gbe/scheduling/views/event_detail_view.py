@@ -5,6 +5,7 @@ from django.shortcuts import (
 from gbe.scheduling.views.functions import (
     get_event_display_info,
 )
+from scheduler.idd import get_schedule
 
 
 class EventDetailView(View):
@@ -16,13 +17,20 @@ class EventDetailView(View):
         eventitem_id = kwargs['eventitem_id']
         toggle = "on"
         eventitem_view = get_event_display_info(eventitem_id)
-        if request.user.is_authenticated() and request.user.profile and \
+        if eventitem_view['event'].calendar_type == "Volunteer":
+            toggle = None
+        elif request.user.is_authenticated() and request.user.profile and \
                 eventitem_view['event'].e_conference.status != "completed":
-            for item in eventitem_view['scheduled_events']:
-                for person in item.people:
-                    if (person.user == request.user) and (
-                            person.role == "Interested"):
+            sched_response = get_schedule(
+                request.user,
+                labels=[eventitem_view['event'].calendar_type,
+                        eventitem_view['event'].e_conference.conference_slug])
+            for booking in sched_response.schedule_items:
+                if booking.event in eventitem_view['scheduled_events']:
+                    if booking.role == "Interested":
                         toggle = "off"
+                    else:
+                        toggle = "disabled"
         template = 'gbe/scheduling/event_detail.tmpl'
         return render(request,
                       template,

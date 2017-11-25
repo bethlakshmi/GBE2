@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActCastingOptionFactory,
+    ConferenceFactory,
     ProfileFactory,
     ShowFactory,
 )
@@ -14,7 +15,10 @@ from django.test import (
     Client,
     TestCase,
 )
-from tests.contexts import ActTechInfoContext
+from tests.contexts import (
+    ActTechInfoContext,
+    ShowContext,
+)
 from gbe.models import Conference
 from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
@@ -162,46 +166,63 @@ class TestDetailView(TestCase):
                 context.performer.img.pk))
 
     def test_interested_in_event(self):
-        show = ShowFactory()
-        sched_event = SchedEventFactory(eventitem=show.eventitem_ptr)
+        context = ShowContext()
         interested_profile = ProfileFactory()
         ResourceAllocationFactory(
-            event=sched_event,
+            event=context.sched_event,
             resource=WorkerFactory(_item=interested_profile,
                                    role="Interested"))
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[show.pk])
+            args=[context.show.pk])
         login_as(interested_profile, self)
         response = self.client.get(url)
+        print response
         set_fav_link = reverse(
             "set_favorite",
-            args=[sched_event.pk, "off"],
+            args=[context.sched_event.pk, "off"],
             urlconf="gbe.scheduling.urls")
         self.assertContains(response, "%s?next=%s" % (
             set_fav_link,
             url))
 
     def test_not_really_interested_in_event(self):
-        show = ShowFactory()
-        sched_event = SchedEventFactory(eventitem=show.eventitem_ptr)
+        context = ShowContext()
         interested_profile = ProfileFactory()
-        booking = ResourceAllocationFactory(
-            event=sched_event,
-            resource=WorkerFactory(_item=interested_profile,
-                                   role="Volunteer"))
-        LabelFactory(allocation=booking, text="Interested")
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[show.pk])
+            args=[context.show.pk])
         login_as(interested_profile, self)
         response = self.client.get(url)
         set_fav_link = reverse(
             "set_favorite",
-            args=[sched_event.pk, "on"],
+            args=[context.sched_event.pk, "on"],
             urlconf="gbe.scheduling.urls")
         self.assertContains(response, "%s?next=%s" % (
             set_fav_link,
             url))
+
+    def test_disabled_interest(self):
+        context = ShowContext()
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(context.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-detail_disable"')
+
+    def test_interest_not_shown(self):
+        context = ShowContext(
+            conference=ConferenceFactory(status="completed"))
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(context.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertNotContains(response, 'fa-star')
+        self.assertNotContains(response, 'fa-star-o')
