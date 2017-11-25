@@ -112,6 +112,20 @@ class TestEditTroupe(TestCase):
                       args=[troupe.pk],
                       urlconf='gbe.urls')
         login_as(persona.performer_profile.profile, self)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+
+    def test_edit_as_member(self):
+        '''edit_troupe view, edit flow success
+        '''
+        persona = PersonaFactory()
+        troupe = TroupeFactory()
+        troupe.membership.add(persona)
+        troupe.save()
+        url = reverse(self.view_name,
+                      args=[troupe.pk],
+                      urlconf='gbe.urls')
+        login_as(persona.performer_profile.profile, self)
         response = self.client.get(url)
         self.assertRedirects(
             response,
