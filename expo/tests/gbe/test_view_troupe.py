@@ -99,3 +99,18 @@ class TestViewTroupe(TestCase):
         self.assertContains(response, troupe.name)
         self.assertContains(response, troupe.contact.user_object.email)
         self.assertContains(response, member.name)
+
+    def test_view_troupe_as_random_person(self):
+        '''view_troupe view, success
+        '''
+        persona = PersonaFactory()
+        random = ProfileFactory()
+        contact = persona.performer_profile
+        troupe = TroupeFactory(contact=contact)
+        url = reverse('troupe_view',
+                      args=[troupe.resourceitem_id],
+                      urlconf='gbe.urls')
+        login_as(random.user_object, self)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
