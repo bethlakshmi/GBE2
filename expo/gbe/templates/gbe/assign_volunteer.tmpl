@@ -146,14 +146,14 @@
               {% endif %}
             </td>
             <td class="bid-table">
-<a href="{% url 'scheduler:detail_view' event_window.event.eventitem.eventitem_id%}">
+<a href="{% url 'scheduling:detail_view' event_window.event.eventitem.eventitem_id%}">
                 {{event_window.event}}
               </a></td>
             <td class="bid-table">{{event_window.event.start_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">{{event_window.event.end_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">
               {% if event_window.event.container_event.parent_event %}
-<a href="{% url 'scheduler:detail_view' event_window.event.container_event.parent_event.eventitem.eventitem_id%}">
+<a href="{% url 'scheduling:detail_view' event_window.event.container_event.parent_event.eventitem.eventitem_id%}">
                 {{event_window.event.container_event.parent_event}}
               </a>
               {% endif %}

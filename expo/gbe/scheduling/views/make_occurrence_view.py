@@ -23,7 +23,7 @@ from scheduler.idd import (
     get_occurrences,
     update_occurrence,
 )
-from scheduler.views.functions import (
+from gbe.scheduling.views.functions import (
     get_event_display_info,
 )
 from gbe.scheduling.views.functions import (

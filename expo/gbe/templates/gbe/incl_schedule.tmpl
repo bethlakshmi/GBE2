@@ -8,15 +8,24 @@
        Schedule
   </h3>	
     {% for booking in bookings %}
-      {% with cs=booking.eventitem.child.e_conference.status %}
+      {% with cs=booking.event.eventitem.child.e_conference.status %}
         {% if cs != "completed" and not historical or cs == "completed" and historical %}
-          {% ifchanged booking.eventitem.child.e_conference %}
-	    <h4>{{booking.eventitem.child.e_conference}}</h4>
+          {% ifchanged booking.event.eventitem.child.e_conference %}
+	    <h4>{{booking.event.eventitem.child.e_conference}}</h4>
           {% endifchanged%}
           <div class='event'>
-            {{booking.starttime}}, 
-            <a href="{% url 'scheduler:detail_view' booking.eventitem.eventitem_id%}">
-            {{ booking }}
+	    {% if booking.role == "Interested"%}
+	    <a href="{% url 'scheduling:set_favorite' booking.event.pk "off" %}?next={{ request.get_full_path }}"
+	       class="detail_link" data-toggle="tooltip" title="Remove from Schedule">
+            <i class="fa fa-star" aria-hidden="true"></i></a>
+	    {% else %}
+	    <a href="#"
+	       class="detail_link-disabled" data-toggle="tooltip" title="Contact the Coordintor to Change Booking">
+            <i class="fa fa-star" aria-hidden="true"></i></a>
+	    {% endif %}
+            {{booking.event.starttime}}, 
+            <a href="{% url 'scheduling:detail_view' booking.event.eventitem.eventitem_id%}">
+            {{ booking.event.eventitem }}
 	    </a> 
           </div>
         {%endif%}

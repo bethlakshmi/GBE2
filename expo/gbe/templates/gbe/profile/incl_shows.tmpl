@@ -7,7 +7,7 @@
       {% if show.is_current %}{% ifchanged show %}
         {% if not forloop.first %}</ul></div>{% endif %}
         <div class='show'> 
-           <a href="{% url 'scheduler:detail_view' show.eventitem_id%}">
+           <a href="{% url 'scheduling:detail_view' show.eventitem_id%}">
             {{ show }}</a>
            <ul>{% endifchanged %}
         <li>{{ act }}</li>

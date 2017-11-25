@@ -9,7 +9,7 @@ from gbe.models import (
 from django.shortcuts import get_object_or_404
 
 
-def volunteer_type(request, conference_choice, volunteer_type_id):
+def volunteer_type_view(request, conference_choice, volunteer_type_id):
     '''
     Generates a staff area report: volunteer opportunities scheduled,
     volunteers scheduled, sorted by time/day

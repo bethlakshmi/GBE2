@@ -21,15 +21,17 @@
   <table class='sched-table'>
   <tr class='sched-header'>
     <th class='sched-header'>Schedule Item</th>
+    <th class='sched-header'>Role</th>
     <th class='sched-header'>Location</th>
     <th class='sched-header'>Day</th>
     <th class='sched-header'>Time</th>
   {% for booking in schedule.bookings %}
-  <tr class='sched-table'>
-    <td class='sched-table'>{{ booking }}</td>
-    <td class='sched-table'>{{booking.location}} </td>    
-    <td class='sched-table'>{{booking.starttime.date}} </td>
-    <td class='sched-table'>{{booking.starttime.time}} </td>
+  <tr class='sched-table {% if booking.role == "Interested" %}interested-sched{% else %}dedicated-sched{% endif %}'>
+    <td class='sched-table'>{{ booking.event }}</td>
+    <td class='sched-table'>{{booking.role}} </td>    
+    <td class='sched-table'>{{booking.event.location}} </td>    
+    <td class='sched-table'>{{booking.event.starttime.date}} </td>
+    <td class='sched-table'>{{booking.event.starttime.time}} </td>
   </tr>
   {% endfor %}
 

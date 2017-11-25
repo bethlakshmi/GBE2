@@ -11,7 +11,7 @@ from gbe.functions import (
 )
 
 
-def review_staff_area(request):
+def review_staff_area_view(request):
     '''
       Shows listing of staff area stuff for drill down
     '''

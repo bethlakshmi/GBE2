@@ -12,6 +12,7 @@ from gbe.models import (
     Class,
     Costume,
     Profile,
+    Vendor,
     Volunteer,
     Event,
 )
@@ -24,6 +25,7 @@ from gbe.functions import (
     validate_profile,
 )
 from expo.gbe_logging import log_func
+from scheduler.idd import get_schedule
 
 
 @login_required
@@ -37,7 +39,7 @@ def LandingPageView(request, profile_id=None, historical=False):
         admin_profile = validate_perms(request, ('Registrar',
                                                  'Volunteer Coordinator',
                                                  'Act Coordinator',
-                                                 'Conference Coordinator',
+                                                 'Class Coordinator',
                                                  'Vendor Coordinator',
                                                  'Ticketing - Admin'))
         viewer_profile = get_object_or_404(Profile, pk=profile_id)
@@ -50,10 +52,12 @@ def LandingPageView(request, profile_id=None, historical=False):
     class_to_class_name = {Act: "Act",
                            Class: "Class",
                            Costume: "Costume",
+                           Vendor: "Vendor",
                            Volunteer: "Volunteer"}
     class_to_view_name = {Act: 'act_review',
                           Class: 'class_review',
                           Costume: 'costume_review',
+                          Vendor: 'vendor_review',
                           Volunteer: 'volunteer_review'}
 
     if viewer_profile:
@@ -61,13 +65,11 @@ def LandingPageView(request, profile_id=None, historical=False):
         for bid in viewer_profile.bids_to_review():
             bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
             view_name = class_to_view_name.get(bid.__class__, None)
+            url = ""
             if view_name:
                 url = reverse(view_name,
                               urlconf='gbe.urls',
                               args=[str(bid.id)])
-            else:
-                url = ""
-
             bids_to_review += [{'bid': bid,
                                 'url': url,
                                 'action': "Review",
@@ -93,7 +95,8 @@ def LandingPageView(request, profile_id=None, historical=False):
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
              'admin_message': admin_message,
-             'bookings': viewer_profile.schedule
+             'bookings': get_schedule(
+                viewer_profile.user_object).schedule_items,
              })
     else:
         context = RequestContext(request,

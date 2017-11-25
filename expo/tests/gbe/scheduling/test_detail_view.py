@@ -1,10 +1,12 @@
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActCastingOptionFactory,
+    ConferenceFactory,
     ProfileFactory,
     ShowFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
     WorkerFactory,
@@ -13,7 +15,10 @@ from django.test import (
     Client,
     TestCase,
 )
-from tests.contexts import ActTechInfoContext
+from tests.contexts import (
+    ActTechInfoContext,
+    ShowContext,
+)
 from gbe.models import Conference
 from scheduler.models import EventItem
 from tests.functions.gbe_functions import (
@@ -33,7 +38,7 @@ class TestDetailView(TestCase):
         self.context = ActTechInfoContext()
         self.url = reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[self.context.show.pk])
 
     def test_no_permission_required(self):
@@ -44,7 +49,7 @@ class TestDetailView(TestCase):
     def test_bad_id_raises_404(self):
         bad_url = reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[bad_id_for(EventItem)])
         response = self.client.get(bad_url)
         self.assertEqual(response.status_code, 404)
@@ -62,7 +67,7 @@ class TestDetailView(TestCase):
                                              resource=lead_worker)
         response = self.client.get(reverse(
             self.view_name,
-            urlconf="scheduler.urls",
+            urlconf="gbe.scheduling.urls",
             args=[show.pk]))
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, response.content.count(staff_lead.display_name))
@@ -82,7 +87,7 @@ class TestDetailView(TestCase):
 
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
@@ -93,6 +98,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_bio_grid_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
@@ -108,11 +114,12 @@ class TestDetailView(TestCase):
 
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         set_image(context.performer)
         login_as(superuser, self)
         response = self.client.get(url)
@@ -125,6 +132,7 @@ class TestDetailView(TestCase):
         superuser = User.objects.create_superuser('test_bio_grid_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         set_image(self.context.performer)
         response = self.client.get(self.url)
@@ -143,11 +151,12 @@ class TestDetailView(TestCase):
         context = ActTechInfoContext(act_role="Hosted By...")
         set_image(context.performer)
         url = reverse(self.view_name,
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[context.show.pk])
         superuser = User.objects.create_superuser('test_feature_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
+        ProfileFactory(user_object=superuser)
         login_as(superuser, self)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
@@ -155,3 +164,65 @@ class TestDetailView(TestCase):
             response,
             "/admin/filer/image/%d/?_pick=file&_popup=1" % (
                 context.performer.img.pk))
+
+    def test_interested_in_event(self):
+        context = ShowContext()
+        interested_profile = ProfileFactory()
+        ResourceAllocationFactory(
+            event=context.sched_event,
+            resource=WorkerFactory(_item=interested_profile,
+                                   role="Interested"))
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        print response
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_not_really_interested_in_event(self):
+        context = ShowContext()
+        interested_profile = ProfileFactory()
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_disabled_interest(self):
+        context = ShowContext()
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(context.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-detail_disable"')
+
+    def test_interest_not_shown(self):
+        context = ShowContext(
+            conference=ConferenceFactory(status="completed"))
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.show.pk])
+        login_as(context.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertNotContains(response, 'fa-star')
+        self.assertNotContains(response, 'fa-star-o')

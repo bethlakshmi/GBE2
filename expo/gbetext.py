@@ -254,14 +254,16 @@ day_options = (('Fri', "Friday"),
                ('Sat', "Saturday"),
                ('Sun', "Sunday"))
 
-role_options = (('Teacher', "Teacher"),
-                ('Performer', "Performer"),
-                ('Volunteer', "Volunteer"),
-                ('Panelist', "Panelist"),
-                ('Moderator', "Moderator"),
-                ('Staff Lead', "Staff Lead"),
-                ('Technical Director', "Technical Director"),
-                ('Producer', "Producer"))
+role_options = (
+    ('Interested', "Interested"),
+    ('Moderator', "Moderator"),
+    ('Panelist', "Panelist"),
+    ('Performer', "Performer"),
+    ('Producer', "Producer"),
+    ('Staff Lead', "Staff Lead"),
+    ('Teacher', "Teacher"),
+    ('Technical Director', "Technical Director"),
+    ('Volunteer', "Volunteer"),)
 
 act_casting_label = "Section"
 
@@ -445,3 +447,7 @@ create_ticket_event_success_msg = "Created and linked a new BPT Event: "
 no_tickets_found_msg = '''No tickets could be found for the bpt event id.  \
 Check the BPT Event id and your connection to Brown Paper Tickets.  With no \
 tickets listed, users will be unable to purchase entrance to this event.'''
+set_favorite_msg = '''Your interest has been set and will appear on your \
+                   personal schedule.'''
+unset_favorite_msg = '''Your interest has been removed and will no longer \
+                   appear on your personal schedule.'''
