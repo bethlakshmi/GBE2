@@ -9,11 +9,6 @@ from django.views.decorators.cache import never_cache
 import gbe.models as conf
 import scheduler.models as sched
 import ticketing.models as tix
-from gbe.ticketing_idd_interface import (
-    get_checklist_items,
-    get_checklist_items_for_tickets
-    )
-
 import os as os
 import csv
 from reportlab.pdfgen import canvas
@@ -138,38 +133,6 @@ def env_stuff(request, conference_choice=None):
     for row in person_details:
         writer.writerow(row)
     return response
-
-
-@never_cache
-def personal_schedule(request):
-    viewer_profile = validate_perms(request, 'any', require=True)
-
-    conference_slugs = conf.Conference.all_slugs()
-    if request.GET and request.GET.get('conf_slug'):
-        conference = conf.Conference.by_slug(request.GET['conf_slug'])
-    else:
-        conference = conf.Conference.current_conf()
-
-    people = conf.Profile.objects.filter(
-        user_object__is_active=True).select_related()
-    schedules = []
-
-    for person in people:
-        bookings = person.get_schedule(conference)
-        items = get_checklist_items(person, conference)
-        if len(bookings) > 0 or len(items) > 0:
-            schedules += [{'person': person,
-                           'bookings': bookings,
-                           'checklist_items': items}]
-
-    sorted_sched = sorted(
-        schedules,
-        key=lambda schedule: schedule['person'].get_badge_name())
-    return render(request,
-                  'gbe/report/printable_schedules.tmpl',
-                  {'schedules': sorted_sched,
-                   'conference_slugs': conference_slugs,
-                   'conference': conference})
 
 
 @never_cache

@@ -621,7 +621,7 @@ class Event(Schedulable):
         Return a detail link to self, with title as link text
         '''
         return '<a href="%s">%s</a>' % (reverse('detail_view',
-                                                urlconf='scheduler.urls',
+                                                urlconf='gbe.scheduling.urls',
                                                 args=[self.eventitem_id]),
                                         self.eventitem.describe)
 
@@ -687,7 +687,7 @@ class Event(Schedulable):
             worker = Worker(_item=item, role=person.role)
 
         else:
-            worker = Worker(_item=self.user.profile, role=person.role)
+            worker = Worker(_item=person.user.profile, role=person.role)
         worker.save()
 
         for conflict in worker.workeritem.get_conflicts(self):

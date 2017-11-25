@@ -27,7 +27,7 @@
 	{% for class in teacher.classes %}
 	  <b>{{ class.role }}</b> -
 	  {% if class.detail_id %}
-	  <a href='{% url 'scheduler:detail_view' class.detail_id  %}'>
+	  <a href='{% url 'scheduling:detail_view' class.detail_id  %}'>
 	  {{ class.event }}</a></br>
 	{% else %}
 	  {{ class.event }}</br>

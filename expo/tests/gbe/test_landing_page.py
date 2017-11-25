@@ -20,10 +20,12 @@ from tests.factories.gbe_factories import(
     VolunteerFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     SchedEventFactory,
     ResourceAllocationFactory,
     WorkerFactory,
 )
+from tests.contexts import ClassContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -127,6 +129,8 @@ class TestIndex(TestCase):
                 event=schedule_item,
                 resource=worker
             )
+            LabelFactory(text="label %d" % volunteer_assignment.pk,
+                         allocation=volunteer_assignment)
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
@@ -142,7 +146,7 @@ class TestIndex(TestCase):
         return (unicode(event) in content and
                 date_format(event.start_time, "DATETIME_FORMAT") in content and
                 reverse('detail_view',
-                        urlconf="scheduler.urls",
+                        urlconf="gbe.scheduling.urls",
                         args=[event.eventitem.eventitem_id]) in content)
 
     def test_no_profile(self):
@@ -342,3 +346,22 @@ class TestIndex(TestCase):
         self.assertContains(response,
                             second_act_context.show.e_title,
                             count=2)
+
+    def test_interest(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf)
+        ResourceAllocationFactory(event=context.sched_event,
+                                  resource=WorkerFactory(_item=self.profile,
+                                                         role="Interested"))
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))

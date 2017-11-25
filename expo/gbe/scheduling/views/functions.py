@@ -1,9 +1,15 @@
 import pytz
 from datetime import datetime, time
 from scheduler.data_transfer import Person
+from scheduler.idd import get_occurrences
 from django.contrib import messages
-from gbe.models import UserMessage
+from gbe.models import (
+    Event,
+    UserMessage,
+)
 from expo.settings import DATETIME_FORMAT
+from django.http import Http404
+from gbetext import event_labels
 
 
 def get_single_role(data, roles=None):
@@ -133,3 +139,34 @@ def show_scheduling_booking_status(request, booking_response, view):
         messages.success(
             request,
             user_message[0].description)
+
+
+def get_event_display_info(eventitem_id):
+    '''
+    Helper for displaying a single of event. Same idea as
+    get_events_display_info - but for
+    only one eventitem.
+    '''
+    try:
+        item = Event.objects.get_subclass(eventitem_id=eventitem_id)
+        response = get_occurrences(foreign_event_ids=[eventitem_id])
+    except Event.DoesNotExist:
+        raise Http404
+    bio_grid_list = []
+    featured_grid_list = []
+    for sched_event in response.occurrences:
+        for casting in sched_event.casting_list:
+            if len(casting.role):
+                featured_grid_list += [{
+                    'bio': casting._item.bio,
+                    'role': casting.role,
+                    }]
+            else:
+                bio_grid_list += [casting._item.bio]
+    eventitem_view = {'event': item,
+                      'scheduled_events': response.occurrences,
+                      'labels': event_labels,
+                      'bio_grid_list': bio_grid_list,
+                      'featured_grid_list': featured_grid_list,
+                      }
+    return eventitem_view

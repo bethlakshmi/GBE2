@@ -23,7 +23,6 @@ from gbe_forms_text import (
 )
 from gbetext import acceptance_states
 from scheduler.views.functions import (
-    get_event_display_info,
     get_events_display_info,
 )
 from gbe.functions import (
@@ -76,23 +75,6 @@ def event_list(request, event_type=''):
                    'create_url': reverse('create_event',
                                          urlconf='gbe.scheduling.urls',
                                          args=[event_type])})
-
-
-def detail_view(request, eventitem_id):
-    '''
-    Takes the id of a single event_item and displays all its
-    details in a template
-    '''
-    eventitem_view = get_event_display_info(eventitem_id)
-
-    template = 'scheduler/event_detail.tmpl'
-    return render(request,
-                  template,
-                  {'eventitem': eventitem_view,
-                   'show_tickets': True,
-                   'tickets': eventitem_view['event'].get_tickets,
-                   'user_id': request.user.id}
-                  )
 
 
 @login_required
@@ -408,7 +390,7 @@ def view_list(request, event_type='All'):
         {'eventitem': item,
          'scheduled_events': item.scheduler_events.order_by('starttime'),
          'detail': reverse('detail_view',
-                           urlconf='scheduler.urls',
+                           urlconf='gbe.scheduling.urls',
                            args=[item.eventitem_id])
          }
         for item in items]

@@ -117,7 +117,7 @@ div.bottom  a, .help-block a {
     }
 }
 
-.login-button {
+button.login-button {
   padding-top: 7px;
   padding-bottom: 7px;
   color: white;
@@ -125,6 +125,11 @@ div.bottom  a, .help-block a {
   border-color:#471f1f;
   margin-top: 3px;
   margin-right: 3px;
+  border-radius: 4px;
+  font-family: "TwentiethCenturyPoster";
+  font-size: 18px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 .login-button:hover  {
   color: light grey;
@@ -257,8 +262,17 @@ h3.readonlyform
     padding: 2px;
     vertical-align: top;
  }
- 
- .sched-header
+.interested-sched {
+  color: grey;
+}
+.dedicated-sched {
+  font-weight: bold;
+}
+.sched-sub-box
+{
+  padding: 0px;
+}
+.sched-header
 {
     border: 1px solid black;
     border-collapse:collapse;
@@ -267,7 +281,6 @@ h3.readonlyform
     padding: 2px;
     vertical-align: top;
  }
- 
 .bid-table
 {
     border: 1px solid black;
@@ -512,7 +525,7 @@ td.describe
   align: right;
   display: inline-block;
 }
-.sched_times
+.sched_times, .sched_side
 {
   border-style: double;
   background: #C3BDBF;
@@ -520,6 +533,27 @@ td.describe
   padding: 8px;
   margin-bottom: 8px;
 }
+@media (min-width:768px){.sched_times{width:690px}
+}
+@media (min-width:992px){.sched_times{width:900px}
+}
+@media (min-width:1200px){.sched_times{width:1100px}
+}
+.detail_link, .detail_link:visited {color: black;}
+.sched-sub-box > .detail_link,  .sched-sub-box > .detail_link-detail_disable {
+    text-align: center;
+    display:block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.detail_link:hover, .detail_link:active {
+    color: #6E6E6E;
+}
+.detail_link-disabled, .detail_link-disabled:hover, .detail_link-disabled:active, .detail_link-disabled:visited {
+  color: #C3BDBF;
+}
+.detail_link-detail_disable, .detail_link-detail_disable:hover, .detail_link-detail_disable:active, .detail_link-detail_disable:visited
+{color: #6E6E6E;}
 .bio_block
 {
     border: 1px solid black;
