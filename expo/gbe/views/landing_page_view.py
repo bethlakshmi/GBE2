@@ -78,13 +78,6 @@ def LandingPageView(request, profile_id=None, historical=False):
                                 'url': url,
                                 'action': "Review",
                                 'bid_type': bid_type}]
-        if not historical:
-            user_message = UserMessage.objects.get_or_create(
-                view="LandingPageView",
-                code="ABOUT_INTERESTED",
-                defaults={
-                    'summary': "About Interested Attendees",
-                    'description': interested_explain_msg})
 
         context = RequestContext(
             request,
@@ -98,7 +91,6 @@ def LandingPageView(request, profile_id=None, historical=False):
              'acts': viewer_profile.get_acts(historical),
              'shows': viewer_profile.get_shows(),
              'classes': viewer_profile.is_teaching(historical),
-             'interested_info':  user_message[0].description,
              'proposed_classes': viewer_profile.proposed_classes(historical),
              'vendors': viewer_profile.vendors(historical),
              'volunteering': viewer_profile.get_volunteerbids(),
@@ -110,6 +102,15 @@ def LandingPageView(request, profile_id=None, historical=False):
              'bookings': get_schedule(
                 viewer_profile.user_object).schedule_items,
              })
+        if not historical:
+            user_message = UserMessage.objects.get_or_create(
+                view="LandingPageView",
+                code="ABOUT_INTERESTED",
+                defaults={
+                    'summary': "About Interested Attendees",
+                    'description': interested_explain_msg})
+            context['interested_info'] = user_message[0].description
+
     else:
         context = RequestContext(request,
                                  {'standard_context': standard_context})
