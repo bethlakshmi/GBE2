@@ -8,6 +8,10 @@ from django.db.models import (
 
 from gbe.expomodelfields import DurationField
 from scheduler.models import EventItem
+from scheduler.idd import (
+    get_occurrences,
+    get_bookings,
+)
 from gbe.models import (
     Conference,
     Room
@@ -52,6 +56,19 @@ class Event(EventItem):
                 getattr(event, 'type', 'X') not in ('Volunteer',
                                                     'Rehearsal Slot',
                                                     'Staff Area')]
+
+    @property
+    def interested(self):
+        interested = []
+        occurrence_ids = []
+        occurrence_resp = get_occurrences(foreign_event_ids=[self.eventitem_id])
+        for occurrence in occurrence_resp.occurrences:
+            occurrence_ids += [occurrence.pk]
+        if len(occurrence_ids) > 0:
+            interested_resp = get_bookings(occurrence_ids,
+                                           role="Interested")
+            interested = interested_resp.people
+        return interested
 
     @property
     def sched_payload(self):

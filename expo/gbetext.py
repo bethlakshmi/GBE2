@@ -445,3 +445,12 @@ set_favorite_msg = '''Your interest has been set and will appear on your \
                    personal schedule.'''
 unset_favorite_msg = '''Your interest has been removed and will no longer \
                    appear on your personal schedule.'''
+interested_explain_msg = '''Anyone with an account with The Great Burlesque \
+Exposition can show their interest in an event and add it to their schedule \
+by clicking on the star on our calendar or in an event description.  Starred \
+events will show up in their personal calendars.  Showing interest is not a \
+firm commitment to attend and it does not imply that the person has purchased \
+a valid ticket or pass to attend the class or the conference.<br><br>Want more \
+interested attendees?  We fully endorse shameless promotion! Post your event \
+page to your fans on social media, email, your website or anywhere and get \
+the word out!  Your event pages are:  '''

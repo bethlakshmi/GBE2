@@ -878,14 +878,31 @@ th.rotate-review > div {
 }
 th.rotate > div > span {
 }
-
+.bid-button i {
+  color: #777777;
+  background: #fff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  margin-right: 2px;
+  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+  line-height: 20px;
+  text-align: center;
+  -webkit-transition: all 0.2s linear;
+  -moz-transition: all 0.2s linear;
+  -o-transition: all 0.2s linear;
+  transition: all 0.2s linear;
+}
+.bid-button:hover {
+  text-decoration: none;
+}
 div.sidebar>div.class_section {
     margin-top: 10px;
     background-color:#E3DDDF;
     padding-left:5px;
     padding-top:5px;
 }
-
 div.sidebar>div.performer_section {
     background-color:#E3DDDF;
     padding-left:5px;

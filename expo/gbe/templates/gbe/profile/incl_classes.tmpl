@@ -2,9 +2,8 @@
   {% if proposed_classes %} 
   <span class='heading classes'> 
     <b>Class Bids</b>
-    {% for class in proposed_classes %}
   </span><br>
-
+    {% for class in proposed_classes %}
       <div class='class'>
         {% if class.submitted %}
           <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>
@@ -28,15 +27,64 @@
     <ul>
       <li><a href='{% url 'gbe:clone_bid' bid_type='Class' bid_id=class.id %}'>Clone this class</a></li>
     </ul>
+    {% elif class.schedule_ready %}
+    <ul>
+      <li>{{ class.interested|length }} Interested Attendees -
+        <a class="bid-button" href="#" data-toggle="modal" data-target="#{{class.pk}}_interest_modal" data-backdrop="true" title="View Attendee Contact Info">
+          <i class="fa fa-envelope-o"></i>
+        </a>
+      <a class="bid-button" href="#" data-toggle="modal" data-target="#about_class_interest" data-backdrop="true" title="What is this?">
+          <i class="fa fa-question"></i>
+        </a></li>
+    </ul>
+    <div class="modal fade" id="{{class.pk}}_interest_modal" role="dialog">
+      <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{class.e_title}} - Interested Attendee Contact List</h4>
+        </div>
+      <div class="modal-body">
+	<div class="row"><div class="col-xs-12">
+	{% for person in class.interested %}
+	  {{ person.user.profile.display_name }} &lt;{{person.user.email}}&gt;;</br>
+	{% endfor %}
+        </div></div>
+	<div class="row"><div class="col-xs-12">
+	  <br><b>Want more attendees?</b>  Advertise early and often!  Let your fans know you
+	  can be found here, at the Great Burlesque Expo!
+	    <a href="{% url 'scheduling:detail_view' class.eventitem_id %}">
+	      http://{{request.get_host}}{% url 'scheduling:detail_view' class.eventitem_id %}</a>
+        </div></div>
 
-{%else%}	
-
-{% endif %}
-    {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div></div></div>
+    {% endif %}
+  {% endfor %}
   {% else %}
-    {{ profile.display_name }} has not proposed any classes
+    {{ profile.display_name }} has not proposed any classes<br>
   {% endif %}
-  <br>
       <a href='{% url 'gbe:class_create' %}'>Propose a{%if proposed_classes%}nother{%endif%} class</a>
-
+  {% if proposed_classes and not historical %}
+    <div class="modal fade" id="about_class_interest" role="dialog">
+      <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">About Interested Attendees</h4>
+        </div>
+      <div class="modal-body">
+	<div class="row"><div class="col-xs-12">
+	  {{ interested_info |safe }}
+	  <ul>{% for class in proposed_classes %}
+	  <li>{{ class.e_title }} - 
+	    <a href="{% url 'scheduling:detail_view' class.eventitem_id %}">
+	      http://{{request.get_host}}{% url 'scheduling:detail_view' class.eventitem_id %}</a>
+	    {% endfor %}</li></ul>
+        </div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div></div></div>
+  {% endif %}
 </div>
