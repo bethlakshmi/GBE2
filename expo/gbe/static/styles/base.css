@@ -993,10 +993,21 @@ td.form_field.long_choice > ul > li
   font-size: larger;
   font-weight: bold;
 }
+.form-group > div > ul > li
+{
+  list-style-type: none;
+}
 .single-radio > ul > li > label
 {
   font-size: smaller;
   font-weight: normal;
+}
+.checkbox-ticketing > ul > li > label
+{
+  font-weight: normal;
+}
+.checkbox-ticketing > ul {
+  padding-left: 20px;
 }
 .form-group > ul > li > ul > li
 {
@@ -1005,10 +1016,12 @@ td.form_field.long_choice > ul > li
   font-weight: normal;
 }
 
-.event_booking > .row > .form-group > div {
+.event_booking > .form-group > .row > div {
   min-height: 32px;
 }
-
+.event-booking-cell {
+  min-height: 32px;
+}
 .formtitle
 {
   font-family: "TwentiethCenturyPoster";
