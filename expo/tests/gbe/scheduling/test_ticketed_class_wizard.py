@@ -58,13 +58,6 @@ class TestTicketedClassWizard(TestCase):
         self.privileged_user = ProfileFactory().user_object
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
 
-    def get_data(self):
-        data = {
-            'accepted_class': self.test_class.pk,
-            'pick_class': 'Next'
-        }
-        return data
-
     def edit_class(self):
         data = {
             'type': 'Master',
