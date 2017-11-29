@@ -35,10 +35,11 @@ class BrownPaperEvents(models.Model):
 
       - include_conferece = if True this event provides tickets for all parts
             of the conference - Classes, Panels, Workshops - but not Master
-            Classes
+            Classes, or Shows, or Special Events
       - include_most = includes everything EXCEPT Master Classes
     '''
-    bpt_event_id = models.CharField(max_length=10)
+    bpt_event_id = models.CharField(max_length=10,
+                                    unique=True)
     primary = models.BooleanField(default=False)
     act_submission_event = models.BooleanField(default=False,
                                                verbose_name='Act Fee')

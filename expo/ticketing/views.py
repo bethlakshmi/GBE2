@@ -94,12 +94,12 @@ def transactions(request):
     return render(request, r'ticketing/transactions.tmpl', context)
 
 
-def import_ticket_items():
+def import_ticket_items(events=None):
     '''
     Function is used to initiate an import from BPT or other sources of
     new Ticket Items.  It will not override existing items.
     '''
-    import_item_list = get_bpt_price_list()
+    import_item_list = get_bpt_price_list(events)
 
     for i_item in import_item_list:
         ticket_item, created = TicketItem.objects.get_or_create(
