@@ -57,7 +57,7 @@ Changing fields in this section will change them in all calendar items.
       {% endfor %}
     </div>
     {% if scheduling_info %}
-      <div class="sched_times col-md-5 col-sm-6 col-xs-12 pull-right">
+      <div class="sched_side col-md-5 col-sm-6 col-xs-12 pull-right">
 	  <h3>Booking Information</h3>
 	  {% for label, details in scheduling_info.display_info %}
 	    <label class="sched_detail">{{label}}:</label></br>{{ details }}</br></br>
