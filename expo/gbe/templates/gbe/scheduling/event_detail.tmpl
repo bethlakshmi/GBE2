@@ -89,7 +89,7 @@
         </div>
         {% if worker.workeritem.img %}
           <div class="col-md-3 col-sm-4 col-xs-12">
-          <img src="{{bio.img.url}}" class="sched_bio_image">
+          <img src="{% thumbnail worker.workeritem.img 300x300 crop upscale subject_location=worker.workeritem.img.subject_location %}" class="sched_bio_image">
           </div>
         {% endif %}
       {%endifchanged%}
@@ -108,7 +108,7 @@
 
        {% if bio.img %}
           <div class="col-md-3 col-sm-4 col-xs-12">
-            <img src="{{bio.img.url}}" class="sched_bio_image">
+            <img src="{% thumbnail bio.img 300x300 crop upscale subject_location=bio.img.subject_location %}" class="sched_bio_image">
           </div>
         {% endif %}
       </div>

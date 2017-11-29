@@ -1,4 +1,7 @@
-from django.http import HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+)
 from django.shortcuts import (
     get_object_or_404,
     render,
@@ -8,7 +11,10 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelChoiceField
 from expo.gbe_logging import log_func
 from gbe.forms import TroupeForm
-from gbe.functions import validate_profile
+from gbe.functions import (
+    validate_perms,
+    validate_profile,
+)
 from gbe.models import Troupe
 from gbe.views.functions import (
     get_participant_form,
@@ -30,12 +36,21 @@ def ViewTroupeView(request, troupe_id=None):
                                             urlconf='gbe.urls'))
 
     troupe = get_object_or_404(Troupe, resourceitem_id=troupe_id)
+    if not (troupe.contact.profile == profile or troupe.membership.filter(
+            performer_profile=profile).exists() or validate_perms(
+            request, ('Registrar',
+                      'Volunteer Coordinator',
+                      'Act Coordinator',
+                      'Conference Coordinator',
+                      'Vendor Coordinator',
+                      'Ticketing - Admin'), require=False)):
+        raise Http404
     performer_form = TroupeForm(instance=troupe,
                                 prefix="The Troupe")
     performer_form.fields['membership'] = ModelChoiceField(
         queryset=troupe.membership.all())
     owner = get_participant_form(
-            profile,
+            troupe.contact,
             prefix='Troupe Contact')
     return render(request,
                   'gbe/bid_view.tmpl',

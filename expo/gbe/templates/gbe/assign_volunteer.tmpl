@@ -5,6 +5,11 @@
   Assign Volunteer Slots
 {% endblock %}
 
+{% block head %}
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
+{% endblock %}
+
 {% block content %}
 <div class="special_functions">
   <a href="{% url 'gbe:volunteer_review_list' %}">Review All Volunteers</a> <br/>
