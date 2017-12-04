@@ -352,9 +352,7 @@ class TestIndex(TestCase):
         '''
         context = ClassContext(
             conference=self.current_conf)
-        ResourceAllocationFactory(event=context.sched_event,
-                                  resource=WorkerFactory(_item=self.profile,
-                                                         role="Interested"))
+        context.set_interest(self.profile)
         url = reverse('home', urlconf='gbe.urls')
         login_as(self.profile, self)
         response = self.client.get(url)
