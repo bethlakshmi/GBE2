@@ -65,28 +65,7 @@
 	        <i class="icon-envelope"></i>
 	    </button></a>
         </div>
-    <div class="modal fade" id="{{class.eventitem_id}}_interest_modal" role="dialog">
-      <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">{{class.e_title}} - Interested Attendee Contact List</h4>
-        </div>
-      <div class="modal-body">
-	<div class="row"><div class="col-xs-12">
-	{% for person in class.interested %}
-	  {{ person.user.profile.display_name }} &lt;{{person.user.email}}&gt;;</br>
-	{% endfor %}
-        </div></div>
-	<div class="row"><div class="col-xs-12">
-	  <br><b>Want more attendees?</b>  Advertise early and often!  Let your fans know you
-	  can be found here, at the Great Burlesque Expo!
-	    <a href="{% url 'scheduling:detail_view' class.eventitem_id %}">
-	      http://{{request.get_host}}{% url 'scheduling:detail_view' class.eventitem_id %}</a>
-        </div></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div></div></div>
+        {% include "gbe/interest_list.tmpl" %}
 	</td>
       </tr>{% endfor %}
     </tbody>
