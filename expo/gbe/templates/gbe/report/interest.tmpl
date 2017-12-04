@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block title %}
-   Manage Users
+   Review Class Interest
 {% endblock %}
 
 {% block head %}
@@ -13,10 +13,9 @@
 {% block content %}
   <p class="vanilla">{{title}} </p>
   <h2 class="review-title">Review Class Interest</h2>
+  {% include "conference_picker.tmpl" %}
 
-  <p>This list includes all <b>scheduled</b> classes and provides a count of how many
-  logged in users have shown interest in the class.  Interest does not reflect a
-  firm commitment, nor does it imply anything about ticket purchase.</p>
+  <p>{{ about }}</p>
 
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>

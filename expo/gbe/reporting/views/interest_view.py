@@ -13,7 +13,8 @@ from scheduler.idd import (
 )
 from gbe.models import (
     Class,
-    Performer
+    Performer,
+    UserMessage,
 )
 from expo.settings import (
     DATE_FORMAT,
@@ -21,6 +22,7 @@ from expo.settings import (
     TIME_FORMAT,
     URL_DATE,
 )
+from gbetext import interested_report_explain_msg
 
 
 @never_cache
@@ -72,10 +74,16 @@ def interest_view(request):
         display_list += [display_item]
 
     display_list.sort(key=lambda k: k['sort_start'])
-
+    user_message = UserMessage.objects.get_or_create(
+        view="InterestView",
+        code="ABOUT_INTERESTED",
+        defaults={
+            'summary': "About Interested Attendee Report",
+            'description': interested_report_explain_msg})
     return render(request,
                   'gbe/report/interest.tmpl',
                   {'header': header,
                    'classes': display_list,
                    'conference_slugs': conference_slugs(),
-                   'conference': conference})
+                   'conference': conference,
+                   'about': user_message[0].description})
