@@ -456,10 +456,10 @@ Exposition can show their interest in an event and add it to their schedule \
 by clicking on the star on our calendar or in an event description.  Starred \
 events will show up in their personal calendars.  Showing interest is not a \
 firm commitment to attend and it does not imply that the person has purchased \
-a valid ticket or pass to attend the class or the conference.<br><br>Want more \
-interested attendees?  We fully endorse shameless promotion! Post your event \
-page to your fans on social media, email, your website or anywhere and get \
-the word out!  Your event pages are:  '''
+a valid ticket or pass to attend the class or the conference.<br><br>Want \
+more interested attendees?  We fully endorse shameless promotion! Post your \
+event page to your fans on social media, email, your website or anywhere and \
+get the word out!  Your event pages are:  '''
 interested_report_explain_msg = '''This list includes all scheduled \
 classes and provides a count of how many logged in users have shown interest \
 in the class.  Interest does not reflect a firm commitment, nor does it \

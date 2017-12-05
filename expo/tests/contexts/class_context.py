@@ -82,7 +82,7 @@ class ClassContext:
     def set_interest(self, interested_profile=None):
         interested_profile = interested_profile or ProfileFactory()
         ResourceAllocationFactory(event=self.sched_event,
-                                  resource=WorkerFactory(_item=interested_profile,
-                                                         role="Interested"))
+                                  resource=WorkerFactory(
+                                    _item=interested_profile,
+                                    role="Interested"))
         return interested_profile
-    

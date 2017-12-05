@@ -34,7 +34,8 @@ def interest_view(request):
     else:
         conference = get_current_conference()
 
-    response = get_occurrences(labels=[conference.conference_slug, "Conference"])
+    response = get_occurrences(
+        labels=[conference.conference_slug, "Conference"])
     header = ['Class',
               'Teacher',
               'Location',
@@ -55,7 +56,7 @@ def interest_view(request):
                 interested += [person]
             elif person.role in ("Teacher", "Moderator"):
                 teachers += [Performer.objects.get(pk=person.public_id)]
-        
+
         display_item = {
             'id': occurrence.id,
             'sort_start': occurrence.start_time,

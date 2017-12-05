@@ -61,7 +61,8 @@ class Event(EventItem):
     def interested(self):
         interested = []
         occurrence_ids = []
-        occurrence_resp = get_occurrences(foreign_event_ids=[self.eventitem_id])
+        occurrence_resp = get_occurrences(
+            foreign_event_ids=[self.eventitem_id])
         for occurrence in occurrence_resp.occurrences:
             occurrence_ids += [occurrence.pk]
         if len(occurrence_ids) > 0:

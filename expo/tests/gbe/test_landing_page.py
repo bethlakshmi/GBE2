@@ -384,4 +384,3 @@ class TestIndex(TestCase):
                                          person.user_object.email))
         self.assertContains(response,
                             interested_explain_msg)
-
