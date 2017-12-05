@@ -10,6 +10,8 @@ from tests.factories.gbe_factories import (
 )
 from tests.contexts import ClassContext
 from gbe.models import Conference
+from gbetext import interested_report_explain_msg
+
 
 class TestInterest(TestCase):
     view_name = "interest"
@@ -52,3 +54,26 @@ class TestInterest(TestCase):
                 response,
                 "%s &lt;%s&gt;;</br>" % (person.display_name,
                                          person.user_object.email))
+
+    def test_interest_old_conf(self):
+        interested = []
+        for i in range(0, 3):
+            interested += [self.old_context.set_interest()]
+        login_as(self.priv_profile, self)
+        response = self.client.get(
+            self.url,
+            data={'conf_slug': self.old_context.conference.conference_slug})
+        self.assertEqual(response.status_code, 200)
+        for person in interested:
+            self.assertContains(
+                response,
+                "%s &lt;%s&gt;;</br>" % (person.display_name,
+                                         person.user_object.email))
+
+    def test_info_is_present(self):
+        interested = []
+        login_as(self.priv_profile, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response,
+                            interested_report_explain_msg)
