@@ -384,3 +384,24 @@ class TestIndex(TestCase):
                                          person.user_object.email))
         self.assertContains(response,
                             interested_explain_msg)
+
+    def test_historical_no_interest(self):
+        context = ClassContext(
+            conference=self.previous_conf,
+            teacher=PersonaFactory(performer_profile=self.profile))
+        interested = []
+        for i in range(0, 3):
+            interested += [context.set_interest()]
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(
+            url,
+            data={'historical': 1})
+        content = response.content
+        for person in interested:
+            self.assertNotContains(
+                response,
+                "%s &lt;%s&gt;;</br>" % (person.display_name,
+                                         person.user_object.email))
+        self.assertNotContains(response,
+                               interested_explain_msg)
