@@ -10,6 +10,7 @@ from gbe.scheduling.views import (
     CreateEventView,
     EventDetailView,
     EventWizardView,
+    ListEventsView,
     MakeOccurrenceView,
     ManageEventsView,
     ManageVolOpsView,
@@ -57,6 +58,10 @@ urlpatterns = patterns(
     url(r'^scheduling/allocate/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>[-\w]+)/(?P<occurrence_id>\d+)/?$',
         AllocateWorkerView.as_view(), name='allocate_workers'),
+    url(r'^scheduling/view_list/?$',
+        ListEventsView.as_view(), name='event_list'),
+    url(r'^scheduling/view_list/([-\w]+)/?$',
+        ListEventsView.as_view(), name='event_list'),
     url(r'^scheduling/details/(?P<eventitem_id>\d+)/?$',
         EventDetailView.as_view(), name='detail_view'),
 )
