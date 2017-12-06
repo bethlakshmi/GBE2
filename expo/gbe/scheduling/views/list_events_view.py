@@ -69,12 +69,13 @@ class ListEventsView(View):
 
         event_types = dict(event_options)
         class_types = dict(class_options)
+
         if event_type in map(lambda x: x.lower(), event_types.keys()):
             items = GenericEvent.objects.filter(
                 type__iexact=event_type,
                 visible=True,
                 e_conference=self.conference).order_by('e_title')
-        elif event_type in map(lambda x: x.lower, class_types.keys()):
+        elif event_type.title() in class_types.keys():
             items = Class.objects.filter(
                 accepted='3',
                 visible=True,
@@ -122,7 +123,7 @@ class ListEventsView(View):
                     if person.role in (
                             "Teacher",
                             "Moderator",
-                            "Panelist"):
+                            "Panelist") and person.public_id:
                         presenter = Performer.objects.get(pk=person.public_id)
                         if presenter not in presenters:
                             presenters += [presenter]

@@ -11,7 +11,10 @@ class Person(object):
         if worker:
             self.role = worker.role
             self.user = worker._item.as_subtype.user_object
-            self.public_id = worker._item.pk
+            if worker._item.as_subtype.__class__.__name__ != "Profile":
+                self.public_id = worker._item.pk
+            else:
+                self.public_id = None
         else:
             self.user = user
             self.public_id = public_id

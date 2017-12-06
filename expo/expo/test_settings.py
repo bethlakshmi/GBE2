@@ -58,3 +58,7 @@ INSTALLED_APPS = (
     'post_office',
     'import_export',
 )
+
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+)

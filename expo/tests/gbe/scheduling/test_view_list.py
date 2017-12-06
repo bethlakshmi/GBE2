@@ -176,3 +176,40 @@ class TestViewList(TestCase):
         response = self.client.get(url)
         self.assertNotContains(response, 'fa-star')
         self.assertNotContains(response, 'fa-star-o')
+
+    def test_view_panels(self):
+        this_class = ClassFactory.create(accepted=3,
+                                         e_conference=self.conf,
+                                         b_conference=self.conf,
+                                         type="Panel")
+        that_class = ClassFactory.create(accepted=3,
+                                         e_conference=self.conf,
+                                         b_conference=self.conf)
+        login_as(ProfileFactory(), self)
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=["Panel"])
+        response = self.client.get(
+            url,
+            data={"conference": self.conf.conference_slug})
+        self.assertContains(response, this_class.e_title)
+        self.assertNotContains(response, that_class.e_title)
+        self.assertContains(response, this_class.teacher.name)
+
+    def test_view_volunteers(self):
+        this_class = ClassFactory.create(accepted=3,
+                                         e_conference=self.conf,
+                                         b_conference=self.conf)
+        generic_event = GenericEventFactory(e_conference=self.conf,
+                                            type="Volunteer")
+        login_as(ProfileFactory(), self)
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=["Volunteer"])
+        response = self.client.get(
+            url,
+            data={"conference": self.conf.conference_slug})
+        self.assertContains(response, generic_event.e_title)
+        self.assertNotContains(response, this_class.e_title)
+        self.assertNotContains(response, 'fa-star')
+        self.assertNotContains(response, 'fa-star-o')

@@ -191,17 +191,6 @@ class Act (Biddable, ActItem):
         return this_act_alerts
 
     @property
-    def sched_payload(self):
-        return {'duration': self.tech.stage.act_duration,
-                'title': self.b_title,
-                'description': self.b_description,
-                'details': {'type': 'act'}}
-
-    @property
-    def cast_shows(self):
-        return (('No', 'No'), ('Yes', 'Yes'), ('Won', 'Yes - and Won!'))
-
-    @property
     def bidder_is_active(self):
         return self.performer.contact.user_object.is_active
 
