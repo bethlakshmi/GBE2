@@ -119,7 +119,10 @@ class ListEventsView(View):
                                urlconf='gbe.scheduling.urls')
                         else:
                            favorite_link = "disabled"
-                    if person.role in ("Teacher", "Moderator", "Panelist"):
+                    if person.role in (
+                            "Teacher",
+                            "Moderator",
+                            "Panelist"):
                         presenter = Performer.objects.get(pk=person.public_id)
                         if presenter not in presenters:
                             presenters += [presenter]

@@ -15,6 +15,10 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
 )
 import nose.tools as nt
+from tests.contexts import (
+    ClassContext,
+    ShowContext,
+)
 
 
 class TestViewList(TestCase):
@@ -115,3 +119,60 @@ class TestViewList(TestCase):
         response = self.client.get(url)
         nt.assert_false(show.e_title in response.content)
         nt.assert_true(accepted_class.e_title in response.content)
+
+    def test_interested_in_event(self):
+        context = ShowContext(conference=self.conf)
+        interested_profile = context.set_interest()
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Show'])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_not_really_interested_in_event(self):
+        context = ShowContext(conference=self.conf)
+        interested_profile = ProfileFactory()
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Show'])
+        login_as(interested_profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_disabled_interest(self):
+        context = ClassContext(conference=self.conf)
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Class'])
+        login_as(context.teacher.performer_profile, self)
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
+
+    def test_interest_not_shown(self):
+        old_conf = ConferenceFactory(status="completed")
+        context = ShowContext(
+            conference=old_conf)
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=["Show"])
+        response = self.client.get(
+            url,
+            data={"conference": old_conf.conference_slug})
+        login_as(context.performer.performer_profile, self)
+        response = self.client.get(url)
+        self.assertNotContains(response, 'fa-star')
+        self.assertNotContains(response, 'fa-star-o')
