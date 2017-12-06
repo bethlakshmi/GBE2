@@ -1,4 +1,3 @@
-import pytest
 from django.test import (
     TestCase,
     Client
@@ -15,8 +14,6 @@ from tests.factories.gbe_factories import (
     ShowFactory,
     GenericEventFactory,
 )
-
-from scheduler.views import view_list
 import nose.tools as nt
 
 

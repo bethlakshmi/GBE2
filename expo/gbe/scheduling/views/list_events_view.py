@@ -18,14 +18,15 @@ from datetime import (
 )
 from gbe.models import (
     AvailableInterest,
+    Class,
     ConferenceDay,
     Event,
     GenericEvent,
+    Show,
 )
 from gbe.functions import (
     get_current_conference,
     get_conference_by_slug,
-    get_events_list_by_type,
     conference_slugs,
 )
 from scheduler.idd import get_occurrences
@@ -37,6 +38,10 @@ from datetime import datetime
 from gbe_forms_text import (
     list_text,
     list_titles,
+)
+from gbetext import (
+    event_options,
+    class_options,
 )
 
 
@@ -71,10 +76,42 @@ class ListEventsView(View):
 
         return context
 
+    def get_events_list_by_type(self):
+        event_type = self.event_type.lower()
+        items = []
+        if event_type == "all":
+            return Event.get_all_events(self.conference)
+
+        event_types = dict(event_options)
+        class_types = dict(class_options)
+        if event_type in map(lambda x: x.lower(), event_types.keys()):
+            items = GenericEvent.objects.filter(
+                type__iexact=event_type,
+                visible=True,
+                e_conference=self.conference).order_by('e_title')
+        elif event_type in map(lambda x: x.lower, class_types.keys()):
+            items = Class.objects.filter(
+                accepted='3',
+                visible=True,
+                type__iexact=event_type,
+                e_conference=self.conference).order_by('e_title')
+        elif event_type == 'show':
+            items = Show.objects.filter(
+                e_conference=self.conference).order_by('e_title')
+        elif event_type == 'class':
+            items = Class.objects.filter(
+                accepted='3',
+                visible=True,
+                e_conference=self.conference).exclude(
+                    type='Panel').order_by('e_title')
+        else:
+            items = []
+        return items
+
     def get(self, request, *args, **kwargs):
         context = self.setup(request, args, kwargs)
 
-        items = get_events_list_by_type(self.event_type, self.conference)
+        items = self.get_events_list_by_type()
         events = [
             {'eventitem': item,
              'scheduled_events': item.scheduler_events.order_by('starttime'),
