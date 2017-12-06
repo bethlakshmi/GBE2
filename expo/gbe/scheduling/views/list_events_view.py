@@ -1,25 +1,11 @@
 from django.views.generic import View
 from django.shortcuts import (
-    get_object_or_404,
     render,
 )
 from django.http import Http404
 from django.core.urlresolvers import reverse
-from django.utils.formats import date_format
-from expo.settings import (
-    DATE_FORMAT,
-    DATETIME_FORMAT,
-    TIME_FORMAT,
-    URL_DATE,
-)
-from datetime import (
-    datetime,
-    timedelta,
-)
 from gbe.models import (
-    AvailableInterest,
     Class,
-    ConferenceDay,
     Event,
     GenericEvent,
     Show,
@@ -30,11 +16,6 @@ from gbe.functions import (
     conference_slugs,
 )
 from scheduler.idd import get_occurrences
-from gbe.scheduling.forms import (
-    HiddenSelectEventForm,
-    SelectEventForm,
-)
-from datetime import datetime
 from gbe_forms_text import (
     list_text,
     list_titles,
@@ -110,16 +91,17 @@ class ListEventsView(View):
 
     def get(self, request, *args, **kwargs):
         context = self.setup(request, args, kwargs)
-
         items = self.get_events_list_by_type()
-        events = [
-            {'eventitem': item,
-             'scheduled_events': item.scheduler_events.order_by('starttime'),
-             'detail': reverse('detail_view',
-                               urlconf='gbe.scheduling.urls',
-                               args=[item.eventitem_id])
-             }
-            for item in items]
+        events = []
+        for item in items:
+            response = get_occurrences(
+                foreign_event_ids=[item.eventitem_id])
+            events += [{
+                'eventitem': item,
+                'scheduled_events': response.occurrences,
+                'detail': reverse('detail_view',
+                                  urlconf='gbe.scheduling.urls',
+                                  args=[item.eventitem_id])}]
         context['events'] = events
         return render(request, self.template, context)
 
