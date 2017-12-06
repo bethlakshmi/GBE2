@@ -368,4 +368,3 @@ def contact_by_role(request, participant_type):
     for row in contact_info:
         writer.writerow(row)
     return response
-

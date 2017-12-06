@@ -116,9 +116,9 @@ class ListEventsView(View):
                             favorite_link = reverse(
                                 'set_favorite',
                                 args=[occurrence.pk, 'off'],
-                               urlconf='gbe.scheduling.urls')
+                                urlconf='gbe.scheduling.urls')
                         else:
-                           favorite_link = "disabled"
+                            favorite_link = "disabled"
                     if person.role in (
                             "Teacher",
                             "Moderator",
