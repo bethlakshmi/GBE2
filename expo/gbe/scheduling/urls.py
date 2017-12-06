@@ -60,7 +60,7 @@ urlpatterns = patterns(
         AllocateWorkerView.as_view(), name='allocate_workers'),
     url(r'^scheduling/view_list/?$',
         ListEventsView.as_view(), name='event_list'),
-    url(r'^scheduling/view_list/([-\w]+)/?$',
+    url(r'^scheduling/view_list/(?P<event_type>[-\w]+)/?$',
         ListEventsView.as_view(), name='event_list'),
     url(r'^scheduling/details/(?P<eventitem_id>\d+)/?$',
         EventDetailView.as_view(), name='detail_view'),

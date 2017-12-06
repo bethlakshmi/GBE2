@@ -82,7 +82,6 @@ class TestViewList(TestCase):
 
     def test_view_list_event_type_not_case_sensitive(self):
         param = 'class'
-        password = "password"
         url_lower = reverse("event_list",
                             urlconf="gbe.scheduling.urls",
                             args=[param.lower()])
@@ -100,5 +99,22 @@ class TestViewList(TestCase):
                       urlconf="gbe.scheduling.urls",
                       args=[param])
         response = self.client.get(url)
-        expected_string = "Check out the full list of all shows"
-        nt.assert_true(expected_string in response.content)
+        self.assertEqual(404, response.status_code)
+
+    def test_view_list_only_classes(self):
+        '''
+        /scheduler/view_list/ should return all events in the current
+        conference, assuming a current conference exists
+        '''
+        show = ShowFactory(e_conference=self.conf)
+        generic_event = GenericEventFactory(e_conference=self.conf)
+        accepted_class = ClassFactory(accepted=3,
+                                      e_conference=self.conf,
+                                      b_conference=self.conf)
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Class'])
+        login_as(ProfileFactory(), self)
+        response = self.client.get(url)
+        nt.assert_false(show.e_title in response.content)
+        nt.assert_true(accepted_class.e_title in response.content)
