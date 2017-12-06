@@ -104,19 +104,21 @@ class ListEventsView(View):
                 foreign_event_ids=[item.eventitem_id])
             for occurrence in response.occurrences:
                 people_response = get_bookings(occurrence.pk)
+                highlight = None
                 favorite_link = reverse(
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
                     urlconf='gbe.scheduling.urls')
                 for person in people_response.people:
-                    if request.user == person.user and (
-                            person.role == "Interested"):
-                        favorite_link = reverse(
-                            'set_favorite',
-                            args=[occurrence.pk, 'off'],
-                            urlconf='gbe.scheduling.urls')
-                    elif request.user == person.user:
-                        favorite_link = "disabled"
+                    if request.user == person.user:
+                        highlight = person.role.lower()
+                        if person.role == "Interested":
+                            favorite_link = reverse(
+                                'set_favorite',
+                                args=[occurrence.pk, 'off'],
+                               urlconf='gbe.scheduling.urls')
+                        else:
+                           favorite_link = "disabled"
                     if person.role in ("Teacher", "Moderator", "Panelist"):
                         presenter = Performer.objects.get(pk=person.public_id)
                         if presenter not in presenters:
@@ -127,7 +129,8 @@ class ListEventsView(View):
                     favorite_link = "volunteer"
                 scheduled_events += [{
                     'occurrence': occurrence,
-                    'favorite_link': favorite_link
+                    'favorite_link': favorite_link,
+                    'highlight': highlight,
                 }]
             if len(presenters) == 0 and item.calendar_type == "Conference":
                 presenters += [item.teacher]

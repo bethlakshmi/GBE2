@@ -2,7 +2,9 @@
 {% block title %}
   Great Burlesque Exposition: {{title}}
 {% endblock %}
-
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/styles/fonts/font-awesome.min.css">
+{% endblock %}
 {% block content %}
    
    <H1 class="listheader">{{title}}</H1>
@@ -36,8 +38,8 @@
 	  <label class="listlabel">Time(s):</label></div>
  	  <div class="col-xs-12 col-sm-10">
 	  {% for sched_event in event.scheduled_events %}
-	  {{ sched_event.favorite_link }}
-	  {{ sched_event.occurrence.start_time|date:_("DATETIME_FORMAT") }} -
+	    {% include "gbe/scheduling/favorite_star.tmpl"%}
+            {{ sched_event.occurrence.start_time|date:_("DATETIME_FORMAT") }} -
 	    {{ sched_event.occurrence.end_time|date:_("TIME_FORMAT") }}
 	  <br/>
 	  {% endfor %}
