@@ -8,6 +8,7 @@ from gbe.models import (
     Class,
     Event,
     GenericEvent,
+    Performer,
     Show,
 )
 from gbe.functions import (
@@ -15,7 +16,10 @@ from gbe.functions import (
     get_conference_by_slug,
     conference_slugs,
 )
-from scheduler.idd import get_occurrences
+from scheduler.idd import (
+    get_bookings,
+    get_occurrences,
+)
 from gbe_forms_text import (
     list_text,
     list_titles,
@@ -94,11 +98,44 @@ class ListEventsView(View):
         items = self.get_events_list_by_type()
         events = []
         for item in items:
+            scheduled_events = []
+            presenters = []
             response = get_occurrences(
                 foreign_event_ids=[item.eventitem_id])
+            for occurrence in response.occurrences:
+                people_response = get_bookings(occurrence.pk)
+                favorite_link = reverse(
+                    'set_favorite',
+                    args=[occurrence.pk, 'on'],
+                    urlconf='gbe.scheduling.urls')
+                for person in people_response.people:
+                    if request.user == person.user and (
+                            person.role == "Interested"):
+                        favorite_link = reverse(
+                            'set_favorite',
+                            args=[occurrence.pk, 'off'],
+                            urlconf='gbe.scheduling.urls')
+                    elif request.user == person.user:
+                        favorite_link = "disabled"
+                    if person.role in ("Teacher", "Moderator", "Panelist"):
+                        presenter = Performer.objects.get(pk=person.public_id)
+                        if presenter not in presenters:
+                            presenters += [presenter]
+                if self.conference.status == "completed":
+                    favorite_link = None
+                elif item.calendar_type == 'Volunteer':
+                    favorite_link = "volunteer"
+                scheduled_events += [{
+                    'occurrence': occurrence,
+                    'favorite_link': favorite_link
+                }]
+            if len(presenters) == 0 and item.calendar_type == "Conference":
+                presenters += [item.teacher]
+
             events += [{
                 'eventitem': item,
-                'scheduled_events': response.occurrences,
+                'scheduled_events': scheduled_events,
+                'presenters': presenters,
                 'detail': reverse('detail_view',
                                   urlconf='gbe.scheduling.urls',
                                   args=[item.eventitem_id])}]
