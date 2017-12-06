@@ -320,7 +320,7 @@ class TestCalendarView(TestCase):
             url))
 
     def test_logged_in_have_interest(self):
-        profile = self.showcontext.sched_event.set_interest()
+        profile = self.showcontext.set_interest()
         login_as(profile, self)
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
