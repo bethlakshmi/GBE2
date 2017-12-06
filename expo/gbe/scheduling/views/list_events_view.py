@@ -47,7 +47,6 @@ class ListEventsView(View):
 
     def setup(self, request, args, kwargs):
         context = {}
-        self.conference = None
 
         if "event_type" in kwargs:
             self.event_type = kwargs['event_type']
@@ -59,6 +58,8 @@ class ListEventsView(View):
                 self.request.GET.get('conference', None))
         else:
             self.conference = get_current_conference()
+        if not self.conference:
+            raise Http404
 
         context = {
             'conf_slug': self.conference.conference_slug,

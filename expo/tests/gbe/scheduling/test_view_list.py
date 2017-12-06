@@ -23,24 +23,25 @@ import nose.tools as nt
 class TestViewList(TestCase):
 
     def setUp(self):
+        clear_conferences()
         self.client = Client()
+        self.conf = ConferenceFactory()
 
     def test_view_list_given_slug(self):
-        conf = ConferenceFactory()
         other_conf = ConferenceFactory()
         this_class = ClassFactory.create(accepted=3,
-                                         e_conference=conf,
-                                         b_conference=conf)
+                                         e_conference=self.conf,
+                                         b_conference=self.conf)
         that_class = ClassFactory.create(accepted=3,
                                          e_conference=other_conf,
                                          b_conference=other_conf)
         login_as(ProfileFactory(), self)
         url = reverse("event_list",
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=["Class"])
         response = self.client.get(
             url,
-            data={"conference": conf.conference_slug})
+            data={"conference": self.conf.conference_slug})
         nt.assert_true(this_class.e_title in response.content)
         nt.assert_false(that_class.e_title in response.content)
 
@@ -49,22 +50,20 @@ class TestViewList(TestCase):
         /scheduler/view_list/ should return all events in the current
         conference, assuming a current conference exists
         '''
-        clear_conferences()
-        conf = ConferenceFactory()
         other_conf = ConferenceFactory(status='completed')
-        show = ShowFactory(e_conference=conf)
-        generic_event = GenericEventFactory(e_conference=conf)
+        show = ShowFactory(e_conference=self.conf)
+        generic_event = GenericEventFactory(e_conference=self.conf)
         accepted_class = ClassFactory(accepted=3,
-                                      e_conference=conf,
-                                      b_conference=conf)
+                                      e_conference=self.conf,
+                                      b_conference=self.conf)
         previous_class = ClassFactory(accepted=3,
                                       e_conference=other_conf,
                                       b_conference=other_conf)
         rejected_class = ClassFactory(accepted=1,
-                                      e_conference=conf,
-                                      b_conference=conf)
+                                      e_conference=self.conf,
+                                      b_conference=self.conf)
         url = reverse("event_list",
-                      urlconf="scheduler.urls")
+                      urlconf="gbe.scheduling.urls")
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
         nt.assert_true(generic_event.e_title in response.content)
@@ -73,15 +72,23 @@ class TestViewList(TestCase):
         nt.assert_false(rejected_class.e_title in response.content)
         nt.assert_false(previous_class.e_title in response.content)
 
+    def test_no_avail_conf(self):
+        clear_conferences()
+        login_as(ProfileFactory(), self)
+        response = self.client.get(
+            reverse("event_list",
+                    urlconf="gbe.scheduling.urls"))
+        self.assertEqual(404, response.status_code)
+
     def test_view_list_event_type_not_case_sensitive(self):
         param = 'class'
         password = "password"
         url_lower = reverse("event_list",
-                            urlconf="scheduler.urls",
+                            urlconf="gbe.scheduling.urls",
                             args=[param.lower()])
 
         url_upper = reverse("event_list",
-                            urlconf="scheduler.urls",
+                            urlconf="gbe.scheduling.urls",
                             args=[param.upper()])
 
         assert (self.client.get(url_lower).content ==
@@ -90,7 +97,7 @@ class TestViewList(TestCase):
     def test_view_list_event_type_not_in_list_titles(self):
         param = 'classification'
         url = reverse("event_list",
-                      urlconf="scheduler.urls",
+                      urlconf="gbe.scheduling.urls",
                       args=[param])
         response = self.client.get(url)
         expected_string = "Check out the full list of all shows"
