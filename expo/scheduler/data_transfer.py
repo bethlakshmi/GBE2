@@ -5,20 +5,20 @@ class Person(object):
                  booking_id=None,
                  user=None,
                  public_id=None,
+                 public_class="Performer",
                  role=None,
                  label=None,
                  worker=None):
         if worker:
             self.role = worker.role
             self.user = worker._item.as_subtype.user_object
-            if worker._item.as_subtype.__class__.__name__ != "Profile":
-                self.public_id = worker._item.pk
-            else:
-                self.public_id = None
+            self.public_class = worker._item.as_subtype.__class__.__name__
+            self.public_id = worker._item.pk
         else:
             self.user = user
             self.public_id = public_id
             self.role = role
+            self.public_class = public_class
 
         self.booking_id = booking_id
         self.label = label

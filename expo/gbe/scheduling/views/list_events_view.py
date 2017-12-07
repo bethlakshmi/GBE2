@@ -123,14 +123,13 @@ class ListEventsView(View):
                     if person.role in (
                             "Teacher",
                             "Moderator",
-                            "Panelist") and person.public_id:
+                            "Panelist") and person.public_class != "Profile":
                         presenter = Performer.objects.get(pk=person.public_id)
                         if presenter not in presenters:
                             presenters += [presenter]
-                if self.conference.status == "completed":
+                if self.conference.status == "completed" or (
+                        item.calendar_type == 'Volunteer'):
                     favorite_link = None
-                elif item.calendar_type == 'Volunteer':
-                    favorite_link = "volunteer"
                 scheduled_events += [{
                     'occurrence': occurrence,
                     'favorite_link': favorite_link,
