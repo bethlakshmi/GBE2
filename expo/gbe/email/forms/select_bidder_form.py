@@ -1,9 +1,8 @@
 from django.forms import (
     CharField,
-    ChoiceField,
     Form,
     HiddenInput,
-    ModelChoiceField,
+    ModelMultipleChoiceField,
     MultipleChoiceField,
     MultipleHiddenInput,
 )
@@ -19,11 +18,13 @@ from gbe.models import Conference
 class SelectBidderForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
-    conference = ModelChoiceField(
+    conference = ModelMultipleChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        empty_label=("All"),
-        required=False)
-    bid_type = ChoiceField(required=False)
+        widget=CheckboxSelectMultiple(attrs={"checked":""}),
+        required=False,)
+    bid_type = MultipleChoiceField(
+        required=False,
+        widget=CheckboxSelectMultiple(attrs={"checked":""}))
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=CheckboxSelectMultiple(),
@@ -31,11 +32,11 @@ class SelectBidderForm(Form):
 
 
 class SecretBidderInfoForm(SelectBidderForm):
-    conference = ModelChoiceField(
+    conference = ModelMultipleChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        widget=HiddenInput(),
+        widget=MultipleHiddenInput(),
         required=False)
-    bid_type = ChoiceField(widget=HiddenInput(),
+    bid_type = MultipleChoiceField(widget=HiddenInput(),
                            required=False)
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),

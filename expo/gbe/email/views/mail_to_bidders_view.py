@@ -22,7 +22,10 @@ from gbetext import (
     to_list_empty_msg,
     unknown_request,
 )
-from gbe.functions import validate_perms
+from gbe.functions import (
+    get_current_conference,
+    validate_perms,
+)
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -36,7 +39,7 @@ class MailToBiddersView(MailView):
                             ]
 
     def groundwork(self, request, args, kwargs):
-        self.bid_type_choices = [('', 'All')]
+        self.bid_type_choices = []
         self.user = validate_perms(request, self.reviewer_permissions)
         priv_list = self.user.get_email_privs()
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
@@ -46,7 +49,8 @@ class MailToBiddersView(MailView):
         else:
             self.select_form = SelectBidderForm(
                 prefix="email-select",
-                initial={'state': [0, 1, 2, 3, 4, 5, 6]})
+                initial={
+                    'state': [0, 1, 2, 3, 4, 5, 6],})
         for priv in priv_list:
             self.bid_type_choices += [(priv.title(), priv.title())]
 
