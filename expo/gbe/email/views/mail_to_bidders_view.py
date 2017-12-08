@@ -8,6 +8,7 @@ from django.contrib import messages
 from gbe.models import (
     Act,
     Class,
+    Conference,
     Costume,
     UserMessage,
     Vendor,
@@ -40,8 +41,12 @@ class MailToBiddersView(MailView):
 
     def groundwork(self, request, args, kwargs):
         self.bid_type_choices = []
+        initial_bid_choices = []
         self.user = validate_perms(request, self.reviewer_permissions)
         priv_list = self.user.get_email_privs()
+        for priv in priv_list:
+            self.bid_type_choices += [(priv.title(), priv.title())]
+            initial_bid_choices += [priv.title()]
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
             self.select_form = SelectBidderForm(
                 request.POST,
@@ -50,25 +55,19 @@ class MailToBiddersView(MailView):
             self.select_form = SelectBidderForm(
                 prefix="email-select",
                 initial={
+                    'conference': Conference.objects.all().values_list(
+                        'pk',
+                        flat=True),
+                    'bid_type': initial_bid_choices,
                     'state': [0, 1, 2, 3, 4, 5, 6],})
-        for priv in priv_list:
-            self.bid_type_choices += [(priv.title(), priv.title())]
-
         self.select_form.fields['bid_type'].choices = self.bid_type_choices
 
     def get_to_list(self):
         query = Q()
         to_list = {}
-        if self.select_form.cleaned_data['bid_type']:
-            bid_types = [self.select_form.cleaned_data['bid_type'], ]
-        else:
-            bid_types = []
-            for priv in self.user.get_email_privs():
-                bid_types += [priv.title(), ]
+        bid_types = self.select_form.cleaned_data['bid_type']
 
-        if self.select_form.cleaned_data['conference']:
-            query = query & Q(
-                b_conference=self.select_form.cleaned_data['conference'])
+        query = Q(b_conference__in=self.select_form.cleaned_data['conference'])
 
         accept_states = self.select_form.cleaned_data['state']
         draft = False

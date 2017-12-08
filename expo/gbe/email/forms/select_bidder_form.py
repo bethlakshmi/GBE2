@@ -25,11 +25,11 @@ class SelectBidderForm(Form):
     error_css_class = 'error'
     conference = MultiConferenceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        widget=CheckboxSelectMultiple(attrs={"checked":""}),
-        required=False,)
+        widget=CheckboxSelectMultiple(),
+        required=True,)
     bid_type = MultipleChoiceField(
-        required=False,
-        widget=CheckboxSelectMultiple(attrs={"checked":""}))
+        required=True,
+        widget=CheckboxSelectMultiple())
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=CheckboxSelectMultiple(),
@@ -40,9 +40,10 @@ class SecretBidderInfoForm(SelectBidderForm):
     conference = ModelMultipleChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
         widget=MultipleHiddenInput(),
-        required=False)
-    bid_type = MultipleChoiceField(widget=HiddenInput(),
-                           required=False)
+        required=True)
+    bid_type = MultipleChoiceField(
+        widget=MultipleHiddenInput(),
+        required=True)
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=MultipleHiddenInput(),
