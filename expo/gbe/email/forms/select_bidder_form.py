@@ -15,10 +15,15 @@ from gbe_forms_text import (
 from gbe.models import Conference
 
 
+class MultiConferenceField(ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.conference_slug
+
+
 class SelectBidderForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
-    conference = ModelMultipleChoiceField(
+    conference = MultiConferenceField(
         queryset=Conference.objects.all().order_by('conference_name'),
         widget=CheckboxSelectMultiple(attrs={"checked":""}),
         required=False,)
