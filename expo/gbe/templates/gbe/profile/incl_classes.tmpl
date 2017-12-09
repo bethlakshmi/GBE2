@@ -27,42 +27,10 @@
     <ul>
       <li><a href='{% url 'gbe:clone_bid' bid_type='Class' bid_id=class.id %}'>Clone this class</a></li>
     </ul>
-    {% elif class.schedule_ready %}
-    <ul>
-      <li>{{ class.interested|length }} Interested Attendees -
-        <a class="bid-button" href="#" data-toggle="modal" data-target="#{{class.eventitem_id}}_interest_modal" data-backdrop="true" title="View Attendee Contact Info">
-          <i class="fa fa-envelope-o"></i>
-        </a>
-      <a class="bid-button" href="#" data-toggle="modal" data-target="#about_class_interest" data-backdrop="true" title="What is this?">
-          <i class="fa fa-question"></i>
-        </a></li>
-    </ul>
-      {% include "gbe/interest_list.tmpl" %}
     {% endif %}
   {% endfor %}
   {% else %}
     {{ profile.display_name }} has not proposed any classes<br>
   {% endif %}
       <a href='{% url 'gbe:class_create' %}'>Propose a{%if proposed_classes%}nother{%endif%} class</a>
-  {% if proposed_classes and not historical %}
-    <div class="modal fade" id="about_class_interest" role="dialog">
-      <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">About Interested Attendees</h4>
-        </div>
-      <div class="modal-body">
-	<div class="row"><div class="col-xs-12">
-	  {{ interested_info |safe }}
-	  <ul>{% for class in proposed_classes %}
-	  <li>{{ class.e_title }} - 
-	    <a href="{% url 'scheduling:detail_view' class.eventitem_id %}">
-	      http://{{request.get_host}}{% url 'scheduling:detail_view' class.eventitem_id %}</a>
-	    {% endfor %}</li></ul>
-        </div></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div></div></div>
-  {% endif %}
 </div>

@@ -5,9 +5,12 @@
         </div>
       <div class="modal-body">
 	<div class="row"><div class="col-xs-12">
+	  {{ interested_info |safe }}<br><br>
+	  <ul style="list-style: none;">
 	{% for person in class.interested %}
-	  {{ person.user.profile.display_name }} &lt;{{person.user.email}}&gt;;</br>
+	  <li>{{ person.user.profile.display_name }} &lt;{{person.user.email}}&gt;;</li>
 	{% endfor %}
+	  </ul>
         </div></div>
 	<div class="row"><div class="col-xs-12">
 	  <br><b>Want more attendees?</b>  Advertise early and often!  Let your fans know you
