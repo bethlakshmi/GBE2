@@ -59,7 +59,7 @@ class MailToBiddersView(MailView):
                         'pk',
                         flat=True),
                     'bid_type': initial_bid_choices,
-                    'state': [0, 1, 2, 3, 4, 5, 6],})
+                    'state': [0, 1, 2, 3, 4, 5, 6], })
         self.select_form.fields['bid_type'].choices = self.bid_type_choices
 
     def get_to_list(self):
