@@ -523,16 +523,6 @@ class EventItem (models.Model):
     def get_conference(self):
         return self.child().e_conference
 
-    @property
-    def bios(self):
-        people = WorkerItem.objects.filter(
-            worker__allocations__event__eventitem=self.eventitem_id,
-            worker__role__in=['Teacher',
-                              'Panelist',
-                              'Moderator']).distinct().select_subclasses(
-                                  'performer')
-        return people
-
     # DEPRECATE - when scheduling refactored
     def roles(self, roles=['Teacher',
                            'Panelist',
