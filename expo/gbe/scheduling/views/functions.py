@@ -1,10 +1,15 @@
 import pytz
 from datetime import datetime, time
 from scheduler.data_transfer import Person
-from scheduler.idd import get_occurrences
+from scheduler.idd import (
+    get_bookings,
+    get_occurrences,
+)
 from django.contrib import messages
 from gbe.models import (
     Event,
+    Performer,
+    Profile,
     UserMessage,
 )
 from expo.settings import DATETIME_FORMAT
@@ -154,7 +159,9 @@ def get_event_display_info(eventitem_id):
         raise Http404
     bio_grid_list = []
     featured_grid_list = []
+    occurrence_ids = []
     for sched_event in response.occurrences:
+        occurrence_ids += [sched_event.pk]
         for casting in sched_event.casting_list:
             if len(casting.role):
                 featured_grid_list += [{
@@ -163,10 +170,29 @@ def get_event_display_info(eventitem_id):
                     }]
             else:
                 bio_grid_list += [casting._item.bio]
+    booking_response = get_bookings(
+        occurrence_ids,
+        roles=['Teacher', 'Panelist', 'Moderator', 'Staff Lead'])
+    people = []
+    if len(booking_response.people) == 0 and (
+            item.__class__.__name__ == "Class"):
+        people = [{
+            'role': "Presenter",
+            'person': item.teacher, }]
+    else:
+        for person in booking_response.people:
+            people += [{
+                'role': person.role,
+                'person': eval(person.public_class).objects.get(
+                    pk=person.public_id),
+            }]
+        
+
     eventitem_view = {'event': item,
                       'scheduled_events': response.occurrences,
                       'labels': event_labels,
                       'bio_grid_list': bio_grid_list,
                       'featured_grid_list': featured_grid_list,
+                      'people': people,
                       }
     return eventitem_view
