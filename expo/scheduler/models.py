@@ -524,6 +524,7 @@ class EventItem (models.Model):
         return self.child().e_conference
 
     @property
+    # DEPRECATE - when scheduling refactored
     def bios(self):
         people = WorkerItem.objects.filter(
             worker__allocations__event__eventitem=self.eventitem_id,

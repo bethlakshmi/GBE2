@@ -180,13 +180,15 @@ def get_event_display_info(eventitem_id):
             'role': "Presenter",
             'person': item.teacher, }]
     else:
+        id_set = []
         for person in booking_response.people:
-            people += [{
-                'role': person.role,
-                'person': eval(person.public_class).objects.get(
-                    pk=person.public_id),
-            }]
-        
+            if person.public_id not in id_set:
+                id_set += [person.public_id]
+                people += [{
+                    'role': person.role,
+                    'person': eval(person.public_class).objects.get(
+                        pk=person.public_id),
+                }]
 
     eventitem_view = {'event': item,
                       'scheduled_events': response.occurrences,
