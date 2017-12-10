@@ -56,7 +56,6 @@ class ListEventsView(View):
             'conference_slugs': conference_slugs(),
             'title': list_titles.get(self.event_type.lower(), ""),
             'view_header_text': list_text.get(self.event_type.lower(), ""),
-            'etype': self.event_type,
         }
 
         return context
