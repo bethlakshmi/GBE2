@@ -6,9 +6,9 @@ from scheduler.data_transfer import (
 )
 
 
-def get_bookings(occurrence_id, role=None):
+def get_bookings(occurrence_ids, role=None):
     people = []
-    bookings = ResourceAllocation.objects.filter(event__pk=occurrence_id)
+    bookings = ResourceAllocation.objects.filter(event__pk__in=occurrence_ids)
     if role:
         bookings = bookings.filter(resource__worker__role=role)
     for booking in bookings:
