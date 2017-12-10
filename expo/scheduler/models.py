@@ -531,8 +531,6 @@ class EventItem (models.Model):
                               'Panelist',
                               'Moderator']).distinct().select_subclasses(
                                   'performer')
-        if people.count() == 0:
-            people = self.bio_payload
         return people
 
     # DEPRECATE - when scheduling refactored

@@ -112,10 +112,6 @@ class Class(Biddable, Event):
         return payload
 
     @property
-    def bio_payload(self):
-        return [self.teacher]
-
-    @property
     def bids_to_review(self):
         return type(self).objects.filter(
             visible_bid_query,

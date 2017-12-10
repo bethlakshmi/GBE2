@@ -8,7 +8,6 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     ShowFactory,
 )
-from gbe.models import Conference
 from tests.contexts import VolunteerContext
 
 

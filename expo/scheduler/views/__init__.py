@@ -10,7 +10,6 @@ from remains import (
     contact_teachers,
     contact_vendors,
     contact_by_role,
-    view_list,
 )
 
 from scheduler.views.export_calendar import export_calendar

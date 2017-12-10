@@ -3,8 +3,6 @@ from django.test import (
     TestCase,
 )
 from django.core.urlresolvers import reverse
-from scheduler.views import view_list
-
 from tests.factories.gbe_factories import(
     ActFactory,
     ClassFactory,
@@ -34,7 +32,7 @@ from tests.functions.gbe_functions import (
 )
 
 
-class TestDeleteEvent(TestCase):
+class TestContactByRole(TestCase):
     view_name = 'contact_by_role'
 
     def setUp(self):

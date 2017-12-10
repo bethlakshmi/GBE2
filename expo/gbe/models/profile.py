@@ -364,9 +364,6 @@ class Profile(WorkerItem):
         classes = filter(f, classes)
         return classes
 
-    def sched_payload(self):
-        return {'name': self.display_name}
-
     def has_role_in_event(self, role, event):
         '''
         Returns True if this person has the

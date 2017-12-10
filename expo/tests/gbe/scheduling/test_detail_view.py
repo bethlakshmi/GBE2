@@ -167,18 +167,13 @@ class TestDetailView(TestCase):
 
     def test_interested_in_event(self):
         context = ShowContext()
-        interested_profile = ProfileFactory()
-        ResourceAllocationFactory(
-            event=context.sched_event,
-            resource=WorkerFactory(_item=interested_profile,
-                                   role="Interested"))
+        interested_profile = context.set_interest()
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
             args=[context.show.pk])
         login_as(interested_profile, self)
         response = self.client.get(url)
-        print response
         set_fav_link = reverse(
             "set_favorite",
             args=[context.sched_event.pk, "off"],

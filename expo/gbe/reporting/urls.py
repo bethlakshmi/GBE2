@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
 from gbe.reporting.views import (
+    interest_view,
     review_staff_area_view,
     staff_area_view,
     volunteer_type_view,
@@ -51,6 +52,8 @@ urlpatterns = patterns(
         room_schedule, name='room_schedule'),
     url(r'^reports/setup/room/?$',
         room_setup, name='room_setup'),
+    url(r'^reports/interest/?$',
+        interest_view, name='interest'),
     url(r'^reports/download_tracks_for_show/(\d+)/?$',
         download_tracks_for_show,
         name='download_tracks_for_show'),
