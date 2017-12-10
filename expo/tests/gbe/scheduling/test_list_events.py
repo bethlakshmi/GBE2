@@ -14,7 +14,6 @@ from tests.factories.gbe_factories import (
     ShowFactory,
     GenericEventFactory,
 )
-import nose.tools as nt
 from tests.contexts import (
     ClassContext,
     ShowContext,
@@ -43,8 +42,8 @@ class TestViewList(TestCase):
         response = self.client.get(
             url,
             data={"conference": self.conf.conference_slug})
-        nt.assert_true(this_class.e_title in response.content)
-        nt.assert_false(that_class.e_title in response.content)
+        self.assertTrue(this_class.e_title in response.content)
+        self.assertFalse(that_class.e_title in response.content)
 
     def test_view_list_default_view_current_conf_exists(self):
         '''
@@ -67,11 +66,11 @@ class TestViewList(TestCase):
                       urlconf="gbe.scheduling.urls")
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        nt.assert_true(generic_event.e_title in response.content)
-        nt.assert_true(show.e_title in response.content)
-        nt.assert_true(accepted_class.e_title in response.content)
-        nt.assert_false(rejected_class.e_title in response.content)
-        nt.assert_false(previous_class.e_title in response.content)
+        self.assertTrue(generic_event.e_title in response.content)
+        self.assertTrue(show.e_title in response.content)
+        self.assertTrue(accepted_class.e_title in response.content)
+        self.assertFalse(rejected_class.e_title in response.content)
+        self.assertFalse(previous_class.e_title in response.content)
 
     def test_no_avail_conf(self):
         clear_conferences()
@@ -117,8 +116,8 @@ class TestViewList(TestCase):
                       args=['Class'])
         login_as(ProfileFactory(), self)
         response = self.client.get(url)
-        nt.assert_false(show.e_title in response.content)
-        nt.assert_true(accepted_class.e_title in response.content)
+        self.assertFalse(show.e_title in response.content)
+        self.assertTrue(accepted_class.e_title in response.content)
 
     def test_interested_in_event(self):
         context = ShowContext(conference=self.conf)
