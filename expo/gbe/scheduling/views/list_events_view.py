@@ -104,7 +104,7 @@ class ListEventsView(View):
             response = get_occurrences(
                 foreign_event_ids=[item.eventitem_id])
             for occurrence in response.occurrences:
-                people_response = get_bookings(occurrence.pk)
+                people_response = get_bookings([occurrence.pk])
                 highlight = None
                 favorite_link = reverse(
                     'set_favorite',
