@@ -8,10 +8,6 @@ from django.db.models import (
 
 from gbe.expomodelfields import DurationField
 from scheduler.models import EventItem
-from scheduler.idd import (
-    get_occurrences,
-    get_bookings,
-)
 from gbe.models import (
     Conference,
     Room
