@@ -58,20 +58,6 @@ class Event(EventItem):
                                                     'Staff Area')]
 
     @property
-    def interested(self):
-        interested = []
-        occurrence_ids = []
-        occurrence_resp = get_occurrences(
-            foreign_event_ids=[self.eventitem_id])
-        for occurrence in occurrence_resp.occurrences:
-            occurrence_ids += [occurrence.pk]
-        if len(occurrence_ids) > 0:
-            interested_resp = get_bookings(occurrence_ids,
-                                           role="Interested")
-            interested = interested_resp.people
-        return interested
-
-    @property
     def sched_payload(self):
         return {'title': self.e_title,
                 'description': self.e_description,
