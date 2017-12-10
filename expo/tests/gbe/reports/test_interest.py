@@ -52,8 +52,8 @@ class TestInterest(TestCase):
         for person in interested:
             self.assertContains(
                 response,
-                "%s &lt;%s&gt;;</br>" % (person.display_name,
-                                         person.user_object.email))
+                "%s &lt;%s&gt;;" % (person.display_name,
+                                    person.user_object.email))
 
     def test_interest_old_conf(self):
         interested = []
@@ -67,8 +67,8 @@ class TestInterest(TestCase):
         for person in interested:
             self.assertContains(
                 response,
-                "%s &lt;%s&gt;;</br>" % (person.display_name,
-                                         person.user_object.email))
+                "%s &lt;%s&gt;;" % (person.display_name,
+                                    person.user_object.email))
 
     def test_info_is_present(self):
         interested = []

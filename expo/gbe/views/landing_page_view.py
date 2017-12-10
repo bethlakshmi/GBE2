@@ -89,7 +89,9 @@ def LandingPageView(request, profile_id=None, historical=False):
                 'role':  booking.role,
                 'conference': booking.event.eventitem.child().e_conference,
                 'starttime': booking.event.starttime,
-                'interested': get_bookings([booking.event.pk], role="Interested").people,
+                'interested': get_bookings(
+                    [booking.event.pk],
+                    role="Interested").people,
                 'eventitem_id': booking.event.eventitem.eventitem_id,
                 'title': booking.event.eventitem.child().e_title, }
             bookings += [booking_item]

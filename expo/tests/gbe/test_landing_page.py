@@ -380,8 +380,8 @@ class TestIndex(TestCase):
         for person in interested:
             self.assertContains(
                 response,
-                "%s &lt;%s&gt;;</br>" % (person.display_name,
-                                         person.user_object.email))
+                "%s &lt;%s&gt;;" % (person.display_name,
+                                    person.user_object.email))
         self.assertContains(response,
                             interested_explain_msg)
 
