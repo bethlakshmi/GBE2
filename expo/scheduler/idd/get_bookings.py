@@ -1,6 +1,5 @@
 from scheduler.models import ResourceAllocation
 from scheduler.data_transfer import (
-    Error,
     PeopleResponse,
     Person,
 )
