@@ -371,6 +371,14 @@ unique_email_templates = {
          'category': 'volunteer',
          'default_base': "schedule_conflict",
          'default_subject': "URGENT: Volunteer Schedule Conflict Occurred", }],
+    'scheduling': [
+        {'name': 'daily schedule',
+         'description': '''This email is sent daily to any user with a \
+         schedule obligation the next day.''',
+         'category': 'scheduling',
+         'default_base': "schedule_letter",
+         'default_subject':
+            "Your Schedule for Tomorrow at GBE", }, ],
 }
 
 default_class_submit_msg = "Your class was successfully submitted"

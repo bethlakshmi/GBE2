@@ -268,5 +268,7 @@ def get_user_email_templates(user):
                             state[1]), }]
         if priv in unique_email_templates:
             template_set += unique_email_templates[priv]
+    if "Scheduling Mavens" in user.privilege_groups:
+        template_set += unique_email_templates['scheduling']
     return sorted(template_set,
                   key=lambda item: (item['name'], item['category']))
