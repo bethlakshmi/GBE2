@@ -5,11 +5,11 @@ from scheduler.data_transfer import (
 )
 
 
-def get_bookings(occurrence_ids, role=None):
+def get_bookings(occurrence_ids, roles=[]):
     people = []
     bookings = ResourceAllocation.objects.filter(event__pk__in=occurrence_ids)
-    if role:
-        bookings = bookings.filter(resource__worker__role=role)
+    if len(roles) > 0:
+        bookings = bookings.filter(resource__worker__role__in=roles)
     for booking in bookings:
         if booking.resource.as_subtype.__class__.__name__ == "Worker":
             person = Person(

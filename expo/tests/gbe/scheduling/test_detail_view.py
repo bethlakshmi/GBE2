@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ActCastingOptionFactory,
+    ClassFactory,
     ConferenceFactory,
     ProfileFactory,
     ShowFactory,
@@ -53,6 +54,15 @@ class TestDetailView(TestCase):
             args=[bad_id_for(EventItem)])
         response = self.client.get(bad_url)
         self.assertEqual(response.status_code, 404)
+
+    def test_unsched_class(self):
+        bid_class = ClassFactory()
+        response = self.client.get(reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[bid_class.eventitem_id]))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, response.content.count(bid_class.teacher.name))
 
     def test_repeated_lead_shows_once(self):
         show = ShowFactory()
