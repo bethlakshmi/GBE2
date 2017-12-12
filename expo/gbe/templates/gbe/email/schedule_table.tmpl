@@ -1,0 +1,18 @@
+  <table>
+  <tr>
+    <th>Schedule Item</th>
+    <th>Role</th>
+    <th>Location</th>
+    <th>Day</th>
+    <th>Time</th>
+  {% for booking in bookings %}
+  <tr>
+    <td>{{ booking.event }}</td>
+    <td>{{booking.role}} </td>    
+    <td>{{booking.event.location}} </td>    
+    <td>{{booking.event.starttime.date}} </td>
+    <td>{{booking.event.starttime.time}} </td>
+  </tr>
+  {% endfor %}
+
+  </table>
