@@ -48,15 +48,22 @@ def get_schedule(user=None, labels=[], start_time=None, end_time=None):
             resource__worker___item=user.profile)
     for item in basic_filter:
         resource = item.resource.as_subtype
+        booking_label = None
+        if hasattr(item, 'label'):
+            booking_label = item.label
         if resource.__class__.__name__ == "Worker":
-            booking_label = None
-            if hasattr(item, 'label'):
-                booking_label = item.label
             sched_items += [ScheduleItem(
                 user=resource.workeritem.user_object,
                 event=item.event,
                 role=resource.role,
                 label=booking_label)]
+        if resource.__class__.__name__ == "ActResource":
+            for profile in resource._item.act.get_performer_profiles():  
+                sched_items += [ScheduleItem(
+                    user=profile.user_object,
+                    event=item.event,
+                    role=resource.role or "Performing",
+                    label=booking_label)]
     response = ScheduleResponse(
         schedule_items=sorted(
             set(sched_items),
