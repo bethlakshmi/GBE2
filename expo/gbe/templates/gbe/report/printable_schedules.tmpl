@@ -11,11 +11,10 @@
 
 {% for schedule in schedules %}
 {% if schedule.bookings %}  
-{% include "gbe/report/schedule_letter.tmpl" with person=schedule.person bookings=schedule.bookings %}
+{% include "gbe/email/schedule_letter_html.tmpl" with badge_name=schedule.person.get_badge_name bookings=schedule.bookings %}
 {% endif %}
 {% if schedule.checklist_items %}
   <h3>{{ schedule.person.get_badge_name }}'s GBE Package Checklist</h3>
-
   <ul>
   {% for criteria in schedule.checklist_items %}
     {% if criteria.ticket %}

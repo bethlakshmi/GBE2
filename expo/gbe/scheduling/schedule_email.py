@@ -7,14 +7,15 @@ from datetime import (
     timedelta,
 )
 import pytz
+from gbe.email.functions import send_daily_schedule_mail
 
 
 def schedule_email():
     target_day = date.today() + timedelta(days=1)
-    personal_schedule = {}
+    personal_schedules = {}
     try:
         conf_day = ConferenceDay.objects.get(day=target_day)
-    except DoesNotExist:
+    except ConferenceDay.DoesNotExist:
         return 0
     sched_resp = get_schedule(
         start_time=datetime.combine(
@@ -24,9 +25,12 @@ def schedule_email():
                 target_day+timedelta(days=1), 
                 time(0, 0, 0, 0, tzinfo=pytz.utc)))
     for item in sched_resp.schedule_items:
-        if item.user in personal_schedule:
-            personal_schedule[item.user] += [item]
+        if item.user in personal_schedules:
+            personal_schedules[item.user] += [item]
         else:
-            personal_schedule[item.user] = [item]
-    return len(personal_schedule)
-    
+            personal_schedules[item.user] = [item]
+    send_daily_schedule_mail(
+        personal_schedules,
+        target_day,
+        conf_day.conference.conference_slug)
+    return len(personal_schedules)
