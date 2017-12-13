@@ -16,7 +16,7 @@ def get_schedule(user=None, labels=[], start_time=None, end_time=None):
                 event__eventlabel__text__in=labels)
     if start_time:
         basic_filter = basic_filter.filter(
-            event__starttime__gt=start_time)
+            event__starttime__gte=start_time)
     if end_time:
         basic_filter = basic_filter.filter(
             event__starttime__lt=end_time)
