@@ -206,7 +206,6 @@ def assert_queued_email(to_list, subject, message, sender):
         assert queued_email.filter(
             to=recipient).exists()
 
-
 def make_act_app_purchase(conference, user_object):
     purchaser = PurchaserFactory(
         matched_to_user=user_object)

@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.test import Client
 from tests.functions.gbe_functions import (
-    assert_alert_exists,
     assert_queued_email,
 )
 from tests.factories.gbe_factories import ConferenceDayFactory
@@ -19,11 +18,15 @@ from datetime import (
 )
 import pytz
 from gbe.scheduling.schedule_email import schedule_email
+from django.conf import settings
 
 
 class TestSendDailySchedule(TestCase):
+    subject = "Your Schedule for Tomorrow at GBE"
+
     def setUp(self):
         self.client = Client()
+        Email.objects.all().delete()
 
     def test_no_conference_day(self):
         num = schedule_email()
@@ -40,6 +43,12 @@ class TestSendDailySchedule(TestCase):
             time(0, 0, 0, 0, tzinfo=pytz.utc))
         context = ClassContext(starttime=start_time)
         num = schedule_email()
-        print context.sched_event.starttime
-        print date.today() + timedelta(days=1)
         self.assertEqual(1, num)
+        queued_email = Email.objects.filter(
+            status=2,
+            subject=self.subject,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            )
+        self.assertEqual(queued_email.count(), 1)
+        self.assertTrue(context.bid.e_title in queued_email[0].html_message)
+        self.assertTrue(context.teacher.user_object.email in queued_email[0].html_message)
