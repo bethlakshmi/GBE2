@@ -4,9 +4,11 @@ from django.test import (
     TestCase,
 )
 from tests.factories.gbe_factories import (
+    AvailableInterestFactory,
     ProfileFactory,
     PersonaFactory,
     RoomFactory,
+    VolunteerFactory,
 )
 from gbe.models import (Event, Room)
 from scheduler.models import Worker
@@ -20,6 +22,7 @@ from tests.contexts import (
     ClassContext,
     PanelContext,
     StaffAreaContext,
+    VolunteerContext,
 )
 from tests.functions.gbe_scheduling_functions import (
     assert_good_sched_event_form,
@@ -200,6 +203,25 @@ class TestEditOccurrence(TestCase):
             '<option value="%d" selected="selected">%s</option>' % (
                 teacher.pk,
                 teacher.name))
+
+    def test_vol_opp_new_interest(self):
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        context = VolunteerContext()
+        new_interest = AvailableInterestFactory()
+        context.opportunity.volunteer_type = new_interest
+        context.opportunity.save()
+        url = reverse(self.view_name,
+                      args=["GenericEvent",
+                            context.opportunity.eventitem_id,
+                            context.opp_event.pk],
+                      urlconf="gbe.scheduling.urls")
+        login_as(self.privileged_profile, self)
+        response = self.client.get(url)
+        print response.content
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Volunteer Allocation")
+        self.assertContains(response, context.bid.profile.badge_name)
+        self.assertContains(response, context.opportunity.e_title)
 
     def test_good_user_minimal_post(self):
         login_as(self.privileged_profile, self)
