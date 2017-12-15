@@ -38,9 +38,10 @@ from gbe_forms_text import (
     copy_mode_labels,
     copy_mode_choices,
 )
+from string import replace
 
 
-class TestClassWizard(TestCase):
+class TestCopyOccurrence(TestCase):
     view_name = 'copy_event_schedule'
     copy_date_format = "%a, %b %-d, %Y %-I:%M %p"
 
@@ -320,15 +321,18 @@ class TestClassWizard(TestCase):
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
-        response = self.client.post(url, data=data, follow=True)
         max_pk = Event.objects.latest('pk').pk
-        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+        response = self.client.post(url, data=data, follow=True)
+        new_occurrences = []
+        for occurrence in Event.objects.filter(pk__gt=max_pk):
+            new_occurrences += [occurrence.pk]
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[another_day.conference.conference_slug]),
             another_day.conference.conference_slug,
             another_day.pk,
-            (str(max_pk-1) + "L,%20" + str(max_pk)),)
+            replace(str(new_occurrences), " ", "%20"))
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
             response,
@@ -367,15 +371,18 @@ class TestClassWizard(TestCase):
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
-        response = self.client.post(url, data=data, follow=True)
         max_pk = Event.objects.latest('pk').pk
-        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+        response = self.client.post(url, data=data, follow=True)
+        new_occurrences = []
+        for occurrence in Event.objects.filter(pk__gt=max_pk):
+            new_occurrences += [occurrence.pk]
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[another_day.conference.conference_slug]),
             another_day.conference.conference_slug,
             another_day.pk,
-            (str(max_pk-1) + "L,%20" + str(max_pk)),)
+            replace(str(new_occurrences), " ", "%20"))
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
             response,
