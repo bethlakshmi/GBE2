@@ -266,6 +266,10 @@ class MakeOccurrenceView(View):
                 initial_form_info['duration'] = Duration(
                     self.item.duration.days,
                     self.item.duration.seconds)
+                initial_form_info['max_volunteer'] = 0
+            else:
+                initial_form_info['max_volunteer'] = 1
+
         if errorcontext and ('form' in errorcontext):
             context['form'] = errorcontext['form']
         else:
