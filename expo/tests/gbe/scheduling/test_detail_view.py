@@ -40,7 +40,7 @@ class TestDetailView(TestCase):
         self.url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[self.context.show.pk])
+            args=[self.context.show.eventitem_id])
 
     def test_no_permission_required(self):
         response = self.client.get(self.url)
@@ -78,7 +78,7 @@ class TestDetailView(TestCase):
         response = self.client.get(reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[show.pk]))
+            args=[show.eventitem_id]))
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, response.content.count(staff_lead.display_name))
 
@@ -98,7 +98,7 @@ class TestDetailView(TestCase):
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
-                      args=[context.show.pk])
+                      args=[context.show.eventitem_id])
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
         self.assertContains(response, context.performer.name)
@@ -125,7 +125,7 @@ class TestDetailView(TestCase):
         context = ActTechInfoContext(act_role="Hosted By...")
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
-                      args=[context.show.pk])
+                      args=[context.show.eventitem_id])
         superuser = User.objects.create_superuser('test_feature_editor',
                                                   'admin@importimage.com',
                                                   'secret')
@@ -162,7 +162,7 @@ class TestDetailView(TestCase):
         set_image(context.performer)
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
-                      args=[context.show.pk])
+                      args=[context.show.eventitem_id])
         superuser = User.objects.create_superuser('test_feature_img_editor',
                                                   'admin@importimage.com',
                                                   'secret')
@@ -181,7 +181,7 @@ class TestDetailView(TestCase):
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[context.show.pk])
+            args=[context.show.eventitem_id])
         login_as(interested_profile, self)
         response = self.client.get(url)
         set_fav_link = reverse(
@@ -198,7 +198,7 @@ class TestDetailView(TestCase):
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[context.show.pk])
+            args=[context.show.eventitem_id])
         login_as(interested_profile, self)
         response = self.client.get(url)
         set_fav_link = reverse(
@@ -214,7 +214,7 @@ class TestDetailView(TestCase):
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[context.show.pk])
+            args=[context.show.eventitem_id])
         login_as(context.performer.performer_profile, self)
         response = self.client.get(url)
         self.assertContains(response,
@@ -226,7 +226,7 @@ class TestDetailView(TestCase):
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
-            args=[context.show.pk])
+            args=[context.show.eventitem_id])
         login_as(context.performer.performer_profile, self)
         response = self.client.get(url)
         self.assertNotContains(response, 'fa-star')
