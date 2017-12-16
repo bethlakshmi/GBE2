@@ -213,7 +213,6 @@ def make_act_app_purchase(conference, user_object):
     transaction = TransactionFactory(purchaser=purchaser)
     transaction.ticket_item.bpt_event.conference = conference
     transaction.ticket_item.bpt_event.act_submission_event = True
-    transaction.ticket_item.bpt_event.bpt_event_id = "111111"
     transaction.ticket_item.bpt_event.save()
     return transaction
 

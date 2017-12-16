@@ -24,6 +24,7 @@ from gbetext import (
     unknown_request,
 )
 from django.contrib.auth.models import User
+from gbe.models import Conference
 from post_office.models import Email
 
 
@@ -32,6 +33,7 @@ class TestMailToBidder(TestCase):
     priv_list = ['Act', 'Class', 'Costume', 'Vendor', 'Volunteer']
 
     def setUp(self):
+        Conference.objects.all().delete()
         self.client = Client()
         self.privileged_user = User.objects.create_superuser(
             'myuser', 'myemail@test.com', "mypassword")
@@ -53,6 +55,28 @@ class TestMailToBidder(TestCase):
         login_as(reduced_profile, self)
         return reduced_profile
 
+    def assert_checkbox(self,
+                        response,
+                        field_name,
+                        position,
+                        value,
+                        label,
+                        checked=True):
+        if checked:
+            checked_string = 'checked="checked" '
+        else:
+            checked_string = ''
+        checkbox = '<input %sid="id_email-select-%s_%s"' + \
+            ' name="email-select-%s" type="checkbox" value="%s" />%s'
+        self.assertContains(
+            response,
+            checkbox % (checked_string,
+                        field_name,
+                        position,
+                        field_name,
+                        value,
+                        label))
+
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
         redirect_url = "%s/?next=/email/mail_to_bidders" % (
@@ -66,16 +90,23 @@ class TestMailToBidder(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_full_login_first_get(self):
+        n = 0
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        self.assertContains(
+        self.assert_checkbox(
             response,
-            '<option value="" selected="selected">All</option>',
-            2)
+            "conference",
+            0,
+            self.context.conference.pk,
+            self.context.conference.conference_slug)
         for priv in self.priv_list:
-            self.assertContains(
+            self.assert_checkbox(
                 response,
-                '<option value="%s">%s</option>' % (priv, priv))
+                "bid_type",
+                n,
+                priv,
+                priv)
+            n = n + 1
         for state in acceptance_states:
             self.assertContains(
                 response,
@@ -88,32 +119,39 @@ class TestMailToBidder(TestCase):
     def test_reduced_login_first_get(self):
         self.reduced_login()
         response = self.client.get(self.url, follow=True)
-        self.assertContains(
+        self.assert_checkbox(
             response,
-            '<option value="" selected="selected">All</option>',
-            2)
-        self.assertContains(
+            "conference",
+            0,
+            self.context.conference.pk,
+            self.context.conference.conference_slug)
+        self.assert_checkbox(
             response,
-            '<option value="%s">%s</option>' % ("Act", "Act"))
+            "bid_type",
+            0,
+            "Act",
+            "Act")
         self.assertNotContains(
             response,
-            '<option value="%s">%s</option>' % ("Class", "Class"))
+            "Class")
         self.assertNotContains(response, "Email Everyone")
 
     def test_full_login_first_get_2_conf(self):
         extra_conf = ConferenceFactory()
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        self.assertContains(
+        self.assert_checkbox(
             response,
-            '<option value="%s">%s</option>' % (
-                self.context.conference.pk,
-                self.context.conference.conference_name))
-        self.assertContains(
+            "conference",
+            0,
+            self.context.conference.pk,
+            self.context.conference.conference_slug)
+        self.assert_checkbox(
             response,
-            '<option value="%s">%s</option>' % (
-                extra_conf.pk,
-                extra_conf.conference_name))
+            "conference",
+            1,
+            extra_conf.pk,
+            extra_conf.conference_slug)
 
     def test_pick_everyone(self):
         login_as(self.privileged_profile, self)
@@ -137,7 +175,8 @@ class TestMailToBidder(TestCase):
         second_context = ClassContext()
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-conference': self.context.conference.pk,
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
@@ -153,7 +192,9 @@ class TestMailToBidder(TestCase):
         second_bid = ActFactory()
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-bid_type': "Class",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
+            'email-select-bid_type': ["Class"],
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
@@ -169,8 +210,10 @@ class TestMailToBidder(TestCase):
         second_class = ClassFactory(accepted=2)
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-state': 3,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-conference': [self.context.conference.pk,
+                                        second_class.b_conference.pk],
+            'email-select-bid_type': ["Class"],
+            'email-select-state': [3],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -185,7 +228,9 @@ class TestMailToBidder(TestCase):
         second_bid = ClassFactory()
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-bid_type': "Class",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
+            'email-select-bid_type': ["Class"],
             'email-select-state': ["Draft"],
             'filter': True,
         }
@@ -202,7 +247,10 @@ class TestMailToBidder(TestCase):
         third_bid = ClassFactory(submitted=True)
         login_as(self.privileged_profile, self)
         data = {
-            'email-select-bid_type': "Class",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk,
+                                        third_bid.b_conference.pk],
+            'email-select-bid_type': ["Class"],
             'email-select-state': ["Draft", 3],
             'filter': True,
         }
@@ -221,6 +269,7 @@ class TestMailToBidder(TestCase):
         second_bid = ActFactory()
         self.reduced_login()
         data = {
+            'email-select-conference': [self.context.conference.pk],
             'email-select-bid_type': "Class",
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
@@ -231,10 +280,13 @@ class TestMailToBidder(TestCase):
             'Select a valid choice. Class is not one of the available choices.'
             )
 
-    def test_pick_all_reduced_priv(self):
+    def test_pick_reduced_priv(self):
         second_bid = ActFactory(submitted=True)
         self.reduced_login()
         data = {
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
+            'email-select-bid_type': ['Act'],
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
@@ -249,6 +301,8 @@ class TestMailToBidder(TestCase):
     def test_pick_no_bidders(self):
         reduced_profile = self.reduced_login()
         data = {
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': ['Act'],
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': True,
         }
@@ -259,6 +313,8 @@ class TestMailToBidder(TestCase):
     def test_pick_admin_has_sender(self):
         login_as(self.privileged_profile, self)
         data = {
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'filter': "Filter",
         }
@@ -269,10 +325,12 @@ class TestMailToBidder(TestCase):
             'value="%s" />' % (self.privileged_profile.user_object.email))
 
     def test_pick_no_admin_fixed_email(self):
-        ActFactory(submitted=True)
+        act_bid = ActFactory(submitted=True)
         reduced_profile = self.reduced_login()
         data = {
             'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-bid_type': ['Act'],
+            'email-select-conference': [act_bid.b_conference.pk],
             'filter': "Filter",
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -287,6 +345,8 @@ class TestMailToBidder(TestCase):
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
@@ -304,6 +364,8 @@ class TestMailToBidder(TestCase):
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
             'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -321,6 +383,9 @@ class TestMailToBidder(TestCase):
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
+            'email-select-bid_type': ['Act'],
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
@@ -339,6 +404,8 @@ class TestMailToBidder(TestCase):
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
             'email-select-bid_type': "Class",
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
@@ -354,6 +421,8 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
@@ -365,6 +434,8 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
@@ -380,36 +451,44 @@ class TestMailToBidder(TestCase):
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
-            'email-select-conference': self.context.conference.pk,
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
+        self.assert_checkbox(
             response,
-            '<option value="%d" selected="selected">%s</option>' % (
-                self.context.conference.pk,
-                self.context.conference.conference_name))
+            "conference",
+            0,
+            self.context.conference.pk,
+            self.context.conference.conference_slug)
 
     def test_send_email_failure_preserve_bid_type_choice(self):
         login_as(self.privileged_profile, self)
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk],
             'email-select-bid_type': "Class",
             'email-select-state': [0, 1, 2, 3, 4, 5],
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
+        self.assert_checkbox(
             response,
-            '<option value="Class" selected="selected">Class</option>')
+            "bid_type",
+            1,
+            "Class",
+            "Class")
 
     def test_send_email_failure_preserve_state_choice(self):
         login_as(self.privileged_profile, self)
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [3, ],
             'send': True
         }
@@ -423,6 +502,8 @@ class TestMailToBidder(TestCase):
         second_class = ClassFactory(accepted=2)
         login_as(self.privileged_profile, self)
         data = {
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-bid_type': self.priv_list,
             'email-select-state': [0, 1, 2, 3, 4, 5],
         }
         response = self.client.post(self.url, data=data, follow=True)
