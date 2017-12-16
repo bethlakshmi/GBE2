@@ -217,10 +217,25 @@ class TestEditOccurrence(TestCase):
                       urlconf="gbe.scheduling.urls")
         login_as(self.privileged_profile, self)
         response = self.client.get(url)
-        print response.content
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Volunteer Allocation")
         self.assertContains(response, context.bid.profile.badge_name)
+        self.assertContains(response, context.opportunity.e_title)
+
+    def test_vol_opp_pk_v_eventitem_id(self):
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        context = VolunteerContext()
+        context.opp_event.eventitem.eventitem_id = context.opportunity.pk + 1000
+        context.opp_event.eventitem.save()
+        url = reverse(self.view_name,
+                      args=["Show",
+                            context.event.eventitem_id,
+                            context.sched_event.pk],
+                      urlconf="gbe.scheduling.urls")
+        login_as(self.privileged_profile, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Volunteer Management")
         self.assertContains(response, context.opportunity.e_title)
 
     def test_good_user_minimal_post(self):

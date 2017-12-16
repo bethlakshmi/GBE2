@@ -89,10 +89,10 @@ class MakeOccurrenceView(View):
         '''
         actionform = []
         context = {}
-        response = get_occurrences(occurrence_id)
+        response = get_occurrences(parent_event_id=occurrence_id)
         for vol_occurence in response.occurrences:
             vol_event = Event.objects.get_subclass(
-                pk=vol_occurence.foreign_event_id)
+                    eventitem_id=vol_occurence.foreign_event_id)
             if (errorcontext and
                     'error_opp_form' in errorcontext and
                     errorcontext['error_opp_form'].instance == vol_event):
