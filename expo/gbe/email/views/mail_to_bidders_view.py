@@ -63,10 +63,8 @@ class MailToBiddersView(MailView):
         self.select_form.fields['bid_type'].choices = self.bid_type_choices
 
     def get_to_list(self):
-        query = Q()
         to_list = {}
         bid_types = self.select_form.cleaned_data['bid_type']
-
         query = Q(b_conference__in=self.select_form.cleaned_data['conference'])
 
         accept_states = self.select_form.cleaned_data['state']
