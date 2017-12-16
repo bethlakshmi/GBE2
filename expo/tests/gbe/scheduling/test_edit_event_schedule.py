@@ -217,10 +217,6 @@ class TestEditOccurrence(TestCase):
                       urlconf="gbe.scheduling.urls")
         login_as(self.privileged_profile, self)
         response = self.client.get(url)
-<<<<<<< HEAD
-=======
-        print response.content
->>>>>>> master
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Volunteer Allocation")
         self.assertContains(response, context.bid.profile.badge_name)
