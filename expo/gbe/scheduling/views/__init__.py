@@ -1,8 +1,19 @@
-from make_occurrence_view import MakeOccurrenceView
-from create_event_view import CreateEventView
-from manage_vol_ops_view import ManageVolOpsView
-from show_calendar_view import ShowCalendarView
-from allocate_worker_view import AllocateWorkerView
+# New Event Creation
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
+from ticketed_class_wizard_view import TicketedClassWizardView
+
+# Old but Refactored Event Editing/Creation/Allocation
+from copy_occurrence_view import CopyOccurrenceView
+from create_event_view import CreateEventView
+from make_occurrence_view import MakeOccurrenceView
+from manage_vol_ops_view import ManageVolOpsView
+from allocate_worker_view import AllocateWorkerView
+
 from manage_events_view import ManageEventsView
+
+# Public features
+from show_calendar_view import ShowCalendarView
+from set_favorite_view import SetFavoriteView
+from list_events_view import ListEventsView
+from event_detail_view import EventDetailView

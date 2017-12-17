@@ -20,10 +20,12 @@ from tests.factories.gbe_factories import(
     VolunteerFactory,
 )
 from tests.factories.scheduler_factories import (
+    LabelFactory,
     SchedEventFactory,
     ResourceAllocationFactory,
     WorkerFactory,
 )
+from tests.contexts import ClassContext
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -32,6 +34,7 @@ from tests.functions.gbe_functions import (
 from tests.contexts import ActTechInfoContext
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
+from gbetext import interested_explain_msg
 
 
 class TestIndex(TestCase):
@@ -127,6 +130,8 @@ class TestIndex(TestCase):
                 event=schedule_item,
                 resource=worker
             )
+            LabelFactory(text="label %d" % volunteer_assignment.pk,
+                         allocation=volunteer_assignment)
 
         persona_worker = WorkerFactory(_item=self.performer,
                                        role='Teacher')
@@ -142,7 +147,7 @@ class TestIndex(TestCase):
         return (unicode(event) in content and
                 date_format(event.start_time, "DATETIME_FORMAT") in content and
                 reverse('detail_view',
-                        urlconf="scheduler.urls",
+                        urlconf="gbe.scheduling.urls",
                         args=[event.eventitem.eventitem_id]) in content)
 
     def test_no_profile(self):
@@ -342,3 +347,61 @@ class TestIndex(TestCase):
         self.assertContains(response,
                             second_act_context.show.e_title,
                             count=2)
+
+    def test_interest(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf)
+        context.set_interest(self.profile)
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[context.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_teacher_interest(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf,
+            teacher=PersonaFactory(performer_profile=self.profile))
+        interested = []
+        for i in range(0, 3):
+            interested += [context.set_interest()]
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        for person in interested:
+            self.assertContains(
+                response,
+                "%s &lt;%s&gt;;" % (person.display_name,
+                                    person.user_object.email))
+        self.assertContains(response,
+                            interested_explain_msg)
+
+    def test_historical_no_interest(self):
+        context = ClassContext(
+            conference=self.previous_conf,
+            teacher=PersonaFactory(performer_profile=self.profile))
+        interested = []
+        for i in range(0, 3):
+            interested += [context.set_interest()]
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(
+            url,
+            data={'historical': 1})
+        content = response.content
+        for person in interested:
+            self.assertNotContains(
+                response,
+                "%s &lt;%s&gt;;</br>" % (person.display_name,
+                                         person.user_object.email))
+        self.assertNotContains(response,
+                               interested_explain_msg)

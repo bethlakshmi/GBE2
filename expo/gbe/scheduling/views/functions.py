@@ -1,9 +1,20 @@
 import pytz
 from datetime import datetime, time
 from scheduler.data_transfer import Person
+from scheduler.idd import (
+    get_bookings,
+    get_occurrences,
+)
 from django.contrib import messages
-from gbe.models import UserMessage
+from gbe.models import (
+    Event,
+    Performer,
+    Profile,
+    UserMessage,
+)
 from expo.settings import DATETIME_FORMAT
+from django.http import Http404
+from gbetext import event_labels
 
 
 def get_single_role(data, roles=None):
@@ -104,7 +115,7 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
                     'description': "Occurrence has been updated."})
         messages.success(
             request,
-            '%s<br>- %s, Start Time: %s' % (
+            '%s<br>%s, Start Time: %s' % (
                 user_message[0].description,
                 str(occurrence_response.occurrence),
                 occurrence_response.occurrence.starttime.strftime(
@@ -133,3 +144,57 @@ def show_scheduling_booking_status(request, booking_response, view):
         messages.success(
             request,
             user_message[0].description)
+
+
+def get_event_display_info(eventitem_id):
+    '''
+    Helper for displaying a single of event. Same idea as
+    get_events_display_info - but for
+    only one eventitem.
+    '''
+    try:
+        item = Event.objects.get_subclass(eventitem_id=eventitem_id)
+        response = get_occurrences(foreign_event_ids=[eventitem_id])
+    except Event.DoesNotExist:
+        raise Http404
+    bio_grid_list = []
+    featured_grid_list = []
+    occurrence_ids = []
+    for sched_event in response.occurrences:
+        occurrence_ids += [sched_event.pk]
+        for casting in sched_event.casting_list:
+            if len(casting.role):
+                featured_grid_list += [{
+                    'bio': casting._item.bio,
+                    'role': casting.role,
+                    }]
+            else:
+                bio_grid_list += [casting._item.bio]
+    booking_response = get_bookings(
+        occurrence_ids,
+        roles=['Teacher', 'Panelist', 'Moderator', 'Staff Lead'])
+    people = []
+    if len(booking_response.people) == 0 and (
+            item.__class__.__name__ == "Class"):
+        people = [{
+            'role': "Presenter",
+            'person': item.teacher, }]
+    else:
+        id_set = []
+        for person in booking_response.people:
+            if person.public_id not in id_set:
+                id_set += [person.public_id]
+                people += [{
+                    'role': person.role,
+                    'person': eval(person.public_class).objects.get(
+                        pk=person.public_id),
+                }]
+
+    eventitem_view = {'event': item,
+                      'scheduled_events': response.occurrences,
+                      'labels': event_labels,
+                      'bio_grid_list': bio_grid_list,
+                      'featured_grid_list': featured_grid_list,
+                      'people': people,
+                      }
+    return eventitem_view

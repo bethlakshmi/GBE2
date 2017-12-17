@@ -24,7 +24,6 @@ from tests.factories.scheduler_factories import (
 from tests.contexts import (
     ActTechInfoContext,
     ClassContext,
-    VolunteerContext,
     PurchasedTicketContext,
 )
 import ticketing.models as tix
@@ -91,81 +90,6 @@ class TestReports(TestCase):
             reverse('report_list',
                     urlconf="gbe.reporting.urls"))
         self.assertEqual(response.status_code, 200)
-
-    def test_review_staff_area_not_visible_without_permission(self):
-        login_as(self.profile, self)
-        current_conference = ConferenceFactory()
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls"))
-        self.assertEqual(response.status_code, 403)
-
-    def test_review_staff_area_path(self):
-        '''review_staff_area view should load
-        '''
-        current_conference = ConferenceFactory()
-        grant_privilege(self.profile, 'Act Reviewers')
-        login_as(self.profile, self)
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls"))
-        self.assertEqual(response.status_code, 200)
-
-    def test_review_staff_area_by_conference(self):
-        '''review_staff_area view should load
-        '''
-        Conference.objects.all().delete()
-        conf = ConferenceFactory()
-        grant_privilege(self.profile, 'Act Reviewers')
-        login_as(self.profile, self)
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls"),
-            data={'conf_slug': conf.conference_slug})
-        self.assertEqual(response.status_code, 200)
-
-    def test_staff_area_path(self):
-        '''staff_area view should load
-        '''
-        show = ShowFactory()
-        context = VolunteerContext(event=show)
-        grant_privilege(self.profile, 'Act Reviewers')
-        login_as(self.profile, self)
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
-        self.assertEqual(response.status_code, 200)
-
-    def test_staff_area_with_inactive(self):
-        '''staff_area view should load
-        '''
-        show = ShowFactory()
-        inactive = ProfileFactory(
-            display_name="DON'T SEE THIS",
-            user_object__is_active=False
-        )
-        context = VolunteerContext(event=show, profile=inactive)
-        grant_privilege(self.profile, 'Act Reviewers')
-        login_as(self.profile, self)
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(
-            '<tr class="bid-table" style="color:red;">' in response.content)
-
-    def test_staff_area_path_fail(self):
-        '''staff_area view should fail for non-authenticated users
-        '''
-        show = ShowFactory()
-        login_as(self.profile, self)
-        response = self.client.get(
-            reverse('staff_area',
-                    urlconf="gbe.reporting.urls",
-                    args=[show.eventitem_id]))
-        self.assertEqual(response.status_code, 403)
 
     def test_env_stuff_fail(self):
         '''env_stuff view should load for privileged users
@@ -555,7 +479,7 @@ class TestReports(TestCase):
         login_as(self.profile, self)
         response = self.client.get(reverse('download_tracks_for_show',
                                            urlconf='gbe.reporting.urls',
-                                           args=[context.show.eventitem_id]))
+                                           args=[context.show.pk]))
         self.assertEquals(
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (

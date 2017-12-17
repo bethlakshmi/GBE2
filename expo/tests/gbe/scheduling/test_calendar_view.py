@@ -4,9 +4,12 @@ from django.test import (
     Client,
     TestCase,
 )
+from tests.functions.gbe_functions import login_as
 from tests.factories.gbe_factories import (
     ConferenceFactory,
     ConferenceDayFactory,
+    ProfileFactory,
+    UserFactory,
 )
 from tests.functions.gbe_functions import clear_conferences
 from tests.functions.scheduler_functions import noon
@@ -235,7 +238,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">',
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">',
             1)
 
     def test_calendar_2_event_per_hour(self):
@@ -246,7 +249,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">',
+            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 ">',
             2)
         self.assertContains(response, two_opp.eventitem.e_title)
 
@@ -259,7 +262,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 ">',
             3)
 
     def test_calendar_4_event_per_hour(self):
@@ -272,7 +275,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 ">',
             4)
 
     def test_calendar_6_event_per_hour(self):
@@ -285,7 +288,7 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 ">',
             6)
 
     def test_calendar_10_event_per_hour(self):
@@ -298,5 +301,112 @@ class TestCalendarView(TestCase):
         response = self.client.get(url)
         self.assertContains(
             response,
-            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">',
+            '<div class="col-lg-2 col-md-4 col-sm-6 col-xs-12 ">',
             10)
+
+    def test_logged_in_no_interest(self):
+        profile = ProfileFactory()
+        login_as(profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_logged_in_have_interest(self):
+        profile = self.showcontext.set_interest()
+        login_as(profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 interested">')
+
+    def test_logged_in_no_profile(self):
+        user = UserFactory()
+        login_as(user, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+
+    def test_calendar_old_conference(self):
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        data = {'conference': self.other_conference.conference_slug}
+        response = self.client.get(url, data=data)
+        self.assertNotContains(response, self.showcontext.show.e_title)
+        set_fav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "off"],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            set_fav_link,
+            url))
+        set_unfav_link = reverse(
+            "set_favorite",
+            args=[self.showcontext.sched_event.pk, "on"],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            set_unfav_link,
+            url))
+
+    def test_logged_in_teacher(self):
+        login_as(self.classcontext.teacher.performer_profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Conference'])
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 teacher">')
+
+    def test_logged_in_performer(self):
+        login_as(self.showcontext.performer.performer_profile, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['General'])
+        response = self.client.get(url)
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')
+        self.assertContains(
+            response,
+            '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 performer">')
+
+    def test_logged_in_volunteer(self):
+        volunteer, booking = self.staffcontext.book_volunteer()
+        login_as(volunteer, self)
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Volunteer'])
+        response = self.client.get(url)
+        self.assertContains(
+            response,
+            '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 volunteer">')
+        self.assertContains(response,
+                            '<a href="#" class="detail_link-disabled')

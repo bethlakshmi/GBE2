@@ -3,40 +3,17 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import *
 from scheduler import views
 
-event_types = ['All',
-               'Show',
-               'Special Event',
-               'Class',
-               'Volunteer Opportunity',
-               'Lecture',
-               'Workshop',
-               'Panel',
-               'Movement']
-days_of_week = ['Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday',
-                'Sunday']
-
 urlpatterns = patterns(
     '',
     url(r'^scheduler/list/?$',
         views.event_list, name='event_schedule'),
     url(r'^scheduler/list/([-\w]+)/?$',
         views.event_list, name='event_schedule'),
-    url(r'^scheduler/details/(\d+)/?$',
-        views.detail_view, name='detail_view'),
     url(r'^scheduler/delete_schedule/(?P<scheduler_event_id>\d+)/?$',
         views.delete_schedule, name='delete_schedule'),
     url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/?$',
         views.delete_event, name='delete_event'),
-    url(r'^scheduler/view_list/?$',
-        views.view_list, name='event_list'),
-    url(r'^scheduler/view_list/([-\w]+)/?$',
-        views.view_list, name='event_list'),
     url(r'^scheduler/acts/?$',
         views.schedule_acts, name='schedule_acts'),
     url(r'^scheduler/acts/(?P<show_id>\d+)/?$',

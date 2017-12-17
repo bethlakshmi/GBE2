@@ -38,14 +38,30 @@
         </div>
       </div>
       {% if eventitem.scheduled_events %}
-      <div class="sched_times">
-	  {% for sched_event in eventitem.scheduled_events %}
-	    <label class="sched_detail">Time:</label>  {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
-	      <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
-            {% if not forloop.last %}
-	    <br>
-	    {%endif%}
-	  {% endfor %}
+      <div class="sched_times container">
+	{% for sched_event in eventitem.scheduled_events %}
+	<div class="col-xs-12 sched-sub-box">
+	  {% if eventitem.event.e_conference.status != "completed" and toggle %}
+	  <div class="col-xs-1 sched-sub-box">
+	  {% if toggle != "disabled" %}
+            <a href="{% url 'scheduling:set_favorite' sched_event.pk toggle %}?next={{ request.get_full_path }}"
+ 	       class="detail_link" data-toggle="tooltip" 
+	       title="{%if toggle == "off" %}Remove from Schedule{% else %}Add to Schedule{% endif %}">
+            <i class="fa {%if toggle == "off" %}fa-star{% else %}fa-star-o{% endif %} fa-2x"
+	       aria-hidden="true"></i></a>
+	  {% else %}
+            <a href="#" class="detail_link-detail_disable" data-toggle="tooltip" 
+	       title="Contact the coordinator to change your schedule">
+            <i class="fa fa-star fa-2x" aria-hidden="true"></i></a>
+	  {% endif %}
+	  </div>
+	  {% endif %}
+	  <div class="col-xs-11 ">
+  	    <label class="sched_detail">Time:</label> {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
+	    <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
+	  </div>
+	</div>
+	{% endfor %}
       </div>
       {% endif %}
 
@@ -57,47 +73,27 @@
     {% if eventitem.bio_grid_list %}
       {% include "people_gallery.tmpl" with heading="Check out our fabulous Performers!" grid_items=eventitem.bio_grid_list%}
 
-    {% elif eventitem.event.roles %}
+    {% elif eventitem.people %}
     <div class="bio_block font_regular container">
-      {% for worker in eventitem.event.roles %}
+      {% for worker in eventitem.people %}
       <div class="row bio_row">
-      {% ifchanged worker.workeritem %}
         <div class="col-md-8 col-sm-7 col-xs-12">
 	{%if worker.role == "Staff Lead"%}
-	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.workeritem}}</h2>
+	  <h2 class="bio_name subtitle">{{worker.role}} - {{worker.person.display_name}}</h2>
         {%else%}
-          <h2 class="subtitle">About the {{worker.role}} - {{worker.workeritem.name}}</h2>
-          {{worker.workeritem.bio |safe}}
+          <h2 class="subtitle">About the {{worker.role}} - {{worker.person.name}}</h2>
+          {{worker.person.bio |safe}}
 	{%endif%}
         <br><br>
         </div>
-        {% if worker.workeritem.img %}
+        {% if worker.person.img %}
           <div class="col-md-3 col-sm-4 col-xs-12">
-          <img src="{{bio.img.url}}" class="sched_bio_image">
-          </div>
-        {% endif %}
-      {%endifchanged%}
-      </div>
-      {% endfor %}
-      </div>
-    {% elif eventitem.event.bios %}
-    <div class="bio_block font_regular container">
-      {% for bio in eventitem.event.bios %}
-      <div class="row bio_row">
-        <div class="col-md-8 col-sm-7 col-xs-12">
-        <h2 class="bio_name subtitle">About {{bio.name}}</h2>
-        {{bio.bio |safe}}
-        <br><br>
-        </div>
-
-       {% if bio.img %}
-          <div class="col-md-3 col-sm-4 col-xs-12">
-            <img src="{{bio.img.url}}" class="sched_bio_image">
+          <img src="{% thumbnail worker.person.img 300x300 crop upscale subject_location=worker.person.img.subject_location %}" class="sched_bio_image">
           </div>
         {% endif %}
       </div>
       {% endfor %}
-    </div>
+      </div>
     {% endif %}
 
 

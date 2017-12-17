@@ -69,14 +69,10 @@ class TestClassWizard(TestCase):
             'time': '11:00:00',
             'duration': 2.5,
             'location': self.room.pk,
-            'form-TOTAL_FORMS': "2",
-            'form-INITIAL_FORMS': "1",
-            'form-MIN_NUM_FORMS': "0",
-            'form-MAX_NUM_FORMS': "1000",
-            'form-0-role': 'Teacher',
-            'form-0-worker': self.teacher.pk,
-            'form-1-role': 'Volunteer',
-            'form-1-worker': "",
+            'alloc_0-role': 'Teacher',
+            'alloc_0-worker': self.teacher.pk,
+            'alloc_1-role': 'Volunteer',
+            'alloc_1-worker': "",
             'set_class': 'Finish',
         }
         return data
@@ -216,18 +212,20 @@ class TestClassWizard(TestCase):
             data=data,
             follow=True)
         occurrence = Event.objects.filter(eventitem=self.test_class)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
-            reverse('manage_event_list',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug]),
-            self.current_conference.conference_slug,
-            self.day.pk,
-            occurrence[0].pk))
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence[0].pk))
         assert_alert_exists(
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
@@ -248,18 +246,20 @@ class TestClassWizard(TestCase):
         self.assertEqual(new_class.teacher, self.teacher)
         occurrence = Event.objects.get(
             eventitem__eventitem_id=new_class.eventitem_id)
-        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%d" % (
-            reverse('manage_event_list',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug]),
-            self.current_conference.conference_slug,
-            self.day.pk,
-            occurrence.pk))
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
         assert_alert_exists(
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s 11:00 AM' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
@@ -272,7 +272,7 @@ class TestClassWizard(TestCase):
         login_as(self.privileged_user, self)
         data = self.edit_class()
         data['eventitem_id'] = ""
-        data['form-0-worker'] = ""
+        data['alloc_0-worker'] = ""
         response = self.client.post(
             self.url,
             data=data,
@@ -287,7 +287,7 @@ class TestClassWizard(TestCase):
     def test_auth_user_bad_user_assign(self):
         login_as(self.privileged_user, self)
         data = self.edit_class()
-        data['form-0-role'] = "bad role"
+        data['alloc_0-role'] = "bad role"
         response = self.client.post(
             self.url,
             data=data,
@@ -306,7 +306,7 @@ class TestClassWizard(TestCase):
             follow=True)
         self.assertContains(response, "This field is required.")
 
-    def test_auth_user_bad_schedule_assign(self):
+    def test_auth_user_bad_class_booking_assign(self):
         login_as(self.privileged_user, self)
         data = self.edit_class()
         data['type'] = "bad type"

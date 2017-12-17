@@ -1,18 +1,22 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
+from gbe.reporting.views import (
+    interest_view,
+    review_staff_area_view,
+    staff_area_view,
+    volunteer_type_view,
+    personal_schedule_view,
+)
 from gbe.reporting import (
     download_tracks_for_show,
     env_stuff,
     export_act_techinfo,
     export_badge_report,
     list_reports,
-    personal_schedule,
     review_act_techinfo,
-    review_staff_area,
     room_schedule,
     room_setup,
-    staff_area,
     view_techinfo,
 )
 from django.contrib import admin
@@ -24,11 +28,15 @@ urlpatterns = patterns(
         list_reports,
         name='report_list'),
     url(r'^reports/staff_area/?$',
-        review_staff_area,
+        review_staff_area_view,
         name='staff_area'),
     url(r'^reports/staff_area/(\d+)/?$',
-        staff_area,
+        staff_area_view,
         name='staff_area'),
+    url(r'^reports/volunteer_type/(?P<conference_choice>[-\w]+)/' +
+        '(?P<volunteer_type_id>\d+)/?$',
+        volunteer_type_view,
+        name='volunteer_type'),
     url(r'^reports/stuffing/(?P<conference_choice>[-\w]+)/?$',
         env_stuff,
         name='env_stuff'),
@@ -36,7 +44,7 @@ urlpatterns = patterns(
         env_stuff,
         name='env_stuff'),
     url(r'^reports/schedule/all/?$',
-        personal_schedule,
+        personal_schedule_view,
         name='personal_schedule'),
     url(r'^reports/schedule/room/?$',
         room_schedule, name='room_schedule'),
@@ -44,6 +52,8 @@ urlpatterns = patterns(
         room_schedule, name='room_schedule'),
     url(r'^reports/setup/room/?$',
         room_setup, name='room_setup'),
+    url(r'^reports/interest/?$',
+        interest_view, name='interest'),
     url(r'^reports/download_tracks_for_show/(\d+)/?$',
         download_tracks_for_show,
         name='download_tracks_for_show'),

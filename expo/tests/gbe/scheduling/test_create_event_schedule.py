@@ -152,6 +152,24 @@ class TestCreateOccurrence(TestCase):
                       args=["Class", context.bid.eventitem_id])
         response = self.client.get(url)
         assert_good_sched_event_form(response, context.bid)
+        self.assertContains(
+            response,
+            '<input id="id_event-max_volunteer" name="event-max_volunteer" ' +
+            'type="number" value="0" />')
+
+    def test_good_user_get_staff_area(self):
+        clear_conferences()
+        staff_area = GenericEventFactory(type="Staff Area")
+        login_as(self.privileged_profile, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=["GenericEvent", staff_area.eventitem_id])
+        response = self.client.get(url)
+        assert_good_sched_event_form(response, staff_area)
+        self.assertContains(
+            response,
+            '<input id="id_event-max_volunteer" name="event-max_volunteer" ' +
+            'type="number" value="1" />')
 
     def test_good_user_minimal_post(self):
         clear_conferences()
@@ -227,7 +245,7 @@ class TestCreateOccurrence(TestCase):
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>- %s, Start Time: %s' % (
+            'Occurrence has been updated.<br>%s, Start Time: %s' % (
                 form_data['event-e_title'],
                 'Fri, Feb 5 12:00 PM')
             )

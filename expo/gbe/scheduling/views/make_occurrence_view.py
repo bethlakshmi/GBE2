@@ -23,7 +23,7 @@ from scheduler.idd import (
     get_occurrences,
     update_occurrence,
 )
-from scheduler.views.functions import (
+from gbe.scheduling.views.functions import (
     get_event_display_info,
 )
 from gbe.scheduling.views.functions import (
@@ -89,10 +89,10 @@ class MakeOccurrenceView(View):
         '''
         actionform = []
         context = {}
-        response = get_occurrences(occurrence_id)
+        response = get_occurrences(parent_event_id=occurrence_id)
         for vol_occurence in response.occurrences:
             vol_event = Event.objects.get_subclass(
-                pk=vol_occurence.foreign_event_id)
+                    eventitem_id=vol_occurence.foreign_event_id)
             if (errorcontext and
                     'error_opp_form' in errorcontext and
                     errorcontext['error_opp_form'].instance == vol_event):
@@ -188,11 +188,15 @@ class MakeOccurrenceView(View):
                          'alloc_id': -1})
             assign_form.fields['worker'].widget = HiddenInput()
             assign_form.fields['label'].widget = HiddenInput()
+            if volunteer.volunteerinterest_set.filter(
+                        interest=opp.as_subtype.volunteer_type).exists():
+                rank = volunteer.volunteerinterest_set.get(
+                        interest=opp.as_subtype.volunteer_type).rank
+            else:
+                rank = 0
             volunteer_set += [{
                 'display_name': volunteer.profile.display_name,
-                'interest': rank_interest_options[
-                    volunteer.volunteerinterest_set.get(
-                        interest=opp.as_subtype.volunteer_type).rank],
+                'interest': rank_interest_options[rank],
                 'available': volunteer.check_available(
                     opp.start_time,
                     opp.end_time),
@@ -262,6 +266,10 @@ class MakeOccurrenceView(View):
                 initial_form_info['duration'] = Duration(
                     self.item.duration.days,
                     self.item.duration.seconds)
+                initial_form_info['max_volunteer'] = 0
+            else:
+                initial_form_info['max_volunteer'] = 1
+
         if errorcontext and ('form' in errorcontext):
             context['form'] = errorcontext['form']
         else:

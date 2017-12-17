@@ -222,11 +222,6 @@ class ActItem(ResourceItem):
                       [res.rehearsal for res in resources])
 
     @property
-    def get_performer_profiles(self):
-        return ActItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id).get_performer_profiles()
-
-    @property
     def contact_email(self):
         return ActItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id
@@ -425,12 +420,6 @@ class WorkerItem(ResourceItem):
         ).describe
 
     @property
-    def contact_phone(self):
-        return WorkerItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id
-        ).contact_phone
-
-    @property
     def describe(self):
         child = WorkerItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id)
@@ -534,18 +523,6 @@ class EventItem (models.Model):
     def get_conference(self):
         return self.child().e_conference
 
-    @property
-    def bios(self):
-        people = WorkerItem.objects.filter(
-            worker__allocations__event__eventitem=self.eventitem_id,
-            worker__role__in=['Teacher',
-                              'Panelist',
-                              'Moderator']).distinct().select_subclasses(
-                                  'performer')
-        if people.count() == 0:
-            people = self.bio_payload
-        return people
-
     # DEPRECATE - when scheduling refactored
     def roles(self, roles=['Teacher',
                            'Panelist',
@@ -632,7 +609,7 @@ class Event(Schedulable):
         Return a detail link to self, with title as link text
         '''
         return '<a href="%s">%s</a>' % (reverse('detail_view',
-                                                urlconf='scheduler.urls',
+                                                urlconf='gbe.scheduling.urls',
                                                 args=[self.eventitem_id]),
                                         self.eventitem.describe)
 
@@ -663,10 +640,11 @@ class Event(Schedulable):
             if assignment.resource.as_subtype.__class__.__name__ == "Location":
                 assignment.delete()
         for location in locations:
-            ra = ResourceAllocation(
-                resource=location.get_resource(),
-                event=self)
-            ra.save()
+            if location is not None:
+                ra = ResourceAllocation(
+                    resource=location.get_resource(),
+                    event=self)
+                ra.save()
 
     # New - from refactoring
     @property
@@ -697,7 +675,7 @@ class Event(Schedulable):
             worker = Worker(_item=item, role=person.role)
 
         else:
-            worker = Worker(_item=self.user.profile, role=person.role)
+            worker = Worker(_item=person.user.profile, role=person.role)
         worker.save()
 
         for conflict in worker.workeritem.get_conflicts(self):
@@ -981,16 +959,6 @@ class Event(Schedulable):
     def duration(self):
         return self.eventitem.duration
 
-    # for a long list of bios, right now, that is acts in shows.
-    @property
-    def bio_list(self):
-        acts = ActResource.objects.filter(allocations__event=self,
-                                          _item__act__accepted=3)
-        bio_list = list(set([act._item.bio for act in acts]))
-        bio_list = sorted(bio_list, key=lambda bio: bio.name)
-
-        return bio_list
-
     # get castings as in what acts have been booked for this event
     @property
     def casting_list(self):
@@ -1060,6 +1028,11 @@ class Event(Schedulable):
         label = EventLabel(text=label, event=self)
         label.save()
         return label
+
+    # New with Scheduler API
+    @property
+    def labels(self):
+        return EventLabel.objects.filter(event=self)
 
 
 class ResourceAllocation(Schedulable):

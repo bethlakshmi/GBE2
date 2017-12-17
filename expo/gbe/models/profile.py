@@ -107,10 +107,6 @@ class Profile(WorkerItem):
         return self.user_object.email
 
     @property
-    def contact_phone(self):
-        return self.phone
-
-    @property
     def address(self):
         address_string = str(self.address1.strip() +
                              '\n' +
@@ -268,6 +264,7 @@ class Profile(WorkerItem):
         shows = sorted(shows, key=lambda show: show[0].e_title)
         return shows
 
+    # DEPRECATE or refactor
     def get_schedule(self, conference=None):
         '''
         Gets all schedule items for a conference, if a conference is provided
@@ -281,6 +278,7 @@ class Profile(WorkerItem):
             conf_events = events
         return conf_events
 
+    # DEPRECATE
     @property
     def schedule(self):
         '''
@@ -303,6 +301,15 @@ class Profile(WorkerItem):
         events += [e for e in sEvent.objects.filter(
             resources_allocated__resource__worker___item=self)]
         return sorted(set(events), key=lambda event: event.start_time)
+
+    # DEPRECATE, yes it's new.  Deprecate anyway, this hack gets through
+    # GBE2018 safely.  Used by get_schedule IDD call.  Treat as private
+    # and log any additional use here.
+    def get_bookable_items(self):
+        return {
+            "acts": [act for act in self.get_acts() if act.accepted == 3],
+            "performers": self.get_performers(),
+        }
 
     def volunteer_schedule(self, conference=None):
         conference = conference or Conference.current_conf()
@@ -356,9 +363,6 @@ class Profile(WorkerItem):
             f = lambda c: c.is_current
         classes = filter(f, classes)
         return classes
-
-    def sched_payload(self):
-        return {'name': self.display_name}
 
     def has_role_in_event(self, role, event):
         '''

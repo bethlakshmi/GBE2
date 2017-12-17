@@ -5,20 +5,37 @@ class Person(object):
                  booking_id=None,
                  user=None,
                  public_id=None,
+                 public_class="Performer",
                  role=None,
                  label=None,
                  worker=None):
         if worker:
             self.role = worker.role
             self.user = worker._item.as_subtype.user_object
+            self.public_class = worker._item.as_subtype.__class__.__name__
             self.public_id = worker._item.pk
         else:
             self.user = user
             self.public_id = public_id
             self.role = role
+            self.public_class = public_class
 
         self.booking_id = booking_id
         self.label = label
+
+
+class ScheduleItem(object):
+    def __init__(self,
+                 user=None,
+                 group_id=None,
+                 event=None,
+                 role=None,
+                 label=None):
+        self.user = user
+        self.group_id = group_id
+        self.role = role
+        self.label = label
+        self.event = event
 
 
 class Warning(object):
@@ -74,3 +91,21 @@ class PersonResponse(GeneralResponse):
                  errors=[]):
         self.booking_id = booking_id
         super(PersonResponse, self).__init__(warnings, errors)
+
+
+class PeopleResponse(GeneralResponse):
+    def __init__(self,
+                 people=[],
+                 warnings=[],
+                 errors=[]):
+        self.people = people
+        super(PeopleResponse, self).__init__(warnings, errors)
+
+
+class ScheduleResponse(GeneralResponse):
+    def __init__(self,
+                 schedule_items=[],
+                 warnings=[],
+                 errors=[]):
+        self.schedule_items = schedule_items
+        super(ScheduleResponse, self).__init__(warnings, errors)

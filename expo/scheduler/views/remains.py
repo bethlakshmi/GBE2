@@ -18,22 +18,16 @@ from django.contrib.auth import (
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import reverse
 import csv
-from gbe_forms_text import (
-    list_titles,
-)
 from gbetext import acceptance_states
 from scheduler.views.functions import (
-    get_event_display_info,
     get_events_display_info,
 )
 from gbe.functions import (
     conference_slugs,
     get_current_conference,
     get_conference_by_slug,
-    get_events_list_by_type,
     validate_perms,
 )
-from gbe_forms_text import list_text
 
 
 @login_required
@@ -76,23 +70,6 @@ def event_list(request, event_type=''):
                    'create_url': reverse('create_event',
                                          urlconf='gbe.scheduling.urls',
                                          args=[event_type])})
-
-
-def detail_view(request, eventitem_id):
-    '''
-    Takes the id of a single event_item and displays all its
-    details in a template
-    '''
-    eventitem_view = get_event_display_info(eventitem_id)
-
-    template = 'scheduler/event_detail.tmpl'
-    return render(request,
-                  template,
-                  {'eventitem': eventitem_view,
-                   'show_tickets': True,
-                   'tickets': eventitem_view['event'].get_tickets,
-                   'user_id': request.user.id}
-                  )
 
 
 @login_required
@@ -391,34 +368,3 @@ def contact_by_role(request, participant_type):
     for row in contact_info:
         writer.writerow(row)
     return response
-
-
-def view_list(request, event_type='All'):
-    if not event_type.lower() in list_titles:
-        event_type = "All"
-
-    current_conf = get_current_conference()
-    conf_slug = request.GET.get('conference', None)
-    if not conf_slug:
-        conference = current_conf
-    else:
-        conference = get_conference_by_slug(conf_slug)
-    items = get_events_list_by_type(event_type, conference)
-    events = [
-        {'eventitem': item,
-         'scheduled_events': item.scheduler_events.order_by('starttime'),
-         'detail': reverse('detail_view',
-                           urlconf='scheduler.urls',
-                           args=[item.eventitem_id])
-         }
-        for item in items]
-
-    return render(request, 'scheduler/event_display_list.tmpl',
-                  {'title': list_titles.get(event_type.lower(), ""),
-                   'view_header_text': list_text.get(event_type.lower(), ""),
-                   'labels': event_labels,
-                   'events': events,
-                   'conference_slugs': conference_slugs(),
-                   'etype': event_type,
-                   'conf_slug': conf_slug,
-                   })

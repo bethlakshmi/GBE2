@@ -4,6 +4,7 @@ from django.forms import (
     HiddenInput,
     Form,
     ModelChoiceField,
+    Select,
 )
 from gbe.forms.common_queries import (
     visible_personas,
@@ -19,11 +20,14 @@ class PersonAllocationForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    role = ChoiceField(choices=role_options, label="")
+    role = ChoiceField(choices=role_options, label="", widget=Select(
+        attrs={'style': 'width:100px', }))
     worker = ModelChoiceField(
         queryset=visible_profiles,
         required=False,
-        label="")
+        label="",
+        widget=Select(
+            attrs={'style': 'width:250px'}))
     label = CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):

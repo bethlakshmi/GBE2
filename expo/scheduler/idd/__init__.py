@@ -5,3 +5,5 @@ from test_booking import test_booking
 from remove_booking import remove_booking
 from set_person import set_person
 from update_occurrence import update_occurrence
+from get_bookings import get_bookings
+from get_schedule import get_schedule

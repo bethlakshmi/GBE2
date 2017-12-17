@@ -27,7 +27,9 @@ profile_preferences_labels = {
 
 event_type_options = [(
     'Classes', (
-        ('conference', 'Conference Class'), ))]
+        ('drop-in', 'Drop-In Class'),
+        ('conference', 'Conference Class'),
+        ('master', 'Master Class'), ), )]
 
 event_type_options_complete = [(
     'Classes', (
@@ -42,6 +44,15 @@ event_type_options_complete = [(
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 
+copy_mode_labels = {
+    'copy_mode': "How would you like to copy this event?"
+}
+copy_mode_choices = [
+    ("copy_children_only",
+     "Copy all sub-events to "),
+    ("include_parent",
+     "Include this event and all sub events, make new event on ")
+]
 
 inform_about_options = [('Exhibiting Art or Costumes',
                          'Exhibiting Art or Costumes'),
@@ -605,7 +616,17 @@ ticket_item_labels = {
     'cost': 'Ticket Price:',
     'bpt_event': 'Event in BPT',
 }
-
+link_event_labels = {
+    'bpt_events': "Choose from existing tickets",
+    'bpt_event_id': "New BPT Event Id",
+    'display_icon': "Display Icon"
+}
+link_event_help_text = {
+    'display_icon': '''What is shown on the 'I Want to Buy Tickets'
+        page.  Description is not shown there, it's pulled from BPT but not
+        shown.  Display Icon must come from http://simplelineicons.com/
+        -- NOTE:  Avoid the "."'''
+}
 bpt_event_labels = {
     'act_submission_event': 'Act Submission Fee?:',
     'vendor_submission_event': 'Vendor Submission Fee?:',

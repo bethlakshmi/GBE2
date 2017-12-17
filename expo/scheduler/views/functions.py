@@ -1,40 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils.formats import date_format
-
 from scheduler.models import EventItem
-from gbetext import event_labels
-
-
-def get_event_display_info(eventitem_id):
-    '''
-    Helper for displaying a single of event. Same idea as
-    get_events_display_info - but for
-    only one eventitem.
-    '''
-    try:
-        item = EventItem.objects.get_subclass(eventitem_id=eventitem_id)
-    except EventItem.DoesNotExist:
-        raise Http404
-    bio_grid_list = []
-    featured_grid_list = []
-    for sched_event in item.scheduler_events.all():
-        for casting in sched_event.casting_list:
-            if len(casting.role):
-                featured_grid_list += [{
-                    'bio': casting._item.bio,
-                    'role': casting.role,
-                    }]
-            else:
-                bio_grid_list += [casting._item.bio]
-    eventitem_view = {'event': item,
-                      'scheduled_events': item.scheduler_events.all().order_by(
-                          'starttime'),
-                      'labels': event_labels,
-                      'bio_grid_list': bio_grid_list,
-                      'featured_grid_list': featured_grid_list,
-                      }
-    return eventitem_view
 
 
 def get_events_display_info(event_type='Class'):
@@ -79,7 +46,7 @@ def get_events_display_info(event_type='Class'):
                      'type': entry['confitem'].sched_payload['details']
                                               .get('type', ''),
                      'detail': reverse('detail_view',
-                                       urlconf='scheduler.urls',
+                                       urlconf='gbe.scheduling.urls',
                                        args=[entry['eventitem'].eventitem_id])}
 
         if entry['schedule_event']:

@@ -18,6 +18,7 @@ from gbe.models import (
 from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
+from ticketing.views import import_ticket_items
 
 
 def performer_act_submittal_link(user_id):
@@ -69,19 +70,12 @@ def verify_performer_app_paid(user_name, conference):
       paid
     '''
     from gbe.models import Act
-    act_fees_purchased = 0
     acts_submitted = 0
     # First figure out how many acts this user has purchased
-    for act_event in BrownPaperEvents.objects.filter(
-            act_submission_event=True,
-            conference=conference):
-
-        for trans in Transaction.objects.all():
-            trans_event = trans.ticket_item.ticket_id.split('-')[0]
-            trans_user_name = trans.purchaser.matched_to_user.username
-            if ((act_event.bpt_event_id == trans_event) and
-                    (unicode(user_name) == trans_user_name)):
-                act_fees_purchased += 1
+    act_fees_purchased = Transaction.objects.filter(
+        ticket_item__bpt_event__act_submission_event=True,
+        ticket_item__bpt_event__conference=conference,
+        purchaser__matched_to_user__username=unicode(user_name)).count()
 
     # Then figure out how many acts have already been submitted.
     acts_submitted = Act.objects.filter(
@@ -229,3 +223,15 @@ def get_checklist_items(profile, conference):
                                                      tickets)
 
     return checklist_items
+
+
+def create_bpt_event(bpt_event_id, conference, events=[], display_icon=None):
+    event = BrownPaperEvents.objects.create(
+            bpt_event_id=bpt_event_id,
+            conference=conference,
+            display_icon=display_icon)
+    if len(events) > 0:
+        event.linked_events.add(*events)
+    event.save()
+    count = import_ticket_items([event])
+    return event, count

@@ -42,51 +42,14 @@
   {{ selection_form.non_field_errors }}</font>
   <form class="form-inline" action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="form-row email-select">
-      <div class="form-group col-md-6">
-        {% if selection_form.conference.errors %}
-          <font color="red">!&nbsp;&nbsp;
-        {% endif %} 
-        <label class="form-check-label" id="{{ selection_form.conference.name }}">
-          {{ selection_form.conference.label }}:&nbsp;&nbsp;{{ selection_form.conference }}
-        {% if selection_form.conference.errors %}
-          {{ selection_form.conference.errors }}</font>
-        {% endif %}
-        </label>
-      </div>
-      <div class="form-group col-md-6">
-        {% if selection_form.bid_type.errors %}
-          <font color="red">!&nbsp;&nbsp;
-        {% endif %} 
-         <label class="form-check-label" id="{{ selection_form.bid_type.name }}">
-          {{ selection_form.bid_type.label }}:&nbsp;&nbsp;{{ selection_form.bid_type }}
-        {% if selection_form.bid_type.errors %}
-          {{ selection_form.bid_type.errors }}</font>
-        {% endif %}
-         </label>
-      </div>
+    <div class="row email-select">
+    {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.conference %}
     </div>
-    <div class="form-row">
-      <div class="form-group col-md-2 col-xs-12">
-        <label class="form-check-label" id="{{ selection_form.state.name }}">
-          {% if selection_form.state.errors %}
-            <font color="red">!&nbsp;&nbsp;
-          {% endif %}
-          {{ selection_form.state.label }}:&nbsp;&nbsp;</label>
-          {% if selection_form.state.errors %}
-            </font>
-          {% endif %}
-      </div>
-      <div class="form-group col-md-9 col-xs-12">
-      {% for checkbox in selection_form.state %}
-        <label class="checkbox-inline" id="{{ checkbox.id_for_label }}">
-          {{ checkbox.tag }}{{ field.label_tag }}
-            {{ checkbox.choice_label }}
-        </label>{% endfor %}
-        {% if selection_form.state.errors %}
-          {{ selection_form.state.errors }}</font>
-        {% endif %}
-      </div>
+    <div class="row email-select">
+    {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.bid_type %}
+    </div>
+    <div class="row">
+    {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.state %}
       <div class="form-group col-md-1 col-xs-12">
          <input type="submit" class="email-submit" name="filter" value="Filter">
       </div></div>

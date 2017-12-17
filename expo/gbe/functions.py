@@ -11,10 +11,6 @@ from gbe.models import (
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from gbetext import (
-    event_options,
-    class_options,
-)
 
 
 def validate_profile(request, require=False):
@@ -76,11 +72,11 @@ def get_conference_by_slug(slug):
 
 
 def get_conference_days(conference, open_to_public=None):
-    if open_to_public is None:
+    if open_to_public is None or open_to_public is False:
         return conference.conferenceday_set.all()
     else:
         return conference.conferenceday_set.filter(
-            open_to_public=open_to_public)
+            open_to_public=True)
 
 
 def get_conference_day(conference, date):
@@ -93,39 +89,6 @@ def conference_list():
 
 def conference_slugs():
     return Conference.all_slugs()
-
-
-def get_events_list_by_type(event_type, conference):
-    event_type = event_type.lower()
-    items = []
-    if event_type == "all":
-        return Event.get_all_events(conference)
-
-    event_types = dict(event_options)
-    class_types = dict(class_options)
-    if event_type in map(lambda x: x.lower(), event_types.keys()):
-        items = GenericEvent.objects.filter(
-            type__iexact=event_type,
-            visible=True,
-            e_conference=conference).order_by('e_title')
-    elif event_type in map(lambda x: x.lower, class_types.keys()):
-        items = Class.objects.filter(
-            accepted='3',
-            visible=True,
-            type__iexact=event_type,
-            e_conference=conference).order_by('e_title')
-    elif event_type == 'show':
-        items = Show.objects.filter(
-            e_conference=conference).order_by('e_title')
-    elif event_type == 'class':
-        items = Class.objects.filter(
-            accepted='3',
-            visible=True,
-            e_conference=conference).exclude(
-                type='Panel').order_by('e_title')
-    else:
-        items = []
-    return items
 
 
 def eligible_volunteers(event_start_time, event_end_time, conference):

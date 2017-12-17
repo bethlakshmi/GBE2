@@ -4,6 +4,7 @@ from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     ConferenceFactory,
     PersonaFactory,
+    ProfileFactory,
     RoomFactory,
 )
 from tests.factories.scheduler_factories import (
@@ -15,9 +16,7 @@ from tests.factories.scheduler_factories import (
 )
 
 from gbe.models import Class
-from datetime import (
-    timedelta,
-)
+from datetime import timedelta
 from tests.functions.scheduler_functions import noon
 
 
@@ -79,3 +78,11 @@ class ClassContext:
         EventLabelFactory(event=sched_event,
                           text="Conference")
         return sched_event
+
+    def set_interest(self, interested_profile=None):
+        interested_profile = interested_profile or ProfileFactory()
+        ResourceAllocationFactory(event=self.sched_event,
+                                  resource=WorkerFactory(
+                                    _item=interested_profile,
+                                    role="Interested"))
+        return interested_profile
