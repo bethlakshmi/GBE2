@@ -54,24 +54,12 @@ class Event(EventItem):
                                                     'Staff Area')]
 
     @property
-    def sched_payload(self):
-        return {'title': self.e_title,
-                'description': self.e_description,
-                'duration': self.duration,
-                'details': {'type': ''}
-                }
-
-    @property
     def event_type(self):
         return self.__class__.__name__
 
     @property
     def sched_duration(self):
         return self.duration
-
-    @property
-    def bio_payload(self):
-        return None
 
     @property
     def calendar_type(self):

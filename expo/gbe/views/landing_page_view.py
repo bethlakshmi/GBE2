@@ -15,17 +15,24 @@ from gbe.models import (
     Vendor,
     Volunteer,
     Event,
+    UserMessage,
 )
 from gbe.ticketing_idd_interface import (
     get_purchased_tickets,
 )
-from gbetext import acceptance_states
+from gbetext import (
+    acceptance_states,
+    interested_explain_msg,
+)
 from gbe.functions import (
     validate_perms,
     validate_profile,
 )
 from expo.gbe_logging import log_func
-from scheduler.idd import get_schedule
+from scheduler.idd import (
+    get_bookings,
+    get_schedule,
+)
 
 
 @login_required
@@ -74,6 +81,20 @@ def LandingPageView(request, profile_id=None, historical=False):
                                 'url': url,
                                 'action': "Review",
                                 'bid_type': bid_type}]
+        bookings = []
+        for booking in get_schedule(
+                viewer_profile.user_object).schedule_items:
+            booking_item = {
+                'id': booking.event.pk,
+                'role':  booking.role,
+                'conference': booking.event.eventitem.child().e_conference,
+                'starttime': booking.event.starttime,
+                'interested': get_bookings(
+                    [booking.event.pk],
+                    roles=["Interested"]).people,
+                'eventitem_id': booking.event.eventitem.eventitem_id,
+                'title': booking.event.eventitem.child().e_title, }
+            bookings += [booking_item]
 
         context = RequestContext(
             request,
@@ -95,9 +116,17 @@ def LandingPageView(request, profile_id=None, historical=False):
              'tickets': get_purchased_tickets(viewer_profile.user_object),
              'acceptance_states': acceptance_states,
              'admin_message': admin_message,
-             'bookings': get_schedule(
-                viewer_profile.user_object).schedule_items,
+             'bookings': bookings,
              })
+        if not historical:
+            user_message = UserMessage.objects.get_or_create(
+                view="LandingPageView",
+                code="ABOUT_INTERESTED",
+                defaults={
+                    'summary': "About Interested Attendees",
+                    'description': interested_explain_msg})
+            context['interested_info'] = user_message[0].description
+
     else:
         context = RequestContext(request,
                                  {'standard_context': standard_context})

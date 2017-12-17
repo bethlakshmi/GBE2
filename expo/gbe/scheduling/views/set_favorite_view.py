@@ -61,8 +61,8 @@ class SetFavoriteView(View):
         if response:
             return response
         occurrence_id = int(kwargs['occurrence_id'])
-        interested = get_bookings(occurrence_id,
-                                  role="Interested")
+        interested = get_bookings([occurrence_id],
+                                  roles=["Interested"])
         bookings = []
         for person in interested.people:
             if person.user == self.owner.user_object:

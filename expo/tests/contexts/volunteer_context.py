@@ -3,6 +3,7 @@ from tests.factories.gbe_factories import (
     GenericEventFactory,
     ProfilePreferencesFactory,
     ProfileFactory,
+    RoomFactory,
     ShowFactory,
     VolunteerFactory,
     VolunteerWindowFactory,
@@ -11,6 +12,7 @@ from tests.factories.gbe_factories import (
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
     EventLabelFactory,
+    LocationFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
     WorkerFactory,
@@ -48,10 +50,14 @@ class VolunteerContext():
         self.event = event or ShowFactory(
             e_conference=self.conference)
         self.role = role or "Volunteer"
+        self.room = RoomFactory()
         self.sched_event = SchedEventFactory(
             eventitem=self.event.eventitem_ptr,
             starttime=datetime.combine(self.window.day.day,
                                        self.window.start))
+        ResourceAllocationFactory(
+            event=self.sched_event,
+            resource=LocationFactory(_item=self.room))
         EventLabelFactory(event=self.sched_event,
                           text="General")
         EventLabelFactory(event=self.sched_event,
@@ -82,6 +88,9 @@ class VolunteerContext():
             eventitem=opportunity.eventitem_ptr,
             starttime=start_time,
             max_volunteer=2)
+        ResourceAllocationFactory(
+            event=opp_event,
+            resource=LocationFactory(_item=self.room))
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=opp_event)
         EventLabelFactory(event=opp_event,

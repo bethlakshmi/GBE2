@@ -14,10 +14,6 @@ urlpatterns = patterns(
     url(r'^scheduler/delete_event/(?P<event_type>[-\w]+)/' +
         '(?P<eventitem_id>\d+)/?$',
         views.delete_event, name='delete_event'),
-    url(r'^scheduler/view_list/?$',
-        views.view_list, name='event_list'),
-    url(r'^scheduler/view_list/([-\w]+)/?$',
-        views.view_list, name='event_list'),
     url(r'^scheduler/acts/?$',
         views.schedule_acts, name='schedule_acts'),
     url(r'^scheduler/acts/(?P<show_id>\d+)/?$',

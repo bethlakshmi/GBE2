@@ -11,10 +11,6 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     UserFactory,
 )
-from tests.factories.scheduler_factories import (
-    ResourceAllocationFactory,
-    WorkerFactory,
-)
 from tests.functions.gbe_functions import clear_conferences
 from tests.functions.scheduler_functions import noon
 from datetime import (
@@ -324,10 +320,7 @@ class TestCalendarView(TestCase):
             url))
 
     def test_logged_in_have_interest(self):
-        profile = ProfileFactory()
-        ResourceAllocationFactory(event=self.showcontext.sched_event,
-                                  resource=WorkerFactory(_item=profile,
-                                                         role="Interested"))
+        profile = self.showcontext.set_interest()
         login_as(profile, self)
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",

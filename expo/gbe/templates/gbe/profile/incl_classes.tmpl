@@ -2,9 +2,8 @@
   {% if proposed_classes %} 
   <span class='heading classes'> 
     <b>Class Bids</b>
-    {% for class in proposed_classes %}
   </span><br>
-
+    {% for class in proposed_classes %}
       <div class='class'>
         {% if class.submitted %}
           <a href = '{% url 'gbe:class_view' class.id%}'> {{ class }} </a>
@@ -28,15 +27,10 @@
     <ul>
       <li><a href='{% url 'gbe:clone_bid' bid_type='Class' bid_id=class.id %}'>Clone this class</a></li>
     </ul>
-
-{%else%}	
-
-{% endif %}
-    {% endfor %}
+    {% endif %}
+  {% endfor %}
   {% else %}
-    {{ profile.display_name }} has not proposed any classes
+    {{ profile.display_name }} has not proposed any classes<br>
   {% endif %}
-  <br>
       <a href='{% url 'gbe:class_create' %}'>Propose a{%if proposed_classes%}nother{%endif%} class</a>
-
 </div>

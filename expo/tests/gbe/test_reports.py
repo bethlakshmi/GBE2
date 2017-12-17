@@ -479,7 +479,7 @@ class TestReports(TestCase):
         login_as(self.profile, self)
         response = self.client.get(reverse('download_tracks_for_show',
                                            urlconf='gbe.reporting.urls',
-                                           args=[context.show.eventitem_id]))
+                                           args=[context.show.pk]))
         self.assertEquals(
             response.get('Content-Disposition'),
             str('attachment; filename="%s_%s.tar.gz"' % (
