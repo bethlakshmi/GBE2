@@ -1,9 +1,8 @@
 from django.forms import (
     CharField,
-    ChoiceField,
     Form,
     HiddenInput,
-    ModelChoiceField,
+    ModelMultipleChoiceField,
     MultipleChoiceField,
     MultipleHiddenInput,
 )
@@ -16,14 +15,21 @@ from gbe_forms_text import (
 from gbe.models import Conference
 
 
+class MultiConferenceField(ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.conference_slug
+
+
 class SelectBidderForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
-    conference = ModelChoiceField(
+    conference = MultiConferenceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        empty_label=("All"),
-        required=False)
-    bid_type = ChoiceField(required=False)
+        widget=CheckboxSelectMultiple(),
+        required=True,)
+    bid_type = MultipleChoiceField(
+        required=True,
+        widget=CheckboxSelectMultiple())
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=CheckboxSelectMultiple(),
@@ -31,12 +37,13 @@ class SelectBidderForm(Form):
 
 
 class SecretBidderInfoForm(SelectBidderForm):
-    conference = ModelChoiceField(
+    conference = ModelMultipleChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
-        widget=HiddenInput(),
-        required=False)
-    bid_type = ChoiceField(widget=HiddenInput(),
-                           required=False)
+        widget=MultipleHiddenInput(),
+        required=True)
+    bid_type = MultipleChoiceField(
+        widget=MultipleHiddenInput(),
+        required=True)
     state = MultipleChoiceField(
         choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=MultipleHiddenInput(),
