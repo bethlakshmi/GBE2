@@ -5,6 +5,7 @@ from tests.functions.gbe_functions import (
 )
 from tests.factories.gbe_factories import ConferenceDayFactory
 from tests.contexts import (
+    ActTechInfoContext,
     ClassContext,
     ShowContext,
 )
@@ -51,20 +52,30 @@ class TestSendDailySchedule(TestCase):
             )
         self.assertEqual(queued_email.count(), 1)
         self.assertTrue(context.bid.e_title in queued_email[0].html_message)
-        self.assertTrue(context.teacher.user_object.email in queued_email[0].html_message)
+        self.assertTrue(
+            context.teacher.user_object.email in queued_email[0].to)
 
     def test_send_for_show(self):
         start_time = datetime.combine(
             date.today() + timedelta(days=1),
             time(0, 0, 0, 0, tzinfo=pytz.utc))
-        context = ShowContext(starttime=start_time)
+        show_context = ShowContext(starttime=start_time)
+        context = ActTechInfoContext(
+            show=show_context.show,
+            sched_event=show_context.sched_event,
+            schedule_rehearsal=True)
         num = schedule_email()
-        self.assertEqual(1, num)
+        self.assertEqual(2, num)
         queued_email = Email.objects.filter(
             status=2,
             subject=self.subject,
             from_email=settings.DEFAULT_FROM_EMAIL,
             )
-        self.assertEqual(queued_email.count(), 1)
-        self.assertTrue(context.bid.e_title in queued_email[0].html_message)
-        self.assertTrue(context.teacher.user_object.email in queued_email[0].html_message)
+        self.assertEqual(queued_email.count(), 2)
+        first = queued_email.filter(
+            to=show_context.performer.performer_profile.user_object.email)[0]
+        self.assertTrue(show_context.show.e_title in first.html_message)
+        second = queued_email.filter(
+            to=context.performer.performer_profile.user_object.email)[0]
+        self.assertTrue(context.show.e_title in second.html_message)
+        self.assertTrue(context.rehearsal.eventitem.event.e_title in second.html_message)

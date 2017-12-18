@@ -10,10 +10,12 @@ from tests.factories.gbe_factories import (
 from tests.factories.scheduler_factories import (
     ActResourceFactory,
     EventContainerFactory,
+    EventLabelFactory,
     LocationFactory,
     ResourceAllocationFactory,
     SchedEventFactory,
 )
+from datetime import timedelta
 
 
 class ActTechInfoContext():
@@ -21,16 +23,19 @@ class ActTechInfoContext():
                  performer=None,
                  act=None,
                  show=None,
+                 sched_event=None,
                  conference=None,
                  room_name=None,
                  cue_count=1,
                  schedule_rehearsal=False,
                  act_role=""):
-        self.conference = conference or ConferenceFactory()
+        self.show = show or ShowFactory()
+        self.conference = conference or self.show.e_conference
         self.performer = performer or PersonaFactory()
         self.act = act or ActFactory(performer=self.performer,
                                      b_conference=self.conference,
-                                     accepted=3)
+                                     accepted=3,
+                                     submitted=True)
         self.tech = self.act.tech
         self.audio = self.tech.audio
         self.lighting = self.tech.lighting
@@ -38,9 +43,9 @@ class ActTechInfoContext():
         for i in range(cue_count):
             CueInfoFactory.create(techinfo=self.tech,
                                   cue_sequence=i)
-        self.show = show or ShowFactory(e_conference=self.conference)
         # schedule the show
-        self.sched_event = SchedEventFactory(eventitem=self.show.eventitem_ptr)
+        self.sched_event = sched_event or SchedEventFactory(
+            eventitem=self.show.eventitem_ptr)
         room_name = room_name or "Dining Room"
         self.room = RoomFactory(name=room_name)
         ResourceAllocationFactory(
@@ -59,11 +64,15 @@ class ActTechInfoContext():
 
     def _schedule_rehearsal(self, s_event, act=None):
         rehearsal = GenericEventFactory(type="Rehearsal Slot")
-        rehearsal_event = SchedEventFactory(eventitem=rehearsal.eventitem_ptr,
-                                            max_volunteer=10)
+        rehearsal_event = SchedEventFactory(
+            eventitem=rehearsal.eventitem_ptr,
+            max_volunteer=10,
+            starttime=self.sched_event.starttime)
         event_container = EventContainerFactory(
             child_event=rehearsal_event,
             parent_event=s_event)
+        EventLabelFactory(event=rehearsal_event,
+                          text=self.conference.conference_slug)
         if act:
             ResourceAllocationFactory(
                 resource=ActResourceFactory(_item=act.actitem_ptr),
