@@ -17,7 +17,7 @@ from datetime import (
     timedelta,
 )
 import pytz
-from gbe.scheduling.schedule_email import schedule_email
+from gbe.email.views import schedule_email
 from django.conf import settings
 
 
@@ -42,6 +42,22 @@ class TestSendDailySchedule(TestCase):
             date.today() + timedelta(days=1),
             time(0, 0, 0, 0, tzinfo=pytz.utc))
         context = ClassContext(starttime=start_time)
+        num = schedule_email()
+        self.assertEqual(1, num)
+        queued_email = Email.objects.filter(
+            status=2,
+            subject=self.subject,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            )
+        self.assertEqual(queued_email.count(), 1)
+        self.assertTrue(context.bid.e_title in queued_email[0].html_message)
+        self.assertTrue(context.teacher.user_object.email in queued_email[0].html_message)
+
+    def test_send_for_show(self):
+        start_time = datetime.combine(
+            date.today() + timedelta(days=1),
+            time(0, 0, 0, 0, tzinfo=pytz.utc))
+        context = ShowContext(starttime=start_time)
         num = schedule_email()
         self.assertEqual(1, num)
         queued_email = Email.objects.filter(
