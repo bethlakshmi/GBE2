@@ -70,6 +70,7 @@ special_menu_tree = [
                 'Class Coordinator',
                 'Costume Coordinator',
                 'Registrar',
+                'Scheduling Mavens',
                 'Ticketing - Admin',
                 'Ticketing - Transactions',
                 'Vendor Coordinator',
