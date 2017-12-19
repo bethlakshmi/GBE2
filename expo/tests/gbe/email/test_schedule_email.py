@@ -74,4 +74,5 @@ class TestScheduleEmail(TestCase):
         second = queued_email.filter(
             to=context.performer.performer_profile.user_object.email)[0]
         self.assertTrue(context.show.e_title in second.html_message)
-        self.assertTrue(context.rehearsal.eventitem.event.e_title in second.html_message)
+        self.assertTrue(
+            context.rehearsal.eventitem.event.e_title in second.html_message)

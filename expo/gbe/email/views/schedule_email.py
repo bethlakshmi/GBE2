@@ -22,7 +22,7 @@ def schedule_email():
             target_day,
             time(0, 0, 0, 0, tzinfo=pytz.utc)),
         end_time=datetime.combine(
-                target_day+timedelta(days=1), 
+                target_day+timedelta(days=1),
                 time(0, 0, 0, 0, tzinfo=pytz.utc)))
     for item in sched_resp.schedule_items:
         if item.user in personal_schedules:

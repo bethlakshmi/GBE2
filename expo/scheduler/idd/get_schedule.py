@@ -58,7 +58,7 @@ def get_schedule(user=None, labels=[], start_time=None, end_time=None):
                 role=resource.role,
                 label=booking_label)]
         if resource.__class__.__name__ == "ActResource":
-            for profile in resource._item.act.get_performer_profiles():  
+            for profile in resource._item.act.get_performer_profiles():
                 sched_items += [ScheduleItem(
                     user=profile.user_object,
                     event=item.event,
