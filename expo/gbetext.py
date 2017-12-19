@@ -338,13 +338,13 @@ email_template_desc = {
     rejects the %s''',
     'Wait List': '''This email is sent to the bidder when the %s is put on a \
     wait list.''',
-    'Accepted': '''This email is send to the bidder when the %s has been \
+    'Accepted': '''This email is sent to the bidder when the %s has been \
     accepted.''',
     'Withdrawn': '''This email is sent to the bidder when the %s has been \
     withdrawn.''',
     'Duplicate': '''This email is sent to the bidder when the coordinator \
     marks the %s as a duplicate''',
-    'act accepted': '''This email is send to the performer when they have \
+    'act accepted': '''This email is sent to the performer when they have \
     been cast into the show %s.''',
 }
 
