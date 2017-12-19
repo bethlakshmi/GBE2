@@ -8,8 +8,7 @@ shifts in class schedules could not be printed.
   - Schedule Item:{{ booking.event }}
     - Role: {{booking.role}} 
     - Location: {{booking.event.location}} 
-    - Day: {{booking.event.starttime.date}}
-    - Time: {{booking.event.starttime.time}}
+    - Time: {{booking.event.starttime|date:"g:i A"}}
   </tr>
   {% endfor %}
 

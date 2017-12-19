@@ -3,15 +3,14 @@
     <th>Schedule Item</th>
     <th>Role</th>
     <th>Location</th>
-    <th>Day</th>
     <th>Time</th>
+  </tr>
   {% for booking in bookings %}
   <tr>
     <td>{{ booking.event }}</td>
     <td>{{booking.role}} </td>    
     <td>{{booking.event.location}} </td>    
-    <td>{{booking.event.starttime.date}} </td>
-    <td>{{booking.event.starttime.time}} </td>
+    <td>{{booking.event.starttime|date:"g:i A"}}</td>
   </tr>
   {% endfor %}
 
