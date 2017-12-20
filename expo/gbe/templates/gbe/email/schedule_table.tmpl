@@ -7,8 +7,8 @@
   </tr>
   {% for booking in bookings %}
   <tr>
-    <td>
-      {{ booking.event }}</td>
+    <td><a href="http://{{ site }}{% url 'scheduling:detail_view' booking.event.eventitem.eventitem_id %}">
+      {{ booking.event }}</a></td>
     <td>{{booking.role}} </td>    
     <td>{{booking.event.location}} </td>    
     <td>{{booking.event.starttime|date:"g:i A"}}</td>

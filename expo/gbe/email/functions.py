@@ -168,6 +168,7 @@ def send_daily_schedule_mail(schedules, day, slug):
             template.sender.from_email,
             template=name,
             context={
+                'site': Site.objects.get_current().domain,
                 'badge_name': user.profile.get_badge_name(),
                 'bookings': bookings,
                 'day': day.strftime(DATE_FORMAT)},
