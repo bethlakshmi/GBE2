@@ -11,8 +11,9 @@ from gbe.email.functions import send_daily_schedule_mail
 
 
 def schedule_email():
-    target_day = date.today() + timedelta(days=1)
     personal_schedules = {}
+    boston_today = datetime.now(tz=pytz.timezone('America/New_York')).date()
+    target_day = boston_today + timedelta(days=1)
     try:
         conf_day = ConferenceDay.objects.get(day=target_day)
     except ConferenceDay.DoesNotExist:
