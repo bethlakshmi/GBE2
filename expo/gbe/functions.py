@@ -11,6 +11,7 @@ from gbe.models import (
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
+from scheduler.idd import get_schedule
 
 
 def validate_profile(request, require=False):
@@ -39,7 +40,8 @@ def validate_perms(request, perms, require=True):
         else:
             return False
     if perms == 'any':
-        if len(profile.privilege_groups) > 0:
+        if len(profile.privilege_groups) > 0 or len(
+                validate_event_role(profile, 'Staff Lead')) > 0:
             return profile
         else:
             if require:
@@ -47,6 +49,9 @@ def validate_perms(request, perms, require=True):
             else:
                 return False
     if any([perm in profile.privilege_groups for perm in perms]):
+        return profile
+    if 'Staff Lead' in perms and len(validate_event_role(profile,
+                                                         'Staff Lead')) > 0:
         return profile
     if require:                # error out if permission is required
         raise PermissionDenied
@@ -65,6 +70,17 @@ def get_current_conference():
 
 def get_current_conference_slug():
     return Conference.current_conf().conference_slug
+
+
+def validate_event_role(profile, event_role):
+    events_led = []
+    response = get_schedule(
+        user=profile.user_object,
+        labels=[get_current_conference_slug()])
+    for booking in response.schedule_items:
+        if booking.role == event_role:
+            events_led += [booking.event]
+    return events_led
 
 
 def get_conference_by_slug(slug):

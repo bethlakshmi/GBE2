@@ -32,7 +32,7 @@ urlpatterns = (
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
         {'sitemaps': {'cmspages': CMSSitemap}}),
-    url(r'^hijack/', include('hijack.urls')),
+    url(r'^hijack/', include('hijack.urls', namespace='hijack')),
     url(r'^tinymce/', include('tinymce.urls')),
     ) + LOCAL_APPS_URLS + (
     url(r'^', include('cms.urls')),

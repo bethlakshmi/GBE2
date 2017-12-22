@@ -2,11 +2,13 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import ProfileFactory
+from tests.contexts import StaffAreaContext
 from tests.functions.gbe_functions import (
         grant_privilege,
         login_as
 )
 from gbe.special_privileges import special_menu_tree
+from gbe.models import Conference
 
 
 class TestSpecialMenu(TestCase):
@@ -90,3 +92,22 @@ class TestSpecialMenu(TestCase):
                     menu_item['url'],
                     msg_prefix='Normal users should not see %s' % (
                         menu_item['url']))
+
+    def test_staff_get_menus(self):
+        ''' each privilege should get the right lowest
+            level menus URLs
+        '''
+        Conference.objects.all().delete()
+        privilege = "Staff Lead"
+        context = StaffAreaContext()
+        print "conference: " + context.conference.conference_slug
+        login_as(context.staff_lead, self)
+        response = self.client.get(self.url)
+        for menu_item in special_menu_tree:
+            if privilege in menu_item['groups']:
+                self.assertContains(
+                    response,
+                    menu_item['url'],
+                    status_code=200,
+                    msg_prefix='Role %s gets url %s' % (
+                        privilege, menu_item['url']))
