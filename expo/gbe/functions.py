@@ -71,7 +71,7 @@ def get_current_conference():
 def get_current_conference_slug():
     conf = Conference.current_conf()
     if conf:
-       return conf.conference_slug
+        return conf.conference_slug
 
 
 def validate_event_role(profile, event_role):
