@@ -3,3 +3,4 @@ from list_template_view import ListTemplateView
 from mail_view import MailView
 from mail_to_bidders_view import MailToBiddersView
 from mail_to_person_view import MailToPersonView
+from schedule_email import schedule_email

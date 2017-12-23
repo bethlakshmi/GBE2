@@ -210,7 +210,7 @@ class TestCreateOccurrence(TestCase):
                       'name="event-max_volunteer" type="number" value="3" />',
                       response.content)
         self.assertIn('<option value="12:00:00" selected="selected">' +
-                      'noon</option>',
+                      '12:00 PM</option>',
                       response.content)
         self.assertIn('<option value="' + str(context.days[0].pk) +
                       '" selected="selected">' + str(context.days[0]) +

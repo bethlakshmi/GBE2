@@ -35,6 +35,7 @@ class EditTemplateView(View):
     reviewer_permissions = ['Act Coordinator',
                             'Class Coordinator',
                             'Costume Coordinator',
+                            'Scheduling Mavens',
                             'Vendor Coordinator',
                             'Volunteer Coordinator',
                             ]

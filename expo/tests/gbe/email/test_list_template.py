@@ -86,3 +86,10 @@ class TestEventList(TestCase):
                          "%s withdrawn", ]
             for template in templates:
                 self.assertContains(response, template % bid_type.lower())
+
+    def test_scheduler(self):
+        grant_privilege(self.privileged_profile.user_object,
+                        'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assertContains(response, "daily schedule")

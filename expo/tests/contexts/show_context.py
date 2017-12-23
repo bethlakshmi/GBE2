@@ -34,7 +34,10 @@ class ShowContext:
         self.performer = performer or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         if not self.conference.conferenceday_set.exists():
-            ConferenceDayFactory(conference=self.conference)
+            day = ConferenceDayFactory(conference=self.conference)
+            if starttime:
+                day.day = starttime.date()
+                day.save()
         self.days = self.conference.conferenceday_set.all()
         act = act or ActFactory(b_conference=self.conference,
                                 performer=self.performer,

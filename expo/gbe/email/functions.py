@@ -15,6 +15,7 @@ from gbetext import (
     no_profile_msg,
     unique_email_templates,
 )
+from expo.settings import DATE_FORMAT
 
 
 def mail_send_gbe(to_list,
@@ -155,6 +156,25 @@ def send_schedule_update_mail(participant_type, profile):
     )
 
 
+def send_daily_schedule_mail(schedules, day, slug):
+    name = 'daily schedule'
+    template = get_or_create_template(
+        name,
+        "schedule_letter",
+        "Your Schedule for Tomorrow at GBE")
+    for user, bookings in schedules.items():
+        mail_send_gbe(
+            user.profile.contact_email,
+            template.sender.from_email,
+            template=name,
+            context={
+                'site': Site.objects.get_current().domain,
+                'badge_name': user.profile.get_badge_name(),
+                'bookings': bookings,
+                'day': day.strftime(DATE_FORMAT)},
+            priority="medium")
+
+
 def notify_reviewers_on_bid_change(bidder,
                                    bid,
                                    bid_type,
@@ -249,5 +269,7 @@ def get_user_email_templates(user):
                             state[1]), }]
         if priv in unique_email_templates:
             template_set += unique_email_templates[priv]
+    if "Scheduling Mavens" in user.privilege_groups:
+        template_set += unique_email_templates['scheduling']
     return sorted(template_set,
                   key=lambda item: (item['name'], item['category']))
