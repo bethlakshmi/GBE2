@@ -69,17 +69,21 @@ def get_current_conference():
 
 
 def get_current_conference_slug():
-    return Conference.current_conf().conference_slug
+    conf = Conference.current_conf()
+    if conf:
+       return conf.conference_slug
 
 
 def validate_event_role(profile, event_role):
     events_led = []
-    response = get_schedule(
-        user=profile.user_object,
-        labels=[get_current_conference_slug()])
-    for booking in response.schedule_items:
-        if booking.role == event_role:
-            events_led += [booking.event]
+    slug = get_current_conference_slug()
+    if slug:
+        response = get_schedule(
+            user=profile.user_object,
+            labels=[slug])
+        for booking in response.schedule_items:
+            if booking.role == event_role:
+                events_led += [booking.event]
     return events_led
 
 
