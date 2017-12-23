@@ -11,6 +11,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from gbe.models import Profile
+from tests.contexts import StaffAreaContext
 
 
 class TestReviewProfiles(TestCase):
@@ -42,6 +43,14 @@ class TestReviewProfiles(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
+        self.assertContains(response, "Manage Users")
+
+    def test_staff_lead(self):
+        context = StaffAreaContext()
+        login_as(context.staff_lead, self)
+        response = self.client.get(self.url)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, "Manage Users")
 
     def test_contact_info(self):
         login_as(self.privileged_user, self)

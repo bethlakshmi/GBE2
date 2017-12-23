@@ -100,7 +100,6 @@ class TestSpecialMenu(TestCase):
         Conference.objects.all().delete()
         privilege = "Staff Lead"
         context = StaffAreaContext()
-        print "conference: " + context.conference.conference_slug
         login_as(context.staff_lead, self)
         response = self.client.get(self.url)
         for menu_item in special_menu_tree:
