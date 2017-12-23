@@ -10,9 +10,7 @@
 {% include "conference_picker.tmpl" %}
 
 {% for schedule in schedules %}
-
 {% if schedule.bookings %}  
-
   <h3>{{ schedule.person.get_badge_name }}'s Schedule</h3>
   <i>Welcome!  Here's a schedule for your participation in the expo!
   Keep in mind that some times (like rehearsals) are generalities and that late
@@ -26,7 +24,7 @@
     <th class='sched-header'>Day</th>
     <th class='sched-header'>Time</th>
   {% for booking in schedule.bookings %}
-  <tr class='sched-table {% if booking.role == "Interested" %}interested-sched{% else %}dedicated-sched{% endif %}'>
+  <tr class='sched-table {% if booking.role == 'Interested' %}interested-sched{% else %}dedicated-sched{% endif %}'>
     <td class='sched-table'>{{ booking.event }}</td>
     <td class='sched-table'>{{booking.role}} </td>    
     <td class='sched-table'>{{booking.event.location}} </td>    
@@ -34,13 +32,11 @@
     <td class='sched-table'>{{booking.event.starttime.time}} </td>
   </tr>
   {% endfor %}
-
   </table>
 <br>
 {% endif %}
 {% if schedule.checklist_items %}
   <h3>{{ schedule.person.get_badge_name }}'s GBE Package Checklist</h3>
-
   <ul>
   {% for criteria in schedule.checklist_items %}
     {% if criteria.ticket %}
