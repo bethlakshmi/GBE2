@@ -111,3 +111,9 @@ class TestSpecialMenu(TestCase):
                     status_code=200,
                     msg_prefix='Role %s gets url %s' % (
                         privilege, menu_item['url']))
+                self.assertContains(
+                    response,
+                    menu_item['title'],
+                    status_code=200,
+                    msg_prefix='Role %s gets title %s' % (
+                        privilege, menu_item['title']))
