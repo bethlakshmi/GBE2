@@ -8,6 +8,7 @@ from gbe.models import UserMessage
 from gbe.scheduling.forms import (
     GenericBookingForm,
     ScheduleOccurrenceForm,
+    ShowBookingForm,
 )
 from gbe.scheduling.views import EventWizardView
 from gbe.duration import Duration
@@ -98,9 +99,13 @@ class TicketedEventWizardView(EventWizardView):
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = self.groundwork(request, args, kwargs)
-        context['second_form'] = GenericBookingForm(
-            initial={'e_conference':  self.conference,
-                     'type': self.event_type.title()})
+        if self.event_type == "show":
+            context['second_form'] = ShowBookingForm(
+                initial={'e_conference':  self.conference})
+        else:
+            context['second_form'] = GenericBookingForm(
+                initial={'e_conference':  self.conference,
+                         'type': self.event_type.title()})
         context['scheduling_form'] = ScheduleOccurrenceForm(
             conference=self.conference,
             open_to_public=True,
@@ -118,7 +123,10 @@ class TicketedEventWizardView(EventWizardView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         context = self.groundwork(request, args, kwargs)
-        context['second_form'] = GenericBookingForm(request.POST)
+        if self.event_type == "show":
+            context['second_form'] = ShowBookingForm(request.POST)
+        else:
+            context['second_form'] = GenericBookingForm(request.POST)
         context['scheduling_form'] = ScheduleOccurrenceForm(
             request.POST,
             conference=self.conference)
