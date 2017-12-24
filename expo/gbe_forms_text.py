@@ -29,7 +29,10 @@ event_type_options = [(
     'Classes', (
         ('drop-in', 'Drop-In Class'),
         ('conference', 'Conference Class'),
-        ('master', 'Master Class'), ), )]
+        ('master', 'Master Class'), ), ), (
+    'Other Public Events', (
+        ('show', 'Show'),
+        ('special', 'Special Event'), ), )]
 
 event_type_options_complete = [(
     'Classes', (
@@ -44,6 +47,36 @@ event_type_options_complete = [(
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 
+ticketed_event_settings = {
+    'drop-in': {
+        'event_type': 'Drop-In Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': ['Staff Lead', 'Teacher', 'Volunteer', ],
+        'max_volunteer': 0,
+    },
+    'master': {
+        'event_type': 'Master Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': ['Teacher', 'Volunteer', ],
+        'max_volunteer': 0,
+    },
+    'show': {
+        'event_type': 'Show',
+        'second_title': 'Make New Show',
+        'volunteer_scheduling': True,
+        'roles': ['Producer', 'Technical Director', ],
+        'max_volunteer': 1,
+    },
+    'special': {
+        'event_type': 'Special Event',
+        'second_title': 'Make New Special Event',
+        'volunteer_scheduling': True,
+        'roles': ['Staff Lead', ],
+        'max_volunteer': 1,
+    },
+}
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"
 }

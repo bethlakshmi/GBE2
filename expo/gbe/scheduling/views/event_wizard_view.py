@@ -37,6 +37,8 @@ class EventWizardView(View):
         'Teacher': True,
         'Panelist': True,
         'Volunteer': False,
+        'Producer': False,
+        'Technical Director': False,
     }
 
     def get_pick_event_form(self, request):
@@ -74,9 +76,9 @@ class EventWizardView(View):
                             args=[self.conference.conference_slug]),
                     request.GET.urlencode()))
             if context['selection_form'].cleaned_data[
-                    'event_type'] in ('drop-in', 'master'):
+                    'event_type'] in ('drop-in', 'master', 'show', 'special'):
                 return HttpResponseRedirect("%s?%s" % (
-                    reverse('create_ticketed_class_wizard',
+                    reverse('create_ticketed_event_wizard',
                             urlconf='gbe.scheduling.urls',
                             args=[self.conference.conference_slug,
                                   context['selection_form'].cleaned_data[

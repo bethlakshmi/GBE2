@@ -72,7 +72,7 @@ class TestEventWizard(TestCase):
             data=data,
             follow=True)
         self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
-            reverse('create_ticketed_class_wizard',
+            reverse('create_ticketed_event_wizard',
                     urlconf='gbe.scheduling.urls',
                     args=[self.current_conference.conference_slug,
                           data['event_type']]),
@@ -86,7 +86,7 @@ class TestEventWizard(TestCase):
             data=data,
             follow=True)
         self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
-            reverse('create_ticketed_class_wizard',
+            reverse('create_ticketed_event_wizard',
                     urlconf='gbe.scheduling.urls',
                     args=[self.current_conference.conference_slug,
                           data['event_type']]),

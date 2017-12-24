@@ -39,9 +39,9 @@ import urllib2
 from django.core.files import File
 
 
-class TestTicketedClassWizard(TestCase):
+class TestTicketedEventWizard(TestCase):
     '''This view makes Master and Drop In and associates them w. tickets'''
-    view_name = 'create_ticketed_class_wizard'
+    view_name = 'create_ticketed_event_wizard'
 
     def setUp(self):
         self.room = RoomFactory()
