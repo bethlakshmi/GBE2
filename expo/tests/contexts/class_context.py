@@ -34,7 +34,10 @@ class ClassContext:
         self.teacher = teacher or PersonaFactory()
         self.conference = conference or ConferenceFactory()
         if not self.conference.conferenceday_set.exists():
-            ConferenceDayFactory(conference=self.conference)
+            day = ConferenceDayFactory(conference=self.conference)
+            if starttime:
+                day.day = starttime.date()
+                day.save()
 
         self.days = self.conference.conferenceday_set.all()
         self.starttime = starttime or noon(self.days[0])
