@@ -18,7 +18,10 @@ from tests.factories.ticketing_factories import (
     BrownPaperSettingsFactory,
 )
 from scheduler.models import Event
-from gbe.models import GenericEvent
+from gbe.models import (
+    GenericEvent,
+    Show,
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     grant_privilege,
@@ -61,7 +64,7 @@ class TestTicketedEventWizard(TestCase):
     def edit_class(self):
         data = {
             'type': 'Master',
-            'e_title': "Test Class Wizard",
+            'e_title': "Test Event Wizard",
             'e_description': 'Description',
             'e_conference': self.current_conference.pk,
             'max_volunteer': 1,
@@ -252,6 +255,91 @@ class TestTicketedEventWizard(TestCase):
         self.assertEqual(new_class.type, "Drop-In")
         occurrence = Event.objects.get(
             eventitem__eventitem_id=new_class.eventitem_id)
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
+        self.assertContains(
+            response,
+            '<tr class="bid-table success">\n       ' +
+            '<td class="bid-table">%s</td>' % data['e_title'])
+
+    def test_create_show_w_staffing(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "show"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=show"
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        
+        data.pop('type', None)
+        data['alloc_0-role'] = "Producer"
+        data['alloc_1-role'] = "Technical Director"
+        data['alloc_0-worker'] = self.privileged_user.pk
+        data['alloc_1-worker'] = self.teacher.performer_profile.pk
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_show = Show.objects.get(e_title=data['e_title'])
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_show.eventitem_id)
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
+        self.assertContains(
+            response,
+            '<tr class="bid-table success">\n       ' +
+            '<td class="bid-table">%s</td>' % data['e_title'])
+
+    def test_create_special_w_staffing(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "special"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=special"
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['type'] = "Special"
+        data['alloc_0-role'] = "Staff Lead"
+        data['alloc_0-worker'] = self.teacher.performer_profile.pk
+        data.pop('alloc_1-role', None)
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_event = GenericEvent.objects.get(e_title=data['e_title'])
+        self.assertEqual(new_event.type, "Special")
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_event.eventitem_id)
         self.assertRedirects(
             response,
             "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
