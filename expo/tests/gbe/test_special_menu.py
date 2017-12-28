@@ -116,3 +116,27 @@ class TestSpecialMenu(TestCase):
                     status_code=200,
                     msg_prefix='Role %s gets title %s' % (
                         privilege, menu_item['title']))
+
+    def test_old_staff_lead_get_nothing(self):
+        ''' no group privilege, no special menus
+        '''
+        Conference.objects.all().delete()
+        privilege = "Staff Lead"
+        context = StaffAreaContext()
+        context.conference.status = "past"
+        context.conference.save()
+        login_as(context.staff_lead, self)
+        response = self.client.get(self.url)
+        self.assertNotContains(
+            response,
+            'Special',
+            status_code=200,
+            msg_prefix='Normal users don\'t get a Special Menu'
+        )
+        for menu_item in special_menu_tree:
+            if menu_item['url'] != '':
+                self.assertNotContains(
+                    response,
+                    menu_item['url'],
+                    msg_prefix='Normal users should not see %s' % (
+                        menu_item['url']))

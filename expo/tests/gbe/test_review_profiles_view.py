@@ -32,6 +32,14 @@ class TestReviewProfiles(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(403, response.status_code)
 
+    def test_past_staff_lead(self):
+        context = StaffAreaContext()
+        context.conference.status = "past"
+        context.conference.save()
+        login_as(context.staff_lead, self)
+        response = self.client.get(self.url)
+        self.assertEqual(403, response.status_code)
+
     def test_no_login(self):
         response = self.client.get(self.url, follow=True)
         redirect_url = reverse(
