@@ -47,7 +47,7 @@ event_type_options_complete = [(
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 
-ticketed_event_settings = {
+event_settings = {
     'drop-in': {
         'event_type': 'Drop-In Class',
         'second_title': 'Make New Class',
@@ -76,6 +76,47 @@ ticketed_event_settings = {
         'roles': ['Staff Lead', ],
         'max_volunteer': 1,
     },
+    'panel': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Moderator', 'Panelist', 'Panelist', 'Panelist', 'Panelist']],
+        'max_volunteer': 0,
+    },
+    'lecture': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+    'movement': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+    'workshop': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+}
+role_map = {
+    'Staff Lead': False,
+    'Moderator': True,
+    'Teacher': True,
+    'Panelist': True,
+    'Volunteer': False,
+    'Producer': False,
+    'Technical Director': False,
 }
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"

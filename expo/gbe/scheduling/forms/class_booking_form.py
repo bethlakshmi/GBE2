@@ -1,9 +1,7 @@
 from django.forms import (
     BooleanField,
-    CharField,
     IntegerField,
     HiddenInput,
-    ModelForm,
     TextInput,
 )
 from gbe.models import Class
@@ -11,12 +9,10 @@ from gbe_forms_text import (
     classbid_help_texts,
     classbid_labels,
 )
-from tinymce.widgets import TinyMCE
+from gbe.scheduling.forms import EventBookingForm
 
 
-class ClassBookingForm(ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
+class ClassBookingForm(EventBookingForm):
     accepted = IntegerField(
         initial=3,
         widget=HiddenInput)
@@ -24,12 +20,6 @@ class ClassBookingForm(ModelForm):
         widget=HiddenInput,
         required=False)
     submitted = BooleanField(widget=HiddenInput, initial=True)
-    e_title = CharField(
-        widget=TextInput(attrs={'size': '79'}),
-        label=classbid_labels['e_title'])
-    e_description = CharField(
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
-        label=classbid_labels['e_description'])
 
     def save(self, commit=True):
         this_class = super(ClassBookingForm, self).save(commit=False)

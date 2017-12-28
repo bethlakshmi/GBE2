@@ -7,7 +7,6 @@ from django.shortcuts import (
     get_object_or_404,
     render,
 )
-from django.http import HttpResponseRedirect
 from gbe.functions import validate_perms
 from django.core.urlresolvers import reverse
 from scheduler.data_transfer import Person
@@ -24,22 +23,13 @@ from gbe.scheduling.views.functions import (
     get_start_time,
     show_scheduling_occurrence_status,
 )
+from gbe_forms_text import role_map
 
 
 class EventWizardView(View):
     template = 'gbe/scheduling/event_wizard.tmpl'
     permissions = ('Scheduling Mavens',)
     default_event_type = None
-
-    role_map = {
-        'Staff Lead': False,
-        'Moderator': True,
-        'Teacher': True,
-        'Panelist': True,
-        'Volunteer': False,
-        'Producer': False,
-        'Technical Director': False,
-    }
 
     def get_pick_event_form(self, request):
         if 'pick_event' in request.GET.keys():
@@ -98,7 +88,7 @@ class EventWizardView(View):
                 post,
                 label_visible=False,
                 role_options=[(initial['role'], initial['role']), ],
-                use_personas=self.role_map[initial['role']],
+                use_personas=role_map[initial['role']],
                 initial=initial,
                 prefix="alloc_0")]
             n = n + 1
@@ -107,7 +97,7 @@ class EventWizardView(View):
                 post,
                 label_visible=False,
                 role_options=[(role, role), ],
-                use_personas=self.role_map[role],
+                use_personas=role_map[role],
                 initial={'role': role},
                 prefix="alloc_%d" % n), ]
             n = n + 1

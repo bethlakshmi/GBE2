@@ -72,7 +72,7 @@ class TestTicketedEventWizard(TestCase):
             'time': '11:00:00',
             'duration': 2.5,
             'location': self.room.pk,
-            'set_class': 'Finish',
+            'set_event': 'Any value',
             'alloc_0-role': 'Teacher',
             'alloc_1-role': 'Volunteer',
         }

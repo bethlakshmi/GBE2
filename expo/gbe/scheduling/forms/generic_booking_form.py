@@ -1,23 +1,13 @@
-from django.forms import (
-    CharField,
-    HiddenInput,
-    ModelForm,
-)
+from django.forms import HiddenInput
 from gbe.models import GenericEvent
 from gbe_forms_text import (
     event_help_texts,
     event_labels,
 )
-from tinymce.widgets import TinyMCE
+from gbe.scheduling.forms import EventBookingForm
 
 
-class GenericBookingForm(ModelForm):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    e_description = CharField(
-        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
-        label=event_labels['e_description'])
-
+class GenericBookingForm(EventBookingForm):
     class Meta:
         model = GenericEvent
         fields = [

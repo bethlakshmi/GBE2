@@ -1,50 +1,95 @@
+from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.contrib import messages
-from gbe.models import UserMessage
+from gbe.models import (
+    Conference,
+    Event,
+    UserMessage,
+)
 from gbe.scheduling.forms import (
-    GenericBookingForm,
+    EventBookingForm,
+    PersonAllocationForm,
     ScheduleOccurrenceForm,
-    ShowBookingForm,
 )
 from gbe.scheduling.views import EventWizardView
 from gbe.duration import Duration
 from ticketing.forms import LinkBPTEventForm
 from gbe.ticketing_idd_interface import create_bpt_event
-from gbe.functions import validate_perms
+from gbe.functions import (
+    eligible_volunteers,
+    get_conference_day,
+    validate_perms
+)
 from gbetext import (
     create_ticket_event_success_msg,
     link_event_to_ticket_success_msg,
     no_tickets_found_msg,
 )
-from gbe_forms_text import event_settings
+from gbe_forms_text import (
+    role_map,
+    event_settings,
+)
+from scheduler.idd import get_occurrence
 
 
-class TicketedEventWizardView(EventWizardView):
-    template = 'gbe/scheduling/ticketed_event_wizard.tmpl'
-    roles = ['Producer',
-             'Technical Director',
-             'Teacher',
-             'Volunteer',
-             'Staff Lead']
-    default_event_type = "general"
+class EditEventView(View):
+    template = 'gbe/scheduling/edit_event.tmpl'
 
     def groundwork(self, request, args, kwargs):
-        context = super(TicketedEventWizardView,
-                        self).groundwork(request, args, kwargs)
-        self.event_type = kwargs['event_type']
-        context['event_type'] = event_settings[
-            self.event_type]['event_type']
-        context['second_title'] = event_settings[
-            self.event_type]['second_title']
-        context['tickets'] = None
-        context['volunteer_scheduling'] = event_settings[
-            self.event_type]['volunteer_scheduling']
-        return context
+        if "conference" in kwargs:
+            self.conference = get_object_or_404(
+                Conference,
+                conference_slug=kwargs['conference'])
+        if "occurrence_id" in kwargs:
+            result = get_occurrence(kwargs['occurrence_id'])
+            if result.errors and len(result.errors) > 0:
+                show_scheduling_occurrence_status(
+                    request,
+                    result,
+                    self.__class__.__name__)
+                error_url = reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.conference.conference_slug])
+
+                return HttpResponseRedirect(error_url)
+            else:
+                self.occurrence = result.occurrence
+        self.item = get_object_or_404(
+            Event,
+            eventitem_id=self.occurrence.foreign_event_id).child()
+
+    def make_formset(self, roles, post=None):
+        formset = []
+        n = 0
+        for booking in self.occurrence.people:
+            formset += [PersonAllocationForm(
+                post,
+                label_visible=False,
+                role_options=[(booking.role, booking.role), ],
+                use_personas=role_map[booking.role],
+                initial={
+                    'role': booking.role,
+                    'worker': booking.public_id,
+                },
+                prefix="alloc_%d" % n)]
+            n = n + 1
+        for role in roles:
+            formset += [PersonAllocationForm(
+                post,
+                label_visible=False,
+                role_options=[(role, role), ],
+                use_personas=role_map[role],
+                initial={'role': role},
+                prefix="alloc_%d" % n), ]
+            n = n + 1
+        return formset
 
     def setup_ticket_links(self, request, new_event, ticket_form):
         ticket_list = ""
@@ -101,22 +146,24 @@ class TicketedEventWizardView(EventWizardView):
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        context = self.groundwork(request, args, kwargs)
-        if self.event_type == "show":
-            context['second_form'] = ShowBookingForm(
-                initial={'e_conference':  self.conference})
-        else:
-            context['second_form'] = GenericBookingForm(
-                initial={'e_conference':  self.conference,
-                         'type': self.event_type.title()})
+        context = {}
+        error_url = self.groundwork(request, args, kwargs)
+        if error_url:
+            return error_url
+        context['event_form'] = EventBookingForm(
+                instance=self.item)
         context['scheduling_form'] = ScheduleOccurrenceForm(
             conference=self.conference,
             open_to_public=True,
-            initial={'duration': 1,
-                     'max_volunteer': event_settings[
-                        self.event_type]['max_volunteer']})
+            initial={'duration': self.item.duration,
+                     'max_volunteer': self.occurrence.max_volunteer,
+                     'day': get_conference_day(
+                        conference=self.conference,
+                        date=self.occurrence.starttime.date()),
+                     'time': self.occurrence.starttime.strftime("%H:%M:%S"),
+                     'location': self.occurrence.location})
         context['worker_formset'] = self.make_formset(
-            event_settings[self.event_type]['roles'])
+            event_settings[self.item.type.lower()]['roles'])
         if validate_perms(request, ('Ticketing - Admin',), require=False):
             context['tickets'] = LinkBPTEventForm(initial={
                 'conference': self.conference, })
@@ -134,7 +181,7 @@ class TicketedEventWizardView(EventWizardView):
             request.POST,
             conference=self.conference)
         context['worker_formset'] = self.make_formset(
-            event_settings[self.event_type]['roles'],
+            ticketed_event_settings[self.event_type]['roles'],
             post=request.POST)
         if validate_perms(request, ('Ticketing - Admin',), require=False):
             context['tickets'] = LinkBPTEventForm(request.POST, initial={
@@ -158,13 +205,8 @@ class TicketedEventWizardView(EventWizardView):
                 response,
                 context['scheduling_form'].cleaned_data['day'].pk)
             if success:
-                if request.POST.get(
-                        'set_event') == 'Continue to Volunteer Opportunities':
-                    return HttpResponseRedirect(
-                        reverse('edit_event',
-                                urlconf='gbe.scheduling.urls',
-                                args=[self.conference.conference_slug,
-                                      response.occurrence.pk]))
+                if request.POST.get('set_event') == 'Continue to Volunteer Opportunities':
+                    raise Exception('here')
                 else:
                     return success
         return render(request, self.template, context)
