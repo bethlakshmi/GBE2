@@ -15,9 +15,10 @@ def ReviewProfilesView(request):
     admin_profile = validate_perms(request, ('Registrar',
                                              'Volunteer Coordinator',
                                              'Act Coordinator',
-                                             'Conference Coordinator',
+                                             'Class Coordinator',
                                              'Vendor Coordinator',
-                                             'Ticketing - Admin'))
+                                             'Ticketing - Admin',
+                                             'Staff Lead'))
     header = ['Name',
               'Username',
               'Last Login',

@@ -5,7 +5,10 @@ from cms.menu_bases import CMSAttachMenu
 from menus.base import Menu, NavigationNode
 from menus.menu_pool import menu_pool
 
-from gbe.functions import validate_perms
+from gbe.functions import (
+    validate_event_role,
+    validate_perms,
+)
 from gbe.special_privileges import special_menu_tree
 
 '''
@@ -53,9 +56,11 @@ class SpecialMenu(Menu):
         Users must have special privileges to use this
         """
         nodes = []
-
-        if validate_perms(request, 'any', require=False):
+        profile = validate_perms(request, 'any', require=False)
+        if profile:
             privileges = set(request.user.profile.privilege_groups)
+            if len(validate_event_role(profile, 'Staff Lead')) > 0:
+                privileges.add('Staff Lead')
             nodes.append(NavigationNode(_("Special"), "", 1))
             for node in special_menu_tree:
                 if not privileges.isdisjoint(node['groups']):
