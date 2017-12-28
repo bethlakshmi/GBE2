@@ -158,6 +158,17 @@ class TestCalendarView(TestCase):
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, 404)
 
+    def test_invalid_day(self):
+        '''
+        There is a day, but that's not the day we're asking for.
+        '''
+        url = reverse('calendar',
+                      urlconf='gbe.scheduling.urls',
+                      args=['Conference'])
+        data = {'day': "DEADBEEF"}
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, 404)
+
     def test_bad_cal_type(self):
         url = reverse('calendar',
                       urlconf='gbe.scheduling.urls',
