@@ -150,23 +150,27 @@ class EditEventView(View):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
+        
+        duration = float(self.item.duration.total_minutes())/60
         context['event_form'] = EventBookingForm(
                 instance=self.item)
         context['scheduling_form'] = ScheduleOccurrenceForm(
             conference=self.conference,
             open_to_public=True,
-            initial={'duration': self.item.duration,
-                     'max_volunteer': self.occurrence.max_volunteer,
-                     'day': get_conference_day(
-                        conference=self.conference,
-                        date=self.occurrence.starttime.date()),
-                     'time': self.occurrence.starttime.strftime("%H:%M:%S"),
-                     'location': self.occurrence.location})
+            initial={
+                'duration': duration,
+                'max_volunteer': self.occurrence.max_volunteer,
+                'day': get_conference_day(
+                    conference=self.conference,
+                    date=self.occurrence.starttime.date()),
+                'time': self.occurrence.starttime.strftime("%H:%M:%S"),
+                'location': self.occurrence.location})
         context['worker_formset'] = self.make_formset(
             event_settings[self.item.type.lower()]['roles'])
         if validate_perms(request, ('Ticketing - Admin',), require=False):
             context['tickets'] = LinkBPTEventForm(initial={
-                'conference': self.conference, })
+                'conference': self.conference,
+                'bpt_events': self.item.ticketing_item.all()})
         return render(request, self.template, context)
 
     @never_cache
