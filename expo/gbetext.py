@@ -3,7 +3,13 @@
 
 
 # models
-
+bid_types = (
+    ('Act', 'Act'),
+    ('Class', 'Class'),
+    ('Costume', 'Costume'),
+    ('Vendor', 'Vendor'),
+    ('Volunteer', 'Volunteer'),
+)
 stageinfo_incomplete_warning = ("Please confirm that you have no props "
                                 "requirements")
 
@@ -180,7 +186,12 @@ vote_options = ((1, "Strong yes"),
                 (6, "No"),
                 (7, "Strong No"),
                 (-1, "Abstain"))
-
+grade_options = (("A", "A"),
+                ("B", "B"),
+                ("C", "C"),
+                ("D", "D"),
+                ("F", "F"),
+                ("", "NA"),)
 
 festival_list = (('GBE', 'The Great Burlesque Exposition'),
                  ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'),

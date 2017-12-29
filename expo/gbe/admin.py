@@ -212,6 +212,43 @@ class EvalCategoryAdmin(admin.ModelAdmin):
                     'help_text')
     list_filter = ['visible', ]
 
+@admin.register(BidReviewQuestion)
+class BidReviewQuestionAdmin(admin.ModelAdmin):
+    list_display = ('order',
+                    'visible',
+                    'bid_type',
+                    'question',
+                    'help_text',)
+    list_editable = ('order',
+                     'visible',
+                     'bid_type',
+                     'question',
+                     'help_text',)
+    list_display_links = None
+    list_filter = ['bid_type', ]
+    ordering = ['bid_type', 'order', ]
+
+@admin.register(BidReview)
+class BidReviewAdmin(admin.ModelAdmin):
+    list_display = ('bid',
+                    'profile',
+                    'question',
+                    'rating',)
+    list_editable = ('question',
+                    'rating',)
+    list_display_links = ('bid',)
+    list_filter = ['rating', ]
+    readonly_fields = ('bid', 'profile')
+
+@admin.register(BidReviewComment)
+class BidReviewCommentAdmin(admin.ModelAdmin):
+    list_display = ('bid',
+                    'profile',
+                    'comment')
+    list_editable = ('comment', )
+    list_display_links = ('bid',)
+    readonly_fields = ('bid', 'profile')
+
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)
 admin.site.register(VolunteerWindow, VolunteerWindowAdmin)
@@ -249,3 +286,4 @@ admin.site.register(FlexibleEvaluation, FlexibleEvalAdmin)
 admin.site.register(EvaluationCategory, EvalCategoryAdmin)
 admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)
 admin.site.register(ActCastingOption, CastingAdmin)
+
