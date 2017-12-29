@@ -5,6 +5,7 @@ from django.db.models import (
 )
 from gbe.models import (
     Biddable,
+    BidReviewQuestion,
     Profile,
 )
 
@@ -12,6 +13,7 @@ from gbetext import grade_options
 
 
 class BidReviewComment(Model):
+    question = ForeignKey(BidReviewQuestion)
     comment = TextField(blank=True, max_length=500)
     profile = ForeignKey(Profile)
     bid = ForeignKey(Biddable)

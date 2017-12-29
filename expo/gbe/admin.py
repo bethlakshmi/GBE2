@@ -238,7 +238,6 @@ class BidReviewAdmin(admin.ModelAdmin):
                     'rating',)
     list_display_links = ('bid',)
     list_filter = ['rating', ]
-    readonly_fields = ('bid', 'profile')
 
 @admin.register(BidReviewComment)
 class BidReviewCommentAdmin(admin.ModelAdmin):
@@ -247,7 +246,6 @@ class BidReviewCommentAdmin(admin.ModelAdmin):
                     'comment')
     list_editable = ('comment', )
     list_display_links = ('bid',)
-    readonly_fields = ('bid', 'profile')
 
 admin.site.register(Conference, ConferenceAdmin)
 admin.site.register(ConferenceDay, ConferenceDayAdmin)

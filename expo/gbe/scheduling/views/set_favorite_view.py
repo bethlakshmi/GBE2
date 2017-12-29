@@ -11,11 +11,8 @@ from scheduler.idd import (
 )
 from gbe.scheduling.views.functions import show_general_status
 from gbe.models import UserMessage
-from gbe.functions import validate_profile
+from gbe.functions import check_user_and_redirect
 from gbetext import (
-    no_profile_msg,
-    no_login_msg,
-    full_login_msg,
     set_favorite_msg,
     unset_favorite_msg,
 )
@@ -23,43 +20,19 @@ from gbetext import (
 
 class SetFavoriteView(View):
 
-    def check_user_state(self, request, this_url):
-        follow_on = '?next=%s' % this_url
-        if not request.user.is_authenticated():
-            user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code="USER_NOT_LOGGED_IN",
-                defaults={
-                    'summary': "Need Login - %s Bid",
-                    'description': no_login_msg})
-            full_msg = full_login_msg % (
-                user_message[0].description,
-                reverse('login', urlconf='gbe.urls') + follow_on)
-            messages.warning(request, full_msg)
-
-            return HttpResponseRedirect(
-                reverse('register', urlconf='gbe.urls') + follow_on)
-        self.owner = validate_profile(request, require=False)
-        if not self.owner or not self.owner.complete:
-            user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code="PROFILE_INCOMPLETE",
-                defaults={
-                    'summary': "%s Profile Incomplete",
-                    'description': no_profile_msg})
-            messages.warning(request, user_message[0].description)
-            return HttpResponseRedirect(
-                reverse('register', urlconf='gbe.urls') + follow_on)
-
     @never_cache
     def get(self, request, *args, **kwargs):
         this_url = reverse(
                 'set_favorite',
                 args=[kwargs['occurrence_id'], kwargs['state']],
                 urlconf='gbe.scheduling.urls')
-        response = self.check_user_state(request, this_url)
-        if response:
-            return response
+        response = check_user_and_redirect(
+            request,
+            this_url,
+            self.__class__.__name__)
+        if response['error_url']:
+            return HttpResponseRedirect(response['error_url'])
+        self.owner = response['owner']
         occurrence_id = int(kwargs['occurrence_id'])
         interested = get_bookings([occurrence_id],
                                   roles=["Interested"])

@@ -6,12 +6,20 @@ from gbe.models import (
     GenericEvent,
     Profile,
     Show,
+    UserMessage,
     Volunteer,
 )
 from django.http import Http404
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from scheduler.idd import get_schedule
+from django.contrib import messages
+from gbetext import (
+    no_profile_msg,
+    no_login_msg,
+    full_login_msg,
+)
 
 
 def validate_profile(request, require=False):
@@ -56,6 +64,38 @@ def validate_perms(request, perms, require=True):
     if require:                # error out if permission is required
         raise PermissionDenied
     return False               # or just return false if we're just checking
+
+
+def check_user_and_redirect(request, this_url, source):
+    follow_on = '?next=%s' % this_url
+    response = {
+        'error_url': None,
+        'owner': None,
+    }
+    if not request.user.is_authenticated():
+        user_message = UserMessage.objects.get_or_create(
+            view=source,
+            code="USER_NOT_LOGGED_IN",
+            defaults={
+                'summary': "Need Login - %s Bid",
+                'description': no_login_msg})
+        full_msg = full_login_msg % (
+            user_message[0].description,
+            reverse('login', urlconf='gbe.urls') + follow_on)
+        messages.warning(request, full_msg)
+        response['error_url'] = reverse('register', urlconf='gbe.urls') + follow_on
+        return response
+    response['owner'] = validate_profile(request, require=False)
+    if not response['owner'] or not response['owner'].complete:
+        user_message = UserMessage.objects.get_or_create(
+            view=source,
+            code="PROFILE_INCOMPLETE",
+            defaults={
+                'summary': "%s Profile Incomplete",
+                'description': no_profile_msg})
+        messages.warning(request, user_message[0].description)
+        response['error_url'] = reverse('register', urlconf='gbe.urls') + follow_on
+    return response
 
 
 def get_conf(biddable):

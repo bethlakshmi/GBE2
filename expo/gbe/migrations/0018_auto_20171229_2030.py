@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
                 ('visible', models.BooleanField(default=True)),
                 ('help_text', models.TextField(max_length=500, blank=True)),
                 ('order', models.IntegerField()),
+                ('answer_type', models.CharField(max_length=20, choices=[(b'grade', b'grade'), (b'text', b'text')])),
             ],
         ),
         migrations.RemoveField(
@@ -51,6 +52,11 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='bidreviewquestion',
             unique_together=set([('order', 'bid_type'), ('question', 'bid_type')]),
+        ),
+        migrations.AddField(
+            model_name='bidreviewcomment',
+            name='question',
+            field=models.ForeignKey(to='gbe.BidReviewQuestion'),
         ),
         migrations.AddField(
             model_name='bidreview',

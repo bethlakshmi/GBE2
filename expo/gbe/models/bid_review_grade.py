@@ -12,7 +12,7 @@ from gbe.models import (
 from gbetext import grade_options
 
 
-class BidReview(Model):
+class BidReviewGrade(Model):
     '''
     A response to a bid, cast by a privileged GBE staff member
     '''
