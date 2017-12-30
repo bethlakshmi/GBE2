@@ -23,7 +23,7 @@ class EventEvalQuestion(Model):
         return "%d - %s" % (self.order, self.question)
 
     class Meta:
-        app_label = "gbe"
+        app_label = "scheduler"
         unique_together = (
             ('question', ),
             ('order', ),)

@@ -24,5 +24,5 @@ class EventEvalGrade(Model):
     event = ForeignKey(Event)
 
     class Meta:
-        app_label = "gbe"
+        app_label = "scheduler"
         unique_together = (('question', 'profile', 'event'),)

@@ -19,5 +19,5 @@ class EventEvalComment(Model):
     event = ForeignKey(Event)
 
     class Meta:
-        app_label = "gbe"
+        app_label = "scheduler"
         unique_together = (('profile', 'event'),)

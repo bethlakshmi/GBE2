@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('scheduler', '0005_auto_20171217_1554'),
-        ('gbe', '0017_remove_vendor_logo'),
     ]
 
     operations = [
@@ -41,14 +40,6 @@ class Migration(migrations.Migration):
                 ('answer_type', models.CharField(max_length=20, choices=[(b'grade', b'grade'), (b'text', b'text')])),
             ],
         ),
-        migrations.RemoveField(
-            model_name='show',
-            name='acts',
-        ),
-        migrations.RemoveField(
-            model_name='show',
-            name='cue_sheet',
-        ),
         migrations.AlterUniqueTogether(
             name='eventevalquestion',
             unique_together=set([('order',), ('question',)]),
@@ -56,12 +47,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='eventevalgrade',
             name='question',
-            field=models.ForeignKey(to='gbe.EventEvalQuestion'),
+            field=models.ForeignKey(to='scheduler.EventEvalQuestion'),
         ),
         migrations.AddField(
             model_name='eventevalcomment',
             name='question',
-            field=models.ForeignKey(to='gbe.EventEvalQuestion'),
+            field=models.ForeignKey(to='scheduler.EventEvalQuestion'),
         ),
         migrations.AlterUniqueTogether(
             name='eventevalgrade',
