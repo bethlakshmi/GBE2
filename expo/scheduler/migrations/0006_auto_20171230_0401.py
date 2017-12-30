@@ -15,19 +15,25 @@ class Migration(migrations.Migration):
             name='EventEvalComment',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('comment', models.TextField(max_length=500, blank=True)),
+                ('answer', models.TextField(max_length=500, blank=True)),
                 ('event', models.ForeignKey(to='scheduler.Event')),
                 ('profile', models.ForeignKey(to='scheduler.WorkerItem')),
             ],
+            options={
+                'abstract': False,
+            },
         ),
         migrations.CreateModel(
             name='EventEvalGrade',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('rating', models.CharField(blank=True, max_length=10, choices=[(b'A', b'A'), (b'B', b'B'), (b'C', b'C'), (b'D', b'D'), (b'F', b'F'), (b'', b'NA')])),
+                ('answer', models.CharField(blank=True, max_length=10, choices=[(b'A', b'A'), (b'B', b'B'), (b'C', b'C'), (b'D', b'D'), (b'F', b'F'), (b'', b'NA')])),
                 ('event', models.ForeignKey(to='scheduler.Event')),
                 ('profile', models.ForeignKey(to='scheduler.WorkerItem')),
             ],
+            options={
+                'abstract': False,
+            },
         ),
         migrations.CreateModel(
             name='EventEvalQuestion',
@@ -37,8 +43,21 @@ class Migration(migrations.Migration):
                 ('visible', models.BooleanField(default=True)),
                 ('help_text', models.TextField(max_length=500, blank=True)),
                 ('order', models.IntegerField()),
-                ('answer_type', models.CharField(max_length=20, choices=[(b'grade', b'grade'), (b'text', b'text')])),
+                ('answer_type', models.CharField(max_length=20, choices=[(b'grade', b'grade'), (b'text', b'text'), (b'yesno', b'yesno')])),
             ],
+        ),
+        migrations.CreateModel(
+            name='EventEvalYesNo',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('answer', models.CharField(blank=True, max_length=10, choices=[(b'Yes', b'Yes'), (b'No', b'No')])),
+                ('event', models.ForeignKey(to='scheduler.Event')),
+                ('profile', models.ForeignKey(to='scheduler.WorkerItem')),
+                ('question', models.ForeignKey(to='scheduler.EventEvalQuestion')),
+            ],
+            options={
+                'abstract': False,
+            },
         ),
         migrations.AlterUniqueTogether(
             name='eventevalquestion',
@@ -55,11 +74,15 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(to='scheduler.EventEvalQuestion'),
         ),
         migrations.AlterUniqueTogether(
+            name='eventevalyesno',
+            unique_together=set([('profile', 'event', 'question')]),
+        ),
+        migrations.AlterUniqueTogether(
             name='eventevalgrade',
-            unique_together=set([('question', 'profile', 'event')]),
+            unique_together=set([('profile', 'event', 'question')]),
         ),
         migrations.AlterUniqueTogether(
             name='eventevalcomment',
-            unique_together=set([('profile', 'event')]),
+            unique_together=set([('profile', 'event', 'question')]),
         ),
     ]

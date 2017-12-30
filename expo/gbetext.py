@@ -194,7 +194,8 @@ grade_options = (("A", "A"),
                 ("", "NA"),)
 
 answer_types = (("grade", "grade"),
-                ("text", "text"),)
+                ("text", "text"),
+                ("yesno", "yesno"),)
 
 festival_list = (('GBE', 'The Great Burlesque Exposition'),
                  ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'),

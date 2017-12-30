@@ -109,3 +109,15 @@ class ScheduleResponse(GeneralResponse):
                  errors=[]):
         self.schedule_items = schedule_items
         super(ScheduleResponse, self).__init__(warnings, errors)
+
+class EvalInfoResponse(GeneralResponse):
+    def __init__(self,
+                 occurrences=[],
+                 questions=[],
+                 answers=[],
+                 warnings=[],
+                 errors=[]):
+        self.occurrences = occurrences
+        self.questions = questions
+        self.answers = answers
+        super(EvalInfoResponse, self).__init__(warnings, errors)

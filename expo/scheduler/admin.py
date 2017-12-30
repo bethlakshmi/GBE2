@@ -99,23 +99,14 @@ class EventEvalQuestionAdmin(admin.ModelAdmin):
     list_display_links = None
     ordering = ['order', ]
 
-@admin.register(EventEvalGrade)
+@admin.register(EventEvalGrade, EventEvalComment, EventEvalYesNo)
 class EventEvalGradeAdmin(admin.ModelAdmin):
     list_display = ('event',
                     'profile',
                     'question',
-                    'rating',)
+                    'answer',)
     list_editable = ('question',
-                    'rating',)
-    list_display_links = ('event',)
-    list_filter = ['rating', ]
-
-@admin.register(EventEvalComment)
-class EventEvalCommentAdmin(admin.ModelAdmin):
-    list_display = ('event',
-                    'profile',
-                    'comment')
-    list_editable = ('comment', )
+                    'answer',)
     list_display_links = ('event',)
 
 admin.site.register(EventItem, EventItemAdmin)
