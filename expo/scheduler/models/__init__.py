@@ -23,4 +23,4 @@ from event_eval_question import EventEvalQuestion
 from event_eval_answer import EventEvalAnswer
 from event_eval_comment import EventEvalComment
 from event_eval_grade import EventEvalGrade
-from event_eval_yesno import EventEvalYesNo
+from event_eval_boolean import EventEvalBoolean

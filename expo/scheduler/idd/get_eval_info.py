@@ -1,5 +1,7 @@
 from scheduler.models import (
-    EventEvalAnswer,
+    EventEvalComment,
+    EventEvalGrade,
+    EventEvalBoolean,
     EventEvalQuestion,
 )
 from scheduler.data_transfer import (
@@ -27,9 +29,12 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
                     occurrence=response.occurrence)],
                 occurrences=occurrences)
     questions = EventEvalQuestion.objects.filter(visible=visible)
-    answers = EventEvalAnswer.objects.filter(event__in=occurrences)
-    if person:
-        answers = answers.filters(profile=person)
+    answers = []
+    for eval_type in [EventEvalComment, EventEvalGrade, EventEvalBoolean]:
+        some_answers = eval_type.objects.filter(event__in=occurrences)
+        if person:
+            some_answers = some_answers.filter(profile=person)
+        answers += list(some_answers)
     return EvalInfoResponse(occurrences=occurrences,
                             questions=questions,
                             answers=answers)

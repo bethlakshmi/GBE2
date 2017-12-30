@@ -21,3 +21,4 @@ from select_event_form import (
     HiddenSelectEventForm,
     SelectEventForm,
 )
+from event_evaluation_form import EventEvaluationForm

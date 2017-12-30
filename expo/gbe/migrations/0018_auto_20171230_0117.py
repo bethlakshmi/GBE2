@@ -15,8 +15,4 @@ class Migration(migrations.Migration):
             model_name='show',
             name='acts',
         ),
-        migrations.RemoveField(
-            model_name='show',
-            name='cue_sheet',
-        ),
     ]

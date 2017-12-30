@@ -195,7 +195,7 @@ grade_options = (("A", "A"),
 
 answer_types = (("grade", "grade"),
                 ("text", "text"),
-                ("yesno", "yesno"),)
+                ("boolean", "boolean"),)
 
 festival_list = (('GBE', 'The Great Burlesque Exposition'),
                  ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'),
@@ -487,3 +487,6 @@ interested_report_explain_msg = '''This list includes all scheduled \
 classes and provides a count of how many logged in users have shown interest \
 in the class.  Interest does not reflect a firm commitment, nor does it \
 imply anything about ticket purchase.'''
+not_ready_for_eval = '''Our apologies, but we're not ready to take in \
+evaluations right now, please come back soon!'''
+one_eval_msg = '''We can only accept one evaluation per person, per event.'''

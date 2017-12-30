@@ -10,14 +10,20 @@ from django.forms import (
     ModelChoiceField,
 )
 from gbe.models import (
+    Event,
     UserMessage,
 )
 from gbe.functions import check_user_and_redirect
 from scheduler.idd import get_eval_info
+from gbetext import (
+    not_ready_for_eval,
+    one_eval_msg,
+)
+from gbe.scheduling.forms import EventEvaluationForm
 
 
 class EvalEventView(View):
-    review_template = 'gbe/eval_class.tmpl'
+    template = 'gbe/scheduling/eval_event.tmpl'
 
     def groundwork(self, request, args, kwargs):
         this_url = reverse(
@@ -34,44 +40,79 @@ class EvalEventView(View):
 
     def setup_eval(self, request, occurrence_id):
         eval_info = get_eval_info(occurrence_id, person=self.owner)
+        redirect_now = False
         if len(eval_info.errors) > 0:
             for error in eval_info.errors:
                 user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code=error.code,
-                defaults={
-                    'summary': "Get Eval Warning",
-                    'description': error.details})
+                    view=self.__class__.__name__,
+                    code=error.code,
+                    defaults={
+                        'summary': "Get Eval Warning",
+                        'description': error.details})
                 messages.error(request, user_message[0].description)
-        if len(eval_info.warnings) > 0:
+            redirect_now = True
+        elif len(eval_info.warnings) > 0:
             for warning in eval_info.warnings:
                 user_message = UserMessage.objects.get_or_create(
-                view=self.__class__.__name__,
-                code=warning.code,
-                defaults={
-                    'summary': "Get Eval Warning",
-                    'description': warning.details})
+                    view=self.__class__.__name__,
+                    code=warning.code,
+                    defaults={
+                        'summary': "Get Eval Warning",
+                        'description': warning.details})
                 messages.warning(request, user_message[0].description)
+            redirect_now = True
+        elif len(eval_info.questions) == 0:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="NOT_READY",
+                defaults={
+                    'summary': "No Questions",
+                    'description': not_ready_for_eval})
+            messages.warning(request, user_message[0].description)
+            redirect_now = True
+        elif len(eval_info.answers) > 0:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="ONLY_ONE_EVAL",
+                defaults={
+                    'summary': "One Eval per Attendee",
+                    'description': one_eval_msg})
+            messages.warning(request, user_message[0].description)
+            redirect_now = True
         if request.GET.get('next', None):
             redirect_to = request.GET['next']
         else:
             redirect_to = reverse('home', urlconf='gbe.urls')
-        return (redirect_to, eval_info)
+        return (redirect_to, eval_info, redirect_now)
 
     @never_cache
     def get(self, request, *args, **kwargs):
         redirect = self.groundwork(request, args, kwargs)
-        redirect_to, eval_info = self.setup_eval(request,
-                                                 kwargs['occurrence_id'])
-        if len(eval_info.errors) > 0 or len(eval_info.warnings) > 0:
+        if redirect:
+            return redirect
+        redirect_to, eval_info, redirect_now = self.setup_eval(
+            request,
+            kwargs['occurrence_id'])
+        if redirect_now:
             return HttpResponseRedirect(redirect_to)
-        return HttpResponseRedirect(redirect_to)
+        eval_form = EventEvaluationForm(questions=eval_info.questions)
+        item = Event.objects.get(
+            eventitem_id=eval_info.occurrences[0].foreign_event_id)
+        context = {
+            'form': eval_form,
+            'occurrence': eval_info.occurrences[0],
+            'event': item,
+        }
+        return render(request, self.template, context)
 
     @never_cache
     def post(self, request, *args, **kwargs):
         redirect = self.groundwork(request, args, kwargs)
-        redirect_to, eval_info = self.setup_eval(request,
-                                                 kwargs['occurrence_id'])
-        if len(eval_info.errors) > 0 or len(eval_info.warnings) > 0:
+        if redirect:
+            return redirect
+        redirect_to, eval_info, redirect_now = self.setup_eval(
+            request,
+            kwargs['occurrence_id'])
+        if redirect_now:
             return HttpResponseRedirect(redirect_to)
         return HttpResponseRedirect(redirect_to)
