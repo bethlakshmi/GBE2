@@ -8,14 +8,6 @@ from gbe.models import FlexibleEvaluation
 from django.db.models.fields import BLANK_CHOICE_DASH
 
 
-class HorizontalRadioSelect(RadioSelect):
-
-    def __init__(self, *args, **kwargs):
-        super(HorizontalRadioSelect, self).__init__(*args, **kwargs)
-
-        self.renderer.inner_html = '<td>{choice_value}{sub_widgets}</td>'
-
-
 class FlexibleEvaluationForm(ModelForm):
     required_css_class = 'required'
     error_css_class = 'error'
@@ -29,7 +21,7 @@ class FlexibleEvaluationForm(ModelForm):
                 label=initial['category'].category,
                 help_text=initial['category'].help_text,
                 required=False,
-                widget=HorizontalRadioSelect(),
+                widget=RadioSelect,
                 choices=choice_set)
 
     def clean_ranking(self):

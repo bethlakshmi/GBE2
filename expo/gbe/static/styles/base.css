@@ -956,6 +956,23 @@ td.form_field {
   text-align: left;
 }
 
+.horizontal-input > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.horizontal-input > ul > li {
+    float: left;
+    padding-right: 8px;
+}
+
+th.horizontal-input > ul > li {
+  width: 25px;
+}
+td.horizontal-input > ul > li {
+  width: 25px;
+}
 .long_choice > ul 
 {
   border-top: 1px solid black;
