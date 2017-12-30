@@ -5,18 +5,14 @@ from django.db.models import (
     IntegerField,
     TextField,
 )
-
-
 from gbetext import (
     answer_types,
     bid_types,
 )
 
 
-class BidReviewQuestion(Model):
+class EventEvalQuestion(Model):
     question = CharField(blank=False, max_length=200)
-    bid_type = CharField(choices=bid_types,
-                         max_length=20)
     visible = BooleanField(default=True)
     help_text = TextField(blank=True, max_length=500)
     order = IntegerField()
@@ -29,5 +25,5 @@ class BidReviewQuestion(Model):
     class Meta:
         app_label = "gbe"
         unique_together = (
-            ('question', 'bid_type'),
-            ('order', 'bid_type'),)
+            ('question', ),
+            ('order', ),)

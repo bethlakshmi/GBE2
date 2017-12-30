@@ -86,6 +86,38 @@ class EventLabelAdmin(admin.ModelAdmin):
     list_filter = ['text']
 
 
+@admin.register(EventEvalQuestion)
+class EventEvalQuestionAdmin(admin.ModelAdmin):
+    list_display = ('order',
+                    'visible',
+                    'question',
+                    'help_text',)
+    list_editable = ('order',
+                     'visible',
+                     'question',
+                     'help_text',)
+    list_display_links = None
+    ordering = ['order', ]
+
+@admin.register(EventEvalGrade)
+class EventEvalGradeAdmin(admin.ModelAdmin):
+    list_display = ('event',
+                    'profile',
+                    'question',
+                    'rating',)
+    list_editable = ('question',
+                    'rating',)
+    list_display_links = ('event',)
+    list_filter = ['rating', ]
+
+@admin.register(EventEvalComment)
+class EventEvalCommentAdmin(admin.ModelAdmin):
+    list_display = ('event',
+                    'profile',
+                    'comment')
+    list_editable = ('comment', )
+    list_display_links = ('event',)
+
 admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)
 admin.site.register(WorkerItem)

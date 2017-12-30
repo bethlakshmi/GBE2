@@ -40,8 +40,3 @@ from act_bid_evaluation import ActBidEvaluation
 from email_template_sender import EmailTemplateSender
 from act_casting_option import ActCastingOption
 from flexible_evaluation import FlexibleEvaluation
-
-# regular user reviews, after the fact
-from bid_review_question import BidReviewQuestion
-from bid_review_comment import BidReviewComment
-from bid_review import BidReview
