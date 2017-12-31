@@ -191,7 +191,7 @@ grade_options = (("A", "A"),
                 ("C", "C"),
                 ("D", "D"),
                 ("F", "F"),
-                ("", "NA"),)
+                ("NA", "NA"),)
 
 answer_types = (("grade", "grade"),
                 ("text", "text"),

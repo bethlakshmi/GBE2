@@ -28,7 +28,8 @@ class EventEvaluationForm(Form):
                 self.fields['question%d' % question.pk] = CharField(
                     label=question.question,
                     help_text=question.help_text,
-                    widget=Textarea
+                    widget=Textarea,
+                    required=False
                 )
             if question.answer_type == "grade":
                 self.fields['question%d' % question.pk] = ChoiceField(
@@ -41,4 +42,5 @@ class EventEvaluationForm(Form):
                 self.fields['question%d' % question.pk] = BooleanField(
                     label=question.question,
                     help_text=question.help_text,
+                    required=False
                 )

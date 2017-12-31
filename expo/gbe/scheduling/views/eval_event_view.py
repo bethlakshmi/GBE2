@@ -115,4 +115,18 @@ class EvalEventView(View):
             kwargs['occurrence_id'])
         if redirect_now:
             return HttpResponseRedirect(redirect_to)
+        eval_form = EventEvaluationForm(request.POST,
+                                        questions=eval_info.questions)
+        if eval_form.is_valid():
+            raise Exception('valid')
+        else:
+            item = Event.objects.get(
+                eventitem_id=eval_info.occurrences[0].foreign_event_id)
+            context = {
+                'form': eval_form,
+                'occurrence': eval_info.occurrences[0],
+                'event': item,
+            }
+            return render(request, self.template, context)
+
         return HttpResponseRedirect(redirect_to)
