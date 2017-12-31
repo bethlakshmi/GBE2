@@ -6,10 +6,12 @@ from django.contrib import messages
 from django.shortcuts import render
 from gbe.models import (
     Event,
+    Performer,
     UserMessage,
 )
 from gbe.functions import check_user_and_redirect
 from scheduler.idd import (
+    get_bookings,
     get_eval_info,
     set_eval_info,
 )
@@ -18,6 +20,7 @@ from scheduler.data_transfer import (
     Person,
 )
 from gbetext import (
+    eval_intro_msg,
     eval_success_msg,
     not_ready_for_eval,
     one_eval_msg,
@@ -91,6 +94,33 @@ class EvalEventView(View):
             redirect_to = reverse('home', urlconf='gbe.urls')
         return (redirect_to, eval_info, redirect_now)
 
+    def make_context(self, eval_form, eval_info):
+        item = Event.objects.get(
+            eventitem_id=eval_info.occurrences[0].foreign_event_id)
+        user_message = UserMessage.objects.get_or_create(
+            view=self.__class__.__name__,
+                    code="EVALUATION_INTRO",
+                    defaults={
+                        'summary': "Evaluation Introduction",
+                        'description': eval_intro_msg})
+        response = get_bookings(occurrence_ids=[eval_info.occurrences[0].pk],
+                                  roles=['Teacher', 'Moderator', 'Panelist'])
+        presenters = []
+        for person in response.people:
+            presenters += [{
+                'presenter': eval(person.public_class).objects.get(
+                    pk=person.public_id),
+                'role': person.role,
+            }]
+        context = {
+            'form': eval_form,
+            'occurrence': eval_info.occurrences[0],
+            'event': item,
+            'intro': user_message[0].description,
+            'presenters': presenters,
+        }
+        return context
+
     @never_cache
     def get(self, request, *args, **kwargs):
         redirect = self.groundwork(request, args, kwargs)
@@ -102,14 +132,9 @@ class EvalEventView(View):
         if redirect_now:
             return HttpResponseRedirect(redirect_to)
         eval_form = EventEvaluationForm(questions=eval_info.questions)
-        item = Event.objects.get(
-            eventitem_id=eval_info.occurrences[0].foreign_event_id)
-        context = {
-            'form': eval_form,
-            'occurrence': eval_info.occurrences[0],
-            'event': item,
-        }
-        return render(request, self.template, context)
+        return render(request,
+                      self.template,
+                      self.make_context(eval_form, eval_info))
 
     @never_cache
     def post(self, request, *args, **kwargs):
@@ -155,13 +180,8 @@ class EvalEventView(View):
                             'description': warning.details})
                     messages.warning(request, user_message[0].description)
         else:
-            item = Event.objects.get(
-                eventitem_id=eval_info.occurrences[0].foreign_event_id)
-            context = {
-                'form': eval_form,
-                'occurrence': eval_info.occurrences[0],
-                'event': item,
-            }
-            return render(request, self.template, context)
+            return render(request,
+                          self.template,
+                          self.make_context(eval_form, eval_info))
 
         return HttpResponseRedirect(redirect_to)

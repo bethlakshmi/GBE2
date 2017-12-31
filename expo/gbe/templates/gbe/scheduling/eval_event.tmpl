@@ -20,10 +20,20 @@
 	    {{ occurrence.start_time|date:_("DATETIME_FORMAT")}} -
 	    {{ occurrence.end_time|date:_("TIME_FORMAT")}}
 	  </div>
+	  <div class="col-xs-11 ">
+	    {% for presenter in presenters %}
+	      <label class="sched_detail">{{ presenter.role }}:</label>
+	      {{ presenter.presenter.name }}<br>
+	    {% endfor %}
+	  </div>
 	</div>
       </div>
 
     </div>
+<div class="event_booking">
+<h4>Please Give Us Your Feedback</h4>
+
+<p>{{ intro }}</p>
 <form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {# Include the hidden fields #}
@@ -36,9 +46,7 @@
   {% endif %}
   <font color="red">
   {{ form.non_field_errors }}
-  </font>
-<div class="event_booking">
-<h4>Please Give Us Your Feedback</h4>
+</font>
 
 {# Include the visible fields #}
   {% for field in form.visible_fields %}

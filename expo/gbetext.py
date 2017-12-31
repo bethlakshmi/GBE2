@@ -492,3 +492,7 @@ evaluations right now, please come back soon!'''
 one_eval_msg = '''We can only accept one evaluation per person, per event.'''
 eval_success_msg = '''Your evaluation was successfully submitted.  Thanks \
 for your feedback!'''
+eval_intro_msg = '''Thanks for your feedback!  Please grade your class \
+experience and let just know any additional comments in the box below.  \
+Teachers will get a summary of the review results, but the results will be \
+anonomized unless you check the box saying it's OK to share your info.'''
