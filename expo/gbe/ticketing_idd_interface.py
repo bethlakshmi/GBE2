@@ -19,6 +19,7 @@ from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
 from ticketing.views import import_ticket_items
+from django.db.models import Q
 
 
 def performer_act_submittal_link(user_id):
@@ -140,7 +141,14 @@ def verify_event_paid(user_name, event_id):
                 (unicode(user_name) == trans_user_name)):
             return True
     return False
+    
 
+def verify_bought_conference(user, conference):
+    return TicketItem.objects.filter(
+        Q(bpt_event__conference=conference),
+        Q(transaction__purchaser__matched_to_user=user),
+        Q(bpt_event__include_conference=True) | Q(bpt_event__include_most=True)
+        ).exists()
 
 def get_purchased_tickets(user):
     '''

@@ -496,3 +496,6 @@ eval_intro_msg = '''Thanks for your feedback!  Please grade your class \
 experience and let just know any additional comments in the box below.  \
 Teachers will get a summary of the review results, but the results will be \
 anonomized unless you check the box saying it's OK to share your info.'''
+not_purchased_msg = '''You have not purchased a ticket for either a Whole \
+Shebang or conference attendance, so you can't rate this class.  Check \
+your homepage - if our records are incorrect, please let us know.'''

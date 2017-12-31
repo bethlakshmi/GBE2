@@ -24,8 +24,10 @@ from gbetext import (
     eval_success_msg,
     not_ready_for_eval,
     one_eval_msg,
+    not_purchased_msg,
 )
 from gbe.scheduling.forms import EventEvaluationForm
+from gbe.ticketing_idd_interface import verify_bought_conference
 
 
 class EvalEventView(View):
@@ -88,15 +90,25 @@ class EvalEventView(View):
                     'description': one_eval_msg})
             messages.warning(request, user_message[0].description)
             redirect_now = True
+        else:
+            item = Event.objects.get(
+                eventitem_id=eval_info.occurrences[0].foreign_event_id)
+            if verify_bought_conference(self.person.user, item.e_conference) == False:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="NO_VALID_PURCHASE",
+                    defaults={
+                        'summary': "Conference not purchased by user",
+                        'description': not_purchased_msg})
+                messages.error(request, user_message[0].description)
+                redirect_now = True
         if request.GET.get('next', None):
             redirect_to = request.GET['next']
         else:
             redirect_to = reverse('home', urlconf='gbe.urls')
-        return (redirect_to, eval_info, redirect_now)
+        return (redirect_to, eval_info, item, redirect_now)
 
-    def make_context(self, eval_form, eval_info):
-        item = Event.objects.get(
-            eventitem_id=eval_info.occurrences[0].foreign_event_id)
+    def make_context(self, eval_form, eval_info, item):
         user_message = UserMessage.objects.get_or_create(
             view=self.__class__.__name__,
                     code="EVALUATION_INTRO",
@@ -126,7 +138,7 @@ class EvalEventView(View):
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return redirect
-        redirect_to, eval_info, redirect_now = self.setup_eval(
+        redirect_to, eval_info, item, redirect_now = self.setup_eval(
             request,
             kwargs['occurrence_id'])
         if redirect_now:
@@ -134,14 +146,14 @@ class EvalEventView(View):
         eval_form = EventEvaluationForm(questions=eval_info.questions)
         return render(request,
                       self.template,
-                      self.make_context(eval_form, eval_info))
+                      self.make_context(eval_form, eval_info, item))
 
     @never_cache
     def post(self, request, *args, **kwargs):
         redirect = self.groundwork(request, args, kwargs)
         if redirect:
             return redirect
-        redirect_to, eval_info, redirect_now = self.setup_eval(
+        redirect_to, eval_info, item, redirect_now = self.setup_eval(
             request,
             kwargs['occurrence_id'])
         if redirect_now:
@@ -182,6 +194,6 @@ class EvalEventView(View):
         else:
             return render(request,
                           self.template,
-                          self.make_context(eval_form, eval_info))
+                          self.make_context(eval_form, eval_info, item))
 
         return HttpResponseRedirect(redirect_to)
