@@ -38,6 +38,14 @@ class ScheduleItem(object):
         self.event = event
 
 
+class Answer(object):
+    def __init__(self,
+                 question=None,
+                 value=None):
+        self.question = question
+        self.value = value
+
+
 class Warning(object):
     def __init__(self,
                  code=None,

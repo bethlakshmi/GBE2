@@ -490,3 +490,5 @@ imply anything about ticket purchase.'''
 not_ready_for_eval = '''Our apologies, but we're not ready to take in \
 evaluations right now, please come back soon!'''
 one_eval_msg = '''We can only accept one evaluation per person, per event.'''
+eval_success_msg = '''Your evaluation was successfully submitted.  Thanks \
+for your feedback!'''

@@ -15,7 +15,6 @@ import pytz
 
 def get_eval_info(occurrence_id=None, person=None, visible=True):
     occurrences = []
-    warnings = []
     if occurrence_id:
         response = get_occurrence(occurrence_id)
         if len(response.errors) > 0:
@@ -31,9 +30,11 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
     questions = EventEvalQuestion.objects.filter(visible=visible)
     answers = []
     for eval_type in [EventEvalComment, EventEvalGrade, EventEvalBoolean]:
-        some_answers = eval_type.objects.filter(event__in=occurrences)
+        some_answers = eval_type.objects.all()
+        if occurrence_id:
+            some_answers = some_answers.filter(event__in=occurrences)
         if person:
-            some_answers = some_answers.filter(profile=person)
+            some_answers = some_answers.filter(profile__pk=person.public_id)
         answers += list(some_answers)
     return EvalInfoResponse(occurrences=occurrences,
                             questions=questions,

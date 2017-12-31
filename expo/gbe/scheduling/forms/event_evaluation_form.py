@@ -25,21 +25,21 @@ class EventEvaluationForm(Form):
         super(EventEvaluationForm, self).__init__(*args, **kwargs)
         for question in questions:
             if question.answer_type == "text":
-                self.fields['question%d' % question.pk] = CharField(
+                self.fields['question%d' % question.id] = CharField(
                     label=question.question,
                     help_text=question.help_text,
                     widget=Textarea,
                     required=False
                 )
             if question.answer_type == "grade":
-                self.fields['question%d' % question.pk] = ChoiceField(
+                self.fields['question%d' % question.id] = ChoiceField(
                     label=question.question,
                     help_text=question.help_text,
                     choices=grade_options,
                     widget=RadioSelect,
                 )
             if question.answer_type == "boolean":
-                self.fields['question%d' % question.pk] = BooleanField(
+                self.fields['question%d' % question.id] = BooleanField(
                     label=question.question,
                     help_text=question.help_text,
                     required=False
