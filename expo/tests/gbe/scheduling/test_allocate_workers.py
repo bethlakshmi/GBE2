@@ -18,6 +18,7 @@ from tests.functions.gbe_functions import (
 )
 from django.shortcuts import get_object_or_404
 from gbe.models import Volunteer
+from django.contrib.sites.models import Site
 
 
 class TestAllocateWorkers(TestCase):
@@ -355,8 +356,11 @@ class TestAllocateWorkers(TestCase):
                               self.volunteer_opp.eventitem.eventitem_id,
                               self.volunteer_opp.pk]),
                 self.alloc.pk))
-        assert_email_template_used(
+        msg = assert_email_template_used(
             "A change has been made to your Volunteer Schedule!")
+        assert("http://%s%s" % (
+            Site.objects.get_current().domain,
+            reverse('home', urlconf='gbe.urls')) in msg.body)
 
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()

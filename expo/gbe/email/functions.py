@@ -152,7 +152,15 @@ def send_schedule_update_mail(participant_type, profile):
         template=name,
         context={
             'site': Site.objects.get_current().domain,
-            'profile': profile},
+            'profile': profile,
+            'landing_page_url': "http://%s%s" % (
+                Site.objects.get_current().domain,
+                reverse('home',
+                        urlconf='gbe.urls')),
+            'landing_page_link': "<a href='http://%s%s'>Personal Page</a>" % (
+                Site.objects.get_current().domain,
+                reverse('home',
+                        urlconf='gbe.urls'))},
     )
 
 

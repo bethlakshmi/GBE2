@@ -167,6 +167,7 @@ def assert_email_template_used(
     msg = mail.outbox[0]
     assert msg.subject == expected_subject
     assert msg.from_email == email
+    return msg
 
 
 def assert_email_recipient(to_list):
