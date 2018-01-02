@@ -24,7 +24,8 @@ class TestSendDailySchedule(TestCase):
 
     def test_call_command(self):
         start_time = datetime.combine(
-            date.today() + timedelta(days=1),
+            datetime.now(tz=pytz.timezone('America/New_York')).date(
+                ) + timedelta(days=1),
             time(0, 0, 0, 0, tzinfo=pytz.utc))
         context = ClassContext(starttime=start_time)
         call_command("send_daily_schedule")
