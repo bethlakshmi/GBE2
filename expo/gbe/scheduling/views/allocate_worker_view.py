@@ -115,7 +115,8 @@ class AllocateWorkerView(MakeOccurrenceView):
                     occurrence_id,
                     person
                 )
-                email_status = send_schedule_update_mail("Volunteer", data['worker'])
+                email_status = send_schedule_update_mail("Volunteer",
+                                                         data['worker'])
             if email_status:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,

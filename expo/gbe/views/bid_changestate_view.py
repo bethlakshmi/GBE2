@@ -55,7 +55,7 @@ class BidChangeStateView(View):
                 self.object,
                 int(request.POST['accepted']))
             self.check_email_status(request, email_status)
-    
+
     def check_email_status(self, request, email_status):
         if email_status:
             user_message = UserMessage.objects.get_or_create(
