@@ -7,9 +7,6 @@ from gbe.views import BidChangeStateView
 from scheduler.models import Worker, Event
 from django.contrib import messages
 from gbe.email.functions import send_schedule_update_mail
-from gbetext import volunteer_allocate_email_fail_msg
-from django.contrib import messages
-from gbe.models import UserMessage
 
 
 class VolunteerChangeStateView(BidChangeStateView):
@@ -44,15 +41,7 @@ class VolunteerChangeStateView(BidChangeStateView):
                                      warning)
 
             email_status = send_schedule_update_mail('Volunteer', self.bidder)
-            if email_status:
-                user_message = UserMessage.objects.get_or_create(
-                    view=self.__class__.__name__,
-                    code="EMAIL_FAILURE",
-                    defaults={
-                        'summary': "Email Failed",
-                        'description': volunteer_allocate_email_fail_msg})
-                messages.error(
-                    request,
-                    user_message[0].description)
+            self.check_email_status(request, email_status)
+
         return super(VolunteerChangeStateView, self).bid_state_change(
             request)
