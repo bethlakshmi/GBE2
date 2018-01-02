@@ -32,7 +32,10 @@ from scheduler.models import (
     ResourceAllocation,
 )
 from gbe.models import UserMessage
-from gbetext import no_casting_msg
+from gbetext import (
+    bidder_email_fail_msg,
+    no_casting_msg,
+)
 
 
 class TestActChangestate(TestCase):
@@ -159,6 +162,21 @@ class TestActChangestate(TestCase):
             "test template", "actemail@notify.com")
         assert_email_recipient([(
             self.context.performer.contact.contact_email)])
+
+    def test_act_accept_notification_template_fail(self):
+        EmailTemplateSenderFactory(
+            from_email="actemail@notify.com",
+            template__name='act accepted - %s' % self.show.e_title.lower(),
+            template__subject="test template {% url 'gbehome' %}"
+        )
+        url = reverse(self.view_name,
+                      args=[self.context.act.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        self.data['accepted'] = '3'
+        response = self.client.post(url, data=self.data, follow=True)
+        self.assertContains(response,
+                            bidder_email_fail_msg)
 
     def test_act_accept_act_link_correct(self):
         EmailTemplateSenderFactory(
