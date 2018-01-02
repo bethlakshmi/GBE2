@@ -28,12 +28,15 @@ def mail_send_gbe(to_list,
         for admin in settings.ADMINS:
             to_list += [admin[1]]
 
-    mail.send(to_list,
-              from_address,
-              template=template,
-              context=context,
-              priority=priority,
-              )
+    try:
+        mail.send(to_list,
+                  from_address,
+                  template=template,
+                  context=context,
+                  priority=priority,
+                  )
+    except:
+        return "EMAIL_SEND_ERROR"
 
 
 def send_user_contact_email(name, from_address, message):
@@ -131,12 +134,11 @@ def send_bid_state_change_mail(
         name,
         "default_bid_status_change",
         action)
-    mail_send_gbe(
+    return mail_send_gbe(
         email,
         template.sender.from_email,
         template=name,
-        context=context,
-    )
+        context=context)
 
 
 def send_schedule_update_mail(participant_type, profile):
@@ -146,7 +148,7 @@ def send_schedule_update_mail(participant_type, profile):
         "volunteer_schedule_update",
         "A change has been made to your %s Schedule!" % (
                 participant_type))
-    mail_send_gbe(
+    return mail_send_gbe(
         profile.contact_email,
         template.sender.from_email,
         template=name,
