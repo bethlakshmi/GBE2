@@ -27,3 +27,4 @@ class EventEvalQuestion(Model):
         unique_together = (
             ('question', ),
             ('order', ),)
+        ordering = ["order", ]
