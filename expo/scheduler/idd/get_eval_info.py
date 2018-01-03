@@ -36,6 +36,10 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
         if person:
             some_answers = some_answers.filter(profile__pk=person.public_id)
         answers += list(some_answers)
+    if len(occurrences) == 0:
+        for answer in answers:
+            if answer.event not in occurrences:
+                occurrences += [answer.event]
     return EvalInfoResponse(occurrences=occurrences,
                             questions=questions,
                             answers=answers)
