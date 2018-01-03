@@ -5,7 +5,11 @@ from django.shortcuts import (
 from gbe.scheduling.views.functions import (
     get_event_display_info,
 )
-from scheduler.idd import get_schedule
+from scheduler.idd import (
+    get_eval_info,
+    get_schedule,
+)
+from scheduler.data_transfer import Person
 from django.core.urlresolvers import reverse
 
 
@@ -22,6 +26,12 @@ class EventDetailView(View):
             request.user,
             labels=[eventitem_view['event'].calendar_type,
                     eventitem_view['event'].e_conference.conference_slug])
+        person = None
+        if request.user.is_authenticated() and request.user.profile:
+            person = Person(
+                user=request.user,
+                public_id=request.user.profile.pk,
+                public_class="Profile")
         for occurrence in eventitem_view['scheduled_events']:
             schedule_item = {
                 'occurrence': occurrence,
@@ -29,7 +39,8 @@ class EventDetailView(View):
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
                     urlconf='gbe.scheduling.urls'),
-                'highlight': None
+                'highlight': None,
+                'evaluate': None
             }
             if eventitem_view['event'].calendar_type == "Volunteer" or (
                 eventitem_view['event'].e_conference.status == "completed"):
@@ -45,6 +56,17 @@ class EventDetailView(View):
                                 urlconf='gbe.scheduling.urls')
                         else:
                             schedule_item['favorite_link'] = "disabled"
+            eval_response = get_eval_info(occurrence_id=occurrence.pk,
+                                          person=person)
+            if len(eval_response.questions) > 0:
+                if person and len(eval_response.answers) == 0:
+                    schedule_item['evaluate'] = reverse(
+                            'eval_event',
+                            args=[occurrence.pk, ],
+                            urlconf='gbe.scheduling.urls')
+                else:
+                    schedule_item['evaluate'] = "disabled"
+
             schedule_items += [schedule_item]
         template = 'gbe/scheduling/event_detail.tmpl'
         return render(request,

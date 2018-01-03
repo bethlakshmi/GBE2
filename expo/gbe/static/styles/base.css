@@ -542,7 +542,8 @@ td.describe
 .detail_link, .detail_link:visited {color: black;}
 .sched-sub-box > .detail_link,  .sched-sub-box > .detail_link-detail_disable {
     text-align: center;
-    display:block;
+    display: inline-block;
+    width: 45%;
     padding-top: 10px;
     padding-bottom: 10px;
 }
