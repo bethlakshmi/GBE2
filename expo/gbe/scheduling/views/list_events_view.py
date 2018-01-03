@@ -18,8 +18,10 @@ from gbe.functions import (
 )
 from scheduler.idd import (
     get_bookings,
+    get_eval_info,
     get_occurrences,
 )
+from scheduler.data_transfer import Person
 from gbe_forms_text import (
     list_text,
     list_titles,
@@ -28,6 +30,8 @@ from gbetext import (
     event_options,
     class_options,
 )
+from datetime import datetime
+import pytz
 
 
 class ListEventsView(View):
@@ -97,20 +101,35 @@ class ListEventsView(View):
         context = self.setup(request, args, kwargs)
         items = self.get_events_list_by_type()
         events = []
+        eval_occurrences = []
+        if request.user.is_authenticated() and hasattr(request.user,
+                                                       'profile'):
+            person = Person(
+                user=request.user,
+                public_id=request.user.profile.pk,
+                public_class="Profile")
+            eval_response = get_eval_info(person=person)
+            if len(eval_response.questions) > 0:
+                eval_occurrences = eval_response.occurrences
+            else:
+                eval_occurrences = None
         for item in items:
             scheduled_events = []
             presenters = []
             response = get_occurrences(
                 foreign_event_ids=[item.eventitem_id])
             for occurrence in response.occurrences:
+                evaluate = None
                 people_response = get_bookings([occurrence.pk])
                 highlight = None
+                role = None
                 favorite_link = reverse(
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
                     urlconf='gbe.scheduling.urls')
                 for person in people_response.people:
                     if request.user == person.user:
+                        role = person.role
                         highlight = person.role.lower()
                         if person.role == "Interested":
                             favorite_link = reverse(
@@ -129,10 +148,23 @@ class ListEventsView(View):
                 if self.conference.status == "completed" or (
                         item.calendar_type == 'Volunteer'):
                     favorite_link = None
+                if (self.event_type == 'Class') and (
+                        occurrence.start_time < datetime.now(
+                            tz=pytz.timezone('America/New_York'))) and (
+                        role not in ("Teacher", "Performer", "Moderator")) and (
+                        eval_occurrences is not None):
+                    if occurrence in eval_occurrences:
+                        evaluate = "disabled"
+                    else:
+                        evaluate = reverse(
+                            'eval_event',
+                            args=[occurrence.pk, ],
+                            urlconf='gbe.scheduling.urls')
                 scheduled_events += [{
                     'occurrence': occurrence,
                     'favorite_link': favorite_link,
                     'highlight': highlight,
+                    'evaluate': evaluate,
                 }]
             if len(presenters) == 0 and item.calendar_type == "Conference":
                 presenters += [item.teacher]
