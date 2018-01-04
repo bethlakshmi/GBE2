@@ -130,7 +130,9 @@ def show_scheduling_occurrence_status(request, occurrence_response, view):
 # These three messages are not mutually exclusive.  Order of operation is most
 #   severe (error) to least severe (success)
 #
-def show_scheduling_booking_status(request, booking_response, view):
+def show_scheduling_booking_status(request,
+                                   booking_response,
+                                   view):
     show_general_status(request, booking_response, view)
 
     if booking_response.booking_id:

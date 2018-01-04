@@ -472,3 +472,10 @@ interested_report_explain_msg = '''This list includes all scheduled \
 classes and provides a count of how many logged in users have shown interest \
 in the class.  Interest does not reflect a firm commitment, nor does it \
 imply anything about ticket purchase.'''
+volunteer_allocate_email_fail_msg = '''The system was not able to send email \
+to the volunteer.  Check the email template, try again, or mail the volunteer \
+manually.  If the issue persists, please contact the web admin.'''
+bidder_email_fail_msg = '''The system was unable to send an email notifying \
+the bidder of the updates you have made.  Check the email template, try \
+again, or mail the bidder manually.  If the issue persists, please contact \
+the web admin.'''
