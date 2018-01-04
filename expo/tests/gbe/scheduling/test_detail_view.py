@@ -217,8 +217,9 @@ class TestDetailView(TestCase):
             args=[context.show.eventitem_id])
         login_as(context.performer.performer_profile, self)
         response = self.client.get(url)
-        self.assertContains(response,
-                            '<a href="#" class="detail_link-detail_disable"')
+        self.assertContains(
+            response,
+            'detail_link-disabled cal-favorite detail_link-detail_disable')
 
     def test_interest_not_shown(self):
         context = ShowContext(
