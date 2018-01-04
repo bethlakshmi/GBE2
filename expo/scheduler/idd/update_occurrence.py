@@ -20,7 +20,7 @@ def update_occurrence(occurrence_id,
 
     if start_time:
         response.occurrence.starttime = start_time
-    if max_volunteer:
+    if max_volunteer is not None:
         response.occurrence.max_volunteer = max_volunteer
     if start_time or max_volunteer:
         response.occurrence.save()

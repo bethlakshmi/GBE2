@@ -251,6 +251,20 @@ class TestEditOccurrence(TestCase):
                               self.context.days[0],
                               self.context.room)
 
+    def test_good_user_set_max_volunteer_to_zero(self):
+        login_as(self.privileged_profile, self)
+        self.context.sched_event.max_volunteer = 5
+        self.context.sched_event.save()
+        form_data = get_sched_event_form(self.context)
+        form_data['event-max_volunteer'] = 0
+        response = self.client.post(
+            self.url,
+            data=form_data,
+            follow=True)
+        self.assertIn('<input id="id_event-max_volunteer" ' +
+                      'name="event-max_volunteer" type="number" value="0" />',
+                      response.content)
+
     def test_good_user_invalid_submit(self):
         login_as(self.privileged_profile, self)
         form_data = get_sched_event_form(self.context)
