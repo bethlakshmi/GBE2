@@ -16,6 +16,9 @@ from gbe.scheduling.forms import WorkerAllocationForm
 from gbe.scheduling.views.functions import get_single_role
 from gbe.email.functions import send_schedule_update_mail
 from gbe.scheduling.views.functions import show_scheduling_booking_status
+from gbetext import volunteer_allocate_email_fail_msg
+from django.contrib import messages
+from gbe.models import UserMessage
 
 
 class AllocateWorkerView(MakeOccurrenceView):
@@ -58,6 +61,7 @@ class AllocateWorkerView(MakeOccurrenceView):
         form = WorkerAllocationForm(request.POST)
         response = None
         occurrence_id = None
+        email_status = None
         if "occurrence_id" in kwargs:
             occurrence_id = int(kwargs['occurrence_id'])
         if not form.is_valid():
@@ -93,7 +97,7 @@ class AllocateWorkerView(MakeOccurrenceView):
                     occurrence_id,
                     booking_id=int(request.POST['alloc_id']))
                 if response.booking_id:
-                    send_schedule_update_mail(
+                    email_status = send_schedule_update_mail(
                         "Volunteer", data['worker'].workeritem.as_subtype)
             elif data.get('worker', None):
                 if data['role'] == "Volunteer":
@@ -111,7 +115,18 @@ class AllocateWorkerView(MakeOccurrenceView):
                     occurrence_id,
                     person
                 )
-                send_schedule_update_mail("Volunteer", data['worker'])
+                email_status = send_schedule_update_mail("Volunteer",
+                                                         data['worker'])
+            if email_status:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="EMAIL_FAILURE",
+                    defaults={
+                        'summary': "Email Failed",
+                        'description': volunteer_allocate_email_fail_msg})
+                messages.error(
+                    request,
+                    user_message[0].description)
             self.success_url = reverse('edit_event_schedule',
                                        urlconf='gbe.scheduling.urls',
                                        args=[self.event_type,

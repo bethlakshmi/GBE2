@@ -499,3 +499,10 @@ anonomized unless you check the box saying it's OK to share your info.'''
 not_purchased_msg = '''You have not purchased a ticket for either a Whole \
 Shebang or conference attendance, so you can't rate this class.  Check \
 your homepage - if our records are incorrect, please let us know.'''
+volunteer_allocate_email_fail_msg = '''The system was not able to send email \
+to the volunteer.  Check the email template, try again, or mail the volunteer \
+manually.  If the issue persists, please contact the web admin.'''
+bidder_email_fail_msg = '''The system was unable to send an email notifying \
+the bidder of the updates you have made.  Check the email template, try \
+again, or mail the bidder manually.  If the issue persists, please contact \
+the web admin.'''

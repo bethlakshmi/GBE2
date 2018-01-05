@@ -4,6 +4,7 @@ from django.test import (
 )
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
+    EmailTemplateSenderFactory,
     ProfileFactory,
     VolunteerFactory,
     VolunteerInterestFactory,
@@ -18,6 +19,8 @@ from tests.functions.gbe_functions import (
 )
 from django.shortcuts import get_object_or_404
 from gbe.models import Volunteer
+from django.contrib.sites.models import Site
+from gbetext import volunteer_allocate_email_fail_msg
 
 
 class TestAllocateWorkers(TestCase):
@@ -355,8 +358,34 @@ class TestAllocateWorkers(TestCase):
                               self.volunteer_opp.eventitem.eventitem_id,
                               self.volunteer_opp.pk]),
                 self.alloc.pk))
-        assert_email_template_used(
+        msg = assert_email_template_used(
             "A change has been made to your Volunteer Schedule!")
+        assert("http://%s%s" % (
+            Site.objects.get_current().domain,
+            reverse('home', urlconf='gbe.urls')) in msg.body)
+
+    def test_post_form_valid_notification_template_fail(self):
+        EmailTemplateSenderFactory(
+            from_email="scheduleemail@notify.com",
+            template__name='volunteer schedule update',
+            template__subject="test template",
+            template__content="stuff {% url 'gbehome' %}  more stuff"
+        )
+        data = self.get_edit_data()
+        data['delete'] = 1
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertRedirects(
+            response,
+            "%s?changed_id=%d" % (
+                reverse('edit_event_schedule',
+                        urlconf='gbe.scheduling.urls',
+                        args=["GenericEvent",
+                              self.volunteer_opp.eventitem.eventitem_id,
+                              self.volunteer_opp.pk]),
+                self.alloc.pk))
+        self.assertContains(response,
+                            volunteer_allocate_email_fail_msg)
 
     def test_post_form_valid_delete_allocation_w_bad_data(self):
         data = self.get_edit_data()
@@ -404,6 +433,22 @@ class TestAllocateWorkers(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         assert_email_template_used(
             "A change has been made to your Volunteer Schedule!")
+
+    def test_post_form_edit_notification_template_fail(self):
+        EmailTemplateSenderFactory(
+            from_email="scheduleemail@notify.com",
+            template__name='volunteer schedule update',
+            template__subject="test template",
+            template__content="stuff {% url 'gbehome' %}  more stuff"
+        )
+        new_volunteer = ProfileFactory()
+        data = self.get_edit_data()
+        data['worker'] = new_volunteer.pk,
+        data['role'] = 'Producer',
+        login_as(self.privileged_profile, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(response,
+                            volunteer_allocate_email_fail_msg)
 
     def test_post_form_valid_make_new_allocation_w_confict(self):
         data = self.get_create_data()
