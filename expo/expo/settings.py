@@ -153,7 +153,6 @@ INSTALLED_APPS = (
     'gbe',
     'django_nose',
     'hijack',
-    'hijack_admin',
     'compat',
     'debug_toolbar',
     'ad_rotator',
