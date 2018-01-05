@@ -41,11 +41,14 @@ class TestReviewCostume(TestCase):
 
     def test_review_costume_all_well(self):
         costume = CostumeFactory(performer=self.performer)
+        other_performer = PersonaFactory()
         url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
         login_as(self.privileged_user, self)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTrue('Bid Information' in response.content)
+        self.assertContains(response, self.performer.name)
+        self.assertNotContains(response, other_performer.name)
 
     def test_review_costume_past_conference(self):
         conference = ConferenceFactory(status='completed')
@@ -90,3 +93,11 @@ class TestReviewCostume(TestCase):
                         bid.b_conference.conference_name)
         html_title = html_tag % title_string
         assert html_title in response.content
+
+    def test_review_costume_no_performer(self):
+        costume = CostumeFactory()
+        url = reverse(self.view_name, args=[costume.pk], urlconf="gbe.urls")
+        login_as(self.privileged_user, self)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Bid Information' in response.content)

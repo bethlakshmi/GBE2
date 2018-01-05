@@ -28,8 +28,9 @@ class ReviewCostumeView(ReviewBidView):
         super(ReviewCostumeView, self).groundwork(request, args, kwargs)
         self.details = CostumeDetailsSubmitForm(instance=self.object)
         if self.object.performer:
-            self.performer = self.bidder_form_type(instance=self.object.performer,
-                                                   prefix=self.performer_prefix)
+            self.performer = self.bidder_form_type(
+                instance=self.object.performer,
+                prefix=self.performer_prefix)
         else:
             self.performer = ""
         self.create_object_form()
