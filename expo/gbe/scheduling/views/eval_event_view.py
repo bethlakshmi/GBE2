@@ -107,13 +107,14 @@ class EvalEventView(View):
                 messages.error(request, user_message[0].description)
                 redirect_now = True
 
-            response = get_bookings(occurrence_ids=[eval_info.occurrences[0].pk],
-                                    roles=['Teacher', 'Moderator', 'Panelist'])
+            response = get_bookings(
+                occurrence_ids=[eval_info.occurrences[0].pk],
+                roles=['Teacher', 'Moderator', 'Panelist'])
             user_performers = self.person.user.profile.get_performers()
             pk_list = []
             for user_perf in user_performers:
                 pk_list += [user_perf.pk]
-            
+
             self.presenters = []
             for person in response.people:
                 if person.public_id in pk_list:
@@ -131,7 +132,7 @@ class EvalEventView(View):
                 self.presenters += [{
                     'presenter': presenter,
                     'role': person.role}]
-            
+
         if request.GET.get('next', None):
             redirect_to = request.GET['next']
         else:

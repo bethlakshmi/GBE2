@@ -101,10 +101,8 @@ def LandingPageView(request, profile_id=None, historical=False):
                     roles=["Interested"]).people,
                 'eventitem_id': gbe_event.eventitem_id,
                 'title': gbe_event.e_title, }
-            if gbe_event.calendar_type == "Conference" and booking.role not in (
-                    "Teacher",
-                    "Performer",
-                    "Moderator"):
+            if gbe_event.calendar_type == "Conference" and (
+                    booking.role not in ("Teacher", "Performer", "Moderator")):
                 eval_check = get_eval_info(booking.event.pk, person)
                 if len(eval_check.questions) > 0:
                     if len(eval_check.answers) > 0:
