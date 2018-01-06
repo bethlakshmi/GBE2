@@ -14,6 +14,7 @@ from datetime import (
     timedelta,
 )
 import pytz
+from django.conf import settings
 
 
 def get_eval_info(occurrence_id=None, person=None, visible=True):
@@ -24,7 +25,8 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
             return EvalInfoResponse(errors=response.errors)
         occurrences += [response.occurrence]
         if response.occurrence.starttime > (datetime.now(
-                tz=pytz.timezone('America/New_York')) - timedelta(hours=4)):
+                tz=pytz.timezone('America/New_York')) - timedelta(
+                hours=settings.EVALUATION_WINDOW)):
             return EvalInfoResponse(
                 warnings=[Warning(
                     code="EVENT_IN_FUTURE",

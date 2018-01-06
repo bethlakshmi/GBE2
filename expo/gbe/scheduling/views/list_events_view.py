@@ -35,6 +35,7 @@ from datetime import (
     timedelta,
 )
 import pytz
+from django.conf import settings
 
 
 class ListEventsView(View):
@@ -154,7 +155,7 @@ class ListEventsView(View):
                 if (self.event_type == 'Class') and (
                         occurrence.start_time < (datetime.now(
                             tz=pytz.timezone('America/New_York')
-                            ) - timedelta(hours=4))
+                            ) - timedelta(hours=settings.EVALUATION_WINDOW))
                         ) and (
                         role not in ("Teacher", "Performer", "Moderator")
                         ) and (

@@ -430,6 +430,11 @@ if APP_DJANGOBB is True:
         }
     }
 
+try:
+    EVALUATION_WINDOW
+except:
+    EVALUATION_WINDOW = 4
+
 # DJANGO-HIJACK
 
 HIJACK_LOGIN_REDIRECT_URL = '/gbe/'

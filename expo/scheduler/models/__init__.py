@@ -18,7 +18,7 @@ from remains import (
 )
 
 
-# regular user reviews, after the fact
+# regular user reviews, after the event occurs
 from event_eval_question import EventEvalQuestion
 from event_eval_answer import EventEvalAnswer
 from event_eval_comment import EventEvalComment
