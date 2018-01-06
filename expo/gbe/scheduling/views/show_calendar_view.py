@@ -146,8 +146,9 @@ class ShowCalendarView(View):
                     occurrence_detail['favorite_link'] != "disabled"):
                 occurrence_detail['favorite_link'] = None
             if (self.calendar_type == 'Conference') and (
-                    occurrence.start_time < datetime.now(
-                        tz=pytz.timezone('America/New_York'))) and (
+                    occurrence.start_time < (datetime.now(
+                        tz=pytz.timezone('America/New_York')) - timedelta(hours=4))
+                    ) and (
                     role not in ("Teacher", "Performer", "Moderator")) and (
                     eval_occurrences is not None):
                 if occurrence in eval_occurrences:
