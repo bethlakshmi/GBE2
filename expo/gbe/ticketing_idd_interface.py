@@ -141,7 +141,7 @@ def verify_event_paid(user_name, event_id):
                 (unicode(user_name) == trans_user_name)):
             return True
     return False
-    
+
 
 def verify_bought_conference(user, conference):
     return TicketItem.objects.filter(
@@ -149,6 +149,7 @@ def verify_bought_conference(user, conference):
         Q(transaction__purchaser__matched_to_user=user),
         Q(bpt_event__include_conference=True) | Q(bpt_event__include_most=True)
         ).exists()
+
 
 def get_purchased_tickets(user):
     '''

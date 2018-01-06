@@ -46,7 +46,8 @@ class EventDetailView(View):
                 'evaluate': None
             }
             if eventitem_view['event'].calendar_type == "Volunteer" or (
-                eventitem_view['event'].e_conference.status == "completed"):
+                    eventitem_view['event'].e_conference.status == "completed"
+                    ):
                 schedule_item['favorite_link'] = None
             for booking in personal_schedule_items:
                 if booking.event == occurrence:

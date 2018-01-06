@@ -28,7 +28,8 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
             return EvalInfoResponse(
                 warnings=[Warning(
                     code="EVENT_IN_FUTURE",
-                    details="The event hasn't occurred yet, and can't be rated.",
+                    details="The event hasn't occurred yet, " +
+                            "and can't be rated.",
                     occurrence=response.occurrence)],
                 occurrences=occurrences)
     questions = EventEvalQuestion.objects.filter(visible=visible)

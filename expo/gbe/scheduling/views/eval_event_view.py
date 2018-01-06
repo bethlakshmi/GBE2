@@ -93,7 +93,8 @@ class EvalEventView(View):
         else:
             item = Event.objects.get(
                 eventitem_id=eval_info.occurrences[0].foreign_event_id)
-            if verify_bought_conference(self.person.user, item.e_conference) == False:
+            if verify_bought_conference(
+                    self.person.user, item.e_conference) is False:
                 user_message = UserMessage.objects.get_or_create(
                     view=self.__class__.__name__,
                     code="NO_VALID_PURCHASE",
@@ -111,12 +112,12 @@ class EvalEventView(View):
     def make_context(self, eval_form, eval_info, item):
         user_message = UserMessage.objects.get_or_create(
             view=self.__class__.__name__,
-                    code="EVALUATION_INTRO",
-                    defaults={
-                        'summary': "Evaluation Introduction",
-                        'description': eval_intro_msg})
+            code="EVALUATION_INTRO",
+            defaults={
+                'summary': "Evaluation Introduction",
+                'description': eval_intro_msg})
         response = get_bookings(occurrence_ids=[eval_info.occurrences[0].pk],
-                                  roles=['Teacher', 'Moderator', 'Panelist'])
+                                roles=['Teacher', 'Moderator', 'Panelist'])
         presenters = []
         for person in response.people:
             presenters += [{

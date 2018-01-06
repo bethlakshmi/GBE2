@@ -187,11 +187,11 @@ vote_options = ((1, "Strong yes"),
                 (7, "Strong No"),
                 (-1, "Abstain"))
 grade_options = (("A", "A"),
-                ("B", "B"),
-                ("C", "C"),
-                ("D", "D"),
-                ("F", "F"),
-                ("NA", "NA"),)
+                 ("B", "B"),
+                 ("C", "C"),
+                 ("D", "D"),
+                 ("F", "F"),
+                 ("NA", "NA"),)
 
 answer_types = (("grade", "grade"),
                 ("text", "text"),

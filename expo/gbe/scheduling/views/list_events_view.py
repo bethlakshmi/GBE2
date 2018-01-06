@@ -153,9 +153,11 @@ class ListEventsView(View):
                     favorite_link = None
                 if (self.event_type == 'Class') and (
                         occurrence.start_time < (datetime.now(
-                            tz=pytz.timezone('America/New_York')) - timedelta(hours=4))
+                            tz=pytz.timezone('America/New_York')
+                            ) - timedelta(hours=4))
                         ) and (
-                        role not in ("Teacher", "Performer", "Moderator")) and (
+                        role not in ("Teacher", "Performer", "Moderator")
+                        ) and (
                         eval_occurrences is not None):
                     if occurrence in eval_occurrences:
                         evaluate = "disabled"

@@ -83,7 +83,8 @@ def check_user_and_redirect(request, this_url, source):
             user_message[0].description,
             reverse('login', urlconf='gbe.urls') + follow_on)
         messages.warning(request, full_msg)
-        response['error_url'] = reverse('register', urlconf='gbe.urls') + follow_on
+        response['error_url'] = reverse(
+            'register', urlconf='gbe.urls') + follow_on
         return response
     response['owner'] = validate_profile(request, require=False)
     if not response['owner'] or not response['owner'].complete:
@@ -94,7 +95,8 @@ def check_user_and_redirect(request, this_url, source):
                 'summary': "%s Profile Incomplete",
                 'description': no_profile_msg})
         messages.warning(request, user_message[0].description)
-        response['error_url'] = reverse('register', urlconf='gbe.urls') + follow_on
+        response['error_url'] = reverse(
+            'register', urlconf='gbe.urls') + follow_on
     return response
 
 

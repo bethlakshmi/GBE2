@@ -17,7 +17,6 @@ class EventEvaluationForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-
     def __init__(self, *args, **kwargs):
         questions = None
         if 'questions' in kwargs:

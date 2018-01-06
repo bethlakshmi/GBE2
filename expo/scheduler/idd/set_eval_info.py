@@ -19,6 +19,7 @@ answer_type_to_class = {
     "text": EventEvalComment,
 }
 
+
 def set_eval_info(answers, occurrence_id, person):
     response = get_occurrence(occurrence_id)
     new_answers = []

@@ -99,6 +99,7 @@ class EventEvalQuestionAdmin(admin.ModelAdmin):
     list_display_links = None
     ordering = ['order', ]
 
+
 @admin.register(EventEvalGrade, EventEvalComment, EventEvalBoolean)
 class EventEvalGradeAdmin(admin.ModelAdmin):
     list_display = ('event',
@@ -106,8 +107,9 @@ class EventEvalGradeAdmin(admin.ModelAdmin):
                     'question',
                     'answer',)
     list_editable = ('question',
-                    'answer',)
+                     'answer',)
     list_display_links = ('event',)
+
 
 admin.site.register(EventItem, EventItemAdmin)
 admin.site.register(LocationItem)

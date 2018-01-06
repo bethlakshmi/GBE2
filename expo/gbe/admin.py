@@ -249,4 +249,3 @@ admin.site.register(FlexibleEvaluation, FlexibleEvalAdmin)
 admin.site.register(EvaluationCategory, EvalCategoryAdmin)
 admin.site.register(EmailTemplateSender, EmailTemplateSenderAdmin)
 admin.site.register(ActCastingOption, CastingAdmin)
-
