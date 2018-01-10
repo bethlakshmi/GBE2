@@ -35,6 +35,10 @@ from tests.contexts import ActTechInfoContext
 from expo.settings import TIME_FORMAT
 from django.utils.formats import date_format
 from gbetext import interested_explain_msg
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 
 class TestIndex(TestCase):
@@ -405,3 +409,42 @@ class TestIndex(TestCase):
                                          person.user_object.email))
         self.assertNotContains(response,
                                interested_explain_msg)
+
+    def test_eval_ready(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf,
+            starttime=datetime.now()-timedelta(days=1))
+        context.set_interest(self.profile)
+        context.setup_eval()
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+
+    def test_eval_answered(self):
+        '''Basic test of landing_page view
+        '''
+        context = ClassContext(
+            conference=self.current_conf,
+            starttime=datetime.now()-timedelta(days=1))
+        context.set_interest(self.profile)
+        context.set_eval_answerer(self.profile)
+        url = reverse('home', urlconf='gbe.urls')
+        login_as(self.profile, self)
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+        self.assertContains(response, "You have already rated this class")

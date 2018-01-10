@@ -52,6 +52,7 @@ class EvalEventView(View):
     def setup_eval(self, request, occurrence_id):
         eval_info = get_eval_info(occurrence_id, person=self.person)
         redirect_now = False
+        item = None
         if len(eval_info.errors) > 0:
             for error in eval_info.errors:
                 user_message = UserMessage.objects.get_or_create(
@@ -141,7 +142,7 @@ class EvalEventView(View):
             return redirect
         redirect_to, eval_info, item, redirect_now = self.setup_eval(
             request,
-            kwargs['occurrence_id'])
+            int(kwargs['occurrence_id']))
         if redirect_now:
             return HttpResponseRedirect(redirect_to)
         eval_form = EventEvaluationForm(questions=eval_info.questions)
