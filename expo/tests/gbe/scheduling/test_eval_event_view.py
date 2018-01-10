@@ -90,3 +90,31 @@ class TestEvalEventView(TestCase):
             'danger',
             'Error',
             not_purchased_msg)
+
+    def test_bad_occurrence_id(self):
+        login_as(self.profile, self)
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[self.context.sched_event.pk + 1000])
+        response = self.client.get(url, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            "Occurrence id %d not found" % (self.context.sched_event.pk + 1000))
+
+    def test_future_class(self):
+        login_as(self.profile, self)
+        future_context = ClassContext(starttime=datetime.now()+timedelta(days=1),
+                                      conference=self.context.conference)
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[future_context.sched_event.pk])
+        response = self.client.get(url, follow=True)
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            "The event hasn't occurred yet, and can't be rated.")
