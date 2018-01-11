@@ -10,7 +10,10 @@ from scheduler.data_transfer import (
     Warning,
 )
 from scheduler.idd import get_occurrence
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta,
+)
 import pytz
 
 answer_type_to_class = {
@@ -26,7 +29,7 @@ def set_eval_info(answers, occurrence_id, person):
     if len(response.errors) > 0:
         return EvalInfoResponse(errors=response.errors)
     if response.occurrence.starttime > datetime.now(
-            tz=pytz.timezone('America/New_York')):
+            tz=pytz.timezone('America/New_York')) - timedelta(hours=4):
         return EvalInfoResponse(
             warnings=[Warning(
                 code="EVENT_IN_FUTURE",
@@ -41,9 +44,6 @@ def set_eval_info(answers, occurrence_id, person):
             event=response.occurrence,
             question=submitted_answer.question,
             defaults={'answer': submitted_answer.value})
-        if not created:
-            new_answer.answer = submitted_answer.value
-            new_answer.save()
         new_answers += [new_answer]
     return EvalInfoResponse(occurrences=[response.occurrence],
                             answers=new_answers)

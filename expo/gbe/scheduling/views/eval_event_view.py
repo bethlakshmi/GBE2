@@ -61,7 +61,8 @@ class EvalEventView(View):
                     defaults={
                         'summary': "Get Eval Error",
                         'description': "An error has occurred.  "})
-                messages.error(request, user_message[0].description + error.details)
+                messages.error(request,
+                               user_message[0].description + error.details)
             redirect_now = True
         elif len(eval_info.warnings) > 0:
             for warning in eval_info.warnings:
@@ -173,7 +174,7 @@ class EvalEventView(View):
                     )
                 ]
             eval_response = set_eval_info(answers,
-                                          kwargs['occurrence_id'],
+                                          int(kwargs['occurrence_id']),
                                           self.person)
             if len(eval_response.answers) > 0 and len(
                     eval_response.occurrences) > 0:

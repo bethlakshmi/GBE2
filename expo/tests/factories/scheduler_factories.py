@@ -118,6 +118,7 @@ class EventLabelFactory(DjangoModelFactory):
     class Meta:
         model = sched.EventLabel
 
+
 class EventEvalQuestionFactory(DjangoModelFactory):
     question = Sequence(lambda x: "Question #%d" % x)
     order = Sequence(lambda x: x)
@@ -125,6 +126,7 @@ class EventEvalQuestionFactory(DjangoModelFactory):
 
     class Meta:
         model = sched.EventEvalQuestion
+
 
 class EventEvalGradeFactory(DjangoModelFactory):
     question = SubFactory(EventEvalQuestionFactory)
