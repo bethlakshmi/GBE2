@@ -19,6 +19,7 @@ from django.core.exceptions import PermissionDenied
 from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
+from gbetext import bidder_email_fail_msg
 
 
 class TestVolunteerChangestate(TestCase):
@@ -93,6 +94,42 @@ class TestVolunteerChangestate(TestCase):
         response = self.client.post(url, data=data)
         assert_email_template_used(
             "test template", "volunteeremail@notify.com")
+
+    def test_volunteer_accept_sends_notification_fail(self):
+        ProfilePreferencesFactory(profile=self.volunteer.profile)
+        EmailTemplateSenderFactory(
+            from_email="volunteeremail@notify.com",
+            template__name='volunteer schedule update',
+            template__subject="test template {% url 'gbehome' %}"
+        )
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.b_conference,
+                'events': [],
+                'accepted': 3}
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(response,
+                            bidder_email_fail_msg)
+
+    def test_volunteer_withdraw_sends_notification_fail(self):
+        ProfilePreferencesFactory(profile=self.volunteer.profile)
+        EmailTemplateSenderFactory(
+            from_email="volunteeremail@notify.com",
+            template__name='volunteer withdrawn',
+            template__subject="test template {% url 'gbehome' %}"
+        )
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.b_conference,
+                'events': [],
+                'accepted': 4}
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(response,
+                            bidder_email_fail_msg)
 
     def test_volunteer_withdraw_sends_notification(self):
         url = reverse(self.view_name,

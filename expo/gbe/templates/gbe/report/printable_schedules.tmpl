@@ -25,7 +25,7 @@
     <th class='sched-header'>Time</th>
   {% for booking in schedule.bookings %}
   <tr class='sched-table {% if booking.role == 'Interested' %}interested-sched{% else %}dedicated-sched{% endif %}'>
-    <td class='sched-table'>{{ booking.event }}</td>
+    <td class='sched-table'>{{ booking.event | safe }}</td>
     <td class='sched-table'>{{booking.role}} </td>    
     <td class='sched-table'>{{booking.event.location}} </td>    
     <td class='sched-table'>{{booking.event.starttime.date}} </td>

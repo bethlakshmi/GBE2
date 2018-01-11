@@ -40,6 +40,8 @@ class VolunteerChangeStateView(BidChangeStateView):
                     messages.warning(request,
                                      warning)
 
-            send_schedule_update_mail('Volunteer', self.bidder)
+            email_status = send_schedule_update_mail('Volunteer', self.bidder)
+            self.check_email_status(request, email_status)
+
         return super(VolunteerChangeStateView, self).bid_state_change(
             request)

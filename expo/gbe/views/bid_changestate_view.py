@@ -1,6 +1,7 @@
 from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import (
     get_object_or_404,
@@ -9,10 +10,14 @@ from django.shortcuts import (
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from expo.gbe_logging import log_func
-from gbe.models import Biddable
+from gbe.models import (
+    Biddable,
+    UserMessage,
+)
 from gbe.forms import BidStateChangeForm
 from gbe.functions import validate_perms
 from gbe.email.functions import send_bid_state_change_mail
+from gbetext import bidder_email_fail_msg
 
 
 class BidChangeStateView(View):
@@ -43,12 +48,25 @@ class BidChangeStateView(View):
 
     def notify_bidder(self, request):
         if str(self.object.accepted) != request.POST['accepted']:
-            send_bid_state_change_mail(
+            email_status = send_bid_state_change_mail(
                 str(self.object_type.__name__).lower(),
                 self.bidder.contact_email,
                 self.bidder.get_badge_name(),
                 self.object,
                 int(request.POST['accepted']))
+            self.check_email_status(request, email_status)
+
+    def check_email_status(self, request, email_status):
+        if email_status:
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="EMAIL_FAILURE",
+                defaults={
+                    'summary': "Email Failed",
+                    'description': bidder_email_fail_msg})
+            messages.error(
+                request,
+                user_message[0].description)
 
     def groundwork(self, request, args, kwargs):
         self.prep_bid(request, args, kwargs)

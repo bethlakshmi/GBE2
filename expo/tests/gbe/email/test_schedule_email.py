@@ -36,7 +36,8 @@ class TestScheduleEmail(TestCase):
 
     def test_send_to_teacher(self):
         start_time = datetime.combine(
-            date.today() + timedelta(days=1),
+            datetime.now(tz=pytz.timezone('America/New_York')).date(
+                ) + timedelta(days=1),
             time(0, 0, 0, 0, tzinfo=pytz.utc))
         context = ClassContext(starttime=start_time)
         num = schedule_email()
@@ -53,9 +54,11 @@ class TestScheduleEmail(TestCase):
 
     def test_send_for_show(self):
         start_time = datetime.combine(
-            date.today() + timedelta(days=1),
+            datetime.now(tz=pytz.timezone('America/New_York')).date(
+                ) + timedelta(days=1),
             time(0, 0, 0, 0, tzinfo=pytz.utc))
         show_context = ShowContext(starttime=start_time)
+        print show_context.days.first().day
         context = ActTechInfoContext(
             show=show_context.show,
             sched_event=show_context.sched_event,
