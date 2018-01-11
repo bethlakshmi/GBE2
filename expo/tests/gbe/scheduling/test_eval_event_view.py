@@ -1,34 +1,39 @@
 from django.core.urlresolvers import reverse
-from tests.factories.gbe_factories import (
-    ProfileFactory,
-    UserFactory,
-)
+from django.contrib.auth.models import User
 from django.test import (
     Client,
     TestCase,
 )
+from datetime import (
+    datetime,
+    timedelta,
+)
 from tests.contexts import (
     ClassContext,
 )
+from tests.factories.scheduler_factories import EventEvalQuestionFactory
 from gbe.models import Conference
-from scheduler.models import EventItem
+from scheduler.models import (
+    EventEvalQuestion,
+    EventItem,
+)
+from tests.factories.gbe_factories import (
+    ProfileFactory,
+    UserFactory,
+)
 from tests.functions.gbe_functions import (
     login_as,
     assert_alert_exists,
     make_admission_purchase,
-)
-from django.contrib.auth.models import User
-from datetime import (
-    datetime,
-    timedelta,
 )
 from gbetext import (
     no_profile_msg,
     no_login_msg,
     not_purchased_msg,
     full_login_msg,
-    set_favorite_msg,
-    unset_favorite_msg,
+    not_ready_for_eval,
+    one_eval_msg,
+    grade_options,
 )
 
 
@@ -78,9 +83,41 @@ class TestEvalEventView(TestCase):
             no_profile_msg)
 
     def test_get_eval(self):
+        q1 = EventEvalQuestionFactory(answer_type="grade")
+        q2 = EventEvalQuestionFactory(answer_type="text",
+                                      help_text="so helpful")
+        q3 = EventEvalQuestionFactory(answer_type="boolean")
+        q4 = EventEvalQuestionFactory(visible=False,
+                                      help_text="unhelpful")
         login_as(self.profile, self)
         response = self.client.get(self.url, follow=True)
         self.assertContains(response, self.context.bid.e_title)
+        self.assertContains(response, self.context.teacher)
+        self.assertContains(response, q1.question)
+        self.assertContains(response, q2.question)
+        self.assertContains(response, q2.help_text)
+        self.assertContains(response, q3.question)
+        self.assertNotContains(response, q4.question)
+        self.assertNotContains(response, q4.help_text)
+        n = 0
+        grade_input = '<input id="id_question%d_%d" name="question%d" ' + \
+                      'type="radio" value="%s" />'
+        answer_textarea = '<textarea cols="40" id="id_question%d" ' + \
+                          'name="question%d" rows="10">'
+        boolean_checkbox = '<input id="id_question%d" name="question%d" ' + \
+                           'type="checkbox" />'
+        for grade in grade_options:
+            self.assertContains(
+                response,
+                grade_input % (q1.pk, n, q1.pk, grade[0]))
+            n = n + 1
+        self.assertContains(
+            response,
+            answer_textarea % (q2.pk, q2.pk))
+        self.assertContains(
+            response,
+            boolean_checkbox % (q3.pk, q3.pk))
+
 
     def test_no_purchase(self):
         login_as(ProfileFactory(), self)
@@ -102,7 +139,8 @@ class TestEvalEventView(TestCase):
             response,
             'danger',
             'Error',
-            "Occurrence id %d not found" % (self.context.sched_event.pk + 1000))
+            "An error has occurred.  Occurrence id %d not found" % (
+                self.context.sched_event.pk + 1000))
 
     def test_future_class(self):
         login_as(self.profile, self)
@@ -118,3 +156,23 @@ class TestEvalEventView(TestCase):
             'warning',
             'Warning',
             "The event hasn't occurred yet, and can't be rated.")
+
+    def test_no_questions(self):
+        EventEvalQuestion.objects.all().delete()
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            not_ready_for_eval)
+
+    def test_already_answered(self):
+        self.context.set_eval_answerer(self.profile)
+        login_as(self.profile, self)
+        response = self.client.get(self.url, follow=True)
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            one_eval_msg)

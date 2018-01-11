@@ -119,7 +119,7 @@ class EventLabelFactory(DjangoModelFactory):
         model = sched.EventLabel
 
 class EventEvalQuestionFactory(DjangoModelFactory):
-    question = Sequence(lambda x: "Label #%d" % x)
+    question = Sequence(lambda x: "Question #%d" % x)
     order = Sequence(lambda x: x)
     answer_type = "grade"
 

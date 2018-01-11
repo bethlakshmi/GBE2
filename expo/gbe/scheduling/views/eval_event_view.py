@@ -59,9 +59,9 @@ class EvalEventView(View):
                     view=self.__class__.__name__,
                     code=error.code,
                     defaults={
-                        'summary': "Get Eval Warning",
-                        'description': error.details})
-                messages.error(request, user_message[0].description)
+                        'summary': "Get Eval Error",
+                        'description': "An error has occurred.  "})
+                messages.error(request, user_message[0].description + error.details)
             redirect_now = True
         elif len(eval_info.warnings) > 0:
             for warning in eval_info.warnings:
