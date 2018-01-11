@@ -15,6 +15,9 @@ from tests.factories.scheduler_factories import EventEvalQuestionFactory
 from gbe.models import Conference
 from scheduler.models import (
     EventEvalQuestion,
+    EventEvalGrade,
+    EventEvalComment,
+    EventEvalBoolean,
     EventItem,
 )
 from tests.factories.gbe_factories import (
@@ -22,18 +25,19 @@ from tests.factories.gbe_factories import (
     UserFactory,
 )
 from tests.functions.gbe_functions import (
-    login_as,
     assert_alert_exists,
+    login_as,
     make_admission_purchase,
 )
 from gbetext import (
+    eval_success_msg,
+    full_login_msg,
+    grade_options,
     no_profile_msg,
     no_login_msg,
     not_purchased_msg,
-    full_login_msg,
     not_ready_for_eval,
     one_eval_msg,
-    grade_options,
 )
 
 
@@ -43,7 +47,7 @@ class TestEvalEventView(TestCase):
     def setUp(self):
         self.client = Client()
         self.context = ClassContext(starttime=datetime.now()-timedelta(days=1))
-        self.context.setup_eval()
+        self.q0 = self.context.setup_eval()
         self.profile = ProfileFactory()
         make_admission_purchase(self.context.conference,
                                 self.profile.user_object,
@@ -68,10 +72,24 @@ class TestEvalEventView(TestCase):
                 'login',
                 urlconf='gbe.urls') + "?next=" + self.url))
 
-    def test_unfinished_user(self):
+    def test_get_unfinished_user(self):
         unfinished = UserFactory()
         login_as(unfinished, self)
         response = self.client.get(self.url, follow=True)
+        redirect_url = reverse('register',
+                               urlconf='gbe.urls') + "?next=" + self.url
+        self.assertRedirects(response, redirect_url)
+        self.assertContains(response, "Create an Account")
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            no_profile_msg)
+
+    def test_post_unfinished_user(self):
+        unfinished = UserFactory()
+        login_as(unfinished, self)
+        response = self.client.post(self.url, follow=True)
         redirect_url = reverse('register',
                                urlconf='gbe.urls') + "?next=" + self.url
         self.assertRedirects(response, redirect_url)
@@ -118,10 +136,19 @@ class TestEvalEventView(TestCase):
             response,
             boolean_checkbox % (q3.pk, q3.pk))
 
-
-    def test_no_purchase(self):
+    def test_get_no_purchase(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            not_purchased_msg)
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+
+    def test_post_no_purchase(self):
+        login_as(ProfileFactory(), self)
+        response = self.client.post(self.url, follow=True)
         assert_alert_exists(
             response,
             'danger',
@@ -142,15 +169,34 @@ class TestEvalEventView(TestCase):
             "An error has occurred.  Occurrence id %d not found" % (
                 self.context.sched_event.pk + 1000))
 
-    def test_future_class(self):
+    def test_get_future_class(self):
         login_as(self.profile, self)
-        future_context = ClassContext(starttime=datetime.now()+timedelta(days=1),
-                                      conference=self.context.conference)
+        future_context = ClassContext(
+            starttime=datetime.now()+timedelta(days=1),
+            conference=self.context.conference)
         url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
             args=[future_context.sched_event.pk])
         response = self.client.get(url, follow=True)
+        assert_alert_exists(
+            response,
+            'warning',
+            'Warning',
+            "The event hasn't occurred yet, and can't be rated.")
+
+    def test_post_future_class(self):
+        login_as(self.profile, self)
+        future_context = ClassContext(
+            starttime=datetime.now()+timedelta(days=1),
+            conference=self.context.conference)
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[future_context.sched_event.pk])
+        response = self.client.post(url,
+                                    data={'question%d' % self.q0.pk: "C", },
+                                    follow=True)
         assert_alert_exists(
             response,
             'warning',
@@ -176,3 +222,65 @@ class TestEvalEventView(TestCase):
             'warning',
             'Warning',
             one_eval_msg)
+
+    def test_set_eval(self):
+        q1 = EventEvalQuestionFactory(answer_type="grade")
+        q2 = EventEvalQuestionFactory(answer_type="text")
+        q3 = EventEvalQuestionFactory(answer_type="boolean")
+
+        login_as(self.profile, self)
+        response = self.client.post(
+            self.url,
+            data={
+                'question%d' % self.q0.pk: "A",
+                'question%d' % q1.pk: "B",
+                'question%d' % q2.pk: "This is Test Text.",
+                'question%d' % q3.pk: True,
+                },
+            follow=True)
+        assert_alert_exists(
+            response,
+            'info',
+            'Info',
+            eval_success_msg)
+        self.assertEqual(
+            2,
+            EventEvalGrade.objects.filter(
+                event=self.context.sched_event).count())
+        self.assertEqual(
+            1,
+            EventEvalComment.objects.filter(
+                event=self.context.sched_event).count())
+        self.assertEqual(
+            1,
+            EventEvalBoolean.objects.filter(
+                event=self.context.sched_event).count())
+        self.assertRedirects(response, reverse('home', urlconf='gbe.urls'))
+
+    def test_invalid_eval(self):
+        login_as(self.profile, self)
+        response = self.client.post(
+            self.url,
+            data={'question%d' % self.q0.pk: "invalid", },
+            follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice. invalid is not one of the available ' +
+            'choices.')
+
+    def test_set_eval(self):
+        login_as(self.profile, self)
+        redirect = reverse(
+            "detail_view",
+            urlconf="gbe.scheduling.urls",
+            args=[self.context.bid.eventitem_id])
+        response = self.client.post(
+            "%s?next=%s" % (self.url, redirect),
+            data={'question%d' % self.q0.pk: "C", },
+            follow=True)
+        assert_alert_exists(
+            response,
+            'info',
+            'Info',
+            eval_success_msg)
+        self.assertRedirects(response, redirect)
