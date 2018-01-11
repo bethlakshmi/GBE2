@@ -8,11 +8,8 @@ from gbe.scheduling.views import (
     ClassWizardView,
     CopyOccurrenceView,
     CreateEventView,
-<<<<<<< HEAD
     EditEventView,
-=======
     EvalEventView,
->>>>>>> GBE-1205
     EventDetailView,
     EventWizardView,
     ListEventsView,
