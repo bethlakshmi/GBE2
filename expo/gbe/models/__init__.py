@@ -31,6 +31,8 @@ from generic_event import GenericEvent
 from performer_festivals import PerformerFestivals
 from profile_preferences import ProfilePreferences
 from user_message import UserMessage
+
+# staff evaluations, pre-acceptance
 from volunteer_interest import VolunteerInterest
 from bid_evaluation import BidEvaluation
 from show_vote import ShowVote

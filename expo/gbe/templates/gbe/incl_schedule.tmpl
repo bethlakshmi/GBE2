@@ -34,6 +34,7 @@
 	      </a>
               {% include "gbe/interest_list.tmpl" with class=booking %}
 	    {% endif %}{% endif %}
+            {% include "gbe/scheduling/evaluate_icon.tmpl" with evaluate=booking.evaluate %}
 	  </div>
         {%endif%}
       {% endwith %}

@@ -20,7 +20,6 @@ class Show (Event):
     Future to do: remove acts as field of this class, do acceptance
     and scheduling through scheduler  (post 2015)
     '''
-    acts = ManyToManyField(Act, related_name="appearing_in", blank=True)
     cue_sheet = CharField(max_length=128,
                           choices=cue_options,
                           blank=False,

@@ -242,6 +242,21 @@ def make_vendor_app_purchase(conference, user_object):
                                      purchaser=purchaser)
 
 
+def make_admission_purchase(conference,
+                            user_object,
+                            include_most=False,
+                            include_conference=False):
+    bpt_event = BrownPaperEventsFactory(conference=conference,
+                                        include_most=include_most,
+                                        include_conference=include_conference)
+    purchaser = PurchaserFactory(matched_to_user=user_object)
+    ticket_id = "%s-1111" % (bpt_event.bpt_event_id)
+    ticket = TicketItemFactory(ticket_id=ticket_id,
+                               bpt_event=bpt_event)
+    transaction = TransactionFactory(ticket_item=ticket,
+                                     purchaser=purchaser)
+
+
 def bad_id_for(cls):
     objects = cls.objects.all()
     if objects.exists():

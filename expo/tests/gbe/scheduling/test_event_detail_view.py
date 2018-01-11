@@ -18,6 +18,7 @@ from django.test import (
 )
 from tests.contexts import (
     ActTechInfoContext,
+    ClassContext,
     ShowContext,
 )
 from gbe.models import Conference
@@ -28,9 +29,13 @@ from tests.functions.gbe_functions import (
     set_image,
 )
 from django.contrib.auth.models import User
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 
-class TestDetailView(TestCase):
+class TestEventDetailView(TestCase):
     view_name = 'detail_view'
 
     def setUp(self):
@@ -217,8 +222,9 @@ class TestDetailView(TestCase):
             args=[context.show.eventitem_id])
         login_as(context.performer.performer_profile, self)
         response = self.client.get(url)
-        self.assertContains(response,
-                            '<a href="#" class="detail_link-detail_disable"')
+        self.assertContains(
+            response,
+            'detail_link-disabled cal-favorite detail_link-detail_disable')
 
     def test_interest_not_shown(self):
         context = ShowContext(
@@ -231,3 +237,37 @@ class TestDetailView(TestCase):
         response = self.client.get(url)
         self.assertNotContains(response, 'fa-star')
         self.assertNotContains(response, 'fa-star-o')
+
+    def test_eval_class(self):
+        context = ClassContext(starttime=datetime.now()-timedelta(days=1))
+        context.setup_eval()
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.bid.eventitem_id])
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+
+    def test_class_already_evaled(self):
+        context = ClassContext(starttime=datetime.now()-timedelta(days=1))
+        eval_profile = context.set_eval_answerer()
+        login_as(eval_profile, self)
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.bid.eventitem_id])
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+        self.assertContains(response, "You have already rated this class")

@@ -20,3 +20,4 @@ from show_calendar_view import ShowCalendarView
 from set_favorite_view import SetFavoriteView
 from list_events_view import ListEventsView
 from event_detail_view import EventDetailView
+from eval_event_view import EvalEventView
