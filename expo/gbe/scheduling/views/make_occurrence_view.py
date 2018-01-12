@@ -235,7 +235,7 @@ class MakeOccurrenceView(View):
             context['event_id'] = self.occurrence.pk
             context['eventitem_id'] = self.occurrence.foreign_event_id
             initial_form_info['day'] = get_conference_day(
-                conference=self.item.get_conference(),
+                conference=self.item.e_conference,
                 date=self.occurrence.starttime.date())
             initial_form_info['time'] = self.occurrence.starttime.strftime(
                 "%H:%M:%S")
