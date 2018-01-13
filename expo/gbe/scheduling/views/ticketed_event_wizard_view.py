@@ -43,7 +43,8 @@ class TicketedEventWizardView(EventWizardView):
             self.event_type]['second_title']
         context['tickets'] = None
         context['volunteer_scheduling'] = event_settings[
-            self.event_type]['volunteer_scheduling']
+            self.event_type]['volunteer_scheduling'] and validate_perms(request,
+                          ('Volunteer Coordinator',), require=False)
         return context
 
     def setup_ticket_links(self, request, new_event, ticket_form):
