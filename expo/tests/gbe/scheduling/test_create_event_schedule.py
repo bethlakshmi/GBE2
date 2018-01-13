@@ -68,7 +68,7 @@ class TestCreateOccurrence(TestCase):
         self.assertEqual(session.starttime,
                          datetime.combine(day,
                                           time(12, 0, 0, tzinfo=pytz.utc)))
-        self.assertIn(event.child().e_title, response.content)
+        self.assertIn("New Title", response.content)
         self.assertIn(str(room), response.content)
         self.assertIn('<td class="events-table">      \n\t\t\t  \n\t\t\t' +
                       '    3\n\t\t\t  \n          \t\t</td>',

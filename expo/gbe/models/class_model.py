@@ -87,7 +87,7 @@ class Class(Biddable, Event):
 
     @property
     def event_type(self):
-        return "class"
+        return "Class"
 
     @property
     def get_space_needs(self):
