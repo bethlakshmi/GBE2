@@ -44,8 +44,10 @@ from gbe.scheduling.views.functions import (
 
 class EditEventView(View):
     template = 'gbe/scheduling/edit_event.tmpl'
+    permissions = ('Scheduling Mavens',)
 
     def groundwork(self, request, args, kwargs):
+        self.profile = validate_perms(request, self.permissions)
         if "conference" in kwargs:
             self.conference = get_object_or_404(
                 Conference,
@@ -67,6 +69,10 @@ class EditEventView(View):
         self.item = get_object_or_404(
             Event,
             eventitem_id=self.occurrence.foreign_event_id).child()
+        self.manage_vol_url = reverse('manage_vol',
+                                      urlconf='gbe.scheduling.urls',
+                                      args=[kwargs['conference'],
+                                            kwargs['occurrence_id']])
 
     def make_formset(self, roles, post=None):
         formset = []
@@ -124,6 +130,7 @@ class EditEventView(View):
     def get_manage_opportunity_forms(self,
                                      initial,
                                      occurrence_id,
+                                     manage_vol_info,
                                      errorcontext=None):
         '''
         Generate the forms to allocate, edit, or delete volunteer
@@ -184,20 +191,14 @@ class EditEventView(View):
                          'Location']
         context.update({'createform': createform,
                         'actionheaders': actionheaders,
-                        'manage_vol_url': "yo"})
+                        'manage_vol_url': manage_vol_info}),
         return context
 
-    @never_cache
-    @method_decorator(login_required)
-    def get(self, request, *args, **kwargs):
+    def make_context(self, request, errorcontext=None):
         context = {}
-        error_url = self.groundwork(request, args, kwargs)
-        if error_url:
-            return error_url
-        
+        if errorcontext is not None:
+            context = errorcontext
         duration = float(self.item.duration.total_minutes())/60
-        context['event_form'] = EventBookingForm(
-                instance=self.item)
         initial_form_info = {
                 'duration': duration,
                 'max_volunteer': self.occurrence.max_volunteer,
@@ -207,24 +208,67 @@ class EditEventView(View):
                 'time': self.occurrence.starttime.strftime("%H:%M:%S"),
                 'location': self.occurrence.location,
                 'occurrence_id': self.occurrence.pk,}
-        context['scheduling_form'] = ScheduleOccurrenceForm(
-            conference=self.conference,
-            open_to_public=True,
-            initial=initial_form_info)
-        initial_form_info.pop('occurrence_id')
-        context['worker_formset'] = self.make_formset(
-            event_settings[self.item.type.lower()]['roles'])
-        context.update(self.get_manage_opportunity_forms(
-            initial_form_info,
-            self.occurrence.pk))
         context['event_id'] = self.occurrence.pk
         context['eventitem_id'] = self.item.eventitem_id
+
+        # if there was an error in the edit form
+        if 'event_form' not in context:
+            context['event_form'] = EventBookingForm(
+                    instance=self.item)
+        if 'scheduling_form' not in context:
+            context['scheduling_form'] = ScheduleOccurrenceForm(
+                conference=self.conference,
+                open_to_public=True,
+                initial=initial_form_info)
+        if 'worker_formset' not in context:
+            context['worker_formset'] = self.make_formset(
+                event_settings[self.item.type.lower()]['roles'])
+
+        if validate_perms(request,
+                          ('Volunteer Coordinator',), require=False):
+            initial_form_info.pop('occurrence_id')
+            initial_form_info['duration'] = Duration(
+                    self.item.duration.days,
+                    self.item.duration.seconds)
+            context.update(self.get_manage_opportunity_forms(
+                initial_form_info,
+                self.occurrence.pk,
+                self.manage_vol_url,
+                errorcontext))
+        else:
+            context['edit_open'] = True
+
         return render(request, self.template, context)
+
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           errorcontext=None):
+        if response:
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
+
+        if response and response.occurrence:
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.make_context(request, errorcontext)
+
+    @never_cache
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        error_url = self.groundwork(request, args, kwargs)
+        if error_url:
+            return error_url
+
+        return self.make_context(request)
 
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         context = {}
+        response = None
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
@@ -249,17 +293,18 @@ class EditEventView(View):
             response = self.update_event(context['scheduling_form'],
                                        context['worker_formset'],
                                        new_event)
-            show_scheduling_occurrence_status(
-                request,
-                response,
-                self.__class__.__name__)
             if len(response.errors) == 0 and request.POST.get('pick_event', 0) == "Save and Exit":
-                return HttpResponseRedirect(
-                    "%s?%s-day=%d&filter=Filter&new=%s" % (
-                        reverse('manage_event_list',
-                                urlconf='gbe.scheduling.urls',
-                                args=[self.conference.conference_slug]),
-                        self.conference.conference_slug,
-                        context['scheduling_form'].cleaned_data['day'].pk,
-                        str([self.occurrence.pk]),))
-        return render(request, self.template, context)
+                self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+                    reverse('manage_event_list',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug]),
+                    self.conference.conference_slug,
+                    context['scheduling_form'].cleaned_data['day'].pk,
+                    str([self.occurrence.pk]),)
+            else:
+                self.success_url = request.path
+        else:
+            context['edit_open'] = True
+        return self.make_post_response(request,
+                                       response=response,
+                                       errorcontext=context)

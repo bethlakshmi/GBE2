@@ -20,7 +20,7 @@
       </a>
     </h3>
   </div>
-  <div id="collapse1" class="panel-collapse collapse">
+  <div id="collapse1" class="panel-collapse collapse {% if edit_open %}in{% endif %}">
   <div class="panel-body">
   <form action="" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -32,6 +32,7 @@
   </form>
   </div></div>
 </div>
+{% if createform %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title">
@@ -39,11 +40,12 @@
       Manage Volunteer Opportunities</a>
     </h3>
   </div>
-  <div id="collapse2" class="panel-collapse collapse in">
+  <div id="collapse2" class="panel-collapse collapse {% if not edit_open %}in{% endif %}">
   <div class="panel-body">
     {% include "gbe/scheduling/manage_opps.tmpl" %}
   </div></div>
 </div>
+{% endif %}
 {% if rehearsals %}
 <div class="panel panel-primary">
   <div class="panel-heading">
