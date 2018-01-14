@@ -26,8 +26,12 @@
       {% csrf_token %}
       {% include "gbe/scheduling/event_booking.tmpl" with form=event_form %}
     <div class="form-row pull-right">
-      <input type="submit" class="event_wizard_button" name="pick_event" value="Save and Continue">
-      <input type="submit" class="event_wizard_button" name="pick_event" value="Save and Exit">
+      {% if createform %}
+      <input type="submit" class="event_wizard_button" name="edit_event" value="Save and Continue">
+      <input type="submit" class="event_wizard_button" name="edit_event" value="Save and Exit">
+    {% else %}
+      <input type="submit" class="event_wizard_button" name="edit_event" value="Finish">
+    {% endif %}
     </div>
   </form>
   </div></div>

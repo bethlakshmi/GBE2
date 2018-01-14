@@ -19,7 +19,6 @@ from gbe.scheduling.forms import (
     ScheduleOccurrenceForm,
     VolunteerOpportunityForm,
 )
-from gbe.scheduling.views import EventWizardView
 from gbe.duration import Duration
 from gbe.functions import (
     eligible_volunteers,
@@ -164,7 +163,7 @@ class EditEventView(View):
                     VolunteerOpportunityForm(
                         instance=vol_event,
                         initial={'opp_event_id': vol_event.event_id,
-                                 'opp_sched_id': vol_occurence.id,
+                                 'opp_sched_id': vol_occurence.pk,
                                  'max_volunteer': num_volunteers,
                                  'day': day,
                                  'time': time,
@@ -293,7 +292,7 @@ class EditEventView(View):
             response = self.update_event(context['scheduling_form'],
                                        context['worker_formset'],
                                        new_event)
-            if len(response.errors) == 0 and request.POST.get('pick_event', 0) == "Save and Exit":
+            if request.POST.get('edit_event', 0) != "Save and Continue":
                 self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
                     reverse('manage_event_list',
                             urlconf='gbe.scheduling.urls',

@@ -344,6 +344,7 @@ class TestTicketedEventWizard(TestCase):
         data['type'] = "Special"
         data['alloc_0-role'] = "Staff Lead"
         data['alloc_0-worker'] = self.teacher.performer_profile.pk
+        data['set_event'] = "Continue to Volunteer Opportunities"
         data.pop('alloc_1-role', None)
         response = self.client.post(
             self.url,
@@ -355,13 +356,10 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_event.eventitem_id)
         self.assertRedirects(
             response,
-            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
-                reverse('manage_event_list',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.current_conference.conference_slug]),
-                self.current_conference.conference_slug,
-                self.day.pk,
-                occurrence.pk))
+            reverse('edit_event',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug,
+                          occurrence.pk]))
         assert_alert_exists(
             response,
             'success',
@@ -370,10 +368,6 @@ class TestTicketedEventWizard(TestCase):
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
-        self.assertContains(
-            response,
-            '<tr class="bid-table success">\n       ' +
-            '<td class="bid-table">%s</td>' % data['e_title'])
 
     def test_auth_user_bad_user_assign(self):
         login_as(self.privileged_user, self)

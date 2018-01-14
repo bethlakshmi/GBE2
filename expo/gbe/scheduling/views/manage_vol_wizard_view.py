@@ -1,4 +1,6 @@
 from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -63,8 +65,11 @@ class ManageVolWizardView(EditEventView):
         return data
 
     @never_cache
+    @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        error_url = self.groundwork(request, args, kwargs)
+        if error_url:
+            return error_url
         self.parent_id = int(kwargs['occurrence_id'])
         self.create = False
         response = None
