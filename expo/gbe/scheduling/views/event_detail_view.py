@@ -49,16 +49,6 @@ class EventDetailView(View):
                     eventitem_view['event'].e_conference.status == "completed"
                     ):
                 schedule_item['favorite_link'] = None
-            for booking in personal_schedule_items:
-                if booking.event == occurrence:
-                    schedule_item['highlight'] = booking.role.lower()
-                    if booking.role == "Interested":
-                        schedule_item['favorite_link'] = reverse(
-                            'set_favorite',
-                            args=[occurrence.pk, 'off'],
-                            urlconf='gbe.scheduling.urls')
-                    else:
-                        schedule_item['favorite_link'] = "disabled"
             eval_response = get_eval_info(occurrence_id=occurrence.pk,
                                           person=person)
             if len(eval_response.questions) > 0:
@@ -69,6 +59,18 @@ class EventDetailView(View):
                             'eval_event',
                             args=[occurrence.pk, ],
                             urlconf='gbe.scheduling.urls')
+
+            for booking in personal_schedule_items:
+                if booking.event == occurrence:
+                    schedule_item['highlight'] = booking.role.lower()
+                    if booking.role == "Interested":
+                        schedule_item['favorite_link'] = reverse(
+                            'set_favorite',
+                            args=[occurrence.pk, 'off'],
+                            urlconf='gbe.scheduling.urls')
+                    else:
+                        schedule_item['favorite_link'] = "disabled"
+                        schedule_item['evaluate'] = "disabled"
 
             schedule_items += [schedule_item]
         template = 'gbe/scheduling/event_detail.tmpl'

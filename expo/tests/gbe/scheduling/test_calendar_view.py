@@ -16,7 +16,6 @@ from tests.functions.scheduler_functions import noon
 from datetime import (
     date,
     datetime,
-    timedelta,
 )
 from tests.contexts import (
     ClassContext,
