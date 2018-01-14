@@ -220,18 +220,18 @@ class EditEventView(View):
                 conference=self.conference,
                 open_to_public=True,
                 initial=initial_form_info)
+
         if 'worker_formset' not in context:
             context['worker_formset'] = self.make_formset(
                 event_settings[self.item.type.lower()]['roles'])
 
         if validate_perms(request,
                           ('Volunteer Coordinator',), require=False):
-            initial_form_info.pop('occurrence_id')
-            initial_form_info['duration'] = Duration(
-                    self.item.duration.days,
-                    self.item.duration.seconds)
+            volunteer_initial_info = initial_form_info.copy()
+            volunteer_initial_info.pop('occurrence_id')
+            volunteer_initial_info['duration'] = self.item.duration
             context.update(self.get_manage_opportunity_forms(
-                initial_form_info,
+                volunteer_initial_info,
                 self.occurrence.pk,
                 self.manage_vol_url,
                 errorcontext))
