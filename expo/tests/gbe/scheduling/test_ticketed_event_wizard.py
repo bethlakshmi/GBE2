@@ -298,7 +298,6 @@ class TestTicketedEventWizard(TestCase):
             ) + "?pick_event=Next&event_type=show"
         login_as(self.privileged_user, self)
         data = self.edit_class()
-        
         data.pop('type', None)
         data['alloc_0-role'] = "Producer"
         data['alloc_1-role'] = "Technical Director"

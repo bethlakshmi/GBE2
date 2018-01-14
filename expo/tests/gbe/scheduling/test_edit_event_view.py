@@ -96,8 +96,7 @@ class TestEditEventView(TestCase):
             response,
             '<option value="%d" selected="selected">%s</option>' % (
                 self.context.days[0].pk,
-                self.context.days[0].day.strftime(DATE_FORMAT)
-        ))
+                self.context.days[0].day.strftime(DATE_FORMAT)))
         self.assertContains(response,
                             'name="max_volunteer" type="number" value="7" />')
         self.assertContains(
@@ -107,9 +106,7 @@ class TestEditEventView(TestCase):
             response,
             '<option value="%d" selected="selected">%s</option>' % (
                 self.producer.pk,
-                str(self.producer)
-            )
-        )
+                str(self.producer)))
 
     def test_authorized_user_can_also_get_volunteer_mgmt(self):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
@@ -249,8 +246,7 @@ class TestEditEventView(TestCase):
             response,
             '<option value="%d" selected="selected">%s</option>' % (
                 self.extra_day.pk,
-                self.extra_day.day.strftime(DATE_FORMAT)
-        ))
+                self.extra_day.day.strftime(DATE_FORMAT)))
         self.assertContains(response,
                             'name="max_volunteer" type="number" value="3" />')
         self.assertContains(

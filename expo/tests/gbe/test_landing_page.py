@@ -159,8 +159,9 @@ class TestIndex(TestCase):
     def assert_event_is_not_present(self, response, event):
         ''' test all parts of the event being on the landing page schedule'''
         self.assertNotContains(response, event.eventitem.e_title)
-        self.assertNotContains(response,
-                            date_format(event.start_time, "DATETIME_FORMAT"))
+        self.assertNotContains(
+            response,
+            date_format(event.start_time, "DATETIME_FORMAT"))
         self.assertNotContains(response, reverse(
             'detail_view',
             urlconf="gbe.scheduling.urls",

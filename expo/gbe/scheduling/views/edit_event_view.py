@@ -59,8 +59,8 @@ class EditEventView(View):
                     result,
                     self.__class__.__name__)
                 error_url = reverse('manage_event_list',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.conference.conference_slug])
+                                    urlconf='gbe.scheduling.urls',
+                                    args=[self.conference.conference_slug])
 
                 return HttpResponseRedirect(error_url)
             else:
@@ -206,7 +206,7 @@ class EditEventView(View):
                     date=self.occurrence.starttime.date()),
                 'time': self.occurrence.starttime.strftime("%H:%M:%S"),
                 'location': self.occurrence.location,
-                'occurrence_id': self.occurrence.pk,}
+                'occurrence_id': self.occurrence.pk, }
         context['event_id'] = self.occurrence.pk
         context['eventitem_id'] = self.item.eventitem_id
 
@@ -290,8 +290,8 @@ class EditEventView(View):
                     'duration']*60)
             new_event.save()
             response = self.update_event(context['scheduling_form'],
-                                       context['worker_formset'],
-                                       new_event)
+                                         context['worker_formset'],
+                                         new_event)
             if request.POST.get('edit_event', 0) != "Save and Continue":
                 self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
                     reverse('manage_event_list',

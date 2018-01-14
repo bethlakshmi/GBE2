@@ -15,7 +15,7 @@ from show_schedule_form import ShowScheduleForm
 from worker_allocation_form import WorkerAllocationForm
 from volunteer_opportunity_form import VolunteerOpportunityForm
 
-#new booking suite
+# new booking suite
 from event_booking_form import EventBookingForm
 from show_booking_form import ShowBookingForm
 from class_booking_form import ClassBookingForm

@@ -127,7 +127,7 @@ class TestManageVolunteerWizard(TestCase):
         self.assertTrue(opps.exists())
         for opp in opps:
             self.assertEqual(opp.child_event.eventitem.child().e_title,
-                            'New Volunteer Opportunity')
+                             'New Volunteer Opportunity')
             self.assert_volunteer_type_selector(
                 response,
                 opp.child_event.eventitem.child().volunteer_type)
@@ -224,7 +224,7 @@ class TestManageVolunteerWizard(TestCase):
         self.assertRedirects(response, "%s?changed_id=%d" % (
             reverse('edit_event',
                     urlconf='gbe.scheduling.urls',
-                    args=[self.context.conference.conference_slug, 
+                    args=[self.context.conference.conference_slug,
                           self.context.sched_event.pk]),
             self.context.opp_event.pk))
         opps = EventContainer.objects.filter(
