@@ -22,7 +22,10 @@ from tests.functions.gbe_scheduling_functions import (
     assert_good_sched_event_form_wizard,
 )
 from expo.settings import DATE_FORMAT
-from tests.contexts import ShowContext
+from tests.contexts import (
+    ShowContext,
+    VolunteerContext,
+)
 from gbe.duration import Duration
 from datetime import timedelta
 
@@ -34,6 +37,12 @@ class TestEditEventView(TestCase):
     def setUp(self):
         self.room = RoomFactory()
         self.context = ShowContext()
+        self.context.sched_event.max_volunteer = 7
+        self.context.sched_event.save()
+        self.context.show.duration = Duration(hours=1, minutes=30)
+        self.context.show.save()
+        ConferenceDayFactory(conference=self.context.conference,
+                             day=self.context.days[0].day + timedelta(days=1))
         self.url = reverse(
             self.view_name,
             args=[self.context.conference.conference_slug,
@@ -73,12 +82,6 @@ class TestEditEventView(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_authorized_user_can_access_show(self):
-        self.context.sched_event.max_volunteer = 7
-        self.context.sched_event.save()
-        self.context.show.duration = Duration(hours=1, minutes=30)
-        self.context.show.save()
-        ConferenceDayFactory(conference=self.context.conference,
-                             day=self.context.days[0].day + timedelta(days=1))
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -105,6 +108,52 @@ class TestEditEventView(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Volunteer Management")
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                self.context.days[0].pk,
+                self.context.days[0].day.strftime("%b. %-d, %Y")))
+        self.assertContains(
+            response,
+            'name="new_opp-max_volunteer" type="number" value="7" />')
+        self.assertContains(
+            response,
+            'name="new_opp-duration" type="text" value="01:30:00" />')
+
+    def test_vol_opp_present(self):
+        vol_context = VolunteerContext()
+        vol_context.sched_event.max_volunteer = 7
+        vol_context.sched_event.save()
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        login_as(self.privileged_user, self)
+        self.url = reverse(
+            self.view_name,
+            args=[vol_context.conference.conference_slug,
+                  vol_context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(
+            response,
+            'name="opp_event_id" type="hidden" value="%d" />' % (
+                vol_context.opportunity.pk)
+        )
+        self.assertContains(
+            response,
+            'name="opp_sched_id" type="hidden" value="%d" />' % (
+                vol_context.opp_event.pk)
+        )
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                vol_context.window.day.pk,
+                vol_context.window.day.day.strftime("%b. %-d, %Y")),
+            2)
+        self.assertContains(
+            response,
+            'name="max_volunteer" type="number" value="2" />')
+        self.assertContains(
+            response,
+            'name="duration" type="text" value="01:00:00" />')
 
     def test_bad_conference(self):
         login_as(self.privileged_user, self)
