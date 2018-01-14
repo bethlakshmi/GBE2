@@ -134,6 +134,7 @@ class TestEditEventView(TestCase):
         vol_context = VolunteerContext()
         vol_context.sched_event.max_volunteer = 7
         vol_context.sched_event.save()
+        vol_context.opp_event.set_locations([])
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         self.url = reverse(
