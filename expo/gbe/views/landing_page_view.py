@@ -31,8 +31,10 @@ from gbe.functions import (
 from expo.gbe_logging import log_func
 from scheduler.idd import (
     get_bookings,
+    get_eval_info,
     get_schedule,
 )
+from scheduler.data_transfer import Person
 
 
 @login_required
@@ -69,6 +71,10 @@ def LandingPageView(request, profile_id=None, historical=False):
 
     if viewer_profile:
         bids_to_review = []
+        person = Person(
+            user=viewer_profile.user_object,
+            public_id=viewer_profile.pk,
+            public_class="Profile")
         for bid in viewer_profile.bids_to_review():
             bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
             view_name = class_to_view_name.get(bid.__class__, None)
@@ -84,16 +90,28 @@ def LandingPageView(request, profile_id=None, historical=False):
         bookings = []
         for booking in get_schedule(
                 viewer_profile.user_object).schedule_items:
+            gbe_event = booking.event.eventitem.child()
             booking_item = {
                 'id': booking.event.pk,
                 'role':  booking.role,
-                'conference': booking.event.eventitem.child().e_conference,
+                'conference': gbe_event.e_conference,
                 'starttime': booking.event.starttime,
                 'interested': get_bookings(
                     [booking.event.pk],
                     roles=["Interested"]).people,
-                'eventitem_id': booking.event.eventitem.eventitem_id,
-                'title': booking.event.eventitem.child().e_title, }
+                'eventitem_id': gbe_event.eventitem_id,
+                'title': gbe_event.e_title, }
+            if gbe_event.calendar_type == "Conference" and (
+                    booking.role not in ("Teacher", "Performer", "Moderator")):
+                eval_check = get_eval_info(booking.event.pk, person)
+                if len(eval_check.questions) > 0:
+                    if len(eval_check.answers) > 0:
+                        booking_item['evaluate'] = "disabled"
+                    else:
+                        booking_item['evaluate'] = reverse(
+                            'eval_event',
+                            args=[booking.event.pk, ],
+                            urlconf='gbe.scheduling.urls')
             bookings += [booking_item]
 
         context = RequestContext(

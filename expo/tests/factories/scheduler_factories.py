@@ -61,19 +61,6 @@ class WorkerFactory(DjangoModelFactory):
     class Meta:
         model = sched.Worker
 
-'''
-class EquipmentItemFactory(DjangoModelFactory):
-    class Meta:
-        model = sched.EquipmentItem
-
-
-class EquipmentFactory(DjangoModelFactory):
-    _item = SubFactory(EquipmentItemFactory)
-
-    class Meta:
-        model = sched.Equipment
-'''
-
 
 class EventItemFactory(DjangoModelFactory):
     visible = True
@@ -130,3 +117,22 @@ class EventLabelFactory(DjangoModelFactory):
 
     class Meta:
         model = sched.EventLabel
+
+
+class EventEvalQuestionFactory(DjangoModelFactory):
+    question = Sequence(lambda x: "Question #%d" % x)
+    order = Sequence(lambda x: x)
+    answer_type = "grade"
+
+    class Meta:
+        model = sched.EventEvalQuestion
+
+
+class EventEvalGradeFactory(DjangoModelFactory):
+    question = SubFactory(EventEvalQuestionFactory)
+    profile = SubFactory(WorkerItemFactory)
+    event = SubFactory(SchedEventFactory)
+    answer = "B"
+
+    class Meta:
+        model = sched.EventEvalGrade

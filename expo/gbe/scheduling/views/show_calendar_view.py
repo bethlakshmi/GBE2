@@ -15,6 +15,7 @@ from datetime import (
     datetime,
     timedelta,
 )
+import pytz
 from gbe.models import (
     ConferenceDay,
     Event,
@@ -26,10 +27,13 @@ from gbe.functions import (
     conference_slugs,
 )
 from scheduler.idd import (
+    get_eval_info,
     get_occurrences,
     get_schedule,
 )
+from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import show_general_status
+from django.conf import settings
 
 
 class ShowCalendarView(View):
@@ -100,11 +104,18 @@ class ShowCalendarView(View):
 
         return context
 
-    def build_occurrence_display(self, occurrences, personal_schedule=None):
+    def build_occurrence_display(self,
+                                 occurrences,
+                                 personal_schedule=None,
+                                 eval_occurrences=None):
         display_list = []
         events = Event.objects.filter(e_conference=self.conference)
         hour_block_size = {}
         for occurrence in occurrences:
+            role = None
+            for booking in personal_schedule:
+                if booking.event == occurrence:
+                    role = booking.role
             event = events.filter(pk=occurrence.eventitem.event.pk).first()
             hour = occurrence.start_time.strftime("%-I:00 %p")
             occurrence_detail = {
@@ -122,20 +133,33 @@ class ShowCalendarView(View):
                     'set_favorite',
                     args=[occurrence.pk, 'on'],
                     urlconf='gbe.scheduling.urls')
-                for booking in personal_schedule:
-                    if booking.event == occurrence:
-                        if booking.role == "Interested":
-                            occurrence_detail['favorite_link'] = reverse(
-                                'set_favorite',
-                                args=[occurrence.pk, 'off'],
-                                urlconf='gbe.scheduling.urls')
-                        else:
-                            occurrence_detail['favorite_link'] = "disabled"
-                        occurrence_detail['highlight'] = booking.role.lower()
+                if role == "Interested":
+                    occurrence_detail['favorite_link'] = reverse(
+                        'set_favorite',
+                        args=[occurrence.pk, 'off'],
+                        urlconf='gbe.scheduling.urls')
+                elif role is not None:
+                    occurrence_detail['favorite_link'] = "disabled"
+                if role:
+                    occurrence_detail['highlight'] = booking.role.lower()
             if (self.calendar_type == 'Volunteer') and (
                     'favorite_link' in occurrence_detail) and (
                     occurrence_detail['favorite_link'] != "disabled"):
                 occurrence_detail['favorite_link'] = None
+            if (self.calendar_type == 'Conference') and (
+                    occurrence.start_time < (datetime.now(
+                        tz=pytz.timezone('America/New_York')
+                        ) - timedelta(hours=settings.EVALUATION_WINDOW))
+                    ) and (
+                    role not in ("Teacher", "Performer", "Moderator")) and (
+                    eval_occurrences is not None):
+                if occurrence in eval_occurrences:
+                    occurrence_detail['evaluate'] = "disabled"
+                else:
+                    occurrence_detail['evaluate'] = reverse(
+                        'eval_event',
+                        args=[occurrence.pk, ],
+                        urlconf='gbe.scheduling.urls')
             display_list += [occurrence_detail]
             if hour in hour_block_size:
                 hour_block_size[hour] += 1
@@ -146,6 +170,7 @@ class ShowCalendarView(View):
     def get(self, request, *args, **kwargs):
         context = self.process_inputs(request, args, kwargs)
         personal_schedule = []
+        eval_occurrences = []
         if not self.conference or not self.this_day or not self.calendar_type:
             return render(request, self.template, context)
         response = get_occurrences(
@@ -156,16 +181,26 @@ class ShowCalendarView(View):
         if len(response.occurrences) > 0:
             if request.user.is_authenticated() and hasattr(
                     request.user,
-                    'profile') and self.conference.status != "completed":
+                    'profile'):
                 sched_response = get_schedule(
                     request.user,
                     labels=[self.calendar_type,
                             self.conference.conference_slug])
                 personal_schedule = sched_response.schedule_items
+                person = Person(
+                    user=request.user,
+                    public_id=request.user.profile.pk,
+                    public_class="Profile")
+                eval_response = get_eval_info(person=person)
+                if len(eval_response.questions) > 0:
+                    eval_occurrences = eval_response.occurrences
+                else:
+                    eval_occurrences = None
             max_block_size, context[
                 'occurrences'] = self.build_occurrence_display(
                 response.occurrences,
-                personal_schedule)
+                personal_schedule,
+                eval_occurrences)
             grid_size = 2
             if max_block_size < 6:
                 grid_size = self.grid_map[max_block_size]

@@ -39,26 +39,15 @@
       </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times container">
-	{% for sched_event in eventitem.scheduled_events %}
+	{% for sched_event in schedule_items %}
 	<div class="col-xs-12 sched-sub-box">
-	  {% if eventitem.event.e_conference.status != "completed" and toggle %}
 	  <div class="col-xs-1 sched-sub-box">
-	  {% if toggle != "disabled" %}
-            <a href="{% url 'scheduling:set_favorite' sched_event.pk toggle %}?next={{ request.get_full_path }}"
- 	       class="detail_link" data-toggle="tooltip" 
-	       title="{%if toggle == "off" %}Remove from Schedule{% else %}Add to Schedule{% endif %}">
-            <i class="fa {%if toggle == "off" %}fa-star{% else %}fa-star-o{% endif %} fa-2x"
-	       aria-hidden="true"></i></a>
-	  {% else %}
-            <a href="#" class="detail_link-detail_disable" data-toggle="tooltip" 
-	       title="Contact the coordinator to change your schedule">
-            <i class="fa fa-star fa-2x" aria-hidden="true"></i></a>
-	  {% endif %}
+  	    {% include "gbe/scheduling/favorite_star.tmpl" with size="fa-2x" disable_style="detail_link-detail_disable"%}
+  	    {% include "gbe/scheduling/evaluate_icon.tmpl" with size="fa-2x" disable_style="detail_link-detail_disable" evaluate=sched_event.evaluate%}
 	  </div>
-	  {% endif %}
 	  <div class="col-xs-11 ">
-  	    <label class="sched_detail">Time:</label> {{ sched_event.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.end_time|date:_("TIME_FORMAT")}}<br>
-	    <label class="sched_detail">Location:</label>  {{ sched_event.location }}<br>
+  	    <label class="sched_detail">Time:</label> {{ sched_event.occurrence.start_time|date:_("DATETIME_FORMAT")}} - {{ sched_event.occurrence.end_time|date:_("TIME_FORMAT")}}<br>
+	    <label class="sched_detail">Location:</label>  {{ sched_event.occurrence.location }}<br>
 	  </div>
 	</div>
 	{% endfor %}

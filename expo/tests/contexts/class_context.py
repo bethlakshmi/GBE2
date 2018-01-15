@@ -8,6 +8,8 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from tests.factories.scheduler_factories import (
+    EventEvalGradeFactory,
+    EventEvalQuestionFactory,
     EventLabelFactory,
     LocationFactory,
     ResourceAllocationFactory,
@@ -89,3 +91,12 @@ class ClassContext:
                                     _item=interested_profile,
                                     role="Interested"))
         return interested_profile
+
+    def setup_eval(self):
+        return EventEvalQuestionFactory()
+
+    def set_eval_answerer(self, eval_profile=None):
+        eval_profile = eval_profile or ProfileFactory()
+        answer = EventEvalGradeFactory(profile=eval_profile,
+                                       event=self.sched_event)
+        return eval_profile

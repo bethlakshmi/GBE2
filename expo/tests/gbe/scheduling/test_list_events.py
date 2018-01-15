@@ -18,6 +18,10 @@ from tests.contexts import (
     ClassContext,
     ShowContext,
 )
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 
 class TestViewList(TestCase):
@@ -152,7 +156,8 @@ class TestViewList(TestCase):
             url))
 
     def test_disabled_interest(self):
-        context = ClassContext(conference=self.conf)
+        context = ClassContext(conference=self.conf,
+                               starttime=datetime.now()-timedelta(days=1))
         url = reverse("event_list",
                       urlconf="gbe.scheduling.urls",
                       args=['Class'])
@@ -160,6 +165,7 @@ class TestViewList(TestCase):
         response = self.client.get(url)
         self.assertContains(response,
                             '<a href="#" class="detail_link-disabled')
+        self.assertNotContains(response, "fa-tachometer")
 
     def test_interest_not_shown(self):
         old_conf = ConferenceFactory(status="completed")
@@ -212,3 +218,47 @@ class TestViewList(TestCase):
         self.assertNotContains(response, this_class.e_title)
         self.assertNotContains(response, 'fa-star')
         self.assertNotContains(response, 'fa-star-o')
+
+    def test_disabled_eval(self):
+        context = ClassContext(conference=self.conf,
+                               starttime=datetime.now()-timedelta(days=1))
+        eval_profile = context.set_eval_answerer()
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Class'])
+        login_as(eval_profile, self)
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+        self.assertContains(response, "You have already rated this class")
+
+    def test_eval_ready(self):
+        context = ClassContext(conference=self.conf,
+                               starttime=datetime.now()-timedelta(days=1))
+        context.setup_eval()
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Class'])
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[context.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+
+    def test_eval_future(self):
+        context = ClassContext(conference=self.conf,
+                               starttime=datetime.now()+timedelta(days=1))
+        context.setup_eval()
+        url = reverse("event_list",
+                      urlconf="gbe.scheduling.urls",
+                      args=['Class'])
+        response = self.client.get(url)
+        self.assertNotContains(response, "fa-tachometer")

@@ -8,6 +8,7 @@ from gbe.scheduling.views import (
     ClassWizardView,
     CopyOccurrenceView,
     CreateEventView,
+    EvalEventView,
     EventDetailView,
     EventWizardView,
     ListEventsView,
@@ -31,6 +32,7 @@ urlpatterns = patterns(
         ManageEventsView.as_view(), name='manage_event_list'),
     url(r'^scheduling/manage/(?P<conference_slug>[-\w]+)/?$',
         ManageEventsView.as_view(), name='manage_event_list'),
+
     url(r'^scheduling/create_event/(?P<event_type>[-\w]+)/?$',
         CreateEventView, name='create_event'),
     url(r'^scheduling/create_class_wizard/(?P<conference>[-\w]+)/?$',
@@ -43,6 +45,7 @@ urlpatterns = patterns(
         EventWizardView.as_view(), name='create_event_wizard'),
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         MakeOccurrenceView.as_view(), name='create_event_schedule'),
+
     url(r'^scheduling/edit/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/' +
         '(?P<occurrence_id>\d+)/?$',
         MakeOccurrenceView.as_view(), name='edit_event_schedule'),
@@ -53,6 +56,8 @@ urlpatterns = patterns(
         ManageVolOpsView.as_view(), name='manage_opps'),
     url(r'^calendar/(?P<calendar_type>[-\w]+)/?$',
         ShowCalendarView.as_view(), name='calendar'),
+    url(r'^scheduling/evaluate/(?P<occurrence_id>\d+)/?$',
+        EvalEventView.as_view(), name='eval_event'),
     url(r'^scheduling/favorite/(?P<occurrence_id>\d+)/(?P<state>on|off)/?$',
         SetFavoriteView.as_view(), name='set_favorite'),
     url(r'^scheduling/allocate/(?P<event_type>[-\w]+)/' +

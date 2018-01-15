@@ -3,7 +3,13 @@
 
 
 # models
-
+bid_types = (
+    ('Act', 'Act'),
+    ('Class', 'Class'),
+    ('Costume', 'Costume'),
+    ('Vendor', 'Vendor'),
+    ('Volunteer', 'Volunteer'),
+)
 stageinfo_incomplete_warning = ("Please confirm that you have no props "
                                 "requirements")
 
@@ -180,7 +186,16 @@ vote_options = ((1, "Strong yes"),
                 (6, "No"),
                 (7, "Strong No"),
                 (-1, "Abstain"))
+grade_options = (("A", "A"),
+                 ("B", "B"),
+                 ("C", "C"),
+                 ("D", "D"),
+                 ("F", "F"),
+                 ("NA", "NA"),)
 
+answer_types = (("grade", "grade"),
+                ("text", "text"),
+                ("boolean", "boolean"),)
 
 festival_list = (('GBE', 'The Great Burlesque Exposition'),
                  ('BHOF', 'Miss Exotic World/Burlesque Hall of Fame'),
@@ -472,6 +487,18 @@ interested_report_explain_msg = '''This list includes all scheduled \
 classes and provides a count of how many logged in users have shown interest \
 in the class.  Interest does not reflect a firm commitment, nor does it \
 imply anything about ticket purchase.'''
+not_ready_for_eval = '''Our apologies, but we're not ready to take in \
+evaluations right now, please come back soon!'''
+one_eval_msg = '''We can only accept one evaluation per person, per event.'''
+eval_success_msg = '''Your evaluation was successfully submitted.  Thanks \
+for your feedback!'''
+eval_intro_msg = '''Thanks for your feedback!  Please grade your class \
+experience and let just know any additional comments in the box below.  \
+Teachers will get a summary of the review results, but the results will be \
+anonomized unless you check the box saying it's OK to share your info.'''
+not_purchased_msg = '''You have not purchased a ticket for either a Whole \
+Shebang or conference attendance, so you can't rate this class.  Check \
+your homepage - if our records are incorrect, please let us know.'''
 volunteer_allocate_email_fail_msg = '''The system was not able to send email \
 to the volunteer.  Check the email template, try again, or mail the volunteer \
 manually.  If the issue persists, please contact the web admin.'''
@@ -479,3 +506,6 @@ bidder_email_fail_msg = '''The system was unable to send an email notifying \
 the bidder of the updates you have made.  Check the email template, try \
 again, or mail the bidder manually.  If the issue persists, please contact \
 the web admin.'''
+eval_as_presenter_error = '''You cannot evaluate a class in which you were \
+the Teacher, Moderator or Panelist.  If you have feedback regardling your \
+class, please contact the coordinator directly.'''

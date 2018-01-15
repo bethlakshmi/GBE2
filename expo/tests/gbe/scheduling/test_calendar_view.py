@@ -396,6 +396,8 @@ class TestCalendarView(TestCase):
         self.assertContains(
             response,
             '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 teacher">')
+        self.assertNotContains(response,
+                               'fa-tachometer')
 
     def test_logged_in_performer(self):
         login_as(self.showcontext.performer.performer_profile, self)
@@ -421,3 +423,33 @@ class TestCalendarView(TestCase):
             '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 volunteer">')
         self.assertContains(response,
                             '<a href="#" class="detail_link-disabled')
+
+    def test_disabled_eval(self):
+        eval_profile = self.classcontext.set_eval_answerer()
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Conference'])
+        login_as(eval_profile, self)
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[self.classcontext.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertNotContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
+        self.assertContains(response, "You have already rated this class")
+
+    def test_eval_ready(self):
+        self.classcontext.setup_eval()
+        url = reverse('calendar',
+                      urlconf="gbe.scheduling.urls",
+                      args=['Conference'])
+        response = self.client.get(url)
+        eval_link = reverse(
+            "eval_event",
+            args=[self.classcontext.sched_event.pk, ],
+            urlconf="gbe.scheduling.urls")
+        self.assertContains(response, "%s?next=%s" % (
+            eval_link,
+            url))
