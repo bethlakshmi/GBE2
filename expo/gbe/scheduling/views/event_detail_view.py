@@ -49,13 +49,14 @@ class EventDetailView(View):
                     eventitem_view['event'].e_conference.status == "completed"
                     ):
                 schedule_item['favorite_link'] = None
-            eval_response = get_eval_info(occurrence_id=occurrence.pk,
-                                          person=person)
-            if len(eval_response.questions) > 0:
-                if person and len(eval_response.answers) > 0:
-                    schedule_item['evaluate'] = "disabled"
-                else:
-                    schedule_item['evaluate'] = reverse(
+            if eventitem_view['event'].calendar_type == "Conference":
+                eval_response = get_eval_info(occurrence_id=occurrence.pk,
+                                              person=person)
+                if len(eval_response.questions) > 0:
+                    if person and len(eval_response.answers) > 0:
+                        schedule_item['evaluate'] = "disabled"
+                    else:
+                        schedule_item['evaluate'] = reverse(
                             'eval_event',
                             args=[occurrence.pk, ],
                             urlconf='gbe.scheduling.urls')
@@ -70,7 +71,8 @@ class EventDetailView(View):
                             urlconf='gbe.scheduling.urls')
                     else:
                         schedule_item['favorite_link'] = "disabled"
-                        schedule_item['evaluate'] = "disabled"
+                        if schedule_item['evaluate'] is not None:
+                            schedule_item['evaluate'] = "disabled"
 
             schedule_items += [schedule_item]
         template = 'gbe/scheduling/event_detail.tmpl'

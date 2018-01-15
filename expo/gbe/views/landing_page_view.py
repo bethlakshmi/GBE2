@@ -22,7 +22,6 @@ from gbe.ticketing_idd_interface import (
 )
 from gbetext import (
     acceptance_states,
-    class_options,
     interested_explain_msg,
 )
 from gbe.functions import (
@@ -76,7 +75,6 @@ def LandingPageView(request, profile_id=None, historical=False):
             user=viewer_profile.user_object,
             public_id=viewer_profile.pk,
             public_class="Profile")
-        class_types = [option[0] for option in class_options]
         for bid in viewer_profile.bids_to_review():
             bid_type = class_to_class_name.get(bid.__class__, "UNKNOWN")
             view_name = class_to_view_name.get(bid.__class__, None)
@@ -103,7 +101,7 @@ def LandingPageView(request, profile_id=None, historical=False):
                     roles=["Interested"]).people,
                 'eventitem_id': gbe_event.eventitem_id,
                 'title': gbe_event.e_title, }
-            if gbe_event.type in class_types and booking.role not in (
+            if gbe_event.calendar_type == "Conference" and booking.role not in (
                     "Teacher",
                     "Performer",
                     "Moderator"):
