@@ -15,6 +15,7 @@ from datetime import (
     timedelta,
 )
 import pytz
+from django.conf import settings
 
 answer_type_to_class = {
     "boolean": EventEvalBoolean,
@@ -29,7 +30,8 @@ def set_eval_info(answers, occurrence_id, person):
     if len(response.errors) > 0:
         return EvalInfoResponse(errors=response.errors)
     if response.occurrence.starttime > datetime.now(
-            tz=pytz.timezone('America/New_York')) - timedelta(hours=4):
+            tz=pytz.timezone('America/New_York')) - timedelta(
+            hours=settings.EVALUATION_WINDOW):
         return EvalInfoResponse(
             warnings=[Warning(
                 code="EVENT_IN_FUTURE",

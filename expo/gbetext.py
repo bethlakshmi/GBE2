@@ -506,3 +506,6 @@ bidder_email_fail_msg = '''The system was unable to send an email notifying \
 the bidder of the updates you have made.  Check the email template, try \
 again, or mail the bidder manually.  If the issue persists, please contact \
 the web admin.'''
+eval_as_presenter_error = '''You cannot evaluate a class in which you were \
+the Teacher, Moderator or Panelist.  If you have feedback regardling your \
+class, please contact the coordinator directly.'''

@@ -25,6 +25,7 @@ from gbetext import (
     not_ready_for_eval,
     one_eval_msg,
     not_purchased_msg,
+    eval_as_presenter_error,
 )
 from gbe.scheduling.forms import EventEvaluationForm
 from gbe.ticketing_idd_interface import verify_bought_conference
@@ -105,6 +106,33 @@ class EvalEventView(View):
                         'description': not_purchased_msg})
                 messages.error(request, user_message[0].description)
                 redirect_now = True
+
+            response = get_bookings(
+                occurrence_ids=[eval_info.occurrences[0].pk],
+                roles=['Teacher', 'Moderator', 'Panelist'])
+            user_performers = self.person.user.profile.get_performers()
+            pk_list = []
+            for user_perf in user_performers:
+                pk_list += [user_perf.pk]
+
+            self.presenters = []
+            for person in response.people:
+                if person.public_id in pk_list:
+                    user_message = UserMessage.objects.get_or_create(
+                        view=self.__class__.__name__,
+                        code="USER_IS_PRESENTER",
+                        defaults={
+                            'summary': "Can't eval your own class",
+                            'description': eval_as_presenter_error})
+                    messages.error(request, user_message[0].description)
+                    redirect_now = True
+                    break
+                presenter = eval(person.public_class).objects.get(
+                    pk=person.public_id)
+                self.presenters += [{
+                    'presenter': presenter,
+                    'role': person.role}]
+
         if request.GET.get('next', None):
             redirect_to = request.GET['next']
         else:
@@ -118,21 +146,13 @@ class EvalEventView(View):
             defaults={
                 'summary': "Evaluation Introduction",
                 'description': eval_intro_msg})
-        response = get_bookings(occurrence_ids=[eval_info.occurrences[0].pk],
-                                roles=['Teacher', 'Moderator', 'Panelist'])
-        presenters = []
-        for person in response.people:
-            presenters += [{
-                'presenter': eval(person.public_class).objects.get(
-                    pk=person.public_id),
-                'role': person.role,
-            }]
+
         context = {
             'form': eval_form,
             'occurrence': eval_info.occurrences[0],
             'event': item,
             'intro': user_message[0].description,
-            'presenters': presenters,
+            'presenters': self.presenters,
         }
         return context
 

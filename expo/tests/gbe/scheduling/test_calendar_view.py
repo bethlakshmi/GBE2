@@ -16,7 +16,6 @@ from tests.functions.scheduler_functions import noon
 from datetime import (
     date,
     datetime,
-    timedelta,
 )
 from tests.contexts import (
     ClassContext,
@@ -397,6 +396,8 @@ class TestCalendarView(TestCase):
         self.assertContains(
             response,
             '<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 teacher">')
+        self.assertNotContains(response,
+                               'fa-tachometer')
 
     def test_logged_in_performer(self):
         login_as(self.showcontext.performer.performer_profile, self)

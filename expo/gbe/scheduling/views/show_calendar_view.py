@@ -33,6 +33,7 @@ from scheduler.idd import (
 )
 from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import show_general_status
+from django.conf import settings
 
 
 class ShowCalendarView(View):
@@ -148,7 +149,7 @@ class ShowCalendarView(View):
             if (self.calendar_type == 'Conference') and (
                     occurrence.start_time < (datetime.now(
                         tz=pytz.timezone('America/New_York')
-                        ) - timedelta(hours=4))
+                        ) - timedelta(hours=settings.EVALUATION_WINDOW))
                     ) and (
                     role not in ("Teacher", "Performer", "Moderator")) and (
                     eval_occurrences is not None):
@@ -181,12 +182,11 @@ class ShowCalendarView(View):
             if request.user.is_authenticated() and hasattr(
                     request.user,
                     'profile'):
-                if self.conference.status != "completed":
-                    sched_response = get_schedule(
-                        request.user,
-                        labels=[self.calendar_type,
-                                self.conference.conference_slug])
-                    personal_schedule = sched_response.schedule_items
+                sched_response = get_schedule(
+                    request.user,
+                    labels=[self.calendar_type,
+                            self.conference.conference_slug])
+                personal_schedule = sched_response.schedule_items
                 person = Person(
                     user=request.user,
                     public_id=request.user.profile.pk,

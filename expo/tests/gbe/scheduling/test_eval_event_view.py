@@ -30,6 +30,7 @@ from tests.functions.gbe_functions import (
     make_admission_purchase,
 )
 from gbetext import (
+    eval_as_presenter_error,
     eval_success_msg,
     full_login_msg,
     grade_options,
@@ -135,6 +136,21 @@ class TestEvalEventView(TestCase):
         self.assertContains(
             response,
             boolean_checkbox % (q3.pk, q3.pk))
+
+    def test_get_eval_own_class(self):
+        q1 = EventEvalQuestionFactory(answer_type="grade")
+        q2 = EventEvalQuestionFactory(answer_type="text",
+                                      help_text="so helpful")
+        q3 = EventEvalQuestionFactory(answer_type="boolean")
+        q4 = EventEvalQuestionFactory(visible=False,
+                                      help_text="unhelpful")
+        login_as(self.context.teacher.contact, self)
+        response = self.client.get(self.url, follow=True)
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            eval_as_presenter_error)
 
     def test_get_no_purchase(self):
         login_as(ProfileFactory(), self)
