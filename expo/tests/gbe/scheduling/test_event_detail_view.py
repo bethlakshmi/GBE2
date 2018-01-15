@@ -213,6 +213,7 @@ class TestEventDetailView(TestCase):
         self.assertContains(response, "%s?next=%s" % (
             set_fav_link,
             url))
+        self.assertNotContains(response, "fa-tachometer")
 
     def test_disabled_interest(self):
         context = ShowContext()
@@ -271,3 +272,14 @@ class TestEventDetailView(TestCase):
             eval_link,
             url))
         self.assertContains(response, "You have already rated this class")
+
+    def test_no_eval_for_teacher(self):
+        context = ClassContext(starttime=datetime.now()-timedelta(days=1))
+        context.setup_eval()
+        login_as(context.teacher.contact, self)
+        url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[context.bid.eventitem_id])
+        response = self.client.get(url)
+        self.assertNotContains(response, "fa-tachometer")
