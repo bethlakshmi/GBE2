@@ -71,8 +71,7 @@ class EventDetailView(View):
                             urlconf='gbe.scheduling.urls')
                     else:
                         schedule_item['favorite_link'] = "disabled"
-                        if schedule_item['evaluate'] is not None:
-                            schedule_item['evaluate'] = "disabled"
+                        schedule_item['evaluate'] = None
 
             schedule_items += [schedule_item]
         template = 'gbe/scheduling/event_detail.tmpl'
