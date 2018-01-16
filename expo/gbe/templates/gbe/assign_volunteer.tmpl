@@ -130,7 +130,7 @@
             <td class="bid-table">
               <input id="id_events_{{ forloop.counter0 }}"
                 name="events" type="checkbox" value="{{event_window.event.pk}}"
-                {% if event_window.event in bookings %}checked="checked"{% endif %}/>
+                {% if event_window.booked %}checked="checked"{% endif %}/>
             </td>
             <td class="bid-table">
               {% if event_window.window %}
