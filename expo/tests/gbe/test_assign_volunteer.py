@@ -22,7 +22,10 @@ from tests.factories.gbe_factories import (
     VolunteerWindowFactory,
     VolunteerInterestFactory
 )
-from tests.factories.scheduler_factories import SchedEventFactory
+from tests.factories.scheduler_factories import (
+    EventLabelFactory,
+    SchedEventFactory,
+)
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -188,6 +191,8 @@ class TestAssignVolunteer(TestCase):
             eventitem=rehearsal,
             starttime=datetime(2016, 2, 6, 13, 0, 0, 0, pytz.utc),
             max_volunteer=10)
+        EventLabelFactory(event=rehearsal_slot,
+                          text=data['context'].conference.conference_slug)
 
         volunteer = VolunteerFactory(
             b_conference=data['context'].conference,
@@ -252,6 +257,11 @@ class TestAssignVolunteer(TestCase):
         data['context'].book_volunteer(
             booked_sched,
             volunteer=data['volunteer'].profile)
+        EventLabelFactory(event=booked_sched,
+                          text=data['context'].conference.conference_slug)
+        EventLabelFactory(event=booked_sched,
+                          text="Volunteer")
+
         url = reverse(self.view_name,
                       args=[data['volunteer'].pk],
                       urlconf="gbe.urls")
@@ -291,6 +301,10 @@ class TestAssignVolunteer(TestCase):
             eventitem=data['current_sched'].eventitem,
             starttime=datetime(2016, 2, 7, 12, 0, 0, 0, pytz.utc),
             max_volunteer=10)
+        EventLabelFactory(event=unavail_sched,
+                          text=data['context'].conference.conference_slug)
+        EventLabelFactory(event=unavail_sched,
+                          text="Volunteer")
 
         unavail_window = VolunteerWindowFactory(
             day__conference=data['context'].conference,
