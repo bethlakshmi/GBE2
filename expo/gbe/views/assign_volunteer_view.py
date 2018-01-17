@@ -12,6 +12,7 @@ from gbe.functions import (
     validate_perms,
 )
 from gbe.models import (
+    Event,
     GenericEvent,
     Volunteer
 )
@@ -66,18 +67,20 @@ def AssignVolunteerView(request, volunteer_id):
 
     conf_windows = conference.windows()
     volunteer_event_windows = []
+    volunteer_events = Event.objects.filter(
+        e_conference=volunteer.b_conference)
 
     for event in response.occurrences:
         if event.foreign_event_id not in rehearsals:
             volunteer_event_windows += [{
-                'event': event,
+                'occurrence': event,
                 'window': conf_windows.filter(
                     day__day=event.starttime.date(),
                     start__lte=event.starttime.time(),
                     end__gt=event.starttime.time()).first(),
                 'booked': event.pk in booking_ids,
+                'eventitem': event.eventitem,
             }]
-        
 
     return render(
         request,

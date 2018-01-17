@@ -129,7 +129,7 @@
         <tr class="bid-table">
             <td class="bid-table">
               <input id="id_events_{{ forloop.counter0 }}"
-                name="events" type="checkbox" value="{{event_window.event.pk}}"
+                name="events" type="checkbox" value="{{event_window.occurrence.pk}}"
                 {% if event_window.booked %}checked="checked"{% endif %}/>
             </td>
             <td class="bid-table">
@@ -146,27 +146,27 @@
               {% if event_window.window in volunteer.unavailable_windows.all%}
                 Not Free<br>
               {% endif %}
-{% if event_window.event.eventitem.child.sched_payload.details.volunteer_category in interests %}
+{% if event_window.eventitem.child.volunteer_category_description in interests %}
                 Interested<br>
               {% endif %}
             </td>
             <td class="bid-table">
-<a href="{% url 'scheduling:detail_view' event_window.event.eventitem.eventitem_id%}">
-                {{event_window.event}}
+<a href="{% url 'scheduling:detail_view' event_window.eventitem.eventitem_id%}">
+                {{event_window.eventitem}}
               </a></td>
-            <td class="bid-table">{{event_window.event.start_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
-            <td class="bid-table">{{event_window.event.end_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
+            <td class="bid-table">{{event_window.occurrence.start_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
+            <td class="bid-table">{{event_window.occurrence.end_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">
-              {% if event_window.event.container_event.parent_event %}
-<a href="{% url 'scheduling:detail_view' event_window.event.container_event.parent_event.eventitem.eventitem_id%}">
-                {{event_window.event.container_event.parent_event}}
+              {% if event_window.occurrence.container_event.parent_event %}
+<a href="{% url 'scheduling:detail_view' event_window.occurrence.container_event.parent_event.eventitem.eventitem_id%}">
+                {{event_window.occurrence.container_event.parent_event}}
               </a>
               {% endif %}
             </td>
-            <td class="bid-table">{{event_window.event.volunteer_count|cut:" volunteers"}}</td>
-            <td class="bid-table">{{event_window.event.max_volunteer}}</td>
+            <td class="bid-table">{{event_window.occurrence.volunteer_count|cut:" volunteers"}}</td>
+            <td class="bid-table">{{event_window.occurrence.max_volunteer}}</td>
             <td class="bid-table">
-              {% if event_window.event.max_volunteer <= event_window.event.volunteer_count|cut:" volunteers"|add:"0" %}
+              {% if event_window.occurrence.max_volunteer <= event_window.occurrence.volunteer_count|cut:" volunteers"|add:"0" %}
               Y
               {%else%}
               N
