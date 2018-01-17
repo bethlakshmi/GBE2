@@ -157,7 +157,7 @@ class TestVolunteerChangestate(TestCase):
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        self.assertContains(response, "SCHEDULE_CONFLICT")
 
     def test_volunteer_changestate_gives_event_over_full_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
@@ -175,4 +175,4 @@ class TestVolunteerChangestate(TestCase):
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
-        self.assertContains(response, "Over by 1 volunteer.")
+        self.assertContains(response, "OCCURRENCE_OVERBOOKED")
