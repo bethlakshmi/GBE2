@@ -213,7 +213,12 @@ event_create_text = {
 
 event_help_texts = {
     'type': '''Special Events, Master Classes, and Drop In classes are shown in \
-    event lists, Staff Areas do not..'''}
+    event lists, Staff Areas do not..''',
+    'cue_sheet': '''These are the lighting options that performers will be \
+    able to choose when they submit their act tech info.  These options are \
+    variable based on what theater the show is booked into and how it's \
+    lighting is dsigned.  "Theater" is the arrangement we use in the main \
+    stage, and "Alternate" fits with the vendor room stage.'''}
 
 event_labels = {
     'e_title': 'Title',

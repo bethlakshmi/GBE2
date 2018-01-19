@@ -299,6 +299,7 @@ class TestTicketedEventWizard(TestCase):
         login_as(self.privileged_user, self)
         data = self.edit_class()
         data.pop('type', None)
+        data['cue_sheet'] = "Alternate"
         data['alloc_0-role'] = "Producer"
         data['alloc_1-role'] = "Technical Director"
         data['alloc_0-worker'] = self.privileged_user.pk
@@ -331,6 +332,9 @@ class TestTicketedEventWizard(TestCase):
             response,
             '<tr class="bid-table success">\n       ' +
             '<td class="bid-table">%s</td>' % data['e_title'])
+        self.assertEqual(
+            new_show.cue_sheet, "Alternate"
+        )
 
     def test_create_special_w_staffing(self):
         self.url = reverse(
