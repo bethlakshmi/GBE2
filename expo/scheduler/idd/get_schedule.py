@@ -64,14 +64,16 @@ def get_schedule(user=None,
                 user=resource.workeritem.user_object,
                 event=item.event,
                 role=resource.role,
-                label=booking_label)]
+                label=booking_label,
+                booking_id=item.pk)]
         if resource.__class__.__name__ == "ActResource":
             for profile in resource._item.act.get_performer_profiles():
                 sched_items += [ScheduleItem(
                     user=profile.user_object,
                     event=item.event,
                     role=resource.role or "Performing",
-                    label=booking_label)]
+                    label=booking_label,
+                    booking_id=item.pk)]
     response = ScheduleResponse(
         schedule_items=sorted(
             set(sched_items),

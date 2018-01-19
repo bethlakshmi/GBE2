@@ -31,7 +31,11 @@ from gbe.email.functions import (
     send_warnings_to_staff,
 )
 from expo.settings import DATETIME_FORMAT
-
+from scheduler.idd import (
+    get_all_container_bookings,
+    get_schedule,
+    remove_booking,
+)
 
 class MakeVolunteerView(MakeBidView):
     page_title = "Volunteer"
@@ -78,22 +82,34 @@ class MakeVolunteerView(MakeBidView):
         warnings = []
         conflicts = []
         for window in changed_windows:
-            for conflict in profile.get_conflicts(window):
-                if ((conflict not in conflicts) and
-                        'type' in conflict.eventitem.payload and
-                        conflict.eventitem.payload['type'] == 'Volunteer'):
-                    conflicts += [conflict]
+            conflict_check = get_schedule(
+                    profile.user_object,
+                    start_time=window.start_time,
+                    end_time=window.end_time,
+                    labels=[self.bid_object.b_conference.conference_slug])
+
+            # choosing to error silently here, because the function does not
+            # have any errors yet, and because this is a public user case
+            for conflict in conflict_check.schedule_items:
+                if ((conflict.event not in conflicts) and
+                        conflict.role == "Volunteer"):
+                    conflicts += [conflict.event]
                     warning = {
-                        'time': conflict.starttime.strftime(DATETIME_FORMAT),
-                        'event': str(conflict),
-                        'interest': conflict.eventitem.child(
+                        'time': conflict.event.starttime.strftime(
+                            DATETIME_FORMAT),
+                        'event': str(conflict.event),
+                        'interest': conflict.event.eventitem.child(
                             ).volunteer_category_description,
                     }
-                    leads = conflict.eventitem.roles(roles=['Staff Lead', ])
-                    for lead in leads:
-                        warning['lead'] = str(lead.item.badge_name)
-                        warning['email'] = lead.item.contact_email
-                    conflict.unallocate_worker(profile, 'Volunteer')
+                    leads = get_all_container_bookings(
+                        occurrence_ids=[conflict.event.pk],
+                        roles=['Staff Lead', ])
+                    for lead in leads.people:
+                        warning['lead'] = str(lead.user.profile.badge_name)
+                        warning['email'] = lead.user.email
+                    response = remove_booking(
+                        occurrence_id=conflict.event.pk,
+                        booking_id=conflict.booking_id)
                     warnings += [warning]
         return warnings
 
