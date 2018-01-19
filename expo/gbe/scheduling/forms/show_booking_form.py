@@ -14,7 +14,7 @@ class ShowBookingForm(EventBookingForm):
             'e_title',
             'cue_sheet',
             'e_description',
-            'e_conference',]
+            'e_conference', ]
         help_texts = event_help_texts
         labels = event_labels
         widgets = {'e_conference': HiddenInput()}
