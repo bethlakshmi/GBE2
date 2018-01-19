@@ -53,9 +53,6 @@ class Event(EventItem):
                                                     'Rehearsal Slot',
                                                     'Staff Area')]
 
-    def child(self):
-        return Event.objects.get_subclass(pk=self.pk)
-
     @property
     def event_type(self):
         return self.__class__.__name__

@@ -86,10 +86,6 @@ class Class(Biddable, Event):
         return new_class
 
     @property
-    def event_type(self):
-        return "Class"
-
-    @property
     def get_space_needs(self):
         needs = ""
         for top, top_opts in space_options:
