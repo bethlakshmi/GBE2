@@ -509,3 +509,6 @@ the web admin.'''
 eval_as_presenter_error = '''You cannot evaluate a class in which you were \
 the Teacher, Moderator or Panelist.  If you have feedback regardling your \
 class, please contact the coordinator directly.'''
+parent_event_delete_warning = '''This scheduled event is a parent to other \
+schedule items.  These schedule items have not been deleted, and will remain \
+on the calendar.'''

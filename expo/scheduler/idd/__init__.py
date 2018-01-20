@@ -9,3 +9,4 @@ from get_bookings import get_bookings
 from get_schedule import get_schedule
 from get_eval_info import get_eval_info
 from set_eval_info import set_eval_info
+from delete_occurrence import delete_occurrence
