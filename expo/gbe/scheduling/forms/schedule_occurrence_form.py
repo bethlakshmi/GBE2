@@ -2,6 +2,7 @@ from django.forms import (
     ChoiceField,
     FloatField,
     Form,
+    HiddenInput,
     IntegerField,
     ModelChoiceField,
 )
@@ -48,6 +49,7 @@ class ScheduleOccurrenceForm(Form):
     location = ModelChoiceField(
         queryset=Room.objects.all().order_by('name'))
     max_volunteer = IntegerField(required=True, initial=0)
+    occurrence_id = IntegerField(required=False, widget=HiddenInput())
 
     def __init__(self, *args, **kwargs):
         open_to_public = None

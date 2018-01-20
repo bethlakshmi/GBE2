@@ -76,6 +76,14 @@ class ShowContext:
             resource=LocationFactory(_item=room.locationitem_ptr))
         return sched_event
 
+    def set_producer(self, producer=None):
+        producer = producer or ProfileFactory()
+        ResourceAllocationFactory(event=self.sched_event,
+                                  resource=WorkerFactory(
+                                    _item=producer,
+                                    role="Producer"))
+        return producer
+
     def book_act(self, act=None, act_role=''):
         act = act or ActFactory(b_conference=self.conference,
                                 accepted=3,
