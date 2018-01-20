@@ -63,13 +63,23 @@ def event_list(request, event_type=''):
     events = get_events_display_info(event_type)
 
     template = 'scheduler/events_review_list.tmpl'
+    create_url = reverse('create_event',
+                         urlconf='gbe.scheduling.urls',
+                         args=[event_type])
+    if event_type == "Class":
+        create_url = reverse('create_class_wizard',
+                             urlconf='gbe.scheduling.urls',
+                             args=[get_current_conference().conference_slug])
+    elif event_type == "Show":
+        create_url = reverse('create_ticketed_event_wizard',
+                             urlconf='gbe.scheduling.urls',
+                             args=[get_current_conference().conference_slug,
+                                   "show"])
     return render(request,
                   template,
                   {'events': events,
                    'header': header,
-                   'create_url': reverse('create_event',
-                                         urlconf='gbe.scheduling.urls',
-                                         args=[event_type])})
+                   'create_url': create_url})
 
 
 @login_required
