@@ -74,25 +74,6 @@ class ResourceItem(models.Model):
     resourceitem_id = models.AutoField(primary_key=True)
 
     @property
-    def contact_email(self):
-        return ResourceItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id
-        ).contact_email
-
-    @property
-    def as_subtype(self):
-        return ResourceItem.objects.get_subclass(
-            resourceitem_id=self.resourceitem_id)
-
-    @property
-    def payload(self):
-        return self._payload
-
-    @property
-    def _name(self):
-        return self.sched_name
-
-    @property
     def describe(self):
         child = ResourceItem.objects.get_subclass(
             resourceitem_id=self.resourceitem_id)
@@ -543,11 +524,6 @@ class EventItem (models.Model):
                 role__in=roles
             ).distinct().order_by('role', '_item')
         return people
-
-    def remove(self):
-        Event.objects.filter(eventitem=self).delete()
-        self.visible = False
-        self.save()
 
     @property
     def payload(self):

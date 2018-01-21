@@ -2,8 +2,6 @@ from remains import (
     get_events_display_info,
     event_list,
     schedule_acts,
-    delete_schedule,
-    delete_event,
     contact_info,
     contact_performers,
     contact_volunteers,
