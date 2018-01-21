@@ -61,9 +61,9 @@ class DeleteEventView(View):
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="DELETE_SUCCESS",
-                    defaults={
-                        'summary': "Occurrence Deletion Completed",
-                        'description': "This event has been deleted."})
+                defaults={
+                    'summary': "Occurrence Deletion Completed",
+                    'description': "This event has been deleted."})
             messages.success(
                 request,
                 '%s<br>Title: %s,<br> Start Time: %s' % (
