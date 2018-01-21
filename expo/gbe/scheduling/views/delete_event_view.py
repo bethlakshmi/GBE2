@@ -1,5 +1,7 @@
 from django.views.generic import View
 from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -22,7 +24,8 @@ class DeleteEventView(View):
         if request.GET.get('next', None):
             self.redirect_to = request.GET['next']
         else:
-            self.redirect_to = reverse('home', urlconf='gbe.urls')
+            self.redirect_to = reverse('manage_event_list',
+                                       urlconf='gbe.scheduling.urls')
         if "occurrence_id" in kwargs:
             result = get_occurrence(int(kwargs['occurrence_id']))
             if result.errors and len(result.errors) > 0:
@@ -35,6 +38,7 @@ class DeleteEventView(View):
                 self.occurrence = result.occurrence
 
     @never_cache
+    @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
