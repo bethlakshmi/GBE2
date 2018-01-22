@@ -1,6 +1,7 @@
 # event management forms
 from schedule_basic_form import ScheduleBasicForm
 from schedule_occurrence_form import ScheduleOccurrenceForm
+from staff_area_occurrence_form import StaffAreaOccurrenceForm
 from class_schedule_form import ClassScheduleForm
 from generic_event_schedule_form import GenericEventScheduleForm
 from pick_event_form import PickEventForm

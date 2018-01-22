@@ -1,6 +1,7 @@
 # New Event Creation
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
+from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
 
 # Brand new edit (will deprecate make_occurrence)
