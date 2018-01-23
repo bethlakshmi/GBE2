@@ -9,6 +9,7 @@ from gbe.scheduling.views import (
     CopyOccurrenceView,
     CreateEventView,
     EditEventView,
+    EditStaffAreaView,
     EvalEventView,
     EventDetailView,
     EventWizardView,
@@ -51,8 +52,13 @@ urlpatterns = patterns(
     url(r'^scheduling/edit/(?P<conference>[-\w]+)/(?P<occurrence_id>\d+)/?$',
         EditEventView.as_view(),
         name='edit_event'),
+    url(r'^scheduling/staff_edit/(?P<staff_id>\d+)/?$',
+        EditStaffAreaView.as_view(),
+        name='edit_staff'),
     url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
+        ManageVolWizardView.as_view(), name='manage_vol'),
+    url(r'^scheduling/manage-opps/(?P<staff_slug>[-\w]+)/?$',
         ManageVolWizardView.as_view(), name='manage_vol'),
 
     url(r'^scheduling/copy/(?P<occurrence_id>\d+)/?$',

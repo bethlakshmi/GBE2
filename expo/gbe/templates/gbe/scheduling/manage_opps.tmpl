@@ -90,6 +90,7 @@
       </form>	      
     </tr>
   </table>
+  {% if event_id %}
   <table> 
   <tr>
   <td><a href="{%url 'scheduler:contact_info' event_id 'Worker' %}">Contact volunteers</a>
@@ -98,5 +99,6 @@
   </td>
   </tr>
   </table>
+ {% endif %}
   <br><br>
 </div>

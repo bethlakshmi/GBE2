@@ -162,9 +162,10 @@ class EditEventView(VolOpsDisplayView):
             context.update(super(EditEventView,
                                  self).get_manage_opportunity_forms(
                 volunteer_initial_info,
-                self.occurrence.pk,
                 self.manage_vol_url,
-                errorcontext))
+                self.conference,
+                errorcontext=errorcontext,
+                occurrence_id=self.occurrence.pk))
         else:
             context['edit_open'] = True
 

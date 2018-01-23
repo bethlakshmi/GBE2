@@ -13,16 +13,24 @@ class VolOpsDisplayView(View):
 
     def get_manage_opportunity_forms(self,
                                      initial,
-                                     occurrence_id,
                                      manage_vol_info,
-                                     errorcontext=None):
+                                     conference,
+                                     errorcontext=None,
+                                     occurrence_id=None,
+                                     labels=[]):
         '''
         Generate the forms to allocate, edit, or delete volunteer
         opportunities associated with a scheduler event.
         '''
         actionform = []
         context = {}
-        response = get_occurrences(parent_event_id=occurrence_id)
+        if occurrence_id is not None:
+            response = get_occurrences(parent_event_id=occurrence_id)
+        elif len(labels) > 0:
+            response = get_occurrences(labels=labels)
+        else:
+            return None
+
         for vol_occurence in response.occurrences:
             vol_event = Event.objects.get_subclass(
                     eventitem_id=vol_occurence.foreign_event_id)
@@ -64,7 +72,7 @@ class VolOpsDisplayView(View):
             createform = VolunteerOpportunityForm(
                 prefix='new_opp',
                 initial=initial,
-                conference=self.occurrence.eventitem.get_conference())
+                conference=conference)
 
         actionheaders = ['Title',
                          'Volunteer Type',
