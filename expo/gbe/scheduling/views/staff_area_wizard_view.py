@@ -19,15 +19,20 @@ class StaffAreaWizardView(EventWizardView):
     template = 'gbe/scheduling/ticketed_event_wizard.tmpl'
     event_type = "staff"
 
+    def groundwork(self, request, args, kwargs):
+        context = super(StaffAreaWizardView,
+                        self).groundwork(request, args, kwargs)
+        context['event_type'] = "Staff Area"
+        context['second_title'] = "Create Staff Area"
+        context['volunteer_scheduling'] = True
+        return context
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         context = self.groundwork(request, args, kwargs)
         context['second_form'] = StaffAreaForm(
             initial={'conference':  self.conference})
-        context['event_type'] = "Staff Area"
-        context['second_title'] = "Create Staff Area"
-
         return render(request, self.template, context)
 
     @never_cache
@@ -37,19 +42,27 @@ class StaffAreaWizardView(EventWizardView):
         context['second_form'] = StaffAreaForm(request.POST)
         if context['second_form'].is_valid():
             new_event = context['second_form'].save()
-
-            success = self.finish_booking(
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="OCCURRENCE_UPDATE_SUCCESS",
+                defaults={
+                    'summary': "Occurrence has been updated",
+                    'description': "Occurrence has been updated."})
+            messages.success(
                 request,
-                response,
-                context['scheduling_form'].cleaned_data['day'].pk)
-            if success:
-                if request.POST.get(
-                        'set_event') == 'Continue to Volunteer Opportunities':
-                    return HttpResponseRedirect(
-                        reverse('edit_event',
-                                urlconf='gbe.scheduling.urls',
-                                args=[self.conference.conference_slug,
-                                      response.occurrence.pk]))
-                else:
-                    return success
+                '%s<br>Title: %s' % (
+                    user_message[0].description,
+                    new_event.title))
+            if request.POST.get(
+                    'set_event') == 'Continue to Volunteer Opportunities':
+                return HttpResponseRedirect(
+                    reverse('edit_event',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug,
+                                  response.occurrence.pk]))
+            else:
+                return HttpResponseRedirect(
+                    reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.conference.conference_slug]))
         return render(request, self.template, context)
