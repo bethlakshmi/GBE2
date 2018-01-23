@@ -5,8 +5,10 @@ from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
 
 # Brand new edit (will deprecate make_occurrence)
+from vol_ops_display_view import VolOpsDisplayView
 from edit_event_view import EditEventView
 from manage_vol_wizard_view import ManageVolWizardView
+from edit_staff_area_view import EditStaffAreaView
 
 # Old but Refactored Event Editing/Creation/Allocation
 from copy_occurrence_view import CopyOccurrenceView

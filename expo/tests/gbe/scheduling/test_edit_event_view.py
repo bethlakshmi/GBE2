@@ -31,7 +31,7 @@ from datetime import timedelta
 
 
 class TestEditEventView(TestCase):
-    '''This view makes Master and Drop In and associates them w. tickets'''
+    '''This view edits classes that were made through the wizard'''
     view_name = 'edit_event'
 
     def setUp(self):
