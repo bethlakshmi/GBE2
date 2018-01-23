@@ -21,6 +21,7 @@ from biddable import visible_bid_query
 from act import Act
 from event import Event
 from show import Show
+from staff_area import StaffArea
 from class_model import Class
 from costume import Costume
 from vendor import Vendor
