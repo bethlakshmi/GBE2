@@ -19,6 +19,7 @@ from django.views.generic import View
 from gbe.scheduling.forms import VolunteerOpportunityForm
 from gbe.scheduling.views.functions import (
     get_start_time,
+    show_scheduling_occurrence_status,
 )
 from gbe.functions import (
     eligible_volunteers,
@@ -29,16 +30,23 @@ from gbe.functions import (
 class ManageVolWizardView(View):
     ''' This must be a parent to another class.  The subclass should describe
         the settings and visualization for the parent of the volunteer events
-        manipulated here.   The contract for the child includes:
-           - implement a 'groundwork' function and provide self.conference,
-              any container related self.labels (a list) and if applicable,
-              self.parent_id
-           - implement a make_post_reponse that accomodates the errorcontext
-              provided here and uses the self.success_url
+        manipulated here.   The contract for the child is to implement a
+        'groundwork' function and provide:
+            - self.conference - the conference for which the vol opp is being
+                managed
+            - any additional self.labels (a list) to be used during opp create
+                - the conference slug, and appropriate calendar type will be
+                made here.
+            - self.manage_vol_url - the URL used to call this post function
+            - self.parent_id (optional) - the id of a parent event, if null,
+                there will be no parent
+            - self.success_url - the URL to redirect to in the event of success
+        AND - 'make_context' to build the error context when an error occurrs
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
     parent_id = None
+    labels = []
 
     def get_manage_opportunity_forms(self,
                                      initial,
@@ -115,14 +123,25 @@ class ManageVolWizardView(View):
                         'manage_vol_url': manage_vol_info}),
         return context
 
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           errorcontext=None):
+        if response:
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
+
+        if response and response.occurrence:
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.make_context(request, errorcontext)
+
     def check_success_and_return(self,
                            request,
                            response=None,
                            errorcontext=None):
-        self.success_url = reverse('edit_event',
-                                   urlconf='gbe.scheduling.urls',
-                                   args=[self.conference.conference_slug,
-                                         self.occurrence.pk])
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
@@ -141,7 +160,7 @@ class ManageVolWizardView(View):
                 self.max_volunteer = data['max_volunteer']
         self.start_time = get_start_time(data)
         if self.create:
-            self.labels = [self.conference.conference_slug]
+            self.labels += [self.conference.conference_slug]
             if self.event.calendar_type:
                 self.labels += [self.event.calendar_type]
         return data
@@ -163,14 +182,14 @@ class ManageVolWizardView(View):
                 self.event_form = VolunteerOpportunityForm(
                     request.POST,
                     prefix='new_opp',
-                    conference=self.item.get_conference())
+                    conference=self.conference)
             else:
                 self.event_form = VolunteerOpportunityForm(
                     request.POST,
-                    conference=self.item.get_conference())
+                    conference=self.conference)
             if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
-                self.event.e_conference = self.item.get_conference()
+                self.event.e_conference = self.conference
                 self.event.save()
                 response = create_occurrence(
                     self.event.eventitem_id,
@@ -213,11 +232,7 @@ class ManageVolWizardView(View):
                 GenericEvent,
                 event_id=request.POST['opp_event_id'])
             opp.delete()
-            return HttpResponseRedirect(
-                reverse('edit_event',
-                        urlconf='gbe.scheduling.urls',
-                        args=[kwargs['conference'],
-                              kwargs['occurrence_id']]))
+            return HttpResponseRedirect(self.success_url)
 
         elif 'allocate' in request.POST.keys():
             response = get_occurrence(request.POST['opp_sched_id'])

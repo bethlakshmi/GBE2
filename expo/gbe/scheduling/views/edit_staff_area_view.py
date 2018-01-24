@@ -30,10 +30,15 @@ class EditStaffAreaView(ManageVolWizardView):
         self.conference = self.staff_area.conference
         self.manage_vol_url = reverse('manage_vol',
                                       urlconf='gbe.scheduling.urls',
-                                      args=[self.staff_area.slug])
-
+                                      args=[self.staff_area.id])
+        self.labels += [self.staff_area.slug]
+        self.success_url = reverse('edit_staff',
+                                   urlconf='gbe.scheduling.urls',
+                                   args=[self.staff_area.id])
     def make_context(self, request, errorcontext=None):
-        context = {}
+        context = {
+            'edit_title':  'Edit Staff Area'
+        }
         if errorcontext is not None:
             context = errorcontext
 
@@ -67,10 +72,13 @@ class EditStaffAreaView(ManageVolWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        if "manage-opps" in request.path:
+            return super(EditStaffAreaView,
+                         self).post(request, *args, **kwargs)
         context = {}
         self.groundwork(request, args, kwargs)
         context['event_form'] = StaffAreaForm(request.POST,
-                                              instance=self.item)
+                                              instance=self.staff_area)
 
         if context['event_form'].is_valid():
             new_event = context['event_form'].save()

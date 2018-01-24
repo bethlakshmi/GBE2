@@ -71,6 +71,9 @@ class EditEventView(ManageVolWizardView):
                                       urlconf='gbe.scheduling.urls',
                                       args=[kwargs['conference'],
                                             kwargs['occurrence_id']])
+        self.success_url = reverse('edit_staff',
+                                   urlconf='gbe.scheduling.urls',
+                                   args=[self.staff_area.id])
 
     def make_formset(self, roles, post=None):
         formset = []
@@ -126,7 +129,9 @@ class EditEventView(ManageVolWizardView):
         return validity
 
     def make_context(self, request, errorcontext=None):
-        context = {}
+        context = {
+            'edit_title':  'Edit Event'
+        }
         if errorcontext is not None:
             context = errorcontext
         duration = float(self.item.duration.total_minutes())/60
@@ -172,21 +177,6 @@ class EditEventView(ManageVolWizardView):
             context['edit_open'] = True
 
         return render(request, self.template, context)
-
-    def make_post_response(self,
-                           request,
-                           response=None,
-                           errorcontext=None):
-        if response:
-            show_scheduling_occurrence_status(
-                request,
-                response,
-                self.__class__.__name__)
-
-        if response and response.occurrence:
-            return HttpResponseRedirect(self.success_url)
-        else:
-            return self.make_context(request, errorcontext)
 
     @never_cache
     @method_decorator(login_required)
