@@ -57,9 +57,9 @@ urlpatterns = patterns(
         name='edit_staff'),
     url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
-        ManageVolWizardView.as_view(), name='manage_vol'),
+        EditEventView.as_view(), name='manage_vol'),
     url(r'^scheduling/manage-opps/(?P<staff_slug>[-\w]+)/?$',
-        ManageVolWizardView.as_view(), name='manage_vol'),
+        EditStaffAreaView.as_view(), name='manage_vol'),
 
     url(r'^scheduling/copy/(?P<occurrence_id>\d+)/?$',
         CopyOccurrenceView.as_view(), name='copy_event_schedule'),

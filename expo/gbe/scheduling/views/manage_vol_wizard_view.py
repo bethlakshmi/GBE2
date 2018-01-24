@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from scheduler.idd import (
     create_occurrence,
     get_occurrence,
+    get_occurrences,
     update_occurrence,
 )
 from gbe.models import (
@@ -14,25 +15,107 @@ from gbe.models import (
     GenericEvent,
     Room,
 )
-from gbe.scheduling.views import EditEventView
+from django.views.generic import View
 from gbe.scheduling.forms import VolunteerOpportunityForm
 from gbe.scheduling.views.functions import (
     get_start_time,
 )
+from gbe.functions import (
+    eligible_volunteers,
+    get_conference_day,
+)
 
 
-class ManageVolWizardView(EditEventView):
+class ManageVolWizardView(View):
+    ''' This must be a parent to another class.  The subclass should describe
+        the settings and visualization for the parent of the volunteer events
+        manipulated here.   The contract for the child includes:
+           - implement a 'groundwork' function and provide self.conference,
+              any container related self.labels (a list) and if applicable,
+              self.parent_id
+           - implement a make_post_reponse that accomodates the errorcontext
+              provided here and uses the self.success_url
+    '''
 
-    permissions = ('Volunteer Coordinator',)
+    vol_permissions = ('Volunteer Coordinator',)
+    parent_id = None
 
-    @never_cache
-    def get(self, request, *args, **kwargs):
-        return HttpResponseRedirect(reverse('edit_event',
-                                    urlconf='gbe.scheduling.urls',
-                                    args=[kwargs['conference'],
-                                          kwargs['occurrence_id']]))
+    def get_manage_opportunity_forms(self,
+                                     initial,
+                                     manage_vol_info,
+                                     conference,
+                                     errorcontext=None,
+                                     occurrence_id=None,
+                                     labels=[]):
+        '''
+        Generate the forms to allocate, edit, or delete volunteer
+        opportunities associated with a scheduler event.
+        '''
+        actionform = []
+        context = {}
+        if occurrence_id is not None:
+            response = get_occurrences(parent_event_id=occurrence_id)
+        elif len(labels) > 0:
+            response = get_occurrences(labels=labels)
+        else:
+            return None
 
-    def make_post_response(self,
+        for vol_occurence in response.occurrences:
+            vol_event = Event.objects.get_subclass(
+                    eventitem_id=vol_occurence.foreign_event_id)
+            if (errorcontext and
+                    'error_opp_form' in errorcontext and
+                    errorcontext['error_opp_form'].instance == vol_event):
+                actionform.append(errorcontext['error_opp_form'])
+            else:
+                num_volunteers = vol_occurence.max_volunteer
+                date = vol_occurence.start_time.date()
+
+                time = vol_occurence.start_time.time
+                day = get_conference_day(
+                    conference=vol_event.e_conference,
+                    date=date)
+                location = vol_occurence.location
+                if location:
+                    room = location.room
+                elif self.occurrence.location:
+                    room = self.occurrence.location.room
+
+                actionform.append(
+                    VolunteerOpportunityForm(
+                        instance=vol_event,
+                        initial={'opp_event_id': vol_event.event_id,
+                                 'opp_sched_id': vol_occurence.pk,
+                                 'max_volunteer': num_volunteers,
+                                 'day': day,
+                                 'time': time,
+                                 'location': room,
+                                 'type': "Volunteer"
+                                 },
+                        )
+                    )
+        context['actionform'] = actionform
+        if errorcontext and 'createform' in errorcontext:
+            createform = errorcontext['createform']
+        else:
+            createform = VolunteerOpportunityForm(
+                prefix='new_opp',
+                initial=initial,
+                conference=conference)
+
+        actionheaders = ['Title',
+                         'Volunteer Type',
+                         '#',
+                         'Duration',
+                         'Day',
+                         'Time',
+                         'Location']
+        context.update({'createform': createform,
+                        'actionheaders': actionheaders,
+                        'manage_vol_url': manage_vol_info}),
+        return context
+
+    def check_success_and_return(self,
                            request,
                            response=None,
                            errorcontext=None):
@@ -44,7 +127,7 @@ class ManageVolWizardView(EditEventView):
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
                 response.occurrence.pk)
-        return super(ManageVolWizardView, self).make_post_response(
+        return self.make_post_response(
             request,
             response,
             errorcontext)
@@ -58,10 +141,9 @@ class ManageVolWizardView(EditEventView):
                 self.max_volunteer = data['max_volunteer']
         self.start_time = get_start_time(data)
         if self.create:
-            self.labels = [self.item.e_conference.conference_slug]
+            self.labels = [self.conference.conference_slug]
             if self.event.calendar_type:
                 self.labels += [self.event.calendar_type]
-
         return data
 
     @never_cache
@@ -70,7 +152,6 @@ class ManageVolWizardView(EditEventView):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
-        self.parent_id = int(kwargs['occurrence_id'])
         self.create = False
         response = None
         context = None
@@ -101,9 +182,9 @@ class ManageVolWizardView(EditEventView):
             else:
                 context = {'createform': self.event_form}
 
-            return self.make_post_response(request,
-                                           response=response,
-                                           errorcontext=context)
+            return self.check_success_and_return(request,
+                                                 response=response,
+                                                 errorcontext=context)
 
         elif 'edit' in request.POST.keys():
             self.event = get_object_or_404(
@@ -123,9 +204,9 @@ class ManageVolWizardView(EditEventView):
             else:
                 context = {'error_opp_form': self.event_form}
 
-            return self.make_post_response(request,
-                                           response=response,
-                                           errorcontext=context)
+            return self.check_success_and_return(request,
+                                                 response=response,
+                                                 errorcontext=context)
 
         elif 'delete' in request.POST.keys():
             opp = get_object_or_404(

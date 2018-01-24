@@ -1,4 +1,4 @@
-from gbe.scheduling.views import VolOpsDisplayView
+from gbe.scheduling.views import ManageVolWizardView
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -17,7 +17,7 @@ from gbe.scheduling.forms import StaffAreaForm
 from gbe.functions import validate_perms
 
 
-class EditStaffAreaView(VolOpsDisplayView):
+class EditStaffAreaView(ManageVolWizardView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
 

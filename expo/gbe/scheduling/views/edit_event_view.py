@@ -1,4 +1,4 @@
-from gbe.scheduling.views import VolOpsDisplayView
+from gbe.scheduling.views import ManageVolWizardView
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -38,7 +38,7 @@ from gbe.scheduling.views.functions import (
 )
 
 
-class EditEventView(VolOpsDisplayView):
+class EditEventView(ManageVolWizardView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
 
@@ -48,7 +48,9 @@ class EditEventView(VolOpsDisplayView):
             self.conference = get_object_or_404(
                 Conference,
                 conference_slug=kwargs['conference'])
+
         if "occurrence_id" in kwargs:
+            self.parent_id = int(kwargs['occurrence_id'])
             result = get_occurrence(int(kwargs['occurrence_id']))
             if result.errors and len(result.errors) > 0:
                 show_scheduling_occurrence_status(
@@ -198,6 +200,8 @@ class EditEventView(VolOpsDisplayView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        if "manage-opps" in request.path:
+            return super(EditEventView, self).post(request, *args, **kwargs)
         context = {}
         response = None
         error_url = self.groundwork(request, args, kwargs)
