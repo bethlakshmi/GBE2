@@ -71,9 +71,10 @@ class EditEventView(ManageVolWizardView):
                                       urlconf='gbe.scheduling.urls',
                                       args=[kwargs['conference'],
                                             kwargs['occurrence_id']])
-        self.success_url = reverse('edit_staff',
+        self.success_url = reverse('edit_event',
                                    urlconf='gbe.scheduling.urls',
-                                   args=[self.staff_area.id])
+                                   args=[self.conference.conference_slug,
+                                         self.occurrence.pk])
 
     def make_formset(self, roles, post=None):
         formset = []
