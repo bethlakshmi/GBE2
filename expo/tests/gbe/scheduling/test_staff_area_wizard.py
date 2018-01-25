@@ -8,7 +8,6 @@ from tests.factories.gbe_factories import (
     ProfileFactory,
     RoomFactory,
 )
-from scheduler.models import Event
 from gbe.models import StaffArea
 from tests.functions.gbe_functions import (
     assert_alert_exists,
@@ -17,13 +16,6 @@ from tests.functions.gbe_functions import (
 )
 from tests.functions.gbe_scheduling_functions import (
     assert_event_was_picked_in_wizard,
-    assert_good_sched_event_form_wizard,
-)
-from expo.settings import DATE_FORMAT
-from gbetext import (
-    create_ticket_event_success_msg,
-    link_event_to_ticket_success_msg,
-    no_tickets_found_msg,
 )
 
 
@@ -139,6 +131,7 @@ class TestStaffAreaWizard(TestCase):
             "Staff area with this Title and Conference already exists.")
 
     def test_create_area_w_all_vals_and_continue(self):
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         data = self.edit_area()
         data['default_volunteers'] = 3

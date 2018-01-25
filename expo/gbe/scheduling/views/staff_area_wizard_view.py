@@ -24,7 +24,10 @@ class StaffAreaWizardView(EventWizardView):
                         self).groundwork(request, args, kwargs)
         context['event_type'] = "Staff Area"
         context['second_title'] = "Create Staff Area"
-        context['volunteer_scheduling'] = True
+        context['volunteer_scheduling'] = validate_perms(
+            request,
+            ('Volunteer Coordinator',),
+            require=False)
         return context
 
     @never_cache
@@ -54,7 +57,8 @@ class StaffAreaWizardView(EventWizardView):
                     user_message[0].description,
                     new_event.title))
             if request.POST.get(
-                    'set_event') == 'Continue to Volunteer Opportunities':
+                    'set_event') == 'Continue to Volunteer Opportunities' and \
+                     context['volunteer_scheduling']:
                 return HttpResponseRedirect(
                     reverse('edit_staff',
                             urlconf='gbe.scheduling.urls',
