@@ -127,3 +127,8 @@ def assert_event_was_picked_in_wizard(response, event_type):
         x += 1
     assert '<a data-toggle="collapse" href="#collapse1">' in response.content
     assert checked_button in response.content
+
+def assert_role_choice(response, role_type):
+    assert '<option value="%s" selected="selected">%s</option>' % (
+        role_type,
+        role_type) in response.content

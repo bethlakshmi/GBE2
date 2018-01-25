@@ -44,10 +44,10 @@ class StaffAreaWizardView(EventWizardView):
             new_event = context['second_form'].save()
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
-                code="OCCURRENCE_UPDATE_SUCCESS",
+                code="STAFF_AREA_CREATE_SUCCESS",
                 defaults={
-                    'summary': "Occurrence has been updated",
-                    'description': "Occurrence has been updated."})
+                    'summary': "Staff area has been created",
+                    'description': "Staff area has been created."})
             messages.success(
                 request,
                 '%s<br>Title: %s' % (
