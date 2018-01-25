@@ -25,6 +25,8 @@ from gbe.functions import (
     eligible_volunteers,
     get_conference_day,
 )
+from django.contrib import messages
+from gbe.models import UserMessage
 
 
 class ManageVolWizardView(View):
@@ -52,6 +54,7 @@ class ManageVolWizardView(View):
                                      initial,
                                      manage_vol_info,
                                      conference,
+                                     request,
                                      errorcontext=None,
                                      occurrence_id=None,
                                      labels=[]):
@@ -67,6 +70,10 @@ class ManageVolWizardView(View):
             response = get_occurrences(labels=labels)
         else:
             return None
+
+        if request.GET.get('changed_id', None):
+            context['changed_id'] = int(
+                self.request.GET.get('changed_id', None))
 
         for vol_occurence in response.occurrences:
             vol_event = Event.objects.get_subclass(
@@ -160,9 +167,9 @@ class ManageVolWizardView(View):
                 self.max_volunteer = data['max_volunteer']
         self.start_time = get_start_time(data)
         if self.create:
-            self.labels += [self.conference.conference_slug]
+            data['labels'] = self.labels + [self.conference.conference_slug]
             if self.event.calendar_type:
-                self.labels += [self.event.calendar_type]
+                data['labels'] += [self.event.calendar_type]
         return data
 
     @never_cache
@@ -196,7 +203,7 @@ class ManageVolWizardView(View):
                     self.start_time,
                     self.max_volunteer,
                     locations=[self.room],
-                    labels=self.labels,
+                    labels=data['labels'],
                     parent_event_id=self.parent_id)
             else:
                 context = {'createform': self.event_form}
@@ -231,7 +238,19 @@ class ManageVolWizardView(View):
             opp = get_object_or_404(
                 GenericEvent,
                 event_id=request.POST['opp_event_id'])
+            title = opp.e_title
             opp.delete()
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="DELETE_SUCCESS",
+                defaults={
+                    'summary': "Volunteer Opportunity Deleted",
+                    'description': "This volunteer opportunity was deleted."})
+            messages.success(
+                request,
+                '%s<br>Title: %s' % (
+                    user_message[0].description,
+                    title))
             return HttpResponseRedirect(self.success_url)
 
         elif 'allocate' in request.POST.keys():

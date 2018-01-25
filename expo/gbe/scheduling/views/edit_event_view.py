@@ -172,6 +172,7 @@ class EditEventView(ManageVolWizardView):
                 volunteer_initial_info,
                 self.manage_vol_url,
                 self.conference,
+                request,
                 errorcontext=errorcontext,
                 occurrence_id=self.occurrence.pk))
         else:
@@ -191,13 +192,13 @@ class EditEventView(ManageVolWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        error_url = self.groundwork(request, args, kwargs)
+        if error_url:
+            return error_url
         if "manage-opps" in request.path:
             return super(EditEventView, self).post(request, *args, **kwargs)
         context = {}
         response = None
-        error_url = self.groundwork(request, args, kwargs)
-        if error_url:
-            return error_url
         context['event_form'] = EventBookingForm(request.POST,
                                                  instance=self.item)
         context['scheduling_form'] = ScheduleOccurrenceForm(
