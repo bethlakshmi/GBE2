@@ -36,10 +36,10 @@ class GenericEvent (Event):
 
     @property
     def volunteer_category_description(self):
+        interest = ''
         if self.volunteer_type:
-            return self.volunteer_type.interest
-        else:
-            return ''
+            interest = self.volunteer_type.interest
+        return interest
 
     @property
     def sched_payload(self):
