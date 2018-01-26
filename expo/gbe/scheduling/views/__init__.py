@@ -1,7 +1,11 @@
 # New Event Creation
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
-from ticketed_class_wizard_view import TicketedClassWizardView
+from ticketed_event_wizard_view import TicketedEventWizardView
+
+# Brand new edit (will deprecate make_occurrence)
+from edit_event_view import EditEventView
+from manage_vol_wizard_view import ManageVolWizardView
 
 # Old but Refactored Event Editing/Creation/Allocation
 from copy_occurrence_view import CopyOccurrenceView

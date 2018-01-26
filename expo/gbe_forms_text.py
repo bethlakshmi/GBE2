@@ -29,7 +29,10 @@ event_type_options = [(
     'Classes', (
         ('drop-in', 'Drop-In Class'),
         ('conference', 'Conference Class'),
-        ('master', 'Master Class'), ), )]
+        ('master', 'Master Class'), ), ), (
+    'Other Public Events', (
+        ('show', 'Show'),
+        ('special', 'Special Event'), ), )]
 
 event_type_options_complete = [(
     'Classes', (
@@ -44,6 +47,77 @@ event_type_options_complete = [(
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 
+event_settings = {
+    'drop-in': {
+        'event_type': 'Drop-In Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': ['Staff Lead', 'Teacher', 'Volunteer', ],
+        'max_volunteer': 0,
+    },
+    'master': {
+        'event_type': 'Master Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': ['Teacher', 'Volunteer', ],
+        'max_volunteer': 0,
+    },
+    'show': {
+        'event_type': 'Show',
+        'second_title': 'Make New Show',
+        'volunteer_scheduling': True,
+        'roles': ['Producer', 'Technical Director', ],
+        'max_volunteer': 1,
+    },
+    'special': {
+        'event_type': 'Special Event',
+        'second_title': 'Make New Special Event',
+        'volunteer_scheduling': True,
+        'roles': ['Staff Lead', ],
+        'max_volunteer': 1,
+    },
+    'panel': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Moderator', 'Panelist', 'Panelist', 'Panelist', 'Panelist']],
+        'max_volunteer': 0,
+    },
+    'lecture': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+    'movement': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+    'workshop': {
+        'event_type': 'Conference Class',
+        'second_title': 'Make New Class',
+        'volunteer_scheduling': False,
+        'roles': [
+            ['Teacher', 'Teacher', 'Teacher']],
+        'max_volunteer': 0,
+    },
+}
+role_map = {
+    'Staff Lead': False,
+    'Moderator': True,
+    'Teacher': True,
+    'Panelist': True,
+    'Volunteer': False,
+    'Producer': False,
+    'Technical Director': False,
+}
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"
 }
@@ -139,7 +213,12 @@ event_create_text = {
 
 event_help_texts = {
     'type': '''Special Events, Master Classes, and Drop In classes are shown in \
-    event lists, Staff Areas do not..'''}
+    event lists, Staff Areas do not..''',
+    'cue_sheet': '''These are the lighting options that performers will be \
+    able to choose when they submit their act tech info.  These options are \
+    variable based on what theater the show is booked into and how it's \
+    lighting is dsigned.  "Theater" is the arrangement we use in the main \
+    stage, and "Alternate" fits with the vendor room stage.'''}
 
 event_labels = {
     'e_title': 'Title',

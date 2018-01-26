@@ -18,7 +18,10 @@ from tests.factories.ticketing_factories import (
     BrownPaperSettingsFactory,
 )
 from scheduler.models import Event
-from gbe.models import GenericEvent
+from gbe.models import (
+    GenericEvent,
+    Show,
+)
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     grant_privilege,
@@ -39,9 +42,9 @@ import urllib2
 from django.core.files import File
 
 
-class TestTicketedClassWizard(TestCase):
+class TestTicketedEventWizard(TestCase):
     '''This view makes Master and Drop In and associates them w. tickets'''
-    view_name = 'create_ticketed_class_wizard'
+    view_name = 'create_ticketed_event_wizard'
 
     def setUp(self):
         self.room = RoomFactory()
@@ -61,7 +64,7 @@ class TestTicketedClassWizard(TestCase):
     def edit_class(self):
         data = {
             'type': 'Master',
-            'e_title': "Test Class Wizard",
+            'e_title': "Test Event Wizard",
             'e_description': 'Description',
             'e_conference': self.current_conference.pk,
             'max_volunteer': 1,
@@ -69,11 +72,18 @@ class TestTicketedClassWizard(TestCase):
             'time': '11:00:00',
             'duration': 2.5,
             'location': self.room.pk,
-            'set_class': 'Finish',
+            'set_event': 'Any value',
             'alloc_0-role': 'Teacher',
             'alloc_1-role': 'Volunteer',
         }
         return data
+
+    def assert_role_choice(self, response, role_type):
+        self.assertContains(
+            response,
+            '<option value="%s" selected="selected">%s</option>' % (
+                role_type,
+                role_type))
 
     def test_create_event_unauthorized_user(self):
         login_as(ProfileFactory(), self)
@@ -85,16 +95,8 @@ class TestTicketedClassWizard(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         assert_event_was_picked_in_wizard(response, "master")
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Teacher',
-                'Teacher'))
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Volunteer',
-                'Volunteer'))
+        self.assert_role_choice(response, "Teacher")
+        self.assert_role_choice(response, "Volunteer")
 
     def test_authorized_user_can_access_dropin(self):
         self.url = reverse(
@@ -106,21 +108,47 @@ class TestTicketedClassWizard(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         assert_event_was_picked_in_wizard(response, "drop-in")
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Teacher',
-                'Teacher'))
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Volunteer',
-                'Volunteer'))
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                'Staff Lead',
-                'Staff Lead'))
+        self.assert_role_choice(response, "Teacher")
+        self.assert_role_choice(response, "Volunteer")
+        self.assert_role_choice(response, "Staff Lead")
+
+    def test_authorized_user_can_access_special(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "special"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=special"
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        assert_event_was_picked_in_wizard(response, "special")
+        self.assert_role_choice(response, "Staff Lead")
+        self.assertNotContains(response, "Continue to Volunteer Opportunities")
+
+    def test_authorized_user_can_access_show(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "show"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=show"
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        assert_event_was_picked_in_wizard(response, "show")
+        self.assert_role_choice(response, "Producer")
+        self.assert_role_choice(response, "Technical Director")
+        self.assertNotContains(response, "Continue to Volunteer Opportunities")
+
+    def test_authorized_user_can_also_get_volunteer_mgmt(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "show"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=show"
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertContains(response, "Continue to Volunteer Opportunities")
 
     def test_authorized_user_can_access_master_no_tickets(self):
         login_as(self.privileged_user, self)
@@ -261,6 +289,88 @@ class TestTicketedClassWizard(TestCase):
             response,
             '<tr class="bid-table success">\n       ' +
             '<td class="bid-table">%s</td>' % data['e_title'])
+
+    def test_create_show_w_staffing(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "show"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=show"
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data.pop('type', None)
+        data['cue_sheet'] = "Alternate"
+        data['alloc_0-role'] = "Producer"
+        data['alloc_1-role'] = "Technical Director"
+        data['alloc_0-worker'] = self.privileged_user.pk
+        data['alloc_1-worker'] = self.teacher.performer_profile.pk
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_show = Show.objects.get(e_title=data['e_title'])
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_show.eventitem_id)
+        self.assertRedirects(
+            response,
+            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.current_conference.conference_slug]),
+                self.current_conference.conference_slug,
+                self.day.pk,
+                occurrence.pk))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
+        self.assertContains(
+            response,
+            '<tr class="bid-table success">\n       ' +
+            '<td class="bid-table">%s</td>' % data['e_title'])
+        self.assertEqual(
+            new_show.cue_sheet, "Alternate"
+        )
+
+    def test_create_special_w_staffing(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.current_conference.conference_slug, "special"],
+            urlconf='gbe.scheduling.urls'
+            ) + "?pick_event=Next&event_type=special"
+        login_as(self.privileged_user, self)
+        data = self.edit_class()
+        data['type'] = "Special"
+        data['alloc_0-role'] = "Staff Lead"
+        data['alloc_0-worker'] = self.teacher.performer_profile.pk
+        data['set_event'] = "Continue to Volunteer Opportunities"
+        data.pop('alloc_1-role', None)
+        response = self.client.post(
+            self.url,
+            data=data,
+            follow=True)
+        new_event = GenericEvent.objects.get(e_title=data['e_title'])
+        self.assertEqual(new_event.type, "Special")
+        occurrence = Event.objects.get(
+            eventitem__eventitem_id=new_event.eventitem_id)
+        self.assertRedirects(
+            response,
+            reverse('edit_event',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug,
+                          occurrence.pk]))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
+            'Occurrence has been updated.<br>%s, Start Time: %s 11:00 AM' % (
+                data['e_title'],
+                self.day.day.strftime(DATE_FORMAT))
+            )
 
     def test_auth_user_bad_user_assign(self):
         login_as(self.privileged_user, self)

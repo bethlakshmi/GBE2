@@ -146,13 +146,26 @@ class TestIndex(TestCase):
                 resource=worker
             )
 
-    def is_event_present(self, event, content):
+    def assert_event_is_present(self, response, event):
         ''' test all parts of the event being on the landing page schedule'''
-        return (unicode(event) in content and
-                date_format(event.start_time, "DATETIME_FORMAT") in content and
-                reverse('detail_view',
-                        urlconf="gbe.scheduling.urls",
-                        args=[event.eventitem.eventitem_id]) in content)
+        self.assertContains(response, event.eventitem.e_title)
+        self.assertContains(response,
+                            date_format(event.start_time, "DATETIME_FORMAT"))
+        self.assertContains(response, reverse(
+            'detail_view',
+            urlconf="gbe.scheduling.urls",
+            args=[event.eventitem.eventitem_id]))
+
+    def assert_event_is_not_present(self, response, event):
+        ''' test all parts of the event being on the landing page schedule'''
+        self.assertNotContains(response, event.eventitem.e_title)
+        self.assertNotContains(
+            response,
+            date_format(event.start_time, "DATETIME_FORMAT"))
+        self.assertNotContains(response, reverse(
+            'detail_view',
+            urlconf="gbe.scheduling.urls",
+            args=[event.eventitem.eventitem_id]))
 
     def test_no_profile(self):
         url = reverse('home', urlconf="gbe.urls")
@@ -186,12 +199,10 @@ class TestIndex(TestCase):
                     args=[self.current_volunteer.id]) in content)
         assert does_not_show_previous
         assert shows_all_current
-        nt.assert_true(self.is_event_present(self.current_sched, content))
-        nt.assert_false(self.is_event_present(self.previous_sched, content))
-        nt.assert_true(self.is_event_present(
-            self.current_class_sched, content))
-        nt.assert_false(self.is_event_present(
-            self.previous_class_sched, content))
+        self.assert_event_is_present(response, self.current_sched)
+        self.assert_event_is_not_present(response, self.previous_sched)
+        self.assert_event_is_present(response, self.current_class_sched)
+        self.assert_event_is_not_present(response, self.previous_class_sched)
 
     def test_historical_view(self):
         url = reverse('home', urlconf='gbe.urls')
@@ -213,12 +224,10 @@ class TestIndex(TestCase):
             self.current_costume.b_title not in content)
         nt.assert_true(shows_all_previous and
                        does_not_show_current)
-        nt.assert_false(self.is_event_present(self.current_sched, content))
-        nt.assert_true(self.is_event_present(self.previous_sched, content))
-        nt.assert_false(self.is_event_present(
-            self.current_class_sched, content))
-        nt.assert_true(self.is_event_present(
-            self.previous_class_sched, content))
+        self.assert_event_is_present(response, self.previous_sched)
+        self.assert_event_is_not_present(response, self.current_sched)
+        self.assert_event_is_present(response, self.previous_class_sched)
+        self.assert_event_is_not_present(response, self.current_class_sched)
 
     def test_as_privileged_user(self):
         staff_profile = ProfileFactory()

@@ -18,7 +18,7 @@
     </tr>
     {% for form in actionform %}
     <tr class="{% if changed_id == form.opp_sched_id.value %}changed{% else %}event_opp_row{% endif %}">
-      <form method="POST" action="{% url 'scheduling:manage_opps' event_type eventitem_id event_id %}" 
+      <form method="POST" action="{% if manage_vol_url %}{{ manage_vol_url }}{% else %}{% url 'scheduling:manage_opps' event_type eventitem_id event_id %}{% endif %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
@@ -61,9 +61,9 @@
     </tr>
     {% endfor %}
     <tr class="event_opp_row">
-      <form method="POST" action="{% url 'scheduling:manage_opps' event_type eventitem_id event_id  %}" 
+      <form method="POST" action="{% if manage_vol_url %}{{ manage_vol_url }}{% else %}{% url 'scheduling:manage_opps' event_type eventitem_id event_id %}{% endif %}" 
       	    enctype="multipart/form-data">
-        {% csrf_token %}
+	{% csrf_token %}
 	{% for field in createform.visible_fields %}
 	  <td>
           {{ field }}
@@ -94,7 +94,7 @@
   <tr>
   <td><a href="{%url 'scheduler:contact_info' event_id 'Worker' %}">Contact volunteers</a>
   </td>
-  <td>&nbsp;|| <a href="{%url 'reporting:staff_area' eventitem.event.eventitem_id %}">See Schedule</a>
+  <td>&nbsp;|| <a href="{%url 'reporting:staff_area' eventitem_id %}">See Schedule</a>
   </td>
   </tr>
   </table>
