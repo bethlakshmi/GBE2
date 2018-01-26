@@ -86,10 +86,10 @@ class EditStaffAreaView(ManageVolWizardView):
             new_event = context['event_form'].save()
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
-                code="OCCURRENCE_UPDATE_SUCCESS",
+                code="STAFF_AREA_UPDATE_SUCCESS",
                 defaults={
-                    'summary': "Occurrence has been updated",
-                    'description': "Occurrence has been updated."})
+                    'summary': "Staff Area has been updated",
+                    'description': "Staff Area has been updated."})
             messages.success(
                 request,
                 '%s<br>Title: %s' % (
