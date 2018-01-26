@@ -37,6 +37,7 @@ from scheduler.idd import (
     remove_booking,
 )
 
+
 class MakeVolunteerView(MakeBidView):
     page_title = "Volunteer"
     view_title = "Volunteer at the Expo"
