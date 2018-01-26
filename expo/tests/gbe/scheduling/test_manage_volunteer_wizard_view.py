@@ -7,6 +7,7 @@ from tests.factories.gbe_factories import (
     RoomFactory
 )
 from scheduler.models import (
+    Event,
     EventContainer,
     EventLabel,
 )
@@ -15,6 +16,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.contexts import (
+    NewStaffAreaContext,
     VolunteerContext,
 )
 from gbe.models import AvailableInterest
@@ -150,6 +152,44 @@ class TestManageVolunteerWizard(TestCase):
             '<input id="id_e_title" maxlength="128" name="e_title" ' +
             'type="text" value="New Volunteer Opportunity" />')
 
+    def test_create_opportunity_for_staff_area(self):
+        staff_context = NewStaffAreaContext(conference=self.context.conference)
+        self.url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[staff_context.area.pk])
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+        response = self.client.post(
+            self.url,
+            data=self.get_new_opp_data(self.context),
+            follow=True)
+        opps = Event.objects.filter(eventlabel__text=staff_context.area.slug)
+        self.assertTrue(opps.exists())
+        for opp in opps:
+            self.assertEqual(opp.eventitem.child().e_title,
+                             'New Volunteer Opportunity')
+            self.assert_volunteer_type_selector(
+                response,
+                opp.eventitem.child().volunteer_type)
+            self.assertRedirects(response, "%s?changed_id=%d" % (
+                reverse('edit_staff',
+                        urlconf='gbe.scheduling.urls',
+                        args=[staff_context.area.pk]),
+                opp.pk))
+            self.assertEqual(EventLabel.objects.filter(
+                text=opp.eventitem.child(
+                    ).e_conference.conference_slug,
+                event=opp).count(), 1)
+            self.assertEqual(EventLabel.objects.filter(
+                text="Volunteer",
+                event=opp).count(), 1)
+
+        self.assertContains(
+            response,
+            '<input id="id_e_title" maxlength="128" name="e_title" ' +
+            'type="text" value="New Volunteer Opportunity" />')
+
     def test_create_opportunity_bad_parent(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
@@ -165,6 +205,20 @@ class TestManageVolunteerWizard(TestCase):
         self.assertContains(
             response,
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
+
+    def test_create_opportunity_bad_area(self):
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        staff_context = NewStaffAreaContext(conference=self.context.conference)
+        self.url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[staff_context.area.pk+100])
+        login_as(self.privileged_profile, self)
+        response = self.client.post(
+            self.url,
+            data=self.get_new_opp_data(self.context),
+            follow=True)
+        self.assertEqual(response.status_code, 404)
 
     def test_create_opportunity_error(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')

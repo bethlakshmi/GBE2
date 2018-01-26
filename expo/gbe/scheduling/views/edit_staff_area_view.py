@@ -74,10 +74,10 @@ class EditStaffAreaView(ManageVolWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
         if "manage-opps" in request.path:
             return super(EditStaffAreaView,
                          self).post(request, *args, **kwargs)
+        self.groundwork(request, args, kwargs)
         context = {}
         context['event_form'] = StaffAreaForm(request.POST,
                                               instance=self.staff_area)
