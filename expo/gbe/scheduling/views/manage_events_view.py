@@ -24,6 +24,7 @@ from gbe.models import (
     ConferenceDay,
     Event,
     GenericEvent,
+    StaffArea,
 )
 from gbe.functions import (
     get_current_conference,
@@ -67,6 +68,9 @@ class ManageEventsView(View):
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
+        select_form.fields['staff_area'].queryset = StaffArea.objects.filter(
+            conference=self.conference
+        ).order_by("slug")
         context = {
             'conference': self.conference,
             'conference_slugs': [
