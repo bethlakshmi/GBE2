@@ -20,6 +20,7 @@ from tests.contexts import StaffAreaContext
 from gbe.models import Conference
 from gbe.functions import get_current_conference
 from gbetext import bidder_email_fail_msg
+from datetime import timedelta
 
 
 class TestVolunteerChangestate(TestCase):
@@ -157,7 +158,43 @@ class TestVolunteerChangestate(TestCase):
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
-        self.assertContains(response, "Found event conflict")
+        self.assertContains(response, "SCHEDULE_CONFLICT")
+
+    def test_volunteer_changestate_gives_overbook_warning_more(self):
+        ProfilePreferencesFactory(profile=self.volunteer.profile)
+        context = StaffAreaContext(
+            staff_lead=self.volunteer.profile,
+            conference=self.volunteer.b_conference)
+        opp = context.add_volunteer_opp()
+        opp.starttime = context.sched_event.starttime + timedelta(minutes=30)
+        opp.save()
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.b_conference,
+                'events': [opp.pk],
+                'accepted': 3}
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(response, "SCHEDULE_CONFLICT")
+
+    def test_volunteer_changestate_gives_overbook_warning_always(self):
+        ProfilePreferencesFactory(profile=self.volunteer.profile)
+        context = StaffAreaContext(
+            staff_lead=self.volunteer.profile,
+            conference=self.volunteer.b_conference)
+        opp = context.add_volunteer_opp()
+        opp.starttime = context.sched_event.starttime - timedelta(minutes=30)
+        opp.save()
+        url = reverse(self.view_name,
+                      args=[self.volunteer.pk],
+                      urlconf='gbe.urls')
+        login_as(self.privileged_user, self)
+        data = {'conference': self.volunteer.b_conference,
+                'events': [opp.pk],
+                'accepted': 3}
+        response = self.client.post(url, data=data, follow=True)
+        self.assertContains(response, "SCHEDULE_CONFLICT")
 
     def test_volunteer_changestate_gives_event_over_full_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
@@ -175,4 +212,4 @@ class TestVolunteerChangestate(TestCase):
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
-        self.assertContains(response, "Over by 1 volunteer.")
+        self.assertContains(response, "OCCURRENCE_OVERBOOKED")

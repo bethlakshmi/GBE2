@@ -139,6 +139,7 @@ class MessageAdmin(admin.ModelAdmin):
                     'description')
     list_editable = ('summary', 'description')
     readonly_fields = ('view', 'code')
+    list_filter = ['view', 'code']
 
 
 class AvailableInterestAdmin(admin.ModelAdmin):
