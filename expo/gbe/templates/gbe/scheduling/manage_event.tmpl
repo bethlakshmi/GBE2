@@ -24,7 +24,30 @@
  <div class="scheduling-area">
    {% include "gbe/scheduling/manage_event_field.tmpl" with field=selection_form.day %}
    {% include "gbe/scheduling/manage_event_field.tmpl" with field=selection_form.calendar_type %}
-   {% include "gbe/scheduling/manage_event_field.tmpl" with field=selection_form.staff_area %}
+   <div class="form-row">
+   <div class="form-group col-md-2 col-xs-12">
+    <label class="form-check-label" id="{{ selection_form.staff_area.name }}">
+     {% if selection_form.staff_area.errors %}
+      <font color="red">!&nbsp;&nbsp;
+     {% endif %}
+     {{ selection_form.staff_area.label }}:&nbsp;&nbsp;
+     {% if selection_form.staff_area.errors %}
+      </font>
+     {% endif %}</label>
+   </div>
+   <div class="form-group col-md-10 col-xs-12">
+     {% for checkbox in selection_form.staff_area %}
+      <label class="checkbox-inline gbe-filter" id="{{ checkbox.id_for_label }}">
+      {{ checkbox.tag }}
+      {{ checkbox.choice_label }}&nbsp;
+      <a href="{% url "scheduling:edit_staff" checkbox.choice_value %}" class="detail_link">
+       <i class="fa fa-pencil-square" aria-hidden="true"></i>
+      </a>
+      </label>{% endfor %}
+      {% if selection_form.staff_area.errors %}
+        <font color="red">{{ selection_form.staff_area.errors }}</font>
+      {% endif %}
+   </div></div>
    <div class="form-row">
    <div class="form-group col-md-1 col-xs-12">
     <label class="form-check-label" id="{{ selection_form.volunteer_type.name }}">
@@ -40,7 +63,7 @@
      {% for checkbox in selection_form.volunteer_type %}
       <div class="form-group col-md-3 col-sm-4 col-xs-12">
        <label class="checkbox-inline gbe-filter" id="{{ checkbox.id_for_label }}">
-      {{ checkbox.tag }}{{ field.label_tag }}
+      {{ checkbox.tag }}
       {{ checkbox.choice_label }}
       </label></div>{% endfor %}
       {% if selection_form.volunteer_type.errors %}
