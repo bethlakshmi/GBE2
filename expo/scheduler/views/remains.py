@@ -63,13 +63,23 @@ def event_list(request, event_type=''):
     events = get_events_display_info(event_type)
 
     template = 'scheduler/events_review_list.tmpl'
+    create_url = reverse('create_event',
+                         urlconf='gbe.scheduling.urls',
+                         args=[event_type])
+    if event_type == "Class":
+        create_url = reverse('create_class_wizard',
+                             urlconf='gbe.scheduling.urls',
+                             args=[get_current_conference().conference_slug])
+    elif event_type == "Show":
+        create_url = reverse('create_ticketed_event_wizard',
+                             urlconf='gbe.scheduling.urls',
+                             args=[get_current_conference().conference_slug,
+                                   "show"])
     return render(request,
                   template,
                   {'events': events,
                    'header': header,
-                   'create_url': reverse('create_event',
-                                         urlconf='gbe.scheduling.urls',
-                                         args=[event_type])})
+                   'create_url': create_url})
 
 
 @login_required
@@ -156,33 +166,6 @@ def schedule_acts(request, show_id=None):
     return render(request,
                   template,
                   {'forms': new_forms})
-
-
-@login_required
-def delete_schedule(request, scheduler_event_id):
-    '''
-    Remove the scheduled item
-    '''
-    validate_perms(request, ('Scheduling Mavens',))
-    event = get_object_or_404(Event, id=scheduler_event_id)
-    type = event.event_type_name
-    event.delete()
-    return HttpResponseRedirect(reverse('event_schedule',
-                                        urlconf='scheduler.urls',
-                                        args=[type]))
-
-
-@login_required
-def delete_event(request, eventitem_id, event_type):
-    '''
-    Remove any scheduled items, make basic event item invisible
-    '''
-    validate_perms(request, ('Scheduling Mavens',))
-    event = get_object_or_404(EventItem, eventitem_id=eventitem_id)
-    event.remove()
-    return HttpResponseRedirect(reverse('event_schedule',
-                                        urlconf='scheduler.urls',
-                                        args=[event_type]))
 
 
 @login_required

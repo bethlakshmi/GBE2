@@ -61,8 +61,8 @@ def get_events_display_info(event_type='Class'):
             eventinfo['max_volunteer'] = entry['schedule_event'].max_volunteer
             eventinfo['volunteer_count'] = entry[
                 'schedule_event'].volunteer_count
-            eventinfo['delete'] = reverse('delete_schedule',
-                                          urlconf='scheduler.urls',
+            eventinfo['delete'] = reverse('delete_occurrence',
+                                          urlconf='gbe.scheduling.urls',
                                           args=[entry['schedule_event'].id])
 
         else:
@@ -71,10 +71,6 @@ def get_events_display_info(event_type='Class'):
                 urlconf='gbe.scheduling.urls',
                 args=[event_type,
                       entry['eventitem'].eventitem_id])
-            eventinfo['delete'] = reverse(
-                'delete_event',
-                urlconf='scheduler.urls',
-                args=[event_type, entry['eventitem'].eventitem_id])
             eventinfo['location'] = entry['confitem'].default_location
             eventinfo['datetime'] = None
             eventinfo['max_volunteer'] = None

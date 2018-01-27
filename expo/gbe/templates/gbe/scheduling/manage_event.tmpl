@@ -138,7 +138,7 @@
          <i class="fa fa-plus" aria-hidden="true"></i></a>{% endif %}
         <a href="{{ occurrence.copy_link }}" data-toggle="tooltip" title="Copy" class="btn btn-default btn-sm" id="action-button">
          <i class="fa fa-files-o" aria-hidden="true"></i></a>
-        <a href="{{ occurrence.delete_link }}" data-toggle="tooltip" title="Delete" class="btn btn-default btn-sm" id="action-button">
+        <a href="{{ occurrence.delete_link }}?next={{ request.get_full_path }}" data-toggle="tooltip" title="Delete" class="btn btn-default btn-sm" id="action-button">
          <i class="fa fa-trash-o" aria-hidden="true"></i></a>
        </div></td>
       </tr>
