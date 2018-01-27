@@ -1098,12 +1098,15 @@ class EventLabel (models.Model):
     '''
     A decorator allowing free-entry "tags" on allocations
     '''
-    text = models.TextField(default='')
+    text = models.CharField(default='', max_length=200)
     event = models.ForeignKey(Event)
 
     def __str__(self):
         return self.text
 
+    class Meta:
+        app_label = "scheduler"
+        unique_together = (('text', 'event'), )
 
 class EventContainer (models.Model):
     '''
