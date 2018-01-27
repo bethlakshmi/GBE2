@@ -8,7 +8,11 @@ from scheduler.models import ResourceAllocation
 
 # DEPRECATE - not really deprecate, but totally rework when model
 # refactor is done.  It bounces across apps hideously
-def get_schedule(user=None, labels=[], start_time=None, end_time=None):
+def get_schedule(user=None,
+                 labels=[],
+                 start_time=None,
+                 end_time=None,
+                 roles=[]):
     basic_filter = ResourceAllocation.objects.all()
     sched_items = []
     if len(labels) > 0:
@@ -20,6 +24,10 @@ def get_schedule(user=None, labels=[], start_time=None, end_time=None):
     if end_time:
         basic_filter = basic_filter.filter(
             event__starttime__lt=end_time)
+    if len(roles) > 0:
+        basic_filter = basic_filter.filter(
+            resource__worker__role__in=roles,
+        )
     if user:
         bookable_items = user.profile.get_bookable_items()
         if len(bookable_items['acts']) > 0:
@@ -56,14 +64,16 @@ def get_schedule(user=None, labels=[], start_time=None, end_time=None):
                 user=resource.workeritem.user_object,
                 event=item.event,
                 role=resource.role,
-                label=booking_label)]
+                label=booking_label,
+                booking_id=item.pk)]
         if resource.__class__.__name__ == "ActResource":
             for profile in resource._item.act.get_performer_profiles():
                 sched_items += [ScheduleItem(
                     user=profile.user_object,
                     event=item.event,
                     role=resource.role or "Performing",
-                    label=booking_label)]
+                    label=booking_label,
+                    booking_id=item.pk)]
     response = ScheduleResponse(
         schedule_items=sorted(
             set(sched_items),

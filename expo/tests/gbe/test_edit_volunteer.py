@@ -12,6 +12,10 @@ from tests.factories.gbe_factories import (
     VolunteerFactory,
     VolunteerInterestFactory
 )
+from tests.factories.scheduler_factories import (
+    WorkerFactory,
+    ResourceAllocationFactory,
+)
 from tests.contexts import (
     StaffAreaContext,
     VolunteerContext,
@@ -89,8 +93,13 @@ class TestEditVolunteer(TestCase):
         context = VolunteerContext()
         change_window = context.add_window()
         if staff:
-            context.sched_event.allocate_worker(
-                context.profile, 'Staff Lead')
+            worker = WorkerFactory(
+                _item=context.profile,
+                role='Staff Lead'
+            )
+            ResourceAllocationFactory(
+                event=context.sched_event,
+                resource=worker)
         context.bid.available_windows.add(context.window)
         form = self.get_form(context)
         form['available_windows'] = [change_window.pk]

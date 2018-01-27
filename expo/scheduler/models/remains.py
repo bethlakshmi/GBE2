@@ -723,12 +723,6 @@ class Event(Schedulable):
             allocation.set_label(label)
         return warnings
 
-    def unallocate_worker(self, worker, role):
-        ResourceAllocation.objects.get(
-            event=self,
-            resource__worker___item=worker,
-            resource__worker__role=role).delete()
-
     def get_volunteer_opps(self, role='Volunteer'):
         '''
         return volunteer opportunities associated with this event

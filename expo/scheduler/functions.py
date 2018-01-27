@@ -120,28 +120,6 @@ def cal_times_for_conf(conference, day_name=None):
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
-def get_events_and_windows(conference):
-    from scheduler.models import Event
-    events = Event.objects.filter(
-        max_volunteer__gt=0,
-        eventitem__event__e_conference=conference
-    ).exclude(
-        eventitem__event__genericevent__type='Rehearsal Slot').order_by(
-            'starttime')
-    conf_windows = conference.windows()
-    volunteer_event_windows = []
-
-    for event in events:
-        volunteer_event_windows += [{
-            'event': event,
-            'window': conf_windows.filter(
-                day__day=event.starttime.date(),
-                start__lte=event.starttime.time(),
-                end__gt=event.starttime.time()).first()
-            }]
-    return volunteer_event_windows
-
-
 def get_roles_from_scheduler(workeritems, conference):
     '''
     get the list roles for this set of worker items and this conference
