@@ -32,6 +32,7 @@ class VolunteerContext():
                  role=None):
         self.window = VolunteerWindowFactory()
         self.conference = self.window.day.conference
+        self.conf_day = self.window.day
         self.profile = profile or ProfileFactory()
         if not hasattr(self.profile, 'preferences'):
             ProfilePreferencesFactory(profile=self.profile)

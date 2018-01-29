@@ -6,7 +6,6 @@ from django.test import Client
 from tests.factories.gbe_factories import (
     AvailableInterestFactory,
     ProfileFactory,
-    RoomFactory
 )
 from scheduler.models import (
     EventContainer,
@@ -17,7 +16,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.contexts import (
-    StaffAreaContext,
+    VolunteerContext,
 )
 from gbe.models import AvailableInterest
 from django.utils.formats import date_format
@@ -34,8 +33,8 @@ class TestManageVolunteerOpportunity(TestCase):
         self.privileged_user = self.privileged_profile.user_object
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         self.avail_interest = AvailableInterestFactory()
-        self.room = RoomFactory()
-        self.context = StaffAreaContext()
+        self.context = VolunteerContext()
+        self.room = self.context.room
         self.url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
@@ -71,7 +70,7 @@ class TestManageVolunteerOpportunity(TestCase):
     def get_basic_action_data(self, context, vol_opp, action):
         data = self.get_basic_data(context)
         data['e_title'] = 'Modify Volunteer Opportunity'
-        data['opp_event_id'] = vol_opp.eventitem.pk
+        data['opp_event_id'] = vol_opp.eventitem.child().pk
         data['opp_sched_id'] = vol_opp.pk
         data[action] = action
         return data
@@ -97,7 +96,7 @@ class TestManageVolunteerOpportunity(TestCase):
     def test_no_login_gives_error(self):
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
-                      args=["GenericEvent", "1", "1"])
+                      args=["Show", "1", "1"])
         response = self.client.get(url)
         nt.assert_equal(response.status_code, 302)
 
@@ -105,7 +104,7 @@ class TestManageVolunteerOpportunity(TestCase):
         login_as(ProfileFactory(), self)
         url = reverse(self.view_name,
                       urlconf="gbe.scheduling.urls",
-                      args=["GenericEvent", "1", "1"])
+                      args=["Show", "1", "1"])
         response = self.client.get(url, follow=True)
         nt.assert_equal(response.status_code, 403)
 
@@ -117,7 +116,7 @@ class TestManageVolunteerOpportunity(TestCase):
             response,
             reverse('edit_event_schedule',
                     urlconf='gbe.scheduling.urls',
-                    args=['GenericEvent',
+                    args=['Show',
                           self.context.sched_event.eventitem.eventitem_id,
                           self.context.sched_event.pk]))
         assert "Volunteer Management" in response.content
@@ -131,21 +130,21 @@ class TestManageVolunteerOpportunity(TestCase):
         self.assert_volunteer_type_selector(response)
 
     def test_good_user_get_w_a_volunteer_opp(self):
-        opp = self.context.add_volunteer_opp(
-            room=self.room)
+        x, opp = self.context.add_opportunity()
         AvailableInterestFactory()
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
         self.assert_volunteer_type_selector(
             response,
-            opp.eventitem.volunteer_type)
+            opp.eventitem.child().volunteer_type)
         sched_day = date_format(
             self.context.sched_event.start_time, "DATE_FORMAT")
         expected_string = 'selected="selected">%s</option>' % sched_day
         self.assertContains(response, expected_string)
 
     def test_create_opportunity(self):
+        orig_opp = self.context.opp_event
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         response = self.client.post(
@@ -153,7 +152,8 @@ class TestManageVolunteerOpportunity(TestCase):
             data=self.get_new_opp_data(self.context),
             follow=True)
         opps = EventContainer.objects.filter(
-            parent_event=self.context.sched_event)
+            parent_event=self.context.sched_event
+            ).exclude(child_event=orig_opp)
         nt.assert_true(opps.exists())
         for opp in opps:
             nt.assert_equal(opp.child_event.eventitem.child().e_title,
@@ -164,7 +164,7 @@ class TestManageVolunteerOpportunity(TestCase):
             assert_redirects(response, "%s?changed_id=%d" % (
                 reverse('edit_event_schedule',
                         urlconf='gbe.scheduling.urls',
-                        args=['GenericEvent',
+                        args=['Show',
                               self.context.sched_event.eventitem.eventitem_id,
                               self.context.sched_event.pk]),
                 opp.child_event.pk))
@@ -198,6 +198,7 @@ class TestManageVolunteerOpportunity(TestCase):
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
 
     def test_create_opportunity_error(self):
+        orig_opp = self.context.opp_event
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         data = self.get_new_opp_data(self.context)
@@ -210,14 +211,15 @@ class TestManageVolunteerOpportunity(TestCase):
             follow=True)
         nt.assert_equal(response.status_code, 200)
         opps = EventContainer.objects.filter(
-            parent_event=self.context.sched_event)
+            parent_event=self.context.sched_event
+            ).exclude(child_event=orig_opp)
         nt.assert_false(opps.exists())
         nt.assert_in(
             '<ul class="errorlist"><li>This field is required.</li></ul>',
             response.content)
 
     def test_copy_opportunity(self):
-        old = self.context.add_volunteer_opp(room=self.room)
+        old = self.context.opp_event
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         data = self.get_basic_data(self.context)
@@ -241,13 +243,13 @@ class TestManageVolunteerOpportunity(TestCase):
                     "%s?changed_id=%d" % (reverse(
                         'edit_event_schedule',
                         urlconf='gbe.scheduling.urls',
-                        args=['GenericEvent',
+                        args=['Show',
                               self.context.sched_event.eventitem.eventitem_id,
                               self.context.sched_event.pk]),
                                           opp.child_event.pk))
 
     def test_edit_opportunity(self):
-        vol_opp = self.context.add_volunteer_opp(room=self.room)
+        x, vol_opp = self.context.add_opportunity()
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
 
@@ -258,7 +260,7 @@ class TestManageVolunteerOpportunity(TestCase):
         assert_redirects(response, "%s?changed_id=%d" % (
             reverse('edit_event_schedule',
                     urlconf='gbe.scheduling.urls',
-                    args=['GenericEvent',
+                    args=['Show',
                           self.context.sched_event.eventitem.eventitem_id,
                           self.context.sched_event.pk]),
             vol_opp.pk))
@@ -270,7 +272,7 @@ class TestManageVolunteerOpportunity(TestCase):
                      response.content)
 
     def test_edit_opportunity_change_room(self):
-        vol_opp = self.context.add_volunteer_opp()
+        x, vol_opp = self.context.add_opportunity()
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         response = self.client.post(
@@ -280,7 +282,7 @@ class TestManageVolunteerOpportunity(TestCase):
         assert_redirects(response, "%s?changed_id=%d" % (
             reverse('edit_event_schedule',
                     urlconf='gbe.scheduling.urls',
-                    args=['GenericEvent',
+                    args=['Show',
                           self.context.sched_event.eventitem.eventitem_id,
                           self.context.sched_event.pk]),
             vol_opp.pk))
@@ -291,7 +293,7 @@ class TestManageVolunteerOpportunity(TestCase):
                      response.content)
 
     def test_edit_opportunity_error(self):
-        vol_opp = self.context.add_volunteer_opp(room=self.room)
+        x, vol_opp = self.context.add_opportunity()
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
         data = self.get_basic_action_data(self.context, vol_opp, 'edit')
@@ -311,7 +313,7 @@ class TestManageVolunteerOpportunity(TestCase):
             response.content)
 
     def test_delete_opportunity(self):
-        vol_opp = self.context.add_volunteer_opp(room=self.room)
+        vol_opp = self.context.opp_event
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
 
@@ -328,7 +330,7 @@ class TestManageVolunteerOpportunity(TestCase):
         nt.assert_false(opps.exists())
 
     def test_allocate_opportunity(self):
-        vol_opp = self.context.add_volunteer_opp(room=self.room)
+        vol_opp = self.context.opp_event
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_profile, self)
 
