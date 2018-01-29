@@ -118,7 +118,7 @@ class ShowAdmin(admin.ModelAdmin):
 
 class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('e_title', 'type')
-    list_filter = ['e_conference', 'type']
+    list_filter = ['e_conference', 'type', 'visible']
     search_fields = ['e_title']
 
 
