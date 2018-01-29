@@ -53,7 +53,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('gbe', '0020_auto_20180127_0153'),
-        ('scheduler', '0008_auto_20180127_0237'),
     ]
 
     operations = [
