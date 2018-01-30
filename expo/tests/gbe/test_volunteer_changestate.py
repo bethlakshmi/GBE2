@@ -16,7 +16,10 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from django.core.exceptions import PermissionDenied
-from tests.contexts import StaffAreaContext
+from tests.contexts import (
+    NewStaffAreaContext,
+    VolunteerContext,
+)
 from gbe.models import Conference
 from gbe.functions import get_current_conference
 from gbetext import bidder_email_fail_msg
@@ -146,15 +149,14 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_gives_overbook_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
-        context = StaffAreaContext(
-            staff_lead=self.volunteer.profile,
-            conference=self.volunteer.b_conference)
-        opp = context.add_volunteer_opp()
+        context = VolunteerContext(
+            profile=self.volunteer.profile)
+        x, opp = context.add_opportunity()
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.b_conference,
+        data = {'conference': context.conference,
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
@@ -162,17 +164,16 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_gives_overbook_warning_more(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
-        context = StaffAreaContext(
-            staff_lead=self.volunteer.profile,
-            conference=self.volunteer.b_conference)
-        opp = context.add_volunteer_opp()
+        context = VolunteerContext(
+            profile=self.volunteer.profile)
+        x, opp = context.add_opportunity()
         opp.starttime = context.sched_event.starttime + timedelta(minutes=30)
         opp.save()
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.b_conference,
+        data = {'conference': context.conference,
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
@@ -180,17 +181,16 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_gives_overbook_warning_always(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
-        context = StaffAreaContext(
-            staff_lead=self.volunteer.profile,
-            conference=self.volunteer.b_conference)
-        opp = context.add_volunteer_opp()
+        context = VolunteerContext(
+            profile=self.volunteer.profile)
+        x, opp = context.add_opportunity()
         opp.starttime = context.sched_event.starttime - timedelta(minutes=30)
         opp.save()
         url = reverse(self.view_name,
                       args=[self.volunteer.pk],
                       urlconf='gbe.urls')
         login_as(self.privileged_user, self)
-        data = {'conference': self.volunteer.b_conference,
+        data = {'conference': context.conference,
                 'events': [opp.pk],
                 'accepted': 3}
         response = self.client.post(url, data=data, follow=True)
@@ -198,8 +198,9 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_gives_event_over_full_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
-        context = StaffAreaContext(
-            conference=self.volunteer.b_conference)
+        context = NewStaffAreaContext(
+            conference=self.volunteer.b_conference,
+        )
         opp = context.add_volunteer_opp()
         context.book_volunteer(
             volunteer_sched_event=opp,
