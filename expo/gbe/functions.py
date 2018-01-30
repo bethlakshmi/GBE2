@@ -6,6 +6,7 @@ from gbe.models import (
     GenericEvent,
     Profile,
     Show,
+    StaffArea,
     UserMessage,
     Volunteer,
 )
@@ -117,16 +118,9 @@ def get_current_conference_slug():
 
 
 def validate_event_role(profile, event_role):
-    events_led = []
-    slug = get_current_conference_slug()
-    if slug:
-        response = get_schedule(
-            user=profile.user_object,
-            labels=[slug])
-        for booking in response.schedule_items:
-            if booking.role == event_role:
-                events_led += [booking.event]
-    return events_led
+    return StaffArea.objects.filter(
+        staff_lead=profile).exclude(
+        conference__status="completed")
 
 
 def get_conference_by_slug(slug):

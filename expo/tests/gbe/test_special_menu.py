@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import ProfileFactory
-from tests.contexts import StaffAreaContext
+from tests.contexts import NewStaffAreaContext
 from tests.functions.gbe_functions import (
         grant_privilege,
         login_as
@@ -99,7 +99,7 @@ class TestSpecialMenu(TestCase):
         '''
         Conference.objects.all().delete()
         privilege = "Staff Lead"
-        context = StaffAreaContext()
+        context = NewStaffAreaContext()
         login_as(context.staff_lead, self)
         response = self.client.get(self.url)
         for menu_item in special_menu_tree:
@@ -122,8 +122,8 @@ class TestSpecialMenu(TestCase):
         '''
         Conference.objects.all().delete()
         privilege = "Staff Lead"
-        context = StaffAreaContext()
-        context.conference.status = "past"
+        context = NewStaffAreaContext()
+        context.conference.status = "completed"
         context.conference.save()
         login_as(context.staff_lead, self)
         response = self.client.get(self.url)

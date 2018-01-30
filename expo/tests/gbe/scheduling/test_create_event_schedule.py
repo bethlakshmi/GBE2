@@ -29,7 +29,6 @@ from tests.contexts import (
     ClassContext,
     PanelContext,
     ShowContext,
-    StaffAreaContext,
 )
 from tests.functions.gbe_scheduling_functions import (
     assert_good_sched_event_form,
@@ -156,20 +155,6 @@ class TestCreateOccurrence(TestCase):
             response,
             '<input id="id_event-max_volunteer" name="event-max_volunteer" ' +
             'type="number" value="0" />')
-
-    def test_good_user_get_staff_area(self):
-        clear_conferences()
-        staff_area = GenericEventFactory(type="Staff Area")
-        login_as(self.privileged_profile, self)
-        url = reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=["GenericEvent", staff_area.eventitem_id])
-        response = self.client.get(url)
-        assert_good_sched_event_form(response, staff_area)
-        self.assertContains(
-            response,
-            '<input id="id_event-max_volunteer" name="event-max_volunteer" ' +
-            'type="number" value="1" />')
 
     def test_good_user_minimal_post(self):
         clear_conferences()
@@ -356,35 +341,6 @@ class TestCreateOccurrence(TestCase):
                 form_data['event-e_title'],
                 'Fri, Feb 5 12:00 PM')
             )
-
-    def test_good_user_with_staff_area_lead(self):
-        clear_conferences()
-        Room.objects.all().delete()
-        room = RoomFactory()
-        context = StaffAreaContext()
-        overcommitter = ProfileFactory()
-        login_as(self.privileged_profile, self)
-        url = reverse(self.view_name,
-                      urlconf="gbe.scheduling.urls",
-                      args=["GenericEvent",
-                            context.sched_event.eventitem.eventitem_id])
-        form_data = get_sched_event_form(context, room)
-        form_data['event-staff_lead'] = overcommitter.pk
-        response = self.client.post(
-            url,
-            data=form_data,
-            follow=True)
-        session = self.assert_good_post(response,
-                                        context.sched_event.eventitem,
-                                        context.days[0].day,
-                                        room,
-                                        "GenericEvent")
-        leads = Worker.objects.filter(role="Staff Lead",
-                                      allocations__event=session)
-        self.assertEqual(len(leads), 1)
-        self.assertEqual(leads.first().workeritem.pk, overcommitter.pk)
-        self.assertEqual(EventLabel.objects.filter(
-            event__eventitem=context.sched_event.eventitem).count(), 2)
 
     def test_good_user_with_special_event(self):
         clear_conferences()
