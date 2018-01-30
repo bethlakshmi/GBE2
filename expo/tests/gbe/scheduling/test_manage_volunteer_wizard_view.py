@@ -16,7 +16,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.contexts import (
-    NewStaffAreaContext,
+    StaffAreaContext,
     VolunteerContext,
 )
 from gbe.models import AvailableInterest
@@ -153,7 +153,7 @@ class TestManageVolunteerWizard(TestCase):
             'type="text" value="New Volunteer Opportunity" />')
 
     def test_create_opportunity_for_staff_area(self):
-        staff_context = NewStaffAreaContext(conference=self.context.conference)
+        staff_context = StaffAreaContext(conference=self.context.conference)
         self.url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",
@@ -208,7 +208,7 @@ class TestManageVolunteerWizard(TestCase):
 
     def test_create_opportunity_bad_area(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
-        staff_context = NewStaffAreaContext(conference=self.context.conference)
+        staff_context = StaffAreaContext(conference=self.context.conference)
         self.url = reverse(
             self.view_name,
             urlconf="gbe.scheduling.urls",

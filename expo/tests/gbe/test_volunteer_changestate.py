@@ -17,7 +17,7 @@ from tests.functions.gbe_functions import (
 )
 from django.core.exceptions import PermissionDenied
 from tests.contexts import (
-    NewStaffAreaContext,
+    StaffAreaContext,
     VolunteerContext,
 )
 from gbe.models import Conference
@@ -198,7 +198,7 @@ class TestVolunteerChangestate(TestCase):
 
     def test_volunteer_changestate_gives_event_over_full_warning(self):
         ProfilePreferencesFactory(profile=self.volunteer.profile)
-        context = NewStaffAreaContext(
+        context = StaffAreaContext(
             conference=self.volunteer.b_conference,
         )
         opp = context.add_volunteer_opp()

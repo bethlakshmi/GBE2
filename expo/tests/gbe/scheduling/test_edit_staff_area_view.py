@@ -24,7 +24,7 @@ from tests.functions.gbe_scheduling_functions import (
 )
 from expo.settings import DATE_FORMAT
 from tests.contexts import (
-    NewStaffAreaContext,
+    StaffAreaContext,
     VolunteerContext,
 )
 from gbe.duration import Duration
@@ -37,7 +37,7 @@ class TestEditStaffAreaView(TestCase):
 
     def setUp(self):
         self.room = RoomFactory()
-        self.context = NewStaffAreaContext()
+        self.context = StaffAreaContext()
         self.context.area.default_volunteers = 7
         self.context.area.save()
         self.url = reverse(

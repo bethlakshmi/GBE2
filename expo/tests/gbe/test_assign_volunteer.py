@@ -52,9 +52,7 @@ class TestAssignVolunteer(TestCase):
 
     def set_basic_opportunity(self):
         context = StaffAreaContext()
-        parent_sched = context.schedule_instance(
-            starttime=datetime(2016, 2, 5, 12, 0, 0, 0, pytz.utc)
-        )
+
         current_sched = context.add_volunteer_opp()
         current_sched.starttime = datetime(2016, 2, 5, 12, 0, 0, 0, pytz.utc)
         current_sched.max_volunteer = 10
@@ -71,7 +69,7 @@ class TestAssignVolunteer(TestCase):
 
         return {
             'context': context,
-            'parent_sched': parent_sched,
+            'area': context.area,
             'current_sched': current_sched,
             'current_window': current_window,
             'volunteer': volunteer
@@ -132,7 +130,7 @@ class TestAssignVolunteer(TestCase):
 
         # event names
         nt.assert_equal(
-            response.content.count(str(data['parent_sched'].eventitem)),
+            response.content.count(str(data['area'])),
             1,
             msg="There should be only 1 parent event")
         nt.assert_equal(
@@ -221,8 +219,6 @@ class TestAssignVolunteer(TestCase):
             conference=ConferenceFactory(
                 status='completed'))
 
-        past_sched = past_context.schedule_instance(
-            starttime=datetime(2015, 2, 25, 8, 0, 0, 0, pytz.utc))
         past_opp = past_context.add_volunteer_opp()
         past_opp.starttime = datetime(2015, 2, 25, 6, 0, 0, 0, pytz.utc)
         past_opp.eventitem.max_volunteer = 10

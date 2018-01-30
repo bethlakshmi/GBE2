@@ -22,7 +22,7 @@ from tests.factories.scheduler_factories import (
 from tests.contexts import (
     ClassContext,
     ShowContext,
-    NewStaffAreaContext,
+    StaffAreaContext,
     VolunteerContext,
 )
 from expo.settings import (
@@ -51,7 +51,7 @@ class TestEventList(TestCase):
         self.class_context = ClassContext(conference=self.day.conference)
         self.another_interest = AvailableInterestFactory(interest="one more")
         self.show_context = ShowContext(conference=self.day.conference)
-        self.staff_context = NewStaffAreaContext(conference=self.day.conference)
+        self.staff_context = StaffAreaContext(conference=self.day.conference)
         booking, self.vol_opp = self.staff_context.book_volunteer()
 
     def assert_visible_input_selected(
@@ -153,7 +153,7 @@ class TestEventList(TestCase):
             old_interest.interest)
 
     def test_good_user_get_staff_area(self):
-        other_staff_context = NewStaffAreaContext()
+        other_staff_context = StaffAreaContext()
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -380,7 +380,7 @@ class TestEventList(TestCase):
             '&quot;bad&quot; is not a valid value for a primary key')
 
     def test_good_user_filter_staff_area(self):
-        other_staff_area = NewStaffAreaContext(
+        other_staff_area = StaffAreaContext(
             conference=self.day.conference
         )
         login_as(self.privileged_profile, self)
