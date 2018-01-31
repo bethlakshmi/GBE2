@@ -14,6 +14,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+from tests.functions.scheduler_functions import noon
 
 
 class StaffAreaContext:
@@ -35,19 +36,23 @@ class StaffAreaContext:
     def add_volunteer_opp(self,
                           volunteer_sched_event=None,
                           room=None):
+        if not self.conference.conferenceday_set.exists():
+            self.conf_day = ConferenceDayFactory(
+                day=volunteer_sched_event.starttime.date(),
+                conference=self.conference)
+        else:
+            self.conf_day = self.conference.conferenceday_set.first()
         if not volunteer_sched_event:
             vol_event = GenericEventFactory(e_conference=self.conference,
                                             type="Volunteer"
                                             )
             volunteer_sched_event = SchedEventFactory(
                 eventitem=vol_event,
-                max_volunteer=self.area.default_volunteers)
+                max_volunteer=self.area.default_volunteers,
+                starttime=noon(self.conf_day))
         if not room:
             room = RoomFactory()
-        self.conf_day = ConferenceDayFactory(
-            day=volunteer_sched_event.starttime.date(),
-            conference=self.conference)
-        self.days = [self.conf_day]
+
         ResourceAllocationFactory(
             event=volunteer_sched_event,
             resource=LocationFactory(_item=room))
