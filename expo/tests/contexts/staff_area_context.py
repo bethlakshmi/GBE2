@@ -37,9 +37,13 @@ class StaffAreaContext:
                           volunteer_sched_event=None,
                           room=None):
         if not self.conference.conferenceday_set.exists():
-            self.conf_day = ConferenceDayFactory(
-                day=volunteer_sched_event.starttime.date(),
-                conference=self.conference)
+            if volunteer_sched_event:
+                self.conf_day = ConferenceDayFactory(
+                    day=volunteer_sched_event.starttime.date(),
+                    conference=self.conference)
+            else:
+                self.conf_day = ConferenceDayFactory(
+                    conference=self.conference)
         else:
             self.conf_day = self.conference.conferenceday_set.first()
         if not volunteer_sched_event:

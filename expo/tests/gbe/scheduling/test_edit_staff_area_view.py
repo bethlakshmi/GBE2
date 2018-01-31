@@ -107,7 +107,7 @@ class TestEditStaffAreaView(TestCase):
         vol_opp = self.context.add_volunteer_opp()
         self.extra_day = ConferenceDayFactory(
             conference=self.context.conference,
-            day=self.context.days[0].day + timedelta(days=1))
+            day=self.context.conf_day.day + timedelta(days=1))
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         response = self.client.get(self.url, follow=True)
@@ -124,8 +124,8 @@ class TestEditStaffAreaView(TestCase):
         self.assertContains(
             response,
             '<option value="%d" selected="selected">%s</option>' % (
-                self.context.days[0].pk,
-                self.context.days[0].day.strftime("%b. %-d, %Y")))
+                self.context.conf_day.pk,
+                self.context.conf_day.day.strftime("%b. %-d, %Y")))
         self.assertContains(
             response,
             'name="max_volunteer" type="number" value="7" />')

@@ -5,11 +5,11 @@ from django.forms import (
     RadioSelect,
 )
 from gbe.models import (
-    Event,
     ConferenceDay,
     Show,
     Class,
     GenericEvent,
+    StaffArea,
 )
 from expo.settings import (
     DATE_FORMAT,
@@ -68,23 +68,24 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
         elif event_type == "Class":
             events = Class.objects.exclude(
                 e_conference__status="completed")
-        elif event_type:
+        elif event_type != "Staff" :
             events = GenericEvent.objects.exclude(
                 e_conference__status="completed").filter(type=event_type)
-        else:
-            events = Event.objects.exclude(
-                e_conference__status="completed")
         if events:
             response = get_occurrences(
                 foreign_event_ids=events.values_list('eventitem_id',
                                                      flat=True))
-        if events and response.occurrences:
-            for occurrence in response.occurrences:
-                choices += [(occurrence.pk, "%s - %s" % (
-                    str(occurrence),
-                    occurrence.start_time.strftime(DATETIME_FORMAT)))]
-            self.fields[
-                'target_event'].choices = BLANK_CHOICE_DASH + choices
+            if response.occurrences:
+                for occurrence in response.occurrences:
+                    choices += [(occurrence.pk, "%s - %s" % (
+                        str(occurrence),
+                        occurrence.start_time.strftime(DATETIME_FORMAT)))]
+        else:
+            areas = StaffArea.objects.exclude(
+                conference__status="completed")
+            for area in areas:
+                choices += [(area.pk, area.title)]
+        self.fields['target_event'].choices = BLANK_CHOICE_DASH + choices
 
     def clean(self):
         cleaned_data = super(CopyEventPickModeForm, self).clean()
