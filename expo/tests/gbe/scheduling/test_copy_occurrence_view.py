@@ -31,7 +31,6 @@ from expo.settings import (
 from tests.contexts import (
     ClassContext,
     ShowContext,
-    StaffAreaContext,
     VolunteerContext,
 )
 from gbe_forms_text import (
@@ -46,7 +45,7 @@ class TestCopyOccurrence(TestCase):
     copy_date_format = "%a, %b %-d, %Y %-I:%M %p"
 
     def setUp(self):
-        self.context = StaffAreaContext()
+        self.context = VolunteerContext()
         self.url = reverse(
             self.view_name,
             args=[self.context.sched_event.pk],
@@ -58,8 +57,8 @@ class TestCopyOccurrence(TestCase):
 
     def assert_good_mode_form(self, response, title, date):
         self.assertEqual(response.status_code, 200)
-        for day in self.context.days:
-            self.assertContains(response, day.day.strftime(DATE_FORMAT))
+        self.assertContains(response,
+                            self.context.conf_day.day.strftime(DATE_FORMAT))
         self.assertContains(response, copy_mode_choices[0][1])
         self.assertContains(response, copy_mode_choices[1][1])
         self.assertContains(response, "%s - %s" % (
@@ -76,26 +75,30 @@ class TestCopyOccurrence(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Copying - %s: %s" % (
-            self.context.area.e_title,
+            self.context.event.e_title,
             self.context.sched_event.starttime.strftime(
                 self.copy_date_format)))
 
     def test_authorized_user_get_no_child_event(self):
         login_as(self.privileged_user, self)
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.opp_event.pk],
+            urlconf='gbe.scheduling.urls')
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        for day in self.context.days:
-            self.assertContains(response, day.day.strftime(DATE_FORMAT))
+        self.assertContains(response,
+                            self.context.conf_day.day.strftime(DATE_FORMAT))
         self.assertNotContains(response, copy_mode_choices[0][1])
 
     def test_authorized_user_get_w_child_events(self):
-        target_event = StaffAreaContext()
-        self.context.add_volunteer_opp()
+        target_event = VolunteerContext()
+        self.context.add_opportunity()
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assert_good_mode_form(
             response,
-            target_event.area.e_title,
+            target_event.event.e_title,
             target_event.sched_event.start_time)
 
     def test_bad_occurrence(self):
@@ -137,12 +140,18 @@ class TestCopyOccurrence(TestCase):
             target_context.sched_event.start_time)
 
     def test_copy_single_event(self):
-        another_day = ConferenceDayFactory(conference=self.context.conference)
+        another_day = ConferenceDayFactory(
+            conference=self.context.conference,
+            day=self.context.conf_day.day + timedelta(days=1))
         data = {
             'copy_to_day': another_day.pk,
             'pick_mode': "Next",
         }
         login_as(self.privileged_user, self)
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.opp_event.pk],
+            urlconf='gbe.scheduling.urls')
         response = self.client.post(self.url, data=data, follow=True)
         max_pk = Event.objects.latest('pk').pk
         redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
@@ -158,10 +167,10 @@ class TestCopyOccurrence(TestCase):
             'success',
             'Success',
             'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                self.context.area.e_title,
+                self.context.opportunity.e_title,
                 datetime.combine(
                     another_day.day,
-                    self.context.sched_event.starttime.time()).strftime(
+                    self.context.opp_event.starttime.time()).strftime(
                     DATETIME_FORMAT)))
 
     def test_authorized_user_pick_mode_include_parent(self):
