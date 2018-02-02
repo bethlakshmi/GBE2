@@ -2,13 +2,10 @@ from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.forms import HiddenInput
 from django.shortcuts import (
-    get_object_or_404,
     render,
 )
 from django.http import (
-    Http404,
     HttpResponseRedirect,
 )
 from django.core.urlresolvers import reverse
@@ -18,22 +15,11 @@ from gbe.scheduling.forms import (
     CopyEventPickModeForm,
 )
 from scheduler.idd import (
-    create_occurrence,
     get_occurrence,
-    get_occurrences,
 )
 from gbe.scheduling.views.functions import (
-    show_general_status,
     show_scheduling_occurrence_status,
 )
-from gbe.models import (
-    Conference,
-    ConferenceDay,
-    Event,
-)
-from gbe.functions import validate_perms
-from gbe.duration import Duration
-from gbe.views.class_display_functions import get_scheduling_info
 from datetime import timedelta
 
 
@@ -45,13 +31,13 @@ class CopyCollectionsView(View):
           start_day and checks permissions
         - a make_context that defines the first title and event_type
         - get_copy_target = returning the second title and the delta days
+        - copy_root = which does whatever is needed to make a new parent root
+        - copy_event = which manages chaining events to the root
     '''
     template = 'gbe/scheduling/copy_wizard.tmpl'
-    permissions = ('Scheduling Mavens',)
     copy_date_format = "%a, %b %-d, %Y %-I:%M %p"
-    occurrence = None
     children = []
-    future_days = None
+    start_day = None
 
     def make_context(self, request, context, post=None):
         if self.children and len(self.children) > 0:

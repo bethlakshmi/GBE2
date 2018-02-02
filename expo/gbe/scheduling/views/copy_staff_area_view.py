@@ -13,17 +13,13 @@ from django.utils.text import slugify
 
 
 class CopyStaffAreaView(CopyCollectionsView):
-    template = 'gbe/scheduling/copy_wizard.tmpl'
     permissions = ('Scheduling Mavens',)
-    occurrence = None
-    children = []
-    future_days = None
+    area = None
 
     def groundwork(self, request, args, kwargs):
         self.profile = validate_perms(request, self.permissions)
-        self.staff_id = int(kwargs['staff_id'])
         self.area = get_object_or_404(StaffArea,
-                                      id=self.staff_id)
+                                      id=int(kwargs['staff_id']))
         self.start_day = self.area.conference.conferenceday_set.order_by(
             "day").first().day
         response = get_occurrences(labels=[
@@ -70,7 +66,7 @@ class CopyStaffAreaView(CopyCollectionsView):
         new_area.save()
         return new_area
 
-    def copy_event(self, occurrence, delta, conference, root):
+    def copy_event(self, occurrence, delta, conference, root=None):
         gbe_event_copy = occurrence.as_subtype
         gbe_event_copy.pk = None
         gbe_event_copy.event_id = None
@@ -79,8 +75,10 @@ class CopyStaffAreaView(CopyCollectionsView):
         gbe_event_copy.e_conference = conference
         gbe_event_copy.save()
         labels = [conference.conference_slug,
-                  gbe_event_copy.calendar_type,
-                  root.slug]
+                  gbe_event_copy.calendar_type]
+        if root:
+            labels += [root.slug]
+
         response = create_occurrence(
             gbe_event_copy.eventitem_id,
             occurrence.starttime + delta,
