@@ -1095,3 +1095,16 @@ div.hierarchy-1
 .gbe-filter {
   margin-left: 10px;
 }
+.checkbox-box {
+    border-radius: 15px;
+    border: 1px solid grey;
+    margin: 5px;
+    padding: 0px 5px 5px 5px;
+}
+.checkbox-box-success {
+    border-radius: 15px;
+    border: 1px solid grey;
+    margin: 5px;
+    padding: 0px 2px 5px 2px;
+    background-color: rgb(223, 240, 216);
+}

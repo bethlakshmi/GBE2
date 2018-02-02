@@ -10,6 +10,7 @@ from gbe.functions import validate_perms
 from datetime import timedelta
 from expo.settings import DATETIME_FORMAT
 from django.utils.text import slugify
+from datetime import datetime
 
 
 class CopyStaffAreaView(CopyCollectionsView):
