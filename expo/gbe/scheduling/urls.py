@@ -7,6 +7,7 @@ from gbe.scheduling.views import (
     AllocateWorkerView,
     ClassWizardView,
     CopyOccurrenceView,
+    CopyStaffAreaView,
     CreateEventView,
     DeleteEventView,
     EditEventView,
@@ -66,6 +67,8 @@ urlpatterns = patterns(
 
     url(r'^scheduling/copy/(?P<occurrence_id>\d+)/?$',
         CopyOccurrenceView.as_view(), name='copy_event_schedule'),
+    url(r'^scheduling/copy_staff/(?P<staff_id>\d+)/?$',
+        CopyStaffAreaView.as_view(), name='copy_staff_schedule'),
 
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         MakeOccurrenceView.as_view(), name='create_event_schedule'),

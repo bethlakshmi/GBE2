@@ -43,6 +43,9 @@
       <a href="{% url "scheduling:edit_staff" checkbox.choice_value %}" class="detail_link">
        <i class="fa fa-pencil-square" aria-hidden="true"></i>
       </a>
+      <a href="{% url "scheduling:copy_staff_schedule" checkbox.choice_value %}" class="detail_link">
+       <i class="fa fa-files-o" aria-hidden="true"></i>
+      </a>
       </label>{% endfor %}
       {% if selection_form.staff_area.errors %}
         <font color="red">{{ selection_form.staff_area.errors }}</font>

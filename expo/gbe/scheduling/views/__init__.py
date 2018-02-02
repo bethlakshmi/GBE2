@@ -8,9 +8,11 @@ from ticketed_event_wizard_view import TicketedEventWizardView
 from manage_vol_wizard_view import ManageVolWizardView
 from edit_event_view import EditEventView
 from edit_staff_area_view import EditStaffAreaView
+from copy_collections_view import CopyCollectionsView
+from copy_occurrence_view import CopyOccurrenceView
+from copy_staff_area_view import CopyStaffAreaView
 
 # Old but Refactored Event Editing/Creation/Allocation
-from copy_occurrence_view import CopyOccurrenceView
 from create_event_view import CreateEventView
 from make_occurrence_view import MakeOccurrenceView
 from manage_vol_ops_view import ManageVolOpsView
