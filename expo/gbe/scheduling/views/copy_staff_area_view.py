@@ -1,29 +1,13 @@
 from gbe.scheduling.views import CopyCollectionsView
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
-from django.http import (
-    Http404,
-    HttpResponseRedirect,
-)
+from django.shortcuts import get_object_or_404
 from scheduler.idd import (
     create_occurrence,
     get_occurrences,
 )
-from gbe.scheduling.views.functions import (
-    show_general_status,
-    show_scheduling_occurrence_status,
-)
-from gbe.models import (
-    Conference,
-    StaffArea,
-)
+from gbe.scheduling.views.functions import show_general_status
+from gbe.models import StaffArea
 from gbe.functions import validate_perms
-from datetime import (
-    datetime,
-    timedelta,
-)
+from datetime import timedelta
 from expo.settings import DATETIME_FORMAT
 from django.utils.text import slugify
 
