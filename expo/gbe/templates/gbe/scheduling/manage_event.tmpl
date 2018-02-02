@@ -42,11 +42,11 @@
       {{ checkbox.tag }}
       {{ checkbox.choice_label }}&nbsp;
       {% if conference.status != "completed" %}
-      <a href="{% url "scheduling:edit_staff" checkbox.choice_value %}" class="detail_link">
+      <a href="{% url "scheduling:edit_staff" checkbox.choice_value %}" data-toggle="tooltip" title="Edit" class="detail_link">
        <i class="fa fa-pencil-square" aria-hidden="true"></i>
       </a>
      {% endif %}
-      <a href="{% url "scheduling:copy_staff_schedule" checkbox.choice_value %}" class="detail_link">
+      <a href="{% url "scheduling:copy_staff_schedule" checkbox.choice_value %}" data-toggle="tooltip" title="Copy" class="detail_link">
        <i class="fa fa-files-o" aria-hidden="true"></i>
       </a>
       </label>

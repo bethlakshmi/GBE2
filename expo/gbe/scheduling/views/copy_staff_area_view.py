@@ -7,11 +7,14 @@ from scheduler.idd import (
 from gbe.scheduling.views.functions import show_general_status
 from gbe.models import StaffArea
 from gbe.functions import validate_perms
-from datetime import timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
 from expo.settings import DATETIME_FORMAT
 from django.utils.text import slugify
-from datetime import datetime
-
+from django.contrib import messages
+from gbe.models import UserMessage
 
 class CopyStaffAreaView(CopyCollectionsView):
     permissions = ('Scheduling Mavens',)
@@ -52,19 +55,36 @@ class CopyStaffAreaView(CopyCollectionsView):
         return second_title, delta
 
     def copy_root(self, request, delta, conference):
-        new_area = self.area
-        new_area.pk = None
-        new_area.conference = conference
-        new_area.staff_lead = None
+        new_title = self.area.title
+        new_slug = self.area.slug
         if conference == self.area.conference:
             now = datetime.now().strftime(DATETIME_FORMAT)
-            new_area.title = "%s - New - %s" % (
+            new_title = "%s - New - %s" % (
                 self.area.title,
                 now)
-            new_area.slug = "%s_new_%s" % (
+            new_slug = "%s_new_%s" % (
                 self.area.slug,
                 slugify(now))
+        new_area = StaffArea(
+            conference=conference,
+            title=new_title,
+            slug=new_slug,
+            description=self.area.description,
+            default_location=self.area.default_location,
+            default_volunteers=self.area.default_volunteers
+        )
         new_area.save()
+        user_message = UserMessage.objects.get_or_create(
+            view=self.__class__.__name__,
+            code="STAFF_AREA_COPIED",
+            defaults={
+                'summary': "Staff Area Copy Success",
+                'description': "A new Staff Area was created."})
+        messages.success(
+            request,
+            "%s<br>Staff Area: %s" % (
+                user_message[0].description,
+                new_area.title))
         return new_area
 
     def copy_event(self, occurrence, delta, conference, root=None):
