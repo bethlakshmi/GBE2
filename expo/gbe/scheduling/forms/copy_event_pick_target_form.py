@@ -68,7 +68,7 @@ class CopyEventPickModeForm(CopyEventPickDayForm):
         elif event_type == "Class":
             events = Class.objects.exclude(
                 e_conference__status="completed")
-        elif event_type != "Staff" :
+        elif event_type != "Staff":
             events = GenericEvent.objects.exclude(
                 e_conference__status="completed").filter(type=event_type)
         if events:

@@ -40,14 +40,16 @@ def move_staff_areas(apps, schema_editor):
             print "no occurrence - %s" % event.e_title
         staff.save()
         print "saved - %s" % event.e_title
-        for container in EventContainer.objects.filter(parent_event__eventitem=event):
-            label=EventLabel(event=container.child_event, text=staff.slug)
+        for container in EventContainer.objects.filter(
+                parent_event__eventitem=event):
+            label = EventLabel(event=container.child_event, text=staff.slug)
             label.save()
             print "set child - %s with slug %s" % (str(container.child_event),
                                                    staff.slug)
-            
+
     # I'm not moving the stuff that isn't visible.  Not worth saving.
     GenericEvent.objects.filter(type="Staff Area").delete()
+
 
 class Migration(migrations.Migration):
 

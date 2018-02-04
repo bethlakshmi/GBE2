@@ -31,7 +31,7 @@ class CopyStaffAreaView(CopyCollectionsView):
         if self.area.conference.conferenceday_set.count() > 0:
             self.start_day = self.area.conference.conferenceday_set.order_by(
                 "day").first().day
-        else: 
+        else:
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,
                 code="NO_CONF_DAYS",
@@ -45,7 +45,7 @@ class CopyStaffAreaView(CopyCollectionsView):
                 'manage_event_list',
                 urlconf='gbe.scheduling.urls',
                 args=[self.area.conference.conference_slug]))
-        
+
         response = get_occurrences(labels=[
             self.area.slug,
             self.area.conference.conference_slug])
@@ -61,7 +61,7 @@ class CopyStaffAreaView(CopyCollectionsView):
                                                            post)
 
     def get_copy_target(self, context):
-        area =  get_object_or_404(
+        area = get_object_or_404(
             StaffArea,
             id=context['copy_mode'].cleaned_data['target_event'])
         second_title = "Destination is %s: %s" % (
