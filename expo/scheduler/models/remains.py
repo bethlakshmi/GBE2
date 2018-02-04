@@ -151,14 +151,6 @@ class ActItem(ResourceItem):
     def as_subtype(self):
         return self.act
 
-    def get_resource(self):
-        '''
-        Deprecate this.
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
-        return self.as_subtype
-
     @property
     def order(self):
         '''

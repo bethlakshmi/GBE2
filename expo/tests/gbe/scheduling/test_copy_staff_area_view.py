@@ -309,3 +309,27 @@ class TestCopyOccurrence(TestCase):
             'Success',
             'A new Staff Area was created.<br>Staff Area: %s' % (
                 max_area.title))
+
+    def test_copy_child_event_fail_no_conf(self):
+        target_context = StaffAreaContext()
+        self.url = reverse(
+            self.view_name,
+            args=[target_context.area.pk],
+            urlconf='gbe.scheduling.urls')
+        data = {
+            'copy_mode': 'copy_children_only',
+            'target_event': target_context.area.pk,
+            'copied_event': self.vol_opp.pk,
+            'pick_event': "Finish",
+        }
+        login_as(self.privileged_user, self)
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertRedirects(response, reverse(
+            'manage_event_list',
+            urlconf='gbe.scheduling.urls',
+            args=[target_context.conference.conference_slug]))
+        assert_alert_exists(
+            response,
+            'danger',
+            'Error',
+            no_conf_day_msg)

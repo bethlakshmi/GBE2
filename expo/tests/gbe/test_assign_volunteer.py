@@ -112,7 +112,7 @@ class TestAssignVolunteer(TestCase):
     def test_assign_volunteers_old_bid(self):
         ''' bid is froma past conference'''
         context = VolunteerContext()
-        context.conference.status = 'past'
+        context.conference.status = 'completed'
         context.conference.save()
         url = reverse(self.view_name,
                       args=[context.bid.pk],
