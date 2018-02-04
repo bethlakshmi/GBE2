@@ -12,12 +12,11 @@
 <p>
 <font color="red">Red text</font> shows a user that has deactivated their account.
 </p>
+{% if area %}
 <ul>
-  {% for worker in area.people %}
-    <li>{{worker.role}} - {{worker.user.profile}}</li>
-  {% endfor %}	
+    <li>Staff Lead - {{area.staff_lead}}</li>
 </ul>
-
+{% endif %}
 
 {% for opp in opps%}
 <div class="panel panel-primary">

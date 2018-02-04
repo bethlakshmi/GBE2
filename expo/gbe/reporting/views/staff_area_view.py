@@ -1,8 +1,9 @@
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from gbe.functions import validate_perms
 from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
-
+from gbe.models import StaffArea
 
 def staff_area_view(request, area_id):
     '''
@@ -12,16 +13,12 @@ def staff_area_view(request, area_id):
     '''
     viewer_profile = validate_perms(request, 'any', require=True)
     opps = None
-    area = None
-    parent_response = get_occurrences(foreign_event_ids=[area_id])
-    if parent_response.occurrences:
-        area = parent_response.occurrences[0]
-        opps_response = get_occurrences(
-            parent_event_id=parent_response.occurrences[0].pk)
-        opps = opps_response.occurrences
-        show_general_status(request, opps_response, "staff_area")
-
-    show_general_status(request, parent_response, "staff_area")
+    area = get_object_or_404(StaffArea, pk=area_id)
+    opps_response = get_occurrences(labels=[
+        area.conference.conference_slug,
+        area.slug])
+    opps = opps_response.occurrences
+    show_general_status(request, opps_response, "staff_area")
 
     return render(request,
                   'gbe/report/staff_area_schedule.tmpl',

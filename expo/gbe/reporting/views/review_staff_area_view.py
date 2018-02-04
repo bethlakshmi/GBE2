@@ -2,7 +2,7 @@ from django.shortcuts import render
 from gbe.models import (
     AvailableInterest,
     Conference,
-    GenericEvent,
+    StaffArea,
     Show,
 )
 from gbe.functions import (
@@ -27,9 +27,7 @@ def review_staff_area_view(request):
         request,
         'gbe/report/staff_areas.tmpl',
         {'header': header,
-         'areas': GenericEvent.objects.filter(
-            type='Staff Area',
-            visible=True).filter(e_conference=conference),
+         'areas': StaffArea.objects.filter(conference=conference),
          'shows': Show.objects.filter(e_conference=conference),
          'volunteer_types': AvailableInterest.objects.filter(visible=True),
          'conference_slugs': conference_slugs(),
