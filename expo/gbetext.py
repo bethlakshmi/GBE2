@@ -510,3 +510,5 @@ class, please contact the coordinator directly.'''
 parent_event_delete_warning = '''This scheduled event is a parent to other \
 schedule items.  These schedule items have not been deleted, and will remain \
 on the calendar.'''
+no_conf_day_msg = '''The target conference has not been properly configured. \
+Specify the days for this conference before proceeding.'''

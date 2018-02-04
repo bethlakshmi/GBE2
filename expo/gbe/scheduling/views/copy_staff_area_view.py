@@ -1,4 +1,5 @@
 from gbe.scheduling.views import CopyCollectionsView
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from scheduler.idd import (
     create_occurrence,
@@ -15,6 +16,9 @@ from expo.settings import DATETIME_FORMAT
 from django.utils.text import slugify
 from django.contrib import messages
 from gbe.models import UserMessage
+from gbetext import no_conf_day_msg
+from django.core.urlresolvers import reverse
+
 
 class CopyStaffAreaView(CopyCollectionsView):
     permissions = ('Scheduling Mavens',)
@@ -24,8 +28,24 @@ class CopyStaffAreaView(CopyCollectionsView):
         self.profile = validate_perms(request, self.permissions)
         self.area = get_object_or_404(StaffArea,
                                       id=int(kwargs['staff_id']))
-        self.start_day = self.area.conference.conferenceday_set.order_by(
-            "day").first().day
+        if self.area.conference.conferenceday_set.count() > 0:
+            self.start_day = self.area.conference.conferenceday_set.order_by(
+                "day").first().day
+        else: 
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="NO_CONF_DAYS",
+                defaults={
+                    'summary': "No Conference Days in Conference",
+                    'description': no_conf_day_msg})
+            messages.error(
+                request,
+                user_message[0].description)
+            return HttpResponseRedirect(reverse(
+                'manage_event_list',
+                urlconf='gbe.scheduling.urls',
+                args=[self.area.conference.conference_slug]))
+        
         response = get_occurrences(labels=[
             self.area.slug,
             self.area.conference.conference_slug])

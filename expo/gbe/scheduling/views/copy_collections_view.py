@@ -2,12 +2,8 @@ from django.views.generic import View
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    render,
-)
-from django.http import (
-    HttpResponseRedirect,
-)
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     CopyEventForm,
@@ -140,7 +136,9 @@ class CopyCollectionsView(View):
 
     @never_cache
     def get(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        error = self.groundwork(request, args, kwargs)
+        if error:
+            return error
         return render(
             request,
             self.template,
@@ -148,7 +146,9 @@ class CopyCollectionsView(View):
 
     @never_cache
     def post(self, request, *args, **kwargs):
-        self.groundwork(request, args, kwargs)
+        error = self.groundwork(request, args, kwargs)
+        if error:
+            return error
         context = {}
         if 'pick_mode' in request.POST.keys():
             context = self.make_context(request, post=request.POST)
