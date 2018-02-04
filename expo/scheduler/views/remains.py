@@ -257,10 +257,10 @@ def contact_volunteers(conference):
                     parent_event = str(event.container_event.parent_event)
                 else:
                     for label in event.labels:
-                        if label.text != conference.conference_slug and label.text not in [
-                                'General',
-                                'Conference',
-                                'Volunteer']:
+                        if label.text != conference.conference_slug and (
+                                label.text not in ['General',
+                                                   'Conference',
+                                                   'Volunteer']):
                             parent_event = label.text
                 try:
                     interest = event.as_subtype.volunteer_type.interest

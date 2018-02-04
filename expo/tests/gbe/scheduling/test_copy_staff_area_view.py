@@ -10,6 +10,7 @@ from tests.factories.gbe_factories import (
     RoomFactory,
 )
 from scheduler.models import Event
+from gbe.models import StaffArea
 from tests.functions.gbe_functions import (
     assert_alert_exists,
     grant_privilege,
@@ -123,13 +124,15 @@ class TestCopyOccurrence(TestCase):
 
     def test_authorized_user_pick_mode_only_children(self):
         target_context = StaffAreaContext()
-        target_day = ConferenceDayFactory(conference=target_context.conference)
+        delta = timedelta(days=340)
+        target_day = ConferenceDayFactory(
+            conference=target_context.conference,
+            day=self.context.conf_day.day + delta)
         data = {
             'copy_mode': 'copy_children_only',
             'target_event': target_context.area.pk,
             'pick_mode': "Next",
         }
-        delta = target_day.day - self.context.conf_day.day
         login_as(self.privileged_user, self)
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
@@ -168,29 +171,26 @@ class TestCopyOccurrence(TestCase):
             self.vol_opp.eventitem.e_title,
             self.vol_opp.start_time.strftime(self.copy_date_format)))
 
-'''
     def test_copy_child_event(self):
-        show_context = VolunteerContext()
-        target_context = ShowContext()
-        url = reverse(
-            self.view_name,
-            args=[show_context.sched_event.pk],
-            urlconf='gbe.scheduling.urls')
+        target_context = StaffAreaContext()
+        target_day = ConferenceDayFactory(
+            conference=target_context.conference,
+            day=self.context.conf_day.day + timedelta(days=340))
         data = {
             'copy_mode': 'copy_children_only',
-            'target_event': target_context.sched_event.pk,
-            'copied_event': show_context.opp_event.pk,
+            'target_event': target_context.area.pk,
+            'copied_event': self.vol_opp.pk,
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         max_pk = Event.objects.latest('pk').pk
         redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[target_context.conference.conference_slug]),
             target_context.conference.conference_slug,
-            target_context.days[0].pk,
+            target_day.pk,
             str([max_pk]),)
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
@@ -198,152 +198,114 @@ class TestCopyOccurrence(TestCase):
             'success',
             'Success',
             'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                show_context.opportunity.e_title,
+                self.vol_opp.eventitem.e_title,
                 datetime.combine(
-                    target_context.days[0].day,
-                    show_context.opp_event.starttime.time()).strftime(
+                    target_day.day,
+                    self.vol_opp.starttime.time()).strftime(
                     DATETIME_FORMAT)))
 
     def test_copy_child_parent_events(self):
         another_day = ConferenceDayFactory()
-        show_context = VolunteerContext()
-        url = reverse(
-            self.view_name,
-            args=[show_context.sched_event.pk],
-            urlconf='gbe.scheduling.urls')
         data = {
             'copy_mode': 'include_parent',
             'copy_to_day': another_day.pk,
-            'copied_event': show_context.opp_event.pk,
+            'copied_event': self.vol_opp.pk,
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
         max_pk = Event.objects.latest('pk').pk
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         new_occurrences = []
         for occurrence in Event.objects.filter(pk__gt=max_pk):
             new_occurrences += [occurrence.pk]
-        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s&alt_id=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[another_day.conference.conference_slug]),
             another_day.conference.conference_slug,
             another_day.pk,
-            replace(str(new_occurrences), " ", "%20"))
+            replace(str(new_occurrences), " ", "%20"),
+            self.context.area.pk+1)
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                show_context.opportunity.e_title,
-                datetime.combine(
-                    another_day.day,
-                    show_context.opp_event.starttime.time()).strftime(
-                    DATETIME_FORMAT)))
+            'A new Staff Area was created.<br>Staff Area: %s' % (
+                self.context.area.title))
         assert_alert_exists(
             response,
             'success',
             'Success',
             'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                show_context.event.e_title,
+                self.vol_opp.eventitem.e_title,
                 datetime.combine(
                     another_day.day,
-                    show_context.sched_event.starttime.time()).strftime(
+                    self.vol_opp.starttime.time()).strftime(
                     DATETIME_FORMAT)))
 
-    def test_copy_child_not_like_parent(self):
-        another_day = ConferenceDayFactory()
-        show_context = VolunteerContext()
-        opportunity, opp_sched = show_context.add_opportunity(
-            start_time=show_context.sched_event.starttime + timedelta(1.3))
-        url = reverse(
-            self.view_name,
-            args=[show_context.sched_event.pk],
-            urlconf='gbe.scheduling.urls')
+    def test_copy_child_parent_events_same_conf(self):
         data = {
             'copy_mode': 'include_parent',
-            'copy_to_day': another_day.pk,
-            'copied_event': opp_sched.pk,
+            'copy_to_day': self.context.conf_day.pk,
+            'copied_event': self.vol_opp.pk,
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
         max_pk = Event.objects.latest('pk').pk
-        response = self.client.post(url, data=data, follow=True)
+        response = self.client.post(self.url, data=data, follow=True)
         new_occurrences = []
+        max_area = StaffArea.objects.latest('pk')
         for occurrence in Event.objects.filter(pk__gt=max_pk):
             new_occurrences += [occurrence.pk]
-        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+        redirect_url = "%s?%s-day=%d&filter=Filter&new=%s&alt_id=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
-                    args=[another_day.conference.conference_slug]),
-            another_day.conference.conference_slug,
-            another_day.pk,
-            replace(str(new_occurrences), " ", "%20"))
+                    args=[self.context.conference.conference_slug]),
+            self.context.conference.conference_slug,
+            self.context.conf_day.pk,
+            replace(str(new_occurrences), " ", "%20"),
+            max_area.pk)
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
             response,
             'success',
             'Success',
+            'A new Staff Area was created.<br>Staff Area: %s' % (
+                max_area.title))
+        assert_alert_exists(
+            response,
+            'success',
+            'Success',
             'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                opportunity.e_title,
+                self.vol_opp.eventitem.e_title,
                 datetime.combine(
-                    another_day.day + timedelta(1),
-                    opp_sched.starttime.time()).strftime(
+                    self.context.conf_day.day,
+                    self.vol_opp.starttime.time()).strftime(
                     DATETIME_FORMAT)))
-        new_vol_opp = Event.objects.get(pk=max_pk)
-        self.assertEqual(new_vol_opp.max_volunteer, opp_sched.max_volunteer)
-        self.assertEqual(new_vol_opp.location, opp_sched.location)
 
     def test_copy_only_parent_event(self):
         another_day = ConferenceDayFactory()
-        show_context = VolunteerContext()
-        url = reverse(
-            self.view_name,
-            args=[show_context.sched_event.pk],
-            urlconf='gbe.scheduling.urls')
         data = {
             'copy_mode': 'include_parent',
             'copy_to_day': another_day.pk,
             'pick_event': "Finish",
         }
         login_as(self.privileged_user, self)
-        response = self.client.post(url, data=data, follow=True)
-        max_pk = Event.objects.latest('pk').pk
-        redirect_url = "%s?%s-day=%d&filter=Filter&new=[%sL]" % (
+        response = self.client.post(self.url, data=data, follow=True)
+        max_area = StaffArea.objects.latest('pk')
+        redirect_url = "%s?%s-day=%d&filter=Filter&alt_id=%s" % (
             reverse('manage_event_list',
                     urlconf='gbe.scheduling.urls',
                     args=[another_day.conference.conference_slug]),
             another_day.conference.conference_slug,
             another_day.pk,
-            str(max_pk),)
+            max_area.pk,)
+        self.assertRedirects(response, redirect_url)
         self.assertRedirects(response, redirect_url)
         assert_alert_exists(
             response,
             'success',
             'Success',
-            'Occurrence has been updated.<br>%s, Start Time: %s' % (
-                show_context.event.e_title,
-                datetime.combine(
-                    another_day.day,
-                    show_context.sched_event.starttime.time()).strftime(
-                    DATETIME_FORMAT)))
-        self.assertContains(response, "Occurrence has been updated.<br>", 1)
-
-    def test_copy_bad_second_form(self):
-        another_day = ConferenceDayFactory()
-        show_context = VolunteerContext()
-        url = reverse(self.view_name,
-                      args=[show_context.sched_event.pk],
-                      urlconf='gbe.scheduling.urls')
-        data = {
-            'copy_mode': 'include_parent',
-            'copy_to_day': another_day.pk,
-            'copied_event': "bad",
-            'pick_event': "Finish",
-        }
-        login_as(self.privileged_user, self)
-        response = self.client.post(url, data=data, follow=True)
-        self.assertContains(response,
-                            "bad is not one of the available choices.")
-'''
+            'A new Staff Area was created.<br>Staff Area: %s' % (
+                max_area.title))

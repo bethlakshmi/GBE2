@@ -146,9 +146,9 @@ class ManageVolWizardView(View):
             return self.make_context(request, errorcontext)
 
     def check_success_and_return(self,
-                           request,
-                           response=None,
-                           errorcontext=None):
+                                 request,
+                                 response=None,
+                                 errorcontext=None):
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,

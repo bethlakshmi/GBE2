@@ -1084,6 +1084,7 @@ class EventLabel (models.Model):
         app_label = "scheduler"
         unique_together = (('text', 'event'), )
 
+
 class EventContainer (models.Model):
     '''
     Another decorator. Links one Event to another. Used to link

@@ -57,8 +57,9 @@ class StaffAreaWizardView(EventWizardView):
                     user_message[0].description,
                     new_event.title))
             if request.POST.get(
-                    'set_event') == 'Continue to Volunteer Opportunities' and \
-                     context['volunteer_scheduling']:
+                    'set_event'
+                    ) == 'Continue to Volunteer Opportunities' and (
+                    context['volunteer_scheduling']):
                 return HttpResponseRedirect(
                     reverse('edit_staff',
                             urlconf='gbe.scheduling.urls',
@@ -66,6 +67,6 @@ class StaffAreaWizardView(EventWizardView):
             else:
                 return HttpResponseRedirect(
                     reverse('manage_event_list',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.conference.conference_slug]))
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug]))
         return render(request, self.template, context)

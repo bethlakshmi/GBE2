@@ -153,7 +153,7 @@ class ManageEventsView(View):
             for day_id in select_form.cleaned_data['day']:
                 day = ConferenceDay.objects.get(pk=day_id)
                 response = get_occurrences(label_sets=label_set,
-                    day=day.day)
+                                           day=day.day)
                 occurrences += response.occurrences
         else:
             response = get_occurrences(
