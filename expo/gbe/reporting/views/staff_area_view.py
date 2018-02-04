@@ -5,6 +5,7 @@ from scheduler.idd import get_occurrences
 from gbe.scheduling.views.functions import show_general_status
 from gbe.models import StaffArea
 
+
 def staff_area_view(request, area_id):
     '''
     Generates a staff area report: volunteer opportunities scheduled,
@@ -19,7 +20,7 @@ def staff_area_view(request, area_id):
     opps_response = None
     area = None
     opps = None
-    
+
     if show_style:
         parent_response = get_occurrences(foreign_event_ids=[area_id])
         if parent_response.occurrences:

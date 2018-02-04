@@ -26,7 +26,8 @@ class TestStaffArea(TestCase):
         context = VolunteerContext(event=show)
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Show" %
+        response = self.client.get(
+            "%s?area=Show" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[show.eventitem_id]))
@@ -43,7 +44,8 @@ class TestStaffArea(TestCase):
         context = VolunteerContext(event=show, profile=inactive)
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Show" %
+        response = self.client.get(
+            "%s?area=Show" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[show.eventitem_id]))
@@ -56,7 +58,8 @@ class TestStaffArea(TestCase):
         '''
         show = ShowFactory()
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Show" %
+        response = self.client.get(
+            "%s?area=Show" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[show.eventitem_id]))
@@ -68,7 +71,8 @@ class TestStaffArea(TestCase):
         show = ShowFactory()
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Show" %
+        response = self.client.get(
+            "%s?area=Show" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[show.eventitem_id+100]))
@@ -81,7 +85,8 @@ class TestStaffArea(TestCase):
         context = StaffAreaContext()
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Staff" %
+        response = self.client.get(
+            "%s?area=Staff" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[context.area.pk+100]))
@@ -98,7 +103,8 @@ class TestStaffArea(TestCase):
         vol, opp = context.book_volunteer(volunteer=inactive)
         grant_privilege(self.profile, 'Act Reviewers')
         login_as(self.profile, self)
-        response = self.client.get("%s?area=Staff" %
+        response = self.client.get(
+            "%s?area=Staff" %
             reverse('staff_area',
                     urlconf="gbe.reporting.urls",
                     args=[context.area.pk]))
