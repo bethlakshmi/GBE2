@@ -37,7 +37,7 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
     questions = EventEvalQuestion.objects.filter(visible=visible)
     answers = []
     for eval_type in [EventEvalComment, EventEvalGrade, EventEvalBoolean]:
-        some_answers = eval_type.objects.all()
+        some_answers = eval_type.objects.filter(question__in=questions)
         if occurrence_id:
             some_answers = some_answers.filter(event__in=occurrences)
         if person:

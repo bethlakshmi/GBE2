@@ -132,3 +132,15 @@ class EvalInfoResponse(GeneralResponse):
         self.questions = questions
         self.answers = answers
         super(EvalInfoResponse, self).__init__(warnings, errors)
+
+class EvalSummaryResponse(GeneralResponse):
+    def __init__(self,
+                 occurrences=[],
+                 questions=[],
+                 summaries={},
+                 warnings=[],
+                 errors=[]):
+        self.occurrences = occurrences
+        self.questions = questions
+        self.summaries = summaries
+        super(EvalSummaryResponse, self).__init__(warnings, errors)

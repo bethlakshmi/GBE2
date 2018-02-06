@@ -8,8 +8,7 @@ from gbe.functions import (
 )
 from django.core.urlresolvers import reverse
 from scheduler.idd import (
-    get_occurrences,
-    get_schedule,
+    get_eval_summary,
 )
 from gbe.models import (
     Class,
@@ -27,22 +26,26 @@ from gbetext import eval_report_explain_msg
 
 @never_cache
 def eval_view(request):
-    viewer_profile = validate_perms(request, 'Class Coordinator', require=True)
+    reviewer = validate_perms(request, ('Class Coordinator', ))
 
     if request.GET and request.GET.get('conf_slug'):
         conference = get_conference_by_slug(request.GET['conf_slug'])
     else:
         conference = get_current_conference()
 
-    response = get_occurrences(
+    response = get_eval_summary(
         labels=[conference.conference_slug, "Conference"])
     header = ['Class',
               'Teacher(s)',
               'Time',
               '# Interested',
               '# Evaluations']
+    summary_holder = []
+    for question in response.questions:
+        header += [question.question]
+        summary_holder += ['x']
+    header += ['Actions']
 
-    
     display_list = []
     events = Class.objects.filter(e_conference=conference)
     for occurrence in response.occurrences:
@@ -58,16 +61,18 @@ def eval_view(request):
 
         display_item = {
             'id': occurrence.id,
+            'eventitem_id': class_event.eventitem_id,
             'sort_start': occurrence.start_time,
             'start':  occurrence.start_time.strftime(DATETIME_FORMAT),
             'title': class_event.e_title,
             'teachers': teachers,
-            'eventitem_id': class_event.eventitem_id,
             'interested': len(interested),
+            'eval_count': 0,
+            'eval_summaries': summary_holder,
             'detail_link': reverse(
-                'eval_detail_view',
-                urlconf='gbe.scheduling.urls',
-                args=[class_event.eventitem_id])}
+                'evaluation_detail',
+                urlconf='gbe.reporting.urls',
+                args=[occurrence.id])}
         display_list += [display_item]
 
     display_list.sort(key=lambda k: k['sort_start'])

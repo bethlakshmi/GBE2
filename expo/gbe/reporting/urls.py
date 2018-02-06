@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
 from gbe.reporting.views import (
+    eval_view,
     interest_view,
     review_staff_area_view,
     staff_area_view,
@@ -57,7 +58,7 @@ urlpatterns = patterns(
     url(r'^reports/evaluation/?$',
         eval_view, name='evaluation'),
     url(r'^reports/evaluation/(?P<occurrence_id>\d+)/?$',
-        eval_view, name='evaluation'),
+        eval_view, name='evaluation_detail'),
     url(r'^reports/download_tracks_for_show/(\d+)/?$',
         download_tracks_for_show,
         name='download_tracks_for_show'),

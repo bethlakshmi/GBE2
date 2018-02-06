@@ -879,6 +879,10 @@ th.rotate-review > div {
 }
 th.rotate > div > span {
 }
+th.rotate-review > div > span > a {
+  color: rgb(51, 51, 51);
+  text-decoration: none;
+}
 
 div.sidebar>div.class_section {
     margin-top: 10px;
