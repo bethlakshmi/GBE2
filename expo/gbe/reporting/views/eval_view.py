@@ -40,13 +40,12 @@ def eval_view(request):
               'Time',
               '# Interested',
               '# Evaluations']
-    summary_holder = []
     for question in response.questions:
         header += [question.question]
-        summary_holder += ['x']
     header += ['Actions']
 
     display_list = []
+    summary_view_data = {}
     events = Class.objects.filter(e_conference=conference)
     for occurrence in response.occurrences:
         class_event = events.get(
@@ -68,12 +67,16 @@ def eval_view(request):
             'teachers': teachers,
             'interested': len(interested),
             'eval_count': 0,
-            'eval_summaries': summary_holder,
             'detail_link': reverse(
                 'evaluation_detail',
                 urlconf='gbe.reporting.urls',
                 args=[occurrence.id])}
         display_list += [display_item]
+        summary_view_data[int(occurrence.id)] = {}
+    for question in response.questions:
+        for item in response.summaries[question.pk]:
+            summary_view_data[int(item['event'])][int(question.pk)] = item[
+                'summary']
 
     display_list.sort(key=lambda k: k['sort_start'])
     user_message = UserMessage.objects.get_or_create(
@@ -86,6 +89,8 @@ def eval_view(request):
                   'gbe/report/evals.tmpl',
                   {'header': header,
                    'classes': display_list,
+                   'questions': response.questions,
+                   'summaries': summary_view_data,
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
                    'about': user_message[0].description})

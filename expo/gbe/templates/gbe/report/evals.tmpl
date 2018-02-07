@@ -20,6 +20,7 @@
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>
   <br/>
+  {{ summaries }}
   <div>
     Toggle column(s):
     {% for header_item in header %}
@@ -60,10 +61,20 @@
         <td class="bid-table">{{ class.start }}</td>	
         <td class="bid-table">{{ class.interested }}</td>	
         <td class="bid-table">{{ class.eval_count }}</td>
-	{% for summary in class.eval_summaries %}
-	  <td class="bid-table">
-	    {{ summary }}
-	  </td>
+	{%for key, question_sum in summaries.items%}
+          {% if class.id == key %}
+	    {% if question_sum|length > 0 %}
+	    {% for key, value in question_sum.items %}
+            <td class="bid-table">
+      	    {{ value }}
+	    </td>
+	    {% endfor %}
+	    {% else %}
+	      {% for question in questions %}
+	      <td class="bid-table">&nbsp;</td>
+	      {% endfor %}
+	    {% endif %}
+	  {% endif %}
 	{% endfor %}
         <td class="bid-table">
 	  <div class="btn-group" role="group" aria-label="...">

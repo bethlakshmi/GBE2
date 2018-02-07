@@ -14,6 +14,7 @@ from datetime import (
 )
 import pytz
 from django.conf import settings
+from django.db.models import Count, Avg
 
 
 def get_eval_summary(labels, visible=True):
@@ -23,10 +24,25 @@ def get_eval_summary(labels, visible=True):
         return EvalSummaryResponse(errors=response.errors)
 
     questions = EventEvalQuestion.objects.filter(
-        visible=visible).order_by(
+        visible=visible).exclude(answer_type="text").order_by(
         'order')
 
-    
+    for question in questions:
+        summary = None
+        if question.answer_type == "boolean":
+            summary = EventEvalBoolean.objects.filter(
+                event__in=response.occurrences,
+                question=question).values(
+                'event').annotate(
+                summary=Avg('answer'))
+        if question.answer_type == "grade":
+            summary = EventEvalGrade.objects.filter(
+                event__in=response.occurrences,
+                question=question).values(
+                'event', 'answer').annotate(
+                summary=Count('answer'))
+        summaries[question.pk] = summary
+
     return EvalSummaryResponse(occurrences=response.occurrences,
                                questions=questions,
                                summaries=summaries)
