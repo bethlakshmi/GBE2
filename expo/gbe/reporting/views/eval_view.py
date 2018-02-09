@@ -8,6 +8,7 @@ from gbe.functions import (
 )
 from django.core.urlresolvers import reverse
 from scheduler.idd import (
+    get_eval_info,
     get_eval_summary,
 )
 from gbe.models import (
@@ -22,16 +23,34 @@ from expo.settings import (
     URL_DATE,
 )
 from gbetext import eval_report_explain_msg
+from gbe.scheduling.views.functions import (
+    show_general_status,
+)
 
 
 @never_cache
-def eval_view(request):
+def eval_view(request, occurrence_id=None):
+    details = None
     reviewer = validate_perms(request, ('Class Coordinator', ))
-
     if request.GET and request.GET.get('conf_slug'):
         conference = get_conference_by_slug(request.GET['conf_slug'])
     else:
         conference = get_current_conference()
+    if occurrence_id:
+        detail_response = get_eval_info(occurrence_id=occurrence_id)
+        show_general_status(request, detail_response, "EvaluationDetailView")
+        detail_response.answers.sort(
+            key=lambda answer: (answer.profile.profile.display_name,
+                                answer.question.order))
+        details = {
+            'occurrence': detail_response.occurrences[0],
+            'title': detail_response.occurrences[
+                0].eventitem.event.e_title,
+            'description': detail_response.occurrences[
+                0].eventitem.event.e_description,
+            'questions': detail_response.questions,
+            'evaluations': detail_response.answers,
+        }
 
     response = get_eval_summary(
         labels=[conference.conference_slug, "Conference"])
@@ -57,7 +76,6 @@ def eval_view(request):
                 interested += [person]
             elif person.role in ("Teacher", "Moderator"):
                 teachers += [Performer.objects.get(pk=person.public_id)]
-
         display_item = {
             'id': occurrence.id,
             'eventitem_id': class_event.eventitem_id,
@@ -66,7 +84,9 @@ def eval_view(request):
             'title': class_event.e_title,
             'teachers': teachers,
             'interested': len(interested),
-            'eval_count': 0,
+            'eval_count': response.summaries[
+                response.questions.first().pk].filter(
+                event=occurrence).count(),
             'detail_link': reverse(
                 'evaluation_detail',
                 urlconf='gbe.reporting.urls',
@@ -93,4 +113,5 @@ def eval_view(request):
                    'summaries': summary_view_data,
                    'conference_slugs': conference_slugs(),
                    'conference': conference,
-                   'about': user_message[0].description})
+                   'about': user_message[0].description,
+                   'details': details})
