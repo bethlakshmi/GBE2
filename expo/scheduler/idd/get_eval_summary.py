@@ -46,9 +46,11 @@ def get_eval_summary(labels, visible=True):
     question = EventEvalQuestion.objects.filter(
         visible=visible,
         answer_type="grade").first()
-    count = EventEvalGrade.objects.filter(
-        question=question).values('event').annotate(
-        eval_count=Count('event'))
+    count = {}
+    for item in EventEvalGrade.objects.filter(
+            question=question).values('event').annotate(
+            eval_count=Count('event')):
+        count[item['event']] = item['eval_count']
     return EvalSummaryResponse(occurrences=response.occurrences,
                                questions=questions,
                                summaries=summaries,

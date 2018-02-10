@@ -85,8 +85,7 @@ def eval_view(request, occurrence_id=None):
             'title': class_event.e_title,
             'teachers': teachers,
             'interested': len(interested),
-            'eval_count': (c['eval_count'] for c in response.count if c[
-                'event'] == occurrence),
+            'eval_count': response.count.get(occurrence.pk, 0),
             'detail_link': reverse(
                 'evaluation_detail',
                 urlconf='gbe.reporting.urls',
