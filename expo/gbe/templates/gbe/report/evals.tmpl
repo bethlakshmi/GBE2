@@ -77,12 +77,16 @@
 	  {% endif %}
 	{% endfor %}
         <td class="bid-table">
+	  {% if class.eval_count > 0 %}
 	  <div class="btn-group" role="group" aria-label="...">
 	   <a href="{{ class.detail_link }}" data-toggle="tooltip" title="View Evaluation Details">
             <button type="button" class="btn btn-default btn-sm">
 	        <i class="icon-eye"></i>
 	    </button></a>
-        </div>
+          </div>
+	  {% else %}
+	    &nbsp;
+	  {% endif %}
 	</td>
       </tr>{% endfor %}
     </tbody>
