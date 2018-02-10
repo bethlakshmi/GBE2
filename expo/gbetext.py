@@ -193,6 +193,13 @@ grade_options = (("A", "A"),
                  ("F", "F"),
                  ("NA", "NA"),)
 
+new_grade_options = ((4, "A"),
+                 (3, "B"),
+                 (2, "C"),
+                 (1, "D"),
+                 (0, "F"),
+                 (None, "NA"),)
+
 answer_types = (("grade", "grade"),
                 ("text", "text"),
                 ("boolean", "boolean"),)
