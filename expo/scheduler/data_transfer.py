@@ -138,9 +138,12 @@ class EvalSummaryResponse(GeneralResponse):
                  occurrences=[],
                  questions=[],
                  summaries={},
+                 count=None,
                  warnings=[],
                  errors=[]):
         self.occurrences = occurrences
         self.questions = questions
         self.summaries = summaries
+        self.count = count
+
         super(EvalSummaryResponse, self).__init__(warnings, errors)
