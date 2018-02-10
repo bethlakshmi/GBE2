@@ -186,12 +186,6 @@ vote_options = ((1, "Strong yes"),
                 (6, "No"),
                 (7, "Strong No"),
                 (-1, "Abstain"))
-grade_options = (("A", "A"),
-                 ("B", "B"),
-                 ("C", "C"),
-                 ("D", "D"),
-                 ("F", "F"),
-                 ("NA", "NA"),)
 
 new_grade_options = ((4, "A"),
                  (3, "B"),

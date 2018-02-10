@@ -132,7 +132,7 @@ class EventEvalGradeFactory(DjangoModelFactory):
     question = SubFactory(EventEvalQuestionFactory)
     profile = SubFactory(WorkerItemFactory)
     event = SubFactory(SchedEventFactory)
-    answer = "B"
+    answer = 2
 
     class Meta:
         model = sched.EventEvalGrade

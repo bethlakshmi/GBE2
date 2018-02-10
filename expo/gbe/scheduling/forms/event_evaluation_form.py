@@ -7,7 +7,7 @@ from django.forms import (
     Textarea,
 )
 from gbe.models import Class
-from gbetext import grade_options
+from gbetext import new_grade_options
 
 
 class EventEvaluationForm(Form):
@@ -34,7 +34,7 @@ class EventEvaluationForm(Form):
                 self.fields['question%d' % question.id] = ChoiceField(
                     label=question.question,
                     help_text=question.help_text,
-                    choices=grade_options,
+                    choices=new_grade_options,
                     widget=RadioSelect,
                 )
             if question.answer_type == "boolean":

@@ -6,10 +6,7 @@ from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
 )
-from gbetext import (
-    grade_options,
-    new_grade_options,
-)
+from gbetext import new_grade_options
 
 
 class EventEvalGrade(EventEvalAnswer):
