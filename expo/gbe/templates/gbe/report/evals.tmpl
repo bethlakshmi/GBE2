@@ -65,9 +65,7 @@
           {% if class.id == key %}
 	    {% if question_sum|length > 0 %}
 	    {% for key, value in question_sum.items %}
-            <td class="bid-table">
-      	    {{ value }}
-	    </td>
+            <td class="bid-table">{{ value }}</td>
 	    {% endfor %}
 	    {% else %}
 	      {% for question in questions %}
@@ -76,18 +74,14 @@
 	    {% endif %}
 	  {% endif %}
 	{% endfor %}
-        <td class="bid-table">
-	  {% if class.eval_count > 0 %}
+        <td class="bid-table">{% if class.eval_count > 0 %}
 	  <div class="btn-group" role="group" aria-label="...">
 	   <a href="{{ class.detail_link }}" data-toggle="tooltip" title="View Evaluation Details">
             <button type="button" class="btn btn-default btn-sm">
 	        <i class="icon-eye"></i>
 	    </button></a>
-          </div>
-	  {% else %}
-	    &nbsp;
-	  {% endif %}
-	</td>
+          </div>{% else %}&nbsp;
+	  {% endif %}</td>
       </tr>{% endfor %}
     </tbody>
   </table>
