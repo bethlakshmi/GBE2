@@ -104,3 +104,36 @@ class TestEval(TestCase):
             'evaluation_detail',
             urlconf='gbe.reporting.urls',
             args=[self.context.sched_event.id]))
+
+    def test_details(self):
+        interested = []
+        login_as(self.priv_profile, self)
+        grade1 = EventEvalGradeFactory(event=self.context.sched_event,
+                                       answer=4)
+        grade2 = EventEvalGradeFactory(event=self.context.sched_event,
+                                       answer=3,
+                                       question=grade1.question)
+        bool1 = EventEvalBooleanFactory(event=self.context.sched_event,
+                                        answer=True,
+                                        profile=grade1.profile)
+        bool2 = EventEvalBooleanFactory(event=self.context.sched_event,
+                                        answer=False,
+                                        profile=grade2.profile,
+                                        question=bool1.question)
+        text1 = EventEvalCommentFactory(event=self.context.sched_event,
+                                        profile=grade1.profile)
+        text2 = EventEvalCommentFactory(event=self.context.sched_event,
+                                        profile=grade2.profile,
+                                        question=text1.question)
+
+        response = self.client.get(reverse(
+            'evaluation_detail',
+            urlconf='gbe.reporting.urls',
+            args=[self.context.sched_event.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, grade1.question.question, 2)
+        self.assertContains(response, bool1.question.question, 2)
+        self.assertNotContains(response, text1.question.question, 2)
+        self.assertContains(response, '<td class="bid-table">3.5</td>')
+        self.assertContains(response, grade1.profile.profile.display_name)
+        self.assertContains(response, grade2.profile.profile.display_name)
