@@ -20,6 +20,7 @@ def move_grade(apps, schema_editor):
         grade.new_answer = grade_convert[grade.answer]
         grade.save()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -34,7 +35,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='eventevalgrade',
             name='new_answer',
-            field=models.IntegerField(blank=True, choices=[(4, b'A'), (3, b'B'), (2, b'C'), (1, b'D'), (0, b'F'), (None, b'NA')], null=True, validators=[django.core.validators.MinValueValidator(-1), django.core.validators.MaxValueValidator(5)]),
+            field=models.IntegerField(
+                blank=True,
+                choices=[(4, b'A'),
+                         (3, b'B'),
+                         (2, b'C'),
+                         (1, b'D'),
+                         (0, b'F'),
+                         (None, b'NA')],
+                null=True,
+                validators=[django.core.validators.MinValueValidator(-1),
+                            django.core.validators.MaxValueValidator(5)]),
         ),
         migrations.RunPython(move_grade),
         migrations.RemoveField(

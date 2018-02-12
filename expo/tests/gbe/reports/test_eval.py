@@ -10,7 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.contexts import ClassContext
 from gbe.models import Conference
-from gbetext import interested_report_explain_msg
+from gbetext import eval_report_explain_msg
 from tests.factories.scheduler_factories import (
     EventEvalGradeFactory,
     EventEvalBooleanFactory,
@@ -44,6 +44,7 @@ class TestEval(TestCase):
         self.assertNotContains(response, self.old_context.bid.e_title)
         self.assertContains(response, self.context.teacher.name)
         self.assertNotContains(response, self.old_context.teacher.name)
+        self.assertContains(response, eval_report_explain_msg)
 
     def test_old_conf_success(self):
         login_as(self.priv_profile, self)
@@ -131,9 +132,23 @@ class TestEval(TestCase):
             urlconf='gbe.reporting.urls',
             args=[self.context.sched_event.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, grade1.question.question, 2)
-        self.assertContains(response, bool1.question.question, 2)
-        self.assertNotContains(response, text1.question.question, 2)
-        self.assertContains(response, '<td class="bid-table">3.5</td>')
+        self.assertContains(response, grade1.question.question, 5)
+        self.assertContains(response, bool1.question.question, 5)
+        self.assertContains(response, text1.question.question, 2)
         self.assertContains(response, grade1.profile.profile.display_name)
         self.assertContains(response, grade2.profile.profile.display_name)
+        self.assertContains(response, '<td class="bid-table">4</td>')
+        self.assertContains(response, '<td class="bid-table">3</td>')
+        self.assertContains(response, self.context.bid.e_description)
+
+    def test_bad_details(self):
+        interested = []
+        login_as(self.priv_profile, self)
+
+        response = self.client.get(reverse(
+            'evaluation_detail',
+            urlconf='gbe.reporting.urls',
+            args=[self.context.sched_event.id+100]))
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+100))

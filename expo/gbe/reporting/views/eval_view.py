@@ -37,20 +37,22 @@ def eval_view(request, occurrence_id=None):
     else:
         conference = get_current_conference()
     if occurrence_id:
-        detail_response = get_eval_info(occurrence_id=occurrence_id)
+        detail_response = get_eval_info(occurrence_id=int(occurrence_id))
         show_general_status(request, detail_response, "EvaluationDetailView")
-        detail_response.answers.sort(
-            key=lambda answer: (answer.profile.profile.display_name,
-                                answer.question.order))
-        details = {
-            'occurrence': detail_response.occurrences[0],
-            'title': detail_response.occurrences[
-                0].eventitem.event.e_title,
-            'description': detail_response.occurrences[
-                0].eventitem.event.e_description,
-            'questions': detail_response.questions,
-            'evaluations': detail_response.answers,
-        }
+        if detail_response.occurrences and len(
+                detail_response.occurrences) > 0:
+            detail_response.answers.sort(
+                key=lambda answer: (answer.profile.profile.display_name,
+                                    answer.question.order))
+            details = {
+                'occurrence': detail_response.occurrences[0],
+                'title': detail_response.occurrences[
+                    0].eventitem.event.e_title,
+                'description': detail_response.occurrences[
+                    0].eventitem.event.e_description,
+                'questions': detail_response.questions,
+                'evaluations': detail_response.answers,
+            }
 
     response = get_eval_summary(
         labels=[conference.conference_slug, "Conference"])
@@ -76,7 +78,7 @@ def eval_view(request, occurrence_id=None):
                 interested += [person]
             elif person.role in ("Teacher", "Moderator"):
                 teachers += [Performer.objects.get(pk=person.public_id)]
-        
+
         display_item = {
             'id': occurrence.id,
             'eventitem_id': class_event.eventitem_id,

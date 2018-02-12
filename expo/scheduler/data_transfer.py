@@ -133,6 +133,7 @@ class EvalInfoResponse(GeneralResponse):
         self.answers = answers
         super(EvalInfoResponse, self).__init__(warnings, errors)
 
+
 class EvalSummaryResponse(GeneralResponse):
     def __init__(self,
                  occurrences=[],

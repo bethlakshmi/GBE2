@@ -140,6 +140,7 @@ class EventEvalGradeFactory(DjangoModelFactory):
     class Meta:
         model = sched.EventEvalGrade
 
+
 class EventEvalBooleanFactory(DjangoModelFactory):
     question = SubFactory(EventEvalQuestionFactory, answer_type="boolean")
     profile = SubFactory(ProfileFactory)
@@ -148,6 +149,7 @@ class EventEvalBooleanFactory(DjangoModelFactory):
 
     class Meta:
         model = sched.EventEvalBoolean
+
 
 class EventEvalCommentFactory(DjangoModelFactory):
     question = SubFactory(EventEvalQuestionFactory, answer_type="text")
