@@ -38,11 +38,14 @@ class EditStaffAreaView(ManageVolWizardView):
 
     def make_context(self, request, errorcontext=None):
         context = {
-            'edit_title':  'Edit Staff Area'
+            'edit_title': 'Edit Staff Area',
+            'start_open': True,
         }
         if errorcontext is not None:
             context = errorcontext
-
+        if request.GET.get('start_open',
+                           True) in ["False", "false", "F", "f", False]:
+            context['start_open'] = False
         # if there was an error in the edit form
         if 'event_form' not in context:
             context['event_form'] = StaffAreaForm(

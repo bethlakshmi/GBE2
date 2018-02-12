@@ -20,7 +20,7 @@
       </a>
     </h3>
   </div>
-  <div id="collapse1" class="panel-collapse collapse {% if edit_open %}in{% endif %}">
+  <div id="collapse1" class="panel-collapse collapse {% if edit_open or start_open %}in{% endif %}">
   <div class="panel-body">
   <form action="" method="post" enctype="multipart/form-data">
       {% csrf_token %}

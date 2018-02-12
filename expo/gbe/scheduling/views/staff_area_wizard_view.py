@@ -60,7 +60,7 @@ class StaffAreaWizardView(EventWizardView):
                     'set_event'
                     ) == 'Continue to Volunteer Opportunities' and (
                     context['volunteer_scheduling']):
-                return HttpResponseRedirect(
+                return HttpResponseRedirect("%s?start_open=False" %
                     reverse('edit_staff',
                             urlconf='gbe.scheduling.urls',
                             args=[new_event.id]))

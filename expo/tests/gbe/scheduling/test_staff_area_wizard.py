@@ -146,9 +146,10 @@ class TestStaffAreaWizard(TestCase):
                                          conference=self.current_conference)
         self.assertRedirects(
             response,
-            reverse('edit_staff',
-                    urlconf='gbe.scheduling.urls',
-                    args=[new_area.id]))
+            "%s?start_open=False" % reverse(
+                'edit_staff',
+                urlconf='gbe.scheduling.urls',
+                args=[new_area.id]))
         assert_alert_exists(
             response,
             'success',

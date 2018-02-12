@@ -353,10 +353,11 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_event.eventitem_id)
         self.assertRedirects(
             response,
-            reverse('edit_event',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.current_conference.conference_slug,
-                          occurrence.pk]))
+            "%s?start_open=False" % reverse(
+                'edit_event',
+                urlconf='gbe.scheduling.urls',
+                args=[self.current_conference.conference_slug,
+                      occurrence.pk]))
         assert_alert_exists(
             response,
             'success',

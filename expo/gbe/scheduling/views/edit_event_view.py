@@ -131,10 +131,14 @@ class EditEventView(ManageVolWizardView):
 
     def make_context(self, request, errorcontext=None):
         context = {
-            'edit_title':  'Edit Event'
+            'edit_title':  'Edit Event',
+            'start_open': request.GET.get('start_open', True),
         }
         if errorcontext is not None:
             context = errorcontext
+        if request.GET.get('start_open',
+                           True) in ["False", "false", "F", "f", False]:
+            context['start_open'] = False
         duration = float(self.item.duration.total_minutes())/60
         initial_form_info = {
                 'duration': duration,
