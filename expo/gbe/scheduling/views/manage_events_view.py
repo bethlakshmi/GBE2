@@ -24,6 +24,7 @@ from gbe.models import (
     ConferenceDay,
     Event,
     GenericEvent,
+    StaffArea,
 )
 from gbe.functions import (
     get_current_conference,
@@ -43,17 +44,13 @@ from gbetext import calendar_type as calendar_type_options
 
 class ManageEventsView(View):
     template = 'gbe/scheduling/manage_event.tmpl'
-    calendar_type = None
     conference = None
-    this_day = None
 
     def setup(self, request, args, kwargs):
         validate_perms(request, ('Scheduling Mavens',))
         context = {}
-        self.calendar_type = None
         self.conference = None
         conference_set = conference_list().order_by('-conference_slug')
-        self.this_day = None
 
         if "conference_slug" in kwargs:
             self.conference = get_conference_by_slug(
@@ -67,6 +64,9 @@ class ManageEventsView(View):
         select_form = SelectEventForm(request.GET,
                                       prefix=self.conference.conference_slug)
         select_form.fields['day'].choices = day_list
+        select_form.fields['staff_area'].queryset = StaffArea.objects.filter(
+            conference=self.conference
+        ).order_by("slug")
         context = {
             'conference': self.conference,
             'conference_slugs': [
@@ -76,6 +76,8 @@ class ManageEventsView(View):
         }
         if 'new' in request.GET.keys():
             context['success_occurrences'] = eval(request.GET['new'])
+        if 'alt_id' in request.GET.keys():
+            context['alt_id'] = long(request.GET['alt_id'])
         for conf in conference_set:
             if self.conference != conf:
                 hidden_form = HiddenSelectEventForm(
@@ -133,34 +135,29 @@ class ManageEventsView(View):
         display_list.sort(key=lambda k: k['sort_start'])
         return display_list
 
-    def get_filtered_occurences(self, request, select_form):
+    def get_filtered_occurrences(self, request, select_form):
         occurrences = []
+        label_set = [[self.conference.conference_slug]]
+
+        if len(select_form.cleaned_data['calendar_type']) > 0:
+            cal_types = []
+            for cal_type in select_form.cleaned_data['calendar_type']:
+                cal_types += [calendar_type_options[int(cal_type)]]
+            label_set += [cal_types]
+        if len(select_form.cleaned_data['staff_area']) > 0:
+            staff_areas = []
+            for staff_area in select_form.cleaned_data['staff_area']:
+                staff_areas += [staff_area.slug]
+            label_set += [staff_areas]
         if len(select_form.cleaned_data['day']) > 0:
             for day_id in select_form.cleaned_data['day']:
                 day = ConferenceDay.objects.get(pk=day_id)
-                if len(select_form.cleaned_data['calendar_type']) > 0:
-                    for cal_type in select_form.cleaned_data['calendar_type']:
-                        response = get_occurrences(
-                            labels=[
-                                self.conference.conference_slug,
-                                calendar_type_options[int(cal_type)]],
-                            day=day.day)
-                        occurrences += response.occurrences
-                else:
-                    response = get_occurrences(labels=[
-                        self.conference.conference_slug, ],
-                        day=day.day)
-                    occurrences += response.occurrences
-        elif len(select_form.cleaned_data['calendar_type']) > 0:
-            for cal_type in select_form.cleaned_data['calendar_type']:
-                response = get_occurrences(
-                    labels=[
-                        self.conference.conference_slug,
-                        calendar_type_options[int(cal_type)]])
+                response = get_occurrences(label_sets=label_set,
+                                           day=day.day)
                 occurrences += response.occurrences
         else:
             response = get_occurrences(
-                labels=[self.conference.conference_slug, ])
+                label_sets=label_set)
             occurrences += response.occurrences
         if len(select_form.cleaned_data['volunteer_type']) > 0:
             volunteer_event_ids = GenericEvent.objects.filter(
@@ -181,8 +178,9 @@ class ManageEventsView(View):
                 len(context['selection_form'].cleaned_data['day']) > 0 or len(
                     context['selection_form'].cleaned_data[
                         'calendar_type']) > 0 or len(context[
-                'selection_form'].cleaned_data['volunteer_type']) > 0):
-            context['occurrences'] = self.get_filtered_occurences(
+                'selection_form'].cleaned_data['volunteer_type']) > 0 or len(
+                    context['selection_form'].cleaned_data['staff_area']) > 0):
+            context['occurrences'] = self.get_filtered_occurrences(
                 request,
                 context['selection_form'])
         return render(request, self.template, context)

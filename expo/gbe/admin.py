@@ -12,6 +12,18 @@ class ConferenceAdmin(admin.ModelAdmin):
     list_filter = ['status', 'act_style']
 
 
+@admin.register(StaffArea)
+class StaffAreaAdmin(admin.ModelAdmin):
+    list_display = ('id',
+                    'conference',
+                    'title',
+                    'staff_lead')
+    list_editable = ('title',
+                     'staff_lead',)
+    list_display_links = ('id',)
+    list_filter = ['conference__conference_slug', 'slug']
+
+
 class BidAdmin(ImportExportActionModelAdmin):
     list_display = (str, 'submitted', 'accepted', 'created_at', 'updated_at')
     list_filter = ['submitted', 'accepted', 'b_conference']
@@ -24,7 +36,7 @@ class ClassAdmin(BidAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'b_conference']
+    list_filter = ['submitted', 'accepted', 'b_conference__conference_slug']
     search_fields = ['e_title']
 
 
@@ -34,7 +46,7 @@ class ActAdmin(admin.ModelAdmin):
                     'accepted',
                     'created_at',
                     'updated_at')
-    list_filter = ['submitted', 'accepted', 'b_conference']
+    list_filter = ['submitted', 'accepted', 'b_conference__conference_slug']
     search_fields = ['b_title']
 
 
@@ -101,18 +113,18 @@ class RoomAdmin(admin.ModelAdmin):
 
 
 class ShowAdmin(admin.ModelAdmin):
-    list_filter = ['e_conference']
+    list_filter = ['e_conference__conference_slug']
 
 
 class GenericAdmin(ImportExportActionModelAdmin):
     list_display = ('e_title', 'type')
-    list_filter = ['e_conference', 'type']
+    list_filter = ['e_conference', 'type', 'visible']
     search_fields = ['e_title']
 
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('eventitem_id', 'e_title', 'subclass')
-    list_filter = ['e_conference']
+    list_filter = ['e_conference__conference_slug']
     search_fields = ['e_title']
 
     def subclass(self, obj):
@@ -147,7 +159,7 @@ class VolunteerInterestAdmin(admin.ModelAdmin):
                     'conference')
     list_filter = ['interest',
                    'rank',
-                   'volunteer__b_conference']
+                   'volunteer__b_conference__conference_slug']
 
     def conference(self, obj):
         return obj.volunteer.b_conference
@@ -160,7 +172,7 @@ class VolunteerWindowAdmin(admin.ModelAdmin):
                     'end',
                     'conference')
     list_filter = ['day',
-                   'day__conference']
+                   'day__conference__conference_slug']
     list_editable = ('start',
                      'end',)
 
@@ -176,7 +188,7 @@ class ConferenceDayAdmin(admin.ModelAdmin):
                     'day',
                     'conference',
                     'open_to_public')
-    list_filter = ['conference']
+    list_filter = ['conference__conference_slug']
     list_editable = ('day',
                      'conference',
                      'open_to_public')

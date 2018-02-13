@@ -14,6 +14,7 @@ from gbe.functions import (
 from gbe.models import (
     Event,
     GenericEvent,
+    StaffArea,
     Volunteer
 )
 from scheduler.idd import (
@@ -72,7 +73,7 @@ def AssignVolunteerView(request, volunteer_id):
 
     for event in response.occurrences:
         if event.foreign_event_id not in rehearsals:
-            volunteer_event_windows += [{
+            window = {
                 'occurrence': event,
                 'window': conf_windows.filter(
                     day__day=event.starttime.date(),
@@ -80,7 +81,13 @@ def AssignVolunteerView(request, volunteer_id):
                     end__gt=event.starttime.time()).first(),
                 'booked': event.pk in booking_ids,
                 'eventitem': event.eventitem,
-            }]
+                'staff_areas': StaffArea.objects.filter(
+                    conference=conference,
+                    slug__in=event.labels.values_list('text', flat=True))
+            }
+            if hasattr(event, 'container_event'):
+                window['parent_event'] = event.container_event.parent_event
+            volunteer_event_windows += [window]
 
     return render(
         request,

@@ -92,6 +92,19 @@ class TestEventWizard(TestCase):
                           data['event_type']]),
             data['event_type']))
 
+    def test_auth_user_can_pick_staff(self):
+        login_as(self.privileged_user, self)
+        data = self.get_data("staff")
+        response = self.client.get(
+            self.url,
+            data=data,
+            follow=True)
+        self.assertRedirects(response, "%s?pick_event=Next&event_type=%s" % (
+            reverse('staff_area_wizard',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug]),
+            data['event_type']))
+
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
         data = self.get_data()

@@ -151,14 +151,6 @@ class ActItem(ResourceItem):
     def as_subtype(self):
         return self.act
 
-    def get_resource(self):
-        '''
-        Deprecate this.
-        Return the resource corresonding to this item
-        To do: find a way to make this work at the Resource level
-        '''
-        return self.as_subtype
-
     @property
     def order(self):
         '''
@@ -1074,11 +1066,15 @@ class EventLabel (models.Model):
     '''
     A decorator allowing free-entry "tags" on allocations
     '''
-    text = models.TextField(default='')
+    text = models.CharField(default='', max_length=200)
     event = models.ForeignKey(Event)
 
     def __str__(self):
         return self.text
+
+    class Meta:
+        app_label = "scheduler"
+        unique_together = (('text', 'event'), )
 
 
 class EventContainer (models.Model):

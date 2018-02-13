@@ -9,7 +9,8 @@ from tests.factories.gbe_factories import (
 )
 from gbe.models import (
     AvailableInterest,
-    Conference
+    Conference,
+    StaffArea,
 )
 from tests.functions.gbe_functions import (
     grant_privilege,
@@ -150,6 +151,18 @@ class TestEventList(TestCase):
         self.assertNotContains(
             response,
             old_interest.interest)
+
+    def test_good_user_get_staff_area(self):
+        other_staff_context = StaffAreaContext()
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            self.staff_context.area.title)
+        self.assertNotContains(
+            response,
+            other_staff_context.area.title)
 
     def test_good_user_get_create_edit(self):
         login_as(self.privileged_profile, self)
@@ -366,6 +379,31 @@ class TestEventList(TestCase):
             response,
             '&quot;bad&quot; is not a valid value for a primary key')
 
+    def test_good_user_filter_staff_area(self):
+        other_staff_area = StaffAreaContext(
+            conference=self.day.conference
+        )
+        login_as(self.privileged_profile, self)
+        data = {
+            "%s-staff_area" % self.day.conference.conference_slug: (
+                self.staff_context.area.pk),
+            "filter": "Filter",
+        }
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.vol_opp.event.eventitem.e_title)
+        index = 0
+        for area in StaffArea.objects.filter(
+                conference=self.day.conference).order_by('title'):
+            self.assert_visible_input_selected(
+                response,
+                self.day.conference.conference_slug,
+                "staff_area",
+                index,
+                area.pk,
+                checked=(area == self.staff_context.area))
+            index += 1
+
     def test_switch_conf_keep_filter(self):
         old_conf_day = ConferenceDayFactory(
             conference__status="completed",
@@ -380,6 +418,8 @@ class TestEventList(TestCase):
             "%s-day" % old_conf_day.conference.conference_slug: (
                 old_conf_day.pk),
             "%s-calendar_type" % old_conf_day.conference.conference_slug: 0,
+            "%s-staff_area" % self.day.conference.conference_slug: (
+                self.staff_context.area.pk),
             "filter": "Filter",
         }
         response = self.client.get(url, data=data)
@@ -407,3 +447,9 @@ class TestEventList(TestCase):
             0,
             0,
             False)
+        self.assert_hidden_input_selected(
+            response,
+            self.day.conference.conference_slug,
+            "staff_area",
+            0,
+            self.staff_context.area.pk)

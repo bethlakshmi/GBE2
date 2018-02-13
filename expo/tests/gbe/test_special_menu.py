@@ -123,7 +123,7 @@ class TestSpecialMenu(TestCase):
         Conference.objects.all().delete()
         privilege = "Staff Lead"
         context = StaffAreaContext()
-        context.conference.status = "past"
+        context.conference.status = "completed"
         context.conference.save()
         login_as(context.staff_lead, self)
         response = self.client.get(self.url)
