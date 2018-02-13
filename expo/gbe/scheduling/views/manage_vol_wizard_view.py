@@ -64,10 +64,9 @@ class ManageVolWizardView(View):
         '''
         actionform = []
         context = {}
-        if occurrence_id is not None:
-            response = get_occurrences(parent_event_id=occurrence_id)
-        elif len(labels) > 0:
-            response = get_occurrences(labels=labels)
+        if occurrence_id is not None or len(labels) > 0:
+            response = get_occurrences(parent_event_id=occurrence_id,
+                                       labels=labels)
         else:
             return None
 
