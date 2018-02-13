@@ -24,14 +24,10 @@ def move_grade(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scheduler', '0006_auto_20180102_1343'),
+        ('scheduler', '0008_auto_20180127_0237'),
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='eventevalquestion',
-            options={'ordering': ['order']},
-        ),
         migrations.AddField(
             model_name='eventevalgrade',
             name='new_answer',
