@@ -135,7 +135,7 @@ class ManageEventsView(View):
         display_list.sort(key=lambda k: k['sort_start'])
         return display_list
 
-    def get_filtered_occurences(self, request, select_form):
+    def get_filtered_occurrences(self, request, select_form):
         occurrences = []
         label_set = [[self.conference.conference_slug]]
 
@@ -180,7 +180,7 @@ class ManageEventsView(View):
                         'calendar_type']) > 0 or len(context[
                 'selection_form'].cleaned_data['volunteer_type']) > 0 or len(
                     context['selection_form'].cleaned_data['staff_area']) > 0):
-            context['occurrences'] = self.get_filtered_occurences(
+            context['occurrences'] = self.get_filtered_occurrences(
                 request,
                 context['selection_form'])
         return render(request, self.template, context)
