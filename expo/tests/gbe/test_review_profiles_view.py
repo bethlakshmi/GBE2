@@ -34,7 +34,7 @@ class TestReviewProfiles(TestCase):
 
     def test_past_staff_lead(self):
         context = StaffAreaContext()
-        context.conference.status = "past"
+        context.conference.status = "completed"
         context.conference.save()
         login_as(context.staff_lead, self)
         response = self.client.get(self.url)

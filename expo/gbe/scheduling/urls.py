@@ -7,9 +7,11 @@ from gbe.scheduling.views import (
     AllocateWorkerView,
     ClassWizardView,
     CopyOccurrenceView,
+    CopyStaffAreaView,
     CreateEventView,
     DeleteEventView,
     EditEventView,
+    EditStaffAreaView,
     EvalEventView,
     EventDetailView,
     EventWizardView,
@@ -20,6 +22,7 @@ from gbe.scheduling.views import (
     ManageVolWizardView,
     SetFavoriteView,
     ShowCalendarView,
+    StaffAreaWizardView,
     TicketedEventWizardView,
 )
 
@@ -42,6 +45,8 @@ urlpatterns = patterns(
         CreateEventView, name='create_event'),
     url(r'^scheduling/create_class_wizard/(?P<conference>[-\w]+)/?$',
         ClassWizardView.as_view(), name='create_class_wizard'),
+    url(r'^scheduling/create_staff_area_wizard/(?P<conference>[-\w]+)/?$',
+        StaffAreaWizardView.as_view(), name='staff_area_wizard'),
     url(r'^scheduling/create_ticketed_wizard/(?P<conference>[-\w]+)/' +
         '(?P<event_type>[-\w]+)/?$',
         TicketedEventWizardView.as_view(),
@@ -51,12 +56,19 @@ urlpatterns = patterns(
     url(r'^scheduling/edit/(?P<conference>[-\w]+)/(?P<occurrence_id>\d+)/?$',
         EditEventView.as_view(),
         name='edit_event'),
+    url(r'^scheduling/staff_edit/(?P<staff_id>\d+)/?$',
+        EditStaffAreaView.as_view(),
+        name='edit_staff'),
     url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
-        ManageVolWizardView.as_view(), name='manage_vol'),
+        EditEventView.as_view(), name='manage_vol'),
+    url(r'^scheduling/manage-opps/(?P<staff_id>\d+)/?$',
+        EditStaffAreaView.as_view(), name='manage_vol'),
 
     url(r'^scheduling/copy/(?P<occurrence_id>\d+)/?$',
         CopyOccurrenceView.as_view(), name='copy_event_schedule'),
+    url(r'^scheduling/copy_staff/(?P<staff_id>\d+)/?$',
+        CopyStaffAreaView.as_view(), name='copy_staff_schedule'),
 
     url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
         MakeOccurrenceView.as_view(), name='create_event_schedule'),

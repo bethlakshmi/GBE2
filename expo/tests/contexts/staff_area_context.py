@@ -4,6 +4,7 @@ from tests.factories.gbe_factories import (
     ConferenceFactory,
     ProfileFactory,
     RoomFactory,
+    StaffAreaFactory,
 )
 from tests.factories.scheduler_factories import (
     EventContainerFactory,
@@ -13,6 +14,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+from tests.functions.scheduler_functions import noon
 
 
 class StaffAreaContext:
@@ -28,56 +30,38 @@ class StaffAreaContext:
                  starttime=None):
         self.staff_lead = staff_lead or ProfileFactory()
         self.conference = conference or ConferenceFactory()
-        self.area = area or GenericEventFactory(type='Staff Area',
-                                                e_conference=self.conference)
-        self.sched_event = None
-        self.sched_event = self.schedule_instance(starttime=starttime)
-        self.conf_day = ConferenceDayFactory(
-            day=self.sched_event.starttime.date(),
-            conference=self.conference)
-        self.days = [self.conf_day]
-
-    def schedule_instance(self,
-                          starttime=None,
-                          staff_lead=None):
-        staff_lead = staff_lead or self.staff_lead
-        if starttime:
-            sched_event = SchedEventFactory(eventitem=self.area.eventitem_ptr,
-                                            starttime=starttime)
-        elif self.sched_event:
-            one_day = timedelta(1)
-            sched_event = SchedEventFactory(
-                eventitem=self.area.eventitem_ptr,
-                starttime=self.sched_event.starttime+one_day)
-        else:
-            sched_event = SchedEventFactory(eventitem=self.area.eventitem_ptr)
-        ResourceAllocationFactory(
-            event=sched_event,
-            resource=WorkerFactory(
-                _item=staff_lead.workeritem_ptr,
-                role='Staff Lead'))
-        EventLabelFactory(event=sched_event,
-                          text=self.conference.conference_slug)
-        return sched_event
+        self.area = area or StaffAreaFactory(conference=self.conference,
+                                             staff_lead=self.staff_lead)
 
     def add_volunteer_opp(self,
                           volunteer_sched_event=None,
                           room=None):
+        if not self.conference.conferenceday_set.exists():
+            if volunteer_sched_event:
+                self.conf_day = ConferenceDayFactory(
+                    day=volunteer_sched_event.starttime.date(),
+                    conference=self.conference)
+            else:
+                self.conf_day = ConferenceDayFactory(
+                    conference=self.conference)
+        else:
+            self.conf_day = self.conference.conferenceday_set.first()
         if not volunteer_sched_event:
             vol_event = GenericEventFactory(e_conference=self.conference,
                                             type="Volunteer"
                                             )
             volunteer_sched_event = SchedEventFactory(
                 eventitem=vol_event,
-                starttime=self.sched_event.starttime,
-                max_volunteer=1)
+                max_volunteer=self.area.default_volunteers,
+                starttime=noon(self.conf_day))
         if not room:
             room = RoomFactory()
+
         ResourceAllocationFactory(
-            event=self.sched_event,
+            event=volunteer_sched_event,
             resource=LocationFactory(_item=room))
-        EventContainerFactory(parent_event=self.sched_event,
-                              child_event=volunteer_sched_event)
+        EventLabelFactory(event=volunteer_sched_event,
+                          text=self.area.slug)
         EventLabelFactory(event=volunteer_sched_event,
                           text=self.conference.conference_slug)
         EventLabelFactory(event=volunteer_sched_event,

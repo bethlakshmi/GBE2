@@ -22,6 +22,7 @@ from tests.contexts import (
     ShowContext,
     StaffAreaContext,
 )
+from gbe.models import ConferenceDay
 
 
 class TestCalendarView(TestCase):
@@ -32,6 +33,9 @@ class TestCalendarView(TestCase):
         clear_conferences()
         conference = ConferenceFactory()
         save_the_date = datetime(2016, 02, 06, 12, 00, 00)
+        day = ConferenceDayFactory(
+            conference=conference,
+            day=date(2016, 02, 06))
         self.staffcontext = StaffAreaContext(
             conference=conference,
             starttime=save_the_date)
@@ -321,7 +325,8 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['General'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         set_fav_link = reverse(
             "set_favorite",
             args=[self.showcontext.sched_event.pk, "on"],
@@ -336,7 +341,8 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['General'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         set_fav_link = reverse(
             "set_favorite",
             args=[self.showcontext.sched_event.pk, "off"],
@@ -354,7 +360,8 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['General'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         set_fav_link = reverse(
             "set_favorite",
             args=[self.showcontext.sched_event.pk, "on"],
@@ -390,7 +397,9 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['Conference'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
+
         self.assertContains(response,
                             '<a href="#" class="detail_link-disabled')
         self.assertContains(
@@ -404,7 +413,8 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['General'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         self.assertContains(response,
                             '<a href="#" class="detail_link-disabled')
         self.assertContains(
@@ -430,7 +440,8 @@ class TestCalendarView(TestCase):
                       urlconf="gbe.scheduling.urls",
                       args=['Conference'])
         login_as(eval_profile, self)
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         eval_link = reverse(
             "eval_event",
             args=[self.classcontext.sched_event.pk, ],
@@ -445,7 +456,8 @@ class TestCalendarView(TestCase):
         url = reverse('calendar',
                       urlconf="gbe.scheduling.urls",
                       args=['Conference'])
-        response = self.client.get(url)
+        data = {'day': "02-06-2016"}
+        response = self.client.get(url, data=data)
         eval_link = reverse(
             "eval_event",
             args=[self.classcontext.sched_event.pk, ],

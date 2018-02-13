@@ -19,14 +19,13 @@
     </tr>
     {% for area in areas %}
       <tr>
-        <td>{{area.e_title}}</td>
+        <td>{{area.title}}</td>
         <td>
- 	  {% for worker in area.roles %}
-            {{worker.role}} - {{worker.workeritem}}
- 	  {% endfor %}	
+ 	  {{area.staff_lead}}
         </td>
         <td>
-          <a href="{%url 'reporting:staff_area' area.eventitem_id %}">Get Staff Schedule</a>
+          <a href="{%url 'reporting:staff_area' area.pk %}?area=Staff">
+	    Get Staff Schedule</a>
         </td>
       </tr>
     {% endfor %}
@@ -50,7 +49,8 @@
  	  {% endfor %}	
         </td>
         <td>
-          <a href="{%url 'reporting:staff_area' show.eventitem_id %}">Get Staff Schedule</a>
+          <a href="{%url 'reporting:staff_area' show.eventitem_id %}?area=Show">
+	    Get Show Schedule</a>
         </td>
       </tr>
     {% endfor %}

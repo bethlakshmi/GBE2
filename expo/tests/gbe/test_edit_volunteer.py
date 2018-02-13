@@ -8,16 +8,17 @@ from tests.factories.gbe_factories import (
     PersonaFactory,
     ProfilePreferencesFactory,
     ProfileFactory,
+    StaffAreaFactory,
     UserMessageFactory,
     VolunteerFactory,
     VolunteerInterestFactory
 )
 from tests.factories.scheduler_factories import (
+    EventLabelFactory,
     WorkerFactory,
     ResourceAllocationFactory,
 )
 from tests.contexts import (
-    StaffAreaContext,
     VolunteerContext,
 )
 from tests.functions.gbe_functions import (
@@ -112,6 +113,32 @@ class TestEditVolunteer(TestCase):
             form,
             follow=True)
         return response, context
+
+    def test_volunteer_conflict_sends_warning_to_areastaff(self):
+        context = VolunteerContext()
+        area = StaffAreaFactory(conference=context.conference,
+                                staff_lead=context.profile)
+        EventLabelFactory(
+            event=context.opp_event,
+            text=area.slug)
+        change_window = context.add_window()
+        context.bid.available_windows.add(context.window)
+        form = self.get_form(context)
+        form['available_windows'] = [change_window.pk]
+        url = reverse('volunteer_edit',
+                      urlconf='gbe.urls',
+                      args=[context.bid.pk])
+        login_as(context.profile, self)
+        response = self.client.post(
+            url,
+            form,
+            follow=True)
+        assert_right_mail_right_addresses(
+            1,
+            3,
+            "URGENT: Volunteer Schedule Conflict Occurred",
+            [self.privileged_profile.contact_email,
+             context.profile.contact_email])
 
     def test_edit_volunteer_no_volunteer(self):
         url = reverse('volunteer_edit',
@@ -317,7 +344,7 @@ class TestEditVolunteer(TestCase):
             [self.privileged_profile.contact_email,
              context.profile.contact_email])
 
-    def test_volunteer_conflict_sends_warning_to_onlystaff(self):
+    def test_volunteer_conflict_sends_warning_to_parentstaff(self):
         response, context = self.post_conflict(staff=True)
         assert_right_mail_right_addresses(
             1,

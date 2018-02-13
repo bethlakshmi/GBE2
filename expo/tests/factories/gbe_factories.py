@@ -460,3 +460,13 @@ class EmailTemplateSenderFactory(DjangoModelFactory):
 
     class Meta:
         model = conf.EmailTemplateSender
+
+
+class StaffAreaFactory(DjangoModelFactory):
+    title = Sequence(lambda x: "Staff Title #%d" % x)
+    slug = Sequence(lambda x: "slug_%d" % x)
+    conference = SubFactory(ConferenceFactory)
+    description = Sequence(lambda x: "description #%d" % x)
+
+    class Meta:
+        model = conf.StaffArea

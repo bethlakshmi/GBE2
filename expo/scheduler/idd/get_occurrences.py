@@ -13,9 +13,15 @@ from datetime import (
 
 def get_occurrences(parent_event_id=None,
                     labels=[],
+                    label_sets=[],
                     day=None,
                     foreign_event_ids=None,
                     max_volunteer=None):
+    if len(labels) > 0 and len(label_sets) > 0:
+        return OccurrenceResponse(
+            errors=[Error(
+                code="INVALID_REQUEST",
+                details="labels and label_sets are not compatible"), ])
     response = OccurrencesResponse()
     filter_occurrences = Event.objects.all()
 
@@ -29,6 +35,10 @@ def get_occurrences(parent_event_id=None,
     for label in labels:
         filter_occurrences = filter_occurrences.filter(
             eventlabel__text=label
+        )
+    for label_set in label_sets:
+        filter_occurrences = filter_occurrences.filter(
+            eventlabel__text__in=label_set
         )
     if max_volunteer is not None:
         filter_occurrences = filter_occurrences.filter(

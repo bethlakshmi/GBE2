@@ -20,6 +20,7 @@ from tests.functions.gbe_functions import (
 from tests.functions.gbe_scheduling_functions import (
     assert_event_was_picked_in_wizard,
     assert_good_sched_event_form_wizard,
+    assert_role_choice,
 )
 from expo.settings import DATE_FORMAT
 from tests.contexts import (
@@ -31,7 +32,7 @@ from datetime import timedelta
 
 
 class TestEditEventView(TestCase):
-    '''This view makes Master and Drop In and associates them w. tickets'''
+    '''This view edits classes that were made through the wizard'''
     view_name = 'edit_event'
 
     def setUp(self):
@@ -70,13 +71,6 @@ class TestEditEventView(TestCase):
         }
         return data
 
-    def assert_role_choice(self, response, role_type):
-        self.assertContains(
-            response,
-            '<option value="%s" selected="selected">%s</option>' % (
-                role_type,
-                role_type))
-
     def test_edit_event_unauthorized_user(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url)
@@ -86,8 +80,8 @@ class TestEditEventView(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assert_role_choice(response, "Producer")
-        self.assert_role_choice(response, "Technical Director")
+        assert_role_choice(response, "Producer")
+        assert_role_choice(response, "Technical Director")
         self.assertNotContains(response, "Volunteer Management")
         self.assertContains(response, "Finish")
         self.assertContains(response, self.context.show.e_title)

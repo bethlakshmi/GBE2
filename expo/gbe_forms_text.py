@@ -32,7 +32,9 @@ event_type_options = [(
         ('master', 'Master Class'), ), ), (
     'Other Public Events', (
         ('show', 'Show'),
-        ('special', 'Special Event'), ), )]
+        ('special', 'Special Event'), ), ), (
+    'Behind the Scenes', (
+        ('staff', 'Staff Area'), ), ), ]
 
 event_type_options_complete = [(
     'Classes', (
@@ -72,6 +74,13 @@ event_settings = {
     'special': {
         'event_type': 'Special Event',
         'second_title': 'Make New Special Event',
+        'volunteer_scheduling': True,
+        'roles': ['Staff Lead', ],
+        'max_volunteer': 1,
+    },
+    'staff': {
+        'event_type': 'Staff Area',
+        'second_title': 'Make New Staff Area',
         'volunteer_scheduling': True,
         'roles': ['Staff Lead', ],
         'max_volunteer': 1,

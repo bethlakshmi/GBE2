@@ -1,4 +1,4 @@
-from django.views.generic import View
+from gbe.scheduling.views import ManageVolWizardView
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -17,11 +17,9 @@ from gbe.scheduling.forms import (
     EventBookingForm,
     PersonAllocationForm,
     ScheduleOccurrenceForm,
-    VolunteerOpportunityForm,
 )
 from gbe.duration import Duration
 from gbe.functions import (
-    eligible_volunteers,
     get_conference_day,
     validate_perms
 )
@@ -31,7 +29,6 @@ from gbe_forms_text import (
 )
 from scheduler.idd import (
     get_occurrence,
-    get_occurrences,
     update_occurrence,
 )
 from scheduler.data_transfer import Person
@@ -41,7 +38,7 @@ from gbe.scheduling.views.functions import (
 )
 
 
-class EditEventView(View):
+class EditEventView(ManageVolWizardView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
 
@@ -51,7 +48,9 @@ class EditEventView(View):
             self.conference = get_object_or_404(
                 Conference,
                 conference_slug=kwargs['conference'])
+
         if "occurrence_id" in kwargs:
+            self.parent_id = int(kwargs['occurrence_id'])
             result = get_occurrence(int(kwargs['occurrence_id']))
             if result.errors and len(result.errors) > 0:
                 show_scheduling_occurrence_status(
@@ -72,6 +71,10 @@ class EditEventView(View):
                                       urlconf='gbe.scheduling.urls',
                                       args=[kwargs['conference'],
                                             kwargs['occurrence_id']])
+        self.success_url = reverse('edit_event',
+                                   urlconf='gbe.scheduling.urls',
+                                   args=[self.conference.conference_slug,
+                                         self.occurrence.pk])
 
     def make_formset(self, roles, post=None):
         formset = []
@@ -126,77 +129,16 @@ class EditEventView(View):
             validity = form.is_valid() or validity
         return validity
 
-    def get_manage_opportunity_forms(self,
-                                     initial,
-                                     occurrence_id,
-                                     manage_vol_info,
-                                     errorcontext=None):
-        '''
-        Generate the forms to allocate, edit, or delete volunteer
-        opportunities associated with a scheduler event.
-        '''
-        actionform = []
-        context = {}
-        response = get_occurrences(parent_event_id=occurrence_id)
-        for vol_occurence in response.occurrences:
-            vol_event = Event.objects.get_subclass(
-                    eventitem_id=vol_occurence.foreign_event_id)
-            if (errorcontext and
-                    'error_opp_form' in errorcontext and
-                    errorcontext['error_opp_form'].instance == vol_event):
-                actionform.append(errorcontext['error_opp_form'])
-            else:
-                num_volunteers = vol_occurence.max_volunteer
-                date = vol_occurence.start_time.date()
-
-                time = vol_occurence.start_time.time
-                day = get_conference_day(
-                    conference=vol_event.e_conference,
-                    date=date)
-                location = vol_occurence.location
-                if location:
-                    room = location.room
-                elif self.occurrence.location:
-                    room = self.occurrence.location.room
-
-                actionform.append(
-                    VolunteerOpportunityForm(
-                        instance=vol_event,
-                        initial={'opp_event_id': vol_event.event_id,
-                                 'opp_sched_id': vol_occurence.pk,
-                                 'max_volunteer': num_volunteers,
-                                 'day': day,
-                                 'time': time,
-                                 'location': room,
-                                 'type': "Volunteer"
-                                 },
-                        )
-                    )
-        context['actionform'] = actionform
-        if errorcontext and 'createform' in errorcontext:
-            createform = errorcontext['createform']
-        else:
-            createform = VolunteerOpportunityForm(
-                prefix='new_opp',
-                initial=initial,
-                conference=self.occurrence.eventitem.get_conference())
-
-        actionheaders = ['Title',
-                         'Volunteer Type',
-                         '#',
-                         'Duration',
-                         'Day',
-                         'Time',
-                         'Location']
-        context.update({'createform': createform,
-                        'actionheaders': actionheaders,
-                        'manage_vol_url': manage_vol_info}),
-        return context
-
     def make_context(self, request, errorcontext=None):
-        context = {}
+        context = {
+            'edit_title':  'Edit Event',
+            'start_open': request.GET.get('start_open', True),
+        }
         if errorcontext is not None:
             context = errorcontext
+        if request.GET.get('start_open',
+                           True) in ["False", "false", "F", "f", False]:
+            context['start_open'] = False
         duration = float(self.item.duration.total_minutes())/60
         initial_form_info = {
                 'duration': duration,
@@ -229,30 +171,18 @@ class EditEventView(View):
             volunteer_initial_info = initial_form_info.copy()
             volunteer_initial_info.pop('occurrence_id')
             volunteer_initial_info['duration'] = self.item.duration
-            context.update(self.get_manage_opportunity_forms(
+            context.update(super(EditEventView,
+                                 self).get_manage_opportunity_forms(
                 volunteer_initial_info,
-                self.occurrence.pk,
                 self.manage_vol_url,
-                errorcontext))
+                self.conference,
+                request,
+                errorcontext=errorcontext,
+                occurrence_id=self.occurrence.pk))
         else:
             context['edit_open'] = True
 
         return render(request, self.template, context)
-
-    def make_post_response(self,
-                           request,
-                           response=None,
-                           errorcontext=None):
-        if response:
-            show_scheduling_occurrence_status(
-                request,
-                response,
-                self.__class__.__name__)
-
-        if response and response.occurrence:
-            return HttpResponseRedirect(self.success_url)
-        else:
-            return self.make_context(request, errorcontext)
 
     @never_cache
     @method_decorator(login_required)
@@ -266,11 +196,13 @@ class EditEventView(View):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        context = {}
-        response = None
+        if "manage-opps" in request.path:
+            return super(EditEventView, self).post(request, *args, **kwargs)
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
+        context = {}
+        response = None
         context['event_form'] = EventBookingForm(request.POST,
                                                  instance=self.item)
         context['scheduling_form'] = ScheduleOccurrenceForm(

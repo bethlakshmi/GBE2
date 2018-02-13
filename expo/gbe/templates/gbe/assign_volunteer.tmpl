@@ -157,11 +157,16 @@
             <td class="bid-table">{{event_window.occurrence.start_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">{{event_window.occurrence.end_time|date:_("SHORT_DATETIME_FORMAT") }}</td>
             <td class="bid-table">
-              {% if event_window.occurrence.container_event.parent_event %}
-<a href="{% url 'scheduling:detail_view' event_window.occurrence.container_event.parent_event.eventitem.eventitem_id%}">
-                {{event_window.occurrence.container_event.parent_event}}
-              </a>
-              {% endif %}
+              {% if event_window.parent_event %}
+<a href="{% url 'scheduling:edit_event' event_window.eventitem.child.e_conference.conference_slug event_window.parent_event.pk%}">
+                {{event_window.parent_event}},
+              </a><br>
+	      {% endif %}
+              {% for area in event_window.staff_areas %}
+<a href="{% url 'scheduling:edit_staff' area.id %}">
+                {{area}},
+              </a><br>
+	    {% endfor %}
             </td>
             <td class="bid-table">{{event_window.occurrence.volunteer_count|cut:" volunteers"}}</td>
             <td class="bid-table">{{event_window.occurrence.max_volunteer}}</td>

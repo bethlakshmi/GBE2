@@ -165,7 +165,8 @@ class TestAllocateWorkers(TestCase):
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
-        alloc = volunteer_opp.resources_allocated.all().first()
+        alloc = volunteer_opp.resources_allocated.all().order_by(
+            'pk').reverse().first()
 
         self.assertIsNotNone(alloc)
         self.assert_good_post(
@@ -181,7 +182,6 @@ class TestAllocateWorkers(TestCase):
     def test_post_form_valid_make_new_allocation_volunteer_exists(self):
         context = StaffAreaContext()
         volunteer_opp = context.add_volunteer_opp()
-        allocations = volunteer_opp.resources_allocated.all()
         volunteer = VolunteerFactory(
             submitted=False,
             accepted=2,
@@ -199,8 +199,8 @@ class TestAllocateWorkers(TestCase):
 
         login_as(self.privileged_profile, self)
         response = self.client.post(url, data=data, follow=True)
-        alloc = volunteer_opp.resources_allocated.all().first()
-
+        alloc = volunteer_opp.resources_allocated.all().order_by(
+            'pk').reverse().first()
         self.assertIsNotNone(alloc)
         self.assert_good_post(
             response,
@@ -462,7 +462,7 @@ class TestAllocateWorkers(TestCase):
                 self.volunteer.display_name) +
             'Conflicting booking: %s, Start Time: %s' % (
                 self.volunteer_opp.eventitem.e_title,
-                'Wed, Feb 4 12:00 AM')
+                'Fri, Feb 5 12:00 PM')
             )
 
     def test_post_form_valid_make_new_allocation_w_overfull(self):
@@ -487,5 +487,5 @@ class TestAllocateWorkers(TestCase):
                 self.volunteer.display_name) +
             'Conflicting booking: %s, Start Time: %s' % (
                 self.volunteer_opp.eventitem.e_title,
-                'Wed, Feb 4 12:00 AM')
+                'Fri, Feb 5 12:00 PM')
             )

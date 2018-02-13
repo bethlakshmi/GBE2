@@ -10,6 +10,7 @@ from gbe.forms import (
 )
 from gbe.models import (
     AvailableInterest,
+    StaffArea,
     UserMessage,
     Volunteer,
 )
@@ -108,6 +109,13 @@ class MakeVolunteerView(MakeBidView):
                     for lead in leads.people:
                         warning['lead'] = str(lead.user.profile.badge_name)
                         warning['email'] = lead.user.email
+                    for area in StaffArea.objects.filter(
+                            conference=self.bid_object.b_conference,
+                            slug__in=conflict.event.labels.values_list(
+                                'text',
+                                flat=True)):
+                        warning['lead'] = area.staff_lead.badge_name
+                        warning['email'] = area.staff_lead.user_object.email
                     response = remove_booking(
                         occurrence_id=conflict.event.pk,
                         booking_id=conflict.booking_id)

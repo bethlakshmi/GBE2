@@ -115,7 +115,7 @@ class TestContactByRole(TestCase):
                         for volunteer in volunteers]))
         self.assertContains(response, 'Registration', count=5)
         self.assertContains(response, str(opp), count=5)
-        self.assertContains(response, str(context.sched_event), count=5)
+        self.assertContains(response, context.area.slug, count=5)
 
     def test_contact_volunteers_inactive_volunteers_not_visible(self):
         Conference.objects.all().delete()
@@ -167,7 +167,7 @@ class TestContactByRole(TestCase):
         self.assertTrue(all([volunteer.display_name in response.content
                         for volunteer in volunteers]))
         self.assertContains(response, 'Registration', count=5)
-        self.assertContains(response, str(event), count=10)
+        self.assertContains(response, str(event), count=5)
 
     def test_contact_volunteers_current_volunteers_no_interest(self):
         Conference.objects.all().delete()
@@ -195,7 +195,7 @@ class TestContactByRole(TestCase):
                         for volunteer in volunteers]))
         self.assertContains(response, 'Registration', count=0)
         self.assertContains(response, str(opp), count=5)
-        self.assertContains(response, str(context.sched_event), count=5)
+        self.assertContains(response, context.area.slug, count=5)
 
     def test_contact_volunteers_only_applications(self):
         Conference.objects.all().delete()

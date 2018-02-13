@@ -141,7 +141,7 @@ class ShowCalendarView(View):
                 elif role is not None:
                     occurrence_detail['favorite_link'] = "disabled"
                 if role:
-                    occurrence_detail['highlight'] = booking.role.lower()
+                    occurrence_detail['highlight'] = role.lower()
             if (self.calendar_type == 'Volunteer') and (
                     'favorite_link' in occurrence_detail) and (
                     occurrence_detail['favorite_link'] != "disabled"):
