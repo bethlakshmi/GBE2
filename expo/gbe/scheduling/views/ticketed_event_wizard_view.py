@@ -163,7 +163,8 @@ class TicketedEventWizardView(EventWizardView):
             if success:
                 if request.POST.get(
                         'set_event') == 'Continue to Volunteer Opportunities':
-                    return HttpResponseRedirect("%s?start_open=False" %
+                    return HttpResponseRedirect(
+                        "%s?start_open=False" %
                         reverse('edit_event',
                                 urlconf='gbe.scheduling.urls',
                                 args=[self.conference.conference_slug,
