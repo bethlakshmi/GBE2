@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from gbe.models import (
@@ -15,41 +16,35 @@ from gbe.email.forms import (
     SelectBidderForm,
 )
 from gbe.email.views import MailToFilterView
-from gbetext import to_list_empty_msg
+from gbetext import (
+    to_list_empty_msg,
+)
 from django.db.models import Q
 
 
-class MailToBiddersView(MailToFilterView):
+class MailToRolesView(MailToFilterView):
     reviewer_permissions = ['Act Coordinator',
                             'Class Coordinator',
                             'Costume Coordinator',
+                            'Producer',
+                            'Registrar',
+                            'Schedule Mavens',
+                            'Staff Lead',
+                            'Technical Director',
                             'Vendor Coordinator',
                             'Volunteer Coordinator',
                             ]
-    template = 'gbe/email/mail_to_bidders.tmpl'
+    template = 'gbe/email/mail_to_roles.tmpl'
 
     def groundwork(self, request, args, kwargs):
-        self.bid_type_choices = []
-        initial_bid_choices = []
-        self.url = reverse('mail_to_bidders', urlconf='gbe.email.urls')
-        priv_list = self.user.get_email_privs()
-        for priv in priv_list:
-            self.bid_type_choices += [(priv.title(), priv.title())]
-            initial_bid_choices += [priv.title()]
+        self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
-            self.select_form = SelectBidderForm(
+            self.select_form = SelectRoleForm(
                 request.POST,
                 prefix="email-select")
         else:
-            self.select_form = SelectBidderForm(
-                prefix="email-select",
-                initial={
-                    'conference': Conference.objects.all().values_list(
-                        'pk',
-                        flat=True),
-                    'bid_type': initial_bid_choices,
-                    'state': [0, 1, 2, 3, 4, 5, 6], })
-        self.select_form.fields['bid_type'].choices = self.bid_type_choices
+            self.select_form = SelectRoleForm(
+                prefix="email-select")
 
     def get_to_list(self):
         to_list = {}
@@ -80,14 +75,6 @@ class MailToBiddersView(MailToFilterView):
                         to_list[bid.profile.user_object.email] = \
                             bid.profile.display_name
         return to_list
-    
-    def prep_email_form(self, request):
-        to_list = self.get_to_list()
-        recipient_info = SecretBidderInfoForm(request.POST,
-                                              prefix="email-select")
-        recipient_info.fields[
-            'bid_type'].choices = self.bid_type_choices
-        return to_list, recipient_info
 
     def filter_bids(self, request):
         to_list = self.get_to_list()
