@@ -12,8 +12,8 @@ from gbe.models import (
     Volunteer,
 )
 from gbe.email.forms import (
-    SecretBidderInfoForm,
-    SelectBidderForm,
+    SecretRoleInfoForm,
+    SelectRoleForm,
 )
 from gbe.email.views import MailToFilterView
 from gbetext import (
@@ -25,13 +25,11 @@ from django.db.models import Q
 class MailToRolesView(MailToFilterView):
     reviewer_permissions = ['Act Coordinator',
                             'Class Coordinator',
-                            'Costume Coordinator',
                             'Producer',
                             'Registrar',
                             'Schedule Mavens',
                             'Staff Lead',
                             'Technical Director',
-                            'Vendor Coordinator',
                             'Volunteer Coordinator',
                             ]
     template = 'gbe/email/mail_to_roles.tmpl'
@@ -93,8 +91,8 @@ class MailToRolesView(MailToFilterView):
                 self.template,
                 {"selection_form": self.select_form})
         email_form = self.setup_email_form(request)
-        recipient_info = SecretBidderInfoForm(request.POST,
-                                              prefix="email-select")
+        recipient_info = SecretRoleInfoForm(request.POST,
+                                            prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
 
         return render(

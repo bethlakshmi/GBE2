@@ -1,45 +1,35 @@
 from django.forms import (
     Form,
-    HiddenInput,
     ModelMultipleChoiceField,
     MultipleChoiceField,
     MultipleHiddenInput,
 )
 from django.forms.widgets import CheckboxSelectMultiple
-from gbetext import acceptance_states
+from gbetext import role_options
+from gbe.email.forms import MultiConferenceField
 from gbe.models import Conference
 
 
-class MultiConferenceField(ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        return obj.conference_slug
-
-
-class SelectBidderForm(Form):
+class SelectRoleForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
     conference = MultiConferenceField(
         queryset=Conference.objects.all().order_by('conference_name'),
         widget=CheckboxSelectMultiple(),
         required=True,)
-    bid_type = MultipleChoiceField(
+    roles = MultipleChoiceField(
         required=True,
-        widget=CheckboxSelectMultiple())
-    state = MultipleChoiceField(
-        choices=((('Draft', 'Draft'),) + acceptance_states),
         widget=CheckboxSelectMultiple(),
-        required=True)
+        choices=role_options)
 
 
-class SecretBidderInfoForm(SelectBidderForm):
+class SecretRoleInfoForm(SelectRoleForm):
     conference = ModelMultipleChoiceField(
         queryset=Conference.objects.all().order_by('conference_name'),
         widget=MultipleHiddenInput(),
         required=True)
-    bid_type = MultipleChoiceField(
+    roles = MultipleChoiceField(
         widget=MultipleHiddenInput(),
-        required=True)
-    state = MultipleChoiceField(
-        choices=((('Draft', 'Draft'),) + acceptance_states),
-        widget=MultipleHiddenInput(),
-        required=True)
+        required=True,
+        choices=role_options)
+
