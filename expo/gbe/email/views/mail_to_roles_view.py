@@ -36,6 +36,11 @@ class MailToRolesView(MailToFilterView):
 
     def groundwork(self, request, args, kwargs):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
+        priv_list = self.user.privilege_groups
+        priv_list += self.user.get_roles()
+        for priv in priv_list:
+            code
+        
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
             self.select_form = SelectRoleForm(
                 request.POST,

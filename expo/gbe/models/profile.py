@@ -317,10 +317,17 @@ class Profile(WorkerItem):
                                             conference=conference).order_by(
                                                 'starttime')
 
-    def get_roles(self, conference):
+    def get_roles(self, conference=None):
         '''
         Gets all of a person's roles for a conference
         '''
+        if conference is None:
+            return get_roles(
+                self.user_object,
+                labels=Conference.objects.exclude(
+                    status="completed").values_list(
+                    'conference_slug',
+                    flat=True)).roles
         return get_roles(self.user_object,
                          labels=[conference.conference_slug]).roles
 

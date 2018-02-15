@@ -14,7 +14,7 @@ from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from scheduler.idd import get_schedule
+from scheduler.idd import get_roles
 from django.contrib import messages
 from gbetext import (
     no_profile_msg,
@@ -68,7 +68,7 @@ def validate_perms(request, perms, require=True):
         if role in perms:
             permitted_roles += [role]
     if len(permitted_roles) > 0 and validate_event_roles(profile,
-                                                        permitted_roles) > 0:
+                                                         permitted_roles) > 0:
         return profile
     if require:                # error out if permission is required
         raise PermissionDenied
@@ -86,11 +86,10 @@ def validate_event_roles(profile, roles):
     slugs = Conference.objects.exclude(
         status="completed").values_list('conference_slug', flat=True)
     if len(slugs) > 0:
-        response = get_schedule(
+        response = get_roles(
             user=profile.user_object,
-            labels=slugs,
-            roles=roles)
-        events_led = response.schedule_items
+            labels=slugs)
+        events_led = response.roles
     return events_led
 
 
