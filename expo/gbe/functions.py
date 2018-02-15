@@ -42,6 +42,8 @@ def validate_perms(request, perms, require=True):
     Validate that the requesting user has the stated permissions
     Returns profile object if perms exist, False if not
     '''
+    event_roles = ['Technical Director', 'Producer']
+    permitted_roles = []
     profile = validate_profile(request, require=False)
     if not profile:
         if require:
@@ -50,7 +52,8 @@ def validate_perms(request, perms, require=True):
             return False
     if perms == 'any':
         if len(profile.privilege_groups) > 0 or len(
-                validate_event_role(profile, 'Staff Lead')) > 0:
+                validate_staff_lead(profile)) > 0 or len(
+                validate_event_roles(profile, event_roles)) > 0:
             return profile
         else:
             if require:
@@ -59,12 +62,36 @@ def validate_perms(request, perms, require=True):
                 return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
-    if 'Staff Lead' in perms and len(validate_event_role(profile,
-                                                         'Staff Lead')) > 0:
+    if 'Staff Lead' in perms and len(validate_staff_lead(profile)) > 0:
+        return profile
+    for role in event_roles:
+        if role in perms:
+            permitted_roles += [role]
+    if len(permitted_roles) > 0 and validate_event_roles(profile,
+                                                        permitted_roles) > 0:
         return profile
     if require:                # error out if permission is required
         raise PermissionDenied
     return False               # or just return false if we're just checking
+
+
+def validate_staff_lead(profile):
+    return StaffArea.objects.filter(
+        staff_lead=profile).exclude(
+        conference__status="completed")
+
+
+def validate_event_roles(profile, roles):
+    events_led = []
+    slugs = Conference.objects.exclude(
+        status="completed").values_list('conference_slug', flat=True)
+    if len(slugs) > 0:
+        response = get_schedule(
+            user=profile.user_object,
+            labels=slugs,
+            roles=roles)
+        events_led = response.schedule_items
+    return events_led
 
 
 def check_user_and_redirect(request, this_url, source):
@@ -115,12 +142,6 @@ def get_current_conference_slug():
     conf = Conference.current_conf()
     if conf:
         return conf.conference_slug
-
-
-def validate_event_role(profile, event_role):
-    return StaffArea.objects.filter(
-        staff_lead=profile).exclude(
-        conference__status="completed")
 
 
 def get_conference_by_slug(slug):

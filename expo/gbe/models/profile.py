@@ -18,13 +18,13 @@ from gbe.models import (
     VolunteerWindow,
 )
 from scheduler.models import WorkerItem
+from scheduler.idd import get_roles
 from gbetext import (
     best_time_to_call_options,
     phone_number_format_error,
     profile_alerts,
     states_options,
 )
-from scheduler.functions import get_roles_from_scheduler
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -321,12 +321,8 @@ class Profile(WorkerItem):
         '''
         Gets all of a person's roles for a conference
         '''
-        roles = get_roles_from_scheduler(
-            self.get_performers() + [self],
-            conference)
-        if self.get_shows():
-            roles += ["Performer"]
-        return roles
+        return get_roles(self.user_object,
+                         labels=[conference.conference_slug]).roles
 
     def get_badge_name(self):
         badge_name = self.display_name
