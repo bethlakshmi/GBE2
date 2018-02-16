@@ -14,13 +14,19 @@
     {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.roles %}
     {% if not selection_form.events %}
      <div class="form-group col-md-1 col-xs-12">
-         <input type="submit" class="email-submit" name="filter" value="Get Events">
+         <input type="submit" class="email-submit" name="filter" value="Filter">
       </div>
     {% endif %}
     </div>
     {% if selection_form.events %}
     <div class="row email-select">
     {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.events %}
+    </div>
+    <div class="row email-select">
+    {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.staff_areas %}
+    </div>
+    <div class="row email-select">
+    {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.event_collections %}
       <div class="form-group col-md-1 col-xs-12">
          <input type="submit" class="email-submit" name="filter" value="Filter">
       </div></div>

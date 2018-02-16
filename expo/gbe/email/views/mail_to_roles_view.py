@@ -3,26 +3,27 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from gbe.models import (
-    Act,
-    Class,
-    Conference,
-    Costume,
+    Event,
+    StaffArea,
     UserMessage,
-    Vendor,
-    Volunteer,
 )
 from gbe.email.forms import (
     SecretRoleInfoForm,
     SelectRoleForm,
 )
 from scheduler.idd import get_people
-from gbe.scheduling.views.functions import show_general_status
 from gbe.email.views import MailToFilterView
 from gbetext import to_list_empty_msg
 from gbe_forms_text import (
     all_roles,
     role_option_privs
 )
+from django.forms import (
+    ModelMultipleChoiceField,
+    MultipleChoiceField,
+    MultipleHiddenInput,
+)
+from django.forms.widgets import CheckboxSelectMultiple
 from django.db.models import Q
 
 
@@ -66,12 +67,12 @@ class MailToRolesView(MailToFilterView):
 
     def get_to_list(self):
         to_list = {}
+        events = {}
         slugs = []
         for conference in self.select_form.cleaned_data['conference']:
             slugs += [conference.conference_slug]
         response = get_people(labels=slugs,
                               roles=self.select_form.cleaned_data['roles'])
-
         for person in response.people:
             to_list[person.user.email] = \
                     person.user.profile.display_name
@@ -96,7 +97,44 @@ class MailToRolesView(MailToFilterView):
         email_form = self.setup_email_form(request)
         recipient_info = SecretRoleInfoForm(request.POST,
                                             prefix="email-select")
-
+        self.select_form.fields['events'] = ModelMultipleChoiceField(
+            queryset=Event.objects.filter(
+                e_conference__in=self.select_form.cleaned_data['conference']
+                ).filter(
+                Q(genericevent__type__in=["Special", "Master"],) |
+                Q(show__pk__gt=0)),
+            widget=CheckboxSelectMultiple(),
+            required=True)
+        self.select_form.fields['staff_areas'] = ModelMultipleChoiceField(
+            queryset=StaffArea.objects.filter(
+                conference__in=self.select_form.cleaned_data['conference']),
+            widget=CheckboxSelectMultiple(),
+            required=True)
+        self.select_form.fields['event_collections'] = MultipleChoiceField(
+            choices=[("conf_class", "All Conference Classes"),
+                     ("drop-in", "All Drop-In Classes"),
+                     ("volunteer", "All Volunteer Events")],
+            widget=CheckboxSelectMultiple(),
+            required=True)
+        recipient_info.fields['events'] = ModelMultipleChoiceField(
+            queryset=Event.objects.filter(
+                e_conference__in=self.select_form.cleaned_data['conference']
+                ).filter(
+                Q(genericevent__type__in=["Special", "Master"],) |
+                Q(show__pk__gt=0)),
+            widget=MultipleHiddenInput(),
+            required=True)
+        recipient_info.fields['staff_areas'] = ModelMultipleChoiceField(
+            queryset=StaffArea.objects.filter(
+                conference__in=self.select_form.cleaned_data['conference']),
+            widget=MultipleHiddenInput(),
+            required=True)
+        recipient_info.fields['event_collections'] = MultipleChoiceField(
+            choices=[("conf_class", "All Conference Classes"),
+                     ("drop-in", "All Drop-In Classes"),
+                     ("volunteer", "All Volunteer Events")],
+            widget=MultipleHiddenInput(),
+            required=True)
         return render(
             request,
             self.template,
