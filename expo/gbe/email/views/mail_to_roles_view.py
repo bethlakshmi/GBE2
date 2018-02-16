@@ -15,9 +15,13 @@ from gbe.email.forms import (
     SecretRoleInfoForm,
     SelectRoleForm,
 )
+from scheduler.idd import get_people
+from gbe.scheduling.views.functions import show_general_status
 from gbe.email.views import MailToFilterView
-from gbetext import (
-    to_list_empty_msg,
+from gbetext import to_list_empty_msg
+from gbe_forms_text import (
+    all_roles,
+    role_option_privs
 )
 from django.db.models import Q
 
@@ -38,8 +42,6 @@ class MailToRolesView(MailToFilterView):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         priv_list = self.user.privilege_groups
         priv_list += self.user.get_roles()
-        for priv in priv_list:
-            code
         
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
             self.select_form = SelectRoleForm(
@@ -49,37 +51,33 @@ class MailToRolesView(MailToFilterView):
             self.select_form = SelectRoleForm(
                 prefix="email-select")
 
+        if not (self.user.user_object.is_superuser or len(
+                [i for i in all_roles if i in priv_list]) > 0):
+            avail_roles = []
+            for key, value in role_option_privs.iteritems():
+                if key in priv_list:
+                    for role in value:
+                        if role not in avail_roles:
+                            avail_roles.append(role)
+            if len(avail_roles) == 0:
+                raise Exception("no match for this role")
+            self.select_form.fields['roles'].choices = [
+                (role, role) for role in sorted(avail_roles)]
+
     def get_to_list(self):
         to_list = {}
-        bid_types = self.select_form.cleaned_data['bid_type']
-        query = Q(b_conference__in=self.select_form.cleaned_data['conference'])
+        slugs = []
+        for conference in self.select_form.cleaned_data['conference']:
+            slugs += [conference.conference_slug]
+        response = get_people(labels=slugs,
+                              roles=self.select_form.cleaned_data['roles'])
 
-        accept_states = self.select_form.cleaned_data['state']
-        draft = False
-        if "Draft" in self.select_form.cleaned_data['state']:
-            draft = True
-            accept_states.remove('Draft')
-            draft_query = query & Q(submitted=False)
-
-        if len(accept_states) > 0:
-            query = query & Q(accepted__in=accept_states) & Q(submitted=True)
-        elif draft:
-            query = draft_query
-            draft = False
-
-        for bid_type in bid_types:
-            for bid in eval(bid_type).objects.filter(query):
-                if bid.profile.user_object.is_active:
-                    to_list[bid.profile.user_object.email] = \
-                        bid.profile.display_name
-            if draft:
-                for bid in eval(bid_type).objects.filter(draft_query):
-                    if bid.profile.user_object.is_active:
-                        to_list[bid.profile.user_object.email] = \
-                            bid.profile.display_name
+        for person in response.people:
+            to_list[person.user.email] = \
+                    person.user.profile.display_name
         return to_list
 
-    def filter_bids(self, request):
+    def filter_emails(self, request):
         to_list = self.get_to_list()
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(
@@ -98,7 +96,6 @@ class MailToRolesView(MailToFilterView):
         email_form = self.setup_email_form(request)
         recipient_info = SecretRoleInfoForm(request.POST,
                                             prefix="email-select")
-        recipient_info.fields['bid_type'].choices = self.bid_type_choices
 
         return render(
             request,

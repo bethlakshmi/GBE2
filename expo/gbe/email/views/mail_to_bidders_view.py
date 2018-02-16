@@ -89,7 +89,7 @@ class MailToBiddersView(MailToFilterView):
             'bid_type'].choices = self.bid_type_choices
         return to_list, recipient_info
 
-    def filter_bids(self, request):
+    def filter_emails(self, request):
         to_list = self.get_to_list()
         if len(to_list) == 0:
             user_message = UserMessage.objects.get_or_create(

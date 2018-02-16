@@ -20,7 +20,7 @@ class MailToFilterView(MailView):
             - groundwork(self, request, args, kwargs) - to set the select_form
             - prep_email_form(request) - returns to_list, recipient_info for
                 preparing the email recipient list before to getting the form
-            - filter_bids(request) - set up the filter form, when there is an
+            - filter_emails(request) - set up the filter form, when there is an
               error
     '''
     def get_everyone(self, request):
@@ -104,7 +104,7 @@ class MailToFilterView(MailView):
         elif 'everyone' in request.POST.keys():
             return self.filter_everyone(request)
         elif 'filter' in request.POST.keys() and self.select_form.is_valid():
-            return self.filter_bids(request)
+            return self.filter_emails(request)
 
         user_message = UserMessage.objects.get_or_create(
             view=self.__class__.__name__,

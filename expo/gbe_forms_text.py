@@ -127,6 +127,31 @@ role_map = {
     'Producer': False,
     'Technical Director': False,
 }
+all_roles = ["Staff Lead", "Scheduling Mavens", "Registrar"]
+role_option_privs = {
+    'Producer': ["Interested",
+                 "Performer",
+                 "Volunteer",
+                 "Staff Lead",
+                 "Technical Director",
+                 "Producer"],
+    'Technical Director': ["Interested",
+                           "Performer",
+                           "Volunteer",
+                           "Staff Lead",
+                           "Technical Director",
+                           "Producer"],
+    'Act Coordinator': ["Interested",
+                        "Performer",
+                        "Technical Director",
+                        "Producer"],
+    'Class Coordinator': ["Interested",
+                          "Panelist",
+                          "Teacher",
+                          "Moderator",
+                          "Staff Lead"],
+    'Volunteer Coordinator': ["Interested", "Volunteer", "Staff Lead"],
+}
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"
 }
