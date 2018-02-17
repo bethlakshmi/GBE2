@@ -11,7 +11,6 @@ from django.db.models import (
 )
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-
 from gbe.models import (
     AvailableInterest,
     Conference,
@@ -321,15 +320,24 @@ class Profile(WorkerItem):
         '''
         Gets all of a person's roles for a conference
         '''
+        roles = []
         if conference is None:
-            return get_roles(
+            if self.staffarea_set.exclude(
+                    conference__status="completed").exists():
+                roles = ["Staff Lead"]
+            roles += get_roles(
                 self.user_object,
                 labels=Conference.objects.exclude(
                     status="completed").values_list(
                     'conference_slug',
                     flat=True)).roles
-        return get_roles(self.user_object,
-                         labels=[conference.conference_slug]).roles
+        else:
+            if self.staffarea_set.filter(
+                    conference=conference).exists():
+                roles = ["Staff Lead"]
+            roles += get_roles(self.user_object,
+                               labels=[conference.conference_slug]).roles
+        return roles
 
     def get_badge_name(self):
         badge_name = self.display_name

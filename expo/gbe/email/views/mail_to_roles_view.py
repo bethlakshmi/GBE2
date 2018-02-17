@@ -39,15 +39,103 @@ class MailToRolesView(MailToFilterView):
                             ]
     template = 'gbe/email/mail_to_roles.tmpl'
 
+    def setup_event_queryset(self, priv_list, conferences):
+        # build event field based on privs
+        event_queryset = None
+        if len([i for i in ["Scheduling Mavens",
+                            "Registrar",
+                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+            event_queryset = Event.objects.filter(
+                e_conference__in=conferences
+                ).filter(
+                Q(genericevent__type__in=["Special", "Master"],) |
+                Q(show__pk__gt=0))
+        elif len([i for i in ['Producer',
+                              'Technical Director',
+                              'Act Coordinator',
+                              'Staff Lead'] if i in priv_list]) > 0:
+            query = None
+            if 'Staff Lead' in priv_list:
+                query = Q(genericevent__type__in=["Special"],)
+            if len([i for i in ['Producer',
+                                'Technical Director',
+                                'Act Coordinator'] if i in priv_list]) > 0:
+                if query:
+                   query = query | Q(show__pk__gt=0)
+                else:
+                    query = Q(show__pk__gt=0)
+            event_queryset = Event.objects.filter(
+                    e_conference__in=conferences
+                    ).filter(query)
+        return event_queryset
+
+    def setup_staff_queryset(self, priv_list, conferences):
+        staff_queryset = None
+        if len([i for i in ["Scheduling Mavens",
+                            "Registrar",
+                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+            staff_queryset = StaffArea.objects.filter(
+                conference__in=self.select_form.cleaned_data['conference'])
+        elif "Staff Lead" in priv_list:
+            staff_queryset = StaffArea.objects.filter(
+                conference__in=self.select_form.cleaned_data['conference'],
+                staff_lead=self.user)
+        return staff_queryset
+
+    def setup_event_collect_choices(self, priv_list, conferences):
+        event_collect_choices = []
+        if len([i for i in ["Scheduling Mavens",
+                            "Registrar",
+                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+            event_collect_choices = [
+                ("conf_class", "All Conference Classes"),
+                ("drop-in", "All Drop-In Classes"),
+                ("volunteer", "All Volunteer Events")]
+        else:
+            if "Class Coordinator" in priv_list:
+                event_collect_choices += [
+                    ("conf_class", "All Conference Classes")]
+            if "Staff Lead" in priv_list:
+                event_collect_choices += [
+                    ("volunteer", "All Volunteer Events")]
+        return event_collect_choices
+
     def groundwork(self, request, args, kwargs):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         priv_list = self.user.privilege_groups
         priv_list += self.user.get_roles()
-        
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys():
             self.select_form = SelectRoleForm(
                 request.POST,
                 prefix="email-select")
+
+            if self.select_form.is_valid():
+                self.event_queryset = self.setup_event_queryset(
+                    priv_list,
+                    self.select_form.cleaned_data['conference'])
+                self.staff_queryset = self.setup_staff_queryset(
+                    priv_list,
+                    self.select_form.cleaned_data['conference'])
+                self.event_collect_choices = self.setup_event_collect_choices(
+                    priv_list,
+                    self.select_form.cleaned_data['conference'])
+
+                if self.event_queryset:
+                    self.select_form.fields['events'] = ModelMultipleChoiceField(
+                        queryset=self.event_queryset,
+                        widget=CheckboxSelectMultiple(),
+                        required=True)
+                if self.staff_queryset:
+                    self.select_form.fields['staff_areas'] = ModelMultipleChoiceField(
+                        queryset=self.staff_queryset,
+                        widget=CheckboxSelectMultiple(),
+                        required=True)
+                if len(self.event_collect_choices) > 0:
+                    self.select_form.fields[
+                        'event_collections'] = MultipleChoiceField(
+                        choices=self.event_collect_choices,
+                        widget=CheckboxSelectMultiple(),
+                        required=True)
         else:
             self.select_form = SelectRoleForm(
                 prefix="email-select")
@@ -97,44 +185,20 @@ class MailToRolesView(MailToFilterView):
         email_form = self.setup_email_form(request)
         recipient_info = SecretRoleInfoForm(request.POST,
                                             prefix="email-select")
-        self.select_form.fields['events'] = ModelMultipleChoiceField(
-            queryset=Event.objects.filter(
-                e_conference__in=self.select_form.cleaned_data['conference']
-                ).filter(
-                Q(genericevent__type__in=["Special", "Master"],) |
-                Q(show__pk__gt=0)),
-            widget=CheckboxSelectMultiple(),
-            required=True)
-        self.select_form.fields['staff_areas'] = ModelMultipleChoiceField(
-            queryset=StaffArea.objects.filter(
-                conference__in=self.select_form.cleaned_data['conference']),
-            widget=CheckboxSelectMultiple(),
-            required=True)
-        self.select_form.fields['event_collections'] = MultipleChoiceField(
-            choices=[("conf_class", "All Conference Classes"),
-                     ("drop-in", "All Drop-In Classes"),
-                     ("volunteer", "All Volunteer Events")],
-            widget=CheckboxSelectMultiple(),
-            required=True)
-        recipient_info.fields['events'] = ModelMultipleChoiceField(
-            queryset=Event.objects.filter(
-                e_conference__in=self.select_form.cleaned_data['conference']
-                ).filter(
-                Q(genericevent__type__in=["Special", "Master"],) |
-                Q(show__pk__gt=0)),
-            widget=MultipleHiddenInput(),
-            required=True)
-        recipient_info.fields['staff_areas'] = ModelMultipleChoiceField(
-            queryset=StaffArea.objects.filter(
-                conference__in=self.select_form.cleaned_data['conference']),
-            widget=MultipleHiddenInput(),
-            required=True)
-        recipient_info.fields['event_collections'] = MultipleChoiceField(
-            choices=[("conf_class", "All Conference Classes"),
-                     ("drop-in", "All Drop-In Classes"),
-                     ("volunteer", "All Volunteer Events")],
-            widget=MultipleHiddenInput(),
-            required=True)
+        if self.event_queryset:
+            recipient_info.fields['events'] = ModelMultipleChoiceField(
+                queryset=self.event_queryset,
+                widget=MultipleHiddenInput(),
+                required=True)
+        if self.staff_queryset:
+            recipient_info.fields['staff_areas'] = ModelMultipleChoiceField(
+                queryset=self.staff_queryset,
+                required=True)
+        if len(self.event_collect_choices) > 0:
+            recipient_info.fields['event_collections'] = MultipleChoiceField(
+                choices=self.event_collect_choices,
+                widget=MultipleHiddenInput(),
+                required=True)
         return render(
             request,
             self.template,

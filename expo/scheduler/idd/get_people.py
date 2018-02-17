@@ -13,6 +13,7 @@ def get_people(labels=[], roles=[]):
                 details="Either a label or a role must be provided."), ])
     people = []
     bookings = ResourceAllocation.objects.all()
+    act_bookings = []
     if len(labels) > 0:
         bookings = bookings.filter(event__eventlabel__text__in=labels)
     if "Performer" in roles:
