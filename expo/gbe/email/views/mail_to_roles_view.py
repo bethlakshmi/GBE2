@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from gbe.models import (
+    Conference,
     Event,
     StaffArea,
     UserMessage,
@@ -13,7 +14,10 @@ from gbe.email.forms import (
 )
 from scheduler.idd import get_people
 from gbe.email.views import MailToFilterView
-from gbetext import to_list_empty_msg
+from gbetext import (
+    role_options,
+    to_list_empty_msg
+)
 from gbe_forms_text import (
     all_roles,
     role_option_privs
@@ -138,7 +142,12 @@ class MailToRolesView(MailToFilterView):
                         required=True)
         else:
             self.select_form = SelectRoleForm(
-                prefix="email-select")
+                prefix="email-select",
+                initial={
+                    'conference': Conference.objects.all().values_list(
+                        'pk',
+                        flat=True),
+                    'roles': [r[0] for r in role_options]})
 
         if not (self.user.user_object.is_superuser or len(
                 [i for i in all_roles if i in priv_list]) > 0):
