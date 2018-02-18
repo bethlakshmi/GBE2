@@ -64,6 +64,12 @@ class MailToFilterView(MailView):
              "to_list": to_list,
              "everyone": True})
 
+    def get_select_forms(self):
+        return {"selection_form": self.select_form}
+
+    def select_form_is_valid(self):
+        return self.select_form.is_valid()
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -72,8 +78,7 @@ class MailToFilterView(MailView):
         return render(
             request,
             self.template,
-            {"selection_form": self.select_form, }
-             )
+            self.get_select_forms())
 
     @never_cache
     @method_decorator(login_required)
@@ -94,16 +99,19 @@ class MailToFilterView(MailView):
                 if mail_form.is_valid():
                     return HttpResponseRedirect(self.url)
                 else:
+                    context = {
+                        "email_forms": [mail_form, recipient_info],
+                        "to_list": to_list,
+                        "everyone": everyone}
+                    context.update(self.get_select_forms())
                     return render(
                         request,
                         self.template,
-                        {"selection_form": self.select_form,
-                         "email_forms": [mail_form, recipient_info],
-                         "to_list": to_list,
-                         "everyone": everyone})
+                        context)
         elif 'everyone' in request.POST.keys():
             return self.filter_everyone(request)
-        elif 'filter' in request.POST.keys() and self.select_form.is_valid():
+        elif ('filter' in request.POST.keys() or 'refine' in request.POST.keys()
+                ) and self.select_form_is_valid():
             return self.filter_emails(request)
 
         user_message = UserMessage.objects.get_or_create(
@@ -118,5 +126,4 @@ class MailToFilterView(MailView):
         return render(
             request,
             self.template,
-            {"selection_form": self.select_form, }
-            )
+            self.get_select_forms())

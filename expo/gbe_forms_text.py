@@ -152,6 +152,10 @@ role_option_privs = {
                           "Staff Lead"],
     'Volunteer Coordinator': ["Interested", "Volunteer", "Staff Lead"],
 }
+event_collect_choices = [
+                ("Conference", "All Conference Classes"),
+                ("drop-in", "All Drop-In Classes"),
+                ("Volunteer", "All Volunteer Events")]
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"
 }

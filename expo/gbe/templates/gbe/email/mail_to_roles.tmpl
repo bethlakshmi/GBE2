@@ -12,23 +12,27 @@
     </div>
     <div class="row email-select">
     {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.roles %}
-    {% if selection_form.events %}
+    {% if specify_event_form.events %}
     </div>
     <div class="row email-select">
-      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.events %}
+      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=specify_event_form.events %}
     {% endif%}
-    {% if selection_form.staff_areas %}
+    {% if specify_event_form.staff_areas %}
     </div>
     <div class="row email-select">
-      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.staff_areas %}
+      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=specify_event_form.staff_areas %}
     {% endif%}
-    {% if selection_form.event_collections %}
+    {% if specify_event_form.event_collections %}
     </div>
     <div class="row email-select">
-      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=selection_form.event_collections %}
+      {% include "gbe/email/filter_checkbox_horizontal.tmpl" with field=specify_event_form.event_collections %}
     {% endif%}
       <div class="form-group col-md-1 col-xs-12">
+        {% if specify_event_form %}
+         <input type="submit" class="email-submit" name="refine" value="Refine">
+        {% else %}
          <input type="submit" class="email-submit" name="filter" value="Filter">
+        {% endif %}
       </div></div>
     </form>
 {% endblock %}
