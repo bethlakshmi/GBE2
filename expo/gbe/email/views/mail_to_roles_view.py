@@ -45,12 +45,13 @@ class MailToRolesView(MailToFilterView):
                             ]
     template = 'gbe/email/mail_to_roles.tmpl'
 
-    def setup_event_queryset(self, priv_list, conferences):
+    def setup_event_queryset(self, is_superuser, priv_list, conferences):
         # build event field based on privs
         event_queryset = None
-        if len([i for i in ["Scheduling Mavens",
-                            "Registrar",
-                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+        if is_superuser or len(
+                [i for i in ["Scheduling Mavens",
+                             "Registrar",
+                             "Volunteer Coordinator"] if i in priv_list]) > 0:
             event_queryset = Event.objects.filter(
                 e_conference__in=conferences
                 ).filter(
@@ -75,22 +76,27 @@ class MailToRolesView(MailToFilterView):
                     ).filter(query)
         return event_queryset
 
-    def setup_staff_queryset(self, priv_list, conferences):
+    def setup_staff_queryset(self, is_superuser, priv_list, conferences):
         staff_queryset = None
-        if len([i for i in ["Scheduling Mavens",
-                            "Staff Lead",
-                            "Registrar",
-                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+        if is_superuser or len(
+                [i for i in ["Scheduling Mavens",
+                             "Staff Lead",
+                             "Registrar",
+                             "Volunteer Coordinator"] if i in priv_list]) > 0:
             staff_queryset = StaffArea.objects.filter(
                 conference__in=self.select_form.cleaned_data['conference'])
 
         return staff_queryset
 
-    def setup_event_collect_choices(self, priv_list, conferences):
+    def setup_event_collect_choices(self,
+                                    is_superuser,
+                                    priv_list,
+                                    conferences):
         event_collect_choices = []
-        if len([i for i in ["Scheduling Mavens",
-                            "Registrar",
-                            "Volunteer Coordinator"] if i in priv_list]) > 0:
+        if is_superuser or len(
+                [i for i in ["Scheduling Mavens",
+                             "Registrar",
+                             "Volunteer Coordinator"] if i in priv_list]) > 0:
             event_collect_choices = [
                 ("Conference", "All Conference Classes"),
                 ("drop-in", "All Drop-In Classes"),
@@ -122,12 +128,15 @@ class MailToRolesView(MailToFilterView):
                 self.specify_event_form = SelectEventForm(request.POST,
                     prefix="event-select")
                 self.event_queryset = self.setup_event_queryset(
+                    self.user.user_object.is_superuser,
                     priv_list,
                     self.select_form.cleaned_data['conference'])
                 self.staff_queryset = self.setup_staff_queryset(
+                    self.user.user_object.is_superuser,
                     priv_list,
                     self.select_form.cleaned_data['conference'])
                 self.event_collect_choices = self.setup_event_collect_choices(
+                    self.user.user_object.is_superuser,
                     priv_list,
                     self.select_form.cleaned_data['conference'])
                 if self.event_queryset:
@@ -187,7 +196,7 @@ class MailToRolesView(MailToFilterView):
         staff_area_labels = []
         calendar_type_labels = []
         for event in self.specify_event_form.cleaned_data['events']:
-            parent_ids += [event.pk]
+            parent_ids += [event.eventitem_id]
         for area in self.specify_event_form.cleaned_data['staff_areas']:
             staff_area_labels += [area.slug]
         for collection in self.specify_event_form.cleaned_data['event_collections']:
@@ -204,15 +213,40 @@ class MailToRolesView(MailToFilterView):
 
     def get_to_list(self):
         to_list = {}
-        events = {}
         slugs = []
+        people = []
+        limits = None
         for conference in self.select_form.cleaned_data['conference']:
             slugs += [conference.conference_slug]
         if self.refine_ready:
             limits = self.create_occurrence_limits()
-        response = get_people(labels=slugs,
-                              roles=self.select_form.cleaned_data['roles'])
-        for person in response.people:
+        if self.user.user_object.is_superuser or len(
+                [i for i in ["Scheduling Mavens",
+                             "Registrar",
+                             "Volunteer Coordinator"] if i in priv_list]) > 0:
+            if limits:
+                if len(limits['parent_ids']) > 0:
+                    response = get_people(
+                        parent_event_ids=limits['parent_ids'],
+                        labels=slugs,
+                        roles=self.select_form.cleaned_data['roles'])
+                    people += response.people
+                if len(limits['staff_area_labels']) > 0:
+                    response = get_people(
+                        label_sets=[slugs, limits['staff_area_labels']],
+                        roles=self.select_form.cleaned_data['roles'])
+                    people += response.people
+                if len(limits['calendar_type_labels']) > 0:
+                    response = get_people(
+                        label_sets=[slugs, limits['calendar_type_labels']],
+                        roles=self.select_form.cleaned_data['roles'])
+                    people += response.people
+            else:
+                response = get_people(
+                    labels=slugs,
+                    roles=self.select_form.cleaned_data['roles'])
+                people += response.people
+        for person in people:
             to_list[person.user.email] = \
                     person.user.profile.display_name
         return to_list
