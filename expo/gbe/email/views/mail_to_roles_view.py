@@ -192,24 +192,24 @@ class MailToRolesView(MailToFilterView):
         return self.select_form.is_valid()
 
     def create_occurrence_limits(self):
-        parent_ids = []
-        staff_area_labels = []
-        calendar_type_labels = []
+        limits = {
+            'parent_ids': [],
+            'labels': [],
+        }
         for event in self.specify_event_form.cleaned_data['events']:
-            parent_ids += [event.eventitem_id]
+            limits['parent_ids'] += [event.eventitem_id]
         for area in self.specify_event_form.cleaned_data['staff_areas']:
-            staff_area_labels += [area.slug]
+            limits['labels'] += [area.slug]
         for collection in self.specify_event_form.cleaned_data['event_collections']:
             if collection != "drop-in":
-                calendar_type_labels += [collection]
+                limits['labels'] += [collection]
             else:
-                parent_ids += GenericEvent.objects.filter(
+                limits['parent_ids'] += GenericEvent.objects.filter(
                     type="Drop-In").values_list('pk', flat=True)
 
-        return {
-            'parent_ids': parent_ids,
-            'staff_area_labels': staff_area_labels,
-            'calendar_type_labels': calendar_type_labels}
+        if len(limits['parent_ids']) == 0 and len(limits['labels']) == 0:
+            limits = None
+        return limits
 
     def get_to_list(self):
         to_list = {}
@@ -232,14 +232,9 @@ class MailToRolesView(MailToFilterView):
                         labels=slugs,
                         roles=self.select_form.cleaned_data['roles'])
                     people += response.people
-                if len(limits['staff_area_labels']) > 0:
+                if len(limits['labels']) > 0:
                     response = get_people(
-                        label_sets=[slugs, limits['staff_area_labels']],
-                        roles=self.select_form.cleaned_data['roles'])
-                    people += response.people
-                if len(limits['calendar_type_labels']) > 0:
-                    response = get_people(
-                        label_sets=[slugs, limits['calendar_type_labels']],
+                        label_sets=[slugs, limits['labels']],
                         roles=self.select_form.cleaned_data['roles'])
                     people += response.people
             else:
@@ -249,27 +244,41 @@ class MailToRolesView(MailToFilterView):
                 people += response.people
         else:
             if len([i for i in ['Producer',
-                              'Technical Director',
-                              'Act Coordinator'] if i in self.priv_list]) > 0:
-                parent_ids = self.event_queryset
+                                'Technical Director',
+                                'Act Coordinator',
+                                'Staff Lead'] if i in self.priv_list]) > 0:
                 if limits:
                     if len(limits['parent_ids']) > 0:
-                        parent_ids = limits['parent_ids']
-                    else:
-                        parent_ids = None
-                if parent_ids:
+                        response = get_people(
+                            parent_event_ids=limits['parent_ids'],
+                            labels=slugs,
+                            roles=self.select_form.cleaned_data['roles'])
+                else:
                     response = get_people(
-                        parent_event_ids=parent_ids,
+                        parent_event_ids=self.event_queryset,
                         labels=slugs,
                         roles=self.select_form.cleaned_data['roles'])
-                    people += response.people
+                people += response.people
             if "Class Coordinator" in self.priv_list:
-                if limits is None or "Conference" in limits[
-                        'calendar_type_labels']:
+                if limits is None or "Conference" in limits['labels']:
                     response = get_people(
                         label_sets=[slugs, ["Conference", ]],
                         roles=self.select_form.cleaned_data['roles'])
                     people += response.people
+            if "Staff Lead" in self.priv_list:
+                if limits:
+                    if len(limits['labels']) > 0:
+                        response = get_people(
+                            label_sets=[slugs, limits['labels']],
+                            roles=self.select_form.cleaned_data['roles'])
+                else:
+                    allowed_labels = ["Volunteer", ]
+                    for area in self.staff_queryset:
+                        allowed_labels += [area.slug]
+                    response = get_people(
+                        label_sets=[slugs, allowed_labels],
+                        roles=self.select_form.cleaned_data['roles'])
+                people += response.people
         for person in people:
             to_list[person.user.email] = \
                     person.user.profile.display_name
