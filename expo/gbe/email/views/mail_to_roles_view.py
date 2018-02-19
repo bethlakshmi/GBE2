@@ -102,20 +102,20 @@ class MailToRolesView(MailToFilterView):
                 ("drop-in", "All Drop-In Classes"),
                 ("Volunteer", "All Volunteer Events")]
         else:
-            if "Class Coordinator" in priv_list and len(priv_list) > 0:
+            if "Class Coordinator" in priv_list:
                 event_collect_choices += [
-                    ("conf_class", "All Conference Classes"), ]
+                    ("Conference", "All Conference Classes"), ]
             if "Staff Lead" in priv_list:
                 event_collect_choices += [
-                    ("volunteer", "All Volunteer Events"), ]
+                    ("Volunteer", "All Volunteer Events"), ]
         return event_collect_choices
 
     def groundwork(self, request, args, kwargs):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         self.specify_event_form = None
         self.refine_ready = False
-        priv_list = self.user.privilege_groups
-        priv_list += self.user.get_roles()
+        self.priv_list = self.user.privilege_groups
+        self.priv_list += self.user.get_roles()
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys() or \
                 'refine' in request.POST.keys():
             if 'refine' in request.POST.keys():
@@ -129,15 +129,15 @@ class MailToRolesView(MailToFilterView):
                     prefix="event-select")
                 self.event_queryset = self.setup_event_queryset(
                     self.user.user_object.is_superuser,
-                    priv_list,
+                    self.priv_list,
                     self.select_form.cleaned_data['conference'])
                 self.staff_queryset = self.setup_staff_queryset(
                     self.user.user_object.is_superuser,
-                    priv_list,
+                    self.priv_list,
                     self.select_form.cleaned_data['conference'])
                 self.event_collect_choices = self.setup_event_collect_choices(
                     self.user.user_object.is_superuser,
-                    priv_list,
+                    self.priv_list,
                     self.select_form.cleaned_data['conference'])
                 if self.event_queryset:
                     self.specify_event_form.fields[
@@ -167,10 +167,10 @@ class MailToRolesView(MailToFilterView):
                     'roles': [r[0] for r in role_options]})
 
         if not (self.user.user_object.is_superuser or len(
-                [i for i in all_roles if i in priv_list]) > 0):
+                [i for i in all_roles if i in self.priv_list]) > 0):
             avail_roles = []
             for key, value in role_option_privs.iteritems():
-                if key in priv_list:
+                if key in self.priv_list:
                     for role in value:
                         if role not in avail_roles:
                             avail_roles.append(role)
@@ -223,7 +223,8 @@ class MailToRolesView(MailToFilterView):
         if self.user.user_object.is_superuser or len(
                 [i for i in ["Scheduling Mavens",
                              "Registrar",
-                             "Volunteer Coordinator"] if i in priv_list]) > 0:
+                             "Volunteer Coordinator"] if i in self.priv_list]
+                ) > 0:
             if limits:
                 if len(limits['parent_ids']) > 0:
                     response = get_people(
@@ -246,6 +247,29 @@ class MailToRolesView(MailToFilterView):
                     labels=slugs,
                     roles=self.select_form.cleaned_data['roles'])
                 people += response.people
+        else:
+            if len([i for i in ['Producer',
+                              'Technical Director',
+                              'Act Coordinator'] if i in self.priv_list]) > 0:
+                parent_ids = self.event_queryset
+                if limits:
+                    if len(limits['parent_ids']) > 0:
+                        parent_ids = limits['parent_ids']
+                    else:
+                        parent_ids = None
+                if parent_ids:
+                    response = get_people(
+                        parent_event_ids=parent_ids,
+                        labels=slugs,
+                        roles=self.select_form.cleaned_data['roles'])
+                    people += response.people
+            if "Class Coordinator" in self.priv_list:
+                if limits is None or "Conference" in limits[
+                        'calendar_type_labels']:
+                    response = get_people(
+                        label_sets=[slugs, ["Conference", ]],
+                        roles=self.select_form.cleaned_data['roles'])
+                    people += response.people
         for person in people:
             to_list[person.user.email] = \
                     person.user.profile.display_name
@@ -272,15 +296,6 @@ class MailToRolesView(MailToFilterView):
                                             prefix="email-select")
         event_info = SelectEventForm(request.POST,
                                      prefix="event-select")
-        '''
-        if self.event_queryset:
-            event_info.fields['events'].queryset = self.event_queryset
-        if self.staff_queryset:
-            event_info.fields['staff_areas'].queryset = self.staff_queryset,
-        if len(self.event_collect_choices) > 0:
-            event_info.fields[
-                'event_collections'].choices = self.event_collect_choices,
-        '''
         context = self.get_select_forms()
         context["email_forms"] = [email_form, recipient_info, event_info]
         context["to_list"] = to_list

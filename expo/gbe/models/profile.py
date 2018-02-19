@@ -322,21 +322,21 @@ class Profile(WorkerItem):
         '''
         roles = []
         if conference is None:
-            if self.staffarea_set.exclude(
-                    conference__status="completed").exists():
-                roles = ["Staff Lead"]
-            roles += get_roles(
+            roles = get_roles(
                 self.user_object,
                 labels=Conference.objects.exclude(
                     status="completed").values_list(
                     'conference_slug',
                     flat=True)).roles
+            if "Staff Lead" not in roles and self.staffarea_set.exclude(
+                    conference__status="completed").exists():
+                roles += ["Staff Lead"]
         else:
-            if self.staffarea_set.filter(
-                    conference=conference).exists():
-                roles = ["Staff Lead"]
-            roles += get_roles(self.user_object,
+            roles = get_roles(self.user_object,
                                labels=[conference.conference_slug]).roles
+            if "Staff Lead" not in roles and self.staffarea_set.filter(
+                    conference=conference).exists():
+                roles += ["Staff Lead"]
         return roles
 
     def get_badge_name(self):

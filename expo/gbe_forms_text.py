@@ -148,8 +148,7 @@ role_option_privs = {
     'Class Coordinator': ["Interested",
                           "Panelist",
                           "Teacher",
-                          "Moderator",
-                          "Staff Lead"],
+                          "Moderator"],
     'Volunteer Coordinator': ["Interested", "Volunteer", "Staff Lead"],
 }
 event_collect_choices = [
