@@ -35,8 +35,9 @@
          <input type="submit" class="email-submit" name="filter" value="Filter">
         {% endif %}
       </div></div>
+    {% if specify_event_form %}
     <div class="row email-select"><div class="form-group col-xs-12">
      If the optional fields are left blank, all available events will be used in the search.
-    </div></div>
+    </div></div>{% endif %}
     </form>
 {% endblock %}

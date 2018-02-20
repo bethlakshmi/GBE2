@@ -127,7 +127,7 @@ role_map = {
     'Producer': False,
     'Technical Director': False,
 }
-all_roles = ["Staff Lead", "Scheduling Mavens", "Registrar"]
+all_roles = ["Staff Lead", "Schedule Mavens", "Registrar"]
 role_option_privs = {
     'Producer': ["Interested",
                  "Performer",

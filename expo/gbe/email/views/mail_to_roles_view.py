@@ -49,7 +49,7 @@ class MailToRolesView(MailToFilterView):
         # build event field based on privs
         event_queryset = None
         if is_superuser or len(
-                [i for i in ["Scheduling Mavens",
+                [i for i in ["Schedule Mavens",
                              "Registrar",
                              "Volunteer Coordinator"] if i in priv_list]) > 0:
             event_queryset = Event.objects.filter(
@@ -79,7 +79,7 @@ class MailToRolesView(MailToFilterView):
     def setup_staff_queryset(self, is_superuser, priv_list, conferences):
         staff_queryset = None
         if is_superuser or len(
-                [i for i in ["Scheduling Mavens",
+                [i for i in ["Schedule Mavens",
                              "Staff Lead",
                              "Registrar",
                              "Volunteer Coordinator"] if i in priv_list]) > 0:
@@ -94,7 +94,7 @@ class MailToRolesView(MailToFilterView):
                                     conferences):
         event_collect_choices = []
         if is_superuser or len(
-                [i for i in ["Scheduling Mavens",
+                [i for i in ["Schedule Mavens",
                              "Registrar",
                              "Volunteer Coordinator"] if i in priv_list]) > 0:
             event_collect_choices = [
@@ -221,7 +221,7 @@ class MailToRolesView(MailToFilterView):
         if self.refine_ready:
             limits = self.create_occurrence_limits()
         if self.user.user_object.is_superuser or len(
-                [i for i in ["Scheduling Mavens",
+                [i for i in ["Schedule Mavens",
                              "Registrar",
                              "Volunteer Coordinator"] if i in self.priv_list]
                 ) > 0:

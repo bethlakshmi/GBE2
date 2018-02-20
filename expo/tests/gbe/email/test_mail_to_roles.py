@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
     is_login_page,
     login_as,
 )
+from tests.functions.gbe_email_functions import assert_checkbox
 from tests.contexts.class_context import (
     ClassContext,
 )
@@ -26,12 +27,21 @@ from gbetext import (
 from django.contrib.auth.models import User
 from gbe.models import Conference
 from post_office.models import Email
-from tests.functions.gbe_email_functions import assert_checkbox
+from gbetext import role_options
+from gbe_forms_text import role_option_privs
 
 
 class TestMailToBidder(TestCase):
-    view_name = 'mail_to_bidders'
-    priv_list = ['Act', 'Class', 'Costume', 'Vendor', 'Volunteer']
+    view_name = 'mail_to_roles'
+    role_list = ['Interested',
+                 'Moderator',
+                 "Panelist",
+                 "Performer",
+                 "Producer",
+                 "Staff Lead",
+                 "Teacher",
+                 "Technical Director",
+                 "Volunteer"]
 
     def setUp(self):
         Conference.objects.all().delete()
@@ -40,28 +50,11 @@ class TestMailToBidder(TestCase):
             'myuser', 'myemail@test.com', "mypassword")
         self.privileged_profile = ProfileFactory(
             user_object=self.privileged_user)
-        for priv in self.priv_list:
-            grant_privilege(
-                self.privileged_profile.user_object,
-                '%s Coordinator' % priv)
+        grant_privilege(self.privileged_profile.user_object,
+                        "Schedule Mavens")
         self.context = ClassContext()
         self.url = reverse(self.view_name,
                            urlconf="gbe.email.urls")
-
-    def reduced_login(self):
-        reduced_profile = ProfileFactory()
-        grant_privilege(
-            reduced_profile.user_object,
-            '%s Coordinator' % "Act")
-        login_as(reduced_profile, self)
-        return reduced_profile
-
-    def test_no_login_gives_error(self):
-        response = self.client.get(self.url, follow=True)
-        redirect_url = "%s/?next=/email/mail_to_bidders" % (
-            reverse('login', urlconf='gbe.urls'))
-        self.assertRedirects(response, redirect_url)
-        self.assertTrue(is_login_page(response))
 
     def test_no_priv(self):
         login_as(ProfileFactory(), self)
@@ -69,7 +62,6 @@ class TestMailToBidder(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_full_login_first_get(self):
-        n = 0
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
         assert_checkbox(
@@ -78,43 +70,41 @@ class TestMailToBidder(TestCase):
             0,
             self.context.conference.pk,
             self.context.conference.conference_slug)
-        for priv in self.priv_list:
+        n = 0
+        for role in role_options:
             assert_checkbox(
                 response,
-                "bid_type",
+                "roles",
                 n,
-                priv,
-                priv)
+                role[0],
+                role[1])
             n = n + 1
-        for state in acceptance_states:
-            self.assertContains(
-                response,
-                'value="%s"' % state[0])
-            self.assertContains(
-                response,
-                state[1])
         self.assertContains(response, "Email Everyone")
 
     def test_reduced_login_first_get(self):
-        self.reduced_login()
-        response = self.client.get(self.url, follow=True)
-        assert_checkbox(
-            response,
-            "conference",
-            0,
-            self.context.conference.pk,
-            self.context.conference.conference_slug)
-        assert_checkbox(
-            response,
-            "bid_type",
-            0,
-            "Act",
-            "Act")
-        self.assertNotContains(
-            response,
-            "Class")
-        self.assertNotContains(response, "Email Everyone")
+        for priv, roles in role_option_privs.iteritems():
+            limited_profile = ProfileFactory()
+            grant_privilege(limited_profile.user_object,
+                            priv)
+            login_as(limited_profile, self)
 
+            response = self.client.get(self.url, follow=True)
+            assert_checkbox(
+                response,
+                "conference",
+                0,
+                self.context.conference.pk,
+                self.context.conference.conference_slug)
+            n = 0
+            for role in sorted(roles):
+                assert_checkbox(
+                    response,
+                    "roles",
+                    n,
+                    role,
+                    role)
+                n = n + 1
+        self.assertNotContains(response, "Email Everyone")
     def test_full_login_first_get_2_conf(self):
         extra_conf = ConferenceFactory()
         login_as(self.privileged_profile, self)
@@ -132,31 +122,12 @@ class TestMailToBidder(TestCase):
             extra_conf.pk,
             extra_conf.conference_slug)
 
-    def test_pick_everyone(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'everyone': "Everyone",
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        for user in User.objects.exclude(username="limbo"):
-            self.assertContains(response, user.email)
-
-    def test_pick_everyone_no_priv(self):
-        self.reduced_login()
-        data = {
-            'everyone': "Everyone",
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        assert_alert_exists(
-            response, 'danger', 'Error', unknown_request)
-
-    def test_pick_conf_bidder(self):
+    def test_pick_conf_teacher(self):
         second_context = ClassContext()
         login_as(self.privileged_profile, self)
         data = {
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-roles': self.role_list,
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -167,14 +138,15 @@ class TestMailToBidder(TestCase):
             response,
             second_context.teacher.contact.user_object.email)
 
-    def test_pick_class_bidder(self):
-        second_bid = ActFactory()
-        login_as(self.privileged_profile, self)
+
+    def test_pick_class_teacher(self):
+        interested = self.context.set_interest()
+        limited_profile = ProfileFactory()
+        grant_privilege(limited_profile.user_object, "Class Coordinator")
+        login_as(limited_profile, self)
         data = {
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk],
-            'email-select-bid_type': ["Class"],
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-roles': ["Teacher"],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -183,8 +155,44 @@ class TestMailToBidder(TestCase):
             self.context.teacher.contact.user_object.email)
         self.assertNotContains(
             response,
-            second_bid.performer.contact.user_object.email)
+            interested.user_object.email)
+        print response.content
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Conference",
+            "All Conference Classes",
+            checked=False,
+            prefix="event-select")
 
+    def test_pick_all_conf_class(self):
+        interested = self.context.set_interest()
+        limited_profile = ProfileFactory()
+        grant_privilege(limited_profile.user_object, "Class Coordinator")
+        login_as(limited_profile, self)
+        data = {
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-roles': ["Teacher"],
+            'event-select-event_collections': "Conference",
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            interested.user_object.email)
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Conference",
+            "All Conference Classes",
+            prefix="event-select")
+
+'''
     def test_pick_status_bidder(self):
         second_class = ClassFactory(accepted=2)
         login_as(self.privileged_profile, self)
@@ -541,3 +549,4 @@ class TestMailToBidder(TestCase):
                 self.privileged_profile.user_object.email,
                 second_super.username,
                 second_super.email))
+'''
