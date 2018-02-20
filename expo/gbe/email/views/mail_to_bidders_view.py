@@ -87,7 +87,7 @@ class MailToBiddersView(MailToFilterView):
                                               prefix="email-select")
         recipient_info.fields[
             'bid_type'].choices = self.bid_type_choices
-        return to_list, recipient_info
+        return to_list, [recipient_info]
 
     def filter_emails(self, request):
         to_list = self.get_to_list()

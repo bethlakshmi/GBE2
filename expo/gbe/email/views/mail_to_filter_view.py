@@ -18,8 +18,8 @@ class MailToFilterView(MailView):
             - the template for display (extending mail_to_group.tmpl)
             - the url that represents this flow
             - groundwork(self, request, args, kwargs) - to set the select_form
-            - prep_email_form(request) - returns to_list, recipient_info for
-                preparing the email recipient list before to getting the form
+            - prep_email_form(request) - returns to_list, list of recipient
+                info forms for preparing the email recipient list 
             - filter_emails(request) - set up the filter form, when there is an
               error
     '''
@@ -92,7 +92,7 @@ class MailToFilterView(MailView):
             if 'everyone' in request.POST.keys():
                 to_list = self.get_everyone(request)
                 everyone = True
-            elif self.select_form.is_valid():
+            elif self.select_form_is_valid():
                 to_list, recipient_info = self.prep_email_form(request)
             if len(to_list) > 0:
                 mail_form = self.send_mail(request, to_list)
@@ -100,7 +100,7 @@ class MailToFilterView(MailView):
                     return HttpResponseRedirect(self.url)
                 else:
                     context = {
-                        "email_forms": [mail_form, recipient_info],
+                        "email_forms": [mail_form] + [recipient_info],
                         "to_list": to_list,
                         "everyone": everyone}
                     context.update(self.get_select_forms())

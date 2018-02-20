@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block select_recipent_form %}
+  <label class="form-check-label"><font color=red>*</font></label> indicates a required field<br>
   <form class="form-inline" action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row email-select">
@@ -34,5 +35,8 @@
          <input type="submit" class="email-submit" name="filter" value="Filter">
         {% endif %}
       </div></div>
+    <div class="row email-select">
+     If the optional fields are left blank, all available events will be used in the search.
+    </div>
     </form>
 {% endblock %}

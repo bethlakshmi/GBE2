@@ -2,6 +2,8 @@
         <label class="form-check-label" id="{{ field.name }}">
           {% if field.errors %}
             <font color="red">!&nbsp;&nbsp;
+          {% elif field.css_classes == 'required'%}
+            <font color="red">*</font>
           {% endif %}
           {{ field.label }}:&nbsp;&nbsp;</label>
           {% if field.errors %}
