@@ -56,6 +56,11 @@ class TestMailToBidder(TestCase):
         self.url = reverse(self.view_name,
                            urlconf="gbe.email.urls")
 
+    def class_coord_login(self):
+        limited_profile = ProfileFactory()
+        grant_privilege(limited_profile.user_object, "Class Coordinator")
+        login_as(limited_profile, self)
+
     def test_no_priv(self):
         login_as(ProfileFactory(), self)
         response = self.client.get(self.url)
@@ -141,9 +146,7 @@ class TestMailToBidder(TestCase):
 
     def test_pick_class_teacher(self):
         interested = self.context.set_interest()
-        limited_profile = ProfileFactory()
-        grant_privilege(limited_profile.user_object, "Class Coordinator")
-        login_as(limited_profile, self)
+        self.class_coord_login()
         data = {
             'email-select-conference': [self.context.conference.pk],
             'email-select-roles': ["Teacher"],
@@ -168,9 +171,7 @@ class TestMailToBidder(TestCase):
 
     def test_pick_all_conf_class(self):
         interested = self.context.set_interest()
-        limited_profile = ProfileFactory()
-        grant_privilege(limited_profile.user_object, "Class Coordinator")
-        login_as(limited_profile, self)
+        self.class_coord_login()
         data = {
             'email-select-conference': [self.context.conference.pk],
             'email-select-roles': ["Teacher"],
@@ -192,81 +193,33 @@ class TestMailToBidder(TestCase):
             "All Conference Classes",
             prefix="event-select")
 
-'''
-    def test_pick_status_bidder(self):
-        second_class = ClassFactory(accepted=2)
-        login_as(self.privileged_profile, self)
-        data = {
-            'email-select-conference': [self.context.conference.pk,
-                                        second_class.b_conference.pk],
-            'email-select-bid_type': ["Class"],
-            'email-select-state': [3],
-            'filter': True,
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            self.context.teacher.contact.user_object.email)
-        self.assertNotContains(
-            response,
-            second_class.teacher.contact.user_object.email)
-
-    def test_pick_class_draft(self):
-        second_bid = ClassFactory()
-        login_as(self.privileged_profile, self)
-        data = {
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk],
-            'email-select-bid_type': ["Class"],
-            'email-select-state': ["Draft"],
-            'filter': True,
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertNotContains(
-            response,
-            self.context.teacher.contact.user_object.email)
-        self.assertContains(
-            response,
-            second_bid.teacher.contact.user_object.email)
-
-    def test_pick_class_draft_and_accept(self):
-        second_bid = ClassFactory()
-        third_bid = ClassFactory(submitted=True)
-        login_as(self.privileged_profile, self)
-        data = {
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk,
-                                        third_bid.b_conference.pk],
-            'email-select-bid_type': ["Class"],
-            'email-select-state': ["Draft", 3],
-            'filter': True,
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            self.context.teacher.contact.user_object.email)
-        self.assertContains(
-            response,
-            second_bid.teacher.contact.user_object.email)
-        self.assertNotContains(
-            response,
-            third_bid.teacher.contact.user_object.email)
-
-    def test_pick_forbidden_bid_type_reduced_priv(self):
-        second_bid = ActFactory()
-        self.reduced_login()
+    def test_pick_forbidden_role_reduced_priv(self):
+        self.class_coord_login()
         data = {
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': "Class",
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-roles': ["Teacher", "Performer"],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
             response,
-            'Select a valid choice. Class is not one of the available choices.'
+            'Select a valid choice. Performer is not one of the available choices.'
             )
 
+    def test_pick_forbidden_collection_reduced_priv(self):
+        self.class_coord_login()
+        data = {
+            'email-select-conference': [self.context.conference.pk],
+            'email-select-roles': ["Teacher", ],
+            'event-select-event_collections': "Volunteer",
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice. Volunteer is not one of the available choices.'
+            )
+'''
     def test_pick_reduced_priv(self):
         second_bid = ActFactory(submitted=True)
         self.reduced_login()

@@ -110,6 +110,20 @@ class MailToRolesView(MailToFilterView):
                     ("Volunteer", "All Volunteer Events"), ]
         return event_collect_choices
 
+    def setup_roles(self):
+        if not (self.user.user_object.is_superuser or len(
+                [i for i in all_roles if i in self.priv_list]) > 0):
+            avail_roles = []
+            for key, value in role_option_privs.iteritems():
+                if key in self.priv_list:
+                    for role in value:
+                        if role not in avail_roles:
+                            avail_roles.append(role)
+            if len(avail_roles) == 0:
+                raise Exception("no match for this role")
+            self.select_form.fields['roles'].choices = [
+                (role, role) for role in sorted(avail_roles)]
+
     def groundwork(self, request, args, kwargs):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         self.specify_event_form = None
@@ -123,6 +137,7 @@ class MailToRolesView(MailToFilterView):
             self.select_form = SelectRoleForm(
                 request.POST,
                 prefix="email-select")
+            self.setup_roles()
 
             if self.select_form.is_valid():
                 self.specify_event_form = SelectEventForm(request.POST,
@@ -165,19 +180,7 @@ class MailToRolesView(MailToFilterView):
                         'pk',
                         flat=True),
                     'roles': [r[0] for r in role_options]})
-
-        if not (self.user.user_object.is_superuser or len(
-                [i for i in all_roles if i in self.priv_list]) > 0):
-            avail_roles = []
-            for key, value in role_option_privs.iteritems():
-                if key in self.priv_list:
-                    for role in value:
-                        if role not in avail_roles:
-                            avail_roles.append(role)
-            if len(avail_roles) == 0:
-                raise Exception("no match for this role")
-            self.select_form.fields['roles'].choices = [
-                (role, role) for role in sorted(avail_roles)]
+            self.setup_roles()
 
     def get_select_forms(self):
         context = {"selection_form": self.select_form}
