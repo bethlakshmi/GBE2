@@ -257,8 +257,12 @@ class MailToRolesView(MailToFilterView):
                             labels=slugs,
                             roles=self.select_form.cleaned_data['roles'])
                 else:
+                    # this should be doable from a values_list, can't explain why not
+                    parent_items = []
+                    for item in self.event_queryset:
+                        parent_items += [item.eventitem_id]
                     response = get_people(
-                        parent_event_ids=self.event_queryset,
+                        parent_event_ids=parent_items,
                         labels=slugs,
                         roles=self.select_form.cleaned_data['roles'])
                 people += response.people

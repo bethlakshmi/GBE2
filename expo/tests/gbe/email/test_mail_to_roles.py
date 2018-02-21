@@ -15,8 +15,9 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.functions.gbe_email_functions import assert_checkbox
-from tests.contexts.class_context import (
+from tests.contexts import (
     ClassContext,
+    ShowContext,
 )
 from gbetext import (
     acceptance_states,
@@ -219,15 +220,18 @@ class TestMailToBidder(TestCase):
             response,
             'Select a valid choice. Volunteer is not one of the available choices.'
             )
-'''
-    def test_pick_reduced_priv(self):
-        second_bid = ActFactory(submitted=True)
-        self.reduced_login()
+
+    def test_pick_performer_reduced_priv(self):
+        showcontext = ShowContext()
+        producer = showcontext.set_producer()
+        anothershowcontext = ShowContext(
+            conference=showcontext.conference,
+        )
+        login_as(producer, self)
         data = {
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk],
-            'email-select-bid_type': ['Act'],
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-conference': [showcontext.conference.pk,
+                                        self.context.conference.pk],
+            'email-select-roles': ['Performer', ],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -236,8 +240,50 @@ class TestMailToBidder(TestCase):
             self.context.teacher.contact.user_object.email)
         self.assertContains(
             response,
-            second_bid.performer.contact.user_object.email)
+            showcontext.performer.contact.user_object.email)
+        self.assertContains(
+            response,
+            anothershowcontext.performer.contact.user_object.email)
 
+    def test_pick_performer_specific_show(self):
+        showcontext = ShowContext()
+        anothershowcontext = ShowContext(
+            conference=showcontext.conference,
+        )
+        producer = showcontext.set_producer()
+        login_as(producer, self)
+        data = {
+            'email-select-conference': [showcontext.conference.pk,
+                                        self.context.conference.pk],
+            'email-select-roles': ['Performer', ],
+            'event-select-events': showcontext.show.pk,
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            anothershowcontext.performer.contact.user_object.email)
+        self.assertContains(
+            response,
+            showcontext.performer.contact.user_object.email)
+
+    def test_pick_performer_mismatch_show(self):
+        showcontext = ShowContext()
+        anothershowcontext = ShowContext()
+        producer = showcontext.set_producer()
+        login_as(producer, self)
+        data = {
+            'email-select-conference': [anothershowcontext.conference.pk],
+            'email-select-roles': ['Performer', ],
+            'event-select-events': showcontext.show.pk,
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            "%d is not one of the available choices." % showcontext.show.pk)
+
+'''
     def test_pick_no_bidders(self):
         reduced_profile = self.reduced_login()
         data = {
