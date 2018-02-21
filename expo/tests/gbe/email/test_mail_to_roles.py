@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
-    ActFactory,
+    GenericEventFactory,
     ClassFactory,
     ConferenceFactory,
     ProfileFactory,
@@ -18,6 +18,8 @@ from tests.functions.gbe_email_functions import assert_checkbox
 from tests.contexts import (
     ClassContext,
     ShowContext,
+    StaffAreaContext,
+    VolunteerContext,
 )
 from gbetext import (
     acceptance_states,
@@ -244,6 +246,22 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             anothershowcontext.performer.contact.user_object.email)
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            showcontext.show.pk,
+            showcontext.show.e_title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "events",
+            1,
+            anothershowcontext.show.pk,
+            anothershowcontext.show.e_title,
+            checked=False,
+            prefix="event-select")
 
     def test_pick_performer_specific_show(self):
         showcontext = ShowContext()
@@ -266,7 +284,22 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             showcontext.performer.contact.user_object.email)
-
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            showcontext.show.pk,
+            showcontext.show.e_title,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "events",
+            1,
+            anothershowcontext.show.pk,
+            anothershowcontext.show.e_title,
+            checked=False,
+            prefix="event-select")
+    
     def test_pick_performer_mismatch_show(self):
         showcontext = ShowContext()
         anothershowcontext = ShowContext()
@@ -282,6 +315,202 @@ class TestMailToBidder(TestCase):
         self.assertContains(
             response,
             "%d is not one of the available choices." % showcontext.show.pk)
+
+    def test_pick_staff_area_reduced_priv(self):
+        staffcontext = StaffAreaContext()
+        volunteer, booking = staffcontext.book_volunteer()
+        special = GenericEventFactory(
+            e_conference=staffcontext.conference)
+        specialstaffcontext = VolunteerContext(
+            event=special,
+        )
+        login_as(staffcontext.staff_lead, self)
+        data = {
+            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-roles': ['Volunteer', ],
+            'filter': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            volunteer.user_object.email)
+        self.assertContains(
+            response,
+            specialstaffcontext.profile.user_object.email)
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            special.pk,
+            special.e_title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "staff_areas",
+            0,
+            staffcontext.area.pk,
+            staffcontext.area.title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Volunteer",
+            "All Volunteer Events",
+            checked=False,
+            prefix="event-select")
+
+    def test_pick_special_reduced_priv(self):
+        staffcontext = StaffAreaContext()
+        volunteer, booking = staffcontext.book_volunteer()
+        special = GenericEventFactory(
+            e_conference=staffcontext.conference)
+        specialstaffcontext = VolunteerContext(
+            event=special,
+        )
+        login_as(staffcontext.staff_lead, self)
+        data = {
+            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-roles': ['Volunteer', ],
+            'event-select-events': special.pk,
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertNotContains(
+            response,
+            volunteer.user_object.email)
+        self.assertContains(
+            response,
+            specialstaffcontext.profile.user_object.email)
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            special.pk,
+            special.e_title,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "staff_areas",
+            0,
+            staffcontext.area.pk,
+            staffcontext.area.title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Volunteer",
+            "All Volunteer Events",
+            checked=False,
+            prefix="event-select")
+
+    def test_pick_area_reduced_priv(self):
+        staffcontext = StaffAreaContext()
+        volunteer, booking = staffcontext.book_volunteer()
+        special = GenericEventFactory(
+            e_conference=staffcontext.conference)
+        specialstaffcontext = VolunteerContext(
+            event=special,
+        )
+        login_as(staffcontext.staff_lead, self)
+        data = {
+            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-roles': ['Volunteer', ],
+            'event-select-staff_areas': staffcontext.area.pk,
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            volunteer.user_object.email)
+        self.assertNotContains(
+            response,
+            specialstaffcontext.profile.user_object.email)
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            special.pk,
+            special.e_title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "staff_areas",
+            0,
+            staffcontext.area.pk,
+            staffcontext.area.title,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Volunteer",
+            "All Volunteer Events",
+            checked=False,
+            prefix="event-select")
+
+    def test_pick_all_vol_reduced_priv(self):
+        staffcontext = StaffAreaContext()
+        volunteer, booking = staffcontext.book_volunteer()
+        special = GenericEventFactory(
+            e_conference=staffcontext.conference)
+        specialstaffcontext = VolunteerContext(
+            event=special,
+        )
+        login_as(staffcontext.staff_lead, self)
+        data = {
+            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-roles': ['Volunteer', ],
+            'event-select-event_collections': "Volunteer",
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            volunteer.user_object.email)
+        self.assertContains(
+            response,
+            specialstaffcontext.profile.user_object.email)
+        assert_checkbox(
+            response,
+            "events",
+            0,
+            special.pk,
+            special.e_title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "staff_areas",
+            0,
+            staffcontext.area.pk,
+            staffcontext.area.title,
+            checked=False,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "event_collections",
+            0,
+            "Volunteer",
+            "All Volunteer Events",
+            prefix="event-select")
 
 '''
     def test_pick_no_bidders(self):

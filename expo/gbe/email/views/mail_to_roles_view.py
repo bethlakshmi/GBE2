@@ -250,6 +250,7 @@ class MailToRolesView(MailToFilterView):
                                 'Technical Director',
                                 'Act Coordinator',
                                 'Staff Lead'] if i in self.priv_list]) > 0:
+                response = None
                 if limits:
                     if len(limits['parent_ids']) > 0:
                         response = get_people(
@@ -265,7 +266,8 @@ class MailToRolesView(MailToFilterView):
                         parent_event_ids=parent_items,
                         labels=slugs,
                         roles=self.select_form.cleaned_data['roles'])
-                people += response.people
+                if response:
+                    people += response.people
             if "Class Coordinator" in self.priv_list:
                 if limits is None or "Conference" in limits['labels']:
                     response = get_people(
