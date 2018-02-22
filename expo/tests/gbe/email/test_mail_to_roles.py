@@ -574,9 +574,8 @@ class TestMailToRoles(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        print response
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
+            response, 'success', 'Success', "%s%s (%s), " % (
                 send_email_success_msg,
                 volunteer.display_name,
                 volunteer.user_object.email))
