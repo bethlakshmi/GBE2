@@ -116,21 +116,16 @@ class MailToRolesView(MailToFilterView):
                     for role in value:
                         if role not in avail_roles:
                             avail_roles.append(role)
-            if len(avail_roles) == 0:
-                raise Exception("no match for this role")
             self.select_form.fields['roles'].choices = [
                 (role, role) for role in sorted(avail_roles)]
 
     def groundwork(self, request, args, kwargs):
         self.url = reverse('mail_to_roles', urlconf='gbe.email.urls')
         self.specify_event_form = None
-        self.refine_ready = False
         self.priv_list = self.user.privilege_groups
         self.priv_list += self.user.get_roles()
         if 'filter' in request.POST.keys() or 'send' in request.POST.keys() or \
                 'refine' in request.POST.keys():
-            if 'refine' or 'send' in request.POST.keys():
-                self.refine_ready = True
             self.select_form = SelectRoleForm(
                 request.POST,
                 prefix="email-select")
@@ -186,7 +181,7 @@ class MailToRolesView(MailToFilterView):
         return context
 
     def select_form_is_valid(self):
-        if self.refine_ready:
+        if self.specify_event_form:
             return self.select_form.is_valid(
                 ) and self.specify_event_form.is_valid()
         return self.select_form.is_valid()
@@ -219,7 +214,7 @@ class MailToRolesView(MailToFilterView):
         limits = None
         for conference in self.select_form.cleaned_data['conference']:
             slugs += [conference.conference_slug]
-        if self.refine_ready:
+        if self.specify_event_form:
             limits = self.create_occurrence_limits()
         if self.user.user_object.is_superuser or len(
                 [i for i in ["Schedule Mavens",
