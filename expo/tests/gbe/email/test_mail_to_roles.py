@@ -414,6 +414,42 @@ class TestMailToBidder(TestCase):
             checked=False,
             prefix="event-select")
 
+    def test_pick_drop_in(self):
+        special = GenericEventFactory(
+            e_conference=self.context.conference,
+            type="Drop-In")
+        specialstaffcontext = VolunteerContext(
+            event=special,
+            role="Teacher"
+        )
+        limited_profile = ProfileFactory()
+        grant_privilege(limited_profile.user_object, "Registrar")
+        login_as(limited_profile, self)
+        data = {
+            'email-select-conference': [self.context.conference.pk,],
+            'email-select-roles': ['Teacher', ],
+            'event-select-event_collections': "Drop-In",
+            'refine': True,
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        print response
+        self.assertNotContains(
+            response,
+            self.context.teacher.contact.user_object.email)
+        self.assertContains(
+            response,
+            specialstaffcontext.profile.user_object.email)
+        self.assertNotContains(
+            response,
+            special.e_title)
+        assert_checkbox(
+            response,
+            "event_collections",
+            1,
+            "Drop-In",
+            "All Drop-In Classes",
+            prefix="event-select")
+
     def test_pick_area_reduced_priv(self):
         staffcontext = StaffAreaContext()
         volunteer, booking = staffcontext.book_volunteer()
@@ -512,163 +548,82 @@ class TestMailToBidder(TestCase):
             "All Volunteer Events",
             prefix="event-select")
 
-'''
     def test_pick_no_bidders(self):
-        reduced_profile = self.reduced_login()
+        login_as(self.privileged_profile, self)
         data = {
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': ['Act'],
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-roles': ['Interested',],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
             response, 'danger', 'Error', to_list_empty_msg)
 
-    def test_pick_admin_has_sender(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'filter': "Filter",
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            '<input id="id_sender" name="sender" type="email" ' +
-            'value="%s" />' % (self.privileged_profile.user_object.email))
-
-    def test_pick_no_admin_fixed_email(self):
-        act_bid = ActFactory(submitted=True)
-        reduced_profile = self.reduced_login()
-        data = {
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'email-select-bid_type': ['Act'],
-            'email-select-conference': [act_bid.b_conference.pk],
-            'filter': "Filter",
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            '<input id="id_sender" name="sender" type="hidden" ' +
-            'value="%s" />' % (reduced_profile.user_object.email))
-
     def test_send_email_success_status(self):
+        staffcontext = StaffAreaContext(conference=self.context.conference)
+        volunteer, booking = staffcontext.book_volunteer()
+        showcontext = ShowContext(conference=self.context.conference)
         login_as(self.privileged_profile, self)
         data = {
-            'sender': "sender@admintest.com",
+            'sender': self.privileged_profile.user_object.email,
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-roles': ["Performer", "Volunteer"],
+            'event-select-events': showcontext.show.pk,
+            'event-select-staff_areas': staffcontext.area.pk,
+            'event-select-event_collections': "Volunteer",
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
+        print response
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), " % (
+            response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
                 send_email_success_msg,
-                self.context.teacher.contact.display_name,
-                self.context.teacher.contact.user_object.email))
+                volunteer.display_name,
+                volunteer.user_object.email,
+                showcontext.performer.contact.display_name,
+                showcontext.performer.contact.user_object.email))
 
     def test_send_email_success_email_sent(self):
-        login_as(self.privileged_profile, self)
+        staffcontext = StaffAreaContext(conference=self.context.conference)
+        volunteer, booking = staffcontext.book_volunteer()
+        showcontext = ShowContext(conference=self.context.conference)
+        showcontext.set_producer(producer=staffcontext.staff_lead)
+        login_as(staffcontext.staff_lead, self)
         data = {
-            'sender': "sender@admintest.com",
+            'sender': staffcontext.staff_lead.user_object.email,
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
-            'email-select-state': [0, 1, 2, 3, 4, 5],
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
+            'email-select-roles': ["Volunteer", ],
+            'event-select-events': showcontext.show.pk,
+            'event-select-staff_areas': staffcontext.area.pk,
+            'event-select-event_collections': "Volunteer",
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_queued_email(
-            [self.context.teacher.contact.user_object.email, ],
+            [volunteer.user_object.email, ],
             data['subject'],
             data['html_message'],
             data['sender'],
             )
 
-    def test_send_email_reduced_w_fixed_from(self):
-        reduced_profile = self.reduced_login()
-        second_bid = ActFactory(submitted=True)
-        data = {
-            'sender': "sender@admintest.com",
-            'subject': "Subject",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk],
-            'email-select-bid_type': ['Act'],
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        assert_queued_email(
-            [second_bid.performer.contact.user_object.email, ],
-            data['subject'],
-            data['html_message'],
-            reduced_profile.user_object.email,
-            )
-
-    def test_send_email_reduced_no_hack(self):
-        reduced_profile = self.reduced_login()
-        second_bid = ActFactory()
-        data = {
-            'sender': "sender@admintest.com",
-            'subject': "Subject",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk,
-                                        second_bid.b_conference.pk],
-            'email-select-bid_type': "Class",
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            'Select a valid choice. Class is not one of the available choices.'
-            )
-
-    def test_send_email_failure(self):
+    def test_send_email_failure_preserve_choices(self):
+        staffcontext = StaffAreaContext(conference=self.context.conference)
+        volunteer, booking = staffcontext.book_volunteer()
+        showcontext = ShowContext(conference=self.context.conference)
+        showcontext.set_producer(producer=staffcontext.staff_lead)
         login_as(self.privileged_profile, self)
         data = {
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
             'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "This field is required.")
-
-    def test_send_email_failure_preserve_to_list(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
-            response,
-            "%s &lt;%s&gt;;" % (
-                self.context.teacher.contact.display_name,
-                self.context.teacher.contact.user_object.email))
-
-    def test_send_email_failure_preserve_conference_choice(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'email-select-roles': ["Interested", ],
+            'event-select-events': showcontext.show.pk,
+            'event-select-staff_areas': staffcontext.area.pk,
+            'event-select-event_collections': "Volunteer",
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
@@ -678,103 +633,23 @@ class TestMailToBidder(TestCase):
             0,
             self.context.conference.pk,
             self.context.conference.conference_slug)
-
-    def test_send_email_failure_preserve_bid_type_choice(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': "Class",
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
         assert_checkbox(
             response,
-            "bid_type",
-            1,
-            "Class",
-            "Class")
-
-    def test_send_email_failure_preserve_state_choice(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'html_message': "<p>Test Message</p>",
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [3, ],
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(
+            "roles",
+            0,
+            "Interested",
+            "Interested")
+        assert_checkbox(
             response,
-            '<input checked="checked" id="id_email-select-state_4" ' +
-            'name="email-select-state" type="checkbox" value="3" />')
-
-    def test_pick_no_post_action(self):
-        second_class = ClassFactory(accepted=2)
-        login_as(self.privileged_profile, self)
-        data = {
-            'email-select-conference': [self.context.conference.pk],
-            'email-select-bid_type': self.priv_list,
-            'email-select-state': [0, 1, 2, 3, 4, 5],
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        assert_alert_exists(
-            response, 'danger', 'Error', unknown_request)
-
-    def test_send_everyone_success_email_sent(self):
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'subject': "Subject",
-            'html_message': "<p>Test Message</p>",
-            'everyone': "Everyone",
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        for user in User.objects.exclude(username="limbo"):
-            assert_queued_email(
-                [user.email, ],
-                data['subject'],
-                data['html_message'],
-                data['sender'],
-                )
-
-    def test_send_everyone_reduced(self):
-        reduced_profile = self.reduced_login()
-        data = {
-            'sender': "sender@admintest.com",
-            'subject': "Subject",
-            'html_message': "<p>Test Message</p>",
-            'everyone': "Everyone",
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        assert_alert_exists(
-            response, 'danger', 'Error', unknown_request)
-
-    def test_send_everyone_success_alert_displayed(self):
-        User.objects.exclude(
-            username=self.privileged_profile.user_object.username).delete()
-        second_super = User.objects.create_superuser(
-            'secondsuper', 'secondsuper@test.com', "mypassword")
-        login_as(self.privileged_profile, self)
-        data = {
-            'sender': "sender@admintest.com",
-            'subject': "Subject",
-            'html_message': "<p>Test Message</p>",
-            'everyone': "Everyone",
-            'send': True
-        }
-        response = self.client.post(self.url, data=data, follow=True)
-        assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
-                send_email_success_msg,
-                self.privileged_profile.display_name,
-                self.privileged_profile.user_object.email,
-                second_super.username,
-                second_super.email))
-'''
+            "events",
+            0,
+            showcontext.show.pk,
+            showcontext.show.e_title,
+            prefix="event-select")
+        assert_checkbox(
+            response,
+            "event_collections",
+            2,
+            "Volunteer",
+            "All Volunteer Events",
+            prefix="event-select")

@@ -153,7 +153,7 @@ role_option_privs = {
 }
 event_collect_choices = [
                 ("Conference", "All Conference Classes"),
-                ("drop-in", "All Drop-In Classes"),
+                ("Drop-In", "All Drop-In Classes"),
                 ("Volunteer", "All Volunteer Events")]
 copy_mode_labels = {
     'copy_mode': "How would you like to copy this event?"

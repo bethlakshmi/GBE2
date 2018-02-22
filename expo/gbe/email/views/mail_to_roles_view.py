@@ -92,23 +92,20 @@ class MailToRolesView(MailToFilterView):
                                     is_superuser,
                                     priv_list,
                                     conferences):
-        event_collect_choices = []
+        event_collect = []
         if is_superuser or len(
                 [i for i in ["Schedule Mavens",
                              "Registrar",
                              "Volunteer Coordinator"] if i in priv_list]) > 0:
-            event_collect_choices = [
-                ("Conference", "All Conference Classes"),
-                ("drop-in", "All Drop-In Classes"),
-                ("Volunteer", "All Volunteer Events")]
+            return event_collect_choices
         else:
             if "Class Coordinator" in priv_list:
-                event_collect_choices += [
+                event_collect += [
                     ("Conference", "All Conference Classes"), ]
             if "Staff Lead" in priv_list:
-                event_collect_choices += [
+                event_collect += [
                     ("Volunteer", "All Volunteer Events"), ]
-        return event_collect_choices
+        return event_collect
 
     def setup_roles(self):
         if not (self.user.user_object.is_superuser or len(
@@ -204,11 +201,12 @@ class MailToRolesView(MailToFilterView):
         for area in self.specify_event_form.cleaned_data['staff_areas']:
             limits['labels'] += [area.slug]
         for collection in self.specify_event_form.cleaned_data['event_collections']:
-            if collection != "drop-in":
+            if collection != "Drop-In":
                 limits['labels'] += [collection]
             else:
-                limits['parent_ids'] += GenericEvent.objects.filter(
-                    type="Drop-In").values_list('pk', flat=True)
+                for dropin in GenericEvent.objects.filter(
+                    type="Drop-In"):
+                    limits['parent_ids'] += [dropin.eventitem_id]
 
         if len(limits['parent_ids']) == 0 and len(limits['labels']) == 0:
             limits = None
