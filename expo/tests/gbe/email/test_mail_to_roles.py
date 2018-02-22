@@ -34,7 +34,7 @@ from gbetext import role_options
 from gbe_forms_text import role_option_privs
 
 
-class TestMailToBidder(TestCase):
+class TestMailToRoles(TestCase):
     view_name = 'mail_to_roles'
     role_list = ['Interested',
                  'Moderator',
@@ -562,7 +562,6 @@ class TestMailToBidder(TestCase):
     def test_send_email_success_status(self):
         staffcontext = StaffAreaContext(conference=self.context.conference)
         volunteer, booking = staffcontext.book_volunteer()
-        showcontext = ShowContext(conference=self.context.conference)
         login_as(self.privileged_profile, self)
         data = {
             'sender': self.privileged_profile.user_object.email,
@@ -570,7 +569,6 @@ class TestMailToBidder(TestCase):
             'html_message': "<p>Test Message</p>",
             'email-select-conference': [self.context.conference.pk],
             'email-select-roles': ["Performer", "Volunteer"],
-            'event-select-events': showcontext.show.pk,
             'event-select-staff_areas': staffcontext.area.pk,
             'event-select-event_collections': "Volunteer",
             'send': True
@@ -581,9 +579,7 @@ class TestMailToBidder(TestCase):
             response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
                 send_email_success_msg,
                 volunteer.display_name,
-                volunteer.user_object.email,
-                showcontext.performer.contact.display_name,
-                showcontext.performer.contact.user_object.email))
+                volunteer.user_object.email))
 
     def test_send_email_success_email_sent(self):
         staffcontext = StaffAreaContext(conference=self.context.conference)
