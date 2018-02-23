@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     GenericEventFactory,
-    ClassFactory,
     ConferenceFactory,
     ProfileFactory,
 )
@@ -22,14 +21,12 @@ from tests.contexts import (
     VolunteerContext,
 )
 from gbetext import (
-    acceptance_states,
     send_email_success_msg,
     to_list_empty_msg,
     unknown_request,
 )
 from django.contrib.auth.models import User
 from gbe.models import Conference
-from post_office.models import Email
 from gbetext import role_options
 from gbe_forms_text import role_option_privs
 

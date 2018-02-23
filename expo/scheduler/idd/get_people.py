@@ -7,11 +7,6 @@ from django.db.models import Q
 
 
 def get_people(parent_event_ids=[], labels=[], label_sets=[], roles=[]):
-    if len(labels) == 0 and len(roles) == 0:
-        return PeopleResponse(
-            errors=[Error(
-                code="INVALID_REQUEST-LABEL_AND_ROLE",
-                details="Either a label or a role must be provided."), ])
     if len(labels) > 0 and len(label_sets) > 0:
         return OccurrenceResponse(
             errors=[Error(
