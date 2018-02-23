@@ -110,6 +110,7 @@ class TestMailToRoles(TestCase):
                     role)
                 n = n + 1
         self.assertNotContains(response, "Email Everyone")
+
     def test_full_login_first_get_2_conf(self):
         extra_conf = ConferenceFactory()
         login_as(self.privileged_profile, self)
@@ -142,7 +143,6 @@ class TestMailToRoles(TestCase):
         self.assertNotContains(
             response,
             second_context.teacher.contact.user_object.email)
-
 
     def test_pick_class_teacher(self):
         interested = self.context.set_interest()
@@ -203,7 +203,8 @@ class TestMailToRoles(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
             response,
-            'Select a valid choice. Performer is not one of the available choices.'
+            'Select a valid choice. ' +
+            'Performer is not one of the available choices.'
             )
 
     def test_pick_forbidden_collection_reduced_priv(self):
@@ -217,7 +218,8 @@ class TestMailToRoles(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertContains(
             response,
-            'Select a valid choice. Volunteer is not one of the available choices.'
+            'Select a valid choice. ' +
+            'Volunteer is not one of the available choices.'
             )
 
     def test_pick_performer_reduced_priv(self):
@@ -296,7 +298,7 @@ class TestMailToRoles(TestCase):
             anothershowcontext.show.e_title,
             checked=False,
             prefix="event-select")
-    
+
     def test_pick_performer_mismatch_show(self):
         showcontext = ShowContext()
         anothershowcontext = ShowContext()
@@ -323,7 +325,7 @@ class TestMailToRoles(TestCase):
         )
         login_as(staffcontext.staff_lead, self)
         data = {
-            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-conference': [staffcontext.conference.pk, ],
             'email-select-roles': ['Volunteer', ],
             'filter': True,
         }
@@ -372,7 +374,7 @@ class TestMailToRoles(TestCase):
         )
         login_as(staffcontext.staff_lead, self)
         data = {
-            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-conference': [staffcontext.conference.pk, ],
             'email-select-roles': ['Volunteer', ],
             'event-select-events': special.pk,
             'refine': True,
@@ -423,7 +425,7 @@ class TestMailToRoles(TestCase):
         grant_privilege(limited_profile.user_object, "Registrar")
         login_as(limited_profile, self)
         data = {
-            'email-select-conference': [self.context.conference.pk,],
+            'email-select-conference': [self.context.conference.pk, ],
             'email-select-roles': ['Teacher', ],
             'event-select-event_collections': "Drop-In",
             'refine': True,
@@ -457,7 +459,7 @@ class TestMailToRoles(TestCase):
         )
         login_as(staffcontext.staff_lead, self)
         data = {
-            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-conference': [staffcontext.conference.pk, ],
             'email-select-roles': ['Volunteer', ],
             'event-select-staff_areas': staffcontext.area.pk,
             'refine': True,
@@ -506,7 +508,7 @@ class TestMailToRoles(TestCase):
         )
         login_as(staffcontext.staff_lead, self)
         data = {
-            'email-select-conference': [staffcontext.conference.pk,],
+            'email-select-conference': [staffcontext.conference.pk, ],
             'email-select-roles': ['Volunteer', ],
             'event-select-event_collections': "Volunteer",
             'refine': True,
@@ -549,7 +551,7 @@ class TestMailToRoles(TestCase):
         login_as(self.privileged_profile, self)
         data = {
             'email-select-conference': [self.context.conference.pk],
-            'email-select-roles': ['Interested',],
+            'email-select-roles': ['Interested', ],
             'filter': True,
         }
         response = self.client.post(self.url, data=data, follow=True)

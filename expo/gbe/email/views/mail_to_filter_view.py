@@ -19,7 +19,7 @@ class MailToFilterView(MailView):
             - the url that represents this flow
             - groundwork(self, request, args, kwargs) - to set the select_form
             - prep_email_form(request) - returns to_list, list of recipient
-                info forms for preparing the email recipient list 
+                info forms for preparing the email recipient list
             - filter_emails(request) - set up the filter form, when there is an
               error
     '''
@@ -110,8 +110,8 @@ class MailToFilterView(MailView):
                         context)
         elif 'everyone' in request.POST.keys():
             return self.filter_everyone(request)
-        elif ('filter' in request.POST.keys() or 'refine' in request.POST.keys()
-                ) and self.select_form_is_valid():
+        elif ('filter' in request.POST.keys() or 'refine' in request.POST.keys(
+                )) and self.select_form_is_valid():
             return self.filter_emails(request)
 
         user_message = UserMessage.objects.get_or_create(

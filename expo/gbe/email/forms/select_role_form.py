@@ -32,4 +32,3 @@ class SecretRoleInfoForm(SelectRoleForm):
         widget=MultipleHiddenInput(),
         required=True,
         choices=role_options)
-

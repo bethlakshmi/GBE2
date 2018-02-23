@@ -68,7 +68,7 @@ class MailToRolesView(MailToFilterView):
                                 'Technical Director',
                                 'Act Coordinator'] if i in priv_list]) > 0:
                 if query:
-                   query = query | Q(show__pk__gt=0)
+                    query = query | Q(show__pk__gt=0)
                 else:
                     query = Q(show__pk__gt=0)
             event_queryset = Event.objects.filter(
@@ -124,15 +124,16 @@ class MailToRolesView(MailToFilterView):
         self.specify_event_form = None
         self.priv_list = self.user.privilege_groups
         self.priv_list += self.user.get_roles()
-        if 'filter' in request.POST.keys() or 'send' in request.POST.keys() or \
-                'refine' in request.POST.keys():
+        if 'filter' in request.POST.keys() or 'send' in request.POST.keys(
+                ) or 'refine' in request.POST.keys():
             self.select_form = SelectRoleForm(
                 request.POST,
                 prefix="email-select")
             self.setup_roles()
 
             if self.select_form.is_valid():
-                self.specify_event_form = SelectEventForm(request.POST,
+                self.specify_event_form = SelectEventForm(
+                    request.POST,
                     prefix="event-select")
                 self.event_queryset = self.setup_event_queryset(
                     self.user.user_object.is_superuser,
@@ -195,12 +196,12 @@ class MailToRolesView(MailToFilterView):
             limits['parent_ids'] += [event.eventitem_id]
         for area in self.specify_event_form.cleaned_data['staff_areas']:
             limits['labels'] += [area.slug]
-        for collection in self.specify_event_form.cleaned_data['event_collections']:
+        for collection in self.specify_event_form.cleaned_data[
+                'event_collections']:
             if collection != "Drop-In":
                 limits['labels'] += [collection]
             else:
-                for dropin in GenericEvent.objects.filter(
-                    type="Drop-In"):
+                for dropin in GenericEvent.objects.filter(type="Drop-In"):
                     limits['parent_ids'] += [dropin.eventitem_id]
 
         if len(limits['parent_ids']) == 0 and len(limits['labels']) == 0:
@@ -251,7 +252,7 @@ class MailToRolesView(MailToFilterView):
                             labels=slugs,
                             roles=self.select_form.cleaned_data['roles'])
                 else:
-                    # this should be doable from a values_list, can't explain why not
+                    # this should be doable from a values_list, isn't
                     parent_items = []
                     for item in self.event_queryset:
                         parent_items += [item.eventitem_id]

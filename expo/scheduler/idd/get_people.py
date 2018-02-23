@@ -21,7 +21,7 @@ def get_people(parent_event_ids=[], labels=[], label_sets=[], roles=[]):
         bookings = bookings.filter(event__eventlabel__text__in=label_set)
     if len(parent_event_ids) > 0:
         bookings = bookings.filter(Q(
-            event__container_event__parent_event__eventitem__eventitem_id__in=parent_event_ids) | 
+            event__container_event__parent_event__eventitem__eventitem_id__in=parent_event_ids) |
             Q(event__eventitem__eventitem_id__in=parent_event_ids))
     if "Performer" in roles:
         act_bookings = bookings.filter(resource__actresource__pk__gt=0)

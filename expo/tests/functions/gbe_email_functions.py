@@ -1,3 +1,5 @@
+
+
 def assert_checkbox(response,
                     field_name,
                     position,
