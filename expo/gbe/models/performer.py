@@ -61,10 +61,6 @@ class Performer (WorkerItem):
         return self.contact.user_object.email
 
     @property
-    def contact_phone(self):
-        return self.contact.phone
-
-    @property
     def complete(self):
         return True
 

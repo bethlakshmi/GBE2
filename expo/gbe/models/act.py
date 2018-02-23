@@ -74,26 +74,14 @@ class Act (Biddable, ActItem):
 
     @property
     def audio(self):
+        audio = None
         if self.tech and self.tech.audio:
-            return self.tech.audio
-        return None
-
-    @property
-    def contact_info(self):
-        return (self.performer.contact.display_name,
-                self.contact_email,
-                self.performer.contact.phone,
-                self.accepted,
-                self.b_title,
-                )
+            audio = self.tech.audio
+        return audio
 
     @property
     def contact_email(self):
         return self.performer.contact_email
-
-    @property
-    def contact_phone(self):
-        return self.performer.contact_phone
 
     @property
     def bio(self):

@@ -667,88 +667,6 @@ class Event(Schedulable):
             allocation.set_label(person.label)
         return PersonResponse(warnings=warnings, booking_id=allocation.pk)
 
-    def allocate_worker(self, worker, role, label=None, alloc_id=-1):
-        '''
-        worker can be an instance of WorkerItem or of Worker
-        role is a string, must be one of the role types.
-        Since a particular Worker can be allocated in multiple roles, or
-        multiple times in the same role, this will not attempt to reject
-        duplicate allocations, it will always just create the requested
-        allocation
-
-        It returns any warnings.  Warnings include:
-           - conflicts found with the worker item's existing schedule
-           - any case where the event is already booked with the maximum
-             number of volunteers
-
-        DEPRECATE - when schedule refactor is complete.
-        '''
-        warnings = []
-        time_format = DATETIME_FORMAT
-        if isinstance(worker, WorkerItem):
-            worker = Worker(_item=worker, role=role)
-        else:
-            worker.role = role
-        worker.save()
-        for conflict in worker.workeritem.get_conflicts(self):
-            warnings += [
-                ("Found event conflict, new booking %s - " +
-                 "%s conflicts with %s - %s") % (
-                    str(self),
-                    self.starttime.strftime(time_format),
-                    str(conflict),
-                    conflict.starttime.strftime(time_format))]
-        if alloc_id < 0:
-            allocation = ResourceAllocation(event=self,
-                                            resource=worker)
-        else:
-            allocation = ResourceAllocation.objects.get(
-                id=alloc_id)
-            allocation.resource = worker
-        allocation.save()
-        if self.extra_volunteers() > 0:
-            warnings += ["%s - %s is overfull. Over by %d volunteer." % (
-                str(self),
-                self.starttime.strftime(time_format),
-                self.extra_volunteers())]
-        if label:
-            allocation.set_label(label)
-        return warnings
-
-    def get_volunteer_opps(self, role='Volunteer'):
-        '''
-        return volunteer opportunities associated with this event
-        Returns a list of dicts,
-        {'sched':scheduler.Event, 'conf':conference_event}
-        '''
-        opps = EventContainer.objects.filter(parent_event=self).order_by(
-            'child_event__starttime')
-        opps = [
-            {'sched': opp.child_event,
-             'conf': EventItem.objects.get_subclass(
-                 eventitem_id=opp.child_event.eventitem_id),
-             'contacts': Worker.objects.filter(
-                 allocations__event=opp.child_event, role=role)
-             }
-            for opp in opps]
-        return filter(lambda o: o['conf'].type == 'Volunteer', opps)
-
-    def contact_info(self, resource_type='All', worker_type=None, status=None):
-        '''
-        Returns a list of email addresses for the requested resource type.
-        Currently, return as csv: display_name, email_address
-        Future: nice interface
-        '''
-        if resource_type == 'Teachers':
-            return self.class_contacts()
-        elif resource_type == 'Worker':
-            return self.worker_contact_info(worker_type=worker_type)
-        elif resource_type == 'Act':
-            return self.act_contact_info(status=status)
-        else:
-            return (self.worker_contact_info(worker_type=worker_type) +
-                    self.act_contact_info(status=status))
-
     @property
     def volunteer_count(self):
         allocations = ResourceAllocation.objects.filter(event=self)
@@ -762,29 +680,6 @@ class Event(Schedulable):
             if acts > 0:
                 return "%d acts" % acts
         return 0
-
-    # DEPRECATE - when scheduling is refactored
-    def get_workers(self, worker_type=None):
-        '''
-        Return a list of workers allocated to this event,
-        filtered by type if worker_type is specified
-        returns the Worker Resource assigned. Calling function has to
-        drill down to get to profile
-        '''
-        worker_type = worker_type or 'Volunteer'
-        opps = self.get_volunteer_opps()
-        alloc_list = [(opp['conf'].volunteer_type,
-                       list(opp['sched'].resources_allocated.all()))
-                      for opp in opps]
-
-        workers = []
-        for a in alloc_list:
-            for w in a[1]:
-                if w.resource.type == worker_type:
-                    workers.append((a[0].interest,
-                                    Worker.objects.get(
-                                        resource_ptr_id=w.resource_id)))
-        return workers
 
     def get_acts(self, status=None):
         '''
@@ -821,80 +716,6 @@ class Event(Schedulable):
         workers = [allocation.resource.item.performer
                    for allocation in allocations]
         return workers
-
-    def class_contacts(self):
-        '''
-        Returns contact info for teachers, panelists, and moderators
-        associated with this event (if any)
-        '''
-        info = []
-        for worker in self.get_direct_workers():
-            profile = worker.contact
-            if profile.user_object.is_active:
-                info.append(
-                    (profile.display_name,
-                     worker.contact_email,
-                     profile.phone,
-                     '',
-                     str(self))
-                )
-        return info
-
-    def class_contacts2(self):
-        '''
-        To do: reconcile the two class_contacts functions
-        '''
-        allocations = self.resources_allocated.filter(
-            resource__in=Worker.objects.all())
-        info = []
-        for allocation in allocations:
-            try:
-                persona = WorkerItem.objects.get_subclass(
-                    resourceitem_id=allocation.resource.item.resourceitem_id)
-                if persona.contact.user_object.is_active:
-                    info.append(
-                        (persona.contact_email,
-                         str(self),
-                         allocation.resource.worker.role,
-                         persona.name,
-                         persona.contact.display_name,
-                         persona.contact_phone))
-            except:
-                profile = WorkerItem.objects.get_subclass(
-                    resourceitem_id=allocation.resource.item.resourceitem_id)
-                if profile.user_object.is_active:
-                    info.append(
-                        (profile.user_object.email,
-                         str(self),
-                         allocation.resource.worker.role,
-                         "No Performer Name",
-                         profile.display_name,
-                         profile.phone))
-        return info
-
-    def act_contact_info(self, status=None):
-        info = []
-        for act in self.get_acts(status):
-            if act.performer.contact.user_object.is_active:
-                info.append(act.contact_info)
-        return info
-
-    def worker_contact_info(self, worker_type=None):
-        '''
-        Returns contact information and information for filtering
-        Suitable for passing into csv
-        '''
-        info = []
-        for (category, worker) in self.get_workers(worker_type):
-            profile = worker.item.profile
-            if profile.user_object.is_active:
-                info.append(
-                    (profile.display_name,
-                     profile.contact_email,
-                     profile.phone,
-                     worker.role,
-                     category))
-        return info
 
     @property
     def event_type_name(self):
