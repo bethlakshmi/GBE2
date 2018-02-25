@@ -186,12 +186,13 @@ vote_options = ((1, "Strong yes"),
                 (6, "No"),
                 (7, "Strong No"),
                 (-1, "Abstain"))
-grade_options = (("A", "A"),
-                 ("B", "B"),
-                 ("C", "C"),
-                 ("D", "D"),
-                 ("F", "F"),
-                 ("NA", "NA"),)
+
+new_grade_options = ((4, "A"),
+                     (3, "B"),
+                     (2, "C"),
+                     (1, "D"),
+                     (0, "F"),
+                     (None, "NA"),)
 
 answer_types = (("grade", "grade"),
                 ("text", "text"),
@@ -494,6 +495,9 @@ eval_intro_msg = '''Thanks for your feedback!  Please grade your class \
 experience and let just know any additional comments in the box below.  \
 Teachers will get a summary of the review results, but the results will be \
 anonomized unless you check the box saying it's OK to share your info.'''
+eval_report_explain_msg = '''This is a summary of all class evaluations for \
+this conference.  Please be cognizant of responder sensitivity when sharing \
+participant names and details.  This view is NOT available to teachers.'''
 not_purchased_msg = '''You have not purchased a ticket for either a Whole \
 Shebang or conference attendance, so you can't rate this class.  Check \
 your homepage - if our records are incorrect, please let us know.'''

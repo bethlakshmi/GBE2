@@ -33,7 +33,7 @@ from gbetext import (
     eval_as_presenter_error,
     eval_success_msg,
     full_login_msg,
-    grade_options,
+    new_grade_options,
     no_profile_msg,
     no_login_msg,
     not_purchased_msg,
@@ -125,7 +125,7 @@ class TestEvalEventView(TestCase):
                           'name="question%d" rows="10">'
         boolean_checkbox = '<input id="id_question%d" name="question%d" ' + \
                            'type="checkbox" />'
-        for grade in grade_options:
+        for grade in new_grade_options:
             self.assertContains(
                 response,
                 grade_input % (q1.pk, n, q1.pk, grade[0]))
@@ -292,7 +292,7 @@ class TestEvalEventView(TestCase):
             args=[self.context.bid.eventitem_id])
         response = self.client.post(
             "%s?next=%s" % (self.url, redirect),
-            data={'question%d' % self.q0.pk: "C", },
+            data={'question%d' % self.q0.pk: 2, },
             follow=True)
         assert_alert_exists(
             response,
