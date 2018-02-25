@@ -34,7 +34,11 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
                             "and can't be rated.",
                     occurrence=response.occurrence)],
                 occurrences=occurrences)
-    questions = EventEvalQuestion.objects.filter(visible=visible)
+    if visible:
+        questions = EventEvalQuestion.objects.filter(visible=visible)
+    else:
+        questions = EventEvalQuestion.objects.all()
+
     answers = []
     for eval_type in [EventEvalComment, EventEvalGrade, EventEvalBoolean]:
         some_answers = eval_type.objects.filter(question__in=questions)

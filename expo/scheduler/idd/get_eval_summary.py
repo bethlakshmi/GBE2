@@ -23,8 +23,12 @@ def get_eval_summary(labels, visible=True):
     if len(response.errors) > 0:
         return EvalSummaryResponse(errors=response.errors)
 
-    questions = EventEvalQuestion.objects.filter(
-        visible=visible).exclude(answer_type="text").order_by(
+    if visible:
+        base = EventEvalQuestion.objects.filter(visible=visible)
+    else:
+        base = EventEvalQuestion.objects.all()
+
+    questions = base.exclude(answer_type="text").order_by(
         'order')
 
     for question in questions:
@@ -43,13 +47,13 @@ def get_eval_summary(labels, visible=True):
                 summary=Avg('answer'))
         summaries[question.pk] = summary
 
-    question = EventEvalQuestion.objects.filter(
-        visible=visible,
+    count_question = EventEvalQuestion.objects.filter(
+        visible=True,
         answer_type="grade").first()
     count = {}
     for item in EventEvalGrade.objects.filter(
             event__in=response.occurrences,
-            question=question).values('event').annotate(
+            question=count_question).values('event').annotate(
             eval_count=Count('event')):
         count[item['event']] = item['eval_count']
     return EvalSummaryResponse(occurrences=response.occurrences,
