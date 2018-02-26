@@ -24,6 +24,7 @@ from gbe.scheduling.views import (
     ShowCalendarView,
     StaffAreaWizardView,
     TicketedEventWizardView,
+    VolunteerWizardView,
 )
 
 # NOTE: in general, url patterns should end with '/?$'. This
@@ -51,6 +52,8 @@ urlpatterns = patterns(
         '(?P<event_type>[-\w]+)/?$',
         TicketedEventWizardView.as_view(),
         name='create_ticketed_event_wizard'),
+    url(r'^scheduling/create_volunteer_wizard/(?P<conference>[-\w]+)/?$',
+        VolunteerWizardView.as_view(), name='create_volunteer_wizard'),
     url(r'^scheduling/create_event_wizard/(?P<conference>[-\w]+)/?$',
         EventWizardView.as_view(), name='create_event_wizard'),
     url(r'^scheduling/edit/(?P<conference>[-\w]+)/(?P<occurrence_id>\d+)/?$',

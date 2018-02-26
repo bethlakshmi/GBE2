@@ -3,6 +3,7 @@ from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
 from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
+from volunteer_wizard_view import VolunteerWizardView
 
 # Brand new edit (will deprecate make_occurrence)
 from manage_vol_wizard_view import ManageVolWizardView
