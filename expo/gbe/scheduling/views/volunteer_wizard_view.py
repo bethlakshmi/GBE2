@@ -2,26 +2,15 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.forms import HiddenInput
-from django.shortcuts import (
-    get_object_or_404,
-    render,
-)
+from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from gbe.scheduling.forms import (
     GenericBookingForm,
     PickVolunteerTopicForm,
     ScheduleOccurrenceForm,
 )
-from gbe.models import Class
 from gbe.scheduling.views import EventWizardView
 from gbe.duration import Duration
-from django.contrib import messages
-from gbe.models import UserMessage
-from gbe_forms_text import (
-    classbid_labels,
-    class_schedule_options,
-)
 
 
 class VolunteerWizardView(EventWizardView):

@@ -4,8 +4,7 @@ from django.forms import (
     RadioSelect,
 )
 from gbe.models import (
-    GenericEvent,
-    Show,
+    Event,
     StaffArea,
 )
 from scheduler.idd import get_occurrences
@@ -30,32 +29,27 @@ class PickVolunteerTopicForm(Form):
         if 'initial' in kwargs and 'conference' in kwargs['initial']:
             initial = kwargs.pop('initial')
             complete_choices = []
-            show_choices = []
-            special_choices = []
+            event_choices = {
+                'Show': [],
+                'Special': [],
+            }
             staff_choices = []
-            response = get_occurrences(foreign_event_ids=Show.objects.filter(
-                e_conference=initial['conference']
-                ).values_list('eventitem_id', flat=True))
+
+            response = get_occurrences(labels=[
+                initial['conference'].conference_slug,
+                "General"])
             for item in response.occurrences:
-                show = Show.objects.get(eventitem_id=item.foreign_event_id)
-                show_choices += [(item.pk, "%s - %s" % (
-                    show.e_title,
-                    item.start_time.strftime(DATETIME_FORMAT)))]
-            if len(show_choices) > 0:
-                complete_choices += [('Shows', show_choices)]
-            response = get_occurrences(
-                foreign_event_ids=GenericEvent.objects.filter(
-                    e_conference=initial['conference'],
-                    type="Special"
-                    ).values_list('eventitem_id', flat=True))
-            for item in response.occurrences:
-                special = GenericEvent.objects.get(
+                event = Event.objects.get_subclass(
                     eventitem_id=item.foreign_event_id)
-                special_choices += [(item.pk, "%s - %s" % (
-                    special.e_title,
-                    item.start_time.strftime(DATETIME_FORMAT)))]
-            if len(special_choices) > 0:
-                complete_choices += [('Special Events', special_choices)]
+                if event.event_type in event_choices.keys():
+                    event_choices[event.event_type] += [
+                        (item.pk, "%s - %s" % (
+                            event.e_title,
+                            item.start_time.strftime(DATETIME_FORMAT)))]
+            if len(event_choices['Show']) > 0:
+                complete_choices += [('Shows', event_choices['Show'])]
+            if len(event_choices['Special']) > 0:
+                complete_choices += [('Special Events', event_choices['Special'])]
             for item in StaffArea.objects.filter(
                     conference=initial['conference']):
                 staff_choices += [("staff_%d" % item.pk,
