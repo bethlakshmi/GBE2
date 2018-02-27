@@ -1,5 +1,6 @@
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
+from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.forms import HiddenInput
 from django.shortcuts import (
@@ -25,8 +26,8 @@ from gbe_forms_text import (
 
 class VolunteerWizardView(EventWizardView):
     template = 'gbe/scheduling/volunteer_wizard.tmpl'
-    roles = ['Teacher', 'Volunteer', 'Moderator', 'Panelist', ]
-    default_event_type = "conference"
+    roles = ['Staff Lead', ]
+    default_event_type = "volunteer"
 
     def groundwork(self, request, args, kwargs):
         context = super(VolunteerWizardView,
@@ -98,34 +99,31 @@ class VolunteerWizardView(EventWizardView):
     def post(self, request, *args, **kwargs):
         working_class = None
         context = self.groundwork(request, args, kwargs)
-        context['second_form'] = PickClassForm(
+        context['second_form'] = PickVolunteerTopicForm(
             request.POST,
             initial={'conference':  self.conference})
-        context['third_title'] = "Make New Class"
-        if 'pick_class' in request.POST.keys() and context[
+        context['third_title'] = "Make New Volunteer Opportunity"
+        if 'pick_topic' in request.POST.keys() and context[
                 'second_form'].is_valid():
             if context['second_form'].cleaned_data[
-                    'accepted_class']:
-                working_class = context['second_form'].cleaned_data[
-                    'accepted_class']
-                context['third_title'] = "Book Class:  %s" % (
-                    working_class.e_title)
-                context['third_form'] = ClassBookingForm(
-                    instance=working_class)
-                duration = working_class.duration.hours() + float(
-                    working_class.duration.minutes())/60
-                context['scheduling_info'] = self.get_scheduling_info(
-                    working_class)
+                    'volunteer_topic'] and 'staff_' in context[
+                    'second_form'].cleaned_data['volunteer_topic']:
+                staff_area_id = context['second_form'].cleaned_data[
+                    'volunteer_topic'].split("staff_")[1]
+                return HttpResponseRedirect(
+                    "%s?start_open=False" % reverse(
+                        'edit_staff',
+                        urlconf='gbe.scheduling.urls',
+                        args=[staff_area_id]))
             else:
-                context['third_form'] = ClassBookingForm()
-                duration = 1
-            context['scheduling_form'] = ScheduleOccurrenceForm(
-                conference=self.conference,
-                open_to_public=True,
-                initial={'duration': duration, })
-            context['scheduling_form'].fields[
-                'max_volunteer'].widget = HiddenInput()
-            context['worker_formset'] = self.make_formset(working_class)
+                occurrence_id = context['second_form'].cleaned_data[
+                    'volunteer_topic']
+                return HttpResponseRedirect(
+                    "%s?start_open=False" % reverse(
+                        'edit_event',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.conference.conference_slug,
+                              occurrence_id]))
 
         elif 'set_class' in request.POST.keys(
                 ) and 'eventitem_id' in request.POST.keys():

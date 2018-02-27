@@ -80,17 +80,18 @@ class EditEventView(ManageVolWizardView):
         formset = []
         n = 0
         for booking in self.occurrence.people:
-            formset += [PersonAllocationForm(
-                post,
-                label_visible=False,
-                role_options=[(booking.role, booking.role), ],
-                use_personas=role_map[booking.role],
-                initial={
-                    'role': booking.role,
-                    'worker': booking.public_id,
-                },
-                prefix="alloc_%d" % n)]
-            n = n + 1
+            if booking.role in role_map:
+                formset += [PersonAllocationForm(
+                    post,
+                    label_visible=False,
+                    role_options=[(booking.role, booking.role), ],
+                    use_personas=role_map[booking.role],
+                    initial={
+                        'role': booking.role,
+                        'worker': booking.public_id,
+                    },
+                    prefix="alloc_%d" % n)]
+                n = n + 1
         for role in roles:
             formset += [PersonAllocationForm(
                 post,
