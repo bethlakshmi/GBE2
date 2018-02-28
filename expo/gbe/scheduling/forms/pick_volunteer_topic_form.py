@@ -49,7 +49,8 @@ class PickVolunteerTopicForm(Form):
             if len(event_choices['Show']) > 0:
                 complete_choices += [('Shows', event_choices['Show'])]
             if len(event_choices['Special']) > 0:
-                complete_choices += [('Special Events', event_choices['Special'])]
+                complete_choices += [('Special Events',
+                                      event_choices['Special'])]
             for item in StaffArea.objects.filter(
                     conference=initial['conference']):
                 staff_choices += [("staff_%d" % item.pk,
@@ -60,4 +61,3 @@ class PickVolunteerTopicForm(Form):
                 'Standalone',
                 [("", "Make a Volunteer Opportunity with no topic"), ])]
             self.fields['volunteer_topic'].choices = complete_choices
-
