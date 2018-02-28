@@ -5,10 +5,7 @@ from django.db.models import (
     IntegerField,
     TextField,
 )
-from gbetext import (
-    answer_types,
-    bid_types,
-)
+from gbetext import answer_types
 
 
 class EventEvalQuestion(Model):

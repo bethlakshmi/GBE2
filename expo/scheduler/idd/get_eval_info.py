@@ -34,15 +34,20 @@ def get_eval_info(occurrence_id=None, person=None, visible=True):
                             "and can't be rated.",
                     occurrence=response.occurrence)],
                 occurrences=occurrences)
-    questions = EventEvalQuestion.objects.filter(visible=visible)
+    if visible:
+        questions = EventEvalQuestion.objects.filter(visible=visible)
+    else:
+        questions = EventEvalQuestion.objects.all()
+
     answers = []
     for eval_type in [EventEvalComment, EventEvalGrade, EventEvalBoolean]:
-        some_answers = eval_type.objects.all()
+        some_answers = eval_type.objects.filter(question__in=questions)
         if occurrence_id:
             some_answers = some_answers.filter(event__in=occurrences)
         if person:
             some_answers = some_answers.filter(profile__pk=person.public_id)
-        answers += list(some_answers)
+        answers += list(some_answers.order_by('profile__profile__display_name',
+                                              'question__order'))
     if len(occurrences) == 0:
         for answer in answers:
             if answer.event not in occurrences:

@@ -1,6 +1,5 @@
 from expo.gbe_logging import log_func
 from gbe.views import BidChangeStateView
-from gbe.functions import validate_perms
 from gbe.models import Class
 
 

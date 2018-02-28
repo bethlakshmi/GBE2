@@ -7,7 +7,10 @@ from factory import (
 import scheduler.models as sched
 from datetime import datetime
 from django.utils import timezone
-from tests.factories.gbe_factories import GenericEventFactory
+from tests.factories.gbe_factories import (
+    GenericEventFactory,
+    ProfileFactory,
+)
 
 
 class SchedulableFactory(DjangoModelFactory):
@@ -130,9 +133,29 @@ class EventEvalQuestionFactory(DjangoModelFactory):
 
 class EventEvalGradeFactory(DjangoModelFactory):
     question = SubFactory(EventEvalQuestionFactory)
-    profile = SubFactory(WorkerItemFactory)
+    profile = SubFactory(ProfileFactory)
     event = SubFactory(SchedEventFactory)
-    answer = "B"
+    answer = 2
 
     class Meta:
         model = sched.EventEvalGrade
+
+
+class EventEvalBooleanFactory(DjangoModelFactory):
+    question = SubFactory(EventEvalQuestionFactory, answer_type="boolean")
+    profile = SubFactory(ProfileFactory)
+    event = SubFactory(SchedEventFactory)
+    answer = True
+
+    class Meta:
+        model = sched.EventEvalBoolean
+
+
+class EventEvalCommentFactory(DjangoModelFactory):
+    question = SubFactory(EventEvalQuestionFactory, answer_type="text")
+    profile = SubFactory(ProfileFactory)
+    event = SubFactory(SchedEventFactory)
+    answer = Sequence(lambda x: "Answer #%d" % x)
+
+    class Meta:
+        model = sched.EventEvalComment
