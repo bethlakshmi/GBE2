@@ -76,6 +76,7 @@ class TestVolunteerWizard(TestCase):
         self.assertNotContains(response, str(self.staff_area.area.title))
         self.assertContains(response,
                             "Make a Volunteer Opportunity with no topic")
+
     def test_auth_user_can_pick_show(self):
         login_as(self.privileged_user, self)
         response = self.client.post(
@@ -92,19 +93,48 @@ class TestVolunteerWizard(TestCase):
                 args=[self.current_conference.conference_slug,
                       self.show_volunteer.sched_event.pk]))
 
-'''
+    def test_auth_user_can_pick_special(self):
+        login_as(self.privileged_user, self)
+        response = self.client.post(
+            self.url,
+            data={
+                'pick_topic': True,
+                'volunteer_topic': self.special_volunteer.sched_event.pk},
+            follow=True)
+        self.assertRedirects(
+            response,
+            "%s?start_open=False" % reverse(
+                'edit_event',
+                urlconf='gbe.scheduling.urls',
+                args=[self.current_conference.conference_slug,
+                      self.special_volunteer.sched_event.pk]))
+
+    def test_auth_user_can_pick_staff(self):
+        login_as(self.privileged_user, self)
+        response = self.client.post(
+            self.url,
+            data={
+                'pick_topic': True,
+                'volunteer_topic': "staff_%d" % self.staff_area.area.pk},
+            follow=True)
+        self.assertRedirects(
+            response,
+            "%s?start_open=False" % reverse(
+                'edit_staff',
+                urlconf='gbe.scheduling.urls',
+                args=[self.staff_area.area.pk]))
 
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
-        data = self.get_data()
-        data['accepted_class'] = "boo"
         response = self.client.post(
             self.url,
-            data=data)
+            data={
+                'pick_topic': True,
+                'volunteer_topic': "boo"})
         self.assertContains(
             response,
-            'That choice is not one of the available choices.')
-
+            'Select a valid choice. boo is not one of the available choices.')
+'''
     def test_auth_user_pick_new_class(self):
         login_as(self.privileged_user, self)
         data = self.get_data()
