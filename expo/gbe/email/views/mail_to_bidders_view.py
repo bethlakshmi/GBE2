@@ -80,7 +80,7 @@ class MailToBiddersView(MailToFilterView):
                         to_list[bid.profile.user_object.email] = \
                             bid.profile.display_name
         return to_list
-    
+
     def prep_email_form(self, request):
         to_list = self.get_to_list()
         recipient_info = SecretBidderInfoForm(request.POST,
