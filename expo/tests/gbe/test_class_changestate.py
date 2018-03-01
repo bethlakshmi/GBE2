@@ -44,10 +44,11 @@ class TestClassChangestate(TestCase):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         login_as(self.privileged_user, self)
         response = self.client.post(url, data=self.data)
-        sched_url = reverse('event_schedule',
-                            urlconf="scheduler.urls")
-        response = self.client.post(sched_url,
-                                    data={'event_type': 'Class'})
+        sched_url = reverse('create_class_wizard',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.klass.b_conference.conference_slug])
+        response = self.client.post(sched_url)
+        print response
         assert self.klass.b_title in response.content
 
     def test_class_changestate_unauthorized_user(self):

@@ -14,7 +14,6 @@ from copy_occurrence_view import CopyOccurrenceView
 from copy_staff_area_view import CopyStaffAreaView
 
 # Old but Refactored Event Editing/Creation/Allocation
-from create_event_view import CreateEventView
 from make_occurrence_view import MakeOccurrenceView
 from manage_vol_ops_view import ManageVolOpsView
 from allocate_worker_view import AllocateWorkerView
