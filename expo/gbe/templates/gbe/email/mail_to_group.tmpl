@@ -1,0 +1,74 @@
+{% extends 'base.tmpl' %}
+
+{% block head %}
+ {% for email_form in email_forms %}
+  {{ email_form.media }}
+ {% endfor %}
+{% endblock %}
+
+{% block content %}
+{% if request.user.is_superuser %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <div class="row email-select">
+      <div class="col-sm-10">&nbsp;</div>
+      <div class="col-sm-2">
+        <form class="form-inline" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button class="btn btn-lg dropdown-toggle email-button" type="submit" name="everyone" value="Everyone">
+        <span class="glyphicon glyphicon-envelope"></span>&nbsp;&nbsp;Email Everyone</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      {% if everyone %}<a data-toggle="collapse" href="#collapse1">Select Recipients</a>
+      {% else %}Select Recipients{% endif %}</h3>
+  </div>
+  {% if everyone %}<div id="collapse1" class="panel-collapse collapse">{% endif %}
+  <div class="panel-body">
+  <font color="red">
+  {% if selection_form.errors %}
+    <p style= "color:red"> There is an error on the form.</p>
+  {% endif %}
+  {{ selection_form.non_field_errors }}</font>
+  {% block select_recipent_form %}{% endblock %}
+    {% if everyone %}</div>{% endif %}
+  </div>
+</div>
+{% if email_forms %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Send Email</h3>
+  </div>
+  <div class="panel-body">
+      <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" href="#to_list">Recipients ({{to_list|length}})...</a>
+            </h4>
+          </div>
+          <div id="to_list" class="panel-collapse collapse">
+            <div class="panel-body">
+              {% for email, display_name in to_list.items %}
+                {{display_name}} &lt;{{email}}&gt;;
+              {% endfor %}</div>
+          </div>
+        </div>
+      </div>
+
+    <form action="" method="post" enctype="multipart/form-data"> 
+      {% include "form_table_wrapper.tmpl" with forms=email_forms %}
+      {% if everyone %}<input id="id_everyone" name="everyone" type="hidden" value="Everyone" />{% endif %}
+
+      <input type="submit" class="email-submit" name="send" value="Send">
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

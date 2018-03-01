@@ -120,22 +120,6 @@ def cal_times_for_conf(conference, day_name=None):
         return (first_day + Duration(hours=8), last_day + Duration(hours=28))
 
 
-def get_roles_from_scheduler(workeritems, conference):
-    '''
-    get the list roles for this set of worker items and this conference
-    Based on the idea that 1 person is actually represented by multiple
-    worker items
-    '''
-    roles = []
-    from scheduler.models import ResourceAllocation
-    for allocation in ResourceAllocation.objects.filter(
-            resource__worker___item__in=workeritems):
-        if allocation.event.eventitem.get_conference() == conference:
-            roles += [allocation.resource.as_subtype.role]
-
-    return list(set(roles))
-
-
 def calendar_export(conference=None,
                     cal_format='gbook',
                     event_types='All',

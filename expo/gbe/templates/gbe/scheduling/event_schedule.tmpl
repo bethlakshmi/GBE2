@@ -65,18 +65,11 @@
   {% include "form_table.tmpl" %}
   <input type = "submit" name="submit" value="Submit">
   </form>
-    {% if event_id %}
+    {% if event_id and event_type == 'Show'  %}
     <table> 
     <tr>
-    {% if event_type == 'Show' %}
-    <td><a href="{%url 'scheduler:contact_info' event_id 'Act' %}">Contact acts</a> |
-    </td>
     <td><a href="{%url 'scheduler:schedule_acts' eventitem.event.pk %}">Schedule acts</a>
     </td>
-
-    {% elif event_type == 'Class' %}
-    <td><a href="{%url 'scheduler:contact_info' event_id 'Teachers' %}">Contact teachers/panelists/moderators</a>
-    {% endif %}
     </tr>
     </table>
     {% endif %}

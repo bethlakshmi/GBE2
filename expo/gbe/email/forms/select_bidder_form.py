@@ -1,5 +1,4 @@
 from django.forms import (
-    CharField,
     Form,
     HiddenInput,
     ModelMultipleChoiceField,
@@ -8,10 +7,6 @@ from django.forms import (
 )
 from django.forms.widgets import CheckboxSelectMultiple
 from gbetext import acceptance_states
-from gbe_forms_text import (
-    event_help_texts,
-    event_labels,
-)
 from gbe.models import Conference
 
 

@@ -2,7 +2,7 @@ import nose.tools as nt
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test import Client
-
+from tests.contexts import StaffAreaContext
 from tests.factories.gbe_factories import (
     ActFactory,
     ConferenceFactory,
@@ -72,6 +72,15 @@ class TestGetRoles(TestCase):
         result = persona.performer_profile.get_roles(
             booking.event.eventitem.e_conference)
         nt.assert_equal(result, ["Teacher"])
+
+    def test_staff_lead(self):
+        '''
+           has the role of a teacher, persona is booked for a class
+        '''
+        context = StaffAreaContext()
+        result = context.staff_lead.get_roles(
+            context.conference)
+        nt.assert_equal(result, ["Staff Lead"])
 
     def test_overcommitment_addict(self):
         '''

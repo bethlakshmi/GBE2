@@ -26,6 +26,7 @@ from gbetext import (
 from django.contrib.auth.models import User
 from gbe.models import Conference
 from post_office.models import Email
+from tests.functions.gbe_email_functions import assert_checkbox
 
 
 class TestMailToBidder(TestCase):
@@ -55,28 +56,6 @@ class TestMailToBidder(TestCase):
         login_as(reduced_profile, self)
         return reduced_profile
 
-    def assert_checkbox(self,
-                        response,
-                        field_name,
-                        position,
-                        value,
-                        label,
-                        checked=True):
-        if checked:
-            checked_string = 'checked="checked" '
-        else:
-            checked_string = ''
-        checkbox = '<input %sid="id_email-select-%s_%s"' + \
-            ' name="email-select-%s" type="checkbox" value="%s" />%s'
-        self.assertContains(
-            response,
-            checkbox % (checked_string,
-                        field_name,
-                        position,
-                        field_name,
-                        value,
-                        label))
-
     def test_no_login_gives_error(self):
         response = self.client.get(self.url, follow=True)
         redirect_url = "%s/?next=/email/mail_to_bidders" % (
@@ -93,14 +72,14 @@ class TestMailToBidder(TestCase):
         n = 0
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "conference",
             0,
             self.context.conference.pk,
             self.context.conference.conference_slug)
         for priv in self.priv_list:
-            self.assert_checkbox(
+            assert_checkbox(
                 response,
                 "bid_type",
                 n,
@@ -119,13 +98,13 @@ class TestMailToBidder(TestCase):
     def test_reduced_login_first_get(self):
         self.reduced_login()
         response = self.client.get(self.url, follow=True)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "conference",
             0,
             self.context.conference.pk,
             self.context.conference.conference_slug)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "bid_type",
             0,
@@ -140,13 +119,13 @@ class TestMailToBidder(TestCase):
         extra_conf = ConferenceFactory()
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "conference",
             0,
             self.context.conference.pk,
             self.context.conference.conference_slug)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "conference",
             1,
@@ -457,7 +436,7 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "conference",
             0,
@@ -475,7 +454,7 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assert_checkbox(
+        assert_checkbox(
             response,
             "bid_type",
             1,

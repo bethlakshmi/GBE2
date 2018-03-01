@@ -86,7 +86,6 @@ class TestCloneBid(TestCase):
                                  b_conference=self.current_conference).count())
 
     def test_clone_bid_bad_bid_type(self):
-        Conference.objects.all().delete()
         bid = ActFactory(b_conference=self.old_conference)
         Act.objects.filter(b_title=bid.b_title,
                            b_conference=self.current_conference).delete()

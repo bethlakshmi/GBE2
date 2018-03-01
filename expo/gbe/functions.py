@@ -14,7 +14,6 @@ from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from scheduler.idd import get_schedule
 from django.contrib import messages
 from gbetext import (
     no_profile_msg,
@@ -42,15 +41,18 @@ def validate_perms(request, perms, require=True):
     Validate that the requesting user has the stated permissions
     Returns profile object if perms exist, False if not
     '''
+    permitted_roles = []
     profile = validate_profile(request, require=False)
+    event_roles = ['Technical Director', 'Producer', 'Staff Lead']
+
     if not profile:
         if require:
             raise PermissionDenied
         else:
             return False
     if perms == 'any':
-        if len(profile.privilege_groups) > 0 or len(
-                validate_event_role(profile, 'Staff Lead')) > 0:
+        if len(profile.privilege_groups) > 0 or any(
+                [perm in profile.get_roles() for perm in event_roles]):
             return profile
         else:
             if require:
@@ -59,8 +61,7 @@ def validate_perms(request, perms, require=True):
                 return False
     if any([perm in profile.privilege_groups for perm in perms]):
         return profile
-    if 'Staff Lead' in perms and len(validate_event_role(profile,
-                                                         'Staff Lead')) > 0:
+    if any([perm in profile.get_roles() for perm in perms]):
         return profile
     if require:                # error out if permission is required
         raise PermissionDenied
@@ -115,12 +116,6 @@ def get_current_conference_slug():
     conf = Conference.current_conf()
     if conf:
         return conf.conference_slug
-
-
-def validate_event_role(profile, event_role):
-    return StaffArea.objects.filter(
-        staff_lead=profile).exclude(
-        conference__status="completed")
 
 
 def get_conference_by_slug(slug):
