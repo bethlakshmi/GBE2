@@ -371,10 +371,13 @@ class MakeOccurrenceView(View):
                     people=people,
                     locations=[self.room],
                     labels=self.labels)
-                self.success_url = reverse(
-                    'event_schedule',
-                    urlconf='scheduler.urls',
-                    args=[self.event_type])
+                self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+                    reverse('manage_event_list',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.item.e_conference.conference_slug]),
+                    self.item.e_conference.conference_slug,
+                    self.event_form.cleaned_data['day'].pk,
+                    str([response.occurrence.pk]),)
             else:
                 response = update_occurrence(
                     int(kwargs['occurrence_id']),
