@@ -27,20 +27,3 @@ class SelectEventForm(Form):
         required=False,
         widget=MultipleHiddenInput(),
         choices=event_collect_choices)
-
-
-class SecretEventInfoForm(Form):
-    required_css_class = 'required'
-    error_css_class = 'error'
-    events = ModelMultipleChoiceField(
-        queryset=Event.objects.all(),
-        widget=MultipleHiddenInput(),
-        required=False,)
-    staff_areas = ModelMultipleChoiceField(
-        queryset=StaffArea.objects.all(),
-        widget=MultipleHiddenInput(),
-        required=False,)
-    event_collections = MultipleChoiceField(
-        required=False,
-        widget=MultipleHiddenInput(),
-        choices=event_collect_choices)

@@ -14,7 +14,6 @@ from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from scheduler.idd import get_roles
 from django.contrib import messages
 from gbetext import (
     no_profile_msg,
