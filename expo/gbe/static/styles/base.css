@@ -149,6 +149,9 @@ button.login-button {
   color: light grey;
 }
 
+.email-margin-left {
+  margin-left: 10px;
+}
 #action-button {
   padding: 3px 8px 3px 8px;
 }

@@ -30,8 +30,13 @@ class VolunteerContext():
                  event=None,
                  opportunity=None,
                  role=None):
-        self.window = VolunteerWindowFactory()
-        self.conference = self.window.day.conference
+        if not event:
+            self.window = VolunteerWindowFactory()
+            self.conference = self.window.day.conference
+        else:
+            self.conference = event.e_conference
+            self.window = VolunteerWindowFactory(
+                day__conference=self.conference)
         self.conf_day = self.window.day
         self.profile = profile or ProfileFactory()
         if not hasattr(self.profile, 'preferences'):

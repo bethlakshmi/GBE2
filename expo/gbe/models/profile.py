@@ -11,20 +11,19 @@ from django.db.models import (
 )
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-
 from gbe.models import (
     AvailableInterest,
     Conference,
     VolunteerWindow,
 )
 from scheduler.models import WorkerItem
+from scheduler.idd import get_roles
 from gbetext import (
     best_time_to_call_options,
     phone_number_format_error,
     profile_alerts,
     states_options,
 )
-from scheduler.functions import get_roles_from_scheduler
 
 phone_regex = '(\d{3}[-\.]?\d{3}[-\.]?\d{4})'
 
@@ -259,7 +258,8 @@ class Profile(WorkerItem):
         for act in acts:
             if act.accepted == 3 and act.is_current:
                 for show in Show.objects.filter(
-                        scheduler_events__resources_allocated__resource__actresource___item=act):
+                        scheduler_events__resources_allocated__resource__actresource___item=act
+                        ):
                     shows += [(show, act)]
         shows = sorted(shows, key=lambda show: show[0].e_title)
         return shows
@@ -317,15 +317,27 @@ class Profile(WorkerItem):
                                             conference=conference).order_by(
                                                 'starttime')
 
-    def get_roles(self, conference):
+    def get_roles(self, conference=None):
         '''
         Gets all of a person's roles for a conference
         '''
-        roles = get_roles_from_scheduler(
-            self.get_performers() + [self],
-            conference)
-        if self.get_shows():
-            roles += ["Performer"]
+        roles = []
+        if conference is None:
+            roles = get_roles(
+                self.user_object,
+                labels=Conference.objects.exclude(
+                    status="completed").values_list(
+                    'conference_slug',
+                    flat=True)).roles
+            if "Staff Lead" not in roles and self.staffarea_set.exclude(
+                    conference__status="completed").exists():
+                roles += ["Staff Lead"]
+        else:
+            roles = get_roles(self.user_object,
+                              labels=[conference.conference_slug]).roles
+            if "Staff Lead" not in roles and self.staffarea_set.filter(
+                    conference=conference).exists():
+                roles += ["Staff Lead"]
         return roles
 
     def get_badge_name(self):

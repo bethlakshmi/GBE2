@@ -26,7 +26,6 @@ from gbe.models import ConferenceDay
 
 
 class TestCalendarView(TestCase):
-    view_name = 'contact_by_role'
 
     def setUp(self):
         self.client = Client()

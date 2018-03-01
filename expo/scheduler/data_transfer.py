@@ -121,6 +121,15 @@ class ScheduleResponse(GeneralResponse):
         super(ScheduleResponse, self).__init__(warnings, errors)
 
 
+class RolesResponse(GeneralResponse):
+    def __init__(self,
+                 roles=[],
+                 warnings=[],
+                 errors=[]):
+        self.roles = roles
+        super(RolesResponse, self).__init__(warnings, errors)
+
+
 class EvalInfoResponse(GeneralResponse):
     def __init__(self,
                  occurrences=[],
