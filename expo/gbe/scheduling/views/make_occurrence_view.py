@@ -218,9 +218,9 @@ class MakeOccurrenceView(View):
                     result,
                     self.__class__.__name__)
                 error_url = reverse(
-                    'event_schedule',
-                    urlconf='scheduler.urls',
-                    args=[self.event_type])
+                    'manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.item.e_conference.conference_slug])
                 return HttpResponseRedirect(error_url)
 
             else:

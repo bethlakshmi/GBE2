@@ -120,10 +120,9 @@ class TestEditOccurrence(TestCase):
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
         self.assertRedirects(
             response,
-            reverse('event_schedule',
-                    urlconf='scheduler.urls',
-                    args=["Class"])
-        )
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug]))
 
     def test_good_user_post_bad_event(self):
         login_as(self.privileged_profile, self)
@@ -142,10 +141,9 @@ class TestEditOccurrence(TestCase):
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
         self.assertRedirects(
             response,
-            reverse('event_schedule',
-                    urlconf='scheduler.urls',
-                    args=["Class"])
-        )
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug]))
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)

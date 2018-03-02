@@ -150,9 +150,7 @@ def show_scheduling_booking_status(request,
 
 def get_event_display_info(eventitem_id):
     '''
-    Helper for displaying a single of event. Same idea as
-    get_events_display_info - but for
-    only one eventitem.
+    Helper for displaying a single of event. 
     '''
     try:
         item = Event.objects.get_subclass(eventitem_id=eventitem_id)
