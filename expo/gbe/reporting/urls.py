@@ -8,6 +8,7 @@ from gbe.reporting.views import (
     staff_area_view,
     volunteer_type_view,
     personal_schedule_view,
+    WelcomeLetterView,
 )
 from gbe.reporting import (
     download_tracks_for_show,
@@ -44,6 +45,15 @@ urlpatterns = patterns(
     url(r'^reports/stuffing/?$',
         env_stuff,
         name='env_stuff'),
+    url(r'^reports/welcome/(?P<username>[-\w]+)/?$',
+        WelcomeLetterView.as_view(),
+        name='welcome_letter'),
+      url(r'^reports/welcome/?$',
+        WelcomeLetterView.as_view(),
+        name='welcome_letter'),  
+    url(r'^reports/schedule/(?P<conference_slug>[-\w]+)/?$',
+        WelcomeLetterView.as_view(),
+        name='personal_schedule'),
     url(r'^reports/schedule/all/?$',
         personal_schedule_view,
         name='personal_schedule'),
