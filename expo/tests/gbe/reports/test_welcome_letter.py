@@ -23,12 +23,13 @@ from tests.functions.gbe_functions import (
 )
 
 
-class TestPersonalSchedule(TestCase):
+class TestWelcomeLetter(TestCase):
     '''Tests for index view'''
     def setUp(self):
         self.factory = RequestFactory()
         self.priv_profile = ProfileFactory()
         grant_privilege(self.priv_profile, 'Act Reviewers')
+        self.url = reverse('welcome_letter', urlconf='gbe.reporting.urls')
 
     def test_personal_schedule_fail(self):
         '''personal_schedule view should load for privileged users
@@ -36,9 +37,7 @@ class TestPersonalSchedule(TestCase):
         '''
         profile = ProfileFactory()
         login_as(profile, self)
-        response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 403)
 
     def test_personal_schedule_succeed(self):
@@ -47,9 +46,7 @@ class TestPersonalSchedule(TestCase):
         '''
         ConferenceFactory()
         login_as(self.priv_profile, self)
-        response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_personal_schedule_teacher_checklist(self):
@@ -60,9 +57,7 @@ class TestPersonalSchedule(TestCase):
         context = ClassContext()
 
         login_as(self.priv_profile, self)
-        response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         nt.assert_true(
             str(role_condition.checklistitem) in response.content,
@@ -80,8 +75,7 @@ class TestPersonalSchedule(TestCase):
 
         login_as(self.priv_profile, self)
         response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'),
+            self.url,
             data={"conf_slug": context.conference.conference_slug})
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -110,8 +104,7 @@ class TestPersonalSchedule(TestCase):
 
         login_as(self.priv_profile, self)
         response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'),
+            self.url,
             data={"conf_slug": context.conference.conference_slug})
         self.assertContains(
             response,
@@ -137,8 +130,7 @@ class TestPersonalSchedule(TestCase):
             'reports/schedule_all?conf_slug='+conference.conference_slug)
         login_as(self.priv_profile, self)
         response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'),
+            self.url,
             data={"conf_slug": conference.conference_slug})
         self.assertEqual(response.status_code, 200)
         nt.assert_true(
@@ -157,8 +149,7 @@ class TestPersonalSchedule(TestCase):
 
         login_as(self.priv_profile, self)
         response = self.client.get(
-            reverse('personal_schedule',
-                    urlconf='gbe.reporting.urls'),
+            self.url,
             data={"conf_slug": context.conference.conference_slug})
 
         self.assertEqual(response.status_code, 200)

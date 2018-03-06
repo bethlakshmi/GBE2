@@ -45,7 +45,7 @@ urlpatterns = patterns(
     url(r'^reports/stuffing/?$',
         env_stuff,
         name='env_stuff'),
-    url(r'^reports/welcome/(?P<username>[-\w]+)/?$',
+    url(r'^reports/welcome/(?P<profile_id>\d+)/?$',
         WelcomeLetterView.as_view(),
         name='welcome_letter'),
       url(r'^reports/welcome/?$',

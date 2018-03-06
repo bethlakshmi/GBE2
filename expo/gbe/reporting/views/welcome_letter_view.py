@@ -30,10 +30,10 @@ class WelcomeLetterView(View):
         else:
             self.conference = get_current_conference()
 
-        if "username" in kwargs:
+        if "profile_id" in kwargs:
             self.profiles = [get_object_or_404(
                 Profile,
-                user_object__username=kwargs['username'])]
+                pk=kwargs['profile_id'])]
         else:
             self.profiles = Profile.objects.filter(
                 user_object__is_active=True).select_related()
@@ -47,7 +47,7 @@ class WelcomeLetterView(View):
             response = get_schedule(
                 person.user_object,
                 labels=[self.conference.conference_slug])
-            if len(response.schedule_items) > 0:
+            if len(response.schedule_items) > 0 or len(self.profiles) == 1:
                 ticket_items, role_items = get_checklist_items(person,
                                                                self.conference)
                 schedules += [{'person': person,
