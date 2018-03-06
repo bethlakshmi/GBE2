@@ -47,10 +47,9 @@ class WelcomeLetterView(View):
             response = get_schedule(
                 person.user_object,
                 labels=[self.conference.conference_slug])
-            ticket_items, role_items = get_checklist_items(person,
-                                                           self.conference)
-            if len(response.schedule_items) > 0 or len(
-                    role_items) > 0 or len(ticket_items) > 0:
+            if len(response.schedule_items) > 0:
+                ticket_items, role_items = get_checklist_items(person,
+                                                               self.conference)
                 schedules += [{'person': person,
                                'bookings': response.schedule_items,
                                'ticket_items': ticket_items,
