@@ -125,6 +125,9 @@ class TestWelcomeLetter(TestCase):
         ticket_condition = TicketingEligibilityConditionFactory(
             tickets=[transaction.ticket_item]
         )
+        context = ClassContext(
+            conference=transaction.ticket_item.bpt_event.conference)
+        context.set_interest(interested_profile=purchaser)
 
         request = self.factory.get(
             'reports/schedule_all?conf_slug='+conference.conference_slug)
@@ -159,3 +162,29 @@ class TestWelcomeLetter(TestCase):
         self.assertNotContains(
             response,
             context.bid.e_title)
+
+    def test_ticket_purchase_solo_profile(self):
+        '''a ticket purchaser gets a checklist item
+        '''
+        transaction = TransactionFactory()
+        purchaser = ProfileFactory(
+            user_object=transaction.purchaser.matched_to_user)
+        conference = transaction.ticket_item.bpt_event.conference
+        ticket_condition = TicketingEligibilityConditionFactory(
+            tickets=[transaction.ticket_item]
+        )
+
+        request = self.factory.get(
+            'reports/schedule_all?conf_slug='+conference.conference_slug)
+        login_as(self.priv_profile, self)
+        response = self.client.get(
+            reverse('welcome_letter',
+                    urlconf='gbe.reporting.urls',
+                    args=[purchaser.pk]),
+            data={"conf_slug": conference.conference_slug})
+        self.assertEqual(response.status_code, 200)
+        nt.assert_true(
+            str(purchaser) in response.content,
+            msg="Buyer is not in the list")
+        nt.assert_true(
+            str(ticket_condition.checklistitem) in response.content)

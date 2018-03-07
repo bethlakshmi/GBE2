@@ -14,9 +14,10 @@ from gbe.functions import validate_perms
 def ReviewProfilesView(request):
     admin_profile = validate_perms(request, ('Registrar',
                                              'Volunteer Coordinator',
+                                             'Vendor Coordinator',
+                                             'Scheduling Mavens',
                                              'Act Coordinator',
                                              'Class Coordinator',
-                                             'Vendor Coordinator',
                                              'Ticketing - Admin',
                                              'Staff Lead'))
     header = ['Name',
