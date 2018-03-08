@@ -46,8 +46,8 @@ def ReviewProfilesView(request):
                 args=[aprofile.resourceitem_id]),
              'text': "View Landing Page"},
             {'url': reverse('welcome_letter',
-                                urlconf='gbe.reporting.urls',
-                                args=[aprofile.pk]),
+                            urlconf='gbe.reporting.urls',
+                            args=[aprofile.pk]),
              'text': "Welcome Letter"},
             {'url': reverse(
                 'mail_to_individual',
