@@ -17,6 +17,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
     WorkerFactory,
 )
+from gbe.models import VolunteerWindow
 from datetime import (
     date,
     datetime,
@@ -35,8 +36,12 @@ class VolunteerContext():
             self.conference = self.window.day.conference
         else:
             self.conference = event.e_conference
-            self.window = VolunteerWindowFactory(
-                day__conference=self.conference)
+            if not VolunteerWindow.objects.filter(
+                    day__conference=self.conference).exists():
+                self.window = VolunteerWindowFactory(
+                    day__conference=self.conference)
+            else:
+                self.window = VolunteerWindow.objects.all().first()
         self.conf_day = self.window.day
         self.profile = profile or ProfileFactory()
         if not hasattr(self.profile, 'preferences'):

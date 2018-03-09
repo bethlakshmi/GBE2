@@ -75,13 +75,6 @@ class AudioInfo(Model):
                      self.track_duration
                      ))
 
-    @property
-    def incomplete_warnings(self):
-        if self.is_complete:
-            return {}
-        else:
-            return {'audio': audioinfo_incomplete_warning}
-
     def __unicode__(self):
         try:
             return "AudioInfo: " + self.techinfo.act.b_title

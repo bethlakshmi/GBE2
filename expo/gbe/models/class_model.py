@@ -127,14 +127,6 @@ class Class(Biddable, Event):
         return self.teacher.contact.user_object.is_active
 
     @property
-    def complete(self):
-        return (self.b_title is not '' and
-                self.teacher is not None and
-                self.b_description is not '' and
-                self.blurb is not ''
-                )
-
-    @property
     def bid_review_header(self):
         return (['Title',
                  'Teacher',

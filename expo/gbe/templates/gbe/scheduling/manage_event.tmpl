@@ -86,7 +86,7 @@
    {% if conference.status != "completed" %}
    <div class="form-row"><div class="form-group col-md-2 col-xs-12 pull-right">
    </br>
-      <a href="{% url 'scheduling:create_event_wizard' conference.conference_slug %}" role="button" class="btn btn-primary">Create Public Event</a>
+      <a href="{% url 'scheduling:create_event_wizard' conference.conference_slug %}" role="button" class="btn btn-primary">Create</a>
    </div></div>{% endif %}
    <div class="row"><div class="col-xs-12">&nbsp;</div></div>
 {% if occurrences %}
