@@ -1,9 +1,11 @@
 from django.forms import (
-    ModelChoiceField,
+    ChoiceField,
     Form,
     RadioSelect,
 )
 from gbe.models import Show
+from scheduler.idd import get_occurrences
+from expo.settings import DATETIME_FORMAT
 
 
 class PickShowForm(Form):
@@ -13,10 +15,9 @@ class PickShowForm(Form):
     required_css_class = 'required'
     error_css_class = 'error'
 
-    accepted_class = ModelChoiceField(
-        queryset=Show.objects.all().order_by('e_title'),
+    show = ChoiceField(
+        choices=[],
         widget=RadioSelect,
-        empty_label="Make New Show",
         required=False,
         )
 
@@ -24,5 +25,17 @@ class PickShowForm(Form):
         super(PickShowForm, self).__init__(*args, **kwargs)
         if 'initial' in kwargs and 'conference' in kwargs['initial']:
             initial = kwargs.pop('initial')
-            self.fields['accepted_class'].queryset = Show.objects.filter(
-                e_conference=initial['conference']).order_by('e_title')
+            choices = []
+            show_pks = Show.objects.filter(
+                e_conference=initial['conference']
+                ).order_by('e_title').values_list('pk', flat=True)
+            response = get_occurrences(foreign_event_ids=show_pks)
+            for occurrence in response.occurrences:
+                event = Show.objects.get(
+                    eventitem_id=occurrence.foreign_event_id)
+                choices += [
+                    (occurrence.pk, "%s - %s" % (
+                        event.e_title,
+                        occurrence.start_time.strftime(DATETIME_FORMAT)))]
+            choices += [("", "Make New Show")]
+            self.fields['show'].choices = choices

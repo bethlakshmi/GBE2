@@ -14,7 +14,7 @@ from gbe.duration import Duration
 
 
 class RehearsalWizardView(EventWizardView):
-    template = 'gbe/scheduling/volunteer_wizard.tmpl'
+    template = 'gbe/scheduling/rehearsal_wizard.tmpl'
     roles = ['Staff Lead', ]
     default_event_type = "volunteer"
 
@@ -42,63 +42,21 @@ class RehearsalWizardView(EventWizardView):
             request.POST,
             initial={'conference':  self.conference})
         context['third_title'] = "Make New Rehearsal Slot"
-        if 'pick_topic' in request.POST.keys() and context[
+        if 'pick_show' in request.POST.keys() and context[
                 'second_form'].is_valid():
-            if context['second_form'].cleaned_data[
-                    'volunteer_topic'] and 'staff_' in context[
-                    'second_form'].cleaned_data['volunteer_topic']:
-                staff_area_id = context['second_form'].cleaned_data[
-                    'volunteer_topic'].split("staff_")[1]
-                return HttpResponseRedirect(
-                    "%s?start_open=False" % reverse(
-                        'edit_staff',
-                        urlconf='gbe.scheduling.urls',
-                        args=[staff_area_id]))
-            elif context['second_form'].cleaned_data[
-                    'volunteer_topic']:
-                occurrence_id = context['second_form'].cleaned_data[
-                    'volunteer_topic']
+            if context['second_form'].cleaned_data['show']:
+                show_id = context['second_form'].cleaned_data['show']
                 return HttpResponseRedirect(
                     "%s?start_open=False" % reverse(
                         'edit_event',
                         urlconf='gbe.scheduling.urls',
                         args=[self.conference.conference_slug,
-                              occurrence_id]))
+                              show_id]))
             else:
-                context['third_title'] = "Make New Volunteer Opportunity"
-                context['third_form'] = GenericBookingForm(
-                    initial={'e_conference':  self.conference,
-                             'type': "Volunteer"})
-                context['scheduling_form'] = ScheduleOccurrenceForm(
-                    conference=self.conference,
-                    initial={'duration': 1,
-                             'max_volunteer': 1})
-                context['worker_formset'] = self.make_formset(self.roles)
-        elif 'set_opp' in request.POST.keys():
-            context['third_title'] = "Make New Volunteer Opportunity"
-            context['third_form'] = GenericBookingForm(request.POST)
-            context['second_form'] = PickShowForm(
-                initial={'conference':  self.conference})
-            context['scheduling_form'] = ScheduleOccurrenceForm(
-                request.POST,
-                conference=self.conference)
-            context['worker_formset'] = self.make_formset(self.roles,
-                                                          post=request.POST)
-            if context['third_form'].is_valid(
-                    ) and context['scheduling_form'].is_valid(
-                    ) and self.is_formset_valid(context['worker_formset']):
-                volunteer_event = context['third_form'].save(commit=False)
-                volunteer_event.duration = Duration(
-                    minutes=context['scheduling_form'].cleaned_data[
-                        'duration']*60)
-                volunteer_event.save()
-                response = self.book_event(context['scheduling_form'],
-                                           context['worker_formset'],
-                                           volunteer_event)
-                success = self.finish_booking(
-                    request,
-                    response,
-                    context['scheduling_form'].cleaned_data['day'].pk)
-                if success:
-                    return success
+                return HttpResponseRedirect("%s?%s" % (
+                    reverse('create_ticketed_event_wizard',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug,
+                                  "show"]),
+                    request.GET.urlencode()))
         return render(request, self.template, context)
