@@ -73,6 +73,13 @@ class EventWizardView(View):
                             args=[self.conference.conference_slug]),
                     request.GET.urlencode()))
             if context['selection_form'].cleaned_data[
+                    'event_type'] == 'rehearsal':
+                return HttpResponseRedirect("%s?%s" % (
+                    reverse('rehearsal_wizard',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.conference.conference_slug]),
+                    request.GET.urlencode()))
+            if context['selection_form'].cleaned_data[
                     'event_type'] == 'volunteer':
                 return HttpResponseRedirect("%s?%s" % (
                     reverse('create_volunteer_wizard',

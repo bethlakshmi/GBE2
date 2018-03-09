@@ -6,6 +6,7 @@ from class_schedule_form import ClassScheduleForm
 from generic_event_schedule_form import GenericEventScheduleForm
 from pick_event_form import PickEventForm
 from pick_class_form import PickClassForm
+from pick_show_form import PickShowForm
 from pick_volunteer_topic_form import PickVolunteerTopicForm
 from copy_event_pick_target_form import (
     CopyEventPickDayForm,

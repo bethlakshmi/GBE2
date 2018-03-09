@@ -19,6 +19,7 @@ from gbe.scheduling.views import (
     ManageEventsView,
     ManageVolOpsView,
     ManageVolWizardView,
+    RehearsalWizardView,
     SetFavoriteView,
     ShowCalendarView,
     StaffAreaWizardView,
@@ -45,7 +46,9 @@ urlpatterns = patterns(
         ClassWizardView.as_view(), name='create_class_wizard'),
     url(r'^scheduling/create_staff_area_wizard/(?P<conference>[-\w]+)/?$',
         StaffAreaWizardView.as_view(), name='staff_area_wizard'),
-    url(r'^scheduling/create_ticketed_wizard/(?P<conference>[-\w]+)/' +
+     url(r'^scheduling/create_rehearsal_wizard/(?P<conference>[-\w]+)/?$',
+        RehearsalWizardView.as_view(), name='rehearsal_wizard'),
+   url(r'^scheduling/create_ticketed_wizard/(?P<conference>[-\w]+)/' +
         '(?P<event_type>[-\w]+)/?$',
         TicketedEventWizardView.as_view(),
         name='create_ticketed_event_wizard'),

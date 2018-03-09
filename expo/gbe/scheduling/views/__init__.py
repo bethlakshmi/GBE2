@@ -1,6 +1,7 @@
 # New Event Creation
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
+from rehearsal_wizard_view import RehearsalWizardView
 from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
 from volunteer_wizard_view import VolunteerWizardView
