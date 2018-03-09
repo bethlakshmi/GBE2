@@ -221,7 +221,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertContains(response, "This field is required.")
 
-    def test_auth_user_bad_class_booking_assign(self):
+    def test_auth_user_bad_booking_assign(self):
         login_as(self.privileged_user, self)
         data = self.create_opp()
         data['e_title'] = ""
