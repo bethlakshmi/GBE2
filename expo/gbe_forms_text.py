@@ -34,7 +34,8 @@ event_type_options = [(
         ('show', 'Show'),
         ('special', 'Special Event'), ), ), (
     'Behind the Scenes', (
-        ('staff', 'Staff Area'), ), ), ]
+        ('staff', 'Staff Area'),
+        ('volunteer', 'Volunteering'), ), ), ]
 
 event_type_options_complete = [(
     'Classes', (
@@ -45,7 +46,6 @@ event_type_options_complete = [(
         ('show', 'Show'),
         ('special', 'Special Event'), ), ), (
     'Behind the Scenes', (
-        ('volunteer', 'Volunteering'),
         ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area')))]
 

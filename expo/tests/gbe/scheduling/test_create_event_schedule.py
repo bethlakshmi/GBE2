@@ -53,24 +53,25 @@ class TestCreateOccurrence(TestCase):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')
         self.eventitem = GenericEventFactory()
 
-    def assert_good_post(self, response, event, day, room, event_type="Class"):
-        self.assertRedirects(response,
-                             reverse('event_schedule',
-                                     urlconf='scheduler.urls',
-                                     args=[event_type]))
-
-        self.assertNotIn('<ul class="errorlist">', response.content)
-        self.assertIn('Events Information', response.content)
+    def assert_good_post(self, response, event, day, room):
         sessions = event.scheduler_events.filter(max_volunteer=3)
         self.assertEqual(len(sessions), 1)
+        self.assertRedirects(response, "%s?%s-day=%d&filter=Filter&new=%s" % (
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[event.e_conference.conference_slug]),
+            event.e_conference.conference_slug,
+            day.pk,
+            str([sessions.first().pk])))
+
+        self.assertNotIn('<ul class="errorlist">', response.content)
         session = sessions.first()
         self.assertEqual(session.starttime,
-                         datetime.combine(day,
+                         datetime.combine(day.day,
                                           time(12, 0, 0, tzinfo=pytz.utc)))
         self.assertIn("New Title", response.content)
         self.assertIn(str(room), response.content)
-        self.assertIn('<td class="events-table">      \n\t\t\t  \n\t\t\t' +
-                      '    3\n\t\t\t  \n          \t\t</td>',
+        self.assertIn('<td class="bid-table">3</td>',
                       response.content)
         return session
 
@@ -169,7 +170,7 @@ class TestCreateOccurrence(TestCase):
                                     follow=True)
         self.assert_good_post(response,
                               context.bid,
-                              context.days[0].day,
+                              context.days[0],
                               context.room)
 
     def test_good_user_invalid_submit(self):
@@ -221,11 +222,9 @@ class TestCreateOccurrence(TestCase):
             follow=True)
         self.assert_good_post(response,
                               context.bid,
-                              context.days[0].day,
+                              context.days[0],
                               context.room)
-        self.assertIn('<td class="events-table">      \n            ' +
-                      '\t\t03:00\n          \t\t</td>',
-                      response.content)
+        self.assertContains(response, '<td class="bid-table">3.0</td>')
         assert_alert_exists(
             response,
             'success',
@@ -269,7 +268,7 @@ class TestCreateOccurrence(TestCase):
             follow=True)
         session = self.assert_good_post(response,
                                         context.bid,
-                                        context.days[0].day,
+                                        context.days[0],
                                         context.room)
         teachers = session.get_direct_workers('Teacher')
         self.assertEqual(len(teachers), 1)
@@ -299,7 +298,7 @@ class TestCreateOccurrence(TestCase):
 
         session = self.assert_good_post(response,
                                         context.bid,
-                                        context.days[0].day,
+                                        context.days[0],
                                         context.room)
         moderators = session.get_direct_workers('Moderator')
         self.assertEqual(len(moderators), 1)
@@ -324,7 +323,7 @@ class TestCreateOccurrence(TestCase):
 
         session = self.assert_good_post(response,
                                         context.bid,
-                                        context.days[0].day,
+                                        context.days[0],
                                         context.room)
         moderators = session.get_direct_workers('Moderator')
         self.assertEqual(len(moderators), 1)
@@ -408,7 +407,7 @@ class TestCreateOccurrence(TestCase):
 
         session = self.assert_good_post(response,
                                         context.bid,
-                                        context.days[0].day,
+                                        context.days[0],
                                         context.room)
         leads = session.get_direct_workers('Panelist')
         self.assertEqual(len(leads), 2)

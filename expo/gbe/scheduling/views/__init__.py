@@ -3,6 +3,7 @@ from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
 from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
+from volunteer_wizard_view import VolunteerWizardView
 
 # Brand new edit (will deprecate make_occurrence)
 from manage_vol_wizard_view import ManageVolWizardView
@@ -13,7 +14,6 @@ from copy_occurrence_view import CopyOccurrenceView
 from copy_staff_area_view import CopyStaffAreaView
 
 # Old but Refactored Event Editing/Creation/Allocation
-from create_event_view import CreateEventView
 from make_occurrence_view import MakeOccurrenceView
 from manage_vol_ops_view import ManageVolOpsView
 from allocate_worker_view import AllocateWorkerView

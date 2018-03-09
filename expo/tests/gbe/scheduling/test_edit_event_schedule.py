@@ -120,10 +120,9 @@ class TestEditOccurrence(TestCase):
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
         self.assertRedirects(
             response,
-            reverse('event_schedule',
-                    urlconf='scheduler.urls',
-                    args=["Class"])
-        )
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug]))
 
     def test_good_user_post_bad_event(self):
         login_as(self.privileged_profile, self)
@@ -142,10 +141,9 @@ class TestEditOccurrence(TestCase):
             "Occurrence id %d not found" % (self.context.sched_event.pk+1))
         self.assertRedirects(
             response,
-            reverse('event_schedule',
-                    urlconf='scheduler.urls',
-                    args=["Class"])
-        )
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug]))
 
     def test_good_user_get_success(self):
         login_as(self.privileged_profile, self)
@@ -225,7 +223,8 @@ class TestEditOccurrence(TestCase):
     def test_vol_opp_pk_v_eventitem_id(self):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         context = VolunteerContext()
-        context.opp_event.eventitem.eventitem_id = context.opportunity.pk + 1000
+        context.opp_event.eventitem.eventitem_id = (
+            context.opportunity.pk + 1000)
         context.opp_event.eventitem.save()
         url = reverse(self.view_name,
                       args=["Show",
