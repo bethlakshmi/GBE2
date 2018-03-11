@@ -185,6 +185,9 @@ class EditEventView(ManageVolWizardView):
 
         return context
 
+    def is_manage_opps(self, path):
+        return "manage-opps" in path
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -196,7 +199,7 @@ class EditEventView(ManageVolWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        if "manage-opps" in request.path:
+        if self.is_manage_opps(request.path):
             return super(EditEventView, self).post(request, *args, **kwargs)
         error_url = self.groundwork(request, args, kwargs)
         if error_url:

@@ -67,9 +67,9 @@ urlpatterns = patterns(
     url(r'^scheduling/staff_edit/(?P<staff_id>\d+)/?$',
         EditStaffAreaView.as_view(),
         name='edit_staff'),
-    url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
+    url(r'^scheduling/manage-slots/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
-        EditEventView.as_view(), name='manage_slot'),
+        EditShowView.as_view(), name='manage_slot'),
     url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
         EditEventView.as_view(), name='manage_vol'),

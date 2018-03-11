@@ -151,3 +151,7 @@ class EditShowView(EditEventView):
                 occurrence_id=self.occurrence.pk))
         context['rehearsal_open'] = request.GET.get('rehearsal_open', False)
         return context
+
+    def is_manage_opps(self, path):
+        return "manage-opps" in path or "manage-slots" in path
+    
