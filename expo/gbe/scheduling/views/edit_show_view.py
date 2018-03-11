@@ -69,10 +69,6 @@ class EditShowView(EditEventView):
         else:
             return None
 
-        if request.GET.get('changed_slot_id', None):
-            context['changed_slot_id'] = int(
-                self.request.GET.get('changed_slot_id', None))
-
         for rehearsal_slot in response.occurrences:
             try:
                 rehearsal = GenericEvent.objects.get(

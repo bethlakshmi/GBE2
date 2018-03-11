@@ -14,7 +14,7 @@
       <th>Action</th>
     </tr>
     {% for form in slotactionform %}
-    <tr class="{% if changed_slot_id == form.opp_sched_id.value %}changed{% else %}event_opp_row{% endif %}">
+    <tr class="{% if changed_id == form.opp_sched_id.value %}changed{% else %}event_opp_row{% endif %}">
       <form method="POST" action="{{ manage_slot_url }}" enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
