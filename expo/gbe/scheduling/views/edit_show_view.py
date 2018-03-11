@@ -23,6 +23,7 @@ from gbe_forms_text import (
     role_map,
     event_settings,
 )
+from gbetext import rehearsal_delete_msg
 from scheduler.idd import (
     get_occurrences,
     create_occurrence,
@@ -77,8 +78,8 @@ class EditShowView(EditEventView):
                 rehearsal = GenericEvent.objects.get(
                         eventitem_id=rehearsal_slot.foreign_event_id,
                         type="Rehearsal Slot")
-                if (errorcontext and 'error_opp_form' in errorcontext and
-                        errorcontext['error_opp_form'].instance == rehearsal):
+                if (errorcontext and 'error_slot_form' in errorcontext and
+                        errorcontext['error_slot_form'].instance == rehearsal):
                     actionform.append(errorcontext['error_slot_form'])
                 else:
                     num_volunteers = rehearsal_slot.max_volunteer
@@ -183,7 +184,41 @@ class EditShowView(EditEventView):
                     parent_event_id=self.parent_id)
             else:
                 context = {'createslotform': self.event_form}
-
-            return self.check_success_and_return(request,
-                                                 response=response,
-                                                 errorcontext=context)
+        elif 'edit_slot' in request.POST.keys():
+            self.event = get_object_or_404(
+                GenericEvent,
+                event_id=request.POST['opp_event_id'])
+            self.event_form = RehearsalSlotForm(
+                request.POST,
+                instance=self.event)
+            if self.event_form.is_valid():
+                data = self.get_basic_form_settings()
+                self.event_form.save()
+                response = update_occurrence(
+                    data['opp_sched_id'],
+                    self.start_time,
+                    self.max_volunteer,
+                    locations=[self.room])
+            else:
+                context = {'error_slot_form': self.event_form}
+        elif 'delete_slot' in request.POST.keys():
+            opp = get_object_or_404(
+                GenericEvent,
+                event_id=request.POST['opp_event_id'])
+            title = opp.e_title
+            opp.delete()
+            user_message = UserMessage.objects.get_or_create(
+                view=self.__class__.__name__,
+                code="DELETE_REHEARSAL_SUCCESS",
+                defaults={
+                    'summary': "Rehearsal Slot Deleted",
+                    'description': rehearsal_delete_msg})
+            messages.success(
+                request,
+                '%s<br>Title: %s' % (
+                    user_message[0].description,
+                    title))
+            return HttpResponseRedirect(self.success_url)
+        return self.check_success_and_return(request,
+                                             response=response,
+                                             errorcontext=context)
