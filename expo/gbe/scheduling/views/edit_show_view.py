@@ -13,7 +13,7 @@ from gbe.models import (
     GenericEvent,
     Room,
 )
-from gbe.scheduling.forms import VolunteerOpportunityForm
+from gbe.scheduling.forms import RehearsalSlotForm
 from gbe.duration import Duration
 from gbe.functions import (
     get_conference_day,
@@ -96,7 +96,7 @@ class EditShowView(EditEventView):
                         room = self.occurrence.location.room
 
                     actionform.append(
-                        VolunteerOpportunityForm(
+                        RehearsalSlotForm(
                             instance=rehearsal,
                             initial={'opp_event_id': rehearsal.event_id,
                                      'opp_sched_id': rehearsal_slot.pk,
@@ -104,7 +104,6 @@ class EditShowView(EditEventView):
                                      'day': day,
                                      'time': time,
                                      'location': room,
-                                     'type': "Volunteer"
                                      },
                             )
                         )
@@ -114,13 +113,12 @@ class EditShowView(EditEventView):
         if errorcontext and 'createslotform' in errorcontext:
             createform = errorcontext['createslotform']
         else:
-            createform = VolunteerOpportunityForm(
+            createform = RehearsalSlotForm(
                 prefix='new_slot',
                 initial=initial,
                 conference=conference)
 
         actionheaders = ['Title',
-                         'Volunteer Type',
                          '#',
                          'Duration',
                          'Day',

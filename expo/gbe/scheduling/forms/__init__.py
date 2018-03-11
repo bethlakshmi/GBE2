@@ -24,6 +24,7 @@ from show_booking_form import ShowBookingForm
 from class_booking_form import ClassBookingForm
 from generic_booking_form import GenericBookingForm
 from person_allocation_form import PersonAllocationForm
+from rehearsal_slot_form import RehearsalSlotForm
 
 from select_event_form import (
     HiddenSelectEventForm,
