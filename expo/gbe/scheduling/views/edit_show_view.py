@@ -42,7 +42,7 @@ class EditShowView(EditEventView):
                           self).groundwork(request, args, kwargs)
         if error_url:
             return error_url
-        self.manage_slot_url = reverse('manage_slot',
+        self.manage_vol_url = reverse('manage_show_opp',
                                       urlconf='gbe.scheduling.urls',
                                       args=[kwargs['conference'],
                                             kwargs['occurrence_id']])
@@ -140,7 +140,7 @@ class EditShowView(EditEventView):
                 'occurrence_id': self.occurrence.pk, } 
         context.update(self.get_rehearsal_forms(
                 initial_rehearsal_info,
-                self.manage_slot_url,
+                self.manage_vol_url,
                 self.conference,
                 request,
                 errorcontext=errorcontext,
@@ -149,5 +149,5 @@ class EditShowView(EditEventView):
         return context
 
     def is_manage_opps(self, path):
-        return "manage-opps" in path or "manage-slots" in path
+        return "manage-opps" in path or "manage-show-opps" in path
     
