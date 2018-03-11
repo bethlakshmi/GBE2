@@ -29,4 +29,3 @@ class RehearsalSlotForm(ScheduleBasicForm):
                   'location',
                   'type',
                   ]
-        hidden_fields = ['opp_event_id', 'e_description']

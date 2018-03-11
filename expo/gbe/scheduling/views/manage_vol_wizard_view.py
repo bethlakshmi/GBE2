@@ -46,6 +46,10 @@ class ManageVolWizardView(View):
                 there will be no parent
             - self.success_url - the URL to redirect to in the event of success
         AND - 'make_context' to build the error context when an error occurrs
+        OPTIONAL - do_additional_actions - to provide additional opps related
+           actions - if not provide, edit, create, delete, duplicate are
+           available, if one of those functions is not provided, post will exit
+           with no return value
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
@@ -179,6 +183,9 @@ class ManageVolWizardView(View):
                 data['labels'] += [self.event.calendar_type]
         return data
 
+    def do_additional_actions(self, request):
+        return None
+
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
@@ -268,3 +275,5 @@ class ManageVolWizardView(View):
                         args=['GenericEvent',
                               response.occurrence.eventitem.eventitem_id,
                               request.POST['opp_sched_id']]))
+        else:
+            return self.do_additional_actions(request)

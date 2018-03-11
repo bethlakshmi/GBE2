@@ -23,7 +23,10 @@ from gbe_forms_text import (
     role_map,
     event_settings,
 )
-from scheduler.idd import get_occurrences
+from scheduler.idd import (
+    get_occurrences,
+    create_occurrence,
+)
 from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
     get_start_time,
@@ -74,8 +77,8 @@ class EditShowView(EditEventView):
                 rehearsal = GenericEvent.objects.get(
                         eventitem_id=rehearsal_slot.foreign_event_id,
                         type="Rehearsal Slot")
-                if (errorcontext and 'error_slot_form' in errorcontext and
-                        errorcontext['error_slot_form'].instance == rehearsal):
+                if (errorcontext and 'error_opp_form' in errorcontext and
+                        errorcontext['error_opp_form'].instance == rehearsal):
                     actionform.append(errorcontext['error_slot_form'])
                 else:
                     num_volunteers = rehearsal_slot.max_volunteer
@@ -129,6 +132,7 @@ class EditShowView(EditEventView):
         context = super(EditShowView,
                         self).make_context(request, errorcontext=errorcontext)
         initial_rehearsal_info = {
+                'type':  "Rehearsal Slot",
                 'duration': 1,
                 'max_volunteer': 10,
                 'day': get_conference_day(
@@ -150,3 +154,36 @@ class EditShowView(EditEventView):
 
     def is_manage_opps(self, path):
         return "manage-opps" in path or "manage-show-opps" in path
+
+    def do_additional_actions(self, request):
+        response = None
+        context = None
+        if ('create_slot' in request.POST.keys()) or (
+                'duplicate_slot' in request.POST.keys()):
+            self.create = True
+            if 'create_slot' in request.POST.keys():
+                self.event_form = RehearsalSlotForm(
+                    request.POST,
+                    prefix='new_slot',
+                    conference=self.conference)
+            else:
+                self.event_form = RehearsalSlotForm(
+                    request.POST,
+                    conference=self.conference)
+            if self.event_form.is_valid():
+                data = self.get_basic_form_settings()
+                self.event.e_conference = self.conference
+                self.event.save()
+                response = create_occurrence(
+                    self.event.eventitem_id,
+                    self.start_time,
+                    self.max_volunteer,
+                    locations=[self.room],
+                    labels=data['labels'],
+                    parent_event_id=self.parent_id)
+            else:
+                context = {'createslotform': self.event_form}
+
+            return self.check_success_and_return(request,
+                                                 response=response,
+                                                 errorcontext=context)
