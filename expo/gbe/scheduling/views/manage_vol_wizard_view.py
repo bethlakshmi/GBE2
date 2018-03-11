@@ -11,7 +11,6 @@ from scheduler.idd import (
     update_occurrence,
 )
 from gbe.models import (
-    Event,
     GenericEvent,
     Room,
 )
@@ -75,39 +74,43 @@ class ManageVolWizardView(View):
                 self.request.GET.get('changed_id', None))
 
         for vol_occurence in response.occurrences:
-            vol_event = Event.objects.get_subclass(
-                    eventitem_id=vol_occurence.foreign_event_id)
-            if (errorcontext and
-                    'error_opp_form' in errorcontext and
-                    errorcontext['error_opp_form'].instance == vol_event):
-                actionform.append(errorcontext['error_opp_form'])
-            else:
-                num_volunteers = vol_occurence.max_volunteer
-                date = vol_occurence.start_time.date()
+            try:
+                vol_event = GenericEvent.objects.get(
+                        eventitem_id=vol_occurence.foreign_event_id,
+                        type="Volunteer")
+                if (errorcontext and
+                        'error_opp_form' in errorcontext and
+                        errorcontext['error_opp_form'].instance == vol_event):
+                    actionform.append(errorcontext['error_opp_form'])
+                else:
+                    num_volunteers = vol_occurence.max_volunteer
+                    date = vol_occurence.start_time.date()
 
-                time = vol_occurence.start_time.time
-                day = get_conference_day(
-                    conference=vol_event.e_conference,
-                    date=date)
-                location = vol_occurence.location
-                if location:
-                    room = location.room
-                elif self.occurrence.location:
-                    room = self.occurrence.location.room
+                    time = vol_occurence.start_time.time
+                    day = get_conference_day(
+                        conference=vol_event.e_conference,
+                        date=date)
+                    location = vol_occurence.location
+                    if location:
+                        room = location.room
+                    elif self.occurrence.location:
+                        room = self.occurrence.location.room
 
-                actionform.append(
-                    VolunteerOpportunityForm(
-                        instance=vol_event,
-                        initial={'opp_event_id': vol_event.event_id,
-                                 'opp_sched_id': vol_occurence.pk,
-                                 'max_volunteer': num_volunteers,
-                                 'day': day,
-                                 'time': time,
-                                 'location': room,
-                                 'type': "Volunteer"
-                                 },
+                    actionform.append(
+                        VolunteerOpportunityForm(
+                            instance=vol_event,
+                            initial={'opp_event_id': vol_event.event_id,
+                                     'opp_sched_id': vol_occurence.pk,
+                                     'max_volunteer': num_volunteers,
+                                     'day': day,
+                                     'time': time,
+                                     'location': room,
+                                     'type': "Volunteer"
+                                     },
+                            )
                         )
-                    )
+            except:
+                pass
         context['actionform'] = actionform
         if errorcontext and 'createform' in errorcontext:
             createform = errorcontext['createform']

@@ -15,8 +15,6 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     SchedEventFactory,
 )
-from datetime import timedelta
-
 
 class ActTechInfoContext():
     def __init__(self,
