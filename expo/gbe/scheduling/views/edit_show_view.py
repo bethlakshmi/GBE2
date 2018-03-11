@@ -10,7 +10,7 @@ from django.shortcuts import (
 from django.core.urlresolvers import reverse
 from gbe.models import (
     Conference,
-    Event,
+    GenericEvent,
     Room,
 )
 from gbe.scheduling.forms import VolunteerOpportunityForm
@@ -74,38 +74,42 @@ class EditShowView(EditEventView):
                 self.request.GET.get('changed_slot_id', None))
 
         for rehearsal_slot in response.occurrences:
-            rehearsal = Event.objects.get_subclass(
-                    eventitem_id=rehearsal_slot.foreign_event_id)
-            if (errorcontext and 'error_slot_form' in errorcontext and
-                    errorcontext['error_slot_form'].instance == rehearsal):
-                actionform.append(errorcontext['error_slot_form'])
-            else:
-                num_volunteers = rehearsal_slot.max_volunteer
-                date = rehearsal_slot.start_time.date()
+            try:
+                rehearsal = GenericEvent.objects.get(
+                        eventitem_id=rehearsal_slot.foreign_event_id,
+                        type="Rehearsal Slot")
+                if (errorcontext and 'error_slot_form' in errorcontext and
+                        errorcontext['error_slot_form'].instance == rehearsal):
+                    actionform.append(errorcontext['error_slot_form'])
+                else:
+                    num_volunteers = rehearsal_slot.max_volunteer
+                    date = rehearsal_slot.start_time.date()
 
-                time = rehearsal_slot.start_time.time
-                day = get_conference_day(
-                    conference=rehearsal.e_conference,
-                    date=date)
-                location = rehearsal_slot.location
-                if location:
-                    room = location.room
-                elif self.occurrence.location:
-                    room = self.occurrence.location.room
+                    time = rehearsal_slot.start_time.time
+                    day = get_conference_day(
+                        conference=rehearsal.e_conference,
+                        date=date)
+                    location = rehearsal_slot.location
+                    if location:
+                        room = location.room
+                    elif self.occurrence.location:
+                        room = self.occurrence.location.room
 
-                actionform.append(
-                    VolunteerOpportunityForm(
-                        instance=rehearsal,
-                        initial={'opp_event_id': rehearsal.event_id,
-                                 'opp_sched_id': rehearsal_slot.pk,
-                                 'max_volunteer': num_volunteers,
-                                 'day': day,
-                                 'time': time,
-                                 'location': room,
-                                 'type': "Volunteer"
-                                 },
+                    actionform.append(
+                        VolunteerOpportunityForm(
+                            instance=rehearsal,
+                            initial={'opp_event_id': rehearsal.event_id,
+                                     'opp_sched_id': rehearsal_slot.pk,
+                                     'max_volunteer': num_volunteers,
+                                     'day': day,
+                                     'time': time,
+                                     'location': room,
+                                     'type': "Volunteer"
+                                     },
+                            )
                         )
-                    )
+            except:
+                pass
         context['slotactionform'] = actionform
         if errorcontext and 'createslotform' in errorcontext:
             createform = errorcontext['createslotform']
