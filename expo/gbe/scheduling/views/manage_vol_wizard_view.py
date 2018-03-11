@@ -1,7 +1,10 @@
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from scheduler.idd import (
@@ -145,7 +148,9 @@ class ManageVolWizardView(View):
         if response and response.occurrence:
             return HttpResponseRedirect(self.success_url)
         else:
-            return self.make_context(request, errorcontext)
+            return render(request,
+                          self.template,
+                          self.make_context(request, errorcontext))
 
     def check_success_and_return(self,
                                  request,

@@ -127,7 +127,7 @@ class EditShowView(EditEventView):
 
     def make_context(self, request, errorcontext=None):
         context = super(EditShowView,
-                          self).make_context(request, errorcontext=None)
+                        self).make_context(request, errorcontext=errorcontext)
         initial_rehearsal_info = {
                 'duration': 1,
                 'max_volunteer': 10,
@@ -150,4 +150,3 @@ class EditShowView(EditEventView):
 
     def is_manage_opps(self, path):
         return "manage-opps" in path or "manage-show-opps" in path
-    
