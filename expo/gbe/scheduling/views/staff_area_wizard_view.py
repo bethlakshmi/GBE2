@@ -58,7 +58,7 @@ class StaffAreaWizardView(EventWizardView):
                     new_event.title))
             if request.POST.get(
                     'set_event'
-                    ) == 'Continue to Volunteer Opportunities' and (
+                    ) == 'More...' and (
                     context['volunteer_scheduling']):
                 return HttpResponseRedirect(
                     "%s?start_open=False" %

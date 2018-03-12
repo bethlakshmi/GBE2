@@ -66,13 +66,13 @@ class EditStaffAreaView(ManageVolWizardView):
         else:
             context['edit_open'] = True
 
-        return render(request, self.template, context)
+        return context
 
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         self.groundwork(request, args, kwargs)
-        return self.make_context(request)
+        return render(request, self.template, self.make_context(request))
 
     @never_cache
     @method_decorator(login_required)
@@ -107,5 +107,6 @@ class EditStaffAreaView(ManageVolWizardView):
                 return HttpResponseRedirect(request.path)
         else:
             context['edit_open'] = True
-        return self.make_context(request,
-                                 errorcontext=context)
+        return render(request,
+                      self.template,
+                      self.make_context(request, errorcontext=context))
