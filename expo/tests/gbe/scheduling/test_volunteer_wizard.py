@@ -105,7 +105,7 @@ class TestVolunteerWizard(TestCase):
         self.assertRedirects(
             response,
             "%s?start_open=False" % reverse(
-                'edit_event',
+                'edit_show',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
                       self.show_volunteer.sched_event.pk]))

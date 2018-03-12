@@ -1,7 +1,4 @@
 from gbe.scheduling.views import EditEventView
-from django.views.decorators.cache import never_cache
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import (
     get_object_or_404,
