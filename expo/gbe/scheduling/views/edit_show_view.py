@@ -118,7 +118,8 @@ class EditShowView(EditEventView):
                 conference=conference)
 
         actionheaders = ['Title',
-                         '#',
+                         'Booked/',
+                         'Available',
                          'Duration',
                          'Day',
                          'Time',
