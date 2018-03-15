@@ -36,6 +36,7 @@ class ManageVolWizardView(View):
         the settings and visualization for the parent of the volunteer events
         manipulated here.   The contract for the child is to implement a
         'groundwork' function and provide:
+        REQUIRED
             - self.conference - the conference for which the vol opp is being
                 managed
             - any additional self.labels (a list) to be used during opp create
@@ -45,16 +46,46 @@ class ManageVolWizardView(View):
             - self.parent_id (optional) - the id of a parent event, if null,
                 there will be no parent
             - self.success_url - the URL to redirect to in the event of success
-        AND - 'make_context' to build the error context when an error occurrs
-        OPTIONAL - do_additional_actions - to provide additional opps related
-           actions - if not provide, edit, create, delete, duplicate are
-           available, if one of those functions is not provided, post will exit
-           with no return value
+            - 'make_context' to build the error context when an error occurrs
+        OPTIONAL
+            - do_additional_actions - to provide additional opps related
+            actions - if not provide, edit, create, delete, duplicate are
+            available, if one of those functions is not provided, post will exit
+            with no return value
+            - window_controls = list of controls for panels in the page, if
+            adding panels, include turning them on and off via the errorcontext
+            and the request.GET parameters.  If no panels are on, all panels will
+            be opened.
+           
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
     parent_id = None
     labels = []
+    window_controls = ['start_open', 'volunteer_open']
+
+    def make_context(self, request, errorcontext=None):
+        context = {}
+        vol_open = False
+        all_closed = True
+
+        if errorcontext is not None:
+            context = errorcontext
+        context['edit_url'] = self.success_url
+
+        for window_control in self.window_controls:
+            if ((errorcontext and window_control in errorcontext
+                    ) and errorcontext[window_control]) or request.GET.get(
+                    window_control,
+                    False) in ["True", "true", "T", "t", True]:
+                context[window_control] = True
+                all_closed = False
+
+        if all_closed:
+            for window_control in self.window_controls:
+                context[window_control] = True
+
+        return context
 
     def get_manage_opportunity_forms(self,
                                      initial,
@@ -159,11 +190,16 @@ class ManageVolWizardView(View):
     def check_success_and_return(self,
                                  request,
                                  response=None,
-                                 errorcontext=None):
+                                 errorcontext=None,
+                                 window_controls="volunteer_open=True"):
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
                 response.occurrence.pk)
+            if window_controls:
+                self.success_url = "%s&%s" % (self.success_url,
+                                              window_controls)
+
         return self.make_post_response(
             request,
             response,
@@ -220,7 +256,8 @@ class ManageVolWizardView(View):
                     labels=data['labels'],
                     parent_event_id=self.parent_id)
             else:
-                context = {'createform': self.event_form}
+                context = {'createform': self.event_form,
+                           'volunteer_open': True}
 
             return self.check_success_and_return(request,
                                                  response=response,
@@ -242,7 +279,8 @@ class ManageVolWizardView(View):
                     self.max_volunteer,
                     locations=[self.room])
             else:
-                context = {'error_opp_form': self.event_form}
+                context = {'error_opp_form': self.event_form,
+                           'volunteer_open': True}
 
             return self.check_success_and_return(request,
                                                  response=response,

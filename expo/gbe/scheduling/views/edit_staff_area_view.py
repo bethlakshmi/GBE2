@@ -37,15 +37,10 @@ class EditStaffAreaView(ManageVolWizardView):
                                    args=[self.staff_area.id])
 
     def make_context(self, request, errorcontext=None):
-        context = {
-            'edit_title': 'Edit Staff Area',
-            'start_open': True,
-        }
-        if errorcontext is not None:
-            context = errorcontext
-        if request.GET.get('start_open',
-                           True) in ["False", "false", "F", "f", False]:
-            context['start_open'] = False
+        context = super(EditStaffAreaView,
+                        self).make_context(request, errorcontext)
+        context['edit_title'] = 'Edit Staff Area'
+
         # if there was an error in the edit form
         if 'event_form' not in context:
             context['event_form'] = StaffAreaForm(
@@ -64,7 +59,7 @@ class EditStaffAreaView(ManageVolWizardView):
                 labels=[self.conference.conference_slug,
                         self.staff_area.slug]))
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
 
         return context
 
@@ -104,9 +99,10 @@ class EditStaffAreaView(ManageVolWizardView):
                     urlconf='gbe.scheduling.urls',
                     args=[self.conference.conference_slug]))
             else:
-                return HttpResponseRedirect(request.path)
+                return HttpResponseRedirect(
+                    "%s?volunteer_open=True" % self.success_url)
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
         return render(request,
                       self.template,
                       self.make_context(request, errorcontext=context))

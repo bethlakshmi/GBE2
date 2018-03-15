@@ -139,15 +139,9 @@ class EditEventView(ManageVolWizardView):
         return validity
 
     def make_context(self, request, errorcontext=None):
-        context = {
-            'edit_title':  self.title,
-            'start_open': request.GET.get('start_open', True),
-        }
-        if errorcontext is not None:
-            context = errorcontext
-        if request.GET.get('start_open',
-                           True) in ["False", "false", "F", "f", False]:
-            context['start_open'] = False
+        context = super(EditEventView,
+                        self).make_context(request, errorcontext)
+        context['edit_title'] = 'Edit Event'
         duration = float(self.item.duration.total_minutes())/60
         initial_form_info = {
                 'duration': duration,
@@ -188,7 +182,7 @@ class EditEventView(ManageVolWizardView):
                 errorcontext=errorcontext,
                 occurrence_id=self.occurrence.pk))
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
 
         return context
 
@@ -243,9 +237,9 @@ class EditEventView(ManageVolWizardView):
                     context['scheduling_form'].cleaned_data['day'].pk,
                     str([self.occurrence.pk]),)
             else:
-                self.success_url = request.path
+                self.success_url = "%s?volunteer_open=True" % self.success_url
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
         return self.make_post_response(request,
                                        response=response,
                                        errorcontext=context)

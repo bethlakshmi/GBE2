@@ -37,6 +37,8 @@ class EditShowView(EditEventView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
     title = "Edit Show"
+    window_controls = ['start_open', 'volunteer_open', 'rehearsal_open']
+
 
     def groundwork(self, request, args, kwargs):
         error_url = super(EditShowView,
@@ -147,7 +149,6 @@ class EditShowView(EditEventView):
                 request,
                 errorcontext=errorcontext,
                 occurrence_id=self.occurrence.pk))
-        context['rehearsal_open'] = request.GET.get('rehearsal_open', False)
         return context
 
     def is_manage_opps(self, path):
@@ -180,7 +181,8 @@ class EditShowView(EditEventView):
                     labels=data['labels'],
                     parent_event_id=self.parent_id)
             else:
-                context = {'createslotform': self.event_form}
+                context = {'createslotform': self.event_form,
+                           'rehearsal_open': True}
         elif 'edit_slot' in request.POST.keys():
             self.event = get_object_or_404(
                 GenericEvent,
@@ -197,7 +199,8 @@ class EditShowView(EditEventView):
                     self.max_volunteer,
                     locations=[self.room])
             else:
-                context = {'error_slot_form': self.event_form}
+                context = {'error_slot_form': self.event_form,
+                           'rehearsal_open': True}
         elif 'delete_slot' in request.POST.keys():
             opp = get_object_or_404(
                 GenericEvent,
@@ -216,6 +219,8 @@ class EditShowView(EditEventView):
                     user_message[0].description,
                     title))
             return HttpResponseRedirect(self.success_url)
-        return self.check_success_and_return(request,
-                                             response=response,
-                                             errorcontext=context)
+        return self.check_success_and_return(
+            request,
+            response=response,
+            errorcontext=context,
+            window_controls="rehearsal_open=True")
