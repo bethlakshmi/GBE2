@@ -166,7 +166,7 @@ class TicketedEventWizardView(EventWizardView):
                 if request.POST.get(
                         'set_event') == 'More...':
                     return HttpResponseRedirect(
-                        "%s?start_open=False" %
+                        "%s?volunteer_open=True&rehearsal_open=True" %
                         reverse(more_view,
                                 urlconf='gbe.scheduling.urls',
                                 args=[self.conference.conference_slug,

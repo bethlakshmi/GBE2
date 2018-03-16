@@ -47,7 +47,7 @@ class RehearsalWizardView(EventWizardView):
             if context['second_form'].cleaned_data['show']:
                 show_id = context['second_form'].cleaned_data['show']
                 return HttpResponseRedirect(
-                    "%s?start_open=False;rehearsal_open=True" % reverse(
+                    "%s?rehearsal_open=True" % reverse(
                         'edit_show',
                         urlconf='gbe.scheduling.urls',
                         args=[self.conference.conference_slug,
