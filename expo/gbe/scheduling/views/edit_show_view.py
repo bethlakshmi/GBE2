@@ -74,10 +74,14 @@ class EditShowView(EditEventView):
             return None
 
         for rehearsal_slot in response.occurrences:
+            rehearsal = None
             try:
                 rehearsal = GenericEvent.objects.get(
                         eventitem_id=rehearsal_slot.foreign_event_id,
                         type="Rehearsal Slot")
+            except:
+                pass
+            if rehearsal is not None:
                 if (errorcontext and 'error_slot_form' in errorcontext and
                         errorcontext['error_slot_form'].instance == rehearsal):
                     actionform.append(errorcontext['error_slot_form'])
@@ -94,14 +98,14 @@ class EditShowView(EditEventView):
                         room = location.room
                     elif self.occurrence.location:
                         room = self.occurrence.location.room
+                    response = get_acts(rehearsal_slot.pk)
 
                     actionform.append(
                         RehearsalSlotForm(
                             instance=rehearsal,
                             initial={'opp_event_id': rehearsal.event_id,
                                      'opp_sched_id': rehearsal_slot.pk,
-                                     'current_acts': len(get_acts(
-                                        rehearsal.event_id).castings),
+                                     'current_acts': len(response.castings),
                                      'max_volunteer': num_volunteers,
                                      'day': day,
                                      'time': time,
@@ -109,8 +113,6 @@ class EditShowView(EditEventView):
                                      },
                             )
                         )
-            except:
-                pass
         context['slotactionform'] = actionform
         if errorcontext and 'createslotform' in errorcontext:
             createform = errorcontext['createslotform']

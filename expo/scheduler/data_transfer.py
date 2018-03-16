@@ -28,8 +28,8 @@ class Casting(object):
     def __init__(self,
                  booking):
         self.booking_id = booking.pk
-        self.role = booking.resource.act.role
-        self.act = booking.resource.act._item
+        self.role = booking.resource.actresource.role
+        self.act = booking.resource.actresource._item
 
 
 class ScheduleItem(object):

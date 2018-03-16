@@ -9,7 +9,7 @@ def get_acts(occurrence_id):
     castings = []
     bookings = ResourceAllocation.objects.filter(event__pk=occurrence_id)
     for booking in bookings:
-        if booking.resource.as_subtype.__class__.__name__ == "Worker":
+        if booking.resource.as_subtype.__class__.__name__ == "ActResource":
             casting = Casting(booking)
-            people += [casting]
+            castings += [casting]
     return CastingResponse(castings=castings)
