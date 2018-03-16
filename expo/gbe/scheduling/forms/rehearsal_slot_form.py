@@ -20,7 +20,8 @@ class RehearsalSlotForm(ScheduleBasicForm):
         required=True,
         initial="Rehearsal Slot")
     current_acts = IntegerField(
-        widget=NumberInput(attrs={'readonly':'readonly'}))
+        widget=NumberInput(attrs={'readonly':'readonly'}),
+        required=False)
 
     class Meta:
         model = GenericEvent

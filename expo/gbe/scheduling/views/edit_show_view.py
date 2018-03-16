@@ -22,6 +22,7 @@ from gbe_forms_text import (
 )
 from gbetext import rehearsal_delete_msg
 from scheduler.idd import (
+    get_acts,
     get_occurrences,
     create_occurrence,
 )
@@ -99,6 +100,8 @@ class EditShowView(EditEventView):
                             instance=rehearsal,
                             initial={'opp_event_id': rehearsal.event_id,
                                      'opp_sched_id': rehearsal_slot.pk,
+                                     'current_acts': len(get_acts(
+                                        rehearsal.event_id).castings),
                                      'max_volunteer': num_volunteers,
                                      'day': day,
                                      'time': time,
@@ -190,7 +193,9 @@ class EditShowView(EditEventView):
                 event_id=request.POST['opp_event_id'])
             self.event_form = RehearsalSlotForm(
                 request.POST,
-                instance=self.event)
+                instance=self.event,
+                initial={'current_acts': len(
+                    get_acts(rehearsal.event_id).castings)})
             if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
                 self.event_form.save()

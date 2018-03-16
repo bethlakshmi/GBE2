@@ -3,7 +3,10 @@ from django.forms import (
     Form,
     RadioSelect,
 )
-from gbe.models import Show
+from gbe.models import (
+    Event,
+    Show,
+)
 from scheduler.idd import get_occurrences
 from expo.settings import DATETIME_FORMAT
 
@@ -28,7 +31,7 @@ class PickShowForm(Form):
             choices = []
             show_pks = Show.objects.filter(
                 e_conference=initial['conference']
-                ).order_by('e_title').values_list('pk', flat=True)
+                ).order_by('e_title').values_list('eventitem_id', flat=True)
             response = get_occurrences(foreign_event_ids=show_pks)
             for occurrence in response.occurrences:
                 event = Show.objects.get(
