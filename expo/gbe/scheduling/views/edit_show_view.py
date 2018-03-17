@@ -66,7 +66,8 @@ class EditShowView(EditEventView):
                 pass
             if rehearsal is not None:
                 if (errorcontext and 'error_slot_form' in errorcontext and
-                        errorcontext['error_slot_form'].instance == rehearsal):
+                        errorcontext['error_slot_occurrence_id'
+                                     ] == int(rehearsal_slot.pk)):
                     actionform.append(errorcontext['error_slot_form'])
                 else:
                     num_volunteers = rehearsal_slot.max_volunteer
@@ -176,11 +177,11 @@ class EditShowView(EditEventView):
             self.event = get_object_or_404(
                 GenericEvent,
                 event_id=request.POST['opp_event_id'])
-            response = get_acts(int(request.POST['opp_sched_id']))
+            casting_response = get_acts(int(request.POST['opp_sched_id']))
             self.event_form = RehearsalSlotForm(
                 request.POST,
                 instance=self.event,
-                initial={'current_acts': len(response.castings)})
+                initial={'current_acts': len(casting_response.castings)})
             if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
                 self.event_form.save()
@@ -190,8 +191,11 @@ class EditShowView(EditEventView):
                     self.max_volunteer,
                     locations=[self.room])
             else:
-                context = {'error_slot_form': self.event_form,
-                           'rehearsal_open': True}
+                context = {
+                    'error_slot_form': self.event_form,
+                    'error_slot_occurrence_id': int(
+                        request.POST['opp_sched_id']),
+                    'rehearsal_open': True}
         elif 'delete_slot' in request.POST.keys():
             opp = get_object_or_404(
                 GenericEvent,
