@@ -3,10 +3,7 @@ from django.forms import (
     Form,
     RadioSelect,
 )
-from gbe.models import (
-    Event,
-    Show,
-)
+from gbe.models import Show
 from scheduler.idd import get_occurrences
 from expo.settings import DATETIME_FORMAT
 
