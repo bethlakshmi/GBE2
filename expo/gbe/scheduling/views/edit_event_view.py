@@ -141,7 +141,7 @@ class EditEventView(ManageVolWizardView):
     def make_context(self, request, errorcontext=None):
         context = super(EditEventView,
                         self).make_context(request, errorcontext)
-        context['edit_title'] = 'Edit Event'
+        context['edit_title'] = self.title
         duration = float(self.item.duration.total_minutes())/60
         initial_form_info = {
                 'duration': duration,
