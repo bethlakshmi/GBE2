@@ -16,6 +16,8 @@ from scheduler.idd import (
     update_occurrence,
 )
 from datetime import timedelta
+from django.contrib import messages
+from gbe.models import UserMessage
 
 
 class EditShowView(EditEventView):
@@ -43,18 +45,15 @@ class EditShowView(EditEventView):
                             manage_slot_info,
                             conference,
                             request,
-                            errorcontext=None,
-                            occurrence_id=None):
+                            errorcontext,
+                            occurrence_id):
         '''
         Generate the forms to allocate, edit, or delete volunteer
         opportunities associated with a scheduler event.
         '''
         actionform = []
         context = {}
-        if occurrence_id is not None or len(labels) > 0:
-            response = get_occurrences(parent_event_id=occurrence_id)
-        else:
-            return None
+        response = get_occurrences(parent_event_id=occurrence_id)
 
         for rehearsal_slot in response.occurrences:
             rehearsal = None

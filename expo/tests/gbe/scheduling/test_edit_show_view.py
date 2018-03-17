@@ -2,12 +2,10 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
-    AvailableInterestFactory,
     ProfileFactory,
     RoomFactory
 )
 from scheduler.models import (
-    Event,
     EventContainer,
     EventLabel,
 )
@@ -18,7 +16,6 @@ from tests.functions.gbe_functions import (
 from tests.contexts import (
     ShowContext,
 )
-from gbe.models import AvailableInterest
 from django.utils.formats import date_format
 
 
@@ -84,6 +81,27 @@ class TestEditShowWizard(TestCase):
         self.assertContains(response, "Manage Volunteer Opportunities")
         self.assertContains(response, "Manage Rehearsal Slots")
         self.assertContains(response, 'class="panel-collapse collapse in"', 3)
+
+    def test_good_user_get_empty_room_rehearsal(self):
+        rehearsal, slot = self.context.make_rehearsal(room=False)
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(
+            response,
+            '<option value="%d" selected="selected">%s</option>' % (
+                self.context.room.pk,
+                str(self.context.room)),
+            4)
+
+    def test_good_user_get_bad_conf(self):
+        login_as(self.privileged_user, self)
+        self.url = reverse(
+            self.view_name,
+            args=["BadConf",
+                  self.context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
 
     def test_create_slot(self):
         login_as(self.privileged_profile, self)
@@ -196,10 +214,10 @@ class TestEditShowWizard(TestCase):
             'type="text" value="Modify Rehearsal Slot" />')
         self.assertContains(response, self.room.name)
 
-'''
-    def test_edit_opportunity_error(self):
+    def test_edit_error(self):
         login_as(self.privileged_profile, self)
-        data = self.get_basic_action_data(self.context, 'edit_slot')
+        data, rehearsal, slot = self.get_basic_action_data(self.context,
+                                                           'edit_slot')
         data['max_volunteer'] = ''
 
         # number of volunteers is missing, it's required
@@ -211,22 +229,23 @@ class TestEditShowWizard(TestCase):
         self.assertContains(
             response,
             '<input id="id_e_title" maxlength="128" name="e_title" ' +
-            'type="text" value="Modify Volunteer Opportunity" />')
+            'type="text" value="Modify Rehearsal Slot" />')
         self.assertContains(
             response,
             '<ul class="errorlist"><li>This field is required.</li></ul>')
 
-    def test_delete_opportunity(self):
+    def test_delete_slot(self):
         login_as(self.privileged_profile, self)
+        data, rehearsal, slot = self.get_basic_action_data(self.context,
+                                                           'delete_slot')
 
         # number of volunteers is missing, it's required
         response = self.client.post(
             self.url,
-            data=self.get_basic_action_data(self.context, 'delete_slot'),
+            data=data,
             follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Modify Volunteer Opportunity')
-        opps = EventContainer.objects.filter(
+        self.assertNotContains(response, 'Modify Rehearsal Slot')
+        slots = EventContainer.objects.filter(
             parent_event=self.context.sched_event)
-        self.assertFalse(opps.exists())
-'''
+        self.assertFalse(slots.exists())

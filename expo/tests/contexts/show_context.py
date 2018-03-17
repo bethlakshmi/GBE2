@@ -113,7 +113,7 @@ class ShowContext:
                                     role="Interested"))
         return interested_profile
 
-    def make_rehearsal(self):
+    def make_rehearsal(self, room=True):
         rehearsal = GenericEventFactory(
             e_conference=self.conference,
             type='Rehearsal Slot')
@@ -125,9 +125,10 @@ class ShowContext:
             eventitem=rehearsal.eventitem_ptr,
             starttime=start_time,
             max_volunteer=10)
-        ResourceAllocationFactory(
-            event=slot,
-            resource=LocationFactory(_item=self.room))
+        if room:
+            ResourceAllocationFactory(
+                event=slot,
+                resource=LocationFactory(_item=self.room))
         EventContainerFactory(parent_event=self.sched_event,
                               child_event=slot)
         EventLabelFactory(event=slot,
