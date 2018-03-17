@@ -50,13 +50,12 @@ class ManageVolWizardView(View):
         OPTIONAL
             - do_additional_actions - to provide additional opps related
             actions - if not provide, edit, create, delete, duplicate are
-            available, if one of those functions is not provided, post will exit
-            with no return value
+            available, if one of those functions is not provided, post will
+            exit with no return value
             - window_controls = list of controls for panels in the page, if
             adding panels, include turning them on and off via the errorcontext
-            and the request.GET parameters.  If no panels are on, all panels will
-            be opened.
-           
+            and the request.GET parameters.  If no panels are on, all panels
+            will be opened.
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
@@ -75,7 +74,7 @@ class ManageVolWizardView(View):
 
         for window_control in self.window_controls:
             if ((errorcontext and window_control in errorcontext
-                    ) and errorcontext[window_control]) or request.GET.get(
+                 ) and errorcontext[window_control]) or request.GET.get(
                     window_control,
                     False) in ["True", "true", "T", "t", True]:
                 context[window_control] = True

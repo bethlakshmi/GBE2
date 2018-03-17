@@ -69,7 +69,7 @@ class EditEventView(ManageVolWizardView):
             Event,
             eventitem_id=self.occurrence.foreign_event_id).child()
         if self.item.type == "Show" and "/edit/" in request.path:
-            return HttpResponseRedirect("%s?%s" %(
+            return HttpResponseRedirect("%s?%s" % (
                 reverse('edit_show',
                         urlconf='gbe.scheduling.urls',
                         args=[self.conference.conference_slug,

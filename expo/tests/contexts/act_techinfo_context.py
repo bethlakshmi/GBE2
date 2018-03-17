@@ -16,6 +16,7 @@ from tests.factories.scheduler_factories import (
     SchedEventFactory,
 )
 
+
 class ActTechInfoContext():
     def __init__(self,
                  performer=None,

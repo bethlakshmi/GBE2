@@ -5,31 +5,14 @@ from django.shortcuts import (
     render,
 )
 from django.core.urlresolvers import reverse
-from gbe.models import (
-    Conference,
-    GenericEvent,
-    Room,
-)
+from gbe.models import GenericEvent
 from gbe.scheduling.forms import RehearsalSlotForm
-from gbe.duration import Duration
-from gbe.functions import (
-    get_conference_day,
-    validate_perms
-)
-from gbe_forms_text import (
-    role_map,
-    event_settings,
-)
+from gbe.functions import get_conference_day
 from gbetext import rehearsal_delete_msg
 from scheduler.idd import (
     get_acts,
     get_occurrences,
     create_occurrence,
-)
-from scheduler.data_transfer import Person
-from gbe.scheduling.views.functions import (
-    get_start_time,
-    show_scheduling_occurrence_status,
 )
 from datetime import timedelta
 
@@ -39,7 +22,6 @@ class EditShowView(EditEventView):
     permissions = ('Scheduling Mavens',)
     title = "Edit Show"
     window_controls = ['start_open', 'volunteer_open', 'rehearsal_open']
-
 
     def groundwork(self, request, args, kwargs):
         error_url = super(EditShowView,
@@ -147,7 +129,7 @@ class EditShowView(EditEventView):
                 'time': (self.occurrence.starttime - timedelta(hours=4)
                          ).strftime("%H:%M:%S"),
                 'location': self.occurrence.location,
-                'occurrence_id': self.occurrence.pk, } 
+                'occurrence_id': self.occurrence.pk, }
         context.update(self.get_rehearsal_forms(
                 initial_rehearsal_info,
                 self.manage_vol_url,
