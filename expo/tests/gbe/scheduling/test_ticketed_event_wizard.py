@@ -308,7 +308,7 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_show.eventitem_id)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True&rehearsal_open=True" % reverse(
                 'edit_show',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
@@ -348,7 +348,7 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_event.eventitem_id)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True&rehearsal_open=True" % reverse(
                 'edit_event',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,

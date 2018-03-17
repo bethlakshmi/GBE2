@@ -104,7 +104,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True" % reverse(
                 'edit_show',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
@@ -120,7 +120,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True" % reverse(
                 'edit_event',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
@@ -136,7 +136,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True" % reverse(
                 'edit_staff',
                 urlconf='gbe.scheduling.urls',
                 args=[self.staff_area.area.pk]))

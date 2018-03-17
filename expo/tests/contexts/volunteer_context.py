@@ -79,6 +79,14 @@ class VolunteerContext():
         self.allocation = ResourceAllocationFactory(resource=self.worker,
                                                     event=self.opp_event)
 
+    def set_staff_lead(self, staff_lead=None):
+        staff_lead = staff_lead or ProfileFactory()
+        ResourceAllocationFactory(event=self.sched_event,
+                                  resource=WorkerFactory(
+                                    _item=staff_lead,
+                                    role="Staff Lead"))
+        return staff_lead
+
     def add_window(self):
         add_window = VolunteerWindowFactory(
             day=ConferenceDayFactory(

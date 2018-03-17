@@ -133,12 +133,14 @@ class TestManageVolunteerWizard(TestCase):
             self.assert_volunteer_type_selector(
                 response,
                 opp.child_event.eventitem.child().volunteer_type)
-            self.assertRedirects(response, "%s?changed_id=%d" % (
-                reverse('edit_event',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.context.conference.conference_slug,
-                              self.context.sched_event.pk]),
-                opp.child_event.pk))
+            self.assertRedirects(
+                response,
+                "%s?changed_id=%d&volunteer_open=True" % (
+                    reverse('edit_show',
+                            urlconf='gbe.scheduling.urls',
+                            args=[self.context.conference.conference_slug,
+                                  self.context.sched_event.pk]),
+                    opp.child_event.pk))
             self.assertEqual(EventLabel.objects.filter(
                 text=opp.child_event.eventitem.child(
                     ).e_conference.conference_slug,
@@ -172,11 +174,13 @@ class TestManageVolunteerWizard(TestCase):
             self.assert_volunteer_type_selector(
                 response,
                 opp.eventitem.child().volunteer_type)
-            self.assertRedirects(response, "%s?changed_id=%d" % (
-                reverse('edit_staff',
-                        urlconf='gbe.scheduling.urls',
-                        args=[staff_context.area.pk]),
-                opp.pk))
+            self.assertRedirects(
+                response,
+                "%s?changed_id=%d&volunteer_open=True" % (
+                    reverse('edit_staff',
+                            urlconf='gbe.scheduling.urls',
+                            args=[staff_context.area.pk]),
+                    opp.pk))
             self.assertEqual(EventLabel.objects.filter(
                 text=opp.eventitem.child(
                     ).e_conference.conference_slug,
@@ -260,8 +264,8 @@ class TestManageVolunteerWizard(TestCase):
             if opp.child_event != self.context.opp_event:
                 self.assertRedirects(
                     response,
-                    "%s?changed_id=%d" % (reverse(
-                        'edit_event',
+                    "%s?changed_id=%d&volunteer_open=True" % (reverse(
+                        'edit_show',
                         urlconf='gbe.scheduling.urls',
                         args=[self.context.conference.conference_slug,
                               self.context.sched_event.pk]),
@@ -275,12 +279,14 @@ class TestManageVolunteerWizard(TestCase):
             self.url,
             data=self.get_basic_action_data(self.context, 'edit'),
             follow=True)
-        self.assertRedirects(response, "%s?changed_id=%d" % (
-            reverse('edit_event',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.context.conference.conference_slug,
-                          self.context.sched_event.pk]),
-            self.context.opp_event.pk))
+        self.assertRedirects(
+            response,
+            "%s?changed_id=%d&volunteer_open=True" % (
+                reverse('edit_show',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.context.conference.conference_slug,
+                              self.context.sched_event.pk]),
+                self.context.opp_event.pk))
         opps = EventContainer.objects.filter(
             parent_event=self.context.sched_event)
         self.assertTrue(len(opps), 1)
@@ -296,12 +302,14 @@ class TestManageVolunteerWizard(TestCase):
             self.url,
             data=self.get_basic_action_data(self.context, 'edit'),
             follow=True)
-        self.assertRedirects(response, "%s?changed_id=%d" % (
-            reverse('edit_event',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.context.conference.conference_slug,
-                          self.context.sched_event.pk]),
-            self.context.opp_event.pk))
+        self.assertRedirects(
+            response,
+            "%s?changed_id=%d&volunteer_open=True" % (
+                reverse('edit_show',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.context.conference.conference_slug,
+                              self.context.sched_event.pk]),
+                self.context.opp_event.pk))
         opps = EventContainer.objects.filter(
             parent_event=self.context.sched_event)
         self.assertTrue(len(opps), 1)
