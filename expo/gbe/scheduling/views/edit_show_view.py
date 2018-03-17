@@ -13,6 +13,7 @@ from scheduler.idd import (
     get_acts,
     get_occurrences,
     create_occurrence,
+    update_occurrence,
 )
 from datetime import timedelta
 
@@ -175,11 +176,11 @@ class EditShowView(EditEventView):
             self.event = get_object_or_404(
                 GenericEvent,
                 event_id=request.POST['opp_event_id'])
+            response = get_acts(int(request.POST['opp_sched_id']))
             self.event_form = RehearsalSlotForm(
                 request.POST,
                 instance=self.event,
-                initial={'current_acts': len(
-                    get_acts(rehearsal.event_id).castings)})
+                initial={'current_acts': len(response.castings)})
             if self.event_form.is_valid():
                 data = self.get_basic_form_settings()
                 self.event_form.save()

@@ -2,6 +2,7 @@ from tests.factories.gbe_factories import (
     ActFactory,
     ConferenceDayFactory,
     ConferenceFactory,
+    GenericEventFactory,
     PersonaFactory,
     ProfileFactory,
     RoomFactory,
@@ -9,6 +10,7 @@ from tests.factories.gbe_factories import (
 )
 from tests.factories.scheduler_factories import (
     ActResourceFactory,
+    EventContainerFactory,
     EventLabelFactory,
     LocationFactory,
     OrderingFactory,
@@ -19,6 +21,7 @@ from tests.factories.scheduler_factories import (
 import pytz
 from tests.functions.scheduler_functions import noon
 from datetime import (
+    datetime,
     timedelta,
 )
 
@@ -109,3 +112,24 @@ class ShowContext:
                                     _item=interested_profile,
                                     role="Interested"))
         return interested_profile
+
+    def make_rehearsal(self):
+        rehearsal = GenericEventFactory(
+            e_conference=self.conference,
+            type='Rehearsal Slot')
+        start_time = datetime.combine(
+            self.days[0].day,
+            (self.sched_event.start_time - timedelta(hours=4)).time())
+
+        slot = SchedEventFactory(
+            eventitem=rehearsal.eventitem_ptr,
+            starttime=start_time,
+            max_volunteer=10)
+        ResourceAllocationFactory(
+            event=slot,
+            resource=LocationFactory(_item=self.room))
+        EventContainerFactory(parent_event=self.sched_event,
+                              child_event=slot)
+        EventLabelFactory(event=slot,
+                          text=self.conference.conference_slug)
+        return rehearsal, slot

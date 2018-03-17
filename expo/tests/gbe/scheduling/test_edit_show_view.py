@@ -65,11 +65,12 @@ class TestEditShowWizard(TestCase):
 
     def get_basic_action_data(self, context, action):
         data = self.get_basic_data(context)
+        rehearsal, slot = self.context.make_rehearsal()
         data['e_title'] = 'Modify Rehearsal Slot'
-        data['opp_event_id'] = self.context.opportunity.event_id
-        data['opp_sched_id'] = self.context.opp_event.pk
+        data['opp_event_id'] = rehearsal.event_id
+        data['opp_sched_id'] = slot.pk
         data[action] = action
-        return data
+        return data, rehearsal, slot
 
     def test_good_user_get(self):
         self.url = reverse(
@@ -170,45 +171,32 @@ class TestEditShowWizard(TestCase):
                               self.context.sched_event.pk]),
                     slot.child_event.pk))
 
-'''
-    def test_edit_opportunity(self):
+    def test_edit_slot(self):
         login_as(self.privileged_profile, self)
-
+        data, rehearsal, slot = self.get_basic_action_data(self.context,
+                                                           'edit_slot')
         response = self.client.post(
             self.url,
-            data=self.get_basic_action_data(self.context, 'edit_slot'),
+            data=data,
             follow=True)
-        self.assertRedirects(response, "%s?changed_id=%d" % (
-            reverse('edit_show',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.context.conference.conference_slug,
-                          self.context.sched_event.pk]),
-            self.context.opp_event.pk))
-        opps = EventContainer.objects.filter(
+        self.assertRedirects(
+            response,
+            "%s?changed_id=%d&rehearsal_open=True" % (
+                reverse('edit_show',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.context.conference.conference_slug,
+                              self.context.sched_event.pk]),
+                slot.pk))
+        slots = EventContainer.objects.filter(
             parent_event=self.context.sched_event)
-        self.assertTrue(len(opps), 1)
+        self.assertTrue(len(slots), 1)
         self.assertContains(
             response,
             '<input id="id_e_title" maxlength="128" name="e_title" ' +
-            'type="text" value="Modify Volunteer Opportunity" />')
-
-    def test_edit_opportunity_change_room(self):
-        login_as(self.privileged_profile, self)
-        response = self.client.post(
-            self.url,
-            data=self.get_basic_action_data(self.context, 'edit_slot'),
-            follow=True)
-        self.assertRedirects(response, "%s?changed_id=%d" % (
-            reverse('edit_show',
-                    urlconf='gbe.scheduling.urls',
-                    args=[self.context.conference.conference_slug,
-                          self.context.sched_event.pk]),
-            self.context.opp_event.pk))
-        opps = EventContainer.objects.filter(
-            parent_event=self.context.sched_event)
-        self.assertTrue(len(opps), 1)
+            'type="text" value="Modify Rehearsal Slot" />')
         self.assertContains(response, self.room.name)
 
+'''
     def test_edit_opportunity_error(self):
         login_as(self.privileged_profile, self)
         data = self.get_basic_action_data(self.context, 'edit_slot')
