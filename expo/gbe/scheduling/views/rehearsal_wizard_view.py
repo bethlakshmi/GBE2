@@ -16,7 +16,7 @@ from gbe.duration import Duration
 class RehearsalWizardView(EventWizardView):
     template = 'gbe/scheduling/rehearsal_wizard.tmpl'
     roles = ['Staff Lead', ]
-    default_event_type = "volunteer"
+    default_event_type = "rehearsal"
 
     def groundwork(self, request, args, kwargs):
         context = super(RehearsalWizardView,

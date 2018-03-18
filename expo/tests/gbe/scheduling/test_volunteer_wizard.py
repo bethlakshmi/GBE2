@@ -70,7 +70,6 @@ class TestVolunteerWizard(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         assert_event_was_picked_in_wizard(response, "volunteer")
-        print response
         self.assertContains(response, str(self.show_volunteer.event.e_title))
         self.assertContains(response,
                             str(self.special_volunteer.event.e_title))

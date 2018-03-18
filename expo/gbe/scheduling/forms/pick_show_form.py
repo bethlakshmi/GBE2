@@ -29,13 +29,14 @@ class PickShowForm(Form):
             show_pks = Show.objects.filter(
                 e_conference=initial['conference']
                 ).order_by('e_title').values_list('eventitem_id', flat=True)
-            response = get_occurrences(foreign_event_ids=show_pks)
-            for occurrence in response.occurrences:
-                event = Show.objects.get(
-                    eventitem_id=occurrence.foreign_event_id)
-                choices += [
-                    (occurrence.pk, "%s - %s" % (
-                        event.e_title,
-                        occurrence.start_time.strftime(DATETIME_FORMAT)))]
+            if len(show_pks) > 0:
+                response = get_occurrences(foreign_event_ids=show_pks)
+                for occurrence in response.occurrences:
+                    event = Show.objects.get(
+                        eventitem_id=occurrence.foreign_event_id)
+                    choices += [
+                        (occurrence.pk, "%s - %s" % (
+                            event.e_title,
+                            occurrence.start_time.strftime(DATETIME_FORMAT)))]
             choices += [("", "Make New Show")]
             self.fields['show'].choices = choices
