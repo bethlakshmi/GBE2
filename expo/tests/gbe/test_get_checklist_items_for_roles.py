@@ -62,8 +62,7 @@ class TestGetCheckListForRoles(TestCase):
             [])
 
         nt.assert_equal(len(checklist_items), 1)
-        nt.assert_equal(checklist_items[0]['role'], "Teacher")
-        nt.assert_equal(checklist_items[0]['items'],
+        nt.assert_equal(checklist_items["Teacher"],
                         [self.role_condition.checklistitem])
 
     def test_multiple_role_match_happens(self):
@@ -86,14 +85,10 @@ class TestGetCheckListForRoles(TestCase):
             [])
 
         nt.assert_equal(len(checklist_items), 2)
-        for item in checklist_items:
-            if item['role'] == 'Teacher':
-                nt.assert_equal(item['items'],
-                                [self.role_condition.checklistitem])
-            else:
-                nt.assert_equal(item['role'], "Staff Lead")
-                nt.assert_equal(item['items'],
-                                [another_role.checklistitem])
+        nt.assert_equal(checklist_items['Teacher'],
+                        [self.role_condition.checklistitem])
+        nt.assert_equal(checklist_items["Staff Lead"],
+                        [another_role.checklistitem])
         another_role.delete()
 
     def test_role_match_two_conditions(self):
@@ -109,8 +104,7 @@ class TestGetCheckListForRoles(TestCase):
             [])
 
         nt.assert_equal(len(checklist_items), 1)
-        nt.assert_equal(checklist_items[0]['role'], "Teacher")
-        nt.assert_equal(checklist_items[0]['items'],
+        nt.assert_equal(checklist_items["Teacher"],
                         [self.role_condition.checklistitem,
                          another_match.checklistitem])
         another_match.delete()

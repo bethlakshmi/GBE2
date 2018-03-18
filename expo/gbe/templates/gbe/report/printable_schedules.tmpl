@@ -35,18 +35,23 @@
   </table>
 <br>
 {% endif %}
-{% if schedule.checklist_items %}
+{% if schedule.ticket_items or schedule.role_items%}
   <h3>{{ schedule.person.get_badge_name }}'s GBE Package Checklist</h3>
   <ul>
-  {% for criteria in schedule.checklist_items %}
-    {% if criteria.ticket %}
+  {% for criteria in schedule.ticket_items %}
     <li>Purchased {{criteria.count}} of {{criteria.ticket}}, for each item include:</li>
-    {% endif %}
-    {% if criteria.role %}
-    <li>Thank you for being a {{criteria.role}}, your package includes:</li>
-    {% endif %}
     <ul>
       {% for item in criteria.items%}
+        <li>{{item}}</li>
+      {%endfor%}
+    </ul>
+  {% endfor %}
+  {% for role, items in schedule.role_items.items %}
+    {% if role %}
+    <li>Thank you for being a {{role}}, your package includes:</li>
+    {% endif %}
+    <ul>
+      {% for item in items%}
         <li>{{item}}</li>
       {%endfor%}
     </ul>
