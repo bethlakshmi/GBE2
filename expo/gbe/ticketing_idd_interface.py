@@ -15,6 +15,7 @@ from ticketing.models import (
 from gbe.models import (
     Conference,
 )
+from scheduler.idd import get_roles
 from ticketing.brown_paper import *
 from gbetext import *
 from django.db.models import Count
@@ -198,18 +199,16 @@ def get_checklist_items_for_roles(profile, conference, tickets):
     '''
     get the checklist items for the roles a person does in this conference
     '''
-    checklist_items = []
+    checklist_items = {}
 
-    for role in profile.get_roles(conference):
-        items = []
-        for condition in RoleEligibilityCondition.objects.filter(role=role):
-            if not condition.is_excluded(tickets, profile, conference):
-                items += [condition.checklistitem]
-
-        if len(items) > 0:
-            checklist_items += [{'role': role,
-                                 'items': items}]
-
+    roles = get_roles(profile.user_object,
+                      labels=[conference.conference_slug]).roles
+    for condition in RoleEligibilityCondition.objects.filter(role__in=roles):
+        if not condition.is_excluded(tickets, profile, conference):
+            if condition.role in checklist_items:
+                checklist_items[condition.role] += [condition.checklistitem]
+            else:
+                checklist_items[condition.role] = [condition.checklistitem]
     return checklist_items
 
 
@@ -217,21 +216,19 @@ def get_checklist_items(profile, conference):
     '''
     get the checklist items for a person with a profile
     '''
-    checklist_items = []
-
     tickets = TicketItem.objects.filter(
         bpt_event__conference=conference,
         transaction__purchaser__matched_to_user=profile.user_object).distinct()
 
-    checklist_items += get_checklist_items_for_tickets(profile,
-                                                       conference,
-                                                       tickets)
+    ticket_items = get_checklist_items_for_tickets(profile,
+                                                   conference,
+                                                   tickets)
 
-    checklist_items += get_checklist_items_for_roles(profile,
-                                                     conference,
-                                                     tickets)
+    role_items = get_checklist_items_for_roles(profile,
+                                               conference,
+                                               tickets)
 
-    return checklist_items
+    return (ticket_items, role_items)
 
 
 def create_bpt_event(bpt_event_id, conference, events=[], display_icon=None):

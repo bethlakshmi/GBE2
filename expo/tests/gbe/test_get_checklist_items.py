@@ -29,11 +29,12 @@ class TestGetCheckListItems(TestCase):
         no_match_profile = ProfileFactory()
         transaction = TransactionFactory()
         self.ticket_condition.tickets.add(transaction.ticket_item)
-        checklist_items = get_checklist_items(
+        ticket_items, role_items = get_checklist_items(
             no_match_profile,
             transaction.ticket_item.bpt_event.conference)
 
-        nt.assert_equal(len(checklist_items), 0)
+        nt.assert_equal(len(ticket_items), 0)
+        nt.assert_equal(len(role_items), 0)
 
     def test_role_match(self):
         '''
@@ -44,12 +45,11 @@ class TestGetCheckListItems(TestCase):
                                             self.role_condition.role)
         conference = booking.event.eventitem.get_conference()
 
-        checklist_items = get_checklist_items(
+        ticket_items, role_items = get_checklist_items(
             teacher.performer_profile,
             conference)
-
-        nt.assert_equal(len(checklist_items), 1)
-        nt.assert_equal(checklist_items[0]['items'],
+        nt.assert_equal(len(role_items), 1)
+        nt.assert_equal(role_items[self.role_condition.role],
                         [self.role_condition.checklistitem])
 
     def test_ticket_match(self):
@@ -63,12 +63,12 @@ class TestGetCheckListItems(TestCase):
         self.ticket_condition.tickets.add(transaction.ticket_item)
         self.ticket_condition.save()
 
-        checklist_items = get_checklist_items(
+        ticket_items, role_items = get_checklist_items(
             purchaser,
             conference)
 
-        nt.assert_equal(len(checklist_items), 1)
-        nt.assert_equal(checklist_items[0]['items'],
+        nt.assert_equal(len(ticket_items), 1)
+        nt.assert_equal(ticket_items[0]['items'],
                         [self.ticket_condition.checklistitem])
 
     def test_both_match(self):
@@ -89,18 +89,15 @@ class TestGetCheckListItems(TestCase):
         self.ticket_condition.tickets.add(transaction.ticket_item)
         self.ticket_condition.save()
 
-        checklist_items = get_checklist_items(
+        ticket_items, role_items = get_checklist_items(
             teacher.performer_profile,
             conference)
-        nt.assert_equal(len(checklist_items), 2)
-        for item in checklist_items:
-            if item['items'] == [self.ticket_condition.checklistitem]:
-                nt.assert_equal(item['ticket'],
-                                transaction.ticket_item.title)
-            else:
-                nt.assert_equal(item['items'],
-                                [self.role_condition.checklistitem])
-                nt.assert_equal(item['role'], self.role_condition.role)
+        nt.assert_equal(len(ticket_items), 1)
+        nt.assert_equal(len(role_items), 1)
+        nt.assert_equal(ticket_items[0]['ticket'],
+                        transaction.ticket_item.title)
+        nt.assert_equal(role_items[self.role_condition.role],
+                        [self.role_condition.checklistitem])
 
     def tearDown(self):
         self.role_condition.delete()

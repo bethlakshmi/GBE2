@@ -85,10 +85,13 @@
         <td>
  	  <i>Registration</i> this is for you! 
 	  <ul><li>Schedules for everyone</li>
-	  <li>In a printable format</li>
+	  <li>In a printable format - only prints schedules for people who have
+	  a personal schedule, but when it does, it does all the envelope stuffing
+	  info, too.  If you need something different, look at individual schedules
+	  </li>
 	  </ul>
         <td class="bid-table">
-          <a href="{%url 'reporting:personal_schedule' %}">Schedule of Everyone</a><br>
+          <a href="{%url 'reporting:welcome_letter' %}">Schedule of Everyone</a><br>
 	  <i>copy to word, replace -----BREAK----- <br>
 	  with a line break and you're good to go.</i><br>
 	  <a href="{%url 'gbe:manage_users' %}">Per User View</a>
