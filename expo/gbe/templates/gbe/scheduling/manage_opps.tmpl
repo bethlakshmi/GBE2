@@ -90,10 +90,10 @@
       </form>	      
     </tr>
   </table>
-  {% if event_id %}
+  {% if staff_id %}
   <table> 
   <tr>
-  <td>&nbsp;|| <a href="{%url 'reporting:staff_area' eventitem_id %}">See Schedule</a>
+  <td><a href="{%url 'reporting:staff_area' staff_id %}">See Schedule</a>
   </td>
   </tr>
   </table>

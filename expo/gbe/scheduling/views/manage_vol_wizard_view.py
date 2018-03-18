@@ -313,4 +313,17 @@ class ManageVolWizardView(View):
                               response.occurrence.eventitem.eventitem_id,
                               request.POST['opp_sched_id']]))
         else:
-            return self.do_additional_actions(request)
+            actions = self.do_additional_actions(request)
+            if actions:
+                return actions
+            else:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="UNKNOWN_ACTION",
+                    defaults={
+                        'summary': "Unknown Action",
+                        'description': "This is an unknown action."})
+                messages.error(
+                    request,
+                    user_message[0].description)
+                return HttpResponseRedirect(self.success_url)

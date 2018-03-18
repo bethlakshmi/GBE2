@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
     AvailableInterestFactory,
+    GenericEventFactory,
     ProfileFactory,
     RoomFactory
 )
@@ -349,6 +350,25 @@ class TestManageVolunteerWizard(TestCase):
         opps = EventContainer.objects.filter(
             parent_event=self.context.sched_event)
         self.assertFalse(opps.exists())
+
+    def test_weird_action(self):
+        special_context = VolunteerContext(event=GenericEventFactory())
+        self.url = reverse(
+            self.view_name,
+            urlconf="gbe.scheduling.urls",
+            args=[special_context.conference.conference_slug,
+                  special_context.sched_event.pk])
+        grant_privilege(self.privileged_user, 'Scheduling Mavens')
+        login_as(self.privileged_profile, self)
+
+        # number of volunteers is missing, it's required
+        response = self.client.post(
+            self.url,
+            data=self.get_basic_action_data(special_context, 'inflate'),
+            follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Modify Volunteer Opportunity')
+        self.assertContains(response, "This is an unknown action.")
 
     def test_allocate_opportunity(self):
         grant_privilege(self.privileged_user, 'Scheduling Mavens')

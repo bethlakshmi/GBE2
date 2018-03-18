@@ -14,6 +14,7 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.contexts import (
+    ActTechInfoContext,
     ShowContext,
 )
 from django.utils.formats import date_format
@@ -82,6 +83,23 @@ class TestEditShowWizard(TestCase):
         self.assertContains(response, "Manage Rehearsal Slots")
         self.assertContains(response, 'class="panel-collapse collapse in"', 3)
 
+    def test_good_user_get_rehearsal_w_acts(self):
+        act_techinfo_context = ActTechInfoContext(
+            show=self.context.show,
+            sched_event=self.context.sched_event,
+            schedule_rehearsal=True)
+        self.url = reverse(
+            "edit_show",
+            urlconf="gbe.scheduling.urls",
+            args=[self.context.conference.conference_slug,
+                  self.context.sched_event.pk])
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(
+            response,
+            '<input id="id_current_acts" name="current_acts" ' +
+            'readonly="readonly" type="number" value="1" />')
+
     def test_good_user_get_empty_room_rehearsal(self):
         rehearsal, slot = self.context.make_rehearsal(room=False)
         login_as(self.privileged_profile, self)
@@ -93,15 +111,22 @@ class TestEditShowWizard(TestCase):
                 str(self.context.room)),
             4)
 
-    def test_good_user_get_bad_conf(self):
+    def test_good_user_get_bad_occurrence_id(self):
         login_as(self.privileged_user, self)
         self.url = reverse(
             self.view_name,
-            args=["BadConf",
-                  self.context.sched_event.pk],
+            args=[self.context.conference.conference_slug,
+                  self.context.sched_event.pk+1000],
             urlconf='gbe.scheduling.urls')
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('manage_event_list',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug]))
+        self.assertContains(
+            response,
+            "Occurrence id %d not found" % (self.context.sched_event.pk+1000))
 
     def test_create_slot(self):
         login_as(self.privileged_profile, self)

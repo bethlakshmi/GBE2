@@ -40,6 +40,7 @@ class EditStaffAreaView(ManageVolWizardView):
         context = super(EditStaffAreaView,
                         self).make_context(request, errorcontext)
         context['edit_title'] = 'Edit Staff Area'
+        context['staff_id'] = self.staff_area.pk
 
         # if there was an error in the edit form
         if 'event_form' not in context:
