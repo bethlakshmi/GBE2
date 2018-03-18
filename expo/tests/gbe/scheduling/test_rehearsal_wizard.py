@@ -95,6 +95,7 @@ class TestRehearsalWizard(TestCase):
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
                       self.show_volunteer.sched_event.pk]))
+
     def test_invalid_form(self):
         login_as(self.privileged_user, self)
         response = self.client.post(
@@ -117,6 +118,6 @@ class TestRehearsalWizard(TestCase):
         self.assertRedirects(
             response,
             reverse('create_ticketed_event_wizard',
-                            urlconf='gbe.scheduling.urls',
-                            args=[self.current_conference.conference_slug,
-                                  "show"]))
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.current_conference.conference_slug,
+                          "show"]))
