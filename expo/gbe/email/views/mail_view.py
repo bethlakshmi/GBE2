@@ -11,15 +11,18 @@ from post_office import mail
 
 class MailView(View):
 
-    def setup_email_form(self, request):
+    def setup_email_form(self, request, to_list):
         email_form = AdHocEmailForm(initial={
-            'sender': self.user.user_object.email})
+            'sender': self.user.user_object.email,
+            'to': [c[0] for c in to_list]})
+        email_form.fields['to'].choices = to_list
         if not request.user.is_superuser:
             email_form.fields['sender'].widget = HiddenInput()
         return email_form
 
     def send_mail(self, request, to_list):
         mail_form = AdHocEmailForm(request.POST)
+        mail_form.fields['to'].choices = to_list
         if not request.user.is_superuser:
             mail_form.fields['sender'].widget = HiddenInput()
         if mail_form.is_valid():
@@ -30,16 +33,15 @@ class MailView(View):
             else:
                 sender = request.user.email
 
-            for email, name in to_list.iteritems():
+            for email in mail_form.cleaned_data['to']:
                 email_batch += [{
                     'sender': sender,
                     'recipients': [email],
                     'subject': mail_form.cleaned_data['subject'],
                     'html_message': mail_form.cleaned_data['html_message'], }]
-                recipient_string = "%s (%s), %s" % (
-                    name,
-                    email,
-                    recipient_string)
+                recipient_string = "%s, %s" % (
+                    recipient_string,
+                    email)
 
             mail.send_many(email_batch)
             user_message = UserMessage.objects.get_or_create(
