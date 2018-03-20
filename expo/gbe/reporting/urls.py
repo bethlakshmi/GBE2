@@ -7,7 +7,6 @@ from gbe.reporting.views import (
     review_staff_area_view,
     staff_area_view,
     volunteer_type_view,
-    personal_schedule_view,
     WelcomeLetterView,
 )
 from gbe.reporting import (
@@ -53,9 +52,6 @@ urlpatterns = patterns(
         name='welcome_letter'),
     url(r'^reports/schedule/(?P<conference_slug>[-\w]+)/?$',
         WelcomeLetterView.as_view(),
-        name='personal_schedule'),
-    url(r'^reports/schedule/all/?$',
-        personal_schedule_view,
         name='personal_schedule'),
     url(r'^reports/schedule/room/?$',
         room_schedule, name='room_schedule'),
