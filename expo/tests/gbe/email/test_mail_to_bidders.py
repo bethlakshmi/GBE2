@@ -415,11 +415,11 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        print response
         self.assertContains(
             response,
-            'Select a valid choice. %s is not one of the available choices.' % random.user_object.email
-            )
+            'Select a valid choice. %s is %s' % (
+                random.user_object.email,
+                'not one of the available choices.'))
 
     def test_send_email_failure(self):
         login_as(self.privileged_profile, self)

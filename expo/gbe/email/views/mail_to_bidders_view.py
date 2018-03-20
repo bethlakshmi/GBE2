@@ -80,7 +80,8 @@ class MailToBiddersView(MailToFilterView):
                 for bid in eval(bid_type).objects.filter(draft_query):
                     bidder = (bid.profile.user_object.email,
                               bid.profile.display_name)
-                    if bid.profile.user_object.is_active and bidder not in to_list:
+                    if bid.profile.user_object.is_active and (
+                            bidder not in to_list):
                         to_list += [bidder]
         return sorted(to_list, key=lambda s: s[1].lower())
 
