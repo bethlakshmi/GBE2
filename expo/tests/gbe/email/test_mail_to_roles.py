@@ -563,6 +563,7 @@ class TestMailToRoles(TestCase):
         volunteer, booking = staffcontext.book_volunteer()
         login_as(self.privileged_profile, self)
         data = {
+            'to': volunteer.user_object.email,
             'sender': self.privileged_profile.user_object.email,
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -574,9 +575,8 @@ class TestMailToRoles(TestCase):
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), " % (
+            response, 'success', 'Success', "%s%s" % (
                 send_email_success_msg,
-                volunteer.display_name,
                 volunteer.user_object.email))
 
     def test_send_email_success_email_sent(self):
@@ -586,6 +586,7 @@ class TestMailToRoles(TestCase):
         showcontext.set_producer(producer=staffcontext.staff_lead)
         login_as(staffcontext.staff_lead, self)
         data = {
+            'to': volunteer.user_object.email,
             'sender': staffcontext.staff_lead.user_object.email,
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -611,6 +612,7 @@ class TestMailToRoles(TestCase):
         showcontext.set_producer(producer=staffcontext.staff_lead)
         login_as(self.privileged_profile, self)
         data = {
+            'to': volunteer.user_object.email,
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
             'email-select-conference': [self.context.conference.pk],

@@ -39,9 +39,10 @@ class MailView(View):
                     'recipients': [email],
                     'subject': mail_form.cleaned_data['subject'],
                     'html_message': mail_form.cleaned_data['html_message'], }]
-                recipient_string = "%s, %s" % (
-                    recipient_string,
-                    email)
+                if len(recipient_string) > 0:
+                    recipient_string = "%s, %s" % (recipient_string, email)
+                else:
+                    recipient_string = email
 
             mail.send_many(email_batch)
             user_message = UserMessage.objects.get_or_create(
