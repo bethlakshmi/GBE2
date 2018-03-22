@@ -63,12 +63,17 @@ class ReviewBidListView(View):
 
     @never_cache
     def get(self, request, *args, **kwargs):
-        reviewer = validate_perms(request, self.reviewer_permissions)
+        self.reviewer = validate_perms(request, self.reviewer_permissions)
         self.user = request.user
         if request.GET.get('conf_slug'):
             self.conference = Conference.by_slug(request.GET['conf_slug'])
         else:
             self.conference = Conference.current_conf()
+
+        if request.GET.get('changed_id'):
+            self.changed_id = request.GET['changed_id']
+        else:
+            self.changed_id = -1
 
         try:
             self.get_bid_list()

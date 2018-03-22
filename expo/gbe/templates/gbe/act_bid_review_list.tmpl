@@ -18,7 +18,10 @@
   <br/>
       {% include "conference_picker.tmpl" %}
   <br/>
-  <div><span class="error_row">Red text</span> indicates a user that has become inactive.</div>
+  <div>Red background indicates a user that has become inactive.</div>
+  <div>Blue background indicates bids that are awaitng your review.
+  Search for "Needs Review" to find them easily.</div>
+
   <div>Press the arrows to sort on a column.  To sort on an additional sub-order,
   press "Shift" to sort a secondary column.</div>
   <br/>
@@ -30,7 +33,7 @@
     {% endfor %}
   </div>
   <br/>
-  <table id="bid_review" class="order-column" cellspacing="0" width="100%">
+  <table id="bid_review" class="order-column table table-bordered" cellspacing="0" width="100%">
     <thead>
       <tr class="bid-table">
       {% for header_item in header %}
@@ -60,7 +63,7 @@
     </tfoot>
     <tbody>
     {% for row in rows %}
-      <tr class="bid-table {% if not row.bidder_active %}error_row{% endif %}">
+      <tr class="bid-table {{ row.status }}">
         {% for value in row.bid %}<td class="bid-table">
           {{ value|linebreaks }}
         </td>{% endfor %}
@@ -69,10 +72,8 @@
 	<td class="bid-table">{{ row.total_average }}</td>
         <td class="bid-table">
 	 <div class="btn-group" role="group" aria-label="...">
-	  <a href="{{ row.review_url }}" data-toggle="tooltip" title="Review Act">
-           <button class="btn btn-default">
-	    <i class="icon-like"></i> / <i class="icon-dislike"></i>
-	</button></a></div></td>
+	  <a href="{{ row.review_url }}" role="button" class="btn btn-default">
+           Review</a></div></td>
       </tr>
     {% endfor %}
     </tbody>
@@ -81,11 +82,11 @@
   <script>
   $(document).ready(function() {
     var table = $('#bid_review').DataTable({
+        "paging": false,
         "columnDefs": [
-            {
-                "targets": [ 2 ],
-                "visible": false,
-            },]});
+            {"targets": [ 2 ], "visible": false },
+	    {"targets": 13, "orderable": false, }],
+	"order": [[ 13, "desc" ]]});
 
     $('a.toggle-vis').on( 'click', function (e) {
         e.preventDefault();
