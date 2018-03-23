@@ -75,4 +75,4 @@ class TestReviewClassList(TestCase):
         response = self.client.get(
             url,
             data={'conf_slug': self.conference.conference_slug})
-        self.assertIn('bid-table error_row', response.content)
+        self.assertIn('bid-table danger', response.content)

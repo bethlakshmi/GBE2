@@ -34,7 +34,7 @@ class ReviewActListView(ReviewBidListView):
         categories = EvaluationCategory.objects.filter(
             visible=True).order_by('category')
         for bid in bids:
-            bid_row = self.set_row_basics(bid, review_query)
+            bid_row = self.set_row_basics(bid, FlexibleEvaluation.objects)
             bid_row['reviews'] = []
             total_average = 0
             valid_categories = 0

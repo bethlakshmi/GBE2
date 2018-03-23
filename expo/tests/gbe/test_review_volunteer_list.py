@@ -90,7 +90,7 @@ class TestReviewVolunteerList(TestCase):
         nt.assert_true(
             self.volunteer.profile.user_object.email in response.content)
         nt.assert_true(self.prefs.in_hotel in response.content)
-        nt.assert_true("No Decision" in response.content)
+        nt.assert_true("Needs Review" in response.content)
         nt.assert_true("Review" in response.content)
 
     def test_review_volunteer_as_coordinator(self):
@@ -112,7 +112,7 @@ class TestReviewVolunteerList(TestCase):
         nt.assert_true(
             self.volunteer.profile.user_object.email in response.content)
         nt.assert_true(self.prefs.in_hotel in response.content)
-        nt.assert_true("No Decision" in response.content)
+        nt.assert_true("Needs Review" in response.content)
         nt.assert_true("Review" in response.content)
         nt.assert_true("Assign" in response.content)
         nt.assert_true("Edit" in response.content)
@@ -224,5 +224,4 @@ class TestReviewVolunteerList(TestCase):
         response = self.client.get(
             self.url,
             {'conf_slug': inactive.b_conference.conference_slug})
-        print inactive.profile.display_name
-        self.assertIn('bid-table error_row', response.content)
+        self.assertIn('bid-table danger', response.content)
