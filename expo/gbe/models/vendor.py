@@ -74,9 +74,11 @@ class Vendor(Biddable):
 
     @property
     def bid_review_summary(self):
-        return (self.profile.display_name, self.b_title, self.website,
+        return [self.profile.display_name,
+                self.b_title,
+                self.website,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
-                acceptance_states[self.accepted][1])
+                acceptance_states[self.accepted][1]]
 
     @property
     def bids_to_review(self):

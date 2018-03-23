@@ -97,7 +97,7 @@ class Volunteer(Biddable):
         scheduling = format_string % (availability_string,
                                       unavailability_string,
                                       commitments)
-        return (self.profile.display_name,
+        return [self.profile.display_name,
                 self.profile.user_object.email,
                 self.profile.preferences.in_hotel,
                 self.number_shifts,
@@ -105,7 +105,7 @@ class Volunteer(Biddable):
                 interest_string,
                 self.pre_event,
                 self.background,
-                acceptance_states[self.accepted][1])
+                acceptance_states[self.accepted][1]]
 
     @property
     def bids_to_review(self):
