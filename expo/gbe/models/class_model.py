@@ -138,11 +138,11 @@ class Class(Biddable, Event):
 
     @property
     def bid_review_summary(self):
-        return (self.b_title,
+        return [self.b_title,
                 self.teacher,
                 self.type,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
-                acceptance_states[self.accepted][1])
+                acceptance_states[self.accepted][1]]
 
     @property
     def profile(self):

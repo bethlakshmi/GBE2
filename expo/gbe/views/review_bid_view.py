@@ -60,8 +60,10 @@ class ReviewBidView(View):
             evaluation.evaluator = self.reviewer
             evaluation.bid = self.object
             evaluation.save()
-            return HttpResponseRedirect(reverse(self.review_list_view_name,
-                                                urlconf='gbe.urls'))
+            return HttpResponseRedirect("%s?changed_id=%s" % (
+                reverse(self.review_list_view_name,
+                        urlconf='gbe.urls'),
+                self.object.id))
         else:
             return self.bid_review_response(request)
 
