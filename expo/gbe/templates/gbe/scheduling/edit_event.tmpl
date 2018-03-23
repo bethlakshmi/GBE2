@@ -20,9 +20,9 @@
       </a>
     </h3>
   </div>
-  <div id="collapse1" class="panel-collapse collapse {% if edit_open or start_open %}in{% endif %}">
+  <div id="collapse1" class="panel-collapse collapse {% if start_open %}in{% endif %}">
   <div class="panel-body">
-  <form action="" method="post" enctype="multipart/form-data">
+  <form action="{{edit_url}}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% include "gbe/scheduling/event_booking.tmpl" with form=event_form %}
     <div class="form-row pull-right">
@@ -44,22 +44,22 @@
       Manage Volunteer Opportunities</a>
     </h3>
   </div>
-  <div id="collapse2" class="panel-collapse collapse {% if not edit_open %}in{% endif %}">
+  <div id="collapse2" class="panel-collapse collapse {% if volunteer_open %}in{% endif %}">
   <div class="panel-body">
     {% include "gbe/scheduling/manage_opps.tmpl" %}
   </div></div>
 </div>
 {% endif %}
-{% if rehearsals %}
+{% if createslotform %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title">
-      <a data-toggle="collapse" href="#collapse2">
+      <a data-toggle="collapse" href="#collapse3">
       Manage Rehearsal Slots</a></h3>
   </div>
-  <div id="collapse2" class="panel-collapse collapse">
+  <div id="collapse3" class="panel-collapse collapse {% if rehearsal_open %}in{% endif %}">
   <div class="panel-body">
-    rehearsal slots go here
+    {% include "gbe/scheduling/manage_slots.tmpl" %}
   </div></div>
 </div>
 {% endif %}

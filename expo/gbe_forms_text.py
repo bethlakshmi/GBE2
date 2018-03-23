@@ -34,20 +34,9 @@ event_type_options = [(
         ('show', 'Show'),
         ('special', 'Special Event'), ), ), (
     'Behind the Scenes', (
+        ('rehearsal', 'Rehearsal Slot'),
         ('staff', 'Staff Area'),
         ('volunteer', 'Volunteering'), ), ), ]
-
-event_type_options_complete = [(
-    'Classes', (
-        ('drop-in', 'Drop-In Class'),
-        ('conference', 'Conference Class'),
-        ('master', 'Master Class'), ), ), (
-    'Other Public Events', (
-        ('show', 'Show'),
-        ('special', 'Special Event'), ), ), (
-    'Behind the Scenes', (
-        ('rehearsal', 'Rehearsal Slot'),
-        ('staff', 'Staff Area')))]
 
 event_settings = {
     'drop-in': {

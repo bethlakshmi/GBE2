@@ -4,13 +4,13 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceDayFactory,
+    GenericEventFactory,
     ProfileFactory,
     RoomFactory,
 )
 from scheduler.models import Event
 from gbe.models import (
     GenericEvent,
-    Show,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
@@ -23,10 +23,7 @@ from tests.functions.gbe_scheduling_functions import (
     assert_role_choice,
 )
 from expo.settings import DATE_FORMAT
-from tests.contexts import (
-    ShowContext,
-    VolunteerContext,
-)
+from tests.contexts import VolunteerContext
 from gbe.duration import Duration
 from datetime import timedelta
 
@@ -36,16 +33,16 @@ class TestEditEventView(TestCase):
     view_name = 'edit_event'
 
     def setUp(self):
-        self.room = RoomFactory()
-        self.context = ShowContext()
+        self.context = VolunteerContext(event=GenericEventFactory())
         self.context.sched_event.max_volunteer = 7
         self.context.sched_event.save()
-        self.context.show.duration = Duration(hours=1, minutes=30)
-        self.context.show.save()
-        self.producer = self.context.set_producer()
+        self.context.event.duration = Duration(hours=1, minutes=30)
+        self.context.event.save()
+        self.room = self.context.room
+        self.staff_lead = self.context.set_staff_lead()
         self.extra_day = ConferenceDayFactory(
             conference=self.context.conference,
-            day=self.context.days[0].day + timedelta(days=1))
+            day=self.context.conf_day.day + timedelta(days=1))
         self.url = reverse(
             self.view_name,
             args=[self.context.conference.conference_slug,
@@ -57,7 +54,7 @@ class TestEditEventView(TestCase):
 
     def edit_event(self):
         data = {
-            'type': 'Show',
+            'type': 'Special',
             'e_title': "Test Event Wizard",
             'e_description': 'Description',
             'max_volunteer': 3,
@@ -66,8 +63,7 @@ class TestEditEventView(TestCase):
             'duration': 2.5,
             'location': self.room.pk,
             'set_event': 'Any value',
-            'alloc_0-role': 'Producer',
-            'alloc_1-role': 'Technical Director',
+            'alloc_0-role': 'Staff Lead',
         }
         return data
 
@@ -76,21 +72,20 @@ class TestEditEventView(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(403, response.status_code)
 
-    def test_authorized_user_can_access_show(self):
+    def test_authorized_user_can_access_event(self):
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        assert_role_choice(response, "Producer")
-        assert_role_choice(response, "Technical Director")
+        assert_role_choice(response, "Staff Lead")
         self.assertNotContains(response, "Volunteer Management")
         self.assertContains(response, "Finish")
-        self.assertContains(response, self.context.show.e_title)
-        self.assertContains(response, self.context.show.e_description)
+        self.assertContains(response, self.context.event.e_title)
+        self.assertContains(response, self.context.event.e_description)
         self.assertContains(
             response,
             '<option value="%d" selected="selected">%s</option>' % (
-                self.context.days[0].pk,
-                self.context.days[0].day.strftime(DATE_FORMAT)))
+                self.context.conf_day.pk,
+                self.context.conf_day.day.strftime(DATE_FORMAT)))
         self.assertContains(response,
                             'name="max_volunteer" type="number" value="7" />')
         self.assertContains(
@@ -99,8 +94,8 @@ class TestEditEventView(TestCase):
         self.assertContains(
             response,
             '<option value="%d" selected="selected">%s</option>' % (
-                self.producer.pk,
-                str(self.producer)))
+                self.staff_lead.pk,
+                str(self.staff_lead)))
 
     def test_authorized_user_can_also_get_volunteer_mgmt(self):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
@@ -112,8 +107,8 @@ class TestEditEventView(TestCase):
         self.assertContains(
             response,
             '<option value="%d" selected="selected">%s</option>' % (
-                self.context.days[0].pk,
-                self.context.days[0].day.strftime("%b. %-d, %Y")))
+                self.context.conf_day.pk,
+                self.context.conf_day.day.strftime("%b. %-d, %Y")))
         self.assertContains(
             response,
             'name="new_opp-max_volunteer" type="number" value="7" />')
@@ -149,7 +144,7 @@ class TestEditEventView(TestCase):
             '<option value="%d" selected="selected">%s</option>' % (
                 vol_context.window.day.pk,
                 vol_context.window.day.day.strftime("%b. %-d, %Y")),
-            2)
+            3)
         self.assertContains(
             response,
             'name="max_volunteer" type="number" value="2" />')
@@ -184,7 +179,7 @@ class TestEditEventView(TestCase):
             response,
             "Occurrence id %d not found" % (self.context.sched_event.pk+1000))
 
-    def test_edit_show_w_staffing(self):
+    def test_edit_event_w_staffing(self):
         login_as(self.privileged_user, self)
         data = self.edit_event()
         data['alloc_0-worker'] = self.privileged_user.profile.pk
@@ -214,7 +209,7 @@ class TestEditEventView(TestCase):
             '<tr class="bid-table success">\n       ' +
             '<td class="bid-table">%s</td>' % data['e_title'])
 
-    def test_edit_show_and_continue(self):
+    def test_edit_event_and_continue(self):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         data = self.edit_event()
@@ -225,7 +220,7 @@ class TestEditEventView(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            self.url)
+            "%s?volunteer_open=True" % self.url)
         assert_alert_exists(
             response,
             'success',

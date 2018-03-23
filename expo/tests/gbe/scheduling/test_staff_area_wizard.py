@@ -68,7 +68,7 @@ class TestStaffAreaWizard(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
-        self.assertContains(response, "Continue to Volunteer Opportunities")
+        self.assertContains(response, "More..")
 
     def test_create_area(self):
         login_as(self.privileged_user, self)
@@ -137,7 +137,7 @@ class TestStaffAreaWizard(TestCase):
         data['default_volunteers'] = 3
         data['staff_lead'] = self.privileged_user.profile.pk
         data['default_location'] = self.room.pk
-        data['set_event'] = "Continue to Volunteer Opportunities"
+        data['set_event'] = "More..."
         response = self.client.post(
             self.url,
             data=data,
