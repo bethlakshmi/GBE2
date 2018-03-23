@@ -71,7 +71,7 @@ class ReviewBidListView(View):
             self.conference = Conference.current_conf()
 
         if request.GET.get('changed_id'):
-            self.changed_id = request.GET['changed_id']
+            self.changed_id = int(request.GET['changed_id'])
         else:
             self.changed_id = -1
 
