@@ -10,6 +10,7 @@ from gbe.scheduling.views import (
     CopyStaffAreaView,
     DeleteEventView,
     EditEventView,
+    EditShowView,
     EditStaffAreaView,
     EvalEventView,
     EventDetailView,
@@ -19,6 +20,7 @@ from gbe.scheduling.views import (
     ManageEventsView,
     ManageVolOpsView,
     ManageVolWizardView,
+    RehearsalWizardView,
     SetFavoriteView,
     ShowCalendarView,
     StaffAreaWizardView,
@@ -45,6 +47,8 @@ urlpatterns = patterns(
         ClassWizardView.as_view(), name='create_class_wizard'),
     url(r'^scheduling/create_staff_area_wizard/(?P<conference>[-\w]+)/?$',
         StaffAreaWizardView.as_view(), name='staff_area_wizard'),
+    url(r'^scheduling/create_rehearsal_wizard/(?P<conference>[-\w]+)/?$',
+        RehearsalWizardView.as_view(), name='rehearsal_wizard'),
     url(r'^scheduling/create_ticketed_wizard/(?P<conference>[-\w]+)/' +
         '(?P<event_type>[-\w]+)/?$',
         TicketedEventWizardView.as_view(),
@@ -56,9 +60,16 @@ urlpatterns = patterns(
     url(r'^scheduling/edit/(?P<conference>[-\w]+)/(?P<occurrence_id>\d+)/?$',
         EditEventView.as_view(),
         name='edit_event'),
+    url(r'^scheduling/show_edit/(?P<conference>[-\w]+)/' +
+        '(?P<occurrence_id>\d+)/?$',
+        EditShowView.as_view(),
+        name='edit_show'),
     url(r'^scheduling/staff_edit/(?P<staff_id>\d+)/?$',
         EditStaffAreaView.as_view(),
         name='edit_staff'),
+    url(r'^scheduling/manage-show-opps/(?P<conference>[-\w]+)/' +
+        '(?P<occurrence_id>\d+)/?$',
+        EditShowView.as_view(), name='manage_show_opp'),
     url(r'^scheduling/manage-opps/(?P<conference>[-\w]+)/' +
         '(?P<occurrence_id>\d+)/?$',
         EditEventView.as_view(), name='manage_vol'),

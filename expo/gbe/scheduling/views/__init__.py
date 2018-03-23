@@ -1,6 +1,7 @@
 # New Event Creation
 from event_wizard_view import EventWizardView
 from class_wizard_view import ClassWizardView
+from rehearsal_wizard_view import RehearsalWizardView
 from staff_area_wizard_view import StaffAreaWizardView
 from ticketed_event_wizard_view import TicketedEventWizardView
 from volunteer_wizard_view import VolunteerWizardView
@@ -8,6 +9,7 @@ from volunteer_wizard_view import VolunteerWizardView
 # Brand new edit (will deprecate make_occurrence)
 from manage_vol_wizard_view import ManageVolWizardView
 from edit_event_view import EditEventView
+from edit_show_view import EditShowView
 from edit_staff_area_view import EditStaffAreaView
 from copy_collections_view import CopyCollectionsView
 from copy_occurrence_view import CopyOccurrenceView

@@ -70,7 +70,6 @@ class TestVolunteerWizard(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         assert_event_was_picked_in_wizard(response, "volunteer")
-        print response
         self.assertContains(response, str(self.show_volunteer.event.e_title))
         self.assertContains(response,
                             str(self.special_volunteer.event.e_title))
@@ -104,8 +103,8 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
-                'edit_event',
+            "%s?volunteer_open=True" % reverse(
+                'edit_show',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
                       self.show_volunteer.sched_event.pk]))
@@ -120,7 +119,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True" % reverse(
                 'edit_event',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,
@@ -136,7 +135,7 @@ class TestVolunteerWizard(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True" % reverse(
                 'edit_staff',
                 urlconf='gbe.scheduling.urls',
                 args=[self.staff_area.area.pk]))

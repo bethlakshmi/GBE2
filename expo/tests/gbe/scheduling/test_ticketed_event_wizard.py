@@ -117,7 +117,7 @@ class TestTicketedEventWizard(TestCase):
         self.assertEqual(response.status_code, 200)
         assert_event_was_picked_in_wizard(response, "special")
         assert_role_choice(response, "Staff Lead")
-        self.assertNotContains(response, "Continue to Volunteer Opportunities")
+        self.assertNotContains(response, "More...")
 
     def test_authorized_user_can_access_show(self):
         self.url = reverse(
@@ -131,7 +131,7 @@ class TestTicketedEventWizard(TestCase):
         assert_event_was_picked_in_wizard(response, "show")
         assert_role_choice(response, "Producer")
         assert_role_choice(response, "Technical Director")
-        self.assertNotContains(response, "Continue to Volunteer Opportunities")
+        self.assertNotContains(response, "More...")
 
     def test_authorized_user_can_also_get_volunteer_mgmt(self):
         self.url = reverse(
@@ -142,7 +142,7 @@ class TestTicketedEventWizard(TestCase):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
         login_as(self.privileged_user, self)
         response = self.client.get(self.url)
-        self.assertContains(response, "Continue to Volunteer Opportunities")
+        self.assertContains(response, "More...")
 
     def test_authorized_user_can_access_master_no_tickets(self):
         login_as(self.privileged_user, self)
@@ -292,12 +292,13 @@ class TestTicketedEventWizard(TestCase):
             ) + "?pick_event=Next&event_type=show"
         login_as(self.privileged_user, self)
         data = self.edit_class()
-        data.pop('type', None)
+        data['type'] = "Special"
         data['cue_sheet'] = "Alternate"
         data['alloc_0-role'] = "Producer"
         data['alloc_1-role'] = "Technical Director"
         data['alloc_0-worker'] = self.privileged_user.pk
         data['alloc_1-worker'] = self.teacher.performer_profile.pk
+        data['set_event'] = "More..."
         response = self.client.post(
             self.url,
             data=data,
@@ -307,13 +308,11 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_show.eventitem_id)
         self.assertRedirects(
             response,
-            "%s?%s-day=%d&filter=Filter&new=[%dL]" % (
-                reverse('manage_event_list',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.current_conference.conference_slug]),
-                self.current_conference.conference_slug,
-                self.day.pk,
-                occurrence.pk))
+            "%s?volunteer_open=True&rehearsal_open=True" % reverse(
+                'edit_show',
+                urlconf='gbe.scheduling.urls',
+                args=[self.current_conference.conference_slug,
+                      occurrence.pk]))
         assert_alert_exists(
             response,
             'success',
@@ -322,10 +321,6 @@ class TestTicketedEventWizard(TestCase):
                 data['e_title'],
                 self.day.day.strftime(DATE_FORMAT))
             )
-        self.assertContains(
-            response,
-            '<tr class="bid-table success">\n       ' +
-            '<td class="bid-table">%s</td>' % data['e_title'])
         self.assertEqual(
             new_show.cue_sheet, "Alternate"
         )
@@ -341,7 +336,7 @@ class TestTicketedEventWizard(TestCase):
         data['type'] = "Special"
         data['alloc_0-role'] = "Staff Lead"
         data['alloc_0-worker'] = self.teacher.performer_profile.pk
-        data['set_event'] = "Continue to Volunteer Opportunities"
+        data['set_event'] = "More..."
         data.pop('alloc_1-role', None)
         response = self.client.post(
             self.url,
@@ -353,7 +348,7 @@ class TestTicketedEventWizard(TestCase):
             eventitem__eventitem_id=new_event.eventitem_id)
         self.assertRedirects(
             response,
-            "%s?start_open=False" % reverse(
+            "%s?volunteer_open=True&rehearsal_open=True" % reverse(
                 'edit_event',
                 urlconf='gbe.scheduling.urls',
                 args=[self.current_conference.conference_slug,

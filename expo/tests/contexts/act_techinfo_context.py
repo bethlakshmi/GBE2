@@ -15,7 +15,6 @@ from tests.factories.scheduler_factories import (
     ResourceAllocationFactory,
     SchedEventFactory,
 )
-from datetime import timedelta
 
 
 class ActTechInfoContext():
@@ -48,9 +47,10 @@ class ActTechInfoContext():
             eventitem=self.show.eventitem_ptr)
         room_name = room_name or "Dining Room"
         self.room = RoomFactory(name=room_name)
-        ResourceAllocationFactory(
-            event=self.sched_event,
-            resource=LocationFactory(_item=self.room.locationitem_ptr))
+        if not sched_event:
+            ResourceAllocationFactory(
+                event=self.sched_event,
+                resource=LocationFactory(_item=self.room.locationitem_ptr))
         # schedule the act into the show
         ResourceAllocationFactory(
             event=self.sched_event,
@@ -63,7 +63,8 @@ class ActTechInfoContext():
                 self.act)
 
     def _schedule_rehearsal(self, s_event, act=None):
-        rehearsal = GenericEventFactory(type="Rehearsal Slot")
+        rehearsal = GenericEventFactory(type="Rehearsal Slot",
+                                        e_conference=self.conference)
         rehearsal_event = SchedEventFactory(
             eventitem=rehearsal.eventitem_ptr,
             max_volunteer=10,

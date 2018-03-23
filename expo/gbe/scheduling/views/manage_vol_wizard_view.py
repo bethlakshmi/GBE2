@@ -1,7 +1,10 @@
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import (
+    get_object_or_404,
+    render,
+)
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from scheduler.idd import (
@@ -11,7 +14,6 @@ from scheduler.idd import (
     update_occurrence,
 )
 from gbe.models import (
-    Event,
     GenericEvent,
     Room,
 )
@@ -34,6 +36,7 @@ class ManageVolWizardView(View):
         the settings and visualization for the parent of the volunteer events
         manipulated here.   The contract for the child is to implement a
         'groundwork' function and provide:
+        REQUIRED
             - self.conference - the conference for which the vol opp is being
                 managed
             - any additional self.labels (a list) to be used during opp create
@@ -43,12 +46,45 @@ class ManageVolWizardView(View):
             - self.parent_id (optional) - the id of a parent event, if null,
                 there will be no parent
             - self.success_url - the URL to redirect to in the event of success
-        AND - 'make_context' to build the error context when an error occurrs
+            - 'make_context' to build the error context when an error occurrs
+        OPTIONAL
+            - do_additional_actions - to provide additional opps related
+            actions - if not provide, edit, create, delete, duplicate are
+            available, if one of those functions is not provided, post will
+            exit with no return value
+            - window_controls = list of controls for panels in the page, if
+            adding panels, include turning them on and off via the errorcontext
+            and the request.GET parameters.  If no panels are on, all panels
+            will be opened.
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
     parent_id = None
     labels = []
+    window_controls = ['start_open', 'volunteer_open']
+
+    def make_context(self, request, errorcontext=None):
+        context = {}
+        vol_open = False
+        all_closed = True
+
+        if errorcontext is not None:
+            context = errorcontext
+        context['edit_url'] = self.success_url
+
+        for window_control in self.window_controls:
+            if ((errorcontext and window_control in errorcontext
+                 ) and errorcontext[window_control]) or request.GET.get(
+                    window_control,
+                    False) in ["True", "true", "T", "t", True]:
+                context[window_control] = True
+                all_closed = False
+
+        if all_closed:
+            for window_control in self.window_controls:
+                context[window_control] = True
+
+        return context
 
     def get_manage_opportunity_forms(self,
                                      initial,
@@ -75,39 +111,43 @@ class ManageVolWizardView(View):
                 self.request.GET.get('changed_id', None))
 
         for vol_occurence in response.occurrences:
-            vol_event = Event.objects.get_subclass(
-                    eventitem_id=vol_occurence.foreign_event_id)
-            if (errorcontext and
-                    'error_opp_form' in errorcontext and
-                    errorcontext['error_opp_form'].instance == vol_event):
-                actionform.append(errorcontext['error_opp_form'])
-            else:
-                num_volunteers = vol_occurence.max_volunteer
-                date = vol_occurence.start_time.date()
+            try:
+                vol_event = GenericEvent.objects.get(
+                        eventitem_id=vol_occurence.foreign_event_id,
+                        type="Volunteer")
+                if (errorcontext and
+                        'error_opp_form' in errorcontext and
+                        errorcontext['error_opp_form'].instance == vol_event):
+                    actionform.append(errorcontext['error_opp_form'])
+                else:
+                    num_volunteers = vol_occurence.max_volunteer
+                    date = vol_occurence.start_time.date()
 
-                time = vol_occurence.start_time.time
-                day = get_conference_day(
-                    conference=vol_event.e_conference,
-                    date=date)
-                location = vol_occurence.location
-                if location:
-                    room = location.room
-                elif self.occurrence.location:
-                    room = self.occurrence.location.room
+                    time = vol_occurence.start_time.time
+                    day = get_conference_day(
+                        conference=vol_event.e_conference,
+                        date=date)
+                    location = vol_occurence.location
+                    if location:
+                        room = location.room
+                    elif self.occurrence.location:
+                        room = self.occurrence.location.room
 
-                actionform.append(
-                    VolunteerOpportunityForm(
-                        instance=vol_event,
-                        initial={'opp_event_id': vol_event.event_id,
-                                 'opp_sched_id': vol_occurence.pk,
-                                 'max_volunteer': num_volunteers,
-                                 'day': day,
-                                 'time': time,
-                                 'location': room,
-                                 'type': "Volunteer"
-                                 },
+                    actionform.append(
+                        VolunteerOpportunityForm(
+                            instance=vol_event,
+                            initial={'opp_event_id': vol_event.event_id,
+                                     'opp_sched_id': vol_occurence.pk,
+                                     'max_volunteer': num_volunteers,
+                                     'day': day,
+                                     'time': time,
+                                     'location': room,
+                                     'type': "Volunteer"
+                                     },
+                            )
                         )
-                    )
+            except:
+                pass
         context['actionform'] = actionform
         if errorcontext and 'createform' in errorcontext:
             createform = errorcontext['createform']
@@ -142,16 +182,23 @@ class ManageVolWizardView(View):
         if response and response.occurrence:
             return HttpResponseRedirect(self.success_url)
         else:
-            return self.make_context(request, errorcontext)
+            return render(request,
+                          self.template,
+                          self.make_context(request, errorcontext))
 
     def check_success_and_return(self,
                                  request,
                                  response=None,
-                                 errorcontext=None):
+                                 errorcontext=None,
+                                 window_controls="volunteer_open=True"):
         if response and response.occurrence:
             self.success_url = "%s?changed_id=%d" % (
                 self.success_url,
                 response.occurrence.pk)
+            if window_controls:
+                self.success_url = "%s&%s" % (self.success_url,
+                                              window_controls)
+
         return self.make_post_response(
             request,
             response,
@@ -170,6 +217,9 @@ class ManageVolWizardView(View):
             if self.event.calendar_type:
                 data['labels'] += [self.event.calendar_type]
         return data
+
+    def do_additional_actions(self, request):
+        return None
 
     @never_cache
     @method_decorator(login_required)
@@ -205,7 +255,8 @@ class ManageVolWizardView(View):
                     labels=data['labels'],
                     parent_event_id=self.parent_id)
             else:
-                context = {'createform': self.event_form}
+                context = {'createform': self.event_form,
+                           'volunteer_open': True}
 
             return self.check_success_and_return(request,
                                                  response=response,
@@ -227,7 +278,8 @@ class ManageVolWizardView(View):
                     self.max_volunteer,
                     locations=[self.room])
             else:
-                context = {'error_opp_form': self.event_form}
+                context = {'error_opp_form': self.event_form,
+                           'volunteer_open': True}
 
             return self.check_success_and_return(request,
                                                  response=response,
@@ -260,3 +312,18 @@ class ManageVolWizardView(View):
                         args=['GenericEvent',
                               response.occurrence.eventitem.eventitem_id,
                               request.POST['opp_sched_id']]))
+        else:
+            actions = self.do_additional_actions(request)
+            if actions:
+                return actions
+            else:
+                user_message = UserMessage.objects.get_or_create(
+                    view=self.__class__.__name__,
+                    code="UNKNOWN_ACTION",
+                    defaults={
+                        'summary': "Unknown Action",
+                        'description': "This is an unknown action."})
+                messages.error(
+                    request,
+                    user_message[0].description)
+                return HttpResponseRedirect(self.success_url)
