@@ -44,8 +44,8 @@ class ReviewBidListView(View):
             'bid': bid.bid_review_summary,
             'id': bid.id,
             'review_url': reverse(self.bid_review_view_name,
-                                   urlconf='gbe.urls',
-                                   args=[bid.id]),
+                                  urlconf='gbe.urls',
+                                  args=[bid.id]),
             'status': "",
         }
         if not bid.bidder_is_active:
