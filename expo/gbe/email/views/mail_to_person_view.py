@@ -25,19 +25,19 @@ class MailToPersonView(MailView):
         user_profile = get_object_or_404(
             Profile,
             resourceitem_id=kwargs.get('profile_id'))
-        return {user_profile.user_object.email: user_profile.display_name}
+        return [(user_profile.user_object.email, "%s <%s>" % (
+            user_profile.display_name,
+            user_profile.user_object.email))]
 
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
         to_address = self.groundwork(request, args, kwargs)
-        email_form = self.setup_email_form(request)
+        email_form = self.setup_email_form(request, to_address)
         return render(
             request,
             'gbe/email/send_mail.tmpl',
-            {"to_address": to_address,
-             "email_form": email_form}
-             )
+            {"email_form": email_form})
 
     @never_cache
     @method_decorator(login_required)
@@ -52,5 +52,4 @@ class MailToPersonView(MailView):
             return render(
                 request,
                 'gbe/email/send_mail.tmpl',
-                {"to_address": to_address,
-                 "email_form": mail_form})
+                {"email_form": mail_form})
