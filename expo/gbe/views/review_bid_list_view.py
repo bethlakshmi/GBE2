@@ -19,6 +19,7 @@ class ReviewBidListView(View):
     bid_evaluation_type = BidEvaluation
     template = 'gbe/bid_review_list.tmpl'
     bid_order_fields = ('accepted', 'b_title')
+    status_index = 4
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

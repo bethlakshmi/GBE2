@@ -19,9 +19,6 @@ class ReviewCostumeListView(ReviewBidListView):
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,
                 'rows': self.rows,
-                'action1_text': 'Review',
-                'action1_link': reverse(self.bid_review_list_view_name,
-                                        urlconf='gbe.urls'),
                 'return_link': reverse(self.bid_review_list_view_name,
                                        urlconf='gbe.urls'),
                 'conference_slugs': self.conference_slugs,
