@@ -209,7 +209,7 @@ class MailToRolesView(MailToFilterView):
         return limits
 
     def get_to_list(self):
-        to_list = {}
+        to_list = []
         slugs = []
         people = []
         limits = None
@@ -283,9 +283,11 @@ class MailToRolesView(MailToFilterView):
                         roles=self.select_form.cleaned_data['roles'])
                 people += response.people
         for person in people:
-            to_list[person.user.email] = \
-                    person.user.profile.display_name
-        return to_list
+            person_contact = (person.user.email,
+                              person.user.profile.display_name)
+            if person.user.is_active and person_contact not in to_list:
+                to_list += [person_contact]
+        return sorted(to_list, key=lambda s: s[1].lower())
 
     def prep_email_form(self, request):
         to_list = self.get_to_list()
@@ -311,14 +313,14 @@ class MailToRolesView(MailToFilterView):
                 request,
                 self.template,
                 self.get_select_forms())
-        email_form = self.setup_email_form(request)
+        email_form = self.setup_email_form(request, to_list)
         recipient_info = SecretRoleInfoForm(request.POST,
                                             prefix="email-select")
         event_info = SelectEventForm(request.POST,
                                      prefix="event-select")
         context = self.get_select_forms()
-        context["email_forms"] = [email_form, recipient_info, event_info]
-        context["to_list"] = to_list
+        context["email_form"] = email_form
+        context["recipient_info"] = [recipient_info, event_info]
         return render(
             request,
             self.template,

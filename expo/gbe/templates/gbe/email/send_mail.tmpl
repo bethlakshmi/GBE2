@@ -15,18 +15,6 @@
     <h3 class="panel-title">Send Email</h3>
   </div>
   <div class="panel-body">
-      <div class="panel-group">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              {% for email, name in to_address.items%}
-              Recipient: {{name}} &lt;{{email}}&gt;
-              {% endfor %}
-            </h4>
-          </div>
-        </div>
-      </div>
-
     <form action="" method="post" enctype="multipart/form-data"> 
       {% include "form_table.tmpl" with form=email_form %}
       <input type="submit" class="email-submit" name="send" value="Send">

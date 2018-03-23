@@ -24,18 +24,17 @@ class MailToFilterView(MailView):
               error
     '''
     def get_everyone(self, request):
-        to_list = {}
+        to_list = []
         if not request.user.is_superuser:
             return to_list
         for user_object in User.objects.filter(
                 is_active=True).exclude(username="limbo").order_by('email'):
             if hasattr(user_object, 'profile') and len(
                     user_object.profile.display_name) > 0:
-                to_list[user_object.email] = \
-                            user_object.profile.display_name
+                to_list += [(user_object.email,
+                             user_object.profile.display_name)]
             else:
-                to_list[user_object.email] = \
-                            user_object.username
+                to_list += [(user_object.email, user_object.username)]
         return to_list
 
     def filter_everyone(self, request):
@@ -54,14 +53,13 @@ class MailToFilterView(MailView):
                 request,
                 'gbe/email/mail_to_bidders.tmpl',
                 {"selection_form": self.select_form})
-        email_form = self.setup_email_form(request)
+        email_form = self.setup_email_form(request, to_list)
 
         return render(
             request,
             'gbe/email/mail_to_bidders.tmpl',
             {"selection_form": self.select_form,
-             "email_forms": [email_form],
-             "to_list": to_list,
+             "email_form": email_form,
              "everyone": True})
 
     def get_select_forms(self):
@@ -88,7 +86,7 @@ class MailToFilterView(MailView):
         if 'send' in request.POST.keys():
             everyone = False
             recipient_info = None
-            to_list = {}
+            to_list = []
             if 'everyone' in request.POST.keys():
                 to_list = self.get_everyone(request)
                 everyone = True
@@ -100,8 +98,8 @@ class MailToFilterView(MailView):
                     return HttpResponseRedirect(self.url)
                 else:
                     context = {
-                        "email_forms": [mail_form] + [recipient_info],
-                        "to_list": to_list,
+                        "email_form": mail_form,
+                        "recipient_info": [recipient_info],
                         "everyone": everyone}
                     context.update(self.get_select_forms())
                     return render(

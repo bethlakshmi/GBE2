@@ -50,7 +50,7 @@ class VolunteerWizardView(EventWizardView):
                 staff_area_id = context['second_form'].cleaned_data[
                     'volunteer_topic'].split("staff_")[1]
                 return HttpResponseRedirect(
-                    "%s?start_open=False" % reverse(
+                    "%s?volunteer_open=True" % reverse(
                         'edit_staff',
                         urlconf='gbe.scheduling.urls',
                         args=[staff_area_id]))
@@ -59,7 +59,7 @@ class VolunteerWizardView(EventWizardView):
                 occurrence_id = context['second_form'].cleaned_data[
                     'volunteer_topic']
                 return HttpResponseRedirect(
-                    "%s?start_open=False" % reverse(
+                    "%s?volunteer_open=True" % reverse(
                         'edit_event',
                         urlconf='gbe.scheduling.urls',
                         args=[self.conference.conference_slug,

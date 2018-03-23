@@ -41,6 +41,7 @@ from gbe.scheduling.views.functions import (
 class EditEventView(ManageVolWizardView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
+    title = "Edit Event"
 
     def groundwork(self, request, args, kwargs):
         self.profile = validate_perms(request, self.permissions)
@@ -67,6 +68,13 @@ class EditEventView(ManageVolWizardView):
         self.item = get_object_or_404(
             Event,
             eventitem_id=self.occurrence.foreign_event_id).child()
+        if self.item.type == "Show" and "/edit/" in request.path:
+            return HttpResponseRedirect("%s?%s" % (
+                reverse('edit_show',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.conference.conference_slug,
+                              self.occurrence.pk]),
+                request.GET.urlencode()))
         self.manage_vol_url = reverse('manage_vol',
                                       urlconf='gbe.scheduling.urls',
                                       args=[kwargs['conference'],
@@ -131,15 +139,9 @@ class EditEventView(ManageVolWizardView):
         return validity
 
     def make_context(self, request, errorcontext=None):
-        context = {
-            'edit_title':  'Edit Event',
-            'start_open': request.GET.get('start_open', True),
-        }
-        if errorcontext is not None:
-            context = errorcontext
-        if request.GET.get('start_open',
-                           True) in ["False", "false", "F", "f", False]:
-            context['start_open'] = False
+        context = super(EditEventView,
+                        self).make_context(request, errorcontext)
+        context['edit_title'] = self.title
         duration = float(self.item.duration.total_minutes())/60
         initial_form_info = {
                 'duration': duration,
@@ -172,8 +174,7 @@ class EditEventView(ManageVolWizardView):
             volunteer_initial_info = initial_form_info.copy()
             volunteer_initial_info.pop('occurrence_id')
             volunteer_initial_info['duration'] = self.item.duration
-            context.update(super(EditEventView,
-                                 self).get_manage_opportunity_forms(
+            context.update(self.get_manage_opportunity_forms(
                 volunteer_initial_info,
                 self.manage_vol_url,
                 self.conference,
@@ -181,9 +182,12 @@ class EditEventView(ManageVolWizardView):
                 errorcontext=errorcontext,
                 occurrence_id=self.occurrence.pk))
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
 
-        return render(request, self.template, context)
+        return context
+
+    def is_manage_opps(self, path):
+        return "manage-opps" in path
 
     @never_cache
     @method_decorator(login_required)
@@ -191,13 +195,12 @@ class EditEventView(ManageVolWizardView):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
-
-        return self.make_context(request)
+        return render(request, self.template, self.make_context(request))
 
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        if "manage-opps" in request.path:
+        if self.is_manage_opps(request.path):
             return super(EditEventView, self).post(request, *args, **kwargs)
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
@@ -234,9 +237,9 @@ class EditEventView(ManageVolWizardView):
                     context['scheduling_form'].cleaned_data['day'].pk,
                     str([self.occurrence.pk]),)
             else:
-                self.success_url = request.path
+                self.success_url = "%s?volunteer_open=True" % self.success_url
         else:
-            context['edit_open'] = True
+            context['start_open'] = True
         return self.make_post_response(request,
                                        response=response,
                                        errorcontext=context)

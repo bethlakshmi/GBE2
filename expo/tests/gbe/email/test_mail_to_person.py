@@ -16,7 +16,7 @@ from gbetext import send_email_success_msg
 from django.contrib.auth.models import User
 
 
-class TestMailToBidder(TestCase):
+class TestMailToPerson(TestCase):
     view_name = 'mail_to_individual'
     priv_list = ['Registrar',
                  'Volunteer Coordinator',
@@ -65,7 +65,7 @@ class TestMailToBidder(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertContains(
             response,
-            'Recipient: %s &lt;%s&gt;' % (
+            '%s &lt;%s&gt;' % (
                 self.to_profile.display_name,
                 self.to_profile.user_object.email))
 
@@ -86,7 +86,7 @@ class TestMailToBidder(TestCase):
             response = self.client.get(self.url, follow=True)
             self.assertContains(
                 response,
-                'Recipient: %s &lt;%s&gt;' % (
+                '%s &lt;%s&gt;' % (
                     self.to_profile.display_name,
                     self.to_profile.user_object.email))
 
@@ -109,6 +109,7 @@ class TestMailToBidder(TestCase):
     def test_send_email_success_status(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': self.to_profile.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -116,14 +117,14 @@ class TestMailToBidder(TestCase):
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), " % (
+            response, 'success', 'Success', "%s%s" % (
                 send_email_success_msg,
-                self.to_profile.display_name,
                 self.to_profile.user_object.email))
 
     def test_send_email_success_email_sent(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': self.to_profile.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -140,6 +141,7 @@ class TestMailToBidder(TestCase):
     def test_send_email_reduced_w_fixed_from(self):
         reduced_profile = self.reduced_login()
         data = {
+            'to': self.to_profile.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",

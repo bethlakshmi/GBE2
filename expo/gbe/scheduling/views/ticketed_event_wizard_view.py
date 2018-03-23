@@ -128,9 +128,11 @@ class TicketedEventWizardView(EventWizardView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
+        more_view = "edit_event"
         context = self.groundwork(request, args, kwargs)
         if self.event_type == "show":
             context['second_form'] = ShowBookingForm(request.POST)
+            more_view = "edit_show"
         else:
             context['second_form'] = GenericBookingForm(request.POST)
         context['scheduling_form'] = ScheduleOccurrenceForm(
@@ -162,10 +164,10 @@ class TicketedEventWizardView(EventWizardView):
                 context['scheduling_form'].cleaned_data['day'].pk)
             if success:
                 if request.POST.get(
-                        'set_event') == 'Continue to Volunteer Opportunities':
+                        'set_event') == 'More...':
                     return HttpResponseRedirect(
-                        "%s?start_open=False" %
-                        reverse('edit_event',
+                        "%s?volunteer_open=True&rehearsal_open=True" %
+                        reverse(more_view,
                                 urlconf='gbe.scheduling.urls',
                                 args=[self.conference.conference_slug,
                                       response.occurrence.pk]))

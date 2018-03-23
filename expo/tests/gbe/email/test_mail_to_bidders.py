@@ -321,6 +321,7 @@ class TestMailToBidder(TestCase):
     def test_send_email_success_status(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': self.context.teacher.contact.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -331,14 +332,14 @@ class TestMailToBidder(TestCase):
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), " % (
+            response, 'success', 'Success', "%s%s" % (
                 send_email_success_msg,
-                self.context.teacher.contact.display_name,
                 self.context.teacher.contact.user_object.email))
 
     def test_send_email_success_email_sent(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': self.context.teacher.contact.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -359,6 +360,7 @@ class TestMailToBidder(TestCase):
         reduced_profile = self.reduced_login()
         second_bid = ActFactory(submitted=True)
         data = {
+            'to': second_bid.performer.contact.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -380,6 +382,7 @@ class TestMailToBidder(TestCase):
         reduced_profile = self.reduced_login()
         second_bid = ActFactory()
         data = {
+            'to': second_bid.performer.contact.user_object.email,
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -395,6 +398,29 @@ class TestMailToBidder(TestCase):
             'Select a valid choice. Class is not one of the available choices.'
             )
 
+    def test_send_email_reduced_to_list_no_hack(self):
+        reduced_profile = self.reduced_login()
+        second_bid = ActFactory(submitted=True)
+        random = ProfileFactory()
+        data = {
+            'to': [second_bid.performer.contact.user_object.email,
+                   random.user_object.email],
+            'sender': "sender@admintest.com",
+            'subject': "Subject",
+            'html_message': "<p>Test Message</p>",
+            'email-select-conference': [self.context.conference.pk,
+                                        second_bid.b_conference.pk],
+            'email-select-bid_type': ['Act'],
+            'email-select-state': [0, 1, 2, 3, 4, 5],
+            'send': True
+        }
+        response = self.client.post(self.url, data=data, follow=True)
+        self.assertContains(
+            response,
+            'Select a valid choice. %s is %s' % (
+                random.user_object.email,
+                'not one of the available choices.'))
+
     def test_send_email_failure(self):
         login_as(self.privileged_profile, self)
         data = {
@@ -406,11 +432,12 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
-        self.assertContains(response, "This field is required.")
+        self.assertContains(response, "This field is required.", 2)
 
     def test_send_email_failure_preserve_to_list(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': self.context.teacher.contact.user_object.email,
             'sender': "sender@admintest.com",
             'html_message': "<p>Test Message</p>",
             'email-select-conference': [self.context.conference.pk],
@@ -419,11 +446,12 @@ class TestMailToBidder(TestCase):
             'send': True
         }
         response = self.client.post(self.url, data=data, follow=True)
+        to_string = '<input checked="checked" id="id_to_0" name="to" ' + \
+            'type="checkbox" value="%s" />%s'
         self.assertContains(
             response,
-            "%s &lt;%s&gt;;" % (
-                self.context.teacher.contact.display_name,
-                self.context.teacher.contact.user_object.email))
+            to_string % (self.context.teacher.contact.user_object.email,
+                         self.context.teacher.contact.display_name))
 
     def test_send_email_failure_preserve_conference_choice(self):
         login_as(self.privileged_profile, self)
@@ -492,6 +520,8 @@ class TestMailToBidder(TestCase):
     def test_send_everyone_success_email_sent(self):
         login_as(self.privileged_profile, self)
         data = {
+            'to': User.objects.exclude(
+                username="limbo").values_list('email', flat=True),
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -527,6 +557,8 @@ class TestMailToBidder(TestCase):
             'secondsuper', 'secondsuper@test.com', "mypassword")
         login_as(self.privileged_profile, self)
         data = {
+            'to': [self.privileged_profile.user_object.email,
+                   second_super.email],
             'sender': "sender@admintest.com",
             'subject': "Subject",
             'html_message': "<p>Test Message</p>",
@@ -535,9 +567,7 @@ class TestMailToBidder(TestCase):
         }
         response = self.client.post(self.url, data=data, follow=True)
         assert_alert_exists(
-            response, 'success', 'Success', "%s%s (%s), %s (%s), " % (
+            response, 'success', 'Success', "%s%s, %s" % (
                 send_email_success_msg,
-                self.privileged_profile.display_name,
                 self.privileged_profile.user_object.email,
-                second_super.username,
                 second_super.email))

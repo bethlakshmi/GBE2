@@ -516,3 +516,6 @@ schedule items.  These schedule items have not been deleted, and will remain \
 on the calendar.'''
 no_conf_day_msg = '''The target conference has not been properly configured. \
 Specify the days for this conference before proceeding.'''
+rehearsal_delete_msg = '''This rehearsal slot was deleted.  If any acts were \
+booked for this slot, they will be warned on their account page to fine a new \
+slot.'''

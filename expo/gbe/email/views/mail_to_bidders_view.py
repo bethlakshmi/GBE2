@@ -17,6 +17,7 @@ from gbe.email.forms import (
 from gbe.email.views import MailToFilterView
 from gbetext import to_list_empty_msg
 from django.db.models import Q
+from operator import itemgetter
 
 
 class MailToBiddersView(MailToFilterView):
@@ -52,7 +53,7 @@ class MailToBiddersView(MailToFilterView):
         self.select_form.fields['bid_type'].choices = self.bid_type_choices
 
     def get_to_list(self):
-        to_list = {}
+        to_list = []
         bid_types = self.select_form.cleaned_data['bid_type']
         query = Q(b_conference__in=self.select_form.cleaned_data['conference'])
 
@@ -71,15 +72,18 @@ class MailToBiddersView(MailToFilterView):
 
         for bid_type in bid_types:
             for bid in eval(bid_type).objects.filter(query):
-                if bid.profile.user_object.is_active:
-                    to_list[bid.profile.user_object.email] = \
-                        bid.profile.display_name
+                bidder = (bid.profile.user_object.email,
+                          bid.profile.display_name)
+                if bid.profile.user_object.is_active and bidder not in to_list:
+                    to_list += [bidder]
             if draft:
                 for bid in eval(bid_type).objects.filter(draft_query):
-                    if bid.profile.user_object.is_active:
-                        to_list[bid.profile.user_object.email] = \
-                            bid.profile.display_name
-        return to_list
+                    bidder = (bid.profile.user_object.email,
+                              bid.profile.display_name)
+                    if bid.profile.user_object.is_active and (
+                            bidder not in to_list):
+                        to_list += [bidder]
+        return sorted(to_list, key=lambda s: s[1].lower())
 
     def prep_email_form(self, request):
         to_list = self.get_to_list()
@@ -105,7 +109,7 @@ class MailToBiddersView(MailToFilterView):
                 request,
                 self.template,
                 {"selection_form": self.select_form})
-        email_form = self.setup_email_form(request)
+        email_form = self.setup_email_form(request, to_list)
         recipient_info = SecretBidderInfoForm(request.POST,
                                               prefix="email-select")
         recipient_info.fields['bid_type'].choices = self.bid_type_choices
@@ -114,5 +118,5 @@ class MailToBiddersView(MailToFilterView):
             request,
             self.template,
             {"selection_form": self.select_form,
-             "email_forms": [email_form, recipient_info],
-             "to_list": to_list, })
+             "email_form": email_form,
+             "recipient_info": [recipient_info]})

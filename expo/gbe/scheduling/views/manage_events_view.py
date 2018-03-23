@@ -15,10 +15,6 @@ from expo.settings import (
     TIME_FORMAT,
     URL_DATE,
 )
-from datetime import (
-    datetime,
-    timedelta,
-)
 from gbe.models import (
     AvailableInterest,
     ConferenceDay,
@@ -38,7 +34,6 @@ from gbe.scheduling.forms import (
     HiddenSelectEventForm,
     SelectEventForm,
 )
-from datetime import datetime
 from gbetext import calendar_type as calendar_type_options
 
 

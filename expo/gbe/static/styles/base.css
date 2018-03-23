@@ -1062,12 +1062,16 @@ td.form_field.long_choice > ul > li
   color: black;
 }
 
-input#id_max_volunteer, input#id_new_opp-max_volunteer
+input#id_max_volunteer, input#id_new_opp-max_volunteer, input#id_new_slot-max_volunteer
+{
+  width: 40px
+}
+input#id_current_acts, input#id_new_slot-current_acts
 {
   width: 40px
 }
 
-input#id_duration, input#id_new_opp-duration
+input#id_duration, input#id_new_opp-duration, input#id_new_slot-duration
 {
   width: 70px
 }

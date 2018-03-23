@@ -167,7 +167,7 @@ class TestEditStaffAreaView(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            self.url)
+            "%s?volunteer_open=True" % self.url)
         assert_alert_exists(
             response,
             'success',
