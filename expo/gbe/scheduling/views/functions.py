@@ -1,12 +1,20 @@
 import pytz
 from datetime import datetime, time
+from gbe.functions import (
+    validate_perms
+)
+from django.shortcuts import (
+    get_object_or_404,
+)
 from scheduler.data_transfer import Person
 from scheduler.idd import (
     get_bookings,
+    get_occurrence,
     get_occurrences,
 )
 from django.contrib import messages
 from gbe.models import (
+    Conference,
     Event,
     Performer,
     Profile,
@@ -198,3 +206,36 @@ def get_event_display_info(eventitem_id):
                       'people': people,
                       }
     return eventitem_view
+
+#
+#  EDIT EVENT FUNCTIONS
+#
+#  Common code between edit_event and edit_volunteer - I don't want to try
+#  multiple inheritance so this is my way to avoid replicating code
+#
+def shared_groundwork(request, kwargs, permissions):
+    conference = None
+    occurrence_id = None
+    occurrence = None
+    item = None
+    profile = validate_perms(request, permissions)
+    if "conference" in kwargs:
+        conference = get_object_or_404(
+            Conference,
+            conference_slug=kwargs['conference'])
+
+    if "occurrence_id" in kwargs:
+        occurrence_id = int(kwargs['occurrence_id'])
+        result = get_occurrence(occurrence_id)
+        if result.errors and len(result.errors) > 0:
+            show_scheduling_occurrence_status(
+                    request,
+                    result,
+                    "EditEventView")
+            return None
+        else:
+            occurrence = result.occurrence
+        item = get_object_or_404(
+            Event,
+            eventitem_id=occurrence.foreign_event_id).child()
+    return (profile, occurrence, item)

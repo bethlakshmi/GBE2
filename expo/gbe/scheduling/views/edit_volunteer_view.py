@@ -1,4 +1,4 @@
-from gbe.scheduling.views import ManageVolWizardView
+from gbe.scheduling.views import ManageWorkerView
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -39,7 +39,7 @@ from gbe.scheduling.views.functions import (
 )
 
 
-class EditEventView(ManageVolWizardView):
+class EditVolunteerView(ManageWorkerView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
     title = "Edit Event"
@@ -53,22 +53,20 @@ class EditEventView(ManageVolWizardView):
             return HttpResponseRedirect(error_url)
         else:
             (self.profile, self.occurrence, self.item) = groundwork_data
-            self.conference = self.item.e_conference
-            
         if self.item.type == "Show" and "/edit/" in request.path:
             return HttpResponseRedirect("%s?%s" % (
                 reverse('edit_show',
                         urlconf='gbe.scheduling.urls',
-                        args=[self.conference.conference_slug,
+                        args=[self.item.e_conference.conference_slug,
                               self.occurrence.pk]),
                 request.GET.urlencode()))
         self.manage_vol_url = reverse('manage_vol',
                                       urlconf='gbe.scheduling.urls',
-                                      args=[self.conference.conference_slug,
-                                            self.occurrence.pk])
+                                      args=[kwargs['conference'],
+                                            kwargs['occurrence_id']])
         self.success_url = reverse('edit_event',
                                    urlconf='gbe.scheduling.urls',
-                                   args=[self.conference.conference_slug,
+                                   args=[self.item.e_conference.conference_slug,
                                          self.occurrence.pk])
 
     def make_formset(self, roles, post=None):
