@@ -19,10 +19,7 @@ from gbe.scheduling.forms import (
     ScheduleOccurrenceForm,
 )
 from gbe.duration import Duration
-from gbe.functions import (
-    get_conference_day,
-    validate_perms
-)
+from gbe.functions import validate_perms
 from gbe_forms_text import (
     role_map,
     event_settings,
@@ -34,6 +31,7 @@ from scheduler.idd import (
 from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
     get_start_time,
+    setup_event_management_form,
     show_scheduling_occurrence_status,
     shared_groundwork,
 )
@@ -42,7 +40,7 @@ from gbe.scheduling.views.functions import (
 class EditVolunteerView(ManageWorkerView):
     template = 'gbe/scheduling/edit_event.tmpl'
     permissions = ('Scheduling Mavens',)
-    title = "Edit Event"
+    title = "Edit Volunteer Opportunity"
 
     def groundwork(self, request, args, kwargs):
         groundwork_data = shared_groundwork(request, kwargs, self.permissions)
@@ -100,32 +98,16 @@ class EditVolunteerView(ManageWorkerView):
     def make_context(self, request, errorcontext=None):
         context = super(EditVolunteerView,
                         self).make_context(request, errorcontext)
+        context, initial_form_info = setup_event_management_form(
+            self.item.e_conference,
+            self.item,
+            self.occurrence,
+            context)
         context['edit_title'] = self.title
-        duration = float(self.item.duration.total_minutes())/60
-        initial_form_info = {
-                'duration': duration,
-                'max_volunteer': self.occurrence.max_volunteer,
-                'day': get_conference_day(
-                    conference=self.conference,
-                    date=self.occurrence.starttime.date()),
-                'time': self.occurrence.starttime.strftime("%H:%M:%S"),
-                'location': self.occurrence.location,
-                'occurrence_id': self.occurrence.pk, }
-        context['event_id'] = self.occurrence.pk
-        context['eventitem_id'] = self.item.eventitem_id
-
-        # if there was an error in the edit form
-        if 'event_form' not in context:
-            context['event_form'] = EventBookingForm(
-                    instance=self.item)
-        if 'scheduling_form' not in context:
-            context['scheduling_form'] = ScheduleOccurrenceForm(
-                conference=self.conference,
-                open_to_public=True,
-                initial=initial_form_info)
 
         if validate_perms(request,
-                          ('Volunteer Coordinator',), require=False):
+                          ('Volunteer Coordinator',),
+                          require=False):
             volunteer_initial_info = initial_form_info.copy()
             volunteer_initial_info.pop('occurrence_id')
             volunteer_initial_info['duration'] = self.item.duration
