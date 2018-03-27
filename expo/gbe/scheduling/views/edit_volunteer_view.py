@@ -53,48 +53,22 @@ class EditVolunteerView(ManageWorkerView):
             return HttpResponseRedirect(error_url)
         else:
             (self.profile, self.occurrence, self.item) = groundwork_data
-        if self.item.type == "Show" and "/edit/" in request.path:
+            self.conference = self.item.e_conference
+        if self.item.type != "Volunteer":
             return HttpResponseRedirect("%s?%s" % (
-                reverse('edit_show',
+                reverse('edit_event',
                         urlconf='gbe.scheduling.urls',
                         args=[self.item.e_conference.conference_slug,
                               self.occurrence.pk]),
                 request.GET.urlencode()))
-        self.manage_vol_url = reverse('manage_vol',
-                                      urlconf='gbe.scheduling.urls',
-                                      args=[kwargs['conference'],
-                                            kwargs['occurrence_id']])
-        self.success_url = reverse('edit_event',
+        self.manage_worker_url = reverse('manage_workers',
+                                         urlconf='gbe.scheduling.urls',
+                                         args=[self.item.e_conference.conference_slug,
+                                               self.occurrence.pk])
+        self.success_url = reverse('edit_volunteer',
                                    urlconf='gbe.scheduling.urls',
                                    args=[self.item.e_conference.conference_slug,
                                          self.occurrence.pk])
-
-    def make_formset(self, roles, post=None):
-        formset = []
-        n = 0
-        for booking in self.occurrence.people:
-            if booking.role in role_map:
-                formset += [PersonAllocationForm(
-                    post,
-                    label_visible=False,
-                    role_options=[(booking.role, booking.role), ],
-                    use_personas=role_map[booking.role],
-                    initial={
-                        'role': booking.role,
-                        'worker': booking.public_id,
-                    },
-                    prefix="alloc_%d" % n)]
-                n = n + 1
-        for role in roles:
-            formset += [PersonAllocationForm(
-                post,
-                label_visible=False,
-                role_options=[(role, role), ],
-                use_personas=role_map[role],
-                initial={'role': role},
-                prefix="alloc_%d" % n), ]
-            n = n + 1
-        return formset
 
     def update_event(self, scheduling_form, people_formset, working_class):
         room = get_object_or_404(
@@ -124,7 +98,7 @@ class EditVolunteerView(ManageWorkerView):
         return validity
 
     def make_context(self, request, errorcontext=None):
-        context = super(EditEventView,
+        context = super(EditVolunteerView,
                         self).make_context(request, errorcontext)
         context['edit_title'] = self.title
         duration = float(self.item.duration.total_minutes())/60
@@ -150,10 +124,6 @@ class EditVolunteerView(ManageWorkerView):
                 open_to_public=True,
                 initial=initial_form_info)
 
-        if 'worker_formset' not in context:
-            context['worker_formset'] = self.make_formset(
-                event_settings[self.item.type.lower()]['roles'])
-
         if validate_perms(request,
                           ('Volunteer Coordinator',), require=False):
             volunteer_initial_info = initial_form_info.copy()
@@ -161,7 +131,7 @@ class EditVolunteerView(ManageWorkerView):
             volunteer_initial_info['duration'] = self.item.duration
             context.update(self.get_manage_opportunity_forms(
                 volunteer_initial_info,
-                self.manage_vol_url,
+                self.manage_worker_url,
                 self.conference,
                 request,
                 errorcontext=errorcontext,
@@ -186,7 +156,7 @@ class EditVolunteerView(ManageWorkerView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         if self.is_manage_opps(request.path):
-            return super(EditEventView, self).post(request, *args, **kwargs)
+            return super(EditVolunteerView, self).post(request, *args, **kwargs)
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
@@ -198,9 +168,6 @@ class EditVolunteerView(ManageWorkerView):
             request.POST,
             conference=self.conference,
             open_to_public=True,)
-        context['worker_formset'] = self.make_formset(
-            event_settings[self.item.type.lower()]['roles'],
-            post=request.POST)
 
         if context['event_form'].is_valid(
                 ) and context['scheduling_form'].is_valid(
