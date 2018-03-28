@@ -78,32 +78,28 @@ event_settings = {
         'event_type': 'Conference Class',
         'second_title': 'Make New Class',
         'volunteer_scheduling': False,
-        'roles': [
-            ['Moderator', 'Panelist', 'Panelist', 'Panelist', 'Panelist']],
+        'roles': ['Moderator', 'Panelist', 'Panelist', 'Panelist', 'Panelist'],
         'max_volunteer': 0,
     },
     'lecture': {
         'event_type': 'Conference Class',
         'second_title': 'Make New Class',
         'volunteer_scheduling': False,
-        'roles': [
-            ['Teacher', 'Teacher', 'Teacher']],
+        'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
     },
     'movement': {
         'event_type': 'Conference Class',
         'second_title': 'Make New Class',
         'volunteer_scheduling': False,
-        'roles': [
-            ['Teacher', 'Teacher', 'Teacher']],
+        'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
     },
     'workshop': {
         'event_type': 'Conference Class',
         'second_title': 'Make New Class',
         'volunteer_scheduling': False,
-        'roles': [
-            ['Teacher', 'Teacher', 'Teacher']],
+        'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
     },
 }

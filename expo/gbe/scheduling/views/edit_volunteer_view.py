@@ -108,16 +108,9 @@ class EditVolunteerView(ManageWorkerView):
         if validate_perms(request,
                           ('Volunteer Coordinator',),
                           require=False):
-            volunteer_initial_info = initial_form_info.copy()
-            volunteer_initial_info.pop('occurrence_id')
-            volunteer_initial_info['duration'] = self.item.duration
-            context.update(self.get_manage_opportunity_forms(
-                volunteer_initial_info,
-                self.manage_worker_url,
-                self.conference,
-                request,
-                errorcontext=errorcontext,
-                occurrence_id=self.occurrence.pk))
+            context.update(self.get_worker_allocation_forms(
+                errorcontext=errorcontext))
+            context.update(self.get_volunteer_info())
         else:
             context['start_open'] = True
 
