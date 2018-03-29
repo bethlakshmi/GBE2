@@ -299,6 +299,7 @@ def process_post_response(request,
                           slug,
                           item,
                           start_success_url,
+                          next_step,
                           occurrence_id,
                           additional_validity=True,
                           people_forms=[]):
@@ -332,7 +333,7 @@ def process_post_response(request,
                 context['scheduling_form'].cleaned_data['day'].pk,
                 str([occurrence_id]),)
         else:
-            success_url = "%s?volunteer_open=True" % success_url
+            success_url = "%s?%s=True" % (success_url, next_step)
     else:
         context['start_open'] = True
     return context, success_url, response
