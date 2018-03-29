@@ -30,10 +30,10 @@ from scheduler.idd import (
 )
 from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
-    get_start_time,
     setup_event_management_form,
     show_scheduling_occurrence_status,
     shared_groundwork,
+    update_event,
 )
 
 
@@ -68,27 +68,6 @@ class EditVolunteerView(ManageWorkerView):
                                    args=[self.item.e_conference.conference_slug,
                                          self.occurrence.pk])
 
-    def update_event(self, scheduling_form, people_formset, working_class):
-        room = get_object_or_404(
-            Room,
-            name=scheduling_form.cleaned_data['location'])
-        start_time = get_start_time(scheduling_form.cleaned_data)
-        people = []
-        for assignment in people_formset:
-            if assignment.is_valid() and assignment.cleaned_data['worker']:
-                people += [Person(
-                    user=assignment.cleaned_data[
-                        'worker'].workeritem.as_subtype.user_object,
-                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
-                    role=assignment.cleaned_data['role'])]
-        response = update_occurrence(
-                self.occurrence.pk,
-                start_time,
-                scheduling_form.cleaned_data['max_volunteer'],
-                people=people,
-                locations=[room])
-        return response
-
     def is_formset_valid(self, formset):
         validity = False
         for form in formset:
@@ -116,9 +95,6 @@ class EditVolunteerView(ManageWorkerView):
 
         return context
 
-    def is_manage_opps(self, path):
-        return "manage-opps" in path
-
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
@@ -130,7 +106,7 @@ class EditVolunteerView(ManageWorkerView):
     @never_cache
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        if self.is_manage_opps(request.path):
+        if "manage-workers" in request.path:
             return super(EditVolunteerView, self).post(request, *args, **kwargs)
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
@@ -145,16 +121,14 @@ class EditVolunteerView(ManageWorkerView):
             open_to_public=True,)
 
         if context['event_form'].is_valid(
-                ) and context['scheduling_form'].is_valid(
-                ) and self.is_formset_valid(context['worker_formset']):
+                ) and context['scheduling_form'].is_valid():
             new_event = context['event_form'].save(commit=False)
             new_event.duration = Duration(
                 minutes=context['scheduling_form'].cleaned_data[
                     'duration']*60)
             new_event.save()
-            response = self.update_event(context['scheduling_form'],
-                                         context['worker_formset'],
-                                         new_event)
+            response = update_event(context['scheduling_form'],
+                                    self.occurrence.pk)
             if request.POST.get('edit_event', 0) != "Save and Continue":
                 self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
                     reverse('manage_event_list',
