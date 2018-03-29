@@ -7,6 +7,7 @@ from gbe.functions import (
 from django.shortcuts import (
     get_object_or_404,
 )
+from gbe.duration import Duration
 from gbe.scheduling.forms import (
     EventBookingForm,
     ScheduleOccurrenceForm,
@@ -30,6 +31,7 @@ from gbe.models import (
 from expo.settings import DATETIME_FORMAT
 from django.http import Http404
 from gbetext import event_labels
+from gbe_forms_text import event_settings
 
 
 def get_single_role(data, roles=None):
@@ -291,3 +293,45 @@ def update_event(scheduling_form, occurrence_id, people_formset=[]):
         people=people,
         locations=[room])
     return response
+
+def process_post_response(request,
+                          slug,
+                          item,
+                          start_success_url,
+                          occurrence_id,
+                          additional_validity=True,
+                          people_forms=[]):
+    success_url = start_success_url
+    context = {}
+    response = None
+    context['event_form'] = EventBookingForm(request.POST,
+                                             instance=item)
+    context['scheduling_form'] = ScheduleOccurrenceForm(
+        request.POST,
+        conference=item.e_conference,
+        open_to_public=event_settings[item.type.lower()]['open_to_public'])
+
+    if context['event_form'].is_valid(
+            ) and context['scheduling_form'].is_valid(
+            ) and additional_validity:
+        new_event = context['event_form'].save(commit=False)
+        new_event.duration = Duration(
+            minutes=context['scheduling_form'].cleaned_data[
+                'duration']*60)
+        new_event.save()
+        response = update_event(context['scheduling_form'],
+                                occurrence_id,
+                                people_forms)
+        if request.POST.get('edit_event', 0) != "Save and Continue":
+            success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
+                reverse('manage_event_list',
+                        urlconf='gbe.scheduling.urls',
+                        args=[slug]),
+                slug,
+                context['scheduling_form'].cleaned_data['day'].pk,
+                str([occurrence_id]),)
+        else:
+            success_url = "%s?volunteer_open=True" % success_url
+    else:
+        context['start_open'] = True
+    return context, success_url, response

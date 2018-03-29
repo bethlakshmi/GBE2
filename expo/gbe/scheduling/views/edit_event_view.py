@@ -13,20 +13,15 @@ from gbe.models import (
     Event,
     Room,
 )
-from gbe.scheduling.forms import (
-    EventBookingForm,
-    PersonAllocationForm,
-    ScheduleOccurrenceForm,
-)
-from gbe.duration import Duration
+from gbe.scheduling.forms import PersonAllocationForm
 from gbe.functions import validate_perms
 from gbe_forms_text import (
     role_map,
     event_settings,
 )
 from scheduler.idd import get_occurrence
-from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
+    process_post_response,
     setup_event_management_form,
     show_scheduling_occurrence_status,
     shared_groundwork,
@@ -157,41 +152,18 @@ class EditEventView(ManageVolWizardView):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
-        context = {}
-        response = None
-        context['event_form'] = EventBookingForm(request.POST,
-                                                 instance=self.item)
-        context['scheduling_form'] = ScheduleOccurrenceForm(
-            request.POST,
-            conference=self.conference,
-            open_to_public=True,)
-        context['worker_formset'] = self.make_formset(
+        worker_formset = self.make_formset(
             event_settings[self.item.type.lower()]['roles'],
             post=request.POST)
-
-        if context['event_form'].is_valid(
-                ) and context['scheduling_form'].is_valid(
-                ) and self.is_formset_valid(context['worker_formset']):
-            new_event = context['event_form'].save(commit=False)
-            new_event.duration = Duration(
-                minutes=context['scheduling_form'].cleaned_data[
-                    'duration']*60)
-            new_event.save()
-            response = update_event(context['scheduling_form'],
-                                    self.occurrence.pk,
-                                    context['worker_formset'])
-            if request.POST.get('edit_event', 0) != "Save and Continue":
-                self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
-                    reverse('manage_event_list',
-                            urlconf='gbe.scheduling.urls',
-                            args=[self.conference.conference_slug]),
-                    self.conference.conference_slug,
-                    context['scheduling_form'].cleaned_data['day'].pk,
-                    str([self.occurrence.pk]),)
-            else:
-                self.success_url = "%s?volunteer_open=True" % self.success_url
-        else:
-            context['start_open'] = True
+        context, self.success_url, response = process_post_response(
+            request,
+            self.conference.conference_slug,
+            self.item,
+            self.success_url,
+            self.occurrence.pk,
+            self.is_formset_valid(worker_formset),
+            worker_formset)
+        context['worker_formset'] = worker_formset
         return self.make_post_response(request,
                                        response=response,
                                        errorcontext=context)
