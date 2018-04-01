@@ -163,7 +163,9 @@ class ManageWorkerView(View):
                     self.success_url,
                     response.booking_id)
                 return HttpResponseRedirect(self.success_url)
-        return self.make_context(request, errorcontext)
+        return render(request,
+                      self.template,
+                      self.make_context(request, errorcontext))
 
     @never_cache
     @method_decorator(login_required)
