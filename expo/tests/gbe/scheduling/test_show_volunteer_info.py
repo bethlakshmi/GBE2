@@ -19,19 +19,17 @@ from tests.contexts import (
 )
 from gbe.models import AvailableInterest
 
+
 '''
 #
-#  This is a spin off of edit event, or manage volunteer opportunities.
+#  This is a spin off of edit volunteers.
 #    It's the testing for the case of presenting eligible volunteers on an
 #    event that is a volunteer opportunity.  Not testing the basics, as they
 #    are covered elsewhere (ie, privileges and basic bad data)
 #
 '''
-
-
 class TestShowVolunteers(TestCase):
-    view_name = 'edit_event_schedule'
-
+    view_name = 'edit_volunteer'
     def setUp(self):
         self.client = Client()
         self.user = ProfileFactory.create().user_object
@@ -42,8 +40,7 @@ class TestShowVolunteers(TestCase):
         self.context = VolunteerContext()
         self.url = reverse(
             self.view_name,
-            args=["GenericEvent",
-                  self.context.opp_event.eventitem.eventitem_id,
+            args=[self.context.conference.conference_slug,
                   self.context.opp_event.pk],
             urlconf="gbe.scheduling.urls")
 
@@ -56,8 +53,7 @@ class TestShowVolunteers(TestCase):
         response = self.client.get(
             reverse(
                 self.view_name,
-                args=["GenericEvent",
-                      volunteer_opp.eventitem.eventitem_id,
+                args=[context.conference.conference_slug,
                       volunteer_opp.pk],
                 urlconf="gbe.scheduling.urls"),
             follow=True)
@@ -66,7 +62,6 @@ class TestShowVolunteers(TestCase):
     def test_volunteer_has_conflict(self):
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        print response.content
         assert ("no available volunteers" not in response.content)
         assert_link(response, self.url)
 

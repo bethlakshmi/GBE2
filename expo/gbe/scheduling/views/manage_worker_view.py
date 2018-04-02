@@ -153,16 +153,15 @@ class ManageWorkerView(View):
                            request,
                            response=None,
                            errorcontext=None):
-        if response:
+        if response and hasattr(response, 'booking_id'):
             show_scheduling_booking_status(
                 request,
                 response,
                 self.__class__.__name__)
-            if response.booking_id:
-                self.success_url = "%s?changed_id=%d" % (
-                    self.success_url,
-                    response.booking_id)
-                return HttpResponseRedirect(self.success_url)
+            self.success_url = "%s?worker_open=True&changed_id=%d" % (
+                self.success_url,
+                response.booking_id)
+            return HttpResponseRedirect(self.success_url)
         return render(request,
                       self.template,
                       self.make_context(request, errorcontext))

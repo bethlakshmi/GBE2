@@ -70,6 +70,19 @@ class EditVolunteerView(ManageWorkerView):
 
         return context
 
+    def make_post_response(self,
+                           request,
+                           response=None,
+                           errorcontext=None):
+        if response and hasattr(response, 'occurrence'):
+            show_scheduling_occurrence_status(
+                request,
+                response,
+                self.__class__.__name__)
+            return HttpResponseRedirect(self.success_url)
+        return super(EditVolunteerView,
+                     self).make_post_response(request, response, errorcontext)
+
     @never_cache
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
