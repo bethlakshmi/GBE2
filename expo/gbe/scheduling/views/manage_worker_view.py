@@ -158,9 +158,11 @@ class ManageWorkerView(View):
                 request,
                 response,
                 self.__class__.__name__)
-            self.success_url = "%s?worker_open=True&changed_id=%d" % (
-                self.success_url,
-                response.booking_id)
+            self.success_url = "%s?worker_open=True" % self.success_url
+            if response.booking_id:
+                self.success_url = "%s&changed_id=%d" % (
+                    self.success_url,
+                    response.booking_id)
             return HttpResponseRedirect(self.success_url)
         return render(request,
                       self.template,
