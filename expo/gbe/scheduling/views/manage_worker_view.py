@@ -125,14 +125,13 @@ class ManageWorkerView(View):
                         interest=self.occurrence.as_subtype.volunteer_type
                         ).exists():
                 rank = volunteer.volunteerinterest_set.get(
-                        interest=self.occurrence.as_subtype.volunteer_type).rank
+                    interest=self.occurrence.as_subtype.volunteer_type).rank
             else:
                 rank = 0
             conflict_response = get_conflicts(
                 self.occurrence,
                 volunteer.profile.user_object,
                 labels=[self.conference.conference_slug])
-            
             conflicts = None
             if hasattr(conflict_response, 'occurrences'):
                 conflicts = conflict_response.occurrences
