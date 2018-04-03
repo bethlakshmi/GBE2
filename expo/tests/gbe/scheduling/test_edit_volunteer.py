@@ -5,12 +5,8 @@ from django.core.urlresolvers import reverse
 from tests.factories.gbe_factories import (
     ConferenceDayFactory,
     GenericEventFactory,
+    PersonaFactory,
     ProfileFactory,
-    RoomFactory,
-)
-from scheduler.models import Event
-from gbe.models import (
-    GenericEvent,
 )
 from tests.functions.gbe_functions import (
     assert_alert_exists,
@@ -18,17 +14,18 @@ from tests.functions.gbe_functions import (
     login_as,
 )
 from tests.functions.gbe_scheduling_functions import (
-    assert_event_was_picked_in_wizard,
     assert_good_sched_event_form_wizard,
-    assert_role_choice,
 )
 from expo.settings import DATE_FORMAT
-from tests.contexts import VolunteerContext
+from tests.contexts import (
+    StaffAreaContext,
+    VolunteerContext,
+)
 from gbe.duration import Duration
 from datetime import timedelta
 
 
-class TestEditVolunteerView(TestCase):
+class TestEditVolunteer(TestCase):
     view_name = 'edit_volunteer'
 
     def setUp(self):
@@ -64,6 +61,22 @@ class TestEditVolunteerView(TestCase):
             'set_event': 'Any value',
         }
         return data
+
+    def test_not_volunteer_redirect(self):
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.conference.conference_slug,
+                  self.context.sched_event.pk],
+            urlconf='gbe.scheduling.urls')
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url, follow=True)
+        self.assertRedirects(
+            response,
+            reverse('edit_event',
+                    urlconf='gbe.scheduling.urls',
+                    args=[self.context.conference.conference_slug,
+                          self.context.sched_event.pk]))
 
     def test_authorized_user_can_access_event(self):
         login_as(self.privileged_user, self)
@@ -217,3 +230,33 @@ class TestEditVolunteerView(TestCase):
         self.assertContains(
             response,
             "Occurrence id %d not found" % (self.context.opp_event.pk+1000))
+
+    def test_good_user_get_volunteer_w_teacher_as_persona(self):
+        grant_privilege(self.privileged_user, 'Volunteer Coordinator')
+        login_as(self.privileged_user, self)
+        staff_context = StaffAreaContext()
+        volunteer_sched_event = staff_context.add_volunteer_opp()
+        teacher = PersonaFactory()
+        teacher, alloc = staff_context.book_volunteer(
+            volunteer_sched_event=volunteer_sched_event,
+            volunteer=teacher,
+            role="Teacher")
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=[staff_context.conference.conference_slug,
+                            volunteer_sched_event.pk])
+        response = self.client.get(url)
+
+    def test_inactive_user_not_listed(self):
+        staff_context = StaffAreaContext()
+        volunteer_sched_event = staff_context.add_volunteer_opp()
+        inactive_persona = PersonaFactory(
+            contact__user_object__is_active=False)
+        login_as(self.privileged_user, self)
+        url = reverse(self.view_name,
+                      urlconf="gbe.scheduling.urls",
+                      args=[staff_context.conference.conference_slug,
+                            volunteer_sched_event.pk])
+        response = self.client.get(url)
+        self.assertNotIn(str(inactive_persona), response.content)
+        self.assertNotIn(str(inactive_persona.contact), response.content)

@@ -23,7 +23,7 @@ from django.contrib.sites.models import Site
 from gbetext import volunteer_allocate_email_fail_msg
 
 
-class TestManageWorkerView(TestCase):
+class TestManageWorker(TestCase):
     view_name = "manage_workers"
 
     def setUp(self):
