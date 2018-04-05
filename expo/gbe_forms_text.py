@@ -45,7 +45,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Staff Lead', 'Teacher', 'Volunteer', ],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
     'master': {
         'event_type': 'Master Class',
@@ -53,7 +52,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Teacher', 'Volunteer', ],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
     'show': {
         'event_type': 'Show',
@@ -61,7 +59,6 @@ event_settings = {
         'volunteer_scheduling': True,
         'roles': ['Producer', 'Technical Director', ],
         'max_volunteer': 1,
-        'open_to_public': True,
     },
     'special': {
         'event_type': 'Special Event',
@@ -69,7 +66,6 @@ event_settings = {
         'volunteer_scheduling': True,
         'roles': ['Staff Lead', ],
         'max_volunteer': 1,
-        'open_to_public': True,
     },
     'staff': {
         'event_type': 'Staff Area',
@@ -77,15 +73,6 @@ event_settings = {
         'volunteer_scheduling': True,
         'roles': ['Staff Lead', ],
         'max_volunteer': 1,
-        'open_to_public': False,
-    },
-    'volunteer': {
-        'event_type': 'Volunteer Opportunity',
-        'second_title': 'Make New Volunteer Opportunity',
-        'volunteer_scheduling': False,
-        'roles': [],
-        'max_volunteer': 1,
-        'open_to_public': False,
     },
     'panel': {
         'event_type': 'Conference Class',
@@ -93,7 +80,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Moderator', 'Panelist', 'Panelist', 'Panelist', 'Panelist'],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
     'lecture': {
         'event_type': 'Conference Class',
@@ -101,7 +87,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
     'movement': {
         'event_type': 'Conference Class',
@@ -109,7 +94,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
     'workshop': {
         'event_type': 'Conference Class',
@@ -117,7 +101,6 @@ event_settings = {
         'volunteer_scheduling': False,
         'roles': ['Teacher', 'Teacher', 'Teacher'],
         'max_volunteer': 0,
-        'open_to_public': True,
     },
 }
 role_map = {
