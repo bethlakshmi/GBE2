@@ -58,7 +58,7 @@ class TestReviewActList(TestCase):
         response = self.client.get(
             self.url,
             data={'conf_slug': self.conference.conference_slug})
-        self.assertIn('bid-table error_row', response.content)
+        self.assertIn('bid-table danger', response.content)
 
     def test_review_act_bad_user(self):
         login_as(ProfileFactory(), self)
@@ -109,9 +109,12 @@ class TestReviewActList(TestCase):
         login_as(self.privileged_user, self)
         response = self.client.get(
             self.url,
-            data={'conf_slug': self.conference.conference_slug})
+            data={'conf_slug': self.conference.conference_slug,
+                  'changed_id': self.acts[0].id})
         self.assertContains(response, str(flex_eval.category.category))
         self.assertContains(response, str(flex_eval.ranking))
+        self.assertContains(response, "No Decision")
+        self.assertContains(response, 'bid-table success')
 
     def test_review_act_has_empty_reviews(self):
         flex_eval = FlexibleEvaluationFactory(
@@ -125,6 +128,8 @@ class TestReviewActList(TestCase):
             data={'conf_slug': self.conference.conference_slug})
         self.assertContains(response, str(flex_eval.category.category))
         self.assertContains(response, str("--"))
+        self.assertContains(response, "Needs Review")
+        self.assertContains(response, 'bid-table info')
 
     def test_review_act_has_average(self):
         flex_eval = FlexibleEvaluationFactory(

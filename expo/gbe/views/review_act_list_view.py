@@ -3,6 +3,7 @@ from gbe.models import (
     Act,
     ActBidEvaluation,
     EvaluationCategory,
+    FlexibleEvaluation,
 )
 from review_bid_list_view import ReviewBidListView
 from django.db.models import Avg
@@ -16,6 +17,7 @@ class ReviewActListView(ReviewBidListView):
     bid_review_view_name = 'act_review'
     bid_review_list_view_name = 'act_review_list'
     bid_order_fields = ('accepted', 'performer')
+    status_index = 3
 
     def get_context_dict(self):
         return {'header': self.object_type().bid_review_header,
@@ -32,9 +34,7 @@ class ReviewActListView(ReviewBidListView):
         categories = EvaluationCategory.objects.filter(
             visible=True).order_by('category')
         for bid in bids:
-            bid_row = {}
-            bid_row['bidder_active'] = bid.bidder_is_active
-            bid_row['bid'] = bid.bid_review_summary
+            bid_row = self.set_row_basics(bid, FlexibleEvaluation.objects)
             bid_row['reviews'] = []
             total_average = 0
             valid_categories = 0
@@ -57,10 +57,6 @@ class ReviewActListView(ReviewBidListView):
                     total_average/valid_categories, 2)
             else:
                 bid_row['total_average'] = "--"
-            bid_row['id'] = bid.id
-            bid_row['review_url'] = reverse(self.bid_review_view_name,
-                                            urlconf='gbe.urls',
-                                            args=[bid.id])
             self.row_hook(bid, bid_row)
             rows.append(bid_row)
         return rows

@@ -872,7 +872,15 @@ th.rotate > div {
     rotate(270deg);
   width: 20px;
 }
-th.rotate-review > div {
+thead > tr > th.rotate-review > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 5px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 10px;
+}
+tfoot > tr > th.rotate-review > div {
   transform: 
     /* Magic Numbers */
     translate(0px, 88px)

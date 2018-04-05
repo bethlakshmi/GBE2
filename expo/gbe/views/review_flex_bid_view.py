@@ -149,8 +149,10 @@ class FlexibleReviewBidView(ReviewBidView):
                 user_message[0].description % (
                     self.object.b_title,
                     str(self.object.performer)))
-            return HttpResponseRedirect(reverse(self.review_list_view_name,
-                                                urlconf='gbe.urls'))
+            return HttpResponseRedirect("%s?changed_id=%s" % (
+                reverse(self.review_list_view_name,
+                        urlconf='gbe.urls'),
+                self.object.id))
         else:
             user_message = UserMessage.objects.get_or_create(
                 view=self.__class__.__name__,

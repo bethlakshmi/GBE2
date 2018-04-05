@@ -131,11 +131,11 @@ class Act (Biddable, ActItem):
             if len(role) > 0:
                 castings += ' - %s' % role
 
-        return (self.performer.name,
+        return [self.performer.name,
                 self.b_title,
                 self.updated_at.astimezone(pytz.timezone('America/New_York')),
                 acceptance_states[self.accepted][1],
-                castings)
+                castings]
 
     @property
     def complete(self):

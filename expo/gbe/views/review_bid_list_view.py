@@ -19,6 +19,7 @@ class ReviewBidListView(View):
     bid_evaluation_type = BidEvaluation
     template = 'gbe/bid_review_list.tmpl'
     bid_order_fields = ('accepted', 'b_title')
+    status_index = 4
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -38,20 +39,35 @@ class ReviewBidListView(View):
         # override on subclass
         pass
 
+    def set_row_basics(self, bid, review_query):
+        bid_row = {
+            'bid': bid.bid_review_summary,
+            'id': bid.id,
+            'review_url': reverse(self.bid_review_view_name,
+                                  urlconf='gbe.urls',
+                                  args=[bid.id]),
+            'status': "",
+        }
+        if not bid.bidder_is_active:
+            bid_row['status'] = "danger"
+        elif bid.id == self.changed_id:
+            bid_row['status'] = 'success'
+        elif bid.ready_for_review:
+            if not review_query.filter(
+                        evaluator=self.reviewer,
+                        bid=bid).exists():
+                bid_row['bid'][self.status_index] = "Needs Review"
+                bid_row['status'] = "info"
+        return bid_row
+
     def get_rows(self, bids, review_query):
         rows = []
         for bid in bids:
-            bid_row = {}
-            bid_row['bidder_active'] = bid.bidder_is_active
-            bid_row['bid'] = bid.bid_review_summary
+            bid_row = self.set_row_basics(bid, review_query)
             bid_row['reviews'] = review_query.filter(
                 bid=bid.id).select_related(
                     'evaluator').order_by(
                         'evaluator')
-            bid_row['id'] = bid.id
-            bid_row['review_url'] = reverse(self.bid_review_view_name,
-                                            urlconf='gbe.urls',
-                                            args=[bid.id])
             self.row_hook(bid, bid_row)
             rows.append(bid_row)
         return rows
@@ -63,12 +79,17 @@ class ReviewBidListView(View):
 
     @never_cache
     def get(self, request, *args, **kwargs):
-        reviewer = validate_perms(request, self.reviewer_permissions)
+        self.reviewer = validate_perms(request, self.reviewer_permissions)
         self.user = request.user
         if request.GET.get('conf_slug'):
             self.conference = Conference.by_slug(request.GET['conf_slug'])
         else:
             self.conference = Conference.current_conf()
+
+        if request.GET.get('changed_id'):
+            self.changed_id = int(request.GET['changed_id'])
+        else:
+            self.changed_id = -1
 
         try:
             self.get_bid_list()
