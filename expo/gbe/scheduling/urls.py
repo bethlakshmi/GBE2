@@ -4,6 +4,7 @@ from django.conf.urls import (
 )
 
 from gbe.scheduling.views import (
+    AllocateWorkerView,
     ClassWizardView,
     CopyOccurrenceView,
     CopyStaffAreaView,
@@ -16,7 +17,9 @@ from gbe.scheduling.views import (
     EventDetailView,
     EventWizardView,
     ListEventsView,
+    MakeOccurrenceView,
     ManageEventsView,
+    ManageVolOpsView,
     ManageVolWizardView,
     RehearsalWizardView,
     SetFavoriteView,
@@ -86,12 +89,23 @@ urlpatterns = patterns(
     url(r'^scheduling/copy_staff/(?P<staff_id>\d+)/?$',
         CopyStaffAreaView.as_view(), name='copy_staff_schedule'),
 
+    url(r'^scheduling/create/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/?$',
+        MakeOccurrenceView.as_view(), name='create_event_schedule'),
+    url(r'^scheduling/edit/(?P<event_type>[-\w]+)/(?P<eventitem_id>\d+)/' +
+        '(?P<occurrence_id>\d+)/?$',
+        MakeOccurrenceView.as_view(), name='edit_event_schedule'),
+    url(r'^scheduling/manage-opps/(?P<event_type>[-\w]+)/' +
+        '(?P<eventitem_id>\d+)/(?P<parent_event_id>\d+)/?$',
+        ManageVolOpsView.as_view(), name='manage_opps'),
     url(r'^calendar/(?P<calendar_type>[-\w]+)/?$',
         ShowCalendarView.as_view(), name='calendar'),
     url(r'^scheduling/evaluate/(?P<occurrence_id>\d+)/?$',
         EvalEventView.as_view(), name='eval_event'),
     url(r'^scheduling/favorite/(?P<occurrence_id>\d+)/(?P<state>on|off)/?$',
         SetFavoriteView.as_view(), name='set_favorite'),
+    url(r'^scheduling/allocate/(?P<event_type>[-\w]+)/' +
+        '(?P<eventitem_id>[-\w]+)/(?P<occurrence_id>\d+)/?$',
+        AllocateWorkerView.as_view(), name='allocate_workers'),
     url(r'^scheduling/view_list/?$',
         ListEventsView.as_view(), name='event_list'),
     url(r'^scheduling/view_list/(?P<event_type>[-\w]+)/?$',
