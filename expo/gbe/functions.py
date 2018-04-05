@@ -176,6 +176,6 @@ def get_gbe_schedulable_items(confitem_type,
     if filter_type is not None:
         confitems_list = [
             confitem for confitem in confitems_list if
-            confitem.sched_payload['details']['type'] == filter_type]
+            confitem.type == filter_type]
 
     return confitems_list

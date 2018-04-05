@@ -42,35 +42,6 @@ class GenericEvent (Event):
         return interest
 
     @property
-    def sched_payload(self):
-        types = dict(event_options)
-        payload = {
-            'type': self.type,
-            'title': self.e_title,
-            'description': self.e_description,
-            'duration': self.duration,
-            'details': {'type': types[self.type]},
-        }
-        if self.parent_event:
-            payload['details']['parent_event'] = self.parent_event.detail_link
-            if self.volunteer_type:
-                desc = self.volunteer_category_description
-                payload['details']['volunteer_category'] = desc
-        return payload
-
-    @property
-    def parent_event(self):
-        if self.type != 'Volunteer':
-            return None
-        sevent = self.eventitem_ptr.scheduler_events.first()
-        from scheduler.models import EventContainer
-        query = EventContainer.objects.filter(child_event=sevent)
-        if query.count() == 0:
-            return None
-        parent = query.first().parent_event
-        return parent
-
-    @property
     def schedule_ready(self):
         return True
 
