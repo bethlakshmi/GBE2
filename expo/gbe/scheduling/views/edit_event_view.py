@@ -35,7 +35,6 @@ from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
     get_start_time,
     show_scheduling_occurrence_status,
-    shared_groundwork,
 )
 
 
@@ -45,16 +44,30 @@ class EditEventView(ManageVolWizardView):
     title = "Edit Event"
 
     def groundwork(self, request, args, kwargs):
-        groundwork_data = shared_groundwork(request, kwargs, self.permissions)
-        if groundwork_data is None:
-            error_url = reverse('manage_event_list',
-                                urlconf='gbe.scheduling.urls',
-                                args=[kwargs['conference']])
-            return HttpResponseRedirect(error_url)
-        else:
-            (self.profile, self.occurrence, self.item) = groundwork_data
-            self.conference = self.item.e_conference
-            
+        self.profile = validate_perms(request, self.permissions)
+        if "conference" in kwargs:
+            self.conference = get_object_or_404(
+                Conference,
+                conference_slug=kwargs['conference'])
+
+        if "occurrence_id" in kwargs:
+            self.parent_id = int(kwargs['occurrence_id'])
+            result = get_occurrence(int(kwargs['occurrence_id']))
+            if result.errors and len(result.errors) > 0:
+                show_scheduling_occurrence_status(
+                    request,
+                    result,
+                    self.__class__.__name__)
+                error_url = reverse('manage_event_list',
+                                    urlconf='gbe.scheduling.urls',
+                                    args=[self.conference.conference_slug])
+
+                return HttpResponseRedirect(error_url)
+            else:
+                self.occurrence = result.occurrence
+        self.item = get_object_or_404(
+            Event,
+            eventitem_id=self.occurrence.foreign_event_id).child()
         if self.item.type == "Show" and "/edit/" in request.path:
             return HttpResponseRedirect("%s?%s" % (
                 reverse('edit_show',
@@ -64,8 +77,8 @@ class EditEventView(ManageVolWizardView):
                 request.GET.urlencode()))
         self.manage_vol_url = reverse('manage_vol',
                                       urlconf='gbe.scheduling.urls',
-                                      args=[self.conference.conference_slug,
-                                            self.occurrence.pk])
+                                      args=[kwargs['conference'],
+                                            kwargs['occurrence_id']])
         self.success_url = reverse('edit_event',
                                    urlconf='gbe.scheduling.urls',
                                    args=[self.conference.conference_slug,
