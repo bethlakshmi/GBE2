@@ -107,7 +107,7 @@ class TestManageWorkerView(TestCase):
                          allocations=2):
         self.assertRedirects(
             response,
-            "%s?worker_open=True&changed_id=%d" % (
+            "%s?changed_id=%d" % (
                 reverse('edit_volunteer',
                         urlconf='gbe.scheduling.urls',
                         args=[volunteer_opp.eventitem.e_conference.conference_slug,
@@ -303,7 +303,7 @@ class TestManageWorkerView(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(
             response,
-            "%s?worker_open=True&changed_id=%d" % (
+            "%s?changed_id=%d" % (
                 reverse('edit_volunteer',
                         urlconf='gbe.scheduling.urls',
                         args=[self.context.conference.conference_slug,
@@ -332,7 +332,7 @@ class TestManageWorkerView(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(
             response,
-            "%s?worker_open=True&changed_id=%d" % (
+            "%s?changed_id=%d" % (
                 reverse('edit_volunteer',
                         urlconf='gbe.scheduling.urls',
                         args=[self.context.conference.conference_slug,
@@ -357,7 +357,7 @@ class TestManageWorkerView(TestCase):
         response = self.client.post(self.url, data=data, follow=True)
         self.assertRedirects(
             response,
-            "%s?worker_open=True&changed_id=%d" % (
+            "%s?changed_id=%d" % (
                 reverse('edit_volunteer',
                         urlconf='gbe.scheduling.urls',
                         args=[self.context.conference.conference_slug,
