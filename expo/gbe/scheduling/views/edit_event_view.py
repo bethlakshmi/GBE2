@@ -13,6 +13,7 @@ from gbe.models import (
     Event,
     Room,
 )
+from gbe.views.class_display_functions import get_scheduling_info
 from gbe.scheduling.forms import PersonAllocationForm
 from gbe.functions import validate_perms
 from gbe_forms_text import (
@@ -111,6 +112,7 @@ class EditEventView(ManageVolWizardView):
             self.occurrence,
             context)
         context['edit_title'] = self.title
+        context['scheduling_info'] = get_scheduling_info(self.item)
 
         if 'worker_formset' not in context:
             context['worker_formset'] = self.make_formset(

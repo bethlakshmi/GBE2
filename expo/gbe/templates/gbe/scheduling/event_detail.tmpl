@@ -3,7 +3,7 @@
 {% load thumbnail %}
 
 {% block title %}
-  Great Burlesque Exposition: {{eventitem.event.payload.title}}
+  Great Burlesque Exposition: {{eventitem.event.e_title}}
 {% endblock %}
 
 {% block head %}
@@ -16,27 +16,19 @@
   {% include "ticket_link.tmpl" %}
   </div>
 {% endif %}  
-    <H1 class="sched_detail_title">{{eventitem.event.payload.title}}</H1>
+    <H1 class="sched_detail_title">{{eventitem.event.e_title}}</H1>
     <div class="sched_block font_regular">
       <div class="sched_desc">
-	{{eventitem.event.payload.description |safe}}
+	{{eventitem.event.e_description |safe}}
         <div class="sched_details">
-        {% for name, value in eventitem.event.payload.details.items %}
-        <label class="sched_detail">
-	{% autoescape off %}
-	  {% for label_name, label_value in eventitem.labels.items%}
-	       {% if name == label_name %}
-	          {{label_value}}:
-	       {% endif %}
-	  {% empty %}
-	      {{value |safe}}:
-	  {% endfor %}
-	</label> {{value |safe }}<br>
-	{% endautoescape %}
-        {% endfor %}
-
-        </div>
+        <label class="sched_detail">Type:</label>
+	{{eventitem.event.type}}<br>
+	{% if eventitem.event.fee %}
+          <label class="sched_detail">Materials Fee:</label>
+  	  ${{eventitem.event.fee}}<br>
+        {% endif %}
       </div>
+    </div>
       {% if eventitem.scheduled_events %}
       <div class="sched_times container">
 	{% for sched_event in schedule_items %}
