@@ -30,6 +30,14 @@ class Show (Event):
         return self.e_title
 
     @property
+    def sched_payload(self):
+        return {'title': self.e_title,
+                'description': self.e_description,
+                'duration': self.duration,
+                'details': {'type': 'Show'}
+                }
+
+    @property
     def schedule_ready(self):
         return True      # shows are always ready for scheduling
 

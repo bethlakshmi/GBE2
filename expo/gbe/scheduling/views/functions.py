@@ -35,6 +35,35 @@ from gbetext import event_labels
 from gbe_forms_text import event_settings
 
 
+def get_single_role(data, roles=None):
+    people = []
+    if not roles:
+        roles = [('teacher', 'Teacher'),
+                 ('moderator', 'Moderator'),
+                 ('staff_lead', 'Staff Lead')]
+    for role_key, role in roles:
+        if data[role_key]:
+            people += [Person(
+                user=data[role_key].workeritem.as_subtype.user_object,
+                public_id=data[role_key].workeritem.pk,
+                role=role)]
+    return people
+
+
+def get_multi_role(data, roles=None):
+    people = []
+    if not roles:
+        roles = [('panelists', 'Panelist')]
+    for role_key, role in roles:
+        if len(data[role_key]) > 0:
+            for worker in data[role_key]:
+                people += [Person(
+                    user=worker.workeritem.as_subtype.user_object,
+                    public_id=worker.workeritem.pk,
+                    role=role)]
+    return people
+
+
 def get_start_time(data):
     day = data['day'].day
     time_parts = map(int, data['time'].split(":"))
@@ -181,6 +210,7 @@ def get_event_display_info(eventitem_id):
 
     eventitem_view = {'event': item,
                       'scheduled_events': response.occurrences,
+                      'labels': event_labels,
                       'bio_grid_list': bio_grid_list,
                       'featured_grid_list': featured_grid_list,
                       'people': people,
