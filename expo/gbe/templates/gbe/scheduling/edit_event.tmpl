@@ -63,17 +63,4 @@
   </div></div>
 </div>
 {% endif %}
-{% if worker_alloc_forms %}
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-      <a data-toggle="collapse" href="#collapse4">
-      Manage Volunteers</a></h3>
-  </div>
-  <div id="collapse4" class="panel-collapse collapse {% if worker_open %}in{% endif %}">
-  <div class="panel-body">
-    {% include "gbe/scheduling/allocate_volunteers.tmpl" %}
-  </div></div>
-</div>
-{% endif %}
 {% endblock %}

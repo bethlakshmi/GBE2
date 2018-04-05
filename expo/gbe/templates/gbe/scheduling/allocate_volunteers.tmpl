@@ -20,7 +20,7 @@ included in event edit flow. Show WorkerAllocationForms
     </tr>
     {% for form in worker_alloc_forms %}
     <tr class="{% if changed_id == form.alloc_id.value %}changed{% else %}event_opp_row{% endif %}">
-      <form method="POST" action="{{manage_worker_url}}" 
+      <form method="POST" action="{% url 'scheduling:allocate_workers' event_type eventitem_id opp_id %}" 
       	    enctype="multipart/form-data">
         {% csrf_token %}
 	{% for field in form.visible_fields %}
@@ -111,14 +111,14 @@ included in event edit flow. Show WorkerAllocationForms
         <td class="bid-table">{{ volunteer.available }}</td>
         <td class="bid-table">
 	{% for conflict in volunteer.conflicts %}
-          <a href="{%url 'scheduling:edit_event' conflict.eventitem.event.e_conference.conference_slug conflict.pk %}">
+          <a href="{%url 'scheduling:edit_event_schedule' conflict.event_type_name conflict.eventitem.eventitem_id conflict.pk %}">
 	    {{ conflict }}
 	  </a></br>
 	{% empty %}&nbsp;{% endfor %}
         </td>
 	<td class="bid-table"><a href="{%url 'gbe:volunteer_review' volunteer.id %}">Review</a></td>
         <td class="bid-table">
-	  <form method="POST" action="{{manage_worker_url}}">
+	  <form method="POST" action="{% url 'scheduling:allocate_workers' event_type eventitem_id opp_id %}">
             {% csrf_token %}
   	    {% for field in volunteer.assign_form.visible_fields %}
             {{ field }}
