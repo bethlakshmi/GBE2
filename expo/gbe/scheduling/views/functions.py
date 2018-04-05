@@ -1,15 +1,10 @@
 import pytz
 from datetime import datetime, time
 from gbe.functions import (
-    get_conference_day,
-    validate_perms,
+    validate_perms
 )
 from django.shortcuts import (
     get_object_or_404,
-)
-from gbe.scheduling.forms import (
-    EventBookingForm,
-    ScheduleOccurrenceForm,
 )
 from scheduler.data_transfer import Person
 from scheduler.idd import (
@@ -244,27 +239,3 @@ def shared_groundwork(request, kwargs, permissions):
             Event,
             eventitem_id=occurrence.foreign_event_id).child()
     return (profile, occurrence, item)
-
-def setup_event_management_form(conference, item, occurrence, context):
-    duration = float(item.duration.total_minutes())/60
-    initial_form_info = {
-        'duration': duration,
-        'max_volunteer': occurrence.max_volunteer,
-        'day': get_conference_day(
-            conference=conference,
-            date=occurrence.starttime.date()),
-        'time': occurrence.starttime.strftime("%H:%M:%S"),
-        'location': occurrence.location,
-        'occurrence_id': occurrence.pk, }
-    context['event_id'] = occurrence.pk
-    context['eventitem_id'] = item.eventitem_id
-
-    # if there was an error in the edit form
-    if 'event_form' not in context:
-        context['event_form'] = EventBookingForm(instance=item)
-    if 'scheduling_form' not in context:
-        context['scheduling_form'] = ScheduleOccurrenceForm(
-            conference=conference,
-            open_to_public=True,
-            initial=initial_form_info)
-    return (context, initial_form_info)
