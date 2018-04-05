@@ -41,10 +41,17 @@ class ManageWorkerView(View):
         REQUIRED
             - self.conference - the conference for which the vol opp is being
                 managed
+            - any additional self.labels (a list) to be used during opp create
+                - the conference slug, and appropriate calendar type will be
+                made here.
             - self.manage_worker_url - the URL used to call this post function
             - self.success_url - the URL to redirect to in the event of success
             - 'make_context' to build the error context when an error occurrs
         OPTIONAL
+            - do_additional_actions - to provide additional opps related
+            actions - if not provide, edit, create, delete, duplicate are
+            available, if one of those functions is not provided, post will
+            exit with no return value
             - window_controls = list of controls for panels in the page, if
             adding panels, include turning them on and off via the errorcontext
             and the request.GET parameters.  If no panels are on, all panels
@@ -52,6 +59,7 @@ class ManageWorkerView(View):
     '''
 
     vol_permissions = ('Volunteer Coordinator',)
+    labels = []
     window_controls = ['start_open', 'worker_open']
 
     def make_context(self, request, errorcontext=None):

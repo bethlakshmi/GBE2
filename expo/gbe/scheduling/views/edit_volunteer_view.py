@@ -62,9 +62,6 @@ class EditVolunteerView(ManageWorkerView):
             context.update(self.get_worker_allocation_forms(
                 errorcontext=errorcontext))
             context.update(self.get_volunteer_info())
-            if self.request.GET.get('changed_id', None):
-                context['changed_id'] = int(
-                    self.request.GET.get('changed_id', None))
         else:
             context['start_open'] = True
 
