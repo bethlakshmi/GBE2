@@ -24,13 +24,16 @@ from gbe_forms_text import (
     role_map,
     event_settings,
 )
-from scheduler.idd import get_occurrence
+from scheduler.idd import (
+    get_occurrence,
+    update_occurrence,
+)
 from scheduler.data_transfer import Person
 from gbe.scheduling.views.functions import (
+    get_start_time,
     setup_event_management_form,
     show_scheduling_occurrence_status,
     shared_groundwork,
-    update_event,
 )
 
 
@@ -100,6 +103,27 @@ class EditEventView(ManageVolWizardView):
                 prefix="alloc_%d" % n), ]
             n = n + 1
         return formset
+
+    def update_event(self, scheduling_form, people_formset, working_class):
+        room = get_object_or_404(
+            Room,
+            name=scheduling_form.cleaned_data['location'])
+        start_time = get_start_time(scheduling_form.cleaned_data)
+        people = []
+        for assignment in people_formset:
+            if assignment.is_valid() and assignment.cleaned_data['worker']:
+                people += [Person(
+                    user=assignment.cleaned_data[
+                        'worker'].workeritem.as_subtype.user_object,
+                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
+                    role=assignment.cleaned_data['role'])]
+        response = update_occurrence(
+                self.occurrence.pk,
+                start_time,
+                scheduling_form.cleaned_data['max_volunteer'],
+                people=people,
+                locations=[room])
+        return response
 
     def is_formset_valid(self, formset):
         validity = False
@@ -177,9 +201,9 @@ class EditEventView(ManageVolWizardView):
                 minutes=context['scheduling_form'].cleaned_data[
                     'duration']*60)
             new_event.save()
-            response = update_event(context['scheduling_form'],
-                                    self.occurrence.pk,
-                                    context['worker_formset'])
+            response = self.update_event(context['scheduling_form'],
+                                         context['worker_formset'],
+                                         new_event)
             if request.POST.get('edit_event', 0) != "Save and Continue":
                 self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
                     reverse('manage_event_list',

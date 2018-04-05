@@ -26,7 +26,7 @@
       {% csrf_token %}
       {% include "gbe/scheduling/event_booking.tmpl" with form=event_form %}
     <div class="form-row pull-right">
-      {% if createform or worker_alloc_forms %}
+      {% if createform %}
       <input type="submit" class="event_wizard_button" name="edit_event" value="Save and Continue">
       <input type="submit" class="event_wizard_button" name="edit_event" value="Save and Exit">
     {% else %}
