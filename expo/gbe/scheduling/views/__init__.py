@@ -8,14 +8,17 @@ from volunteer_wizard_view import VolunteerWizardView
 
 # Brand new edit (will deprecate make_occurrence)
 from manage_vol_wizard_view import ManageVolWizardView
-from manage_worker_view import ManageWorkerView
 from edit_event_view import EditEventView
 from edit_show_view import EditShowView
-from edit_volunteer_view import EditVolunteerView
 from edit_staff_area_view import EditStaffAreaView
 from copy_collections_view import CopyCollectionsView
 from copy_occurrence_view import CopyOccurrenceView
 from copy_staff_area_view import CopyStaffAreaView
+
+# Old but Refactored Event Editing/Creation/Allocation
+from make_occurrence_view import MakeOccurrenceView
+from manage_vol_ops_view import ManageVolOpsView
+from allocate_worker_view import AllocateWorkerView
 
 from manage_events_view import ManageEventsView
 from delete_event_view import DeleteEventView

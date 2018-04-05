@@ -114,11 +114,17 @@ class ManageEventsView(View):
                                      urlconf='gbe.scheduling.urls',
                                      args=[occurrence.id])}
             if self.conference.status != "completed":
-                display_item['edit_link'] = reverse(
-                    'edit_event',
+                display_item['create_link'] = reverse(
+                    'create_event_schedule',
                     urlconf='gbe.scheduling.urls',
-                    args=[self.conference.conference_slug,
-                          occurrence.pk])
+                    args=[occurrence.eventitem.event.__class__.__name__,
+                          occurrence.eventitem.event.eventitem_id])
+                display_item['edit_link'] = reverse(
+                    'edit_event_schedule',
+                    urlconf='gbe.scheduling.urls',
+                    args=[occurrence.eventitem.event.__class__.__name__,
+                          occurrence.eventitem.event.eventitem_id,
+                          occurrence.id])
             display_list += [display_item]
 
         display_list.sort(key=lambda k: k['sort_start'])

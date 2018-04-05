@@ -1,38 +1,49 @@
 import pytz
 from datetime import datetime, time
-from gbe.functions import (
-    get_conference_day,
-    validate_perms,
-)
-from django.shortcuts import (
-    get_object_or_404,
-)
-from django.core.urlresolvers import reverse
-from gbe.duration import Duration
-from gbe.scheduling.forms import (
-    EventBookingForm,
-    ScheduleOccurrenceForm,
-)
 from scheduler.data_transfer import Person
 from scheduler.idd import (
     get_bookings,
-    get_occurrence,
     get_occurrences,
-    update_occurrence,
 )
 from django.contrib import messages
 from gbe.models import (
-    Conference,
     Event,
     Performer,
     Profile,
-    Room,
     UserMessage,
 )
 from expo.settings import DATETIME_FORMAT
 from django.http import Http404
 from gbetext import event_labels
-from gbe_forms_text import event_settings
+
+
+def get_single_role(data, roles=None):
+    people = []
+    if not roles:
+        roles = [('teacher', 'Teacher'),
+                 ('moderator', 'Moderator'),
+                 ('staff_lead', 'Staff Lead')]
+    for role_key, role in roles:
+        if data[role_key]:
+            people += [Person(
+                user=data[role_key].workeritem.as_subtype.user_object,
+                public_id=data[role_key].workeritem.pk,
+                role=role)]
+    return people
+
+
+def get_multi_role(data, roles=None):
+    people = []
+    if not roles:
+        roles = [('panelists', 'Panelist')]
+    for role_key, role in roles:
+        if len(data[role_key]) > 0:
+            for worker in data[role_key]:
+                people += [Person(
+                    user=worker.workeritem.as_subtype.user_object,
+                    public_id=worker.workeritem.pk,
+                    role=role)]
+    return people
 
 
 def get_start_time(data):
@@ -181,133 +192,9 @@ def get_event_display_info(eventitem_id):
 
     eventitem_view = {'event': item,
                       'scheduled_events': response.occurrences,
+                      'labels': event_labels,
                       'bio_grid_list': bio_grid_list,
                       'featured_grid_list': featured_grid_list,
                       'people': people,
                       }
     return eventitem_view
-
-
-#
-#  EDIT EVENT FUNCTIONS
-#
-#  Common code between edit_event and edit_volunteer - I don't want to try
-#  multiple inheritance so this is my way to avoid replicating code
-#
-def shared_groundwork(request, kwargs, permissions):
-    conference = None
-    occurrence_id = None
-    occurrence = None
-    item = None
-    profile = validate_perms(request, permissions)
-    if "conference" in kwargs:
-        conference = get_object_or_404(
-            Conference,
-            conference_slug=kwargs['conference'])
-
-    if "occurrence_id" in kwargs:
-        occurrence_id = int(kwargs['occurrence_id'])
-        result = get_occurrence(occurrence_id)
-        if result.errors and len(result.errors) > 0:
-            show_scheduling_occurrence_status(
-                    request,
-                    result,
-                    "EditEventView")
-            return None
-        else:
-            occurrence = result.occurrence
-        item = get_object_or_404(
-            Event,
-            eventitem_id=occurrence.foreign_event_id).child()
-    return (profile, occurrence, item)
-
-
-def setup_event_management_form(conference, item, occurrence, context):
-    duration = float(item.duration.total_minutes())/60
-    initial_form_info = {
-        'duration': duration,
-        'max_volunteer': occurrence.max_volunteer,
-        'day': get_conference_day(
-            conference=conference,
-            date=occurrence.starttime.date()),
-        'time': occurrence.starttime.strftime("%H:%M:%S"),
-        'location': occurrence.location,
-        'occurrence_id': occurrence.pk, }
-    context['event_id'] = occurrence.pk
-    context['eventitem_id'] = item.eventitem_id
-
-    # if there was an error in the edit form
-    if 'event_form' not in context:
-        context['event_form'] = EventBookingForm(instance=item)
-    if 'scheduling_form' not in context:
-        context['scheduling_form'] = ScheduleOccurrenceForm(
-            conference=conference,
-            open_to_public=True,
-            initial=initial_form_info)
-    return (context, initial_form_info)
-
-
-def update_event(scheduling_form, occurrence_id, people_formset=[]):
-    room = get_object_or_404(
-        Room,
-        name=scheduling_form.cleaned_data['location'])
-    start_time = get_start_time(scheduling_form.cleaned_data)
-    people = []
-    for assignment in people_formset:
-        if assignment.is_valid() and assignment.cleaned_data['worker']:
-            people += [Person(
-                user=assignment.cleaned_data[
-                    'worker'].workeritem.as_subtype.user_object,
-                public_id=assignment.cleaned_data['worker'].workeritem.pk,
-                role=assignment.cleaned_data['role'])]
-    response = update_occurrence(
-        occurrence_id,
-        start_time,
-        scheduling_form.cleaned_data['max_volunteer'],
-        people=people,
-        locations=[room])
-    return response
-
-
-def process_post_response(request,
-                          slug,
-                          item,
-                          start_success_url,
-                          next_step,
-                          occurrence_id,
-                          additional_validity=True,
-                          people_forms=[]):
-    success_url = start_success_url
-    context = {}
-    response = None
-    context['event_form'] = EventBookingForm(request.POST,
-                                             instance=item)
-    context['scheduling_form'] = ScheduleOccurrenceForm(
-        request.POST,
-        conference=item.e_conference,
-        open_to_public=event_settings[item.type.lower()]['open_to_public'])
-
-    if context['event_form'].is_valid(
-            ) and context['scheduling_form'].is_valid(
-            ) and additional_validity:
-        new_event = context['event_form'].save(commit=False)
-        new_event.duration = Duration(
-            minutes=context['scheduling_form'].cleaned_data[
-                'duration']*60)
-        new_event.save()
-        response = update_event(context['scheduling_form'],
-                                occurrence_id,
-                                people_forms)
-        if request.POST.get('edit_event', 0) != "Save and Continue":
-            success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
-                reverse('manage_event_list',
-                        urlconf='gbe.scheduling.urls',
-                        args=[slug]),
-                slug,
-                context['scheduling_form'].cleaned_data['day'].pk,
-                str([occurrence_id]),)
-        else:
-            success_url = "%s?%s=True" % (success_url, next_step)
-    else:
-        context['start_open'] = True
-    return context, success_url, response

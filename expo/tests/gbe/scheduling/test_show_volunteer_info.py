@@ -1,11 +1,11 @@
 from django.core.urlresolvers import reverse
+import nose.tools as nt
+from django_nose.tools import assert_redirects
 from django.test import TestCase
 from django.test import Client
 from tests.factories.gbe_factories import (
-    PersonaFactory,
     ProfileFactory,
 )
-from tests.factories.scheduler_factories import ResourceAllocationFactory
 from tests.functions.gbe_functions import (
     grant_privilege,
     login_as,
@@ -14,16 +14,14 @@ from tests.functions.scheduler_functions import (
     assert_link,
 )
 from tests.contexts import (
-    ClassContext,
-    ShowContext,
     StaffAreaContext,
     VolunteerContext,
 )
 from gbe.models import AvailableInterest
-from datetime import timedelta
+
 '''
 #
-#  This is a spin off of edit volunteers.
+#  This is a spin off of edit event, or manage volunteer opportunities.
 #    It's the testing for the case of presenting eligible volunteers on an
 #    event that is a volunteer opportunity.  Not testing the basics, as they
 #    are covered elsewhere (ie, privileges and basic bad data)
@@ -32,7 +30,7 @@ from datetime import timedelta
 
 
 class TestShowVolunteers(TestCase):
-    view_name = 'edit_volunteer'
+    view_name = 'edit_event_schedule'
 
     def setUp(self):
         self.client = Client()
@@ -44,7 +42,8 @@ class TestShowVolunteers(TestCase):
         self.context = VolunteerContext()
         self.url = reverse(
             self.view_name,
-            args=[self.context.conference.conference_slug,
+            args=["GenericEvent",
+                  self.context.opp_event.eventitem.eventitem_id,
                   self.context.opp_event.pk],
             urlconf="gbe.scheduling.urls")
 
@@ -57,7 +56,8 @@ class TestShowVolunteers(TestCase):
         response = self.client.get(
             reverse(
                 self.view_name,
-                args=[context.conference.conference_slug,
+                args=["GenericEvent",
+                      volunteer_opp.eventitem.eventitem_id,
                       volunteer_opp.pk],
                 urlconf="gbe.scheduling.urls"),
             follow=True)
@@ -66,50 +66,9 @@ class TestShowVolunteers(TestCase):
     def test_volunteer_has_conflict(self):
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
-        assert("no available volunteers" not in response.content)
+        print response.content
+        assert ("no available volunteers" not in response.content)
         assert_link(response, self.url)
-
-    def test_volunteer_has_class_conflict(self):
-        class_context = ClassContext(
-            conference=self.context.conference,
-            teacher=PersonaFactory(performer_profile=self.context.profile),
-            starttime=self.context.opp_event.start_time)
-        login_as(self.privileged_profile, self)
-        response = self.client.get(self.url, follow=True)
-        assert("no available volunteers" not in response.content)
-        assert_link(response, reverse(
-            self.view_name,
-            args=[self.context.conference.conference_slug,
-                  class_context.sched_event.pk],
-            urlconf="gbe.scheduling.urls"))
-
-    def test_volunteer_has_show_conflict(self):
-        show_context = ShowContext(
-            conference=self.context.conference,
-            performer=PersonaFactory(performer_profile=self.context.profile),
-            starttime=self.context.opp_event.start_time)
-        login_as(self.privileged_profile, self)
-        response = self.client.get(self.url, follow=True)
-        assert("no available volunteers" not in response.content)
-        assert_link(response, reverse(
-            self.view_name,
-            args=[self.context.conference.conference_slug,
-                  show_context.sched_event.pk],
-            urlconf="gbe.scheduling.urls"))
-
-    def test_volunteer_has_earlier_conflict(self):
-        opportunity, opp_event = self.context.add_opportunity(
-            start_time=self.context.opp_event.start_time-timedelta(minutes=30))
-        conflict = ResourceAllocationFactory(resource=self.context.worker,
-                                             event=opp_event)
-        login_as(self.privileged_profile, self)
-        response = self.client.get(self.url, follow=True)
-        assert("no available volunteers" not in response.content)
-        assert_link(response, reverse(
-            self.view_name,
-            args=[self.context.conference.conference_slug,
-                  opp_event.pk],
-            urlconf="gbe.scheduling.urls"))
 
     def test_volunteer_is_available(self):
         self.context.bid.available_windows.add(self.context.window)
@@ -141,11 +100,4 @@ class TestShowVolunteers(TestCase):
         login_as(self.privileged_profile, self)
         response = self.client.get(self.url, follow=True)
         assert('4 - Somewhat interested' not in response.content)
-        assert("no available volunteers" not in response.content)
-
-    def test_volunteer_has_no_rank(self):
-        self.context.interest.delete()
-        login_as(self.privileged_profile, self)
-        response = self.client.get(self.url, follow=True)
-        assert('4 - Somewhat interested' not in response.content)
-        assert("no available volunteers" not in response.content)
+        assert ("no available volunteers" not in response.content)

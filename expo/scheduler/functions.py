@@ -76,7 +76,7 @@ def event_info(confitem_type='Show',
                'location': event.location.room.name,
                'type': "%s.%s" % (
                    event.event_type_name,
-                   event.confitem.type)}
+                   event.confitem.sched_payload['details']['type'])}
               for (event, confitem) in events_dict.items()]
     return events
 

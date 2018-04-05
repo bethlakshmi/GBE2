@@ -307,9 +307,10 @@ class ManageVolWizardView(View):
         elif 'allocate' in request.POST.keys():
             response = get_occurrence(request.POST['opp_sched_id'])
             return HttpResponseRedirect(
-                reverse('edit_volunteer',
+                reverse('edit_event_schedule',
                         urlconf='gbe.scheduling.urls',
-                        args=[self.conference.conference_slug,
+                        args=['GenericEvent',
+                              response.occurrence.eventitem.eventitem_id,
                               request.POST['opp_sched_id']]))
         else:
             actions = self.do_additional_actions(request)
