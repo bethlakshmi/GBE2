@@ -5,7 +5,6 @@ from scheduler.data_transfer import (
 from scheduler.idd import get_occurrence
 from scheduler.models import ResourceAllocation
 
-
 # assumes that start time is already before end time,
 def check_conflict(occurrence, potential_conflict):
     is_conflict = False
@@ -14,7 +13,6 @@ def check_conflict(occurrence, potential_conflict):
     elif potential_conflict.end_time > occurrence.start_time:
         is_conflict = True
     return is_conflict
-
 
 # DEPRECATE - not really deprecate, but totally rework when model
 # refactor is done.  It bounces across apps hideously

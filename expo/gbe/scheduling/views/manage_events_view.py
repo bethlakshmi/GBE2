@@ -120,10 +120,11 @@ class ManageEventsView(View):
                     args=[occurrence.eventitem.event.__class__.__name__,
                           occurrence.eventitem.event.eventitem_id])
                 display_item['edit_link'] = reverse(
-                    'edit_event',
+                    'edit_event_schedule',
                     urlconf='gbe.scheduling.urls',
-                    args=[self.conference.conference_slug,
-                          occurrence.pk])
+                    args=[occurrence.eventitem.event.__class__.__name__,
+                          occurrence.eventitem.event.eventitem_id,
+                          occurrence.id])
             display_list += [display_item]
 
         display_list.sort(key=lambda k: k['sort_start'])

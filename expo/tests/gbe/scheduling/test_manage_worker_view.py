@@ -108,11 +108,10 @@ class TestManageWorkerView(TestCase):
         self.assertRedirects(
             response,
             "%s?worker_open=True&changed_id=%d" % (
-                reverse(
-                    'edit_volunteer',
-                    urlconf='gbe.scheduling.urls',
-                    args=[volunteer_opp.eventitem.e_conference.conference_slug,
-                          volunteer_opp.pk]),
+                reverse('edit_volunteer',
+                        urlconf='gbe.scheduling.urls',
+                        args=[volunteer_opp.eventitem.e_conference.conference_slug,
+                              volunteer_opp.pk]),
                 alloc.pk))
         self.assert_post_contents(response,
                                   volunteer_opp,

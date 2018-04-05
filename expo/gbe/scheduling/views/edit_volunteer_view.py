@@ -98,8 +98,7 @@ class EditVolunteerView(ManageWorkerView):
         if error_url:
             return error_url
         if "manage-workers" in request.path:
-            return super(EditVolunteerView,
-                         self).post(request, *args, **kwargs)
+            return super(EditVolunteerView, self).post(request, *args, **kwargs)
         context, self.success_url, response = process_post_response(
             request,
             self.conference.conference_slug,

@@ -18,6 +18,8 @@ from tests.contexts import (
     VolunteerContext,
 )
 from gbe.models import AvailableInterest
+
+
 '''
 #
 #  This is a spin off of edit volunteers.
@@ -26,11 +28,8 @@ from gbe.models import AvailableInterest
 #    are covered elsewhere (ie, privileges and basic bad data)
 #
 '''
-
-
 class TestShowVolunteers(TestCase):
     view_name = 'edit_volunteer'
-
     def setUp(self):
         self.client = Client()
         self.user = ProfileFactory.create().user_object

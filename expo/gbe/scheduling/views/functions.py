@@ -217,7 +217,6 @@ def get_event_display_info(eventitem_id):
                       }
     return eventitem_view
 
-
 #
 #  EDIT EVENT FUNCTIONS
 #
@@ -251,7 +250,6 @@ def shared_groundwork(request, kwargs, permissions):
             eventitem_id=occurrence.foreign_event_id).child()
     return (profile, occurrence, item)
 
-
 def setup_event_management_form(conference, item, occurrence, context):
     duration = float(item.duration.total_minutes())/60
     initial_form_info = {
@@ -276,7 +274,6 @@ def setup_event_management_form(conference, item, occurrence, context):
             initial=initial_form_info)
     return (context, initial_form_info)
 
-
 def update_event(scheduling_form, occurrence_id, people_formset=[]):
     room = get_object_or_404(
         Room,
@@ -297,7 +294,6 @@ def update_event(scheduling_form, occurrence_id, people_formset=[]):
         people=people,
         locations=[room])
     return response
-
 
 def process_post_response(request,
                           slug,

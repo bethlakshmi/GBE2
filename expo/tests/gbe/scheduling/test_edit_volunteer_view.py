@@ -91,7 +91,7 @@ class TestEditVolunteerView(TestCase):
             '<option value="" selected="selected">---------</option>')
         self.assertContains(
             response,
-            'id="id_alloc_id" name="alloc_id" type="hidden" value="-1" />')
+            '<input id="id_alloc_id" name="alloc_id" type="hidden" value="-1" />')
 
     def test_vol_is_booked(self):
         grant_privilege(self.privileged_user, 'Volunteer Coordinator')
