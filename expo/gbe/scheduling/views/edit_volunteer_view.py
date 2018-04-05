@@ -106,7 +106,6 @@ class EditVolunteerView(ManageWorkerView):
             self.conference.conference_slug,
             self.item,
             self.success_url,
-            "worker_open",
             self.occurrence.pk)
         return self.make_post_response(request,
                                        response=response,

@@ -160,7 +160,6 @@ class EditEventView(ManageVolWizardView):
             self.conference.conference_slug,
             self.item,
             self.success_url,
-            "volunteer_open",
             self.occurrence.pk,
             self.is_formset_valid(worker_formset),
             worker_formset)
