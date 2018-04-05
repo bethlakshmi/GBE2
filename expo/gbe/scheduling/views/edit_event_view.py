@@ -54,18 +54,10 @@ class EditEventView(ManageVolWizardView):
         else:
             (self.profile, self.occurrence, self.item) = groundwork_data
             self.conference = self.item.e_conference
-            self.parent_id = self.occurrence.pk
-
+            
         if self.item.type == "Show" and "/edit/" in request.path:
             return HttpResponseRedirect("%s?%s" % (
                 reverse('edit_show',
-                        urlconf='gbe.scheduling.urls',
-                        args=[self.conference.conference_slug,
-                              self.occurrence.pk]),
-                request.GET.urlencode()))
-        elif self.item.type == "Volunteer":
-            return HttpResponseRedirect("%s?%s" % (
-                reverse('edit_volunteer',
                         urlconf='gbe.scheduling.urls',
                         args=[self.conference.conference_slug,
                               self.occurrence.pk]),
