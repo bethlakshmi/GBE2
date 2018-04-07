@@ -54,10 +54,10 @@ class ParticipantForm(ModelForm):
         if len(self.cleaned_data['last_name'].strip()) > 0:
             user.last_name = self.cleaned_data['last_name'].strip()
         if self.cleaned_data['display_name']:
-            pass   # if they enter a display name, respect it
+            partform.display_name = self.cleaned_data['display_name'].strip()
         else:
-            partform.display_name = " ".join([self.cleaned_data['first_name'],
-                                              self.cleaned_data['last_name']])
+            partform.display_name = "%s %s" % (user.first_name,
+                                               user.last_name)
         if commit and self.is_valid():
             partform.save()
             partform.user_object.save()
