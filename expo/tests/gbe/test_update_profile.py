@@ -101,8 +101,15 @@ class TestUpdateProfile(TestCase):
         data['purchase_email'] = ""
         response = self.post_profile(form=data)
         self.assertTrue(
-            "%s %s" % (data['first_name'],
-                       data['last_name']) in response.content)
+            "%s %s" % (data['first_name'].title(),
+                       data['last_name'].title()) in response.content)
+
+    def test_update_profile_post_cleanup_display_name(self):
+        data = self.get_form()
+        data['display_name'] = " trim me   nocaps"
+        response = self.post_profile(form=data)
+        self.assertTrue(
+            "Trim Me Nocaps" in response.content)
 
     def test_update_profile_post_valid_form(self):
         response = self.post_profile()
