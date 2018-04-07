@@ -13,6 +13,7 @@ from gbe_forms_text import (
 )
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+import re
 
 
 class ParticipantForm(ModelForm):
@@ -54,10 +55,11 @@ class ParticipantForm(ModelForm):
         if len(self.cleaned_data['last_name'].strip()) > 0:
             user.last_name = self.cleaned_data['last_name'].strip()
         if self.cleaned_data['display_name']:
-            partform.display_name = self.cleaned_data['display_name'].strip()
+            display_name = self.cleaned_data['display_name'].strip()
         else:
-            partform.display_name = "%s %s" % (user.first_name,
-                                               user.last_name)
+            display_name = "%s %s" % (user.first_name, user.last_name)
+        partform.display_name = re.sub(' +',' ',display_name).title()
+
         if commit and self.is_valid():
             partform.save()
             partform.user_object.save()
