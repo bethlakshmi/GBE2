@@ -58,7 +58,7 @@ class ParticipantForm(ModelForm):
             display_name = self.cleaned_data['display_name'].strip()
         else:
             display_name = "%s %s" % (user.first_name, user.last_name)
-        partform.display_name = re.sub(' +',' ',display_name).title()
+        partform.display_name = re.sub(' +', ' ', display_name).title()
 
         if commit and self.is_valid():
             partform.save()

@@ -86,7 +86,8 @@ class TestUpdateProfile(TestCase):
                 pref.profile.user_object.last_name) in response.content)
 
     def test_update_profile_how_heard(self):
-        pref = ProfilePreferencesFactory(profile__how_heard="[u'Word of mouth']")
+        pref = ProfilePreferencesFactory(
+            profile__how_heard="[u'Word of mouth']")
         url = reverse(self.view_name,
                       urlconf='gbe.urls')
         login_as(pref.profile.user_object, self)

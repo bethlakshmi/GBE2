@@ -11,14 +11,15 @@ def clean_display_name(apps, schema_editor):
             profile.display_name = profile.display_name.strip()
             profile.save()
             print "trimmed: " + profile.display_name
-        if profile.display_name != re.sub(' +',' ',profile.display_name):
-            profile.display_name = re.sub(' +',' ',profile.display_name)
+        if profile.display_name != re.sub(' +', ' ', profile.display_name):
+            profile.display_name = re.sub(' +', ' ', profile.display_name)
             profile.save()
             print "removed whitespace: " + profile.display_name
         if profile.display_name != profile.display_name.title():
             profile.display_name = profile.display_name.title()
             profile.save()
             print "title case: " + profile.display_name
+
 
 class Migration(migrations.Migration):
 
