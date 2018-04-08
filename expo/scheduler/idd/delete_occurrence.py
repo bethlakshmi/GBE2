@@ -19,7 +19,6 @@ def delete_occurrence(occurrence_id):
                 code="PARENT_EVENT_DELETION",
                 details=parent_event_delete_warning), ]
         Event.objects.filter(pk=occurrence_id).delete()
-        response = GeneralResponse()
 
     except Event.DoesNotExist:
         response.errors = [Error(
