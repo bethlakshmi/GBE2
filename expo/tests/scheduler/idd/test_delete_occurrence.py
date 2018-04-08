@@ -14,6 +14,5 @@ class TestDeleteOccurrence(TestCase):
         self.context = VolunteerContext()
 
     def test_delete_bad_occurrence(self):
-        event = Event.objects.filter(pk=(self.context.opp_event.pk+1000))
         response = delete_occurrence(self.context.opp_event.pk+1000)
         self.assertEqual(response.errors[0].code, "OCCURRENCE_NOT_FOUND")
