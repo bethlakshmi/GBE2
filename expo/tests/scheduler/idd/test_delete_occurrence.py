@@ -1,7 +1,4 @@
-from django.test import (
-    Client,
-    TestCase
-)
+from django.test import TestCase
 from scheduler.idd import delete_occurrence
 from tests.contexts import VolunteerContext
 
@@ -10,7 +7,6 @@ class TestDeleteOccurrence(TestCase):
     view_name = 'export_calendar'
 
     def setUp(self):
-        self.client = Client()
         self.context = VolunteerContext()
 
     def test_delete_bad_occurrence(self):
