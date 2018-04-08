@@ -12,7 +12,10 @@ from tests.functions.gbe_functions import (
     is_login_page,
     login_as,
 )
-from tests.contexts import ClassContext
+from tests.contexts import (
+    ClassContext,
+    VolunteerContext
+)
 from gbe.models import (
     Class,
     Conference,
@@ -102,3 +105,12 @@ class TestDeleteSchedule(TestCase):
         self.assertTrue(Event.objects.filter(pk=second_class.pk).exists())
         check_class = Class.objects.get(pk=self.context.bid.pk)
         self.assertTrue(check_class.visible)
+
+    def test_delete_w_parent(self):
+        vol_context = VolunteerContext()
+        self.url = reverse(self.view_name,
+                           urlconf="gbe.scheduling.urls",
+                           args=[vol_context.sched_event.pk])
+        login_as(self.privileged_profile, self)
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(response, "PARENT_EVENT_DELETION")

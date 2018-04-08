@@ -13,10 +13,6 @@ class TestDeleteOccurrence(TestCase):
         self.client = Client()
         self.context = VolunteerContext()
 
-    def test_delete_w_parent(self):
-        response = delete_occurrence(self.context.sched_event.pk)
-        self.assertEqual(response.warnings[0].code, "PARENT_EVENT_DELETION")
-
     def test_delete_bad_occurrence(self):
         event = Event.objects.filter(pk=(self.context.opp_event.pk+1000))
         response = delete_occurrence(self.context.opp_event.pk+1000)
