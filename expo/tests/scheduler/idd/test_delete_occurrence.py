@@ -4,7 +4,6 @@ from tests.contexts import VolunteerContext
 
 
 class TestDeleteOccurrence(TestCase):
-    view_name = 'export_calendar'
 
     def setUp(self):
         self.context = VolunteerContext()

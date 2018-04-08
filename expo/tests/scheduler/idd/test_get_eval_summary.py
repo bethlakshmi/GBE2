@@ -5,7 +5,6 @@ from scheduler.models import EventEvalQuestion
 
 
 class TestGetEvalSummary(TestCase):
-    view_name = 'export_calendar'
 
     def setUp(self):
         EventEvalQuestion.objects.all().delete()

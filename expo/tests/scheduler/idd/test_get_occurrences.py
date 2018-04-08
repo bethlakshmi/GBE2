@@ -3,7 +3,6 @@ from scheduler.idd import get_occurrences
 
 
 class TestGetOccurrences(TestCase):
-    view_name = 'export_calendar'
 
     def test_get_labels_and_label_sets(self):
         response = get_occurrences(labels=["foo"], label_sets=["bar"],)
