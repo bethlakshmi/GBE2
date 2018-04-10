@@ -1,6 +1,6 @@
 {% if details %}
     <div class="modal fade" id="{{details.occurrence.pk}}_eval_modal" role="dialog">
-      <div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+      <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">{{details.title}} - Evaluations</h4>
         </div>
@@ -47,11 +47,12 @@
     </tfoot>
     <tbody>
       <tr class="bid-table">
-
     {% for eval in details.evaluations %}
       {% ifchanged eval.profile %}
+	{% if not forloop.first %}
         </tr>
         <tr class="bid-table">
+        {% endif %}
             <td class="bid-table">{{ eval.profile }}</td>
       {% endifchanged %}
 	    <td class="bid-table">{{ eval.answer }}</td>
@@ -64,8 +65,15 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div></div></div>
-    <script>
-      $(document).ready(function() {
-      $('#{{details.occurrence.pk}}_eval_modal').modal('show');});
-    </script>
+<script>
+$(document).ready(function(){
+  $('.dropdown-submenu a.test').on("click", function(e){
+    $(this).next('ul').toggle();
+    $('.dropdown-submenu a.test').not($(this)).next('ul').css('display', 'none');;
+    e.stopPropagation();
+    e.preventDefault();
+  });
+  $('#{{details.occurrence.pk}}_eval_modal').modal('show');
+});
+</script>
 {% endif %}
