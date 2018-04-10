@@ -48,6 +48,13 @@ class TestReports(TestCase):
             str('attachment; filename="%s_%s.tar.gz"' % (
                 self.context.conference.conference_slug,
                 self.context.show.e_title.replace(' ', '_'))))
+        f = BytesIO(response.content)
+        results = tarfile.open(mode="r:gz", fileobj=f)
+        self.assertTrue("%s_%s/gbe_pagebanner" % (
+            self.context.conference.conference_slug,
+            self.context.show.e_title.replace(' ', '_')) in results.getnames()[0])
+        results.close()
+        f.close()
 
     def test_download_and_mkdir(self):
         path = os.path.join(settings.MEDIA_ROOT, 'uploads/audio/downloads/stale_downloads')
