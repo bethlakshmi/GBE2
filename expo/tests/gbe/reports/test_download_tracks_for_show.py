@@ -50,12 +50,14 @@ class TestDownloadTracksForShow(TestCase):
         results = tarfile.open(mode="r:gz", fileobj=f)
         self.assertTrue("%s_%s/gbe_pagebanner" % (
             self.context.conference.conference_slug,
-            self.context.show.e_title.replace(' ', '_')) in results.getnames()[0])
+            self.context.show.e_title.replace(' ', '_')
+            ) in results.getnames()[0])
         results.close()
         f.close()
 
     def test_download_and_mkdir(self):
-        path = os.path.join(settings.MEDIA_ROOT, 'uploads/audio/downloads/stale_downloads')
+        path = os.path.join(settings.MEDIA_ROOT,
+                            'uploads/audio/downloads/stale_downloads')
         shutil.rmtree(path)
         login_as(self.profile, self)
         response = self.client.get(reverse('download_tracks_for_show',
@@ -68,7 +70,8 @@ class TestDownloadTracksForShow(TestCase):
                 self.context.show.e_title.replace(' ', '_'))))
 
     def test_download_twice(self):
-        path = os.path.join(settings.MEDIA_ROOT, 'uploads/audio/downloads/stale_downloads')
+        path = os.path.join(settings.MEDIA_ROOT,
+                            'uploads/audio/downloads/stale_downloads')
         shutil.rmtree(path)
         login_as(self.profile, self)
         response = self.client.get(reverse('download_tracks_for_show',

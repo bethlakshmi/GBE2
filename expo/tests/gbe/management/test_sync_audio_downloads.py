@@ -32,8 +32,8 @@ class TestSyncAudioDownloads(TestCase):
 
     def test_unsync_after_sync(self):
         call_command('sync_audio_downloads',
-                 show_name=self.context.show.e_title,
-                 conf_slug=self.context.conference.conference_slug)
+                     show_name=self.context.show.e_title,
+                     conf_slug=self.context.conference.conference_slug)
         call_command("sync_audio_downloads",
                      unsync=True,
                      show_name=self.context.show.e_title,
@@ -43,5 +43,4 @@ class TestSyncAudioDownloads(TestCase):
             'uploads/audio/downloads/stale_downloads',
             "%s_%s.tar.gz" % (self.context.conference.conference_slug,
                               self.context.show.e_title.replace(' ', '_')))
-
         self.assertTrue(os.path.isfile(filename))
