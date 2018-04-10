@@ -1,7 +1,6 @@
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.files import File
-from gbe.models import Conference
 from tests.factories.gbe_factories import ProfileFactory
 from tests.contexts import ActTechInfoContext
 from tests.functions.gbe_functions import (
@@ -15,8 +14,7 @@ import os
 import shutil
 
 
-class TestReports(TestCase):
-    '''Tests for index view'''
+class TestDownloadTracksForShow(TestCase):
     def setUp(self):
         self.client = Client()
         self.profile = ProfileFactory()
@@ -60,6 +58,22 @@ class TestReports(TestCase):
         path = os.path.join(settings.MEDIA_ROOT, 'uploads/audio/downloads/stale_downloads')
         shutil.rmtree(path)
         login_as(self.profile, self)
+        response = self.client.get(reverse('download_tracks_for_show',
+                                           urlconf='gbe.reporting.urls',
+                                           args=[self.context.show.pk]))
+        self.assertEquals(
+            response.get('Content-Disposition'),
+            str('attachment; filename="%s_%s.tar.gz"' % (
+                self.context.conference.conference_slug,
+                self.context.show.e_title.replace(' ', '_'))))
+
+    def test_download_twice(self):
+        path = os.path.join(settings.MEDIA_ROOT, 'uploads/audio/downloads/stale_downloads')
+        shutil.rmtree(path)
+        login_as(self.profile, self)
+        response = self.client.get(reverse('download_tracks_for_show',
+                                           urlconf='gbe.reporting.urls',
+                                           args=[self.context.show.pk]))
         response = self.client.get(reverse('download_tracks_for_show',
                                            urlconf='gbe.reporting.urls',
                                            args=[self.context.show.pk]))
