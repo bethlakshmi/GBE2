@@ -341,17 +341,3 @@ class TestReports(TestCase):
                                            args=[context.show.eventitem_id]))
         self.assertTrue(context.audio.notes in response.content)
         self.assertTrue('Center Spot' in response.content)
-
-    def test_download_tracks_for_show(self):
-        context = ActTechInfoContext(room_name="Theater")
-        context.show.scheduler_events.first()
-        grant_privilege(self.profile, "Tech Crew")
-        login_as(self.profile, self)
-        response = self.client.get(reverse('download_tracks_for_show',
-                                           urlconf='gbe.reporting.urls',
-                                           args=[context.show.pk]))
-        self.assertEquals(
-            response.get('Content-Disposition'),
-            str('attachment; filename="%s_%s.tar.gz"' % (
-                context.conference.conference_slug,
-                context.show.e_title.replace(' ', '_'))))
