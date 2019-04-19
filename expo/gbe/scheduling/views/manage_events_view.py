@@ -24,7 +24,6 @@ from gbe.models import (
 )
 from gbe.functions import (
     get_current_conference,
-    get_conference_days,
     get_conference_by_slug,
     conference_list,
     validate_perms,
