@@ -13,28 +13,20 @@ from gbe.models import (
     Event,
     Room,
 )
-from gbe.scheduling.forms import (
-    EventBookingForm,
-    PersonAllocationForm,
-    ScheduleOccurrenceForm,
-)
-from gbe.duration import Duration
-from gbe.functions import (
-    get_conference_day,
-    validate_perms
-)
+from gbe.views.class_display_functions import get_scheduling_info
+from gbe.scheduling.forms import PersonAllocationForm
+from gbe.functions import validate_perms
 from gbe_forms_text import (
     role_map,
     event_settings,
 )
-from scheduler.idd import (
-    get_occurrence,
-    update_occurrence,
-)
-from scheduler.data_transfer import Person
+from scheduler.idd import get_occurrence
 from gbe.scheduling.views.functions import (
-    get_start_time,
+    process_post_response,
+    setup_event_management_form,
     show_scheduling_occurrence_status,
+    shared_groundwork,
+    update_event,
 )
 
 
@@ -44,30 +36,17 @@ class EditEventView(ManageVolWizardView):
     title = "Edit Event"
 
     def groundwork(self, request, args, kwargs):
-        self.profile = validate_perms(request, self.permissions)
-        if "conference" in kwargs:
-            self.conference = get_object_or_404(
-                Conference,
-                conference_slug=kwargs['conference'])
+        groundwork_data = shared_groundwork(request, kwargs, self.permissions)
+        if groundwork_data is None:
+            error_url = reverse('manage_event_list',
+                                urlconf='gbe.scheduling.urls',
+                                args=[kwargs['conference']])
+            return HttpResponseRedirect(error_url)
+        else:
+            (self.profile, self.occurrence, self.item) = groundwork_data
+            self.conference = self.item.e_conference
+            self.parent_id = self.occurrence.pk
 
-        if "occurrence_id" in kwargs:
-            self.parent_id = int(kwargs['occurrence_id'])
-            result = get_occurrence(int(kwargs['occurrence_id']))
-            if result.errors and len(result.errors) > 0:
-                show_scheduling_occurrence_status(
-                    request,
-                    result,
-                    self.__class__.__name__)
-                error_url = reverse('manage_event_list',
-                                    urlconf='gbe.scheduling.urls',
-                                    args=[self.conference.conference_slug])
-
-                return HttpResponseRedirect(error_url)
-            else:
-                self.occurrence = result.occurrence
-        self.item = get_object_or_404(
-            Event,
-            eventitem_id=self.occurrence.foreign_event_id).child()
         if self.item.type == "Show" and "/edit/" in request.path:
             return HttpResponseRedirect("%s?%s" % (
                 reverse('edit_show',
@@ -75,10 +54,17 @@ class EditEventView(ManageVolWizardView):
                         args=[self.conference.conference_slug,
                               self.occurrence.pk]),
                 request.GET.urlencode()))
+        elif self.item.type == "Volunteer":
+            return HttpResponseRedirect("%s?%s" % (
+                reverse('edit_volunteer',
+                        urlconf='gbe.scheduling.urls',
+                        args=[self.conference.conference_slug,
+                              self.occurrence.pk]),
+                request.GET.urlencode()))
         self.manage_vol_url = reverse('manage_vol',
                                       urlconf='gbe.scheduling.urls',
-                                      args=[kwargs['conference'],
-                                            kwargs['occurrence_id']])
+                                      args=[self.conference.conference_slug,
+                                            self.occurrence.pk])
         self.success_url = reverse('edit_event',
                                    urlconf='gbe.scheduling.urls',
                                    args=[self.conference.conference_slug,
@@ -111,27 +97,6 @@ class EditEventView(ManageVolWizardView):
             n = n + 1
         return formset
 
-    def update_event(self, scheduling_form, people_formset, working_class):
-        room = get_object_or_404(
-            Room,
-            name=scheduling_form.cleaned_data['location'])
-        start_time = get_start_time(scheduling_form.cleaned_data)
-        people = []
-        for assignment in people_formset:
-            if assignment.is_valid() and assignment.cleaned_data['worker']:
-                people += [Person(
-                    user=assignment.cleaned_data[
-                        'worker'].workeritem.as_subtype.user_object,
-                    public_id=assignment.cleaned_data['worker'].workeritem.pk,
-                    role=assignment.cleaned_data['role'])]
-        response = update_occurrence(
-                self.occurrence.pk,
-                start_time,
-                scheduling_form.cleaned_data['max_volunteer'],
-                people=people,
-                locations=[room])
-        return response
-
     def is_formset_valid(self, formset):
         validity = False
         for form in formset:
@@ -141,29 +106,13 @@ class EditEventView(ManageVolWizardView):
     def make_context(self, request, errorcontext=None):
         context = super(EditEventView,
                         self).make_context(request, errorcontext)
+        context, initial_form_info = setup_event_management_form(
+            self.item.e_conference,
+            self.item,
+            self.occurrence,
+            context)
         context['edit_title'] = self.title
-        duration = float(self.item.duration.total_minutes())/60
-        initial_form_info = {
-                'duration': duration,
-                'max_volunteer': self.occurrence.max_volunteer,
-                'day': get_conference_day(
-                    conference=self.conference,
-                    date=self.occurrence.starttime.date()),
-                'time': self.occurrence.starttime.strftime("%H:%M:%S"),
-                'location': self.occurrence.location,
-                'occurrence_id': self.occurrence.pk, }
-        context['event_id'] = self.occurrence.pk
-        context['eventitem_id'] = self.item.eventitem_id
-
-        # if there was an error in the edit form
-        if 'event_form' not in context:
-            context['event_form'] = EventBookingForm(
-                    instance=self.item)
-        if 'scheduling_form' not in context:
-            context['scheduling_form'] = ScheduleOccurrenceForm(
-                conference=self.conference,
-                open_to_public=True,
-                initial=initial_form_info)
+        context['scheduling_info'] = get_scheduling_info(self.item)
 
         if 'worker_formset' not in context:
             context['worker_formset'] = self.make_formset(
@@ -205,41 +154,19 @@ class EditEventView(ManageVolWizardView):
         error_url = self.groundwork(request, args, kwargs)
         if error_url:
             return error_url
-        context = {}
-        response = None
-        context['event_form'] = EventBookingForm(request.POST,
-                                                 instance=self.item)
-        context['scheduling_form'] = ScheduleOccurrenceForm(
-            request.POST,
-            conference=self.conference,
-            open_to_public=True,)
-        context['worker_formset'] = self.make_formset(
+        worker_formset = self.make_formset(
             event_settings[self.item.type.lower()]['roles'],
             post=request.POST)
-
-        if context['event_form'].is_valid(
-                ) and context['scheduling_form'].is_valid(
-                ) and self.is_formset_valid(context['worker_formset']):
-            new_event = context['event_form'].save(commit=False)
-            new_event.duration = Duration(
-                minutes=context['scheduling_form'].cleaned_data[
-                    'duration']*60)
-            new_event.save()
-            response = self.update_event(context['scheduling_form'],
-                                         context['worker_formset'],
-                                         new_event)
-            if request.POST.get('edit_event', 0) != "Save and Continue":
-                self.success_url = "%s?%s-day=%d&filter=Filter&new=%s" % (
-                    reverse('manage_event_list',
-                            urlconf='gbe.scheduling.urls',
-                            args=[self.conference.conference_slug]),
-                    self.conference.conference_slug,
-                    context['scheduling_form'].cleaned_data['day'].pk,
-                    str([self.occurrence.pk]),)
-            else:
-                self.success_url = "%s?volunteer_open=True" % self.success_url
-        else:
-            context['start_open'] = True
+        context, self.success_url, response = process_post_response(
+            request,
+            self.conference.conference_slug,
+            self.item,
+            self.success_url,
+            "volunteer_open",
+            self.occurrence.pk,
+            self.is_formset_valid(worker_formset),
+            worker_formset)
+        context['worker_formset'] = worker_formset
         return self.make_post_response(request,
                                        response=response,
                                        errorcontext=context)

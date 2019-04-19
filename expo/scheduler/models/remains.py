@@ -518,10 +518,6 @@ class EventItem (models.Model):
         return people
 
     @property
-    def payload(self):
-        return self.child().sched_payload
-
-    @property
     def duration(self):
         child = self.child()
         return child.sched_duration
@@ -693,29 +689,6 @@ class Event(Schedulable):
         if status:
             acts = [act for act in acts if act.accepted == status]
         return acts
-
-    # DEPRECATE - when scheduling is refactored
-    def get_direct_workers(self, worker_role=None):
-        '''
-        Returns workers allocated directly to an Event -
-        Teachers, panelists, moderators, etc
-        Assumes these workers are tied to Performers, not Profiles.
-        This is true for Teachers, Moderators, Panelists.
-        '''
-        allocations = ResourceAllocation.objects.filter(event=self)
-        if worker_role:
-            filter_f = lambda w: w.role == worker_role
-        else:
-            filter_f = lambda w: True
-        workers = [wr.resource_ptr for wr in Worker.objects.all()
-                   if filter_f(wr)]
-
-        allocations = [allocation for allocation in allocations
-                       if allocation.resource in workers]
-
-        workers = [allocation.resource.item.performer
-                   for allocation in allocations]
-        return workers
 
     @property
     def event_type_name(self):

@@ -176,9 +176,6 @@ class TestEventList(TestCase):
         self.assertContains(
             response,
             '<i class="fa fa-pencil" aria-hidden="true">')
-        self.assertContains(
-            response,
-            '<i class="fa fa-plus" aria-hidden="true">')
 
     def test_good_user_get_success_pick_conf(self):
         old_conf_day = ConferenceDayFactory(

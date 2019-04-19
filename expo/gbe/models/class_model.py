@@ -95,23 +95,6 @@ class Class(Biddable, Event):
         return needs
 
     @property
-    def sched_payload(self):
-        payload = {}
-        details = {}
-        details = {'type': self.type}
-        if not self.fee == 0:
-            details['fee'] = self.fee
-
-        payload['details'] = details
-        payload['title'] = self.event_ptr.e_title
-        payload['description'] = self.event_ptr.e_description
-        if not self.duration:
-            self.duration = Duration(hours=1)
-            self.save(update_fields=('duration',))
-        payload['duration'] = self.duration.set_format("{1:0>2}:{2:0>2}")
-        return payload
-
-    @property
     def bids_to_review(self):
         return type(self).objects.filter(
             visible_bid_query,
