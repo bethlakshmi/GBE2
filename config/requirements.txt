@@ -6,7 +6,7 @@ cmsplugin-filer==1.1.3
 django-model-utils==2.6.1
 django-mptt==0.8.7
 django-nose==1.4.4
-django-polymorphic==1.1
+django-polymorphic==1.0.2
 django-polymorphic-tree==1.4
 django-filer==1.2.7
 django-reversion==1.10.0
@@ -34,11 +34,11 @@ pytest-django==2.9.1
 pytest-cov==2.3.0
 pytz==2015.4
 reportlab==2.4
-six==1.9.0
+six==1.10.0
 coverage
-django-compat
-django-hijack
-django-hijack-admin
+django-compat==1.0.13
+django-hijack==2.1.2
+django-hijack-admin==2.1.3
 ipython
 pep8
 django-debug-toolbar==1.3.2
@@ -52,3 +52,4 @@ tablib
 diff-match-patch
 django-recaptcha2==1.0.0
 aldryn-bootstrap3==1.2.2
+djangocms-attributes-field==0.2.0

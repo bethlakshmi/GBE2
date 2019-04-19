@@ -17,9 +17,9 @@ $bootstrap = <<BOOTSTRAP
   sudo echo "RUN=yes" > /etc/default/cachefilesd
   sudo apt-get install -y nfs-common portmap
   sudo apt-fast -y install git openssh-server libfreetype6-dev pkg-config
-  sudo echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
-  sudo echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
-  sudo apt-fast -y install mysql-server-5.5
+  sudo echo "mysql-server-5.7 mysql-server/root_password password root" | debconf-set-selections
+  sudo echo "mysql-server-5.7 mysql-server/root_password_again password root" | debconf-set-selections
+  sudo apt-fast -y install mysql-server-5.7
   sudo apt-fast -y install libmysqlclient-dev
   sudo apt-fast -y install mysql-client
   sudo useradd -m -g mysql mysql
@@ -107,7 +107,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
   
  # config.vm.box = "chef/fedora-20"
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
 #  config.vm.box_url = "https://vagrantcloud.com/ubuntu/boxes/trusty64"
 
   config.vm.hostname = 'blueprint'
