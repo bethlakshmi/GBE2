@@ -44,6 +44,7 @@ class ManageWorkerView(View):
             - self.manage_worker_url - the URL used to call this post function
             - self.success_url - the URL to redirect to in the event of success
             - 'make_context' to build the error context when an error occurrs
+            - self.template - what will be rendered
         OPTIONAL
             - window_controls = list of controls for panels in the page, if
             adding panels, include turning them on and off via the errorcontext
