@@ -67,6 +67,12 @@
     </div></div></div>
 <script>
 $(document).ready(function(){
+  $('.dropdown-submenu a.test').on("click", function(e){
+    $(this).next('ul').toggle();
+    $('.dropdown-submenu a.test').not($(this)).next('ul').css('display', 'none');;
+    e.stopPropagation();
+    e.preventDefault();
+  });
   $('#{{details.occurrence.pk}}_eval_modal').modal('show');
 });
 </script>
