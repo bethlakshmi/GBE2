@@ -20,8 +20,6 @@ from django.db.models import Count, Avg
 def get_eval_summary(labels, visible=True):
     summaries = {}
     response = get_occurrences(labels=labels)
-    if len(response.errors) > 0:
-        return EvalSummaryResponse(errors=response.errors)
 
     if visible:
         base = EventEvalQuestion.objects.filter(visible=visible)

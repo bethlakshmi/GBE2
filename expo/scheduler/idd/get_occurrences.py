@@ -18,7 +18,7 @@ def get_occurrences(parent_event_id=None,
                     foreign_event_ids=None,
                     max_volunteer=None):
     if len(labels) > 0 and len(label_sets) > 0:
-        return OccurrenceResponse(
+        return OccurrencesResponse(
             errors=[Error(
                 code="INVALID_REQUEST",
                 details="labels and label_sets are not compatible"), ])
