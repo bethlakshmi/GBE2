@@ -76,6 +76,7 @@ class EditShowView(EditEventView):
                     day = get_conference_day(
                         conference=rehearsal.e_conference,
                         date=date)
+                    duration = float(rehearsal.duration.total_minutes())/60
                     location = rehearsal_slot.location
                     if location:
                         room = location.room
@@ -92,6 +93,7 @@ class EditShowView(EditEventView):
                                      'max_volunteer': num_volunteers,
                                      'day': day,
                                      'time': time,
+                                     'duration': duration,
                                      'location': room,
                                      },
                             )

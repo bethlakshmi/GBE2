@@ -1,5 +1,6 @@
 from django.forms import (
     ChoiceField,
+    FloatField,
     ModelForm,
     IntegerField,
     ModelChoiceField,
@@ -32,7 +33,9 @@ class ScheduleBasicForm(ModelForm):
     location = ModelChoiceField(
         queryset=Room.objects.all().order_by('name'))
     max_volunteer = IntegerField(required=True)
-
+    duration = FloatField(min_value=0.5,
+                          max_value=12,
+                          required=True)
     class Meta:
         model = Event
         fields = ['e_title',
