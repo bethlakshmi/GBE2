@@ -50,7 +50,7 @@ class TestManageVolunteerWizard(TestCase):
             'new_opp-volunteer_type': self.avail_interest.pk,
             'new_opp-type': "Volunteer",
             'new_opp-max_volunteer': '1',
-            'new_opp-duration': '1:00:00',
+            'new_opp-duration': '1.0',
             'new_opp-day': self.context.window.day.pk,
             'new_opp-time': '10:00:00',
             'new_opp-location': self.room.pk}
@@ -62,7 +62,7 @@ class TestManageVolunteerWizard(TestCase):
             'volunteer_type': self.avail_interest.pk,
             'type': 'Volunteer',
             'max_volunteer': '1',
-            'duration': '1:00:00',
+            'duration': '1.0',
             'day': self.context.window.day.pk,
             'time': '10:00:00',
             'location': self.room.pk}

@@ -122,7 +122,6 @@ class EditEventView(ManageVolWizardView):
                           ('Volunteer Coordinator',), require=False):
             volunteer_initial_info = initial_form_info.copy()
             volunteer_initial_info.pop('occurrence_id')
-            volunteer_initial_info['duration'] = self.item.duration
             context.update(self.get_manage_opportunity_forms(
                 volunteer_initial_info,
                 self.manage_vol_url,
