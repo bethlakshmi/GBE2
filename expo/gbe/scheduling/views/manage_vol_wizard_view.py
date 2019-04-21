@@ -127,7 +127,6 @@ class ManageVolWizardView(View):
                     day = get_conference_day(
                         conference=vol_event.e_conference,
                         date=date)
-                    duration = float(vol_event.duration.total_minutes())/60
                     location = vol_occurence.location
                     if location:
                         room = location.room
@@ -142,7 +141,6 @@ class ManageVolWizardView(View):
                                      'max_volunteer': num_volunteers,
                                      'day': day,
                                      'time': time,
-                                     'duration': duration,
                                      'location': room,
                                      'type': "Volunteer"
                                      },

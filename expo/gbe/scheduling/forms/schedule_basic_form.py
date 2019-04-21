@@ -9,9 +9,7 @@ from gbe.models import (
     Event,
     Room
 )
-from gbe.expoformfields import (
-    DurationFormField,
-)
+from gbe.duration import Duration
 from gbe.functions import get_current_conference
 from datetime import time
 from expo.settings import TIME_FORMAT
@@ -50,8 +48,15 @@ class ScheduleBasicForm(ModelForm):
     def __init__(self, *args, **kwargs):
         if 'instance' in kwargs:
             conference = kwargs['instance'].e_conference
+            if 'initial' in kwargs and 'duration' not in kwargs['initial']:
+                kwargs['initial']['duration'] = float(
+                    kwargs['instance'].duration.total_minutes())/60
         else:
             conference = kwargs.pop('conference')
         super(ScheduleBasicForm, self).__init__(*args, **kwargs)
         self.fields['day'] = ModelChoiceField(
             queryset=conference.conferenceday_set.all())
+
+    def clean_duration(self):
+        data = Duration(minutes=self.cleaned_data['duration']*60)
+        return data
