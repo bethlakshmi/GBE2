@@ -23,7 +23,10 @@ from tests.functions.gbe_scheduling_functions import (
     assert_role_choice,
 )
 from expo.settings import DATE_FORMAT
-from tests.contexts import VolunteerContext
+from tests.contexts import (
+    ShowContext,
+    VolunteerContext,
+)
 from gbe.duration import Duration
 from datetime import timedelta
 
@@ -115,6 +118,22 @@ class TestEditEventView(TestCase):
         self.assertContains(
             response,
             'name="new_opp-duration" step="any" type="number" value="1.5" />')
+
+    def test_authorized_user_can_access_rehearsal(self):
+        self.context = ShowContext()
+        rehearsal, slot = self.context.make_rehearsal()
+        self.url = reverse(
+            self.view_name,
+            args=[self.context.conference.conference_slug,
+                  slot.pk],
+            urlconf='gbe.scheduling.urls')
+
+        login_as(self.privileged_user, self)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Finish")
+        self.assertContains(response, rehearsal.e_title)
+        self.assertNotContains(response, 'Staffing')
 
     def test_vol_opp_present(self):
         vol_context = VolunteerContext()

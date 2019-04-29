@@ -880,6 +880,14 @@ tr > th.rotate-review > div {
     rotate(270deg);
   width: 10px;
 }
+tr > th.rotate-review > div.act-header {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, 2px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 10px;
+}
 th.rotate > div > span {
 }
 th.rotate-review > div > span > a {

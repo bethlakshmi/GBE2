@@ -119,6 +119,14 @@ event_settings = {
         'max_volunteer': 0,
         'open_to_public': True,
     },
+    'rehearsal slot': {
+        'event_type': 'Rehearsal Slot',
+        'second_title': 'Make New Rehearsal Slot',
+        'volunteer_scheduling': False,
+        'roles': [],
+        'max_volunteer': 1,
+        'open_to_public': False,
+    },
 }
 role_map = {
     'Staff Lead': False,
