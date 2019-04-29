@@ -122,7 +122,7 @@ class EditShowView(EditEventView):
                         self).make_context(request, errorcontext=errorcontext)
         initial_rehearsal_info = {
                 'type':  "Rehearsal Slot",
-                'duration': 1,
+                'duration': 1.0,
                 'max_volunteer': 10,
                 'day': get_conference_day(
                     conference=self.conference,

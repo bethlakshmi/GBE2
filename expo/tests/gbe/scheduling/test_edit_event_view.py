@@ -117,7 +117,7 @@ class TestEditEventView(TestCase):
             'name="new_opp-max_volunteer" type="number" value="7" />')
         self.assertContains(
             response,
-            'name="new_opp-duration" type="text" value="01:30:00" />')
+            'name="new_opp-duration" step="any" type="number" value="1.5" />')
 
     def test_authorized_user_can_access_rehearsal(self):
         self.context = ShowContext()
@@ -169,7 +169,7 @@ class TestEditEventView(TestCase):
             'name="max_volunteer" type="number" value="2" />')
         self.assertContains(
             response,
-            'name="duration" type="text" value="01:00:00" />')
+            'name="duration" step="any" type="number" value="1.0" />')
 
     def test_bad_conference(self):
         login_as(self.privileged_user, self)
